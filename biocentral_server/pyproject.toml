@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "biocentral-server"
+version = "0.1.0"
+description = "Server for the biocentral application"
+authors = ["Sebastian Franz <sebastian.franz@tum.de>"]
+license = "GPLv3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.9"
+
+# Backend
+Flask = "^3.0.2"
+umap-learn="^0.5.5"
+levenshtein = "^0.25.1"
+
+# Frontend
+pystray="^0.19.5"
+pygobject = "^3.48.2"
+ttkthemes = "^3.2.2"
+
+# Git-Dependencies
+biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", branch = "main"}
+hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "main"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.1"
+pyinstaller = "^6.9.0"
+pip-audit = "^2.7.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
