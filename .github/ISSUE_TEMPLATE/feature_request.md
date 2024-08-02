@@ -19,7 +19,7 @@ Remember to use a meaningful title for your issue, at best a summary of your use
 As a [type of user], I want [goal] so that I [receive benefit].
 
 **Additional context**
-Add any other context or screenshots about the feature request here, if beneficial.
+<!--- Add any other context or screenshots about the feature request here, if beneficial -->
 
 **Acceptance criteria**
 <!--- When can your feature request be considered to be done? If not sure, leave blank -->
