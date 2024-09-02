@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import argparse
 
@@ -26,6 +27,7 @@ def _setup_logging():
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.INFO)
     stream_handler.setFormatter(formatter)
+    stream_handler.setStream(sys.stdout)
 
     # Get the root logger and add handlers
     logger = logging.getLogger()
