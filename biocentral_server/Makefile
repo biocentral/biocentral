@@ -6,7 +6,7 @@ PYINSTALLER = poetry run pyinstaller
 SRC_DIR = .
 DIST_DIR = dist/biocentral_server
 SPEC_FILE = biocentral_server.spec
-MAIN_SCRIPT = biocentral_server.py
+MAIN_SCRIPT = run-biocentral_server.py
 ASSET_DIR = assets
 LICENSE_FILE = LICENSE
 PYPROJECT_FILE = pyproject.toml
@@ -14,15 +14,16 @@ PYPROJECT_FILE = pyproject.toml
 # Determine OS and architecture
 ifeq ($(OS),Windows_NT)
     DETECTED_OS := windows
-    ARCH := 10 # TODO Use ver command
+    ARCH := $(shell powershell -Command "$$osInfo = Get-CimInstance Win32_OperatingSystem; $$osInfo.Version.Split('.')[0]")
+    # Read version from pyproject.toml
+    VERSION := $(shell powershell -Command "$$version = Select-String -Path $(PYPROJECT_FILE) -Pattern '^version = ' | ForEach-Object { $$_.Line -replace '^version = \"(.*)\"$$', '$$1' }; $$version -replace '\.','-'")
+	PYTHON_BIN := $(shell where python)
 else
     DETECTED_OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
     ARCH := $(shell uname -m | tr '[:upper:]' '[:lower:]')
+    VERSION := $(shell grep '^version = ' $(PYPROJECT_FILE) | sed 's/^version = "\(.*\)"$$/\1/' | tr . -)
+	PYTHON_BIN := $(shell which python3)
 endif
-
-
-# Read version from pyproject.toml
-VERSION := $(shell grep '^version = ' $(PYPROJECT_FILE) | sed 's/^version = "\(.*\)"$$/\1/' | tr . -)
 
 # Set ZIP_NAME based on OS, architecture, and version
 ZIP_NAME := biocentral_server_$(VERSION)_$(DETECTED_OS)_$(ARCH).zip
@@ -36,7 +37,11 @@ clean:
 
 # Build the executable
 build:
-	$(PYINSTALLER) --add-binary '/usr/bin/python3.11:.' $(MAIN_SCRIPT)
+ifeq ($(DETECTED_OS),windows)
+	$(PYINSTALLER) --add-binary "$(PYTHON_BIN);." $(MAIN_SCRIPT)
+else
+	$(PYINSTALLER) --add-binary "$(PYTHON_BIN):." $(MAIN_SCRIPT)
+endif
 
 # Copy assets and create zip
 bundle:
@@ -58,5 +63,6 @@ print-info:
 	@echo "Architecture: $(ARCH)"
 	@echo "Version: $(VERSION)"
 	@echo "ZIP Name: $(ZIP_NAME)"
+	@echo "Python Binary: $(PYTHON_BIN)"
 
 .PHONY: all clean build bundle spec run print-info
