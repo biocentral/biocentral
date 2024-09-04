@@ -1,6 +1,7 @@
 import os
 import re
 import torch
+import psutil
 import logging
 import tkinter as tk
 
@@ -83,13 +84,22 @@ class ControlPanel:
         self.n_process_label = ttk.Label(self.stats_tab, text=f"Current number of running tasks: 0")
         self.n_process_label.pack(pady=10)
 
+    @staticmethod
+    def _get_usable_cpu_count():
+        try:
+            # Try to use psutil, which works on Windows, Linux, and macOS
+            return len(psutil.Process().cpu_affinity())
+        except AttributeError:
+            # If cpu_affinity is not available (e.g., on macOS), fall back to logical CPU count
+            return psutil.cpu_count(logical=True)
+
     def setup_device_tab(self):
         self.device_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.device_tab, text='Devices')
 
         # CPU always available in PyTorch context
         StatusIndicator(self.device_tab, f"CPU (Total: {os.cpu_count()}, "
-                                         f"Useable for server: {len(os.sched_getaffinity(0))})", True)
+                                         f"Useable for server: {self._get_usable_cpu_count()})", True)
 
         # Check CUDA availability
         cuda_available = torch.cuda.is_available()
