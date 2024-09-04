@@ -16,11 +16,11 @@ levenshtein = "^0.25.1"
 
 # Frontend
 pystray="^0.19.5"
-pygobject = "^3.48.2"
+#pygobject = "^3.48.2"
 ttkthemes = "^3.2.2"
 
 # Git-Dependencies
-biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", branch = "main"}
+biotrainer = { git = "https://github.com/biocentral/biotrainer.git", branch = "maintenance/troubleshooting"}
 hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "main"}
 
 [tool.poetry.group.dev.dependencies]

@@ -36,23 +36,35 @@ The following table gives an overview about the current test and packaging statu
 Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/docs/#installation) installed.
 
 ```shell
-# (Ubuntu 24.04) Install additional dependencies 
+# [Ubuntu 24.04] 
+# Install additional dependencies 
 sudo apt-get install python3-tk
 sudo apt-get install libcairo2-dev libxt-dev libgirepository1.0-dev
+# Uncomment pygobject = "^3.48.2" in pyproject.toml
+poetry update
 
-# Install python dependencies
+# [Windows 10/11]
 poetry install
+# Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Run with visual control panel
-poetry run biocentral_server.py
+poetry run run-biocentral_server.py
 
 # Run headless
-poetry run biocentral_server.py --headless
+poetry run run-biocentral_server.py --headless
 ```
 
 ## Building
 
-Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`. Simply call:
+Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`. 
+
+On Windows, you can use `winget` to install `make`:
+```shell
+winget install ezwinports.make
+```
+
+Then call:
 ```shell
 make build
 ```
