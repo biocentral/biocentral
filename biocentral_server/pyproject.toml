@@ -7,7 +7,7 @@ license = "GPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.11.9"
+python = ">=3.11.9, <3.12"
 
 # Backend
 Flask = "^3.0.2"
@@ -16,7 +16,7 @@ levenshtein = "^0.25.1"
 
 # Frontend
 pystray="^0.19.5"
-#pygobject = "^3.48.2"
+# pygobject = "^3.48.2" # Uncomment on Linux
 ttkthemes = "^3.2.2"
 
 # Git-Dependencies
