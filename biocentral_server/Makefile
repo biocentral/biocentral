@@ -18,11 +18,17 @@ ifeq ($(OS),Windows_NT)
     # Read version from pyproject.toml
     VERSION := $(shell powershell -Command "$$version = Select-String -Path $(PYPROJECT_FILE) -Pattern '^version = ' | ForEach-Object { $$_.Line -replace '^version = \"(.*)\"$$', '$$1' }; $$version -replace '\.','-'")
 	PYTHON_BIN := $(shell where python)
+	CP := powershell -Command "Copy-Item"
+    RM := powershell -Command "Remove-Item"
+    ZIP := powershell -Command "Compress-Archive"
 else
     DETECTED_OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
     ARCH := $(shell uname -m | tr '[:upper:]' '[:lower:]')
     VERSION := $(shell grep '^version = ' $(PYPROJECT_FILE) | sed 's/^version = "\(.*\)"$$/\1/' | tr . -)
 	PYTHON_BIN := $(shell which python3)
+	CP := cp
+    RM := rm
+    ZIP := zip -r
 endif
 
 # Set ZIP_NAME based on OS, architecture, and version
@@ -33,7 +39,7 @@ all: clean build bundle
 
 # Clean build artifacts
 clean:
-	rm -rf build dist
+	$(RM) -r -Force build dist
 
 # Build the executable
 build:
@@ -41,9 +47,13 @@ build:
 
 # Copy assets and create zip
 bundle:
-	cp -r $(ASSET_DIR) $(DIST_DIR)
-	cp $(LICENSE_FILE) $(DIST_DIR)
-	cd $(DIST_DIR) && zip -r ../$(ZIP_NAME) .
+	$(CP) -r $(ASSET_DIR) $(DIST_DIR)
+	$(CP) $(LICENSE_FILE) $(DIST_DIR)
+ifeq ($(OS),Windows_NT)
+	cd $(DIST_DIR) && $(ZIP) -Path * -DestinationPath ../$(ZIP_NAME)
+else
+	cd $(DIST_DIR) && $(ZIP) ../$(ZIP_NAME) .
+endif
 
 # Run the application (for testing)
 run:
