@@ -3,5 +3,4 @@
 /dist/
 /build/
 /server_config.txt
-/biocentral_server.spec
 /poetry.lock

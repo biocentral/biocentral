@@ -37,21 +37,13 @@ clean:
 
 # Build the executable
 build:
-ifeq ($(DETECTED_OS),windows)
-	$(PYINSTALLER) --add-binary "$(PYTHON_BIN);." $(MAIN_SCRIPT)
-else
-	$(PYINSTALLER) --add-binary "$(PYTHON_BIN):." $(MAIN_SCRIPT)
-endif
+	$(PYINSTALLER) $(SPEC_FILE)
 
 # Copy assets and create zip
 bundle:
 	cp -r $(ASSET_DIR) $(DIST_DIR)
 	cp $(LICENSE_FILE) $(DIST_DIR)
 	cd $(DIST_DIR) && zip -r ../$(ZIP_NAME) .
-
-# Create spec file (run once)
-spec:
-	$(PYINSTALLER) --name biocentral_server $(MAIN_SCRIPT)
 
 # Run the application (for testing)
 run:

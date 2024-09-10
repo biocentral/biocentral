@@ -64,7 +64,12 @@ On Windows, you can use `winget` to install `make`:
 winget install ezwinports.make
 ```
 
-Then call:
+Check that all build variables are correct:
+```shell
+make print-info
+```
+
+Then call build:
 ```shell
 make build
 ```
