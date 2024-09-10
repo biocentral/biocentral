@@ -13,10 +13,11 @@ python = ">=3.11.9, <3.12"
 Flask = "^3.0.2"
 umap-learn="^0.5.5"
 levenshtein = "^0.25.1"
+taxoniq = "^1.0.1"
 
 # Frontend
 pystray="^0.19.5"
-# pygobject = "^3.48.2" # Uncomment on Linux
+pygobject = {version="^3.48.2", optional=true} # Only for Linux
 ttkthemes = "^3.2.2"
 
 # Git-Dependencies
@@ -28,6 +29,8 @@ pytest = "8.3.1"
 pyinstaller = "^6.9.0"
 pip-audit = "^2.7.3"
 
+[tool.poetry.extras]
+linux = ["pygobject"]
 
 [build-system]
 requires = ["poetry-core"]

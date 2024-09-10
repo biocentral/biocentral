@@ -40,8 +40,7 @@ Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/doc
 # Install additional dependencies 
 sudo apt-get install python3-tk
 sudo apt-get install libcairo2-dev libxt-dev libgirepository1.0-dev
-# Uncomment pygobject = "^3.48.2" in pyproject.toml
-poetry update
+poetry install --extras linux
 
 # [Windows 10/11]
 poetry install
