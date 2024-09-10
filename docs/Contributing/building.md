@@ -51,3 +51,10 @@ cp assets/biocentral_logo/biocentral_logo.png releases/current/biocentral.AppDir
 # Building for biocentral.cloud, omit --base-href if building for local deployment
 flutter build web --web-renderer html --base-href /app/
 ```
+
+## Windows
+
+```shell
+# Create release build (.exe)
+flutter build windows --release
+```
