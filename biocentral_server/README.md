@@ -12,22 +12,25 @@ These are the currently provided modules:
 | embeddings        |             Embed protein sequences             | [biotrainer]  | 
 | ppi               |     Work with protein-protein interactions      | [hvi_toolkit] | 
 | prediction_models | Train and evaluate models trained on embeddings | [biotrainer]  |
-| proteins          |             Work with protein data              | [hvi_toolkit] |
+| proteins          |             Work with protein data              |   [taxoniq]   |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
+
 [hvi_toolkit]: https://github.com/SebieF/hvi_toolkit
+
+[taxoniq]: https://github.com/taxoniq/taxoniq
 
 ## Supported platforms
 
-`Biocentral` and `biocentral_server` are designed to provide all common desktop operating systems 
-(Windows, Linux, macOS). 
+`Biocentral` and `biocentral_server` are designed to provide all common desktop operating systems
+(Windows, Linux, macOS).
 The following table gives an overview about the current test and packaging status:
 
 | OS           | Tested  | Packaging |
 |--------------|:-------:|:---------:|
 | Ubuntu 24.04 |    ✅    |   .zip    |
 | Ubuntu 22.04 |    ✅    |   .zip    |
-| Windows 10   | planned |    tbd    |
+| Windows 10   |    ✅    |   .zip    |
 | Windows 11   | planned |    tbd    |
 | macOS        | planned |    tbd    |
 
@@ -56,26 +59,45 @@ poetry run run-biocentral_server.py --headless
 
 ## Building
 
-Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`. 
+Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`.
 
 On Windows, you can use `winget` to install `make`:
+
 ```shell
 winget install ezwinports.make
 ```
 
 Check that all build variables are correct:
+
 ```shell
 make print-info
 ```
 
 Then call build:
+
 ```shell
 make build
 ```
 
 To create a `zip` file with all required files for distribution:
+
 ```shell
 make bundle
 ```
 
 *Note that this file only works on the operating system version you ran `make build` on!*
+
+
+# Citation
+
+Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using 
+biocentral_server in your scientific publication:
+
+```text
+@Online{biocentral,
+  accessed = {2024-09-10},
+  author   = {Biocentral contributors},
+  title    = {Biocentral - An open source bioinformatics application},
+  url      = {https://github.com/biocentral/biocentral},
+}
+```
