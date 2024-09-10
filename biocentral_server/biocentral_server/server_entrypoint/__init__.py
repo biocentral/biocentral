@@ -4,7 +4,7 @@ from ..utils import Constants
 from ..ppi import ppi_service_route
 from ..server_management import UserManager
 from ..proteins import protein_service_route
-from ..data_analysis import data_analysis_route
+from ..protein_analysis import protein_analysis_route
 from ..embeddings import embeddings_service_route
 from ..biocentral import biocentral_service_route
 from ..prediction_models import prediction_models_service_route
@@ -19,7 +19,7 @@ def create_server_app():
     app.register_blueprint(protein_service_route)
     app.register_blueprint(prediction_models_service_route)
     app.register_blueprint(embeddings_service_route)
-    app.register_blueprint(data_analysis_route)
+    app.register_blueprint(protein_analysis_route)
 
     @app.after_request
     def apply_caching(response):

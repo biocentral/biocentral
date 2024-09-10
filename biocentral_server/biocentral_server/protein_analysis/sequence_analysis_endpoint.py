@@ -6,17 +6,17 @@ from biocentral_server.server_management import UserManager, FileManager, Storag
 
 from .analysis_functions import calculate_levenshtein_distances
 
-data_analysis_route = Blueprint("data_analysis", __name__)
+protein_analysis_route = Blueprint("protein_analysis", __name__)
 
 
 # Endpoint for umap calculation of embeddings
-@data_analysis_route.route('/data_analysis/mmseqs_sequence_similarity', methods=['POST'])
+@protein_analysis_route.route('/protein_analysis/mmseqs_sequence_similarity', methods=['POST'])
 def mmseqs_sequence_similarity():
 
     return jsonify({"umap": ""})
 
 
-@data_analysis_route.route('/data_analysis/levenshtein_distance', methods=['POST'])
+@protein_analysis_route.route('/protein_analysis/levenshtein_distance', methods=['POST'])
 def levenshtein_distance():
     sequence_data = request.get_json()
 

@@ -8,7 +8,7 @@ These are the currently provided modules:
 
 | Module            |                    Features                     | Dependencies  | 
 |-------------------|:-----------------------------------------------:|:-------------:|
-| data_analysis     |                       wip                       |               | 
+| protein_analysis  |                       wip                       |               | 
 | embeddings        |             Embed protein sequences             | [biotrainer]  | 
 | ppi               |     Work with protein-protein interactions      | [hvi_toolkit] | 
 | prediction_models | Train and evaluate models trained on embeddings | [biotrainer]  |
