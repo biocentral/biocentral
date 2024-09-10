@@ -2,7 +2,8 @@ import json
 import logging
 
 from flask import request, jsonify, Blueprint
-from hvi_toolkit.taxonomy import Taxonomy
+
+from .taxonomy import Taxonomy
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,14 @@ def taxonomy():
             name = taxonomy_object.get_name_from_id(int(taxonomy_id))
             family = taxonomy_object.get_family_from_id(int(taxonomy_id))
         except Exception:
+            import ncbi_refseq_accession_db
+            import ncbi_refseq_accession_lengths
+            import ncbi_refseq_accession_offsets
+            from taxoniq import Taxon
+            print(ncbi_refseq_accession_db.db)
+            print(ncbi_refseq_accession_lengths.db)
+            print(ncbi_refseq_accession_offsets.db)
+            print(Taxon)
             logger.warning(f"Unknown taxonomy id: {taxonomy_id}")
         taxonomy_map[taxonomy_id] = {"name": name, "family": family}
 

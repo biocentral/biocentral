@@ -41,7 +41,7 @@ def _setup_logging():
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Biocentral server with control panel server_frontend')
+        description='Biocentral server with control panel server frontend')
 
     parser.add_argument("--headless", default=False,
                         action="store_true", help="Activate headless mode without gui")
