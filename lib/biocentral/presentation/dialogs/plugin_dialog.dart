@@ -85,7 +85,7 @@ class _PluginDialogState extends State<PluginDialog> {
     return Column(
       children: [
         ...state.pluginManager.allAvailablePlugins.map((plugin) => CheckboxListTile(
-            title: Text(plugin.runtimeType.toString()),
+            title: Text(plugin.typeName),
             subtitle:
                 Text("${plugin.getShortDescription()}\nDependencies: ${_formatDependencies(plugin.getDependencies())}"),
             isThreeLine: true,

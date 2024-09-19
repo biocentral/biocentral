@@ -13,8 +13,9 @@ class BiocentralDatabaseRepository {
     _availableDatabases.addAll(databaseMap);
   }
 
-  Set<Type> getAvailableTypes() {
-    return _availableDatabases.keys.toSet();
+  Map<String, Type> getAvailableTypes() {
+    return Map.fromEntries(
+        _availableDatabases.entries.map((entry) => MapEntry(entry.value.getEntityTypeName(), entry.key)));
   }
 
   BiocentralDatabase? getFromType(Type? type) {

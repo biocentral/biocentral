@@ -16,6 +16,9 @@ class ProteinPlugin extends BiocentralPlugin
   ProteinPlugin(super.eventBus);
 
   @override
+  String get typeName => "ProteinPlugin";
+
+  @override
   String getShortDescription() {
     return "Work with protein data";
   }
