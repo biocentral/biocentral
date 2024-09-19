@@ -41,7 +41,9 @@ class _BiocentralButtonState extends State<BiocentralButton> {
       Widget button = buildButton(missingServices.isNotEmpty ? null : widget.onTap);
       return missingServices.isNotEmpty
           ? BiocentralTooltip(
-              message: "This functionality requires the service(s) $missingServices from a server.", child: button)
+              message: "This functionality requires the service(s) $missingServices from a server",
+              color: Colors.red,
+              child: button)
           : button;
     });
   }

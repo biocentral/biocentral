@@ -65,11 +65,14 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> {
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
       commands: [
-        BiocentralButton(
-            label: "Connect to server..", iconData: Icons.cast_connected, onTap: openServerConnectionDialog),
-        BiocentralButton(label: "Show wiki..", iconData: Icons.lightbulb, onTap: openWikiDialog),
-        BiocentralButton(label: "Show plugins..", iconData: Icons.plumbing, onTap: openPluginDialog),
-        BiocentralButton(label: "Show info..", iconData: Icons.info_outline, onTap: openInfoDialog)
+        BiocentralTooltip(
+          message: "Connect to a server app for high-performance calculations",
+          child: BiocentralButton(
+              label: "Connect to server..", iconData: Icons.cast_connected, onTap: openServerConnectionDialog),
+        ),
+        BiocentralTooltip(message: "Read documentation and do tutorials", child: BiocentralButton(label: "Show wiki..", iconData: Icons.lightbulb, onTap: openWikiDialog)),
+        BiocentralTooltip(message: "Select the plugins you want to work with", child: BiocentralButton(label: "Show plugins..", iconData: Icons.plumbing, onTap: openPluginDialog)),
+        BiocentralTooltip(message: "Show app information", child: BiocentralButton(label: "Show info..", iconData: Icons.info_outline, onTap: openInfoDialog))
       ],
     );
   }
