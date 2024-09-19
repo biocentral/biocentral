@@ -36,9 +36,10 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
           }
         }
         if (embeddings.isNotEmpty) {
+          closeDialog();
+
           widget.calculateUMAPCallback(
               state.selectedEmbedderName!, embeddings, state.selectedImportMode ?? DatabaseImportMode.defaultMode);
-          closeDialog();
         }
       }
     }
