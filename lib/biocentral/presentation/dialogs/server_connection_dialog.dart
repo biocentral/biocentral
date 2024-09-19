@@ -127,14 +127,16 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
                   label: "Launch now!",
                   onTap: () => biocentralClientBloc.add(BiocentralClientLaunchExistingLocalServerEvent()),
                 ),
-          TabBar(
-            isScrollable: true,
-            tabs: state.serverDownloadURLs.keys
-                .map((os) => Tab(
-                      text: os.capitalize(),
-                      icon: getIconForOS(os),
-                    ))
-                .toList(),
+          Expanded(
+            child: TabBar(
+              isScrollable: true,
+              tabs: state.serverDownloadURLs.keys
+                  .map((os) => Tab(
+                        text: os.capitalize(),
+                        icon: getIconForOS(os),
+                      ))
+                  .toList(),
+            ),
           ),
           Expanded(
             child: TabBarView(
@@ -144,7 +146,7 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
                   children: [
                     Center(
                       child: BiocentralSmallButton(
-                        label: "Download biocentral server for ${entry.key.capitalize()}",
+                        label: "Download biocentral server for ${entry.key.capitalize()} (Download Size: ~5GB)",
                         onTap: state.isOperating()
                             ? null
                             : () => biocentralClientBloc
