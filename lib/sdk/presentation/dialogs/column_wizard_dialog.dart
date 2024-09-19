@@ -31,8 +31,8 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
 
   void onCalculate(ColumnWizardDialogState state, ColumnWizardOperation operation) {
     if (state.columnWizard != null) {
-      widget.onCalculateColumn(state.columnWizard!, operation);
       closeDialog();
+      widget.onCalculateColumn(state.columnWizard!, operation);
     }
   }
 

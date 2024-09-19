@@ -24,11 +24,11 @@ class _CalculateEmbeddingsDialogState extends State<CalculateEmbeddingsDialog> {
 
   void doEmbedding(CalculateEmbeddingsDialogState state) async {
     if (state.selectedEmbedder != null && state.selectedEmbeddingType != null) {
+      closeDialog();
+
       // TODO CUSTOM EMBEDDER
       widget.calculateEmbeddingsCallback(state.selectedEmbedder!, state.selectedEmbeddingType!,
           state.selectedImportMode ?? DatabaseImportMode.defaultMode);
-
-      closeDialog();
     }
   }
 

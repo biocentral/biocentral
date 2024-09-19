@@ -113,6 +113,7 @@ copyrights of someone else. For that purpose you have to do some steps to meet o
   1. Operational functions (like open dialog, initState)
   2. Build method (the standard flutter widget build method)
   3. Separated widget functions (any function that returns a widget as result)
+* Close dialogs before adding events to the bloc or eventBus or executing callbacks
 
 ### Documentation Styleguide
 

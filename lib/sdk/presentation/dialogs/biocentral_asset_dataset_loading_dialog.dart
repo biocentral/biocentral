@@ -38,9 +38,9 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
 
       String fileContent = getFileContentFromAssetDataset(dataset);
 
-      widget.loadDatasetCallback(FileData(content: fileContent, name: "", extension: ""), _selectedImportMode);
-
       closeDialog();
+
+      widget.loadDatasetCallback(FileData(content: fileContent, name: "", extension: ""), DatabaseImportMode.overwrite);
     }
   }
 
