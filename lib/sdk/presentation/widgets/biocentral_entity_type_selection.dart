@@ -35,11 +35,12 @@ class _BiocentralEntityTypeSelectionState extends State<BiocentralEntityTypeSele
       logger.e(errorMessage);
       return Text(errorMessage);
     }
-    Set<Type> entityTypes = biocentralDatabaseRepository!.getAvailableTypes();
-    return BiocentralDiscreteSelection<Type?>(
+    Map<String, Type> entityTypes = biocentralDatabaseRepository!.getAvailableTypes();
+    String? initialValue = entityTypes.entries.where((entry) => entry.value == widget.initialValue).firstOrNull?.key;
+    return BiocentralDiscreteSelection<String?>(
         title: "Type: ",
-        selectableValues: entityTypes.toList(),
-        initialValue: widget.initialValue,
-        onChangedCallback: widget.onChangedCallback);
+        selectableValues: entityTypes.keys.toList(),
+        initialValue: initialValue,
+        onChangedCallback: (String? value) => widget.onChangedCallback(entityTypes[value]));
   }
 }

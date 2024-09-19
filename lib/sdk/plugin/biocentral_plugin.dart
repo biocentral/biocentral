@@ -1,3 +1,4 @@
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,8 @@ import '../domain/biocentral_project_repository.dart';
 import '../model/column_wizard_abstract.dart';
 import '../util/size_config.dart';
 
-abstract class BiocentralPlugin {
+
+abstract class BiocentralPlugin with TypeNameMixin {
   final EventBus eventBus;
 
   BiocentralPlugin(this.eventBus);

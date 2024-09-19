@@ -28,6 +28,9 @@ class PpiPlugin extends BiocentralPlugin
   PpiPlugin(super.eventBus);
 
   @override
+  String get typeName => "PpiPlugin";
+
+  @override
   String getShortDescription() {
     return "Work with protein-protein interactions";
   }

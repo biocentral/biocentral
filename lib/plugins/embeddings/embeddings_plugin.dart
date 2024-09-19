@@ -18,6 +18,9 @@ class EmbeddingsPlugin extends BiocentralPlugin
   EmbeddingsPlugin(super.eventBus);
 
   @override
+  String get typeName => "EmbeddingsPlugin";
+
+  @override
   String getShortDescription() {
     return "Calculate, analyze and visualize embeddings for biological entities";
   }
