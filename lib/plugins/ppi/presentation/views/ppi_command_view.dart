@@ -140,30 +140,45 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
                     label: "Save interactions to file..",
                     iconData: Icons.save,
                     onTap: () => saveInteractions(interactionsCommandBloc)),
-                BiocentralButton(
-                  label: "Open column wizard..",
-                  iconData: Icons.view_column_outlined,
-                  onTap: () => openColumnWizardDialog(interactionsCommandBloc),
+                BiocentralTooltip(
+                  message: "Analyze and modify the columns in your dataset",
+                  child: BiocentralButton(
+                    label: "Open column wizard..",
+                    iconData: Icons.view_column_outlined,
+                    onTap: () => openColumnWizardDialog(interactionsCommandBloc),
+                  ),
                 ),
-                BiocentralButton(
-                    label: "Remove duplicates..",
-                    iconData: Icons.remove_circle,
-                    onTap: () => removeDuplicates(interactionsCommandBloc)),
-                BiocentralButton(
-                    label: "Import interactions from database..",
-                    iconData: Icons.downloading,
-                    requiredServices: const ["ppi_service"],
-                    onTap: () => openInteractionsImportDialog(interactionsCommandBloc)),
-                BiocentralButton(
-                    label: "Run test on interaction database..",
-                    iconData: Icons.check_box_outlined,
-                    requiredServices: const ["ppi_service"],
-                    onTap: () => openRunInteractionDatabaseTestDialog(interactionsCommandBloc)),
-                BiocentralButton(
-                    key: loadExamplePPIDatasetButtonKey,
-                    label: "Load example interaction dataset..",
-                    iconData: Icons.bubble_chart_sharp,
-                    onTap: () => openLoadExampleInteractionDatasetDialog(interactionsCommandBloc)),
+                BiocentralTooltip(
+                  message: "Remove redundant interactions from the database",
+                  child: BiocentralButton(
+                      label: "Remove duplicates..",
+                      iconData: Icons.remove_circle,
+                      onTap: () => removeDuplicates(interactionsCommandBloc)),
+                ),
+                BiocentralTooltip(
+                  message: "Import a ppi dataset from various database formats",
+                  child: BiocentralButton(
+                      label: "Import interactions from database..",
+                      iconData: Icons.downloading,
+                      requiredServices: const ["ppi_service"],
+                      onTap: () => openInteractionsImportDialog(interactionsCommandBloc)),
+                ),
+                BiocentralTooltip(
+                  message: "Perform bias and descriptive analysis on your interactions",
+                  child: BiocentralButton(
+                      label: "Run test on interaction database..",
+                      iconData: Icons.check_box_outlined,
+                      requiredServices: const ["ppi_service"],
+                      onTap: () => openRunInteractionDatabaseTestDialog(interactionsCommandBloc)),
+                ),
+                BiocentralTooltip(
+                  message: "Load a predefined dataset to learn and explore",
+                  child: BiocentralButton(
+                      key: loadExamplePPIDatasetButtonKey,
+                      label: "Load example interaction dataset..",
+                      iconData: Icons.bubble_chart_sharp,
+                      onTap: () => openLoadExampleInteractionDatasetDialog(interactionsCommandBloc)),
+                ),
               ],
             ));
   }
