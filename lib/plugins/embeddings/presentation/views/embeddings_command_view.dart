@@ -58,16 +58,22 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
     final embeddingsCommandBloc = BlocProvider.of<EmbeddingsCommandBloc>(context);
     return BiocentralCommandBar(
       commands: [
-        BiocentralButton(
-            label: "Calculate embeddings..",
-            iconData: Icons.calculate,
-            requiredServices: const ["embeddings_service"],
-            onTap: () => openCalculateEmbeddingsDialog(embeddingsCommandBloc)),
-        BiocentralButton(
-            label: "Calculate UMAP..",
-            iconData: Icons.auto_graph,
-            requiredServices: const ["embeddings_service"],
-            onTap: () => openCalculateUMAPDialog(embeddingsCommandBloc)),
+        BiocentralTooltip(
+          message: "Get meaningful representations for your data",
+          child: BiocentralButton(
+              label: "Calculate embeddings..",
+              iconData: Icons.calculate,
+              requiredServices: const ["embeddings_service"],
+              onTap: () => openCalculateEmbeddingsDialog(embeddingsCommandBloc)),
+        ),
+        BiocentralTooltip(
+          message: "Perform UMAP dimensionality reduction on your embeddings",
+          child: BiocentralButton(
+              label: "Calculate UMAP..",
+              iconData: Icons.auto_graph,
+              requiredServices: const ["embeddings_service"],
+              onTap: () => openCalculateUMAPDialog(embeddingsCommandBloc)),
+        ),
       ],
     );
   }

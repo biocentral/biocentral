@@ -66,21 +66,30 @@ class _ModelCommandViewState extends State<ModelCommandView> {
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
       commands: [
-        BiocentralButton(
-            label: "Load a model from files..",
-            iconData: Icons.file_open,
-            requiredServices: const [],
-            onTap: openLoadModelDialog),
-        BiocentralButton(
-            label: "Train a model..",
-            iconData: Icons.model_training,
-            requiredServices: const ["prediction_models_service"],
-            onTap: openBiotrainerConfigDialog),
-        BiocentralButton(
-            label: "Generate sets..",
-            iconData: Icons.splitscreen_outlined,
-            requiredServices: const [],
-            onTap: openGenerateSetsDialog),
+        BiocentralTooltip(
+          message: "Load an existing model into biocentral from file",
+          child: BiocentralButton(
+              label: "Load a model from files..",
+              iconData: Icons.file_open,
+              requiredServices: const [],
+              onTap: openLoadModelDialog),
+        ),
+        BiocentralTooltip(
+          message: "Train a new model on your dataset",
+          child: BiocentralButton(
+              label: "Train a model..",
+              iconData: Icons.model_training,
+              requiredServices: const ["prediction_models_service"],
+              onTap: openBiotrainerConfigDialog),
+        ),
+        BiocentralTooltip(
+          message: "Generate new dataset splits for cross validation",
+          child: BiocentralButton(
+              label: "Generate sets..",
+              iconData: Icons.splitscreen_outlined,
+              requiredServices: const [],
+              onTap: openGenerateSetsDialog),
+        ),
       ],
     );
   }

@@ -114,21 +114,30 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
                     label: "Save proteins to file..",
                     iconData: Icons.save,
                     onTap: () => saveProteins(proteinCommandBloc)),
-                BiocentralButton(
-                  label: "Open column wizard..",
-                  iconData: Icons.view_column_outlined,
-                  onTap: () => openColumnWizardDialog(proteinCommandBloc),
+                BiocentralTooltip(
+                  message: "Analyze and modify the columns in your dataset",
+                  child: BiocentralButton(
+                    label: "Open column wizard..",
+                    iconData: Icons.view_column_outlined,
+                    onTap: () => openColumnWizardDialog(proteinCommandBloc),
+                  ),
                 ),
-                BiocentralButton(
-                  label: "Retrieve taxonomy information..",
-                  iconData: Icons.nature_people_rounded,
-                  requiredServices: const ["protein_service"],
-                  onTap: () => retrieveTaxonomy(proteinCommandBloc),
+                BiocentralTooltip(
+                  message: "Get missing taxonomy data from the server for your proteins",
+                  child: BiocentralButton(
+                    label: "Retrieve taxonomy information..",
+                    iconData: Icons.nature_people_rounded,
+                    requiredServices: const ["protein_service"],
+                    onTap: () => retrieveTaxonomy(proteinCommandBloc),
+                  ),
                 ),
-                BiocentralButton(
-                  label: "Load example protein dataset..",
-                  iconData: Icons.bubble_chart_sharp,
-                  onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
+                BiocentralTooltip(
+                  message: "Load a predefined dataset to learn and explore",
+                  child: BiocentralButton(
+                    label: "Load example protein dataset..",
+                    iconData: Icons.bubble_chart_sharp,
+                    onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
+                  ),
                 )
               ],
             ));
