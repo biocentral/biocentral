@@ -55,9 +55,9 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
   }
 
   void startTraining(BiotrainerConfigState state) {
+    closeDialog();
     widget.eventBus.fire(BiotrainerStartTrainingEvent(
         databaseType: state.selectedDatabaseType!, trainingConfiguration: state.currentConfiguration));
-    closeDialog();
   }
 
   void closeDialog() {

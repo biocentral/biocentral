@@ -23,8 +23,8 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
 
   void doTestRunning(PPIDatabaseTestsDialogState state) async {
     if (state.selectedTest != null && state.missingRequirement == null) {
-      widget.onRunInteractionDatabaseTest(state.selectedTest!);
       closeDialog();
+      widget.onRunInteractionDatabaseTest(state.selectedTest!);
     }
   }
 

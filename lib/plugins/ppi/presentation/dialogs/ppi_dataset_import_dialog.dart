@@ -37,9 +37,9 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
 
   Future<void> doImport(PPIImportDialogState state) async {
     if (state.selectedFile != null && state.selectedFormat != null) {
+      closeDialog();
       widget.onImportInteractions(
           state.selectedFile!, state.selectedFormat!, await getImportModeFromDialog(context: context));
-      closeDialog();
     }
   }
 
