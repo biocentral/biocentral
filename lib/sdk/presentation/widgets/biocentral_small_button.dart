@@ -22,7 +22,7 @@ class _BiocentralSmallButtonState extends State<BiocentralSmallButton> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: SizeConfig.safeBlockHorizontal(context) * 6,
-      width: SizeConfig.safeBlockHorizontal(context) * 10,
+      width: SizeConfig.safeBlockHorizontal(context) * 12,
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor, textStyle: Theme.of(context).textTheme.labelMedium),
