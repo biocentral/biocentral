@@ -24,6 +24,19 @@ class _PluginDialogState extends State<PluginDialog> {
     Navigator.of(context).pop();
   }
 
+  Set<BiocentralPlugin> getPluginsNecessaryForSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
+    Set<BiocentralPlugin> result = {};
+    Set<Type> pluginDependencies = selected.getDependencies();
+    for(Type dependencyType in pluginDependencies) {
+        for(BiocentralPlugin plugin in allPlugins) {
+          if(plugin.runtimeType == dependencyType) {
+            result.add(plugin);
+          }
+        }
+    }
+    return result;
+  }
+
   Set<BiocentralPlugin> getPluginsDependentOnSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
     Set<BiocentralPlugin> result = {};
     for (BiocentralPlugin plugin in allPlugins) {
@@ -96,11 +109,14 @@ class _PluginDialogState extends State<PluginDialog> {
               if (value != null) {
                 setState(() {
                   if (value) {
+                    Set<BiocentralPlugin> necessaryPlugins =
+                        getPluginsNecessaryForSelection(plugin, state.pluginManager.allAvailablePlugins);
+                    _selectedPlugins.addAll(necessaryPlugins);
                     _selectedPlugins.add(plugin);
                   } else {
-                    Set<BiocentralPlugin> dependent =
+                    Set<BiocentralPlugin> dependentPlugins =
                         getPluginsDependentOnSelection(plugin, state.pluginManager.allAvailablePlugins);
-                    _selectedPlugins.removeAll(dependent);
+                    _selectedPlugins.removeAll(dependentPlugins);
                     _selectedPlugins.remove(plugin);
                   }
                 });
