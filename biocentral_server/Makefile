@@ -19,7 +19,7 @@ ifeq ($(OS),Windows_NT)
     VERSION := $(shell powershell -Command "$$version = Select-String -Path $(PYPROJECT_FILE) -Pattern '^version = ' | ForEach-Object { $$_.Line -replace '^version = \"(.*)\"$$', '$$1' }; $$version -replace '\.','-'")
 	PYTHON_BIN := $(shell where python)
 	CP := powershell -Command "Copy-Item"
-    RM := powershell -Command "Remove-Item"
+    RM := powershell -Command "Remove-Item" -r -Force
     ZIP := powershell -Command "Compress-Archive"
 else
     DETECTED_OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
@@ -27,7 +27,7 @@ else
     VERSION := $(shell grep '^version = ' $(PYPROJECT_FILE) | sed 's/^version = "\(.*\)"$$/\1/' | tr . -)
 	PYTHON_BIN := $(shell which python3)
 	CP := cp
-    RM := rm
+    RM := rm -rf
     ZIP := zip -r
 endif
 
@@ -39,7 +39,8 @@ all: clean build bundle
 
 # Clean build artifacts
 clean:
-	$(RM) -r -Force build dist
+	$(RM) build
+	$(RM) dist
 
 # Build the executable
 build:
