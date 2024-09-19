@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import '../../domain/biocentral_database.dart';
 import '../../domain/biocentral_project_repository.dart';
 import '../../model/biocentral_asset_dataset.dart';
-import '../widgets/biocentral_import_mode_selection.dart';
 import '../widgets/biocentral_small_button.dart';
+import '../widgets/biocentral_tooltip.dart';
 import 'biocentral_dialog.dart';
 
 class BiocentralAssetDatasetLoadingDialog extends StatefulWidget {
@@ -25,8 +25,6 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
   final GlobalKey importButtonKey = GlobalKey();
 
   BiocentralAssetDataset? selectedAssetDataset;
-
-  DatabaseImportMode _selectedImportMode = DatabaseImportMode.overwrite;
 
   @override
   void initState() {
@@ -67,20 +65,16 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
         ),
         Padding(padding: EdgeInsets.all(SizeConfig.safeBlockHorizontal(context) * 2), child: buildExampleDatasetDocs()),
         buildDatasetSelection(),
-        BiocentralImportModeSelection(onChangedCallback: (DatabaseImportMode? value) {
-          if (value != _selectedImportMode) {
-            setState(() {
-              _selectedImportMode = value!;
-            });
-          }
-        }),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            BiocentralSmallButton(
-              key: importButtonKey,
-              label: "Import",
-              onTap: doLoading,
+            BiocentralTooltip(
+              message: "Imports the example dataset and overwrite all existing entries in the database",
+              child: BiocentralSmallButton(
+                key: importButtonKey,
+                label: "Import",
+                onTap: doLoading,
+              ),
             ),
             BiocentralSmallButton(
               label: "Close",
