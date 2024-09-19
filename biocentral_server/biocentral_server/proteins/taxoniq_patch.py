@@ -1,5 +1,8 @@
 import os
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def patch_taxoniq_if_bundled():
@@ -39,7 +42,4 @@ def patch_taxoniq_if_bundled():
 
         DatabaseService._get_db = patched_get_db
 
-    # Print debug information
-    print("Taxon._db_dir:", Taxon._db_dir)
-    for key, (db_type, filename) in Taxon._db_files.items():
-        print(f"Taxon._db_files[{key}]:", filename)
+        logger.debug(f"Patched taxoniq db dir - Taxon._db_dir: {Taxon._db_dir}")
