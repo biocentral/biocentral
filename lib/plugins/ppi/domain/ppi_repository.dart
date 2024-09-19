@@ -20,6 +20,11 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
+  String getEntityTypeName() {
+    return "ProteinProteinInteraction";
+  }
+
+  @override
   void addEntity(ProteinProteinInteraction entity) {
     String interactionID = entity.getID();
     _interactions[interactionID] = entity;
@@ -179,4 +184,5 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   List<PPIDatabaseTest> get associatedDatasetTests => List.from(_associatedDatasetTests);
+
 }

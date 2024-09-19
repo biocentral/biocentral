@@ -18,6 +18,11 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
+  String getEntityTypeName() {
+    return "Protein";
+  }
+
+  @override
   void addEntity(Protein entity) {
     _proteins[entity.id] = entity;
     _proteinIDs.add(entity.id);

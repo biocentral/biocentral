@@ -33,7 +33,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bio_flutter: ^0.0.6
+  bio_flutter: ^0.0.7
   tutorial_system: ^0.0.3
 
   pluto_grid: ^8.0.0

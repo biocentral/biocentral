@@ -30,6 +30,8 @@ abstract class BiocentralDatabase<T extends BioEntity> {
 
   List<Map<String, String>> entitiesAsMaps();
 
+  String getEntityTypeName();
+
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode);
 
   Map<String, T> updateEmbeddings(Map<String, Embedding> newEmbeddings);

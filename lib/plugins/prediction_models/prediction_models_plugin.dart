@@ -15,6 +15,9 @@ class PredictionModelsPlugin extends BiocentralPlugin
   PredictionModelsPlugin(super.eventBus);
 
   @override
+  String get typeName => "PredictionModelsPlugin";
+
+  @override
   String getShortDescription() {
     return "Train models on your data and use them for new predictions";
   }
