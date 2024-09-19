@@ -7,6 +7,7 @@ def run_frontend():
     root = ThemedTk(theme="breeze")
     root.geometry("640x480")
     root.resizable(False, False)
+    root.iconbitmap("assets/icons/biocentral_icon.ico")
 
     control_panel = ControlPanel(root=root)
 
