@@ -18,6 +18,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Windows-specific steps
+      - name: Install Chocolatey
+        if: runner.os == 'Windows'
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        shell: powershell
+
+      - name: Install yq
+        if: runner.os == 'Windows'
+        run: choco install yq -y
+        shell: powershell
+
       - name: Install Linux dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
