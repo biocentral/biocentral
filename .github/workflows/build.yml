@@ -20,7 +20,7 @@ jobs:
 
       # Windows-specific steps
       - name: Install yq
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: choco install yq -y
         shell: powershell
 
@@ -39,11 +39,24 @@ jobs:
 
       - run: flutter build windows --release
         if: matrix.os == 'windows-latest'
+      - name: Upload Windows build artifacts
+        uses: actions/upload-artifact@v3
+        if: matrix.os == 'windows-latest'
+        with:
+          name: windows-build
+          path: build/windows/runner/Release
+
       - run: flutter build macos --release
         if: matrix.os == 'macos-latest'
 
       - run: flutter build web --web-renderer html --base-href /app/
         if: matrix.os == 'ubuntu-latest'
+      - name: Upload Web build artifacts
+        uses: actions/upload-artifact@v3
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: web-build
+          path: build/web
       - run: flutter build linux --release
         if: matrix.os == 'ubuntu-latest'
       - name: Upload build artifacts
