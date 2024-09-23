@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../dialogs/info_dialog.dart';
 import '../dialogs/plugin_dialog.dart';
+import '../dialogs/welcome_dialog.dart';
 
 class BiocentralCommandView extends StatefulWidget {
   const BiocentralCommandView({super.key});
@@ -61,6 +62,14 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> {
         });
   }
 
+  void openWelcomeDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const WelcomeDialog();
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
@@ -70,9 +79,10 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> {
           child: BiocentralButton(
               label: "Connect to server..", iconData: Icons.cast_connected, onTap: openServerConnectionDialog),
         ),
-        BiocentralTooltip(message: "Read documentation and do tutorials", child: BiocentralButton(label: "Show wiki..", iconData: Icons.lightbulb, onTap: openWikiDialog)),
+        BiocentralTooltip(message: "Read documentation and complete tutorials", child: BiocentralButton(label: "Show wiki..", iconData: Icons.lightbulb, onTap: openWikiDialog)),
         BiocentralTooltip(message: "Select the plugins you want to work with", child: BiocentralButton(label: "Show plugins..", iconData: Icons.plumbing, onTap: openPluginDialog)),
-        BiocentralTooltip(message: "Show app information", child: BiocentralButton(label: "Show info..", iconData: Icons.info_outline, onTap: openInfoDialog))
+        BiocentralTooltip(message: "Show app information", child: BiocentralButton(label: "Show app info..", iconData: Icons.info_outline, onTap: openInfoDialog)),
+        BiocentralTooltip(message: "Show welcome dialog", child: BiocentralButton(label: "Show welcome dialog..", iconData: Icons.help_center, onTap: openWelcomeDialog))
       ],
     );
   }
