@@ -50,6 +50,61 @@ jobs:
       #    name: biocentral-${{ matrix.os }}
       #    path: build/
 
-  appimage:
-    needs: build
-    uses: ./.github/actions/appimage_build@${{github.ref}}
+  build_appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-build
+          path: build/linux/
+
+      - name: Download AppImageKit
+        run: |
+          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+      - name: Prepare AppDir
+        run: |
+          mkdir -p releases/current/biocentral.AppDir
+          cp -r build/linux/* biocentral.AppDir/
+
+      - name: Create AppRun file
+        run: |
+          cat > releases/current/biocentral.AppDir/AppRun << EOF
+          #!/bin/sh
+          cd "\$(dirname "\$0")"
+          exec ./biocentral
+          EOF
+          chmod +x biocentral.AppDir/AppRun
+
+      - name: Create .desktop file
+        run: |
+          cat > biocentral.AppDir/biocentral.desktop << EOF
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Terminal=false
+          Name=Biocentral
+          Comment=Biomedical data, from lab to paper.
+          Exec=biocentral %u
+          Icon=biocentral_logo
+          Categories=Science;
+          EOF
+
+      - name: Copy logo
+        run: cp assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
+
+      - name: Bundle AppImage
+        run: ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: biocentral-appimage
+          path: biocentral_*.AppImage
