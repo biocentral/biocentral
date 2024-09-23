@@ -7,6 +7,9 @@ from tkinter import ttk
 from pystray import MenuItem
 
 
+from ...utils import get_asset_path
+
+
 class StatusIndicator:
 
     def __init__(self, parent, status_name: str, status: bool):
@@ -42,7 +45,7 @@ class SysTray:
     def _create_icon(self):
         self.menu = (MenuItem('Show UI', self.show_window), MenuItem('Stop Server', self.stop_server),
                      MenuItem('Quit', self.quit_window))
-        image = Image.open("assets/icons/biocentral_icon.ico")
+        image = Image.open(get_asset_path("assets/icons/biocentral_icon.ico"))
         return pystray.Icon("Biocentral Server", image, "Biocentral Server", self.menu)
 
     def show_window(self, icon, item):

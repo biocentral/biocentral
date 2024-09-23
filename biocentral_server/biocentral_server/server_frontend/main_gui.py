@@ -2,12 +2,14 @@ from ttkthemes import ThemedTk
 
 from .presentation import ControlPanel, SysTray
 
+from ..utils import get_asset_path
+
 
 def run_frontend():
     root = ThemedTk(theme="breeze")
     root.geometry("640x480")
     root.resizable(False, False)
-    root.iconbitmap("assets/icons/biocentral_icon.ico")
+    root.iconbitmap(get_asset_path("assets/icons/biocentral_icon.ico"))
 
     control_panel = ControlPanel(root=root)
 
