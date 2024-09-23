@@ -40,66 +40,16 @@ jobs:
     - name: Build with pyinstaller
       run: poetry run pyinstaller biocentral_server.spec
 
-    - name: Zip build artifacts
-      run: |
-        cd dist
-        zip -r biocentral_server_${{ matrix.os }}.zip biocentral_server
-      if: matrix.os == 'ubuntu-latest'
-
-    - name: Zip build artifacts (Windows)
+    - name: Upload build artifacts (Windows)
       if: matrix.os == 'windows-latest'
-      run: |
-        cd dist
-        Compress-Archive -Path biocentral_server -DestinationPath biocentral_server_${{ matrix.os }}.zip
-
-    - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: biocentral_server_${{ matrix.os }}
-        path: dist/biocentral_server_${{ matrix.os }}.zip
+        name: biocentral_server_windows
+        path: dist/biocentral_server.exe
 
-  create_release:
-    needs: build
-    if: false && github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Get version
-        id: get_version
-        run: echo "::set-output name=version::$(grep 'version =' pyproject.toml | awk '{print $3}' | tr -d '"')"
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: Release v${{ steps.get_version.outputs.version }}
-          draft: false
-          prerelease: false
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Upload Ubuntu Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./biocentral_server_ubuntu-latest/biocentral_server_ubuntu-latest.zip
-          asset_name: biocentral_server_ubuntu.zip
-          asset_content_type: application/zip
-
-      - name: Upload Windows Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./biocentral_server_windows-latest/biocentral_server_windows-latest.zip
-          asset_name: biocentral_server_windows.zip
-          asset_content_type: application/zip
+    - name: Upload build artifacts (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: biocentral_server_ubuntu
+        path: dist/biocentral_server
