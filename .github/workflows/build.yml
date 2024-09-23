@@ -99,7 +99,7 @@ jobs:
         run: cp assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
 
       - name: Bundle AppImage
-        run: ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
+        run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v3
