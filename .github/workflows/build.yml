@@ -52,4 +52,4 @@ jobs:
 
   appimage:
     needs: build
-    uses: ./.github/actions/appimage_build
+    uses: ./.github/actions/appimage_build@${{github.ref}}
