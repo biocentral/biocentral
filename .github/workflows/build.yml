@@ -2,9 +2,11 @@ name: biocentral Flutter Build CI
 
 on:
   push:
-    branches: [ '*' ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ '*' ]
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -14,7 +16,7 @@ jobs:
         os: [ ubuntu-latest ]  #  windows-latest, macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Linux dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -34,7 +36,7 @@ jobs:
       - run: flutter build linux --release
         if: matrix.os == 'ubuntu-latest'
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-build
           path: build/linux/x64/release/bundle
@@ -45,21 +47,17 @@ jobs:
       - run: flutter build macos
         if: matrix.os == 'macos-latest'
 
-      #- uses: actions/upload-artifact@v2
-      #  with:
-      #    name: biocentral-${{ matrix.os }}
-      #    path: build/
-
   build_appimage:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y wget
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-build
           path: build/linux/
@@ -71,12 +69,12 @@ jobs:
 
       - name: Prepare AppDir
         run: |
-          mkdir -p releases/current/biocentral.AppDir
+          mkdir -p biocentral.AppDir
           cp -r build/linux/* biocentral.AppDir/
 
       - name: Create AppRun file
         run: |
-          cat > releases/current/biocentral.AppDir/AppRun << EOF
+          cat > biocentral.AppDir/AppRun << EOF
           #!/bin/sh
           cd "\$(dirname "\$0")"
           exec ./biocentral
@@ -104,7 +102,7 @@ jobs:
         run: ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: biocentral-appimage
           path: biocentral_*.AppImage
