@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get version
+        id: get_version
+        run: echo "::set-output name=version::$(grep 'version:' pubspec.yaml | awk '{print $2}' | sed 's/+[0-9]*$//' | tr -d "'" | tr . -)"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: Release v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Zip Windows Build
+        run: zip -r windows-build.zip ./windows-build
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows-build.zip
+          asset_name: biocentral-windows-${{ steps.get_version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux AppImage Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./biocentral-appimage/biocentral_v${{ github.sha }}.AppImage
+          asset_name: biocentral-linux-${{ steps.get_version.outputs.version }}.AppImage
+          asset_content_type: application/octet-stream
+
+      - name: Zip Web Build
+        run: zip -r web-build.zip ./web-build
+
+      - name: Upload Web Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./web-build.zip
+          asset_name: biocentral-web-${{ steps.get_version.outputs.version }}.zip
+          asset_content_type: application/zip
