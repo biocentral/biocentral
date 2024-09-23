@@ -25,7 +25,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: 3.24.0
+          flutter-version-file: pubspec.yaml
       - run: flutter pub get
       - run: flutter test
 
@@ -52,5 +52,4 @@ jobs:
 
   appimage:
     needs: build
-    uses: ./.github/custom_actions/appimage_build.yml
-
+    uses: ./.github/workflows/appimage_build.yml@${{ github.ref }}
