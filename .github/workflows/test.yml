@@ -1,4 +1,4 @@
-name: biocentral Flutter Test CI
+name: Test
 
 on:
   push:

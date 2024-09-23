@@ -1,15 +1,14 @@
-name: biocentral Flutter Build CI
+name: Build
 
 on:
   push:
     branches:
       - 'main'
   pull_request:
-    branches: [ 'main', 'develop']
+    branches: [ 'main']
 
 jobs:
   build:
-    needs: [ test ]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

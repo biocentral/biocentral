@@ -1,4 +1,4 @@
-name: biocentral Flutter Release CI
+name: Release
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - 'main'
+  workflow_run:
+    workflows: [ Build ]
+    types: [ completed ]
 
 jobs:
   create_release:
