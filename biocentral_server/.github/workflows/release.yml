@@ -1,12 +1,12 @@
-name: biocentral server Release CI
+name: Release
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - 'main'
+  workflow_run:
+    workflows: [ Build ]
+    types: [ completed ]
 
 jobs:
   create_release:
