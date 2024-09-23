@@ -3,7 +3,9 @@ name: biocentral Flutter Build CI
 on:
   push:
     branches:
-      - '**'
+      - 'main'
+  pull_request:
+    branches: [ 'main', 'develop']
 
 jobs:
   build:
