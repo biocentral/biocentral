@@ -294,6 +294,43 @@ final class BiocentralClientRepository {
     return right(unit);
   }
 
+  Future<Either<BiocentralException, Map<String, String>>> _getLatestReleaseDownloadUrl(
+      String owner, String repo, Set<String> osNames) async {
+    final url = Uri.parse("https://api.github.com/repos/$owner/$repo/releases/latest");
+
+    try {
+      final response = await http.get(url, headers: {
+        'Accept': 'application/vnd.github.v3+json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final assets = data["assets"] as List;
+
+        final Map<String, String> result = {};
+
+        for (var asset in assets) {
+          for (String osName in osNames) {
+            if (asset["name"].toString().contains(osName)) {
+              result[osName] = asset["browser_download_url"];
+              break;
+            }
+          }
+        }
+
+        if (result.isEmpty) {
+          return left(BiocentralIOException(message: "Could not find any biocentral_server releases!"));
+        }
+        return right(result);
+      } else {
+        return left(BiocentralNetworkException(
+            message: "Failed to fetch latest biocentral_server release: ${response.statusCode}"));
+      }
+    } catch (e) {
+      return left(BiocentralNetworkException(message: "Failed to fetch latest biocentral_server release", error: e));
+    }
+  }
+
   Future<Either<BiocentralException, Map<String, String>>> getLocalServerDownloadURLs() async {
     // TODO Maybe change back to download from server
     const String serverReleasesJsonURL = "assets/server_releases/biocentral_server_releases.json";

@@ -1,6 +1,6 @@
 # Building
 
-Overview how to build biocentral for different platforms
+Overview how to build biocentral for different platforms locally.
 
 ## Linux
 
@@ -29,7 +29,7 @@ chmod +x AppRun
 
 # Create .desktop file https://wiki.ubuntuusers.de/.desktop-Dateien/
 [Desktop Entry]
-Version=1.5
+Version=1.0
 Type=Application
 Terminal=false
 Name=Biocentral

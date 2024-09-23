@@ -48,5 +48,8 @@ app.*.map.json
 /test_dir/
 /test_files/
 
+# AppImage Dir
+/AppDir/
+
 # Local storage of releases
 /releases/
