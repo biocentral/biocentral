@@ -86,6 +86,8 @@ class _InfoDialogState extends State<InfoDialog> {
                   }
                   return const CircularProgressIndicator();
                 }),
+            const SizedBox(height: 40),
+            BiocentralSmallButton(onTap: closeDialog, label: "Close")
           ],
         ),
       ],

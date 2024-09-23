@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/biocentral_plugins_bloc.dart';
+import '../dialogs/welcome_dialog.dart';
 
 class BiocentralMainView extends StatefulWidget {
   final EventBus eventBus;
@@ -41,6 +42,9 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
     _exitListener = AppLifecycleListener(onExitRequested: () async {
       await killServer();
       return AppExitResponse.exit;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      openWelcomeDialog();
     });
   }
 
@@ -80,6 +84,15 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
       }
     });
   }
+
+  void openWelcomeDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const WelcomeDialog();
+        });
+  }
+
 
   @override
   Widget build(BuildContext context) {
