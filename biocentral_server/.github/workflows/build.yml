@@ -37,11 +37,8 @@ jobs:
         poetry install
         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-    - name: Install pyinstaller
-      run: pip install pyinstaller
-
     - name: Build with pyinstaller
-      run: pyinstaller biocentral_server.spec
+      run: poetry run pyinstaller biocentral_server.spec
 
     - name: Zip build artifacts
       run: |
