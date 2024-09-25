@@ -13,7 +13,7 @@ final class ProteinClientFactory extends BiocentralClientFactory<ProteinClient> 
   }
 }
 
-final class ProteinClient extends BiocentralClient {
+class ProteinClient extends BiocentralClient {
   ProteinClient(super.server);
 
   Future<Either<BiocentralException, Map<int, Taxonomy>>> retrieveTaxonomy(Set<int> taxonomyIDs) async {
