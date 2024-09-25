@@ -5,9 +5,11 @@ sealed class BiocentralException implements Exception {
   final StackTrace? stackTrace;
   final String message;
 
-  BiocentralException({required this.message, this.error, this.stackTrace}) {
+  BiocentralException({required this.message, this.error, this.stackTrace, log=true}) {
     String gitHubIssueLink = _createGitHubIssueLink(message, error, stackTrace);
-    logger.e("$message\n$gitHubIssueLink", error: error, stackTrace: stackTrace);
+    if(log) {
+      logger.e("$message\n$gitHubIssueLink", error: error, stackTrace: stackTrace);
+    }
   }
 
   static String _createGitHubIssueLink(String message, Object? error, StackTrace? stackTrace) {
@@ -40,30 +42,30 @@ sealed class BiocentralException implements Exception {
 }
 
 class BiocentralIOException extends BiocentralException {
-  BiocentralIOException({required super.message, super.error, super.stackTrace});
+  BiocentralIOException({required super.message, super.error, super.stackTrace, super.log});
 }
 
 class BiocentralNetworkException extends BiocentralException {
-  BiocentralNetworkException({required super.message, super.error, super.stackTrace});
+  BiocentralNetworkException({required super.message, super.error, super.stackTrace, super.log});
 }
 
 class BiocentralParsingException extends BiocentralException {
-  BiocentralParsingException({required super.message, super.stackTrace});
+  BiocentralParsingException({required super.message, super.stackTrace, super.log});
 }
 
 class BiocentralServerException extends BiocentralException {
-  BiocentralServerException({required super.message, super.error, super.stackTrace});
+  BiocentralServerException({required super.message, super.error, super.stackTrace, super.log});
 }
 
 class BiocentralSecurityException extends BiocentralException {
-  BiocentralSecurityException({required super.message, super.error, super.stackTrace});
+  BiocentralSecurityException({required super.message, super.error, super.stackTrace, super.log});
 }
 
 class BiocentralMissingServiceException extends BiocentralException {
   final String missingService;
 
-  BiocentralMissingServiceException({required this.missingService})
+  BiocentralMissingServiceException({required this.missingService, log=true})
       : super(
             message: "The server you are connected to does "
-                "not provide service $missingService that is required for your task!");
+                "not provide service $missingService that is required for your task!", log: log);
 }
