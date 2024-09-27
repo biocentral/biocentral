@@ -2,7 +2,7 @@ import random
 import unittest
 from typing import Dict
 
-from biocentral_server.data_analysis.analysis_functions import calculate_levenshtein_distances, \
+from biocentral_server.protein_analysis.analysis_functions import calculate_levenshtein_distances, \
     _get_all_possible_sequence_pairs
 
 
