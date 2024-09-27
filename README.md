@@ -21,7 +21,7 @@ latest developments in bioinformatics and applications in molecular biology and 
 - **Open Source and FAIR**: Committed to open science and FAIR principles.
 - **Customizable Plugins**: Work only with the functionality that is fitting your specific research.
 
-## Installation
+## 🛠️ Installation
 
 **Current platform compatibility**:
 
