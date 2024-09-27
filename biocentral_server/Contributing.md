@@ -84,10 +84,11 @@ If your contribution concerns the whole project or just the core biocentral appl
 ### Pull Requests
 
 1. Ensure your code adheres to the project's coding standards.
-2. Update the README.md with details of changes to the interface, if applicable.
-3. Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would
+2. Make sure your code is well-tested and adheres to the [testing guidelines](docs/Contributing/testing.md)
+3. Update the README.md with details of changes to the interface, if applicable.
+4. Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would
    represent. The versioning scheme we use is [SemVer](http://semver.org/).
-4. You may merge the Pull Request in once you have the sign-off of one other developer, or if you do not have
+5. You may merge the Pull Request in once you have the sign-off of one other developer, or if you do not have
    permission to do that, you may request the reviewer to merge it for you.
 
 ## Developer Certificate of Origin and Licensing
