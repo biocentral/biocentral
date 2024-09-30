@@ -8,49 +8,53 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.11']
-    runs-on: ${{ matrix.os }}
+        labels: [ ubuntu-large-disk, windows-large-disk ]
+        python-version: [ '3.11' ]
+    runs-on: ${{ matrix.labels }}
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-tk libcairo2-dev libxt-dev libgirepository1.0-dev
-        pip install poetry
-        poetry install --extras linux
+      - name: Install dependencies (Ubuntu)
+        if: matrix.labels == 'ubuntu-large-disk'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb python3-tk libcairo2-dev libxt-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
+          pip install poetry
+          poetry install --extras linux
 
-    - name: Install dependencies (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        pip install poetry
-        poetry install
-        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+      - name: Install dependencies (Windows)
+        if: matrix.labels == 'windows-large-disk'
+        run: |
+          pip install poetry
+          poetry install
+          pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-    - name: Run python tests
-      run: poetry run pytest
+      - name: Run python tests (Ubuntu)
+        if: matrix.labels == 'ubuntu-large-disk'
+        run: xvfb-run poetry run pytest
 
-    - name: Build with pyinstaller
-      run: poetry run pyinstaller biocentral_server.spec
+      - name: Build with pyinstaller
+        run: poetry run pyinstaller biocentral_server.spec
 
-    - name: Upload build artifacts (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v3
-      with:
-        name: biocentral_server_windows
-        path: dist/biocentral_server.exe
+      - name: Upload build artifacts (Windows)
+        if: matrix.labels == 'windows-large-disk'
+        uses: actions/upload-artifact@v4
+        with:
+          name: biocentral_server_windows
+          path: dist/biocentral_server.exe
 
-    - name: Upload build artifacts (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v3
-      with:
-        name: biocentral_server_ubuntu
-        path: dist/biocentral_server
+      - name: Upload build artifacts (Ubuntu)
+        if: matrix.labels == 'ubuntu-large-disk'
+        uses: actions/upload-artifact@v4
+        with:
+          name: biocentral_server_ubuntu
+          path: dist/biocentral_server
