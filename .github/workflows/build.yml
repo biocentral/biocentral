@@ -15,7 +15,7 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]  # TODO  macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Windows-specific steps
       - name: Install yq
@@ -39,7 +39,7 @@ jobs:
       - run: flutter build windows --release
         if: matrix.os == 'windows-latest'
       - name: Upload Windows build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.os == 'windows-latest'
         with:
           name: windows-build
@@ -51,7 +51,7 @@ jobs:
       - run: flutter build web --web-renderer html --base-href /app/
         if: matrix.os == 'ubuntu-latest'
       - name: Upload Web build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.os == 'ubuntu-latest'
         with:
           name: web-build
@@ -59,7 +59,7 @@ jobs:
       - run: flutter build linux --release
         if: matrix.os == 'ubuntu-latest'
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: build/linux/x64/release/bundle
@@ -68,13 +68,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y wget libfuse2
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: linux-build
           path: build/linux/
@@ -119,7 +119,7 @@ jobs:
         run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: biocentral-appimage
           path: biocentral_*.AppImage
