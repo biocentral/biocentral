@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biocentral-server"
-version = "0.1.0"
+version = "0.1.1"
 description = "Server for the biocentral application"
 authors = ["Sebastian Franz <sebastian.franz@tum.de>"]
 license = "GPLv3"
@@ -12,7 +12,7 @@ python = ">=3.11.9, <3.12"
 # Backend
 Flask = "^3.0.2"
 umap-learn="^0.5.5"
-levenshtein = "^0.25.1"
+levenshtein = "^0.26.0"
 taxoniq = "^1.0.1"
 
 # Frontend
