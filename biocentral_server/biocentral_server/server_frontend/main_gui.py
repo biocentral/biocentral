@@ -1,3 +1,4 @@
+import tkinter as tk
 from ttkthemes import ThemedTk
 
 from .presentation import ControlPanel, SysTray
@@ -9,7 +10,7 @@ def run_frontend():
     root = ThemedTk(theme="breeze")
     root.geometry("640x480")
     root.resizable(False, False)
-    root.iconbitmap(get_asset_path("assets/icons/biocentral_icon.ico"))
+    root.iconphoto(False, tk.PhotoImage(file=get_asset_path("assets/icons/biocentral_icon.png")))
 
     control_panel = ControlPanel(root=root)
 
