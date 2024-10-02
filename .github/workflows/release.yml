@@ -2,11 +2,9 @@ name: Release
 
 on:
   workflow_run:
-    workflows: [ 'Build' ]
-    types:
-      - completed
-    branches:
-      - main
+    workflows: [Build]
+    types: [completed]
+    branches: [main]
 
 jobs:
   create_release:
