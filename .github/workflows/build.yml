@@ -6,6 +6,9 @@ on:
       - 'main'
   pull_request:
     branches: [ 'main', 'develop']
+  workflow_run:
+    workflows: [ Test ]
+    types: [ completed ]
 
 jobs:
   build:
@@ -15,28 +18,31 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]  # TODO  macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      # Windows-specific steps
-      - name: Install yq
+      - name: Install Windows Dependencies
         if: matrix.os == 'windows-latest'
         run: choco install yq -y
         shell: powershell
 
-      - name: Install Linux dependencies
+      - name: Install Linux Dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build clang libgtk-3-dev
 
-      - uses: subosito/flutter-action@v2
+      - name: Get Flutter Dependencies
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version-file: pubspec.yaml
       - run: flutter pub get
-      - run: flutter test
 
-      - run: flutter build windows --release
+      - name: Build Windows Application
+        run: flutter build windows --release
         if: matrix.os == 'windows-latest'
       - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
@@ -45,10 +51,12 @@ jobs:
           name: windows-build
           path: build/windows/runner/Release
 
-      - run: flutter build macos --release
+      - name: Build MacOS Application
+        run: flutter build macos --release
         if: matrix.os == 'macos-latest'
 
-      - run: flutter build web --web-renderer html --base-href /app/
+      - name: Build Web Application
+        run: flutter build web --web-renderer html --base-href /app/
         if: matrix.os == 'ubuntu-latest'
       - name: Upload Web build artifacts
         uses: actions/upload-artifact@v4
@@ -56,7 +64,9 @@ jobs:
         with:
           name: web-build
           path: build/web
-      - run: flutter build linux --release
+
+      - name: Build Linux Application
+        run: flutter build linux --release
         if: matrix.os == 'ubuntu-latest'
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -70,10 +80,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y wget libfuse2
 
-      - name: Download build artifacts
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: linux-build
@@ -98,7 +108,7 @@ jobs:
           EOF
           chmod +x biocentral.AppDir/AppRun
 
-      - name: Create .desktop file
+      - name: Create .desktop File
         run: |
           cat > biocentral.AppDir/biocentral.desktop << EOF
           [Desktop Entry]
@@ -112,7 +122,7 @@ jobs:
           Categories=Science;
           EOF
 
-      - name: Copy logo
+      - name: Copy Logo
         run: cp assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
 
       - name: Bundle AppImage
