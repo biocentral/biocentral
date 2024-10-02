@@ -14,11 +14,19 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      - uses: subosito/flutter-action@v2
+      - name: Get Flutter Dependencies
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version-file: pubspec.yaml
       - run: flutter pub get
-      - run: flutter test
+
+      - name: Run Flutter Unit and Widget Tests
+        run: flutter test
+      - name: Run Flutter Integration and E2E tests
+        run: flutter test integration_test
