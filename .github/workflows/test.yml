@@ -35,6 +35,6 @@ jobs:
         run: flutter test
 
       - name: Run Integration Tests
-        uses: coactions/xvfb-action@v1
+        uses: coactions/setup-xvfb@v1
         with:
           run: flutter test integration_test -d linux -r github
