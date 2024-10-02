@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [ 'main', 'develop' ]
+  pull_request:
+    branches: [ 'main', 'develop' ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang libgtk-3-dev
+
+      - name: Get Flutter Dependencies
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+      - run: flutter pub get
+
+      - name: Run Flutter Unit and Widget Tests
+        run: flutter test
+
+      - name: Run Integration Tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: flutter test integration_test -d linux -r github

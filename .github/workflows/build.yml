@@ -1,0 +1,131 @@
+name: Build
+
+on:
+  push:
+    branches: [ 'main', 'develop' ]
+  pull_request:
+    branches: [ 'main', 'develop' ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]  # TODO  macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Windows Dependencies
+        if: matrix.os == 'windows-latest'
+        run: choco install yq -y
+        shell: powershell
+
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang libgtk-3-dev
+
+      - name: Get Flutter Dependencies
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+      - run: flutter pub get
+
+      - name: Build Windows Application
+        run: flutter build windows --release
+        if: matrix.os == 'windows-latest'
+      - name: Upload Windows build artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          name: windows-build
+          path: build/windows/runner/Release
+
+      - name: Build MacOS Application
+        run: flutter build macos --release
+        if: matrix.os == 'macos-latest'
+
+      - name: Build Web Application
+        run: flutter build web --web-renderer html --base-href /app/
+        if: matrix.os == 'ubuntu-latest'
+      - name: Upload Web build artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: web-build
+          path: build/web
+
+      - name: Build Linux Application
+        run: flutter build linux --release
+        if: matrix.os == 'ubuntu-latest'
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux/x64/release/bundle
+
+  build_appimage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget libfuse2
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux/
+
+      - name: Download AppImageKit
+        run: |
+          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+      - name: Prepare AppDir
+        run: |
+          mkdir -p biocentral.AppDir
+          cp -r build/linux/* biocentral.AppDir/
+
+      - name: Create AppRun file
+        run: |
+          cat > biocentral.AppDir/AppRun << EOF
+          #!/bin/sh
+          cd "\$(dirname "\$0")"
+          exec ./biocentral
+          EOF
+          chmod +x biocentral.AppDir/AppRun
+
+      - name: Create .desktop File
+        run: |
+          cat > biocentral.AppDir/biocentral.desktop << EOF
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Terminal=false
+          Name=Biocentral
+          Comment=Biomedical data, from lab to paper.
+          Exec=biocentral %u
+          Icon=biocentral_logo
+          Categories=Science;
+          EOF
+
+      - name: Copy Logo
+        run: cp assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
+
+      - name: Bundle AppImage
+        run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biocentral-appimage
+          path: biocentral_*.AppImage
