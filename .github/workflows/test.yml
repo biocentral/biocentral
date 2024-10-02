@@ -28,5 +28,6 @@ jobs:
 
       - name: Run Flutter Unit and Widget Tests
         run: flutter test
+
       - name: Run Flutter Integration and E2E tests
-        run: flutter test integration_test
+        run: flutter test integration_test -d all
