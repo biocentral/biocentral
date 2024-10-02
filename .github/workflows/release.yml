@@ -1,15 +1,12 @@
 name: Release
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "Build" ]
+    types:
+      - completed
     branches:
       - main
-  pull_request:
-    branches:
-      - 'main'
-  workflow_run:
-    workflows: [ Build ]
-    types: [ completed ]
 
 jobs:
   create_release:

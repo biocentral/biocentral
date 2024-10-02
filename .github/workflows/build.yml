@@ -1,14 +1,10 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
-    branches: [ 'main', 'develop']
   workflow_run:
-    workflows: [ Test ]
-    types: [ completed ]
+    workflows: [ "Test" ]
+    types:
+      - completed
 
 jobs:
   build:
