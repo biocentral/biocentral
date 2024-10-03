@@ -41,16 +41,20 @@ jobs:
       - name: Build with pyinstaller
         run: poetry run pyinstaller biocentral_server.spec
 
-      - name: Upload build artifacts (Windows)
-        if: matrix.labels == 'windows-large-disk'
-        uses: actions/upload-artifact@v4
-        with:
-          name: biocentral_server_windows
-          path: dist/biocentral_server.exe
-
-      - name: Upload build artifacts (Ubuntu)
+      - name: Copy additional files to dist directory (Ubuntu)
         if: matrix.labels == 'ubuntu-large-disk'
+        run: |
+          cp LICENSE dist/LICENSE
+          cp README.md dist/README.md
+
+      - name: Copy additional files to dist directory (Windows)
+        if: matrix.labels == 'windows-large-disk'
+        run: |
+          copy LICENSE dist/LICENSE
+          copy README.md dist/README.md
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: biocentral_server_ubuntu
-          path: dist/biocentral_server
+          name: biocentral_server_${{ matrix.os }}
+          path: dist
