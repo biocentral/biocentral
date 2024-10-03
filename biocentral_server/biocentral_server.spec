@@ -25,7 +25,8 @@ for taxa_file in taxa_files:
 icon_path = str(Path("assets/icons/biocentral_icon.ico").absolute())
 
 # Add assets
-datas.append(("assets/", "."))
+assets_path = str(Path("assets").absolute())
+datas.append((assets_path, "assets"))
 
 # Add hidden imports of taxoniq
 hiddenimports = collect_submodules('taxoniq')

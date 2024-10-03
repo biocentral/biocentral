@@ -2,6 +2,8 @@ import os
 import sys
 import logging
 
+from ..utils import get_bundle_dir
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,7 +17,7 @@ def patch_taxoniq_if_bundled():
     from taxoniq import Taxon, DatabaseService
     if getattr(sys, 'frozen', False):
         # running in a PyInstaller bundle
-        bundle_dir = sys._MEIPASS
+        bundle_dir = get_bundle_dir()
 
         # Update the _db_dir
         Taxon._db_dir = os.path.join(bundle_dir, 'taxoniq')
