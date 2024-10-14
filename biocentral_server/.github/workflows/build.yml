@@ -53,8 +53,16 @@ jobs:
           copy LICENSE dist/LICENSE
           copy README.md dist/README.md
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts (Ubuntu)
+        if: matrix.labels == 'ubuntu-large-disk'
         uses: actions/upload-artifact@v4
         with:
-          name: biocentral_server_${{ matrix.os }}
+          name: biocentral_server_ubuntu
+          path: dist
+
+      - name: Upload build artifacts (Windows)
+        if: matrix.labels == 'windows-large-disk'
+        uses: actions/upload-artifact@v4
+        with:
+          name: biocentral_server_windows
           path: dist

@@ -7,8 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  create_release:
-    needs: build
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./biocentral_server_ubuntu-latest/biocentral_server_ubuntu-latest.zip
+          asset_path: ./biocentral_server_ubuntu/biocentral_server_ubuntu.zip
           asset_name: biocentral_server_ubuntu-${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/octet-stream
 
@@ -48,6 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./biocentral_server_windows-latest/biocentral_server_windows-latest.zip
+          asset_path: ./biocentral_server_windows/biocentral_server_windows.zip
           asset_name: biocentral_server_windows-${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/octet-stream
