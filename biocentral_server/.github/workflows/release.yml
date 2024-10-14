@@ -41,7 +41,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./biocentral_server_ubuntu/biocentral_server_ubuntu.zip
-          asset_name: biocentral_server_ubuntu-${{ steps.get_version.outputs.version }}.zip
+          asset_name: biocentral_server_linux-${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/zip
 
       - name: Upload Windows Release Asset
