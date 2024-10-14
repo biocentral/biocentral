@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./biocentral-appimage/biocentral_v${{ github.sha }}.AppImage
+          asset_path: ./biocentral-appimage/biocentral_v${{ steps.get_version.outputs.version }}.AppImage
           asset_name: biocentral-linux-${{ steps.get_version.outputs.version }}.AppImage
           asset_content_type: application/octet-stream
 

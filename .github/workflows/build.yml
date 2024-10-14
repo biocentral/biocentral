@@ -77,6 +77,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get version
+        id: get_version
+        run: echo "::set-output name=version::$(grep 'version:' pubspec.yaml | awk '{print $2}' | sed 's/+[0-9]*$//' | tr -d "'" | tr . -)"
+
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y wget libfuse2
 
@@ -95,6 +99,7 @@ jobs:
         run: |
           mkdir -p biocentral.AppDir
           cp -r build/linux/* biocentral.AppDir/
+          chmod +x biocentral.AppDir/biocentral
 
       - name: Create AppRun file
         run: |
@@ -123,10 +128,10 @@ jobs:
         run: cp assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
 
       - name: Bundle AppImage
-        run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ github.sha }}.AppImage
+        run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ steps.get_version.outputs.version }}.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: biocentral-appimage
+          name: biocentral-appimage-v${{ steps.get_version.outputs.version }}
           path: biocentral_*.AppImage
