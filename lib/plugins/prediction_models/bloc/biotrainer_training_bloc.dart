@@ -42,7 +42,8 @@ final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTra
   }
 }
 
-class BiotrainerTrainingBloc extends BiocentralUpdateBloc<BiotrainerTrainingEvent, BiotrainerTrainingState> {
+class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, BiotrainerTrainingState>
+    with BiocentralUpdateBloc {
   final PredictionModelRepository _predictionModelRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;

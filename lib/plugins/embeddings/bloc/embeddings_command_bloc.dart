@@ -41,7 +41,7 @@ final class EmbeddingsCommandState extends BiocentralCommandState<EmbeddingsComm
   List<Object?> get props => [stateInformation, status];
 }
 
-class EmbeddingsCommandBloc extends BiocentralSyncBloc<EmbeddingsCommandEvent, EmbeddingsCommandState> {
+class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, EmbeddingsCommandState> with BiocentralSyncBloc, BiocentralUpdateBloc {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralClientRepository _biocentralClientRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -87,7 +87,7 @@ class EmbeddingsCommandBloc extends BiocentralSyncBloc<EmbeddingsCommandEvent, E
       await calculateUMAPCommand
           .executeWithLogging<EmbeddingsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
-        either.match((l) => emit(l), (r) => null); // Ignore result here
+        either.match((l) => emit(l), (r) => updateDatabases()); // Ignore result here
       });
     });
   }

@@ -31,18 +31,14 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
   }
 }
 
-abstract class BiocentralSyncBloc<Event, T extends BiocentralCommandState<T>> extends BiocentralBloc<Event, T> {
-  BiocentralSyncBloc(super.initialState, super._eventBus);
-
+mixin BiocentralSyncBloc<Event, T extends BiocentralCommandState<T>> on BiocentralBloc<Event, T> {
   void syncWithDatabases(Map<String, BioEntity> entities,
       {DatabaseImportMode importMode = DatabaseImportMode.defaultMode}) async {
     _eventBus.fire(BiocentralDatabaseSyncEvent(entities, importMode));
   }
 }
 
-abstract class BiocentralUpdateBloc<Event, T extends BiocentralCommandState<T>> extends BiocentralBloc<Event, T> {
-  BiocentralUpdateBloc(super.initialState, super._eventBus);
-
+mixin BiocentralUpdateBloc<Event, T extends BiocentralCommandState<T>> on BiocentralBloc<Event, T> {
   void updateDatabases() async {
     _eventBus.fire(BiocentralDatabaseUpdatedEvent());
   }
