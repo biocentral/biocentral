@@ -127,7 +127,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
                   if(snapshot.hasData && snapshot.data != null) {
                     return Align(
                         alignment: Alignment.centerRight,
-                        child: Text("Biocentral - Alpha v${snapshot.data?.version}", style: Theme
+                        child: Text("Biocentral - develop - Alpha v${snapshot.data?.version}", style: Theme
                             .of(context)
                             .textTheme
                             .labelSmall));
