@@ -67,7 +67,7 @@ final class PPICommandState extends BiocentralCommandState<PPICommandState> {
   List<Object?> get props => [stateInformation, status];
 }
 
-class PPICommandBloc extends BiocentralSyncBloc<PPICommandEvent, PPICommandState> {
+class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> with BiocentralSyncBloc {
   final PPIRepository _ppiRepository;
   final BiocentralClientRepository _biocentralClientRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;

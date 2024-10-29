@@ -147,6 +147,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
       min: minimum,
       max: maximum,
       dimensionality: mean.length,
+      numberOfEmbeddings: n,
       averageCosineSimilarity: 0.0,
       //averageCosineSimilarity,
       averageEuclideanDistance: 0.0, //averageEuclideanDistance,
@@ -161,6 +162,7 @@ class EmbeddingStats {
   final Vector min;
   final Vector max;
   final int dimensionality;
+  final int numberOfEmbeddings;
   final double averageCosineSimilarity;
   final double averageEuclideanDistance;
 
@@ -171,6 +173,7 @@ class EmbeddingStats {
     required this.min,
     required this.max,
     required this.dimensionality,
+    required this.numberOfEmbeddings,
     required this.averageCosineSimilarity,
     required this.averageEuclideanDistance,
   });

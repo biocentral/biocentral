@@ -59,7 +59,7 @@ final class ProteinsCommandState extends BiocentralCommandState<ProteinsCommandS
   List<Object?> get props => [stateInformation, status];
 }
 
-class ProteinsCommandBloc extends BiocentralSyncBloc<ProteinsCommandEvent, ProteinsCommandState> {
+class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsCommandState> with BiocentralSyncBloc {
   final ProteinRepository _proteinRepository;
   final BiocentralClientRepository _biocentralClientRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
