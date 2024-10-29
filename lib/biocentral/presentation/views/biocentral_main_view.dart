@@ -6,6 +6,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../bloc/biocentral_plugins_bloc.dart';
 import '../dialogs/welcome_dialog.dart';
@@ -120,10 +121,20 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(SizeConfig.screenHeight(context) * 0.125),
           child: AppBar(
-            title: Align(
-                alignment: Alignment.centerRight,
-                // TODO Read version from config
-                child: Text("Biocentral - Alpha v0.1.0", style: Theme.of(context).textTheme.labelSmall)),
+            title: FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                  if(snapshot.hasData && snapshot.data != null) {
+                    return Align(
+                        alignment: Alignment.centerRight,
+                        child: Text("Biocentral - Alpha v${snapshot.data?.version}", style: Theme
+                            .of(context)
+                            .textTheme
+                            .labelSmall));
+                  }
+                  return const CircularProgressIndicator();
+              }
+            ),
             backgroundColor: Colors.transparent,
             bottom: BiocentralCommandTabBar(
               controller: _tabController,
