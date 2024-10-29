@@ -13,11 +13,15 @@ class PluginDialog extends StatefulWidget {
 class _PluginDialogState extends State<PluginDialog> {
   final Set<BiocentralPlugin> _selectedPlugins = {};
 
+  final Map<Type, String> _pluginTypeNames = {};
+
   @override
   void initState() {
     super.initState();
     BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
     _selectedPlugins.addAll(biocentralPluginBloc.state.pluginManager.activePlugins);
+    _pluginTypeNames.addEntries(biocentralPluginBloc.state.pluginManager.allAvailablePlugins
+        .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)));
   }
 
   void closeDialog() {
@@ -27,12 +31,12 @@ class _PluginDialogState extends State<PluginDialog> {
   Set<BiocentralPlugin> getPluginsNecessaryForSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
     Set<BiocentralPlugin> result = {};
     Set<Type> pluginDependencies = selected.getDependencies();
-    for(Type dependencyType in pluginDependencies) {
-        for(BiocentralPlugin plugin in allPlugins) {
-          if(plugin.runtimeType == dependencyType) {
-            result.add(plugin);
-          }
+    for (Type dependencyType in pluginDependencies) {
+      for (BiocentralPlugin plugin in allPlugins) {
+        if (plugin.runtimeType == dependencyType) {
+          result.add(plugin);
         }
+      }
     }
     return result;
   }
@@ -130,7 +134,11 @@ class _PluginDialogState extends State<PluginDialog> {
     if (dependencies.isEmpty) {
       return "None";
     }
-    return dependencies.toString().replaceAll("{", "").replaceAll("}", "");
+    return dependencies
+        .map((dependency) => _pluginTypeNames[dependency])
+        .toString()
+        .replaceAll("(", "")
+        .replaceAll(")", "");
   }
 
   @override
