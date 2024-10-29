@@ -27,33 +27,81 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
     super.build(context);
     EmbeddingsHubBloc embeddingsHubBloc = BlocProvider.of<EmbeddingsHubBloc>(context);
 
-    return BlocConsumer<EmbeddingsHubBloc, EmbeddingsHubState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        return Scaffold(
-          body: Column(
-            children: [
-              const Flexible(child: Center(child: Text("Embeddings Hub"))),
-              Flexible(flex: 5, child: buildEntityTypeSelection(embeddingsHubBloc)),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(flex: 1, child: buildEmbedderSelection(embeddingsHubBloc, state)),
-                  Flexible(flex: 1, child: buildEmbeddingsTypeSelection(embeddingsHubBloc, state))
-                ],
-              ),
-              const Spacer(),
-              Flexible(flex: 1, child: buildEntityIDSelection(embeddingsHubBloc, state)),
-              const Spacer(),
-              Flexible(flex: 1, child: buildSingleEmbedding(embeddingsHubBloc, state)),
-              const Spacer(),
-              Flexible(flex: 3, child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
-              const Spacer(),
-              Flexible(flex: 3, child: buildUMAPs(state))
-            ],
-          ),
-        );
-      },
+    return DefaultTabController(
+      initialIndex: 0,
+      length: 2,
+      child: BlocBuilder<EmbeddingsHubBloc, EmbeddingsHubState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: Column(
+              children: [
+                // Custom AppBar
+                Container(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  color: Theme.of(context).primaryColor,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Embeddings Hub",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      buildEntityTypeSelection(embeddingsHubBloc),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: buildEmbedderSelection(embeddingsHubBloc, state)),
+                          Expanded(child: buildEmbeddingsTypeSelection(embeddingsHubBloc, state)),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TabBar(
+                        tabs: const [
+                          Tab(icon: Icon(Icons.zoom_in), text: "Details"),
+                          Tab(icon: Icon(Icons.visibility), text: "Visualizations"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // TabBarView
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      buildEmbeddingDetailView(embeddingsHubBloc, state),
+                      buildUMAPs(embeddingsHubBloc, state)
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildEmbeddingDetailView(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 8,),
+          Flexible(flex: 1, child: buildEntityIDSelection(embeddingsHubBloc, state)),
+          SizedBox(height: 8,),
+          Flexible(flex: 1, child: buildSingleEmbedding(embeddingsHubBloc, state)),
+          SizedBox(height: 8,),
+          Flexible(flex: 1, child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
+        ],
+      ),
     );
   }
 
@@ -128,12 +176,13 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
       return Text(rawEmbeddingValues.toString());
     }
     return SizedBox(
-        width: SizeConfig.screenWidth(context) * 0.9,
-        height: SizeConfig.screenHeight(context) * 0.2,
+        width: SizeConfig.screenWidth(context),
+        height: SizeConfig.screenHeight(context) * 0.1,
         child: VectorVisualizer(
           vector: rawEmbeddingValues,
           name: "${state.selectedEntityID} - PerSequenceEmbedding",
-          decimalPlaces: Constants.maxDoublePrecision,
+          // TODO Remove -1 in the future once visualization is improved
+          decimalPlaces: Constants.maxDoublePrecision - 1,
         ));
   }
 
@@ -149,24 +198,26 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
       mainAxisSize: MainAxisSize.min,
       children: [
         SingleChildScrollView(
-          scrollDirection: Axis.vertical,
+          scrollDirection: Axis.horizontal,
           child: SizedBox(
-              width: SizeConfig.screenWidth(context) * 0.9,
-              height: SizeConfig.screenHeight(context) * 0.2,
+              width: SizeConfig.screenWidth(context),
+              height: SizeConfig.screenHeight(context) * 0.1,
               child: VectorVisualizer(
                 vector: embeddingStats.mean.toList(),
-                name: "Mean",
-                decimalPlaces: Constants.maxDoublePrecision,
+                name: "Mean over all ${embeddingStats.numberOfEmbeddings} embeddings",
+                // TODO Remove -1 in the future once visualization is improved
+                decimalPlaces: Constants.maxDoublePrecision - 1,
               )),
         )
       ],
     );
   }
 
-  Widget buildUMAPs(EmbeddingsHubState state) {
+  Widget buildUMAPs(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
     if (state.umapData == null) {
       return Container();
     }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
@@ -212,7 +263,7 @@ class VectorVisualizer extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            '$name (N: ${vector.length})',
+            '$name (Dimensions: ${vector.length})',
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ),
