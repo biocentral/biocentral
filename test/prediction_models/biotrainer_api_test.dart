@@ -18,7 +18,7 @@ void main() {
       }
       expect(model.embedderName, equals("one_hot_encoding"));
       expect(model.architecture, equals("CNN"));
-      expect(model.databaseType, equals(Protein));
+      expect(model.databaseType, equals(Protein.empty().typeName));
       expect(model.predictionProtocol, equals(PredictionProtocol.residue_to_class));
     });
   });

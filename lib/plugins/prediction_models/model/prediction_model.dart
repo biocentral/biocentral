@@ -12,7 +12,7 @@ import 'prediction_protocol.dart';
 class PredictionModel extends Equatable {
   final String? embedderName;
   final String? architecture;
-  final Type? databaseType;
+  final String? databaseType;
   final PredictionProtocol? predictionProtocol;
 
   final Map<String, dynamic>? biotrainerTrainingConfig;
@@ -44,7 +44,7 @@ class PredictionModel extends Equatable {
   static PredictionModel? fromMap(Map<String, dynamic> map) {
     String? embedderName = map["embedder_name"];
     String? architecture = map["model_choice"];
-    Type databaseType = map["interaction"] != null && map["interaction"] != "" ? ProteinProteinInteraction : Protein;
+    String databaseType = map["interaction"] != null && map["interaction"] != "" ? ProteinProteinInteraction.empty().typeName : Protein.empty().typeName;
     PredictionProtocol? predictionProtocol =
         enumFromString<PredictionProtocol>(map["protocol"], PredictionProtocol.values);
 
@@ -92,7 +92,7 @@ class PredictionModel extends Equatable {
         "Could not merge prediction models due to a conflict in their embedderNames!", failOnConflict);
     String? architectureMerged = nullableMerge(architecture, other.architecture,
         "Could not merge prediction models due to a conflict in their architecture!", failOnConflict);
-    Type? databaseTypeMerged = nullableMerge(databaseType, other.databaseType,
+    String? databaseTypeMerged = nullableMerge(databaseType, other.databaseType,
         "Could not merge prediction models due to a conflict in their database types!", failOnConflict);
     PredictionProtocol? predictionProtocolMerged = nullableMerge(predictionProtocol, other.predictionProtocol,
         "Could not merge prediction models due to a conflict in their prediction protocols!", failOnConflict);

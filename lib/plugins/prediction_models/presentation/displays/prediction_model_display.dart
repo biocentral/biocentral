@@ -54,7 +54,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     BiotrainerTrainingResult? biotrainerTrainingResult = widget.predictionModel.biotrainerTrainingResult;
     String databaseType = "";
     if (widget.predictionModel.databaseType != null) {
-      databaseType = "${widget.predictionModel.databaseType.toString().capitalize()}-";
+      databaseType = "${widget.predictionModel.databaseType?.capitalize() ?? "Unknown"}-";
     }
     String title = "${databaseType}Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
         "${widget.predictionModel.embedderName ?? "Unknown Embeddings"} - "
