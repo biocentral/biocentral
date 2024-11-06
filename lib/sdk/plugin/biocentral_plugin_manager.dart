@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
+import 'package:biocentral/plugins/plm_eval/plm_eval_plugin.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,8 @@ class BiocentralPluginManager extends Equatable {
     PpiPlugin ppiPlugin = PpiPlugin(eventBus);
     EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
     PredictionModelsPlugin predictionModelsPlugin = PredictionModelsPlugin(eventBus);
-    return {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin};
+    PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
+    return {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin};
   }
 
   void registerGlobalProperties(
