@@ -11,8 +11,8 @@ python = ">=3.11.9, <3.12"
 
 # Backend
 Flask = "^3.0.2"
-umap-learn="^0.5.5"
-levenshtein = "^0.26.0"
+umap-learn="^0.5.7"
+levenshtein = "^0.26.1"
 taxoniq = "^1.0.1"
 
 # Frontend
