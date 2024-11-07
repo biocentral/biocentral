@@ -1,6 +1,8 @@
 import os
 import sys
 import tempfile
+from pathlib import Path
+from appdirs import user_cache_dir
 
 
 def get_bundle_dir() -> str:
@@ -21,3 +23,9 @@ def get_asset_path(path: str) -> str:
         bundle_dir = get_bundle_dir()
         return os.path.join(bundle_dir, path)
     return path
+
+
+def get_cache_dir(cache_subdir: str) -> Path:
+    cache_dir = user_cache_dir(cache_subdir)
+    os.makedirs(cache_dir, exist_ok=True)
+    return Path(cache_dir)

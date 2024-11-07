@@ -4,7 +4,7 @@ from ..utils import Constants
 from ..ppi import ppi_service_route
 from ..server_management import UserManager
 from ..proteins import protein_service_route
-from ..plm_eval import plm_eval_service_route
+from ..plm_eval import plm_eval_service_route, plm_eval_setup
 from ..protein_analysis import protein_analysis_route
 from ..embeddings import embeddings_service_route
 from ..biocentral import biocentral_service_route
@@ -35,6 +35,9 @@ def create_server_app():
     @app.before_request
     def check_user():
         UserManager.check_request(req=request)
+
+    # Setup services if required
+    plm_eval_setup(app)
 
     return app
 

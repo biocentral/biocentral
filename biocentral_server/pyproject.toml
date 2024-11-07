@@ -21,8 +21,10 @@ pygobject = {version="^3.48.2", optional=true} # Only for Linux
 ttkthemes = "^3.2.2"
 
 # Git-Dependencies
+autoeval = {git = "https://github.com/J-SNACKKB/autoeval.git", branch = "update-biotrainer"}
 biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", branch = "develop"}
 hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "main"}
+appdirs = "^1.4.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.1"
