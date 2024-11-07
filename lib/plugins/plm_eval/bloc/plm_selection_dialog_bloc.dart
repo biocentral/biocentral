@@ -17,34 +17,38 @@ final class PLMSelectionDialogSelectedEvent extends PLMSelectionDialogEvent {
 final class PLMSelectionDialogState extends Equatable {
   final String? plmHuggingface;
   final String? errorMessage;
+  final Map<String, List<String>> availableDatasets;
 
   final PLMSelectionDialogStatus status;
 
-  const PLMSelectionDialogState(this.status, this.plmHuggingface, this.errorMessage);
+  const PLMSelectionDialogState(this.status, this.plmHuggingface, this.errorMessage, this.availableDatasets);
 
   const PLMSelectionDialogState.initial()
       : plmHuggingface = null,
         errorMessage = null,
+        availableDatasets = const {},
         status = PLMSelectionDialogStatus.initial;
 
   const PLMSelectionDialogState.checking(this.plmHuggingface)
       : errorMessage = null,
+        availableDatasets = const {},
         status = PLMSelectionDialogStatus.checking;
 
-  const PLMSelectionDialogState.validated(this.plmHuggingface)
+  const PLMSelectionDialogState.validated(this.plmHuggingface, this.availableDatasets)
       : errorMessage = null,
         status = PLMSelectionDialogStatus.validated;
 
-  const PLMSelectionDialogState.evaluationAlreadyAvailable(this.plmHuggingface)
+  const PLMSelectionDialogState.evaluationAlreadyAvailable(this.plmHuggingface, this.availableDatasets)
       : errorMessage = null,
         status = PLMSelectionDialogStatus.evaluationAlreadyAvailable;
 
   const PLMSelectionDialogState.errored(this.errorMessage)
       : plmHuggingface = null,
+        availableDatasets = const {},
         status = PLMSelectionDialogStatus.errored;
 
   @override
-  List<Object?> get props => [plmHuggingface, errorMessage, status];
+  List<Object?> get props => [plmHuggingface, errorMessage, availableDatasets, status];
 }
 
 enum PLMSelectionDialogStatus { initial, checking, validated, evaluationAlreadyAvailable, errored }
@@ -66,9 +70,16 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
 
       final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
       final validateEither = await plmEvalClient.validateModelID(event.plmSelection);
-      validateEither.match(
-          (l) => emit(PLMSelectionDialogState.errored("Validation of model id failed! Error: ${l.error}")),
-          (r) => emit(PLMSelectionDialogState.validated(event.plmSelection)));
+      await validateEither.match((l) async {
+        emit(PLMSelectionDialogState.errored("Validation of model id failed! Error: ${l.error}"));
+      }, (r) async {
+        emit(PLMSelectionDialogState.validated(event.plmSelection, {}));
+        final benchmarkDatasetEither = await plmEvalClient.getAvailableBenchmarkDatasets();
+        benchmarkDatasetEither.match(
+            (l) => emit(
+                PLMSelectionDialogState.errored("Could not retrieve available benchmark datasets! Error: ${l.error}")),
+            (datasets) => emit(PLMSelectionDialogState.validated(event.plmSelection, datasets)));
+      });
     });
   }
 }
