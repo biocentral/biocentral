@@ -61,6 +61,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
               plmSelection = value ?? "";
             });
           }),
+      buildDatasetSplitsDisplay(state.availableDatasets),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [buildCheckAndEvaluateButton(plmSelectionDialogBloc, state), buildCancelButton()],
@@ -73,8 +74,62 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     );
   }
 
+
+  Widget buildDatasetSplitsDisplay(Map<String, List<String>> availableDatasets) {
+    if (availableDatasets.isEmpty) {
+      return Container();
+    }
+
+    return Column(
+      children: [
+        Text("Benchmark Datasets (FLIP):"),
+        SizedBox(height: 8,),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: availableDatasets.entries.map((entry) {
+              String datasetName = entry.key;
+              List<String> splits = entry.value;
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      datasetName,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.arrow_forward, size: 20),
+                        SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: splits.map((split) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4.0),
+                              child: Text(split),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildCheckAndEvaluateButton(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
-    if (state.status == PLMSelectionDialogStatus.validated) {
+    if (state.status == PLMSelectionDialogStatus.validated && state.availableDatasets.isNotEmpty) {
       return BiocentralSmallButton(onTap: () => null, label: "Evaluate");
     }
     return BiocentralSmallButton(
@@ -85,4 +140,5 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   Widget buildCancelButton() {
     return BiocentralSmallButton(onTap: closeDialog, label: "Close");
   }
+
 }
