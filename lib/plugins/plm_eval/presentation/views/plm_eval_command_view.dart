@@ -3,7 +3,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../dialogs/select_plm_dialog.dart';
+import '../dialogs/plm_selection_dialog.dart';
 
 class PLMEvalCommandView extends StatefulWidget {
   const PLMEvalCommandView({super.key});
