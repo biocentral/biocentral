@@ -14,6 +14,10 @@ Flask = "^3.0.2"
 umap-learn="^0.5.7"
 levenshtein = "^0.26.1"
 taxoniq = "^1.0.1"
+appdirs = "^1.4.4"
+blosc2 = "^2.7.1"
+flask-pymongo = "^2.3.0"
+tinydb = "^4.8.2"
 
 # Frontend
 pystray="^0.19.5"
@@ -24,7 +28,8 @@ ttkthemes = "^3.2.2"
 autoeval = {git = "https://github.com/J-SNACKKB/autoeval.git", branch = "update-biotrainer"}
 biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", branch = "develop"}
 hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "main"}
-appdirs = "^1.4.4"
+
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.1"

@@ -1,8 +1,12 @@
+import logging
+
+from pathlib import Path
+
 from flask import Flask, request
 
 from ..utils import Constants
 from ..ppi import ppi_service_route
-from ..server_management import UserManager
+from ..server_management import UserManager, init_embeddings_database_instance
 from ..proteins import protein_service_route
 from ..plm_eval import plm_eval_service_route, plm_eval_setup
 from ..protein_analysis import protein_analysis_route
@@ -11,6 +15,8 @@ from ..biocentral import biocentral_service_route
 from ..prediction_models import prediction_models_service_route
 
 from .server_thread import ServerThread
+
+logger = logging.getLogger(__name__)
 
 
 def create_server_app():
@@ -35,6 +41,18 @@ def create_server_app():
     @app.before_request
     def check_user():
         UserManager.check_request(req=request)
+
+    # Setup embeddings database
+    # Choose which database to use
+    app.config['USE_MONGODB'] = False
+
+    if app.config['USE_MONGODB']:
+        app.config["MONGO_URI"] = "mongodb://localhost:27017/embeddings"
+    else:
+        app.config['TINYDB_PATH'] = str(Path("storage/embeddings.json"))
+
+    app.config["EMBEDDINGS_DATABASE"] = init_embeddings_database_instance(app)
+    logger.info(f"Using database: {'MongoDB' if app.config['USE_MONGODB'] else 'TinyDB'}")
 
     # Setup services if required
     plm_eval_setup(app)

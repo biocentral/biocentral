@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 from biotrainer.embedders import get_embedding_service, EmbeddingService
 from biotrainer.protocols import Protocol
-from biotrainer.utilities import get_device
-from flask import request, Blueprint, jsonify
+from biotrainer.utilities import get_device, read_FASTA
+from flask import request, Blueprint, jsonify, current_app
 
 from .umap_analysis import calculate_umap
 
 from ..utils import str2bool
-from ..server_management import FileManager, UserManager, StorageFileType
+from ..server_management import FileManager, UserManager, StorageFileType, EmbeddingsDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -53,16 +53,37 @@ def embed():
     device = get_device()
     reduce_by_protocol = Protocol.sequence_to_class if reduce else Protocol.residue_to_class
 
-    embedding_service: EmbeddingService = get_embedding_service(embedder_name=embedder_name, embeddings_file_path=None,
-                                                                use_half_precision=use_half_precision, device=device)
+    all_seq_records = read_FASTA(str(sequence_file_path))
+    all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
 
-    embeddings_file_path = embedding_service.compute_embeddings(sequence_file=str(sequence_file_path),
-                                                                output_dir=embeddings_out_path,
-                                                                protocol=reduce_by_protocol,
-                                                                force_output_dir=True)
-    embeddings = embedding_service.load_embeddings(embeddings_file_path)
+    # Find existing embeddings from database
+    embeddings_db: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
 
-    embeddings_double_list = _round_embeddings(embeddings, reduced=reduce)
+    existing_embds_seqs, non_existing_embds_seqs = embeddings_db.filter_existing_embeddings(sequences=all_seqs,
+                                                                                            embedder_name=embedder_name,
+                                                                                            reduced=reduce)
+
+    # Do embeddings computation for non-existing embeddings
+    if len(non_existing_embds_seqs) > 0:
+        embedding_service: EmbeddingService = get_embedding_service(embedder_name=embedder_name,
+                                                                    embeddings_file_path=None,
+                                                                    use_half_precision=use_half_precision,
+                                                                    device=device)
+
+        embeddings_file_path = embedding_service.compute_embeddings(input_data=non_existing_embds_seqs,
+                                                                    output_dir=embeddings_out_path,
+                                                                    protocol=reduce_by_protocol,
+                                                                    force_output_dir=True)
+        computed_embeddings = embedding_service.load_embeddings(embeddings_file_path)
+
+        computed_embeddings_triples = embeddings_db.unify_seqs_with_embeddings(seqs=non_existing_embds_seqs,
+                                                                               embds=computed_embeddings)
+        embeddings_db.save_embeddings(ids_seqs_embds=computed_embeddings_triples, embedder_name=embedder_name,
+                                      reduced=reduce)
+
+    all_embeddings = embeddings_db.get_embeddings(sequences=all_seqs, embedder_name=embedder_name, reduced=reduce)
+
+    embeddings_double_list = _round_embeddings({triple.id: triple.embd for triple in all_embeddings}, reduced=reduce)
 
     # Remove huggingface / prefix
     embedder_name = embedder_name.split("/")[-1]
