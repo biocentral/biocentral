@@ -1,16 +1,15 @@
 import json
-
-import flask
 import logging
-
 import numpy as np
 import pandas as pd
-from biotrainer.embedders import get_embedding_service, EmbeddingService
+
 from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_device, read_FASTA
 from flask import request, Blueprint, jsonify, current_app
+from biotrainer.embedders import get_embedding_service, EmbeddingService
 
 from .umap_analysis import calculate_umap
+from .embed import compute_embeddings, compute_embeddings_and_save_to_db
 
 from ..utils import str2bool
 from ..server_management import FileManager, UserManager, StorageFileType, EmbeddingsDatabase
@@ -42,6 +41,9 @@ def embed():
     database_hash: str = embedding_data.get('database_hash')
     use_half_precision: bool = str2bool(embedding_data.get('use_half_precision'))
 
+    device = get_device()
+    reduce_by_protocol = Protocol.sequence_to_class if reduce else Protocol.residue_to_class
+
     try:
         file_manager = FileManager(user_id=user_id)
         sequence_file_path = file_manager.get_file_path(database_hash=database_hash,
@@ -50,38 +52,19 @@ def embed():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    device = get_device()
-    reduce_by_protocol = Protocol.sequence_to_class if reduce else Protocol.residue_to_class
-
     all_seq_records = read_FASTA(str(sequence_file_path))
     all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
 
-    # Find existing embeddings from database
-    embeddings_db: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
+    # List of embedder names that should not be saved in the database
+    EXCLUDED_EMBEDDERS = ['one_hot_encoding']
 
-    existing_embds_seqs, non_existing_embds_seqs = embeddings_db.filter_existing_embeddings(sequences=all_seqs,
-                                                                                            embedder_name=embedder_name,
-                                                                                            reduced=reduce)
-
-    # Do embeddings computation for non-existing embeddings
-    if len(non_existing_embds_seqs) > 0:
-        embedding_service: EmbeddingService = get_embedding_service(embedder_name=embedder_name,
-                                                                    embeddings_file_path=None,
-                                                                    use_half_precision=use_half_precision,
-                                                                    device=device)
-
-        embeddings_file_path = embedding_service.compute_embeddings(input_data=non_existing_embds_seqs,
-                                                                    output_dir=embeddings_out_path,
-                                                                    protocol=reduce_by_protocol,
-                                                                    force_output_dir=True)
-        computed_embeddings = embedding_service.load_embeddings(embeddings_file_path)
-
-        computed_embeddings_triples = embeddings_db.unify_seqs_with_embeddings(seqs=non_existing_embds_seqs,
-                                                                               embds=computed_embeddings)
-        embeddings_db.save_embeddings(ids_seqs_embds=computed_embeddings_triples, embedder_name=embedder_name,
-                                      reduced=reduce)
-
-    all_embeddings = embeddings_db.get_embeddings(sequences=all_seqs, embedder_name=embedder_name, reduced=reduce)
+    if embedder_name in EXCLUDED_EMBEDDERS:
+        all_embeddings = compute_embeddings(embedder_name, all_seqs, embeddings_out_path, reduce_by_protocol,
+                                            use_half_precision, device)
+    else:
+        all_embeddings = compute_embeddings_and_save_to_db(embedder_name, all_seqs, embeddings_out_path,
+                                                           reduce_by_protocol,
+                                                           use_half_precision, device)
 
     embeddings_double_list = _round_embeddings({triple.id: triple.embd for triple in all_embeddings}, reduced=reduce)
 
