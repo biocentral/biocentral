@@ -192,24 +192,32 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         state.selectedEmbeddingType == null) {
       return Container();
     }
-    EmbeddingStats embeddingStats =
-        state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-              width: SizeConfig.screenWidth(context),
-              height: SizeConfig.screenHeight(context) * 0.1,
-              child: VectorVisualizer(
-                vector: embeddingStats.mean.toList(),
-                name: "Mean over all ${embeddingStats.numberOfEmbeddings} embeddings",
-                // TODO Remove -1 in the future once visualization is improved
-                decimalPlaces: Constants.maxDoublePrecision - 1,
-              )),
-        )
-      ],
+
+    return FutureBuilder(
+      future: state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!),
+      builder: (context, snapshot) {
+        if(snapshot.hasData && snapshot.data != null) {
+          final embeddingStats = snapshot.data!;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                    width: SizeConfig.screenWidth(context),
+                    height: SizeConfig.screenHeight(context) * 0.1,
+                    child: VectorVisualizer(
+                      vector: embeddingStats.mean.toList(),
+                      name: "Mean over all ${embeddingStats.numberOfEmbeddings} embeddings",
+                      // TODO Remove -1 in the future once visualization is improved
+                      decimalPlaces: Constants.maxDoublePrecision - 1,
+                    )),
+              )
+            ],
+          );
+        }
+        return CircularProgressIndicator();
+      }
     );
   }
 

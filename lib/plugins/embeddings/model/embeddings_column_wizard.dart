@@ -1,5 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ml_linalg/linalg.dart';
 import 'package:scidart/numdart.dart';
 
@@ -86,13 +87,13 @@ class EmbeddingsColumnWizard extends ColumnWizard {
 
   Map<String, Map<EmbeddingType, EmbeddingStats>>? _embeddingStats;
 
-  EmbeddingStats getEmbeddingStats(String embedderName, EmbeddingType embeddingType) {
+  Future<EmbeddingStats> getEmbeddingStats(String embedderName, EmbeddingType embeddingType) async {
     _embeddingStats ??= {};
     _embeddingStats!.putIfAbsent(embedderName, () => {});
 
     if (!_embeddingStats![embedderName]!.containsKey(embeddingType)) {
       List<List<double>> embeddings = _getEmbeddingsForType(embedderName, embeddingType);
-      _embeddingStats![embedderName]![embeddingType] = _calculateEmbeddingStats(embeddings);
+      _embeddingStats![embedderName]![embeddingType] = await compute(_calculateEmbeddingStats, embeddings);
     }
 
     return _embeddingStats![embedderName]![embeddingType]!;
@@ -149,8 +150,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
       dimensionality: mean.length,
       numberOfEmbeddings: n,
       averageCosineSimilarity: 0.0,
-      //averageCosineSimilarity,
-      averageEuclideanDistance: 0.0, //averageEuclideanDistance,
+      averageEuclideanDistance: 0.0,
     );
   }
 }
