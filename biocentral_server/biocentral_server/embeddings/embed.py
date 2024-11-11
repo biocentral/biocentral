@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Dict, List
 
@@ -6,6 +7,9 @@ from biotrainer.protocols import Protocol
 from biotrainer.embedders import get_embedding_service
 
 from biocentral_server.server_management.embedding_database import EmbeddingsDatabaseTriple, EmbeddingsDatabase
+
+
+logger = logging.getLogger(__name__)
 
 
 def compute_embeddings(embedder_name: str,
@@ -43,6 +47,8 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
                                                          device=device)
         embeddings_db.save_embeddings(ids_seqs_embds=computed_embeddings_triples, embedder_name=embedder_name,
                                       reduced=reduce)
+    else:
+        logger.debug(f"All {len(existing_embds_seqs)} embeddings already computed!")
 
     return embeddings_db.get_embeddings(sequences=all_seqs, embedder_name=embedder_name,
                                         reduced=reduce)

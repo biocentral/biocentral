@@ -6,13 +6,12 @@ import pandas as pd
 from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_device, read_FASTA
 from flask import request, Blueprint, jsonify, current_app
-from biotrainer.embedders import get_embedding_service, EmbeddingService
 
 from .umap_analysis import calculate_umap
 from .embed import compute_embeddings, compute_embeddings_and_save_to_db
 
 from ..utils import str2bool
-from ..server_management import FileManager, UserManager, StorageFileType, EmbeddingsDatabase
+from ..server_management import FileManager, UserManager, StorageFileType
 
 logger = logging.getLogger(__name__)
 

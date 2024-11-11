@@ -19,7 +19,7 @@ from .server_thread import ServerThread
 logger = logging.getLogger(__name__)
 
 
-def create_server_app():
+def create_server_app(mongodb_user="embeddingsUser", mongodb_pwd="embeddingsPassword"):
     app = Flask("Biocentral Server")
     app.register_blueprint(biocentral_service_route)
     app.register_blueprint(ppi_service_route)
@@ -43,11 +43,10 @@ def create_server_app():
         UserManager.check_request(req=request)
 
     # Setup embeddings database
-    # Choose which database to use
     app.config['USE_MONGODB'] = False
 
     if app.config['USE_MONGODB']:
-        app.config["MONGO_URI"] = "mongodb://localhost:27017/embeddings"
+        app.config["MONGO_URI"] = f"mongodb://{mongodb_user}:{mongodb_pwd}@localhost:27017/embeddings_db"
     else:
         app.config['TINYDB_PATH'] = str(Path("storage/embeddings.json"))
 
