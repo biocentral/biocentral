@@ -2,12 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-class HistogramKDEPlot extends StatelessWidget {
+class BiocentralHistogramKDEPlot extends StatelessWidget {
   final List<double> data;
   final int bins;
   final double bandwidth;
 
-  const HistogramKDEPlot({
+  const BiocentralHistogramKDEPlot({
     Key? key,
     required this.data,
     this.bins = 20,

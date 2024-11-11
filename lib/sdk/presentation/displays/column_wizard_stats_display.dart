@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/column_wizard_abstract.dart';
 import '../../util/constants.dart';
 import '../../util/size_config.dart';
+import '../plots/biocentral_bar_plot.dart';
+import '../plots/biocentral_histogram_kde_plot.dart';
 
 class ColumnWizardStatsDisplay extends StatefulWidget {
   final ColumnWizard columnWizard;
@@ -25,31 +26,52 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
   }
 
   @override
+  void didUpdateWidget(ColumnWizardStatsDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.columnWizard != widget.columnWizard) {
+      handleAsDiscrete = widget.columnWizard.handleAsDiscrete();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FutureBuilder<bool>(
-                future: handleAsDiscrete,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data != null && snapshot.data == true) {
-                      return descriptiveStatisticsCounterStats();
-                    } else {
-                      return descriptiveStatisticsNumericStats();
-                    }
-                  }
-                  return const CircularProgressIndicator();
-                }),
-            SizedBox(
-              width: SizeConfig.safeBlockHorizontal(context) * 5,
-            ),
-            barDistributionPlot(),
-          ],
-        ),
+        FutureBuilder<bool>(
+            future: handleAsDiscrete,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                if (snapshot.data == true) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      descriptiveStatisticsCounterStats(),
+                      SizedBox(
+                        width: SizeConfig.safeBlockHorizontal(context) * 5,
+                      ),
+                      barDistributionPlot(),
+                    ],
+                  );
+                } else {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      descriptiveStatisticsNumericStats(),
+                      SizedBox(
+                        width: SizeConfig.safeBlockHorizontal(context) * 5,
+                      ),
+                      SizedBox(
+                          width: 200,
+                          height: 300,
+                          child: BiocentralHistogramKDEPlot(data: (widget.columnWizard as NumericStats).numericValues)),
+                      //List.generate(1000, (_) => math.Random().nextDouble() * 100))),
+                    ],
+                  );
+                }
+              }
+              return const CircularProgressIndicator();
+            }),
       ],
     );
   }
@@ -85,6 +107,7 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
           return Column(mainAxisSize: MainAxisSize.min, children: [
             const Text("Descriptive Statistics"),
             textFuture("Number values:", columnWizard.length()),
+            textFuture("Number different classes:", columnWizard.getCounts().then((counts) => counts.keys.length)),
             textFuture("Number missing values:", columnWizard.numberMissing()),
             ...classCounts,
           ]);
@@ -121,44 +144,16 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             ColumnWizardBarChartData barChartData = snapshot.data!;
+            List<(String, double)> plotData = barChartData.dataPoints
+                .map((point) => (barChartData.bottomTitles[point.$1], point.$2.toDouble()))
+                .toList();
             return SizedBox(
-              width: 200,
-              height: 200,
-              child: BarChart(
-                BarChartData(
-                  maxY: barChartData.maxY,
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, titleMeta) =>
-                            bottomTitles(value, titleMeta, barChartData.bottomTitles),
-                        reservedSize: 42,
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 28,
-                        interval: 1,
-                        getTitlesWidget: (value, titleMeta) =>
-                            leftTitles(value, titleMeta, barChartData.leftTitleValues),
-                      ),
-                    ),
-                  ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  barGroups: getBarChartData(barChartData.dataPoints),
-                  gridData: const FlGridData(show: true),
-                ),
+              width: 400,
+              height: 400,
+              child: BiocentralBarPlot(
+                data: plotData,
+                xAxisLabel: 'Categories',
+                yAxisLabel: 'Frequency',
               ),
             );
           } else {
@@ -167,51 +162,5 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
         },
       ),
     );
-  }
-
-  Widget leftTitles(double value, TitleMeta meta, List<double> titleValues) {
-    if (titleValues.contains(value)) {
-      final Widget text = Text(
-        value.toInt().toString(),
-        style: const TextStyle(
-          color: Color(0xff7589a2),
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      );
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        space: 0,
-        child: text,
-      );
-    }
-    return Container();
-  }
-
-  Widget bottomTitles(double value, TitleMeta meta, List<String> titles) {
-    final Widget text = Text(
-      titles[value.toInt()],
-      style: const TextStyle(
-        color: Color(0xff7589a2),
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),
-    );
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 16, //margin top
-      angle: 45,
-      child: text,
-    );
-  }
-
-  List<BarChartGroupData> getBarChartData(List<(int, double)> dataPoints) {
-    List<BarChartGroupData> result = [];
-
-    for ((int, double) dataPoint in dataPoints) {
-      result.add(BarChartGroupData(x: dataPoint.$1, barRods: [BarChartRodData(toY: dataPoint.$2, color: Colors.red)]));
-    }
-    return result;
   }
 }
