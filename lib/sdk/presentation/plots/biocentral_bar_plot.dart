@@ -126,7 +126,7 @@ class BarPlotPainter extends CustomPainter {
     canvas.save();
     canvas.translate(0, size.height / 2 + yLabelPainter.width / 2);
     canvas.rotate(-math.pi / 2);
-    yLabelPainter.paint(canvas, Offset(0, 0));
+    yLabelPainter.paint(canvas, Offset(0, -padding/4));
     canvas.restore();
   }
 

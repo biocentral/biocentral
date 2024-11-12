@@ -67,9 +67,9 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
         context: context,
         builder: (BuildContext context) {
           return BlocProvider(
-            create: (context) => ColumnWizardDialogBloc(
+            create: (context) => ColumnWizardBloc(
                 context.read<ProteinRepository>(), context.read<BiocentralColumnWizardRepository>())
-              ..add(ColumnWizardDialogLoadEvent()),
+              ..add(ColumnWizardLoadEvent()),
             child: ColumnWizardDialog(onCalculateColumn: (columnWizard, columnWizardOperation) {
               proteinCommandBloc.add(ProteinsCommandColumnWizardOperationEvent(columnWizard, columnWizardOperation));
             }),
