@@ -20,24 +20,24 @@ class BiocentralBarPlot extends StatelessWidget {
       builder: (context, constraints) {
         return CustomPaint(
           size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: BarPlotPainter(data, xAxisLabel, yAxisLabel),
+          painter: _BarPlotPainter(data, xAxisLabel, yAxisLabel),
         );
       },
     );
   }
 }
 
-class BarPlotPainter extends CustomPainter {
+class _BarPlotPainter extends CustomPainter {
   final List<(String, double)> data;
   final String xAxisLabel;
   final String yAxisLabel;
+  final TextStyle plotTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
-  BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel);
+  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel);
 
   @override
   void paint(Canvas canvas, Size size) {
     const double padding = 60;
-    final TextStyle axisTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
     final Size plotSize = Size(size.width - padding * 2, size.height - padding * 2);
     final Offset plotOffset = Offset(padding, padding);
 
@@ -78,7 +78,7 @@ class BarPlotPainter extends CustomPainter {
       }
       final textPainter = TextPainter(
         text: TextSpan(
-            text: label, style: axisTextStyle),
+            text: label, style: plotTextStyle),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -103,7 +103,7 @@ class BarPlotPainter extends CustomPainter {
       final textPainter = TextPainter(
         text: TextSpan(
             text: labelValue.toStringAsFixed(1),
-            style: axisTextStyle),
+            style: plotTextStyle),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -112,14 +112,14 @@ class BarPlotPainter extends CustomPainter {
 
     // Add axis labels
     final xLabelPainter = TextPainter(
-      text: TextSpan(text: xAxisLabel, style: axisTextStyle),
+      text: TextSpan(text: xAxisLabel, style: plotTextStyle),
       textDirection: TextDirection.ltr,
     );
     xLabelPainter.layout();
     xLabelPainter.paint(canvas, Offset(size.width - padding , size.height - padding));
 
     final yLabelPainter = TextPainter(
-      text: TextSpan(text: yAxisLabel, style: axisTextStyle),
+      text: TextSpan(text: yAxisLabel, style: plotTextStyle),
       textDirection: TextDirection.ltr,
     );
     yLabelPainter.layout();
