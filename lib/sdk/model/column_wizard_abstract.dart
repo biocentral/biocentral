@@ -1,6 +1,7 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:scidart/numdart.dart';
+import 'package:ml_linalg/vector.dart';
 
 import '../util/constants.dart';
 import 'column_wizard_operations.dart';
@@ -120,7 +121,7 @@ abstract class ColumnWizard {
   Future<List<double>> _getBarChartLeftTitles() async {
     if (await handleAsDiscrete()) {
       List<double> countValues = (await getCounts()).values.map((value) => value.toDouble()).toList();
-      double middle = median(Array(countValues));
+      double middle = Vector.fromList(countValues).median();
       double max = countValues.max;
       return [0.0, middle, max];
     } else {
@@ -133,42 +134,69 @@ abstract class ColumnWizard {
     List<String> bottomTitles = await _getBarChartBottomTitles();
     List<double> leftTitleValues = await _getBarChartLeftTitles();
     List<(int, double)> dataPoints = await _getBarChartDataPoints();
-    double maxY = Array(dataPoints.map((e) => e.$2).toList()).max;
+    double maxY = Vector.fromList(dataPoints.map((e) => e.$2).toList()).max();
     return ColumnWizardBarChartData(
         maxY: maxY, bottomTitles: bottomTitles, leftTitleValues: leftTitleValues, dataPoints: dataPoints);
   }
 }
 
 mixin NumericStats on ColumnWizard {
-  Array get numericValues;
+  Vector get numericValues;
 
   Future<double> max() async {
-    return numericValues.max;
+    return numericValues.max();
   }
 
   Future<double> min() async {
-    return numericValues.min;
+    return numericValues.min();
   }
 
   Future<double> mean() async {
-    return numericValues.average;
+    return numericValues.mean();
   }
 
-  Future<double> medianArray() async {
-    return compute(median, numericValues);
+  Future<double> median() async {
+    return numericValues.median();
   }
 
   double? _mode;
 
-  Future<double> modeArray() async {
-    _mode ??= await compute(mode, numericValues);
+  Future<double> mode() async {
+    if (_mode == null) {
+      final Map<double, int> frequencyMap = {};
+      for (final value in numericValues) {
+        frequencyMap[value] = (frequencyMap[value] ?? 0) + 1;
+      }
+      int maxFrequency = 0;
+      double modeValue = 0;
+      frequencyMap.forEach((key, value) {
+        if (value > maxFrequency) {
+          maxFrequency = value;
+          modeValue = key;
+        }
+      });
+      _mode = modeValue;
+    }
     return _mode!;
+  }
+
+  double? _variance;
+
+  Future<double> variance() async {
+    if (_variance == null) {
+      final double mean = await this.mean();
+      _variance = numericValues.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b) / (numericValues.length - 1);
+    }
+    return _variance!;
   }
 
   double? _stdDev;
 
   Future<double> stdDev() async {
-    _stdDev ??= await compute(standardDeviation, numericValues);
+    if (_stdDev == null) {
+      double variance = await this.variance();
+      _stdDev = sqrt(variance);
+    }
     return _stdDev!;
   }
 
@@ -193,12 +221,12 @@ mixin NumericStats on ColumnWizard {
   }
 
   Future<List<List<double>>> toBins({int numberBins = 10}) async {
-    final double max = numericValues.max;
-    final double min = numericValues.min;
+    final double max = await this.max();
+    final double min = await this.min();
 
     double binSize = (max - min).abs() / numberBins;
     if (binSize == 0.0) {
-      binSize = numericValues.min;
+      binSize = min;
     }
     List<List<double>> result = List.generate(numberBins, (_) => []);
 
