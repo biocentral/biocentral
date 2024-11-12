@@ -6,7 +6,7 @@ export 'bloc/biocentral_client_bloc.dart';
 export 'bloc/biocentral_command.dart';
 export 'bloc/biocentral_events.dart';
 export 'bloc/biocentral_state.dart';
-export 'bloc/column_wizard_dialog_bloc.dart';
+export 'bloc/column_wizard_bloc.dart';
 export 'data/biocentral_client.dart';
 export 'data/biocentral_local_server.dart';
 export 'data/biocentral_server_data.dart';

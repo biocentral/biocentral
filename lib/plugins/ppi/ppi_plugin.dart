@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
+import 'package:biocentral/plugins/ppi/presentation/views/ppi_hub_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,18 +12,13 @@ import 'bloc/ppi_properties_bloc.dart';
 import 'data/ppi_client.dart';
 import 'domain/ppi_repository.dart';
 import 'model/load_example_ppi_dataset_tutorial.dart';
-import 'presentation/displays/ppi_database_badges.dart';
 import 'presentation/views/ppi_command_view.dart';
-import 'presentation/views/ppi_database_tests_view.dart';
-import 'presentation/views/ppi_database_view.dart';
 
 class PpiPlugin extends BiocentralPlugin
     with
         BiocentralClientPluginMixin<PPIClient>,
         BiocentralDatabasePluginMixin<PPIRepository>,
         BiocentralTutorialPluginMixin {
-  // TODO Check if this key handling works
-  final GlobalKey<PPIDatabaseViewState> _ppiDatabaseViewState = GlobalKey<PPIDatabaseViewState>();
   final GlobalKey ppiTabKey = GlobalKey();
 
   PpiPlugin(super.eventBus);
@@ -47,22 +43,7 @@ class PpiPlugin extends BiocentralPlugin
 
   @override
   Widget getScreenView(BuildContext context) {
-    return Column(
-      children: [
-        const Flexible(flex: 2, child: PPIDatabaseTestsView()),
-        SizedBox(height: SizeConfig.safeBlockVertical(context)),
-        const Flexible(flex: 1, child: PPIDatabaseBadges()),
-        SizedBox(height: SizeConfig.safeBlockVertical(context)),
-        Flexible(
-          flex: 10,
-          child: PPIDatabaseView(
-            key: _ppiDatabaseViewState,
-            // TODO Handle selection
-            onInteractionSelected: (interaction) => null,
-          ),
-        ),
-      ],
-    );
+    return const PPIHubView();
   }
 
   @override
@@ -91,11 +72,15 @@ class PpiPlugin extends BiocentralPlugin
     final ppiPropertiesBloc = PPIPropertiesBloc(getDatabase(context))..add(PPIPropertiesCalculateEvent());
     final ppiDatabaseGridBloc = PPIDatabaseGridBloc(getDatabase(context))..add(PPIDatabaseGridLoadEvent());
     final ppiDatabaseTestsBloc = PPIDatabaseTestsBloc(getDatabase(context));
+    final ppiColumnWizardBloc =
+        ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
+          ..add(ColumnWizardLoadEvent());
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
       ppiPropertiesBloc.add(PPIPropertiesCalculateEvent());
       ppiDatabaseTestsBloc.add(PPIDatabaseTestsLoadTestsEvent());
+      ppiColumnWizardBloc.add(ColumnWizardLoadEvent());
     });
 
     eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
@@ -108,7 +93,8 @@ class PpiPlugin extends BiocentralPlugin
       BlocProvider<PPICommandBloc>.value(value: ppiCommandBloc),
       BlocProvider<PPIPropertiesBloc>.value(value: ppiPropertiesBloc),
       BlocProvider<PPIDatabaseGridBloc>.value(value: ppiDatabaseGridBloc),
-      BlocProvider<PPIDatabaseTestsBloc>.value(value: ppiDatabaseTestsBloc)
+      BlocProvider<PPIDatabaseTestsBloc>.value(value: ppiDatabaseTestsBloc),
+      BlocProvider<ColumnWizardBloc>.value(value: ppiColumnWizardBloc)
     ];
   }
 

@@ -87,8 +87,8 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
         builder: (BuildContext context) {
           return BlocProvider(
             create: (context) =>
-                ColumnWizardDialogBloc(context.read<PPIRepository>(), context.read<BiocentralColumnWizardRepository>())
-                  ..add(ColumnWizardDialogLoadEvent()),
+                ColumnWizardBloc(context.read<PPIRepository>(), context.read<BiocentralColumnWizardRepository>())
+                  ..add(ColumnWizardLoadEvent()),
             child: ColumnWizardDialog(onCalculateColumn: (columnWizard, columnWizardOperation) {
               interactionsCommandBloc.add(PPICommandColumnWizardOperationEvent(columnWizard, columnWizardOperation));
             }),

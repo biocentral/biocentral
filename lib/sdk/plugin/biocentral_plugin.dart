@@ -53,13 +53,13 @@ abstract class BiocentralPlugin with TypeNameMixin {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: getListeningBlocs(context),
-      child: Column(mainAxisSize: MainAxisSize.max, children: [
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
         Flexible(
-          flex: 5,
+          flex: 4,
           child: getCommandView(context),
         ),
         Expanded(
-            flex: 14,
+          flex: 14,
             child: Container(
                 padding: EdgeInsets.symmetric(horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75, vertical: 1),
                 child: getScreenView(context))),

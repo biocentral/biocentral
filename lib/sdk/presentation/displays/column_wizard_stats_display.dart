@@ -38,6 +38,9 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        SizedBox(
+          height: SizeConfig.safeBlockVertical(context) * 2,
+        ),
         FutureBuilder<bool>(
             future: handleAsDiscrete,
             builder: (context, snapshot) {
@@ -61,10 +64,13 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
                       SizedBox(
                         width: SizeConfig.safeBlockHorizontal(context) * 5,
                       ),
-                      SizedBox(
-                          width: 200,
-                          height: 300,
-                          child: BiocentralHistogramKDEPlot(data: (widget.columnWizard as NumericStats).numericValues)),
+                      Builder(builder: (context) {
+                        final data = (widget.columnWizard as NumericStats).numericValues;
+                        return SizedBox(
+                            width: SizeConfig.screenWidth(context) * 0.4,
+                            height: SizeConfig.screenHeight(context) * 0.3,
+                            child: BiocentralHistogramKDEPlot(data: data));
+                      }),
                       //List.generate(1000, (_) => math.Random().nextDouble() * 100))),
                     ],
                   );
@@ -79,7 +85,7 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
   Widget descriptiveStatisticsNumericStats() {
     NumericStats columnWizard = widget.columnWizard as NumericStats;
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      const Text("Descriptive Statistics"),
+      const Text("Descriptive Statistics:\n"),
       textFuture("Number values:", columnWizard.length()),
       textFuture("Number missing values:", columnWizard.numberMissing()),
       textFuture("Max:", columnWizard.max()),
@@ -105,7 +111,7 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
                 .map((entry) => Text("${entry.key}: ${entry.value}")));
           }
           return Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text("Descriptive Statistics"),
+            const Text("Descriptive Statistics:\n"),
             textFuture("Number values:", columnWizard.length()),
             textFuture("Number different classes:", columnWizard.getCounts().then((counts) => counts.keys.length)),
             textFuture("Number missing values:", columnWizard.numberMissing()),
@@ -148,8 +154,8 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
                 .map((point) => (barChartData.bottomTitles[point.$1], point.$2.toDouble()))
                 .toList();
             return SizedBox(
-              width: 400,
-              height: 400,
+              width: SizeConfig.screenWidth(context) * 0.4,
+              height: SizeConfig.screenHeight(context) * 0.3,
               child: BiocentralBarPlot(
                 data: plotData,
                 xAxisLabel: 'Categories',
