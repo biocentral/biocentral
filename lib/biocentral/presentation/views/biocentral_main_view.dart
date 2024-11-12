@@ -146,7 +146,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
           children: [
             Flexible(flex: 50, child: TabBarView(controller: _tabController, children: tabBarViews)),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 1),
-            Expanded(flex: 2, child: buildStatusBar())
+            Expanded(flex: 4, child: buildStatusBar())
           ],
         ),
       ),
