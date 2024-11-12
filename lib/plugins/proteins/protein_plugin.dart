@@ -6,13 +6,11 @@ import 'bloc/protein_database_grid_bloc.dart';
 import 'bloc/proteins_command_bloc.dart';
 import 'data/protein_client.dart';
 import 'domain/protein_repository.dart';
-import 'presentation/views/protein_database_view.dart';
+import 'presentation/views/protein_hub_view.dart';
 import 'presentation/views/proteins_command_view.dart';
 
 class ProteinPlugin extends BiocentralPlugin
     with BiocentralClientPluginMixin<ProteinClient>, BiocentralDatabasePluginMixin<ProteinRepository> {
-  final GlobalKey<ProteinDatabaseViewState> _proteinDatabaseViewState = GlobalKey<ProteinDatabaseViewState>();
-
   ProteinPlugin(super.eventBus);
 
   @override
@@ -42,9 +40,13 @@ class ProteinPlugin extends BiocentralPlugin
     final proteinCommandBloc = ProteinsCommandBloc(getDatabase(context), getBiocentralClientRepository(context),
         getBiocentralProjectRepository(context), eventBus);
     final proteinDatabaseGridBloc = ProteinDatabaseGridBloc(getDatabase(context))..add(ProteinDatabaseGridLoadEvent());
+    final proteinColumnWizardBloc =
+        ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
+          ..add(ColumnWizardLoadEvent());
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
+      proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
     });
 
     eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
@@ -55,17 +57,14 @@ class ProteinPlugin extends BiocentralPlugin
 
     return [
       BlocProvider<ProteinsCommandBloc>.value(value: proteinCommandBloc),
-      BlocProvider<ProteinDatabaseGridBloc>.value(value: proteinDatabaseGridBloc)
+      BlocProvider<ProteinDatabaseGridBloc>.value(value: proteinDatabaseGridBloc),
+      BlocProvider<ColumnWizardBloc>.value(value: proteinColumnWizardBloc),
     ];
   }
 
   @override
   Widget getScreenView(BuildContext context) {
-    return ProteinDatabaseView(
-      key: _proteinDatabaseViewState,
-      // TODO Protein selection
-      onProteinSelected: (protein) => null,
-    );
+    return const ProteinHubView();
   }
 
   @override

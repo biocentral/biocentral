@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/column_wizard_dialog_bloc.dart';
+import '../../bloc/column_wizard_bloc.dart';
 import '../../model/column_wizard_abstract.dart';
 import '../../model/column_wizard_operations.dart';
 import '../displays/column_wizard_operation_displays.dart';
@@ -29,7 +29,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     Navigator.of(context).pop();
   }
 
-  void onCalculate(ColumnWizardDialogState state, ColumnWizardOperation operation) {
+  void onCalculate(ColumnWizardBlocState state, ColumnWizardOperation operation) {
     if (state.columnWizard != null) {
       closeDialog();
       widget.onCalculateColumn(state.columnWizard!, operation);
@@ -39,14 +39,14 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocConsumer<ColumnWizardDialogBloc, ColumnWizardDialogState>(
+    return BlocConsumer<ColumnWizardBloc, ColumnWizardBlocState>(
       listener: (context, state) {},
       builder: (context, state) => buildDialog(state),
     );
   }
 
-  Widget buildDialog(ColumnWizardDialogState state) {
-    ColumnWizardDialogBloc columnWizardDialogBloc = BlocProvider.of<ColumnWizardDialogBloc>(context);
+  Widget buildDialog(ColumnWizardBlocState state) {
+    ColumnWizardBloc columnWizardDialogBloc = BlocProvider.of<ColumnWizardBloc>(context);
     return BiocentralDialog(
       small: false, // TODO Small Dialog not working yet
       children: [
@@ -63,14 +63,14 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     );
   }
 
-  Widget buildColumnSelection(ColumnWizardDialogBloc columnWizardDialogBloc, ColumnWizardDialogState state) {
+  Widget buildColumnSelection(ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state) {
     return BiocentralDropdownMenu<String>(
         dropdownMenuEntries: state.columns.keys.map((key) => DropdownMenuEntry(value: key, label: key)).toList(),
         label: const Text("Select column.."),
-        onSelected: (String? value) => columnWizardDialogBloc.add(ColumnWizardDialogSelectColumnEvent(value ?? "")));
+        onSelected: (String? value) => columnWizardDialogBloc.add(ColumnWizardSelectColumnEvent(value ?? "")));
   }
 
-  Widget buildColumnWizardDisplay(ColumnWizardDialogState state) {
+  Widget buildColumnWizardDisplay(ColumnWizardBlocState state) {
     ColumnWizard? columnWizard = state.columnWizards?[state.selectedColumn];
 
     if (columnWizard == null) {
@@ -80,7 +80,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
   }
 
   Widget buildColumnWizardOperationSelection(
-      ColumnWizardDialogBloc columnWizardDialogBloc, ColumnWizardDialogState state) {
+      ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state) {
     Set<ColumnOperationType> availableOperations = state.columnWizard?.getAvailableOperations() ?? {};
     if (availableOperations.isEmpty) {
       return Container();
@@ -91,12 +91,12 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
         label: const Text("Select operation.."),
         onSelected: (ColumnOperationType? value) {
           if (value != null) {
-            columnWizardDialogBloc.add(ColumnWizardDialogSelectOperationEvent(value));
+            columnWizardDialogBloc.add(ColumnWizardSelectOperationEvent(value));
           }
         });
   }
 
-  Widget buildColumnWizardOperationDisplay(ColumnWizardDialogState state) {
+  Widget buildColumnWizardOperationDisplay(ColumnWizardBlocState state) {
     if (state.selectedOperationType == null) {
       return Container();
     }

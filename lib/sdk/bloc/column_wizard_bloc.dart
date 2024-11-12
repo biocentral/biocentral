@@ -7,55 +7,55 @@ import '../domain/biocentral_database.dart';
 import '../model/column_wizard_abstract.dart';
 import '../model/column_wizard_operations.dart';
 
-sealed class ColumnWizardDialogEvent {}
+sealed class ColumnWizardEvent {}
 
-final class ColumnWizardDialogLoadEvent extends ColumnWizardDialogEvent {}
+final class ColumnWizardLoadEvent extends ColumnWizardEvent {}
 
-final class ColumnWizardDialogSelectColumnEvent extends ColumnWizardDialogEvent {
+final class ColumnWizardSelectColumnEvent extends ColumnWizardEvent {
   final String selectedColumn;
 
-  ColumnWizardDialogSelectColumnEvent(this.selectedColumn);
+  ColumnWizardSelectColumnEvent(this.selectedColumn);
 }
 
-final class ColumnWizardDialogSelectOperationEvent extends ColumnWizardDialogEvent {
+final class ColumnWizardSelectOperationEvent extends ColumnWizardEvent {
   final ColumnOperationType selectedOperationType;
 
-  ColumnWizardDialogSelectOperationEvent(this.selectedOperationType);
+  ColumnWizardSelectOperationEvent(this.selectedOperationType);
 }
 
-final class ColumnWizardDialogCalculateEvent extends ColumnWizardDialogEvent {
+final class ColumnWizardCalculateEvent extends ColumnWizardEvent {
   final ColumnWizardOperation columnWizardOperation;
 
-  ColumnWizardDialogCalculateEvent(this.columnWizardOperation);
+  ColumnWizardCalculateEvent(this.columnWizardOperation);
 }
 
 @immutable
-final class ColumnWizardDialogState extends Equatable {
+final class ColumnWizardBlocState extends Equatable {
   final Map<String, Map<String, dynamic>> columns;
 
   final Map<String, ColumnWizard>? columnWizards;
   final String? selectedColumn;
   final ColumnOperationType? selectedOperationType;
 
-  final ColumnWizardDialogStatus status;
+  final ColumnWizardBlocStatus status;
 
-  const ColumnWizardDialogState(
+  const ColumnWizardBlocState(
       this.columns, this.columnWizards, this.selectedColumn, this.selectedOperationType, this.status);
 
-  const ColumnWizardDialogState.initial()
+  const ColumnWizardBlocState.initial()
       : columns = const {},
         columnWizards = null,
         selectedColumn = null,
         selectedOperationType = null,
-        status = ColumnWizardDialogStatus.initial;
+        status = ColumnWizardBlocStatus.initial;
 
   ColumnWizard? get columnWizard => columnWizards?[selectedColumn];
 
   @override
   List<Object?> get props => [columns, columnWizards?.keys, selectedColumn, selectedOperationType, status];
 
-  ColumnWizardDialogState copyWith({Map<String, dynamic>? copyMap}) {
-    return ColumnWizardDialogState(
+  ColumnWizardBlocState copyWith({Map<String, dynamic>? copyMap}) {
+    return ColumnWizardBlocState(
         copyMap?["columns"] ?? columns,
         copyMap?["columnWizards"] ?? columnWizards,
         copyMap?["selectedColumn"] ?? selectedColumn,
@@ -64,20 +64,20 @@ final class ColumnWizardDialogState extends Equatable {
   }
 }
 
-enum ColumnWizardDialogStatus { initial, loading, loaded, selected }
+enum ColumnWizardBlocStatus { initial, loading, loaded, selected }
 
-class ColumnWizardDialogBloc extends Bloc<ColumnWizardDialogEvent, ColumnWizardDialogState> {
+class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
   final BiocentralDatabase _biocentralDatabase;
   final BiocentralColumnWizardRepository _columnWizardRepository;
 
-  ColumnWizardDialogBloc(this._biocentralDatabase, this._columnWizardRepository)
-      : super(const ColumnWizardDialogState.initial()) {
-    on<ColumnWizardDialogLoadEvent>((event, emit) async {
-      emit(state.copyWith(copyMap: {"status": ColumnWizardDialogStatus.loading}));
+  ColumnWizardBloc(this._biocentralDatabase, this._columnWizardRepository)
+      : super(const ColumnWizardBlocState.initial()) {
+    on<ColumnWizardLoadEvent>((event, emit) async {
+      emit(const ColumnWizardBlocState.initial().copyWith(copyMap: {"status": ColumnWizardBlocStatus.loading}));
       final Map<String, Map<String, dynamic>> columns = _biocentralDatabase.getColumns();
-      emit(state.copyWith(copyMap: {"columns": columns, "status": ColumnWizardDialogStatus.loaded}));
+      emit(state.copyWith(copyMap: {"columns": columns, "status": ColumnWizardBlocStatus.loaded}));
     });
-    on<ColumnWizardDialogSelectColumnEvent>((event, emit) async {
+    on<ColumnWizardSelectColumnEvent>((event, emit) async {
       emit(state.copyWith(copyMap: {"selectedColumn": event.selectedColumn}));
       Map<String, ColumnWizard> columnWizards = state.columnWizards ?? {};
       if (!columnWizards.containsKey(event.selectedColumn)) {
@@ -85,13 +85,11 @@ class ColumnWizardDialogBloc extends Bloc<ColumnWizardDialogEvent, ColumnWizardD
             columnName: event.selectedColumn, valueMap: state.columns[event.selectedColumn] ?? {});
         columnWizards[event.selectedColumn] = columnWizard;
       }
-      emit(state.copyWith(copyMap: {"columnWizards": columnWizards, "status": ColumnWizardDialogStatus.selected}));
+      emit(state.copyWith(copyMap: {"columnWizards": columnWizards, "status": ColumnWizardBlocStatus.selected}));
     });
-    on<ColumnWizardDialogSelectOperationEvent>((event, emit) async {
-      emit(state.copyWith(copyMap: {
-        "selectedOperationType": event.selectedOperationType,
-        "status": ColumnWizardDialogStatus.selected
-      }));
+    on<ColumnWizardSelectOperationEvent>((event, emit) async {
+      emit(state.copyWith(
+          copyMap: {"selectedOperationType": event.selectedOperationType, "status": ColumnWizardBlocStatus.selected}));
     });
   }
 }

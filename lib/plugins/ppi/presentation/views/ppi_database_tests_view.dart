@@ -1,3 +1,4 @@
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,8 +25,10 @@ class PPIDatabaseTestsViewState extends State<PPIDatabaseTestsView> with Automat
   Widget build(BuildContext context) {
     super.build(context);
     return BlocBuilder<PPIDatabaseTestsBloc, PPIDatabaseTestsState>(builder: (context, state) {
-      return SingleChildScrollView(
+      return Padding(
+        padding: const EdgeInsets.only(top: 8.0),
         child: InputDecorator(
+          expands: true,
           decoration: InputDecoration(
             labelText: "Database Tests:",
             border: OutlineInputBorder(
@@ -33,7 +36,8 @@ class PPIDatabaseTestsViewState extends State<PPIDatabaseTestsView> with Automat
             ),
           ),
           child: Column(
-            children: [...buildTestDisplays(state)],
+            children: [
+              ...buildTestDisplays(state)],
           ),
         ),
       );

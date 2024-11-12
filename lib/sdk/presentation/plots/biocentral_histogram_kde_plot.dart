@@ -36,16 +36,17 @@ class _HistogramKDEPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double minValue = data.reduce(math.min);
-    final double maxValue = data.reduce(math.max);
-    final double range = maxValue - minValue;
-    final double binWidth = range / bins;
+    const double padding = 60;
+    final TextStyle axisTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
-    const double padding = 40;
     final Size plotSize = Size(size.width - padding, size.height - padding);
     final Offset plotOffset = Offset(padding, 0);
 
     // Compute histogram
+    final double minValue = data.reduce(math.min);
+    final double maxValue = data.reduce(math.max);
+    final double range = maxValue - minValue;
+    final double binWidth = range / bins;
     final List<int> histogram = List<int>.filled(bins, 0);
     for (final value in data) {
       final int binIndex = ((value - minValue) / binWidth).floor();
@@ -122,7 +123,7 @@ class _HistogramKDEPainter extends CustomPainter {
       canvas.drawLine(Offset(x, plotSize.height), Offset(x, plotSize.height + 5), axesPaint);
 
       final textPainter = TextPainter(
-        text: TextSpan(text: value.toStringAsFixed(1), style: TextStyle(color: Colors.black, fontSize: 10)),
+        text: TextSpan(text: value.toStringAsFixed(1), style: axisTextStyle),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -136,7 +137,7 @@ class _HistogramKDEPainter extends CustomPainter {
       canvas.drawLine(Offset(padding - 5, y), Offset(padding, y), axesPaint);
 
       final textPainter = TextPainter(
-        text: TextSpan(text: (i / yTickCount).toStringAsFixed(1), style: TextStyle(color: Colors.black, fontSize: 10)),
+        text: TextSpan(text: (i / yTickCount).toStringAsFixed(1), style: axisTextStyle),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -145,21 +146,21 @@ class _HistogramKDEPainter extends CustomPainter {
 
     // Add labels
     final xLabelPainter = TextPainter(
-      text: TextSpan(text: 'Value', style: TextStyle(color: Colors.black, fontSize: 12)),
+      text: TextSpan(text: 'Value', style: axisTextStyle),
       textDirection: TextDirection.ltr,
     );
     xLabelPainter.layout();
     xLabelPainter.paint(canvas, Offset(size.width / 2 - xLabelPainter.width / 2, size.height - xLabelPainter.height));
 
     final yLabelPainter = TextPainter(
-      text: TextSpan(text: 'Frequency', style: TextStyle(color: Colors.black, fontSize: 12)),
+      text: TextSpan(text: 'Frequency', style: axisTextStyle),
       textDirection: TextDirection.ltr,
     );
     yLabelPainter.layout();
     canvas.save();
     canvas.translate(0, size.height / 2 + yLabelPainter.width / 2);
     canvas.rotate(-math.pi / 2);
-    yLabelPainter.paint(canvas, Offset(0, 0));
+    yLabelPainter.paint(canvas, Offset(0, -padding/4));
     canvas.restore();
   }
 

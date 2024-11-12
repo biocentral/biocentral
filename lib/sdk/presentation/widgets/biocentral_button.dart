@@ -50,9 +50,9 @@ class _BiocentralButtonState extends State<BiocentralButton> {
 
   Widget buildButton(void Function()? onTap) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(SizeConfig.safeBlockHorizontal(context) * 0.5),
       child: SizedBox.fromSize(
-        size: Size(SizeConfig.safeBlockHorizontal(context) * 8, SizeConfig.safeBlockHorizontal(context) * 8),
+        size: Size(SizeConfig.safeBlockHorizontal(context) * 7, SizeConfig.safeBlockHorizontal(context) * 7),
         child: ClipRect(
           child: Material(
             shape:
@@ -67,7 +67,7 @@ class _BiocentralButtonState extends State<BiocentralButton> {
                 children: <Widget>[
                   Icon(widget.iconData),
                   Text(
-                    widget.label,
+                    " " + widget.label + " ",
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
