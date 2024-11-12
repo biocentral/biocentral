@@ -1,4 +1,5 @@
-import 'package:scidart/numdart.dart';
+
+import 'package:ml_linalg/vector.dart';
 
 import 'column_wizard_abstract.dart';
 import 'column_wizard_operations.dart';
@@ -25,7 +26,7 @@ class IntColumnWizard extends ColumnWizard with NumericStats, CounterStats {
   IntColumnWizard(super.columnName, this.valueMap);
 
   @override
-  Array get numericValues => Array(valueMap.values.map((e) => e.toDouble()).toList());
+  Vector get numericValues => Vector.fromList(valueMap.values.map((e) => e.toDouble()).toList());
 }
 
 class DoubleColumnWizardFactory extends ColumnWizardFactory {
@@ -50,7 +51,7 @@ class DoubleColumnWizard extends ColumnWizard with NumericStats, CounterStats {
   DoubleColumnWizard(super.columnName, this.valueMap);
 
   @override
-  Array get numericValues => Array(valueMap.values.toList());
+  Vector get numericValues => Vector.fromList(valueMap.values.toList());
 }
 
 class StringColumnWizardFactory extends ColumnWizardFactory {

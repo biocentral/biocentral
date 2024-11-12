@@ -1,8 +1,9 @@
+import 'dart:math';
+
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ml_linalg/linalg.dart';
-import 'package:scidart/numdart.dart';
 
 class EmbeddingsColumnWizardFactory extends ColumnWizardFactory {
   @override

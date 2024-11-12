@@ -65,7 +65,7 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
                         width: SizeConfig.safeBlockHorizontal(context) * 5,
                       ),
                       Builder(builder: (context) {
-                        final data = (widget.columnWizard as NumericStats).numericValues;
+                        final data = (widget.columnWizard as NumericStats).numericValues.toList();
                         return SizedBox(
                             width: SizeConfig.screenWidth(context) * 0.4,
                             height: SizeConfig.screenHeight(context) * 0.3,
@@ -91,8 +91,8 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
       textFuture("Max:", columnWizard.max()),
       textFuture("Min:", columnWizard.min()),
       textFuture("Mean:", columnWizard.mean()),
-      textFuture("Median:", columnWizard.medianArray()),
-      textFuture("Mode:", columnWizard.modeArray()),
+      textFuture("Median:", columnWizard.median()),
+      textFuture("Mode:", columnWizard.mode()),
       textFuture("Standard deviation:", columnWizard.stdDev()),
     ]);
   }
