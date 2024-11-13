@@ -21,8 +21,20 @@ class PLMEvalClient extends BiocentralClient {
 
   Future<Either<BiocentralException, Map<String, List<String>>>> getAvailableBenchmarkDatasets() async {
     final responseEither = await doGetRequest(PLMEvalServiceEndpoints.getBenchmarkDatasets);
-    return responseEither.flatMap(
-        (map) => right(Map.fromEntries(map.entries.map((entry) => MapEntry(entry.key, List<String>.from(entry.value))))));
+    return responseEither.flatMap((map) =>
+        right(Map.fromEntries(map.entries.map((entry) => MapEntry(entry.key, List<String>.from(entry.value))))));
+  }
+
+  Future<Either<BiocentralException, String>> startAutoEval(String modelID) async {
+    Map<String, String> body = {"modelID": modelID};
+    final responseEither = await doPostRequest(PLMEvalServiceEndpoints.autoeval, body);
+    return responseEither.flatMap((map) {
+      final taskID = map["task_id"];
+      if (taskID == null || taskID.toString().isEmpty) {
+        return left(BiocentralParsingException(message: "Could not find task_id in response to autoeval task!"));
+      }
+      return right(taskID);
+    });
   }
 
   @override
