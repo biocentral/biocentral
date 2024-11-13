@@ -6,7 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/plm_selection_dialog_bloc.dart';
 
 class PLMSelectionDialog extends StatefulWidget {
-  const PLMSelectionDialog({super.key});
+  final void Function(String) onStartAutoeval;
+
+  const PLMSelectionDialog({super.key, required this.onStartAutoeval});
 
   @override
   State<PLMSelectionDialog> createState() => _PLMSelectionDialogState();
@@ -18,6 +20,13 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void startAutoeval(PLMSelectionDialogState state) {
+    if(state.plmHuggingface != null) {
+      closeDialog();
+      widget.onStartAutoeval(state.plmHuggingface!);
+    }
   }
 
   void closeDialog() {
@@ -130,7 +139,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
 
   Widget buildCheckAndEvaluateButton(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
     if (state.status == PLMSelectionDialogStatus.validated && state.availableDatasets.isNotEmpty) {
-      return BiocentralSmallButton(onTap: () => null, label: "Evaluate");
+      return BiocentralSmallButton(onTap: () => startAutoeval(state), label: "Start Evaluation");
     }
     return BiocentralSmallButton(
         onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogSelectedEvent(plmSelection ?? "")),

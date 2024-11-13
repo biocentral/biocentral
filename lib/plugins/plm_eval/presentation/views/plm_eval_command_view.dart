@@ -3,6 +3,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../bloc/plm_eval_command_bloc.dart';
 import '../dialogs/plm_selection_dialog.dart';
 
 class PLMEvalCommandView extends StatefulWidget {
@@ -19,18 +20,23 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
   }
 
   void openSelectPLMDialog() {
+    PLMEvalCommandBloc plmCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return BlocProvider(
             create: (context) => PLMSelectionDialogBloc(context.read<BiocentralClientRepository>()),
-            child: PLMSelectionDialog(),
+            child: PLMSelectionDialog(onStartAutoeval: (String modelID) {
+              plmCommandBloc.add(PLMEvalCommandStartAutoEvalEvent(modelID));
+            },),
           );
         });
   }
 
   @override
   Widget build(BuildContext context) {
+
     return BiocentralCommandBar(
       commands: [
         BiocentralTooltip(
