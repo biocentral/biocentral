@@ -1,3 +1,6 @@
+import asyncio
+import threading
+
 import yaml
 import flask
 
@@ -114,7 +117,11 @@ def start_training():
 
     biotrainer_process = BiotrainerProcess(config_path=config_file_path, log_path=log_path)
     ProcessManager.add_task(task_id=model_hash, task=biotrainer_process)
-    ProcessManager.start_task(task_id=model_hash)
+
+    def run_async_task():
+        asyncio.run(ProcessManager.start_task(task_id=model_hash))
+
+    threading.Thread(target=run_async_task).start()
 
     return jsonify({"model_hash": model_hash})
 

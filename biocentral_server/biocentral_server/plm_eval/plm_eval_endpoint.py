@@ -1,19 +1,23 @@
-import json
+import uuid
+import asyncio
 import logging
 import requests
+import threading
 
-from biotrainer.embedders import _get_embedder
+from functools import lru_cache
 from flask import request, jsonify, Blueprint, current_app
 
-from .autoeval import autoeval_flow
+from .autoeval_task import AutoEvalTask
+from ..server_management import UserManager, ProcessManager
 
 logger = logging.getLogger(__name__)
 
 plm_eval_service_route = Blueprint("plm_eval_service", __name__)
 
 
+# TODO Improve caching such that results that are older than one hour are omitted for new huggingface models
+@lru_cache(maxsize=12)
 def _validate_model_id(model_id: str):
-    # TODO Caching
     if model_id == "one_hot_encoding":
         return ""
 
@@ -37,7 +41,7 @@ def _validate_model_id(model_id: str):
 @plm_eval_service_route.route('/plm_eval_service/validate', methods=['POST'])
 def validate():
     plm_eval_data = request.get_json()
-    model_id: str = plm_eval_data["modelID"]
+    model_id: str = str(plm_eval_data["modelID"])
 
     error = _validate_model_id(model_id)
     if error != "":
@@ -48,7 +52,6 @@ def validate():
 @plm_eval_service_route.route('/plm_eval_service/get_benchmark_datasets', methods=['GET'])
 def get_splits():
     flip_dict = current_app.config['FLIP_DICT']
-    autoeval_flow(flip_dict)
 
     return jsonify(
         {dataset: [split_dict["name"] for split_dict in values["splits"]] for dataset, values in flip_dict.items()})
@@ -57,10 +60,30 @@ def get_splits():
 @plm_eval_service_route.route('/plm_eval_service/autoeval', methods=['POST'])
 def autoeval():
     plm_eval_data = request.get_json()
-    model_id: str = plm_eval_data["modelID"]
+    model_id: str = str(plm_eval_data["modelID"])
 
     error = _validate_model_id(model_id)
     if error != "":
         return jsonify({"error": error})
 
-    # autoeval_flow()
+    flip_dict = current_app.config['FLIP_DICT']
+    user_id = UserManager.get_user_id_from_request(req=request)
+    task = AutoEvalTask(flip_dict, model_id, user_id)
+    task_id = f"autoeval_{model_id}_" + str(uuid.uuid4())
+    ProcessManager.add_task(task_id, task)
+
+    def run_async_task():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(ProcessManager.start_task(task_id))
+        loop.close()
+
+    threading.Thread(target=run_async_task).start()
+
+    return jsonify({"task_id": task_id})
+
+
+@plm_eval_service_route.route('/plm_eval_service/task_status/<task_id>', methods=['GET'])
+def task_status(task_id):
+    return ProcessManager.get_task_update(task_id=task_id)
+

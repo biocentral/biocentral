@@ -1,3 +1,5 @@
+import asyncio
+
 from enum import Enum
 from typing import Dict, Any
 from abc import ABC, abstractmethod
@@ -11,7 +13,7 @@ class TaskStatus(Enum):
 
 class TaskInterface(ABC):
     @abstractmethod
-    def start(self):
+    async def start(self):
         raise NotImplementedError
 
     @abstractmethod

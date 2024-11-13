@@ -43,7 +43,7 @@ def create_server_app(mongodb_user="embeddingsUser", mongodb_pwd="embeddingsPass
         UserManager.check_request(req=request)
 
     # Setup embeddings database
-    app.config['USE_MONGODB'] = False
+    app.config['USE_MONGODB'] = True
 
     if app.config['USE_MONGODB']:
         app.config["MONGO_URI"] = f"mongodb://{mongodb_user}:{mongodb_pwd}@localhost:27017/embeddings_db"

@@ -1,4 +1,6 @@
 import os.path
+import asyncio
+
 from pathlib import Path
 from typing import Dict, Any
 import torch.multiprocessing as torch_mp
@@ -15,9 +17,9 @@ class BiotrainerProcess(TaskInterface):
         self.config_path = config_path
         self.log_path = log_path
 
-    def start(self):
+    async def start(self):
         self.process = torch_mp.Process(target=headless_main, args=(str(self.config_path),))
-        return self.process.start()
+        self.process.start()
 
     def get_task_status(self) -> TaskStatus:
         if self.process.is_alive():
