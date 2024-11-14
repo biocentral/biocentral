@@ -4,8 +4,8 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../model/ppi_database_test.dart';
-import 'ppi_service_api.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/data/ppi_service_api.dart';
 
 final class PPIClientFactory extends BiocentralClientFactory<PPIClient> {
   @override
@@ -20,37 +20,37 @@ class PPIClient extends BiocentralClient {
   Future<Either<BiocentralException, Map<String, String>>> getAvailableDatasetFormats() async {
     final responseEither = await doGetRequest(PPIServiceEndpoints.formatsEndpoint);
     return responseEither.flatMap((responseMap) =>
-        right((responseMap as Map<String, dynamic>).map((key, value) => MapEntry(key, value.toString()))));
+        right((responseMap as Map<String, dynamic>).map((key, value) => MapEntry(key, value.toString()))),);
   }
 
   Future<Either<BiocentralException, String>> autoDetectFormat(String header) async {
-    Map<String, String> body = {"header": header};
+    final Map<String, String> body = {'header': header};
     final responseEither = await doPostRequest(PPIServiceEndpoints.autoDetectFormatEndpoint, body);
-    return responseEither.flatMap((responseMap) => right(responseMap["detected_format"]));
+    return responseEither.flatMap((responseMap) => right(responseMap['detected_format']));
   }
 
   Future<Either<BiocentralException, Map<String, ProteinProteinInteraction>>> importInteractions(
-      String dataset, String format) async {
-    Map<String, String> body = {"dataset": dataset, "format": format};
+      String dataset, String format,) async {
+    final Map<String, String> body = {'dataset': dataset, 'format': format};
     final responseEither = await doPostRequest(PPIServiceEndpoints.importEndpoint, body);
     return responseEither
-        .flatMap((responseMap) => right(getInteractionsFromDatasetPPIStandardized(responseMap["imported_dataset"])));
+        .flatMap((responseMap) => right(getInteractionsFromDatasetPPIStandardized(responseMap['imported_dataset'])));
   }
 
   Future<Either<BiocentralException, List<PPIDatabaseTest>>> getAvailableDatasetTests() async {
     final responseEither = await doGetRequest(PPIServiceEndpoints.getDatasetTestsEndpoint);
-    return responseEither.flatMap((responseMap) => right(parseHVIToolkitDatasetTests(responseMap["dataset_tests"])));
+    return responseEither.flatMap((responseMap) => right(parseHVIToolkitDatasetTests(responseMap['dataset_tests'])));
   }
 
   Future<Either<BiocentralException, BiocentralTestResult>> runDatasetTest(
-      String datasetHash, PPIDatabaseTest test) async {
-    Map<String, String> body = {"hash": datasetHash, "test": test.name};
+      String datasetHash, PPIDatabaseTest test,) async {
+    final Map<String, String> body = {'hash': datasetHash, 'test': test.name};
     final responseEither = await doPostRequest(PPIServiceEndpoints.runDatasetTestEndpoint, body);
-    return responseEither.flatMap((responseMap) => parseTestResult(responseMap["test_result"]));
+    return responseEither.flatMap((responseMap) => parseTestResult(responseMap['test_result']));
   }
 
   @override
   String getServiceName() {
-    return "ppi_service";
+    return 'ppi_service';
   }
 }

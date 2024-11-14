@@ -1,5 +1,5 @@
 String bytesAsFormatString(int bytes) {
-  const suffixes = ["B", "KB", "MB", "GB", "TB"];
+  const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
   double size = bytes.toDouble();
 
   for (int i = 0; i < suffixes.length - 1; i++) {

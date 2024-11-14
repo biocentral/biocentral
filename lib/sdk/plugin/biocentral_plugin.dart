@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
-import '../data/biocentral_client.dart';
-import '../domain/biocentral_column_wizard_repository.dart';
-import '../domain/biocentral_database_repository.dart';
-import '../domain/biocentral_project_repository.dart';
-import '../model/column_wizard_abstract.dart';
-import '../util/size_config.dart';
+import 'package:biocentral/sdk/data/biocentral_client.dart';
+import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
 
 
 abstract class BiocentralPlugin with TypeNameMixin {
@@ -62,8 +62,8 @@ abstract class BiocentralPlugin with TypeNameMixin {
           flex: 14,
             child: Container(
                 padding: EdgeInsets.symmetric(horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75, vertical: 1),
-                child: getScreenView(context))),
-      ]),
+                child: getScreenView(context),),),
+      ],),
     );
   }
 }

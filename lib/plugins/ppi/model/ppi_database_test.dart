@@ -1,8 +1,8 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
-import '../domain/ppi_repository.dart';
-import '../domain/ppi_repository_properties.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository_properties.dart';
 
 class PPIDatabaseTest {
   final String name;
@@ -17,7 +17,7 @@ class PPIDatabaseTest {
     /// If a requirement is not met, this requirement is returned
     final List<ProteinProteinInteraction> interactions = ppiRepository.databaseToList();
     for (PPIDatabaseTestRequirement requirement in requirements) {
-      bool requirementMet = switch (requirement) {
+      final bool requirementMet = switch (requirement) {
         PPIDatabaseTestRequirement.sequences => !(ppiRepository.hasMissingSequences()),
         PPIDatabaseTestRequirement.containsPositivesAndNegatives =>
           await ppiRepository.containsNegativeInteractions(interactions) &&

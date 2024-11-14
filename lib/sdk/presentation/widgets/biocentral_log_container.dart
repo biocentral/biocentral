@@ -5,7 +5,7 @@ class BiocentralLogContainer extends StatelessWidget {
   final String title;
   final Widget logsWidget;
 
-  const BiocentralLogContainer({super.key, required this.title, required this.logsWidget});
+  const BiocentralLogContainer({required this.title, required this.logsWidget, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../util/logging.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 
 @immutable
 class BiocentralLogDisplay extends StatelessWidget {
   final BiocentralLog log;
 
-  const BiocentralLogDisplay({super.key, required this.log});
+  const BiocentralLogDisplay({required this.log, super.key});
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? titleLogStyle = Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold);
-    Widget errorTile = log.error != null
+    final TextStyle? titleLogStyle = Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold);
+    final Widget errorTile = log.error != null
         ? ExpansionTile(
-            title: Text("Error", style: titleLogStyle),
+            title: Text('Error', style: titleLogStyle),
             children: [Text(log.error.toString(), style: Theme.of(context).textTheme.displaySmall)],
           )
         : Container();
-    Widget stackTraceTile = log.stackTrace != null
+    final Widget stackTraceTile = log.stackTrace != null
         ? ExpansionTile(
-            title: Text("Stack Trace", style: titleLogStyle),
+            title: Text('Stack Trace', style: titleLogStyle),
             children: [Text(log.stackTrace.toString(), style: titleLogStyle)],
           )
         : Container();
@@ -32,7 +32,7 @@ class BiocentralLogDisplay extends StatelessWidget {
                 log.message,
                 style: getTextStyleByLog(log, context),
               ),
-              children: [errorTile, stackTraceTile])),
+              children: [errorTile, stackTraceTile],),),
     );
   }
 

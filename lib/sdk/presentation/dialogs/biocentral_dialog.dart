@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../util/size_config.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
 
 class BiocentralDialog extends StatefulWidget {
   final bool small;
   final List<Widget> children;
 
-  const BiocentralDialog({super.key, required this.children, this.small = false});
+  const BiocentralDialog({required this.children, super.key, this.small = false});
 
   @override
   State<BiocentralDialog> createState() => _BiocentralDialogState();
@@ -31,7 +31,7 @@ class _BiocentralDialogState extends State<BiocentralDialog> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     // TODO Small does not work yet
-    double sizeFactor = widget.small ? 0.4 : 0.8;
+    final double sizeFactor = widget.small ? 0.4 : 0.8;
 
     return AnimatedBuilder(
         animation: _fadeInAnimation,
@@ -56,11 +56,11 @@ class _BiocentralDialogState extends State<BiocentralDialog> with SingleTickerPr
               ),
             ),
           );
-        });
+        },);
   }
 
   List<Widget> buildChildrenWithPadding() {
-    List<Widget> result = [];
+    final List<Widget> result = [];
     final double height = SizeConfig.safeBlockVertical(context);
     for (Widget widget in widget.children) {
       result.add(widget);

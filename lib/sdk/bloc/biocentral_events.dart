@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:flutter/material.dart';
 
-import '../biocentral_sdk.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 abstract class BiocentralEvent {}
 

@@ -16,7 +16,7 @@ class LoggerService extends ChangeNotifier {
   LoggerService._(this._logger);
 
   static final LoggerService _instance = LoggerService._(
-      Logger(printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, methodCount: 8)));
+      Logger(printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, methodCount: 8)),);
 
   List<BiocentralLog> get logMessages => List.unmodifiable(_logMessages);
 
@@ -52,13 +52,13 @@ class LoggerService extends ChangeNotifier {
   /// Remove GitHub Link for application internal logging
   String _clearMessage(dynamic message) {
     final clearedLines = [];
-    final lines = message.toString().split("\n");
+    final lines = message.toString().split('\n');
     for (String line in lines) {
-      if (!line.contains("Create GitHub Issue")) {
+      if (!line.contains('Create GitHub Issue')) {
         clearedLines.add(line);
       }
     }
-    return clearedLines.join("");
+    return clearedLines.join();
   }
 
   void clearLogs() {
@@ -102,7 +102,7 @@ class ServerLoggerService extends ChangeNotifier {
 
   void _printServerLog(dynamic message) {
     if (kDebugMode) {
-      stdout.write("\x1B[35m LOCAL SERVER: $message\x1B[0m");
+      stdout.write('\x1B[35m LOCAL SERVER: $message\x1B[0m');
     }
   }
 

@@ -7,10 +7,9 @@ class BiocentralLinePlot extends StatelessWidget {
   final List<Color> colors;
 
   const BiocentralLinePlot({
-    Key? key,
-    required this.data,
+    required this.data, super.key,
     this.colors = const [Colors.blue, Colors.orange],
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +29,14 @@ class _LinePlotPainter extends CustomPainter {
 
   final Map<String, Map<int, double>> data;
   final List<Color> colors;
-  final TextStyle plotTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
+  final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
   _LinePlotPainter(this.data, this.colors);
 
   @override
   void paint(Canvas canvas, Size size) {
     final Size plotSize = Size(size.width - padding, size.height - padding);
-    final Offset plotOffset = Offset(padding, 0);
+    final Offset plotOffset = const Offset(padding, 0);
 
     // Calculate metrics
     int maxEpoch = 0;
@@ -53,7 +52,7 @@ class _LinePlotPainter extends CustomPainter {
     // Draw lines
     data.forEach((key, values) {
       drawLine(
-          canvas, plotSize, plotOffset, values, maxEpoch, minValue, maxValue, colors[data.keys.toList().indexOf(key)]);
+          canvas, plotSize, plotOffset, values, maxEpoch, minValue, maxValue, colors[data.keys.toList().indexOf(key)],);
     });
 
     // Draw axes
@@ -73,7 +72,7 @@ class _LinePlotPainter extends CustomPainter {
   }
 
   void drawLine(Canvas canvas, Size plotSize, Offset plotOffset, Map<int, double> values, int maxEpoch, double minValue,
-      double maxValue, Color color) {
+      double maxValue, Color color,) {
     final Paint linePaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -104,7 +103,7 @@ class _LinePlotPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     canvas.drawLine(Offset(padding, plotSize.height), Offset(size.width, plotSize.height), axesPaint);
-    canvas.drawLine(Offset(padding, 0), Offset(padding, plotSize.height), axesPaint);
+    canvas.drawLine(const Offset(padding, 0), Offset(padding, plotSize.height), axesPaint);
   }
 
   void drawXAxisAnnotations(Canvas canvas, Size plotSize, Offset plotOffset, int maxEpoch) {
@@ -165,7 +164,7 @@ class _LinePlotPainter extends CustomPainter {
     canvas.save();
     canvas.translate(0, size.height / 2 + yLabelPainter.width / 2);
     canvas.rotate(-math.pi / 2);
-    yLabelPainter.paint(canvas, Offset(0, -padding / 4));
+    yLabelPainter.paint(canvas, const Offset(0, -padding / 4));
     canvas.restore();
   }
 
@@ -180,7 +179,7 @@ class _LinePlotPainter extends CustomPainter {
           Offset(legendX + 30, legendY + index * itemHeight),
           Paint()
             ..color = colors[index]
-            ..strokeWidth = 2);
+            ..strokeWidth = 2,);
       final textPainter = TextPainter(
         text: TextSpan(text: key, style: plotTextStyle),
         textDirection: TextDirection.ltr,

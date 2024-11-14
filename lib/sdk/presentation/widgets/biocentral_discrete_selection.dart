@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../util/type_util.dart';
+import 'package:biocentral/sdk/util/type_util.dart';
 
 class BiocentralDiscreteSelection<T> extends StatefulWidget {
   final String title;
@@ -11,13 +11,10 @@ class BiocentralDiscreteSelection<T> extends StatefulWidget {
   final Axis direction;
 
   const BiocentralDiscreteSelection(
-      {super.key,
-      required this.title,
-      required this.selectableValues,
-      required this.onChangedCallback,
+      {required this.title, required this.selectableValues, required this.onChangedCallback, super.key,
       this.displayConversion = _defaultDisplayConversion,
       this.initialValue,
-      this.direction = Axis.horizontal});
+      this.direction = Axis.horizontal,});
 
   static String _defaultDisplayConversion(dynamic value) {
     return value.toString().capitalize();
@@ -104,6 +101,6 @@ class _BiocentralDiscreteSelectionState<T> extends State<BiocentralDiscreteSelec
           ),
         ),
       ),
-    ]));
+    ],),);
   }
 }

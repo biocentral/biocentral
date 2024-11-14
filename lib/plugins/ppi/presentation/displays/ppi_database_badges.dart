@@ -2,8 +2,8 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/ppi_properties_bloc.dart';
-import '../../domain/ppi_repository_properties.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_properties_bloc.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository_properties.dart';
 
 class PPIDatabaseBadges extends StatefulWidget {
   const PPIDatabaseBadges({
@@ -17,13 +17,13 @@ class PPIDatabaseBadges extends StatefulWidget {
 class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
   final Map<PPIRepositoryProperty, BadgeProperties> badgeMap = {
     PPIRepositoryProperty.unique:
-        BadgeProperties("Unique", Colors.green, "All interaction IDs in your dataset are unique!"),
+        BadgeProperties('Unique', Colors.green, 'All interaction IDs in your dataset are unique!'),
     PPIRepositoryProperty.duplicates:
-        BadgeProperties("Duplicates", Colors.red, "Your dataset contains some duplicated interactions!"),
+        BadgeProperties('Duplicates', Colors.red, 'Your dataset contains some duplicated interactions!'),
     PPIRepositoryProperty.hviDataset: BadgeProperties(
-        "Human-Virus Interactions", Colors.purple, "Your dataset exclusively contains human-virus interactions!"),
+        'Human-Virus Interactions', Colors.purple, 'Your dataset exclusively contains human-virus interactions!',),
     PPIRepositoryProperty.mixedDataset:
-        BadgeProperties("Mixed\nInteractions", Colors.cyan, "Your dataset contains interactions from various species")
+        BadgeProperties('Mixed\nInteractions', Colors.cyan, 'Your dataset contains interactions from various species'),
   };
 
   @override
@@ -36,7 +36,6 @@ class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
     return BlocBuilder<PPIPropertiesBloc, PPIPropertiesState>(
       builder: (context, state) {
         return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: state.status != PPIPropertiesStatus.loaded
               ? [const CircularProgressIndicator()]
               : state.properties.map((property) {
@@ -48,7 +47,7 @@ class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
   }
 
   Widget createBadge(PPIRepositoryProperty databaseProperty) {
-    BadgeProperties badgeProperties = badgeMap[databaseProperty]!;
+    final BadgeProperties badgeProperties = badgeMap[databaseProperty]!;
     return SizedBox.fromSize(
       size: const Size(100, 40),
       child: BiocentralTooltip(
@@ -62,12 +61,11 @@ class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
               splashColor: Theme.of(context).colorScheme.secondary,
               customBorder: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(50)),
               child: Align(
-                  alignment: Alignment.center,
                   child: Text(
                     badgeProperties.text,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelMedium,
-                  )),
+                  ),),
             ),
           ),
         ),

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../bloc/ppi_database_grid_bloc.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_grid_bloc.dart';
 
 class PPIDatabaseView extends StatefulWidget {
   final Function(ProteinProteinInteraction selectedInteraction) onInteractionSelected;
 
-  const PPIDatabaseView({super.key, required this.onInteractionSelected});
+  const PPIDatabaseView({required this.onInteractionSelected, super.key});
 
   @override
   State<PPIDatabaseView> createState() => PPIDatabaseViewState();
@@ -69,10 +69,6 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
   PlutoGridStateManager? stateManager;
   final PlutoGridMode plutoGridMode = PlutoGridMode.selectWithOneTap;
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;
@@ -80,7 +76,7 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    PPIDatabaseGridBloc interactionDatabaseGridBloc = BlocProvider.of<PPIDatabaseGridBloc>(context);
+    final PPIDatabaseGridBloc interactionDatabaseGridBloc = BlocProvider.of<PPIDatabaseGridBloc>(context);
     Key gridKey = UniqueKey();
     return Scaffold(
       body: BlocConsumer<PPIDatabaseGridBloc, PPIDatabaseGridState>(
@@ -106,12 +102,11 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
             interactionDatabaseGridBloc.add(PPIDatabaseGridSelectionEvent(selectedEvent: event));
           },
           onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {},
-          configuration: const PlutoGridConfiguration(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => setState(() {
-          stateManager!.appendNewRows(count: 1);
+          stateManager!.appendNewRows();
         }),
         child: const Icon(Icons.add),
       ),
@@ -119,7 +114,7 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
   }
 
   List<PlutoColumn> buildColumns(PPIDatabaseGridState state) {
-    List<PlutoColumn> result = List.from(_defaultInteractionColumns);
+    final List<PlutoColumn> result = List.from(_defaultInteractionColumns);
     for (String setColumnName in state.additionalColumns ?? {}) {
       result.add(PlutoColumn(
         title: setColumnName,
@@ -130,7 +125,7 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
             type: PlutoAggregateColumnType.count,
-            filter: (PlutoCell plutoCell) => plutoCell.value == "",
+            filter: (PlutoCell plutoCell) => plutoCell.value == '',
             format: '#',
             alignment: Alignment.center,
             titleSpanBuilder: (text) {
@@ -145,23 +140,23 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
             },
           );
         },
-      ));
+      ),);
     }
     return result;
   }
 
   List<PlutoRow> getRowsFromInteractions(PPIDatabaseGridState state) {
-    List<PlutoRow> rows = List.empty(growable: true);
+    final List<PlutoRow> rows = List.empty(growable: true);
     for (ProteinProteinInteraction interaction in state.ppis) {
-      PlutoRow row = PlutoRow(
+      final PlutoRow row = PlutoRow(
         cells: {
           'id': PlutoCell(value: interaction.getID()),
           'interactor1': PlutoCell(value: interaction.interactor1.id),
           'interactor2': PlutoCell(value: interaction.interactor2.id),
           'interacting': PlutoCell(value: interaction.interacting ? 1 : 0),
         }..addAll(Map<String, PlutoCell>.fromEntries(state.additionalColumns?.map(
-                (columnName) => MapEntry(columnName, PlutoCell(value: interaction.attributes[columnName] ?? ""))) ??
-            {})),
+                (columnName) => MapEntry(columnName, PlutoCell(value: interaction.attributes[columnName] ?? '')),) ??
+            {},),),
       );
       rows.add(row);
     }

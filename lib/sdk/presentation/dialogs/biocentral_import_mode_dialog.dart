@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/biocentral_database.dart';
-import '../../util/size_config.dart';
-import '../widgets/biocentral_import_mode_selection.dart';
-import '../widgets/biocentral_small_button.dart';
-import 'biocentral_dialog.dart';
+import 'package:biocentral/sdk/domain/biocentral_database.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_import_mode_selection.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
+import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 
 class BiocentralImportModeDialog extends StatefulWidget {
   final void Function(DatabaseImportMode?) selectedImportModeCallback;
 
-  const BiocentralImportModeDialog({super.key, required this.selectedImportModeCallback});
+  const BiocentralImportModeDialog({required this.selectedImportModeCallback, super.key});
 
   @override
   State<BiocentralImportModeDialog> createState() => _BiocentralImportModeDialogState();
@@ -31,10 +31,9 @@ class _BiocentralImportModeDialogState extends State<BiocentralImportModeDialog>
   @override
   Widget build(BuildContext context) {
     return BiocentralDialog(
-      small: false, // TODO Small Dialog not working yet
       children: [
         Text(
-          "How should your file be imported?",
+          'How should your file be imported?',
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         Padding(
@@ -45,14 +44,14 @@ class _BiocentralImportModeDialogState extends State<BiocentralImportModeDialog>
                 children: [
                   BiocentralImportModeSelection(onChangedCallback: (DatabaseImportMode? importMode) {
                     selectedImportMode = importMode;
-                  }),
+                  },),
                   BiocentralSmallButton(
-                    label: "OK",
+                    label: 'OK',
                     onTap: closeDialog,
                   ),
                 ],
               ),
-            )),
+            ),),
       ],
     );
   }
@@ -75,7 +74,7 @@ Future<DatabaseImportMode> getImportModeFromDialog<T>({required BuildContext con
       builder: (BuildContext context) {
         return BiocentralImportModeDialog(selectedImportModeCallback: (DatabaseImportMode? importMode) {
           selectedMode = importMode ?? selectedMode;
-        });
-      });
+        },);
+      },);
   return selectedMode;
 }

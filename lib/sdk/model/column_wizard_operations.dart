@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'column_wizard_abstract.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 
 abstract class ColumnWizardOperation<T extends ColumnWizardOperationResult> {
   final String newColumnName;
@@ -36,9 +36,9 @@ class ColumnWizardShuffleOperation extends ColumnWizardOperation<ColumnWizardAdd
 
   @override
   Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
-    Map<String, String> result = {};
+    final Map<String, String> result = {};
     for (final entry in columnWizard.valueMap.entries) {
-      List<String> shuffled = entry.value.toString().characters.toList()..shuffle(Random(seed));
+      final List<String> shuffled = entry.value.toString().characters.toList()..shuffle(Random(seed));
       result[entry.key] = shuffled.join();
     }
     return ColumnWizardAddOperationResult(newColumnName, result);
@@ -46,8 +46,8 @@ class ColumnWizardShuffleOperation extends ColumnWizardOperation<ColumnWizardAdd
 }
 
 class ColumnWizardToBinaryOperation extends ColumnWizardOperation<ColumnWizardAddOperationResult> {
-  static const String defaultValueTrue = "true";
-  static const String defaultValueFalse = "false";
+  static const String defaultValueTrue = 'true';
+  static const String defaultValueFalse = 'false';
 
   final String compareToValue;
   final String valueTrue;
@@ -57,7 +57,7 @@ class ColumnWizardToBinaryOperation extends ColumnWizardOperation<ColumnWizardAd
 
   @override
   Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
-    Map<String, String> result = {};
+    final Map<String, String> result = {};
 
     for (final entry in columnWizard.valueMap.entries) {
       result[entry.key] = entry.value.toString() == compareToValue ? valueTrue : valueFalse;
@@ -71,7 +71,7 @@ class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation<ColumnWiz
 
   @override
   Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
-    List<int> missingIndices = await columnWizard.getMissingIndices();
+    final List<int> missingIndices = await columnWizard.getMissingIndices();
     return ColumnWizardRemoveOperationResult(missingIndices);
   }
 }

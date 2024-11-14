@@ -3,8 +3,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/embeddings_hub_bloc.dart';
-import '../../model/embeddings_column_wizard.dart';
+import 'package:biocentral/plugins/embeddings/bloc/embeddings_hub_bloc.dart';
 
 class EmbeddingsHubView extends StatefulWidget {
   const EmbeddingsHubView({super.key});
@@ -14,10 +13,6 @@ class EmbeddingsHubView extends StatefulWidget {
 }
 
 class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;
@@ -25,10 +20,9 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    EmbeddingsHubBloc embeddingsHubBloc = BlocProvider.of<EmbeddingsHubBloc>(context);
+    final EmbeddingsHubBloc embeddingsHubBloc = BlocProvider.of<EmbeddingsHubBloc>(context);
 
     return DefaultTabController(
-      initialIndex: 0,
       length: 2,
       child: BlocBuilder<EmbeddingsHubBloc, EmbeddingsHubState>(
         builder: (context, state) {
@@ -44,7 +38,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                     children: [
                       const SizedBox(height: 16),
                       const Text(
-                        "Embeddings Hub",
+                        'Embeddings Hub',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -61,10 +55,10 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                         ],
                       ),
                       const SizedBox(height: 16),
-                      TabBar(
-                        tabs: const [
-                          Tab(icon: Icon(Icons.zoom_in), text: "Details"),
-                          Tab(icon: Icon(Icons.visibility), text: "Visualizations"),
+                      const TabBar(
+                        tabs: [
+                          Tab(icon: Icon(Icons.zoom_in), text: 'Details'),
+                          Tab(icon: Icon(Icons.visibility), text: 'Visualizations'),
                         ],
                       ),
                     ],
@@ -75,7 +69,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                   child: TabBarView(
                     children: [
                       buildEmbeddingDetailView(embeddingsHubBloc, state),
-                      buildUMAPs(embeddingsHubBloc, state)
+                      buildUMAPs(embeddingsHubBloc, state),
                     ],
                   ),
                 ),
@@ -89,17 +83,16 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
 
   Widget buildEmbeddingDetailView(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 8,),
-          Flexible(flex: 1, child: buildEntityIDSelection(embeddingsHubBloc, state)),
-          SizedBox(height: 8,),
-          Flexible(flex: 1, child: buildSingleEmbedding(embeddingsHubBloc, state)),
-          SizedBox(height: 8,),
-          Flexible(flex: 1, child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
+          const SizedBox(height: 8,),
+          Flexible(child: buildEntityIDSelection(embeddingsHubBloc, state)),
+          const SizedBox(height: 8,),
+          Flexible(child: buildSingleEmbedding(embeddingsHubBloc, state)),
+          const SizedBox(height: 8,),
+          Flexible(child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
         ],
       ),
     );
@@ -108,22 +101,22 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   Widget buildEntityTypeSelection(EmbeddingsHubBloc embeddingsHubBloc) {
     return BiocentralEntityTypeSelection(onChangedCallback: (selectedType) {
       embeddingsHubBloc.add(EmbeddingsHubLoadEvent(selectedType));
-    });
+    },);
   }
 
   Widget buildEmbedderSelection(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
     if (state.embeddingsColumnWizard == null || state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty) {
-      return const Text("Could not find any embeddings!");
+      return const Text('Could not find any embeddings!');
     }
     return BiocentralDropdownMenu<String>(
         dropdownMenuEntries: state.embeddingsColumnWizard!
             .getAllEmbedderNames()
             .map((embedderName) => DropdownMenuEntry(value: embedderName, label: embedderName))
             .toList(),
-        label: const Text("Select embedder.."),
+        label: const Text('Select embedder..'),
         onSelected: (String? embedderName) {
           embeddingsHubBloc.add(EmbeddingsHubSelectEmbedderEvent(embedderName));
-        });
+        },);
   }
 
   Widget buildEmbeddingsTypeSelection(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -137,10 +130,10 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
             .getAvailableEmbeddingTypesForEmbedder(state.selectedEmbedderName!)
             .map((embeddingType) => DropdownMenuEntry(value: embeddingType, label: embeddingType.name))
             .toList(),
-        label: const Text("Select embedding type.."),
+        label: const Text('Select embedding type..'),
         onSelected: (EmbeddingType? embeddingType) {
           embeddingsHubBloc.add(EmbeddingsHubSelectEmbeddingTypeEvent(embeddingType));
-        });
+        },);
   }
 
   Widget buildEntityIDSelection(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -153,10 +146,10 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         dropdownMenuEntries: state.embeddingsColumnWizard!.valueMap.keys
             .map((entityID) => DropdownMenuEntry(value: entityID, label: entityID))
             .toList(),
-        label: const Text("Select embedding to inspect.."),
+        label: const Text('Select embedding to inspect..'),
         onSelected: (String? entityID) {
           embeddingsHubBloc.add(EmbeddingsHubSelectEntityIDEvent(entityID));
-        });
+        },);
   }
 
   Widget buildSingleEmbedding(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -167,7 +160,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         state.selectedEntityID!.isEmpty) {
       return Container();
     }
-    List<dynamic>? rawEmbeddingValues = state.embeddingsColumnWizard!.valueMap[state.selectedEntityID!]
+    final List<dynamic>? rawEmbeddingValues = state.embeddingsColumnWizard!.valueMap[state.selectedEntityID!]
         ?.getEmbedding(state.selectedEmbeddingType!, embedderName: state.selectedEmbedderName)
         ?.rawValues();
 
@@ -180,10 +173,10 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         height: SizeConfig.screenHeight(context) * 0.1,
         child: VectorVisualizer(
           vector: rawEmbeddingValues,
-          name: "${state.selectedEntityID} - PerSequenceEmbedding",
+          name: '${state.selectedEntityID} - PerSequenceEmbedding',
           // TODO Remove -1 in the future once visualization is improved
           decimalPlaces: Constants.maxDoublePrecision - 1,
-        ));
+        ),);
   }
 
   Widget buildBasicEmbeddingStats(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -208,16 +201,16 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                     height: SizeConfig.screenHeight(context) * 0.1,
                     child: VectorVisualizer(
                       vector: embeddingStats.mean.toList(),
-                      name: "Mean over all ${embeddingStats.numberOfEmbeddings} embeddings",
+                      name: 'Mean over all ${embeddingStats.numberOfEmbeddings} embeddings',
                       // TODO Remove -1 in the future once visualization is improved
                       decimalPlaces: Constants.maxDoublePrecision - 1,
-                    )),
-              )
+                    ),),
+              ),
             ],
           );
         }
-        return CircularProgressIndicator();
-      }
+        return const CircularProgressIndicator();
+      },
     );
   }
 
@@ -229,7 +222,6 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: state.umapData!.entries
@@ -239,10 +231,10 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                     child: UmapVisualizer(
                       umapData: mapEntry.key,
                       pointData: mapEntry.value,
-                      pointIdentifierKey: "id",
-                    )))
+                      pointIdentifierKey: 'id',
+                    ),),)
                 .toList(),
-          )),
+          ),),
     );
   }
 }
@@ -255,9 +247,7 @@ class VectorVisualizer extends StatelessWidget {
   final double cellHeight;
 
   const VectorVisualizer({
-    super.key,
-    required this.vector,
-    required this.name,
+    required this.vector, required this.name, super.key,
     this.decimalPlaces = 4,
     this.cellWidth = 60,
     this.cellHeight = 60,
@@ -306,12 +296,7 @@ class VectorElement extends StatelessWidget {
   final double height;
 
   const VectorElement({
-    super.key,
-    required this.index,
-    required this.value,
-    required this.decimalPlaces,
-    required this.width,
-    required this.height,
+    required this.index, required this.value, required this.decimalPlaces, required this.width, required this.height, super.key,
   });
 
   @override

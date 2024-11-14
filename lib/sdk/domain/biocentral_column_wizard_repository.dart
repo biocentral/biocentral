@@ -1,5 +1,5 @@
-import '../model/column_wizard_abstract.dart';
-import '../model/column_wizard_defaults.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/model/column_wizard_defaults.dart';
 
 class BiocentralColumnWizardRepository {
   final Map<Type, ColumnWizardFactory> _factories = {};
@@ -16,7 +16,7 @@ class BiocentralColumnWizardRepository {
   }
 
   void _registerFactory(ColumnWizardFactory factory) {
-    TypeDetector detector = factory.getTypeDetector();
+    final TypeDetector detector = factory.getTypeDetector();
     _factories[detector.type] = factory;
     _detectors.add(detector);
     _sortDetectors();
@@ -27,7 +27,7 @@ class BiocentralColumnWizardRepository {
   }
 
   Future<T> getColumnWizardForColumn<T extends ColumnWizard>(
-      {required String columnName, required Map<String, dynamic> valueMap, Type? columnType}) async {
+      {required String columnName, required Map<String, dynamic> valueMap, Type? columnType,}) async {
     columnType ??= await _detectColumnType(valueMap.values);
     if (_factories.containsKey(columnType)) {
       return _factories[columnType]!.create(columnName: columnName, valueMap: valueMap) as T;
@@ -37,8 +37,8 @@ class BiocentralColumnWizardRepository {
   }
 
   Future<Type> _detectColumnType(Iterable<dynamic> values) async {
-    Set<dynamic> valuesSet = values.toSet();
-    Map<Type, List<bool>> detectionResultMap = {};
+    final Set<dynamic> valuesSet = values.toSet();
+    final Map<Type, List<bool>> detectionResultMap = {};
 
     for (final value in valuesSet) {
       for (TypeDetector detector in _detectors) {

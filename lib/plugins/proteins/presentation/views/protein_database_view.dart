@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../bloc/protein_database_grid_bloc.dart';
+import 'package:biocentral/plugins/proteins/bloc/protein_database_grid_bloc.dart';
 
 class ProteinDatabaseView extends StatefulWidget {
   final Function(Protein? selectedProtein) onProteinSelected;
 
-  const ProteinDatabaseView({super.key, required this.onProteinSelected});
+  const ProteinDatabaseView({required this.onProteinSelected, super.key});
 
   @override
   State<ProteinDatabaseView> createState() => ProteinDatabaseViewState();
@@ -47,7 +47,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
         return PlutoAggregateColumnFooter(
           rendererContext: rendererContext,
           type: PlutoAggregateColumnType.count,
-          filter: (PlutoCell plutoCell) => plutoCell.value == "",
+          filter: (PlutoCell plutoCell) => plutoCell.value == '',
           format: '#',
           alignment: Alignment.center,
           titleSpanBuilder: (text) {
@@ -71,7 +71,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
         return PlutoAggregateColumnFooter(
           rendererContext: rendererContext,
           type: PlutoAggregateColumnType.count,
-          filter: (PlutoCell plutoCell) => plutoCell.value == "",
+          filter: (PlutoCell plutoCell) => plutoCell.value == '',
           format: '#',
           alignment: Alignment.center,
           titleSpanBuilder: (text) {
@@ -119,7 +119,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
         return PlutoAggregateColumnFooter(
           rendererContext: rendererContext,
           type: PlutoAggregateColumnType.count,
-          filter: (PlutoCell plutoCell) => plutoCell.value == "",
+          filter: (PlutoCell plutoCell) => plutoCell.value == '',
           format: '#',
           alignment: Alignment.center,
           titleSpanBuilder: (text) {
@@ -143,7 +143,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
         return PlutoAggregateColumnFooter(
           rendererContext: rendererContext,
           type: PlutoAggregateColumnType.count,
-          filter: (PlutoCell plutoCell) => plutoCell.value == "",
+          filter: (PlutoCell plutoCell) => plutoCell.value == '',
           format: '#',
           alignment: Alignment.center,
           titleSpanBuilder: (text) {
@@ -168,10 +168,6 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
   PlutoGridStateManager? stateManager;
   final PlutoGridMode plutoGridMode = PlutoGridMode.selectWithOneTap;
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;
@@ -179,7 +175,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ProteinDatabaseGridBloc proteinDatabaseGridBloc = BlocProvider.of<ProteinDatabaseGridBloc>(context);
+    final ProteinDatabaseGridBloc proteinDatabaseGridBloc = BlocProvider.of<ProteinDatabaseGridBloc>(context);
     Key gridKey = UniqueKey();
     return Scaffold(
       body: BlocConsumer<ProteinDatabaseGridBloc, ProteinDatabaseGridState>(
@@ -209,12 +205,11 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
           onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {
             //widget.openProteinViewCallback();
           },
-          configuration: const PlutoGridConfiguration(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => setState(() {
-          stateManager!.appendNewRows(count: 1);
+          stateManager!.appendNewRows();
         }),
         child: const Icon(Icons.add),
       ),
@@ -222,7 +217,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
   }
 
   List<PlutoColumn> buildColumns(ProteinDatabaseGridState state) {
-    List<PlutoColumn> result = List.from(_defaultProteinColumns);
+    final List<PlutoColumn> result = List.from(_defaultProteinColumns);
     for (String setColumnName in state.additionalColumns ?? {}) {
       result.add(PlutoColumn(
         title: setColumnName,
@@ -233,7 +228,7 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
           return PlutoAggregateColumnFooter(
             rendererContext: rendererContext,
             type: PlutoAggregateColumnType.count,
-            filter: (PlutoCell plutoCell) => plutoCell.value == "",
+            filter: (PlutoCell plutoCell) => plutoCell.value == '',
             format: '#',
             alignment: Alignment.center,
             titleSpanBuilder: (text) {
@@ -248,26 +243,26 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
             },
           );
         },
-      ));
+      ),);
     }
     return result;
   }
 
   List<PlutoRow> buildRowsFromProteins(ProteinDatabaseGridState state) {
-    List<PlutoRow> rows = List.empty(growable: true);
+    final List<PlutoRow> rows = List.empty(growable: true);
     for (Protein protein in state.proteins) {
-      PlutoRow row = PlutoRow(
+      final PlutoRow row = PlutoRow(
         cells: {
           'id': PlutoCell(value: protein.id),
           'sequence': PlutoCell(value: protein.sequence.seq),
           'embeddings': PlutoCell(value: protein.embeddings.information()),
           'taxonomyID': PlutoCell(value: protein.taxonomy.id),
-          'taxonomyName': PlutoCell(value: protein.taxonomy.name ?? ""),
-          'taxonomyFamily': PlutoCell(value: protein.taxonomy.family ?? ""),
-          'target': PlutoCell(value: protein.attributes["TARGET"]),
+          'taxonomyName': PlutoCell(value: protein.taxonomy.name ?? ''),
+          'taxonomyFamily': PlutoCell(value: protein.taxonomy.family ?? ''),
+          'target': PlutoCell(value: protein.attributes['TARGET']),
         }..addAll(Map<String, PlutoCell>.fromEntries(state.additionalColumns
-                ?.map((columnName) => MapEntry(columnName, PlutoCell(value: protein.attributes[columnName] ?? ""))) ??
-            {})),
+                ?.map((columnName) => MapEntry(columnName, PlutoCell(value: protein.attributes[columnName] ?? ''))) ??
+            {},),),
       );
       rows.add(row);
     }

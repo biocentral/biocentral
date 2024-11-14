@@ -4,9 +4,9 @@ import 'package:event_bus/event_bus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
-import '../data/protein_client.dart';
-import '../domain/protein_repository.dart';
-import 'proteins_commands.dart';
+import 'package:biocentral/plugins/proteins/data/protein_client.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
 
 sealed class ProteinsCommandEvent {
   ProteinsCommandEvent();
@@ -17,7 +17,7 @@ final class ProteinsCommandLoadProteinsFromFileEvent extends ProteinsCommandEven
   final FileData? fileData;
   final DatabaseImportMode importMode;
 
-  ProteinsCommandLoadProteinsFromFileEvent({this.platformFile, this.fileData, required this.importMode});
+  ProteinsCommandLoadProteinsFromFileEvent({required this.importMode, this.platformFile, this.fileData});
 }
 
 final class ProteinsCommandLoadCustomAttributesFromFileEvent extends ProteinsCommandEvent {
@@ -65,15 +65,15 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
   final BiocentralProjectRepository _biocentralProjectRepository;
 
   ProteinsCommandBloc(
-      this._proteinRepository, this._biocentralClientRepository, this._biocentralProjectRepository, EventBus eventBus)
+      this._proteinRepository, this._biocentralClientRepository, this._biocentralProjectRepository, EventBus eventBus,)
       : super(const ProteinsCommandState.idle(), eventBus) {
     on<ProteinsCommandLoadProteinsFromFileEvent>((event, emit) async {
-      LoadProteinsFromFileCommand loadProteinsFromFileCommand = LoadProteinsFromFileCommand(
+      final LoadProteinsFromFileCommand loadProteinsFromFileCommand = LoadProteinsFromFileCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
           proteinRepository: _proteinRepository,
           platformFile: event.platformFile,
           fileData: event.fileData,
-          importMode: event.importMode);
+          importMode: event.importMode,);
       await loadProteinsFromFileCommand
           .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
@@ -82,12 +82,12 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     });
 
     on<ProteinsCommandLoadCustomAttributesFromFileEvent>((event, emit) async {
-      LoadCustomAttributesFromFileCommand loadCustomAttributesFromFileCommand = LoadCustomAttributesFromFileCommand(
+      final LoadCustomAttributesFromFileCommand loadCustomAttributesFromFileCommand = LoadCustomAttributesFromFileCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
           proteinRepository: _proteinRepository,
           platformFile: event.platformFile,
           fileData: null,
-          importMode: event.importMode);
+          importMode: event.importMode,);
       await loadCustomAttributesFromFileCommand
           .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
@@ -96,21 +96,21 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     });
 
     on<ProteinsCommandSaveToFileEvent>((event, emit) async {
-      emit(state.setOperating(information: "Saving proteins to file.."));
+      emit(state.setOperating(information: 'Saving proteins to file..'));
 
-      String convertedProteins = await _proteinRepository.convertToString("fasta");
+      final String convertedProteins = await _proteinRepository.convertToString('fasta');
       final saveEither =
-          await _biocentralProjectRepository.handleSave(fileName: "proteins.fasta", content: convertedProteins);
-      saveEither.match((l) => emit(state.setErrored(information: "Error saving proteins!")),
-          (r) => emit(state.setFinished(information: "Finished saving proteins!")));
+          await _biocentralProjectRepository.handleSave(fileName: 'proteins.fasta', content: convertedProteins);
+      saveEither.match((l) => emit(state.setErrored(information: 'Error saving proteins!')),
+          (r) => emit(state.setFinished(information: 'Finished saving proteins!')),);
     });
 
     on<ProteinsCommandRetrieveTaxonomyEvent>((event, emit) async {
-      RetrieveTaxonomyCommand retrieveTaxonomyCommand = RetrieveTaxonomyCommand(
+      final RetrieveTaxonomyCommand retrieveTaxonomyCommand = RetrieveTaxonomyCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
           proteinRepository: _proteinRepository,
           proteinClient: _biocentralClientRepository.getServiceClient<ProteinClient>(),
-          importMode: DatabaseImportMode.overwrite);
+          importMode: DatabaseImportMode.overwrite,);
       await retrieveTaxonomyCommand
           .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
@@ -119,11 +119,11 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     });
 
     on<ProteinsCommandColumnWizardOperationEvent>((event, emit) async {
-      ColumnWizardOperationCommand columnWizardOperationCommand = ColumnWizardOperationCommand(
-          columnWizard: event.columnWizard, columnWizardOperation: event.columnWizardOperation);
+      final ColumnWizardOperationCommand columnWizardOperationCommand = ColumnWizardOperationCommand(
+          columnWizard: event.columnWizard, columnWizardOperation: event.columnWizardOperation,);
       columnWizardOperationCommand.executeWithLogging(_biocentralProjectRepository, state).forEach((either) {
         either.match((l) => emit(l), (r) async {
-          Map<String, BioEntity> entityMap = await _proteinRepository.handleColumnWizardOperationResult(r);
+          final Map<String, BioEntity> entityMap = await _proteinRepository.handleColumnWizardOperationResult(r);
           syncWithDatabases(entityMap);
         });
       });

@@ -3,8 +3,8 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/plm_eval_command_bloc.dart';
-import '../dialogs/plm_selection_dialog.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/presentation/dialogs/plm_selection_dialog.dart';
 
 class PLMEvalCommandView extends StatefulWidget {
   const PLMEvalCommandView({super.key});
@@ -20,7 +20,7 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
   }
 
   void openSelectPLMDialog() {
-    PLMEvalCommandBloc plmCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
+    final PLMEvalCommandBloc plmCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
 
     showDialog(
         context: context,
@@ -31,7 +31,7 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
               plmCommandBloc.add(PLMEvalCommandStartAutoEvalEvent(modelID));
             },),
           );
-        });
+        },);
   }
 
   @override
@@ -40,13 +40,13 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
     return BiocentralCommandBar(
       commands: [
         BiocentralTooltip(
-          message: "Evaluate a protein language model against benchmarks",
+          message: 'Evaluate a protein language model against benchmarks',
           child: BiocentralButton(
-              label: "New evaluation..",
-              requiredServices: const ["plm_eval_service"],
+              label: 'New evaluation..',
+              requiredServices: const ['plm_eval_service'],
               iconData: Icons.fact_check_outlined,
-              onTap: openSelectPLMDialog),
-        )
+              onTap: openSelectPLMDialog,),
+        ),
       ],
     );
   }

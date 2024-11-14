@@ -3,9 +3,9 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../data/ppi_client.dart';
-import '../domain/ppi_repository.dart';
-import '../model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, ProteinProteinInteraction>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -20,7 +20,7 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
       required PPIRepository ppiRepository,
       required PlatformFile? platformFile,
       required FileData? fileData,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
         _platformFile = platformFile,
@@ -29,25 +29,25 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
 
   @override
   Stream<Either<T, Map<String, ProteinProteinInteraction>>> execute<T extends BiocentralCommandState<T>>(
-      T state) async* {
-    yield left(state.setOperating(information: "Loading interactions from file.."));
+      T state,) async* {
+    yield left(state.setOperating(information: 'Loading interactions from file..'));
 
     if (_platformFile == null && _fileData == null) {
-      yield left(state.setErrored(information: "Did not receive any data to load!"));
+      yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      FileData? fileData = _fileData ??
+      final FileData? fileData = _fileData ??
           (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
       if (fileData == null) {
-        yield left(state.setErrored(information: "Could not retrieve file data!"));
+        yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
-        Map<String, ProteinProteinInteraction> interactions =
+        final Map<String, ProteinProteinInteraction> interactions =
             await _ppiRepository.importEntitiesFromFile(fileData, _importMode);
         yield right(interactions);
         yield left(state.setFinished(
-            information: "Finished loading interactions from file!",
+            information: 'Finished loading interactions from file!',
             commandProgress:
-                BiocentralCommandProgress(current: interactions.values.length, total: interactions.values.length)));
+                BiocentralCommandProgress(current: interactions.values.length, total: interactions.values.length),),);
       }
     }
   }
@@ -56,9 +56,9 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
   Map<String, dynamic> getConfigMap() {
     return {
       // TODO Values are not correct for asset datasets
-      "fileName": _fileData?.name ?? _platformFile?.name,
-      "fileExtension": _fileData?.extension ?? _platformFile?.extension,
-      "importMode": _importMode.name
+      'fileName': _fileData?.name ?? _platformFile?.name,
+      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'importMode': _importMode.name,
     };
   }
 }
@@ -76,11 +76,11 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
 
   @override
   Stream<Either<T, Map<String, ProteinProteinInteraction>>> execute<T extends BiocentralCommandState<T>>(
-      T state) async* {
-    yield left(state.setOperating(information: "Importing interaction dataset.."));
+      T state,) async* {
+    yield left(state.setOperating(information: 'Importing interaction dataset..'));
 
-    if (_loadedDataset == "") {
-      yield left(state.setErrored(information: "Could not read dataset or file is empty!"));
+    if (_loadedDataset == '') {
+      yield left(state.setErrored(information: 'Could not read dataset or file is empty!'));
     } else {
       final importedInteractionsEither = await _ppiClient.importInteractions(_loadedDataset, _datasetFormat);
       yield* importedInteractionsEither.match((error) async* {
@@ -89,9 +89,9 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
         yield right(importedInteractions);
 
         yield left(state.setFinished(
-            information: "Imported ${importedInteractions.length} interactions from $_datasetFormat dataset!",
+            information: 'Imported ${importedInteractions.length} interactions from $_datasetFormat dataset!',
             commandProgress:
-                BiocentralCommandProgress(current: importedInteractions.length, total: importedInteractions.length)));
+                BiocentralCommandProgress(current: importedInteractions.length, total: importedInteractions.length),),);
       });
     }
   }
@@ -99,8 +99,8 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      "loadedDatasetLength": _loadedDataset.length,
-      "datasetFormat": _datasetFormat,
+      'loadedDatasetLength': _loadedDataset.length,
+      'datasetFormat': _datasetFormat,
     };
   }
 }
@@ -117,13 +117,13 @@ final class RemoveDuplicatedPPIsCommand extends BiocentralCommand<int> {
 
   @override
   Stream<Either<T, int>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: "Removing duplicated interactions.."));
+    yield left(state.setOperating(information: 'Removing duplicated interactions..'));
 
-    int numberDuplicates = await _ppiRepository.removeDuplicates();
+    final int numberDuplicates = await _ppiRepository.removeDuplicates();
     yield right(numberDuplicates);
     yield left(state.setFinished(
-        information: "Removed duplicated interactions!",
-        commandProgress: BiocentralCommandProgress(current: numberDuplicates, total: numberDuplicates)));
+        information: 'Removed duplicated interactions!',
+        commandProgress: BiocentralCommandProgress(current: numberDuplicates, total: numberDuplicates),),);
   }
 
   @override
@@ -142,7 +142,7 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
       {required BiocentralProjectRepository biocentralProjectRepository,
       required PPIRepository ppiRepository,
       required PPIClient ppiClient,
-      required PPIDatabaseTest testToRun})
+      required PPIDatabaseTest testToRun,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
         _ppiClient = ppiClient,
@@ -150,30 +150,30 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
 
   @override
   Stream<Either<T, BiocentralTestResult>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: "Running dataset test.."));
+    yield left(state.setOperating(information: 'Running dataset test..'));
 
-    String datasetHash = await _ppiRepository.getHash();
+    final String datasetHash = await _ppiRepository.getHash();
     final transferEither = await _ppiClient.transferFile(
-        datasetHash, StorageFileType.sequences, () async => _ppiRepository.convertToString("fasta"));
+        datasetHash, StorageFileType.sequences, () async => _ppiRepository.convertToString('fasta'),);
 
     yield* transferEither.match((error) async* {
-      yield left(state.setErrored(information: "Could not transfer file to server!"));
+      yield left(state.setErrored(information: 'Could not transfer file to server!'));
     }, (u) async* {
       final testResultEither = await _ppiClient.runDatasetTest(datasetHash, _testToRun);
       yield* testResultEither.match((error) async* {
         yield left(state.setErrored(information: error.message));
       }, (testResult) async* {
-        List<PPIDatabaseTest> executedTests = _ppiRepository.addFinishedTest(_testToRun..testResult = testResult);
+        final List<PPIDatabaseTest> executedTests = _ppiRepository.addFinishedTest(_testToRun..testResult = testResult);
         yield right(testResult);
         yield left(state
-            .setFinished(information: "Done running dataset test!")
-            .copyWith(copyMap: {"executedTests": executedTests}));
+            .setFinished(information: 'Done running dataset test!')
+            .copyWith(copyMap: {'executedTests': executedTests}),);
       });
     });
   }
 
   @override
   Map<String, dynamic> getConfigMap() {
-    return {"testToRun": _testToRun};
+    return {'testToRun': _testToRun};
   }
 }

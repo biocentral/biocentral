@@ -2,9 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../data/ppi_client.dart';
-import '../domain/ppi_repository.dart';
-import '../model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 sealed class PPIDatabaseTestsDialogEvent {
   PPIDatabaseTestsDialogEvent();
@@ -74,15 +74,15 @@ class PPIDatabaseTestsDialogBloc extends Bloc<PPIDatabaseTestsDialogEvent, PPIDa
 
         final availableTestsEither = await _ppiClient.getAvailableDatasetTests();
         availableTestsEither.match((error) => emit(const PPIDatabaseTestsDialogState.errored()),
-            (availableTests) => emit(PPIDatabaseTestsDialogState.loaded(availableTests)));
+            (availableTests) => emit(PPIDatabaseTestsDialogState.loaded(availableTests)),);
       }
     });
 
     on<PPIDatabaseTestsDialogSelectTestEvent>((event, emit) async {
-      PPIDatabaseTest? selectedTest = event.selectedTest;
+      final PPIDatabaseTest? selectedTest = event.selectedTest;
 
       if (selectedTest != null) {
-        PPIDatabaseTestRequirement? missingRequirement = await selectedTest.canBeExecuted(_ppiRepository);
+        final PPIDatabaseTestRequirement? missingRequirement = await selectedTest.canBeExecuted(_ppiRepository);
         emit(PPIDatabaseTestsDialogState.selected(state.availableTests, selectedTest, missingRequirement));
       }
     });

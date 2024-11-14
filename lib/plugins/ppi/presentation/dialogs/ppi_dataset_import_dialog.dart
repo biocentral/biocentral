@@ -6,12 +6,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/ppi_import_dialog_bloc.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_import_dialog_bloc.dart';
 
 class PPIDatasetImportDialog extends StatefulWidget {
   final Function(FileData fileData, String format, DatabaseImportMode importMode) onImportInteractions;
 
-  const PPIDatasetImportDialog({super.key, required this.onImportInteractions});
+  const PPIDatasetImportDialog({required this.onImportInteractions, super.key});
 
   @override
   State<PPIDatasetImportDialog> createState() => _PPIDatasetImportDialogState();
@@ -26,8 +26,8 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
   }
 
   Future<void> pickFilePath(PPIImportDialogBloc ppiImportDialogBloc) async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowedExtensions: ["fasta", "csv", "txt", "json", "tsv"]);
+    final FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowedExtensions: ['fasta', 'csv', 'txt', 'json', 'tsv']);
     if (result != null) {
       ppiImportDialogBloc.add(PPIImportDialogSelectEvent({result.files.single}));
     } else {
@@ -39,7 +39,7 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
     if (state.selectedFile != null && state.selectedFormat != null) {
       closeDialog();
       widget.onImportInteractions(
-          state.selectedFile!, state.selectedFormat!, await getImportModeFromDialog(context: context));
+          state.selectedFile!, state.selectedFormat!, await getImportModeFromDialog(context: context),);
     }
   }
 
@@ -49,7 +49,7 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
 
   @override
   Widget build(BuildContext context) {
-    PPIImportDialogBloc ppiImportDialogBloc = BlocProvider.of<PPIImportDialogBloc>(context);
+    final PPIImportDialogBloc ppiImportDialogBloc = BlocProvider.of<PPIImportDialogBloc>(context);
 
     return BlocEffectListener<PPIImportDialogBloc, ShowAutoDetectedFormat>(
       listener: (context, effect) {
@@ -65,7 +65,7 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
             }
             return BiocentralDialog(children: [
               Text(
-                "Import a dataset",
+                'Import a dataset',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               buildDatasetSelection(ppiImportDialogBloc, state),
@@ -73,24 +73,24 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
               // Format selection
               Padding(
                   padding: EdgeInsets.all(SizeConfig.safeBlockHorizontal(context) * 2),
-                  child: buildDatasetFormatDocs(state)),
+                  child: buildDatasetFormatDocs(state),),
               buildFormatSelection(ppiImportDialogBloc, state),
               SizedBox(height: SizeConfig.safeBlockVertical(context) * 3),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   BiocentralSmallButton(
-                    label: "Import",
+                    label: 'Import',
                     onTap: () => doImport(state),
                   ),
                   BiocentralSmallButton(
-                    label: "Close",
+                    label: 'Close',
                     onTap: closeDialog,
                   ),
                 ],
-              )
-            ]);
-          }),
+              ),
+            ],);
+          },),
     );
   }
 
@@ -107,7 +107,7 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(docString),
-                ))));
+                ),),),);
   }
 
   Widget buildDatasetSelection(PPIImportDialogBloc ppiImportDialogBloc, PPIImportDialogState state) {
@@ -117,22 +117,22 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
         children: [
           Flexible(
             child: Text(
-              state.selectedFile?.name ?? "path/to/file",
+              state.selectedFile?.name ?? 'path/to/file',
               softWrap: true,
               maxLines: 2,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
-          IconButton(onPressed: () => pickFilePath(ppiImportDialogBloc), icon: const Icon(Icons.search))
+          IconButton(onPressed: () => pickFilePath(ppiImportDialogBloc), icon: const Icon(Icons.search)),
         ],
       ),
     );
   }
 
   Widget buildDatasetFormatDocs(PPIImportDialogState state) {
-    String docString = "";
+    String docString = '';
     if (state.selectedFormat != null && state.availableFormatsWithDocs != null) {
-      docString = "\n${state.selectedFormat!}:\n\n${state.availableFormatsWithDocs?[state.selectedFormat]!}\n";
+      docString = '\n${state.selectedFormat!}:\n\n${state.availableFormatsWithDocs?[state.selectedFormat]!}\n';
     }
     return buildDocStringBox(docString);
   }
@@ -141,10 +141,10 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
     if (state.availableFormatsWithDocs == null) {
       return Container();
     }
-    List<Widget> formatRadioTiles = [];
+    final List<Widget> formatRadioTiles = [];
     for (String format in state.availableFormatsWithDocs!.keys) {
-      Widget formatRadioTile = BiocentralQuickMessage(
-        message: "Auto-detected format!",
+      final Widget formatRadioTile = BiocentralQuickMessage(
+        message: 'Auto-detected format!',
         triggered: _autoDetectedFormat && format == state.selectedFormat,
         callback: () {
           _autoDetectedFormat = false;

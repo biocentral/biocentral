@@ -1,7 +1,7 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-import 'plm_eval_api.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_api.dart';
 
 final class PLMEvalClientFactory extends BiocentralClientFactory<PLMEvalClient> {
   @override
@@ -14,7 +14,7 @@ class PLMEvalClient extends BiocentralClient {
   PLMEvalClient(super.server);
 
   Future<Either<BiocentralException, Unit>> validateModelID(String modelID) async {
-    Map<String, String> body = {"modelID": modelID};
+    final Map<String, String> body = {'modelID': modelID};
     final responseEither = await doPostRequest(PLMEvalServiceEndpoints.validateModelID, body);
     return responseEither.flatMap((_) => right(unit));
   }
@@ -22,16 +22,16 @@ class PLMEvalClient extends BiocentralClient {
   Future<Either<BiocentralException, Map<String, List<String>>>> getAvailableBenchmarkDatasets() async {
     final responseEither = await doGetRequest(PLMEvalServiceEndpoints.getBenchmarkDatasets);
     return responseEither.flatMap((map) =>
-        right(Map.fromEntries(map.entries.map((entry) => MapEntry(entry.key, List<String>.from(entry.value))))));
+        right(Map.fromEntries(map.entries.map((entry) => MapEntry(entry.key, List<String>.from(entry.value))))),);
   }
 
   Future<Either<BiocentralException, String>> startAutoEval(String modelID) async {
-    Map<String, String> body = {"modelID": modelID};
+    final Map<String, String> body = {'modelID': modelID};
     final responseEither = await doPostRequest(PLMEvalServiceEndpoints.autoeval, body);
     return responseEither.flatMap((map) {
-      final taskID = map["task_id"];
+      final taskID = map['task_id'];
       if (taskID == null || taskID.toString().isEmpty) {
-        return left(BiocentralParsingException(message: "Could not find task_id in response to autoeval task!"));
+        return left(BiocentralParsingException(message: 'Could not find task_id in response to autoeval task!'));
       }
       return right(taskID);
     });
@@ -39,6 +39,6 @@ class PLMEvalClient extends BiocentralClient {
 
   @override
   String getServiceName() {
-    return "plm_eval_service";
+    return 'plm_eval_service';
   }
 }

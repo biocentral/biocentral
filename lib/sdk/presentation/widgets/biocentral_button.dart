@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/biocentral_client_bloc.dart';
-import '../../util/size_config.dart';
-import 'biocentral_tooltip.dart';
+import 'package:biocentral/sdk/bloc/biocentral_client_bloc.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_tooltip.dart';
 
 class BiocentralButton extends StatefulWidget {
   final void Function()? onTap;
@@ -12,7 +12,7 @@ class BiocentralButton extends StatefulWidget {
   final List<String> requiredServices;
 
   const BiocentralButton(
-      {super.key, required this.onTap, required this.iconData, required this.label, this.requiredServices = const []});
+      {required this.onTap, required this.iconData, required this.label, super.key, this.requiredServices = const [],});
 
   @override
   State<BiocentralButton> createState() => _BiocentralButtonState();
@@ -25,7 +25,7 @@ class _BiocentralButtonState extends State<BiocentralButton> {
   }
 
   List<String> getMissingServices(List<String> availableServices) {
-    List<String> missingServices = [];
+    final List<String> missingServices = [];
     for (String service in widget.requiredServices) {
       if (!availableServices.contains(service)) {
         missingServices.add(service);
@@ -37,15 +37,15 @@ class _BiocentralButtonState extends State<BiocentralButton> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BiocentralClientBloc, BiocentralClientState>(builder: (context, state) {
-      List<String> missingServices = getMissingServices(state.connectedServer?.availableServices ?? []);
-      Widget button = buildButton(missingServices.isNotEmpty ? null : widget.onTap);
+      final List<String> missingServices = getMissingServices(state.connectedServer?.availableServices ?? []);
+      final Widget button = buildButton(missingServices.isNotEmpty ? null : widget.onTap);
       return missingServices.isNotEmpty
           ? BiocentralTooltip(
-              message: "This functionality requires the service(s) $missingServices from a server",
+              message: 'This functionality requires the service(s) $missingServices from a server',
               color: Colors.red,
-              child: button)
+              child: button,)
           : button;
-    });
+    },);
   }
 
   Widget buildButton(void Function()? onTap) {
@@ -67,7 +67,7 @@ class _BiocentralButtonState extends State<BiocentralButton> {
                 children: <Widget>[
                   Icon(widget.iconData),
                   Text(
-                    " " + widget.label + " ",
+                    ' ${widget.label} ',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),

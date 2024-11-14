@@ -1,4 +1,4 @@
-import '../util/constants.dart';
+import 'package:biocentral/sdk/util/constants.dart';
 
 class BiocentralMLMetric {
   final String name;
@@ -7,10 +7,10 @@ class BiocentralMLMetric {
   BiocentralMLMetric({required this.name, required this.value});
 
   static BiocentralMLMetric? tryParse(String? name, String? value) {
-    if (name == null || name == "" || value == null || value == "") {
+    if (name == null || name == '' || value == null || value == '') {
       return null;
     }
-    double? valueParsed = double.tryParse(value);
+    final double? valueParsed = double.tryParse(value);
     if (valueParsed == null) {
       return null;
     }
@@ -19,6 +19,6 @@ class BiocentralMLMetric {
 
   @override
   String toString() {
-    return "$name: ${value.toStringAsPrecision(Constants.maxDoublePrecision)}";
+    return '$name: ${value.toStringAsPrecision(Constants.maxDoublePrecision)}';
   }
 }

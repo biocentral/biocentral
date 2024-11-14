@@ -7,7 +7,7 @@ void main() {
   group('BiocentralTooltip Widget Tests', () {
     testWidgets('BiocentralTooltip displays child widget', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: BiocentralTooltip(
             message: 'Test Message',
             child: Text('Child Widget'),
@@ -20,7 +20,7 @@ void main() {
 
     testWidgets('BiocentralTooltip shows message on long press', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: BiocentralTooltip(
             message: 'Test Message',
             child: Text('Child Widget'),
@@ -38,7 +38,7 @@ void main() {
 
     testWidgets('BiocentralTooltip uses default color when not specified', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: BiocentralTooltip(
             message: 'Test Message',
             child: Text('Child Widget'),
@@ -55,11 +55,11 @@ void main() {
 
     testWidgets('BiocentralTooltip uses custom color when specified', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: BiocentralTooltip(
             message: 'Test Message',
-            child: Text('Child Widget'),
             color: Colors.blue,
+            child: Text('Child Widget'),
           ),
         ),
       );

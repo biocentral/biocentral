@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/ppi_database_tests_dialog_bloc.dart';
-import '../../model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_dialog_bloc.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 class PPIDatabaseTestsDialog extends StatefulWidget {
   final void Function(PPIDatabaseTest) onRunInteractionDatabaseTest;
 
-  const PPIDatabaseTestsDialog({super.key, required this.onRunInteractionDatabaseTest});
+  const PPIDatabaseTestsDialog({required this.onRunInteractionDatabaseTest, super.key});
 
   @override
   State<PPIDatabaseTestsDialog> createState() => _PPIDatabaseTestsDialogState();
@@ -30,7 +30,7 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
 
   String getFileContentFromAssetDataset(ByteData dataset) {
     final buffer = dataset.buffer;
-    Uint8List bytes = buffer.asUint8List(dataset.offsetInBytes, dataset.lengthInBytes);
+    final Uint8List bytes = buffer.asUint8List(dataset.offsetInBytes, dataset.lengthInBytes);
     return String.fromCharCodes(bytes);
   }
 
@@ -40,13 +40,12 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    PPIDatabaseTestsDialogBloc ppiDatabaseTestBloc = BlocProvider.of<PPIDatabaseTestsDialogBloc>(context);
+    final PPIDatabaseTestsDialogBloc ppiDatabaseTestBloc = BlocProvider.of<PPIDatabaseTestsDialogBloc>(context);
     return BlocBuilder<PPIDatabaseTestsDialogBloc, PPIDatabaseTestsDialogState>(builder: (context, state) {
       return BiocentralDialog(
-        small: false, // TODO Small Dialog not working yet
         children: [
           Text(
-            "Run test on interaction database",
+            'Run test on interaction database',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           buildTestSelection(ppiDatabaseTestBloc, state),
@@ -55,23 +54,23 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               BiocentralSmallButton(
-                label: "Run",
+                label: 'Run',
                 onTap: () => doTestRunning(state),
               ),
               BiocentralSmallButton(
-                label: "Close",
+                label: 'Close',
                 onTap: closeDialog,
               ),
             ],
-          )
+          ),
         ],
       );
-    });
+    },);
   }
 
   Widget buildTestSelection(PPIDatabaseTestsDialogBloc ppiDatabaseTestBloc, PPIDatabaseTestsDialogState state) {
     return BiocentralDropdownMenu<PPIDatabaseTest>(
-      label: const Text("Select test.."),
+      label: const Text('Select test..'),
       dropdownMenuEntries: state.availableTests
           .map((PPIDatabaseTest test) => DropdownMenuEntry<PPIDatabaseTest>(value: test, label: test.name))
           .toList(),
@@ -85,7 +84,7 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
     if (state.missingRequirement == null) {
       return Container();
     }
-    return Text("Your current database does not meet "
+    return Text('Your current database does not meet '
         "the following test requirement(s): ${state.missingRequirement?.name ?? ""}");
   }
 

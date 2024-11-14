@@ -18,14 +18,14 @@ class SizeConfig {
   }
 
   static double safeBlockHorizontal(BuildContext context) {
-    MediaQueryData mediaQueryData = MediaQuery.of(context);
-    double safeAreaHorizontal = mediaQueryData.padding.left + mediaQueryData.padding.right;
+    final MediaQueryData mediaQueryData = MediaQuery.of(context);
+    final double safeAreaHorizontal = mediaQueryData.padding.left + mediaQueryData.padding.right;
     return (screenWidth(context) - safeAreaHorizontal) / 100;
   }
 
   static double safeBlockVertical(BuildContext context) {
-    MediaQueryData mediaQueryData = MediaQuery.of(context);
-    double safeAreaVertical = mediaQueryData.padding.top + mediaQueryData.padding.bottom;
+    final MediaQueryData mediaQueryData = MediaQuery.of(context);
+    final double safeAreaVertical = mediaQueryData.padding.top + mediaQueryData.padding.bottom;
     return (screenHeight(context) - safeAreaVertical) / 100;
   }
 }

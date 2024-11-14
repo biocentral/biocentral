@@ -1,4 +1,4 @@
-import 'biocentral_database.dart';
+import 'package:biocentral/sdk/domain/biocentral_database.dart';
 
 class BiocentralDatabaseRepository {
   final Map<Type, BiocentralDatabase> _availableDatabases;
@@ -15,7 +15,7 @@ class BiocentralDatabaseRepository {
 
   Map<String, Type> getAvailableTypes() {
     return Map.fromEntries(
-        _availableDatabases.entries.map((entry) => MapEntry(entry.value.getEntityTypeName(), entry.key)));
+        _availableDatabases.entries.map((entry) => MapEntry(entry.value.getEntityTypeName(), entry.key)),);
   }
 
   BiocentralDatabase? getFromType(Type? type) {

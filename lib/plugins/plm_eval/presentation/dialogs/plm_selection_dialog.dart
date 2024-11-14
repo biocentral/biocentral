@@ -1,14 +1,13 @@
-import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/plm_selection_dialog_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_selection_dialog_bloc.dart';
 
 class PLMSelectionDialog extends StatefulWidget {
   final void Function(String) onStartAutoeval;
 
-  const PLMSelectionDialog({super.key, required this.onStartAutoeval});
+  const PLMSelectionDialog({required this.onStartAutoeval, super.key});
 
   @override
   State<PLMSelectionDialog> createState() => _PLMSelectionDialogState();
@@ -41,44 +40,43 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   }
 
   Widget buildDialog(PLMSelectionDialogState state) {
-    PLMSelectionDialogBloc plmSelectionDialogBloc = BlocProvider.of<PLMSelectionDialogBloc>(context);
-    List<Widget> dialogChildren = [];
+    final PLMSelectionDialogBloc plmSelectionDialogBloc = BlocProvider.of<PLMSelectionDialogBloc>(context);
+    final List<Widget> dialogChildren = [];
 
     // Helper Text for errors
-    String helperText = state.errorMessage ?? "";
+    String helperText = state.errorMessage ?? '';
     Color helperStyleColor = Colors.red;
 
     if(state.status == PLMSelectionDialogStatus.validated) {
-      helperText = "Successfully validated, you are good to go!";
+      helperText = 'Successfully validated, you are good to go!';
       helperStyleColor = Colors.green;
     }
 
     dialogChildren.addAll([
       Text(
-        "Create an evaluation for your protein language model",
+        'Create an evaluation for your protein language model',
         style: Theme.of(context).textTheme.headlineLarge,
       ),
       TextFormField(
-          initialValue: "",
+          initialValue: '',
           decoration: InputDecoration(
-              labelText: "Enter a valid huggingface model ID here",
-              hintText: "e.g. Rostlab/prot_t5_xl_uniref50",
+              labelText: 'Enter a valid huggingface model ID here',
+              hintText: 'e.g. Rostlab/prot_t5_xl_uniref50',
               helperText: helperText,
-              helperStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color: helperStyleColor)),
+              helperStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color: helperStyleColor),),
           onChanged: (String? value) {
             setState(() {
-              plmSelection = value ?? "";
+              plmSelection = value ?? '';
             });
-          }),
+          },),
       buildDatasetSplitsDisplay(state.availableDatasets),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [buildCheckAndEvaluateButton(plmSelectionDialogBloc, state), buildCancelButton()],
-      )
+      ),
     ]);
 
     return BiocentralDialog(
-      small: false, // TODO Small Dialog not working yet
       children: dialogChildren,
     );
   }
@@ -91,36 +89,36 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
 
     return Column(
       children: [
-        Text("Benchmark Datasets (FLIP):"),
-        SizedBox(height: 8,),
+        const Text('Benchmark Datasets (FLIP):'),
+        const SizedBox(height: 8,),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: availableDatasets.entries.map((entry) {
-              String datasetName = entry.key;
-              List<String> splits = entry.value;
+              final String datasetName = entry.key;
+              final List<String> splits = entry.value;
 
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       datasetName,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.arrow_forward, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward, size: 20),
+                        const SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: splits.map((split) {
                             return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
                               child: Text(split),
                             );
                           }).toList(),
@@ -139,15 +137,15 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
 
   Widget buildCheckAndEvaluateButton(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
     if (state.status == PLMSelectionDialogStatus.validated && state.availableDatasets.isNotEmpty) {
-      return BiocentralSmallButton(onTap: () => startAutoeval(state), label: "Start Evaluation");
+      return BiocentralSmallButton(onTap: () => startAutoeval(state), label: 'Start Evaluation');
     }
     return BiocentralSmallButton(
-        onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogSelectedEvent(plmSelection ?? "")),
-        label: "Check Model");
+        onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogSelectedEvent(plmSelection ?? '')),
+        label: 'Check Model',);
   }
 
   Widget buildCancelButton() {
-    return BiocentralSmallButton(onTap: closeDialog, label: "Close");
+    return BiocentralSmallButton(onTap: closeDialog, label: 'Close');
   }
 
 }

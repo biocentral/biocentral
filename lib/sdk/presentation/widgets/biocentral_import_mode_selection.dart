@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/biocentral_database.dart';
-import '../../util/type_util.dart';
-import 'biocentral_discrete_selection.dart';
+import 'package:biocentral/sdk/domain/biocentral_database.dart';
+import 'package:biocentral/sdk/util/type_util.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_discrete_selection.dart';
 
 class BiocentralImportModeSelection extends StatefulWidget {
   final void Function(DatabaseImportMode? value) onChangedCallback;
 
-  const BiocentralImportModeSelection({super.key, required this.onChangedCallback});
+  const BiocentralImportModeSelection({required this.onChangedCallback, super.key});
 
   @override
   State<BiocentralImportModeSelection> createState() => _BiocentralImportModeSelectionState();
@@ -22,10 +22,10 @@ class _BiocentralImportModeSelectionState extends State<BiocentralImportModeSele
   @override
   Widget build(BuildContext context) {
     return BiocentralDiscreteSelection<DatabaseImportMode>(
-        title: "Import mode:",
+        title: 'Import mode:',
         selectableValues: DatabaseImportMode.values,
         displayConversion: (DatabaseImportMode mode) => mode.name.capitalize(),
         initialValue: DatabaseImportMode.defaultMode,
-        onChangedCallback: widget.onChangedCallback);
+        onChangedCallback: widget.onChangedCallback,);
   }
 }

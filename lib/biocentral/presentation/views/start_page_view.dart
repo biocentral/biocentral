@@ -12,7 +12,7 @@ class StartPageView extends StatefulWidget {
   final BiocentralPluginManager pluginManager;
   final EventBus eventBus;
 
-  const StartPageView({super.key, required this.providers, required this.pluginManager, required this.eventBus});
+  const StartPageView({required this.providers, required this.pluginManager, required this.eventBus, super.key});
 
   @override
   State<StartPageView> createState() => _StartPageViewState();
@@ -26,7 +26,7 @@ class _StartPageViewState extends State<StartPageView> {
 
   void startNewProject() async {
     if (!kIsWeb) {
-      String? dirPath = await FilePicker.platform.getDirectoryPath();
+      final String? dirPath = await FilePicker.platform.getDirectoryPath();
       if (dirPath != null) {
         switchToProjectView(dirPath);
       } else {
@@ -41,7 +41,7 @@ class _StartPageViewState extends State<StartPageView> {
 
   void switchToProjectView(String? dirPath) {
     if (dirPath != null) {
-      BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
+      final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
       biocentralProjectRepository.setDirectoryPath(dirPath);
     }
 
@@ -49,7 +49,7 @@ class _StartPageViewState extends State<StartPageView> {
       context,
       MaterialPageRoute(
           builder: (context) =>
-              MultiBlocProvider(providers: widget.providers, child: BiocentralMainView(eventBus: widget.eventBus))),
+              MultiBlocProvider(providers: widget.providers, child: BiocentralMainView(eventBus: widget.eventBus)),),
     );
   }
 
@@ -61,14 +61,14 @@ class _StartPageViewState extends State<StartPageView> {
         children: [
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Text(
-              "Biocentral - Project Wizard",
+              'Biocentral - Project Wizard',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(
               height: 10,
             ),
-            ...buildProjectSelection()
-          ]),
+            ...buildProjectSelection(),
+          ],),
         ],
       ),
     );
@@ -76,9 +76,9 @@ class _StartPageViewState extends State<StartPageView> {
 
   List<Widget> buildProjectSelection() {
     return [
-      ElevatedButton(onPressed: startNewProject, child: const Text("Start new project..")),
+      ElevatedButton(onPressed: startNewProject, child: const Text('Start new project..')),
       const SizedBox(height: 5),
-      ElevatedButton(onPressed: startNewProject, child: const Text("Load project..")),
+      ElevatedButton(onPressed: startNewProject, child: const Text('Load project..')),
     ];
   }
 
