@@ -70,15 +70,9 @@ def autoeval():
     user_id = UserManager.get_user_id_from_request(req=request)
     task = AutoEvalTask(flip_dict, model_id, user_id)
     task_id = f"autoeval_{model_id}_" + str(uuid.uuid4())
-    ProcessManager.add_task(task_id, task)
 
-    def run_async_task():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(ProcessManager.start_task(task_id))
-        loop.close()
-
-    threading.Thread(target=run_async_task).start()
+    ProcessManager.add_task(task_id=task_id, task=task)
+    ProcessManager.start_task(task_id=task_id)
 
     return jsonify({"task_id": task_id})
 

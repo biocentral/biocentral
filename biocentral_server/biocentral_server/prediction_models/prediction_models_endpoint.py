@@ -117,11 +117,7 @@ def start_training():
 
     biotrainer_process = BiotrainerProcess(config_path=config_file_path, log_path=log_path)
     ProcessManager.add_task(task_id=model_hash, task=biotrainer_process)
-
-    def run_async_task():
-        asyncio.run(ProcessManager.start_task(task_id=model_hash))
-
-    threading.Thread(target=run_async_task).start()
+    ProcessManager.start_task(task_id=model_hash)
 
     return jsonify({"model_hash": model_hash})
 

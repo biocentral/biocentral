@@ -1,6 +1,7 @@
 import asyncio
+import threading
 
-from typing import Dict, Coroutine
+from typing import Dict
 
 from .task_interface import TaskInterface, TaskStatus
 
@@ -16,11 +17,17 @@ class ProcessManager:
         _task_dict[task_id] = task
 
     @staticmethod
-    async def start_task(task_id: str):
+    def start_task(task_id: str):
         if task_id not in _task_dict.keys():
             raise Exception(f"task_id {task_id} not found to start task!")
         else:
-            await _task_dict[task_id].start()
+            def _run_async_loop():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                loop.run_until_complete(_task_dict[task_id].start())
+                loop.close()
+
+            threading.Thread(target=_run_async_loop).start()
 
     @staticmethod
     def get_task_status(task_id: str) -> TaskStatus:
