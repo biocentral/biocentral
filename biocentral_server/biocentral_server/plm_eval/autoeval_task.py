@@ -3,7 +3,7 @@ import logging
 import asyncio
 
 from pathlib import Path
-from typing import Dict, Any, Optional, Coroutine
+from typing import Dict, Any, Optional
 from importlib import resources
 from collections import namedtuple
 
@@ -98,10 +98,11 @@ class AutoEvalTask(TaskInterface):
     def update(self) -> Dict[str, Any]:
         progress_info = f"{self.completed_tasks}/{self.total_tasks}"
         logger.info(f"[AUTOEVAL] Progress information: {progress_info}")
-        return {
+        update_dict = {
             'status': self.status.name,
             'progress': progress_info,
             'current_process': f"{self.current_process.dataset_name}_"
                                f"{self.current_process.split_name}" if self.current_process else "",
             'results': self.results
         }
+        return update_dict
