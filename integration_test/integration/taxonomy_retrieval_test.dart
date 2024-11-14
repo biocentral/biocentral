@@ -93,7 +93,7 @@ void main() {
       final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
       // Assert
-      Either<ProteinsCommandState, Map<String, Protein>> lastEither;
+      Either lastEither = Either.right({});
       await for (final either in result) {
         lastEither = either;
       }
