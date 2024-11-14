@@ -1,5 +1,6 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -78,7 +79,13 @@ class _TrainingModelViewState extends State<TrainingModelView> {
   }
 
   List<Widget> buildLogResult(BiotrainerTrainingState state) {
-    // TODO Should be lacy
-    return state.trainingOutput.map((e) => Text(e, maxLines: 2)).toList();
+    if (state.trainingOutput.isEmpty) {
+      return [
+        Container(),
+      ];
+    }
+    return [
+      BiocentralLazyLogsViewer(logs: state.trainingOutput, height: SizeConfig.screenHeight(context) * 0.4),
+    ];
   }
 }
