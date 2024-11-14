@@ -1,5 +1,6 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/prediction_models_service_api.dart';
@@ -15,35 +16,9 @@ class PredictionModelDisplay extends StatefulWidget {
 }
 
 class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
-  final ScrollController _trainingLogsScrollController = ScrollController();
-  final List<Text> _loadedLogs = [];
-
-  static const int _maxLoadedLogsPerStep = 50;
-
   @override
   void initState() {
     super.initState();
-    // Initially load logs
-    _loadedLogs.addAll(loadLogs());
-    // Add listener to lazy-load new logs
-    _trainingLogsScrollController.addListener(() {
-      if (_trainingLogsScrollController.position.pixels == _trainingLogsScrollController.position.maxScrollExtent) {
-        Iterable<Text> newLogs = loadLogs();
-        setState(() {
-          _loadedLogs.addAll(newLogs);
-        });
-      }
-    });
-  }
-
-  Iterable<Text> loadLogs() {
-    List<String> logs = widget.predictionModel.biotrainerTrainingLog ?? [];
-    if (logs.isEmpty) {
-      return [];
-    }
-    final int start = _loadedLogs.length;
-    final int end = (start + _maxLoadedLogsPerStep).clamp(0, logs.length);
-    return logs.sublist(start, end).map((log) => Text(log, maxLines: 2));
   }
 
   @override
@@ -123,10 +98,14 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
 
   List<Widget> buildLossCurves(BiotrainerTrainingResult? trainingResult) {
     if (trainingResult == null) {
-      return [Container()];
+      return [
+        Container(),
+      ];
     }
     if (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty) {
-      return [Container()];
+      return [
+        Container(),
+      ];
     }
     final Map<String, Map<int, double>> linePlotData = {
       "Training": trainingResult.trainingLoss,
@@ -149,29 +128,22 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   List<Widget> buildAvailableCheckpoints() {
     List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
     if (checkpointNames.isEmpty) {
-      return [Container()];
+      return [
+        Container(),
+      ];
     }
     return checkpointNames.map((checkpointName) => Text(checkpointName)).toList();
   }
 
   List<Widget> buildLogResult() {
     if (widget.predictionModel.biotrainerTrainingLog?.isEmpty ?? true) {
-      return [Container()];
+      return [
+        Container(),
+      ];
     }
     return [
-      SizedBox(
-        height: SizeConfig.screenHeight(context) * 0.2,
-        child: ListView.builder(
-            itemCount: _loadedLogs.length,
-            controller: _trainingLogsScrollController,
-            physics: const ClampingScrollPhysics(),
-            itemBuilder: (context, index) {
-              if (index == _loadedLogs.length) {
-                return const CircularProgressIndicator();
-              }
-              return _loadedLogs[index];
-            }),
-      )
+      BiocentralLazyLogsViewer(
+          logs: widget.predictionModel.biotrainerTrainingLog ?? [], height: SizeConfig.screenHeight(context) * 0.4),
     ];
   }
 }
