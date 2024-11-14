@@ -1,6 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-
 import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
@@ -60,12 +59,18 @@ class BiotrainerTrainingStatusDTO {
 }
 
 class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
+  final Map<int, double> trainingLoss;
+  final Map<int, double> validationLoss;
   final Set<BiocentralMLMetric> testSetMetrics;
   final Set<String> sanityCheckWarnings;
   final Map<String, Set<BiocentralMLMetric>> sanityCheckBaselineMetrics;
 
   BiotrainerTrainingResult(
-      {required this.testSetMetrics, required this.sanityCheckWarnings, required this.sanityCheckBaselineMetrics});
+      {required this.trainingLoss,
+      required this.validationLoss,
+      required this.testSetMetrics,
+      required this.sanityCheckWarnings,
+      required this.sanityCheckBaselineMetrics});
 
   @override
   int compareTo(BiotrainerTrainingResult other) {
@@ -77,6 +82,8 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       identical(this, other) ||
       other is BiotrainerTrainingResult &&
           runtimeType == other.runtimeType &&
+          trainingLoss == other.trainingLoss &&
+          validationLoss == other.validationLoss &&
           testSetMetrics == other.testSetMetrics &&
           sanityCheckWarnings == other.sanityCheckWarnings &&
           sanityCheckBaselineMetrics == other.sanityCheckBaselineMetrics;

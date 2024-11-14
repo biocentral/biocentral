@@ -18,12 +18,17 @@ final class BiotrainerTrainingStartTrainingEvent extends BiotrainerTrainingEvent
 @immutable
 final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTrainingState> {
   final List<String> trainingOutput;
+  final Map<int, double> trainingLoss;
+  final Map<int, double> validationLoss;
   final String? modelArchitecture;
 
-  const BiotrainerTrainingState(super.stateInformation, super.status, this.trainingOutput, this.modelArchitecture);
+  const BiotrainerTrainingState(super.stateInformation, super.status, this.trainingOutput, this.trainingLoss,
+      this.validationLoss, this.modelArchitecture);
 
   const BiotrainerTrainingState.idle()
       : trainingOutput = const [],
+        trainingLoss = const {},
+        validationLoss = const {},
         modelArchitecture = null,
         super.idle();
 
@@ -32,13 +37,28 @@ final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTra
 
   @override
   BiotrainerTrainingState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
-    return BiotrainerTrainingState(stateInformation, status, trainingOutput, modelArchitecture);
+    return BiotrainerTrainingState(
+        stateInformation, status, trainingOutput, trainingLoss, validationLoss, modelArchitecture);
   }
 
   @override
   BiotrainerTrainingState copyWith({required Map<String, dynamic> copyMap}) {
-    return BiotrainerTrainingState(stateInformation, status, copyMap["trainingOutput"] ?? trainingOutput,
-        copyMap["modelArchitecture"] ?? modelArchitecture);
+    final List<String> receivedTrainingOutput = copyMap["trainingOutput"] ?? [];
+    final updatedTrainingOutput = List<String>.from(trainingOutput);
+
+    if (receivedTrainingOutput.isNotEmpty && (receivedTrainingOutput.length != 1 && receivedTrainingOutput[0] != "")) {
+      updatedTrainingOutput.addAll(receivedTrainingOutput);
+    }
+
+    final Map<int, double> receivedTrainingLoss = copyMap["trainingLoss"] ?? {};
+    final Map<int, double> receivedValidationLoss = copyMap["validationLoss"] ?? {};
+    final updatedTrainingLoss = Map<int, double>.from(trainingLoss);
+    updatedTrainingLoss.addAll(receivedTrainingLoss);
+    final updatedValidationLoss = Map<int, double>.from(validationLoss);
+    updatedValidationLoss.addAll(receivedValidationLoss);
+
+    return BiotrainerTrainingState(stateInformation, status, updatedTrainingOutput, updatedTrainingLoss,
+        updatedValidationLoss, copyMap["modelArchitecture"] ?? modelArchitecture);
   }
 }
 
