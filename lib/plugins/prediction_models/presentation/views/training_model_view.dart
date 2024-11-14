@@ -1,4 +1,5 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,10 +38,13 @@ class _TrainingModelViewState extends State<TrainingModelView> {
             Card(
                 child: ExpansionTile(
                     leading: buildSanityCheckIcon(),
-                    title: Text("Training ${state.modelArchitecture ?? "unknown"} model.."),
+                    title: Text("Training ${state.modelArchitecture ?? "unknown"} Model.."),
                     trailing: SizedBox(
                         width: SizeConfig.screenWidth(context) * 0.2, child: BiocentralStatusIndicator(state: state)),
-                    children: [ExpansionTile(title: const Text("Training logs"), children: buildLogResult(state))])),
+                    children: [
+                  ExpansionTile(title: const Text("Loss Curves"), children: buildLossCurves(state)),
+                  ExpansionTile(title: const Text("Training Logs"), children: buildLogResult(state)),
+                ])),
           ],
         ),
       ),
@@ -49,6 +53,28 @@ class _TrainingModelViewState extends State<TrainingModelView> {
 
   Widget buildSanityCheckIcon() {
     return const CircularProgressIndicator();
+  }
+
+  List<Widget> buildLossCurves(BiotrainerTrainingState state) {
+    if (state.trainingLoss.isEmpty && state.validationLoss.isEmpty) {
+      return [Container()];
+    }
+    final Map<String, Map<int, double>> linePlotData = {
+      "Training": state.trainingLoss,
+      "Validation": state.validationLoss
+    };
+    return [
+      SizedBox(
+        height: SizeConfig.safeBlockVertical(context) * 2,
+      ),
+      SizedBox(
+          height: SizeConfig.screenHeight(context) * 0.3,
+          width: SizeConfig.screenWidth(context) * 0.6,
+          child: BiocentralLinePlot(data: linePlotData)),
+      SizedBox(
+        height: SizeConfig.safeBlockVertical(context) * 2,
+      ),
+    ];
   }
 
   List<Widget> buildLogResult(BiotrainerTrainingState state) {
