@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../data/biotrainer_file_handler.dart';
@@ -70,9 +71,19 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
           yield left(trainingState);
 
           await for (String data in _predictionModelsClient.biotrainerTrainingStatusStream(modelHash)) {
+            final trainingOutput = data.split("\n");
+            final intermediateTrainingResult =
+                BiotrainerFileHandler.parseBiotrainerLog(trainingLog: trainingOutput, isTraining: true);
+            final int? currentEpoch = intermediateTrainingResult.trainingLoss.keys.maxOrNull;
+            final commandProgress =
+                currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: "Epoch") : null;
             trainingState = trainingState
-                .setOperating(information: "Training model..")
-                .copyWith(copyMap: {"trainingOutput": data.split("\n")});
+                .setOperating(information: "Training model..", commandProgress: commandProgress)
+                .copyWith(copyMap: {
+              "trainingOutput": trainingOutput,
+              "trainingLoss": intermediateTrainingResult.trainingLoss,
+              "validationLoss": intermediateTrainingResult.validationLoss,
+            });
             yield left(trainingState);
           }
 
