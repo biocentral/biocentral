@@ -68,16 +68,18 @@ class BiocentralCommandProgress {
   final int? total;
 
   final double? progress;
+  final String? hint;
 
   final bool isByteProgress; // For downloads
 
-  const BiocentralCommandProgress({required this.current, this.total, this.isByteProgress = false})
+  const BiocentralCommandProgress({required this.current, this.total, this.hint, this.isByteProgress = false})
       : progress = total != null ? current / total : null;
 
   BiocentralCommandProgress.fromDownloadProgress(DownloadProgress downloadProgress)
       : current = downloadProgress.bytesReceived,
         total = downloadProgress.totalBytes,
         progress = downloadProgress.progress,
+        hint = null,
         isByteProgress = true;
 }
 

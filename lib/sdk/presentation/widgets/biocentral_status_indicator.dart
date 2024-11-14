@@ -145,14 +145,15 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   }
 
   String _formatProgressInformation(BiocentralCommandProgress progress) {
-    String currentString =
+    final String currentString =
         progress.isByteProgress ? bytesAsFormatString(progress.current) : progress.current.toString();
+    final String hint = progress.hint?.trim() ?? "";
     if (progress.total != null) {
       String totalString = progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
       final percent = (progress.progress ?? 0) * 100;
-      return '$currentString / $totalString (${percent.toStringAsFixed(0)}%)';
+      return '$hint $currentString / $totalString (${percent.toStringAsFixed(0)}%)';
     } else {
-      return currentString;
+      return '$hint $currentString';
     }
   }
 }
