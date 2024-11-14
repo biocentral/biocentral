@@ -120,7 +120,7 @@ class BiotrainerFileHandler {
     // Training log
     if (biotrainerTrainingLog != null) {
       result = result.copyWith(
-          biotrainerTrainingResult: _parseTrainingResultFromTrainingLog(biotrainerTrainingLog),
+          biotrainerTrainingResult: parseBiotrainerLog(trainingLog: biotrainerTrainingLog, isTraining: false),
           biotrainerTrainingLog: biotrainerTrainingLog);
     }
     // Checkpoints
@@ -143,60 +143,102 @@ class BiotrainerFileHandler {
     return result;
   }
 
-  static BiotrainerTrainingResult _parseTrainingResultFromTrainingLog(List<String> trainingLog) {
+  static BiotrainerTrainingResult parseBiotrainerLog({required List<String> trainingLog, required bool isTraining}) {
     const String testSetMetricsIdentifier = "INFO Test set metrics: ";
     const String sanityChecksStartIdentifier = "INFO Running sanity checks on test results..";
     const String sanityChecksEndIdentifier = "INFO Sanity check on test results finished!";
     const String warningStringSeparator = " WARNING ";
     const String infoStringSeparator = " INFO ";
+    const String epochIdentifier = "INFO Epoch ";
+    const String trainingResultsIdentifier = "INFO Training results";
+    const String validationResultsIdentifier = "INFO Validation results";
+    const String lossIdentifier = "\tloss: ";
 
     Set<BiocentralMLMetric> parsedTestSetMetrics = {};
     Set<String> parsedSanityCheckWarnings = {};
     Map<String, Set<BiocentralMLMetric>> parsedSanityCheckBaselineMetrics = {};
 
+    Map<int, double> trainingLoss = {};
+    Map<int, double> validationLoss = {};
+
     bool inSanityCheckArea = false;
+    bool inTrainingResults = false;
+    bool inValidationResults = false;
+    int currentEpoch = -1;
+
     for (String line in trainingLog) {
-      // 1. Get test set metrics
-      if (line.contains(testSetMetricsIdentifier)) {
-        String metrics = line.split(testSetMetricsIdentifier).last;
-        Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", "\""));
-        parsedTestSetMetrics = _parseMLMetricsMap(metricsMap);
+      if (line.contains(epochIdentifier)) {
+        currentEpoch = int.parse(line.split(epochIdentifier).last.trim());
+        inTrainingResults = false;
+        inValidationResults = false;
         continue;
       }
-      // 2. Get sanity check results
-      if (line.contains(sanityChecksStartIdentifier)) {
-        inSanityCheckArea = true;
+      if (line.contains(trainingResultsIdentifier)) {
+        inTrainingResults = true;
+        inValidationResults = false;
         continue;
       }
-      if (line.contains(sanityChecksEndIdentifier)) {
-        inSanityCheckArea = false;
+      if (line.contains(validationResultsIdentifier)) {
+        inTrainingResults = false;
+        inValidationResults = true;
         continue;
       }
-      if (inSanityCheckArea) {
-        if (line.contains(warningStringSeparator)) {
-          String sanityCheckWarning = line.split(warningStringSeparator).last;
-          parsedSanityCheckWarnings.add(sanityCheckWarning);
-        } else if (line.contains(infoStringSeparator)) {
-          List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split(": {'");
-          if (baselineNameAndMetrics.length != 2) {
-            logger.e("Invalid sanity check line: $line");
-            continue;
-          }
-          String baselineName = baselineNameAndMetrics.first;
-          Map<String, dynamic> baselineMetricsMap =
-              jsonDecode("{\"${baselineNameAndMetrics.last.replaceAll("'", "\"")}");
-          Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
-          parsedSanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
-        } else {
-          logger.e("Invalid sanity check line: $line");
+      if (line.contains(lossIdentifier)) {
+        final double? loss = double.tryParse(line.split(lossIdentifier).last.trim());
+        if (inTrainingResults && loss != null) {
+          trainingLoss[currentEpoch] = loss;
+        } else if (inValidationResults && loss != null) {
+          validationLoss[currentEpoch] = loss;
+        }
+        continue;
+      }
+
+      if (!isTraining) {
+        // Only parse result metrics after training is done
+        if (line.contains(testSetMetricsIdentifier)) {
+          String metrics = line.split(testSetMetricsIdentifier).last;
+          Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", "\""));
+          parsedTestSetMetrics = _parseMLMetricsMap(metricsMap);
           continue;
+        }
+        if (line.contains(sanityChecksStartIdentifier)) {
+          inSanityCheckArea = true;
+          continue;
+        }
+        if (line.contains(sanityChecksEndIdentifier)) {
+          inSanityCheckArea = false;
+          continue;
+        }
+        if (inSanityCheckArea) {
+          if (line.contains(warningStringSeparator)) {
+            String sanityCheckWarning = line.split(warningStringSeparator).last;
+            parsedSanityCheckWarnings.add(sanityCheckWarning);
+          } else if (line.contains(infoStringSeparator)) {
+            List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split(": {'");
+            if (baselineNameAndMetrics.length != 2) {
+              logger.e("Invalid sanity check line: $line");
+              continue;
+            }
+            String baselineName = baselineNameAndMetrics.first;
+            Map<String, dynamic> baselineMetricsMap =
+                jsonDecode("{\"${baselineNameAndMetrics.last.replaceAll("'", "\"")}");
+            Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
+            parsedSanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
+          } else {
+            logger.e("Invalid sanity check line: $line");
+          }
         }
       }
     }
-    return BiotrainerTrainingResult(
+
+    BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
+        trainingLoss: trainingLoss,
+        validationLoss: validationLoss,
         testSetMetrics: parsedTestSetMetrics,
         sanityCheckWarnings: parsedSanityCheckWarnings,
         sanityCheckBaselineMetrics: parsedSanityCheckBaselineMetrics);
+
+    return trainingResult;
   }
 
   static PredictionModel? _predictionModelFromBiotrainerConfig(Map<String, dynamic> configMap) {
