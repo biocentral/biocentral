@@ -57,6 +57,64 @@ poetry run run-biocentral_server.py
 poetry run run-biocentral_server.py --headless
 ```
 
+### Additional setup
+
+Embeddings that are computed via the server are stored in a NoSQL database. For local deployments, 
+[TinyDB](https://github.com/msiemens/tinydb) is used by default and should be performant for most use cases. 
+If you want to use TinyDB, you do not have to perform any additional installation steps - 
+all embeddings are stored in `storage/embeddings.json`. 
+
+<details>
+<summary>Advanced MongoDB setup</summary>
+
+For advanced users or production deployments we recommend using a [MongoDB](https://www.mongodb.com) instance. 
+Here's a step-by-step guide how to configure it for *biocentral_server*:
+```shell
+# 1. Install MongoDB, e.g. for Ubuntu see: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+# 2. Set up an admin user and enable authentication
+# Go to mongo shell
+mongosh
+
+# Create Admin User
+use admin;
+db.createUser(
+  {
+    user: 'admin',
+    pwd: 'password',  # Change this!
+    roles: [ { role: 'root', db: 'admin' } ]
+  }
+);
+exit;
+
+# Change config to enable authentication
+sudo nano /etc/mongod.conf 
+
+# Change security to the following lines:
+security:
+  authorization: enabled
+
+# Restart the mongodb process
+sudo systemctl restart mongod
+
+# 3. Create the embeddings database
+# Log into mongo shell with the admin user you created
+mongosh -u admin -p
+
+# Create a user for the application
+use embeddings_db;
+db.createUser(
+  {
+    user: "embeddingsUser",
+    pwd: "embeddingsPassword",  # Change this!
+    roles: [ { role: "readWrite", db: "embeddings_db" } ]
+  }
+);
+
+# Create the database collection
+db.createCollection("embeddings");
+```
+</details>
+
 ## Building
 
 Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`.
