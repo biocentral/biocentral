@@ -48,12 +48,13 @@ class AutoEvalTask(TaskInterface):
 
     async def _start_biotrainer_process(self, dataset_name, split):
         config = self._prepare_config(dataset_name, split)
-        log_path = Path(f"logs/{dataset_name}_{split['name']}.log")
         embedder_path_name = self.embedder_name.replace("/", "_")
         database_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split['name']}"
         model_hash = str(hash(str(config)))
         config_path = self._save_config(config, database_hash=database_hash, model_hash=model_hash)
-
+        log_path = self.file_manager.get_file_path(database_hash=database_hash,
+                                                   file_type=StorageFileType.BIOTRAINER_LOGGING,
+                                                   model_hash=model_hash, check_exists=False)
         # TODO [Optimization] Embed sequence file for some splits before training
 
         # TODO [Optimization] Sub-Process handling via process manager
