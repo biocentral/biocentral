@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 void main() async {
-  BiocentralProjectRepository biocentralProjectRepository =
+  final BiocentralProjectRepository biocentralProjectRepository =
       await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager();
 
@@ -21,7 +21,7 @@ class BiocentralApp extends StatefulWidget {
   final BiocentralProjectRepository biocentralProjectRepository;
   final BiocentralPluginManager pluginManager;
 
-  const BiocentralApp({super.key, required this.biocentralProjectRepository, required this.pluginManager});
+  const BiocentralApp({required this.biocentralProjectRepository, required this.pluginManager, super.key});
 
   @override
   State<BiocentralApp> createState() => _BiocentralAppState();
@@ -48,7 +48,7 @@ class _BiocentralAppState extends State<BiocentralApp> {
     final TutorialRepository tutorialRepository = TutorialRepository(globalNavigatorKey);
 
     pluginManager.registerGlobalProperties(
-        biocentralClientRepository, biocentralColumnWizardRepository, biocentralDatabaseRepository, tutorialRepository);
+        biocentralClientRepository, biocentralColumnWizardRepository, biocentralDatabaseRepository, tutorialRepository,);
 
     return [
       RepositoryProvider<BiocentralProjectRepository>.value(value: widget.biocentralProjectRepository),
@@ -64,7 +64,7 @@ class _BiocentralAppState extends State<BiocentralApp> {
     return [
       BlocProvider<BiocentralClientBloc>(
           create: (context) => BiocentralClientBloc(
-              context.read<BiocentralClientRepository>(), context.read<BiocentralProjectRepository>())),
+              context.read<BiocentralClientRepository>(), context.read<BiocentralProjectRepository>(),),),
     ];
   }
 
@@ -84,7 +84,7 @@ class _BiocentralAppState extends State<BiocentralApp> {
                 navigatorKey: globalNavigatorKey,
                 title: 'Biocentral',
                 theme: BiocentralStyle.darkTheme,
-                home: buildHome(pluginState))),
+                home: buildHome(pluginState),),),
       ),
     );
   }
@@ -93,12 +93,12 @@ class _BiocentralAppState extends State<BiocentralApp> {
     return AnimatedSplashScreen(
         backgroundColor: const Color.fromRGBO(0, 19, 58, 1.0),
         duration: 1500,
-        splash: "assets/biocentral_logo/biocentral_logo.png",
-        nextScreen: buildScreenAfterSplash(pluginState));
+        splash: 'assets/biocentral_logo/biocentral_logo.png',
+        nextScreen: buildScreenAfterSplash(pluginState),);
   }
 
   Widget buildScreenAfterSplash(BiocentralPluginState pluginState) {
-    List<BlocProvider> globalBlocProviders = getGlobalBlocProviders();
+    final List<BlocProvider> globalBlocProviders = getGlobalBlocProviders();
     if (kIsWeb || !widget.biocentralProjectRepository.isDirectoryPathSet()) {
       return StartPageView(
         providers: globalBlocProviders,

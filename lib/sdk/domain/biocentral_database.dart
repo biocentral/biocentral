@@ -4,9 +4,9 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
-import '../model/column_wizard_operations.dart';
-import '../util/logging.dart';
-import 'biocentral_project_repository.dart';
+import 'package:biocentral/sdk/model/column_wizard_operations.dart';
+import 'package:biocentral/sdk/util/logging.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 
 abstract class BiocentralDatabase<T extends BioEntity> {
   // *** READ/WRITE/UPDATE ***
@@ -37,12 +37,12 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   Map<String, T> updateEmbeddings(Map<String, Embedding> newEmbeddings);
 
   Map<String, Map<String, dynamic>> getColumns() {
-    List<Map<String, String>> entityMaps = entitiesAsMaps();
-    Map<String, Map<String, dynamic>> result = {};
+    final List<Map<String, String>> entityMaps = entitiesAsMaps();
+    final Map<String, Map<String, dynamic>> result = {};
     for (Map<String, String> entityMap in entityMaps) {
-      String entityID = entityMap["id"] ?? "";
+      final String entityID = entityMap['id'] ?? '';
       if (entityID.isEmpty) {
-        logger.w("Encountered entity without an ID!");
+        logger.w('Encountered entity without an ID!');
       }
       for (MapEntry<String, String> entry in entityMap.entries) {
         result.putIfAbsent(entry.key, () => {});
@@ -57,8 +57,8 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   }
 
   Future<String> convertToString(String fileFormat) {
-    var handler = BioFileHandler<T>().create(fileFormat);
-    return handler.convertToString(databaseToMap()).then((val) => val ?? "");
+    final handler = BioFileHandler<T>().create(fileFormat);
+    return handler.convertToString(databaseToMap()).then((val) => val ?? '');
   }
 
   Future<Map<String, T>> importEntities(Map<String, T> entities, DatabaseImportMode databaseImportMode) async {
@@ -74,7 +74,7 @@ abstract class BiocentralDatabase<T extends BioEntity> {
       case DatabaseImportMode.merge:
         {
           for (MapEntry<String, T> entry in entities.entries) {
-            T? existingEntity = getEntityById(entry.key);
+            final T? existingEntity = getEntityById(entry.key);
             if (existingEntity != null) {
               updateEntity(existingEntity.getID(), entry.value.merge(existingEntity, failOnConflict: false) as T);
             } else {
@@ -88,7 +88,7 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   }
 
   Future<Map<String, T>> importEntitiesFromFile(FileData fileData, DatabaseImportMode databaseImportMode) async {
-    Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
+    final Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
     return importEntities(loadedEntities, databaseImportMode);
   }
 
@@ -96,16 +96,16 @@ abstract class BiocentralDatabase<T extends BioEntity> {
     try {
       // TODO Add option for consistency check into UI
       // TODO Add different file formats: fileData.extension
-      var handler = BioFileHandler<T>()
-          .create("fasta", config: BioFileHandlerConfig.serialDefaultConfig().copyWith(checkFileConsistency: false));
-      Map<String, T>? entitiesFromFastaFile = await handler.readFromString(fileData.content, fileName: fileData.name);
+      final handler = BioFileHandler<T>()
+          .create('fasta', config: BioFileHandlerConfig.serialDefaultConfig().copyWith(checkFileConsistency: false));
+      final Map<String, T>? entitiesFromFastaFile = await handler.readFromString(fileData.content, fileName: fileData.name);
       if (entitiesFromFastaFile == null) {
-        logger.e("Error loading entities from file: no values returned!");
+        logger.e('Error loading entities from file: no values returned!');
         return {};
       }
       return entitiesFromFastaFile;
     } catch (e) {
-      logger.e("Error loading entities from file: $e");
+      logger.e('Error loading entities from file: $e');
       rethrow;
     }
   }
@@ -113,15 +113,15 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   Future<Map<String, T>> handleColumnWizardOperationResult(ColumnWizardOperationResult? operationResult) async {
     if (operationResult is ColumnWizardAddOperationResult) {
       // TODO ERROR HANDLING
-      String newColumnName = operationResult.newColumnName;
-      Map<String, dynamic> newValues = operationResult.newColumnValues;
-      Map<String, String> attributeMap =
+      final String newColumnName = operationResult.newColumnName;
+      final Map<String, dynamic> newValues = operationResult.newColumnValues;
+      final Map<String, String> attributeMap =
           Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
       return addCustomAttribute(newColumnName, attributeMap);
     }
     if (operationResult is ColumnWizardRemoveOperationResult) {
-      List<int> indicesToRemove = operationResult.indicesToRemove;
-      List<T?> entitiesToRemove = indicesToRemove.map((index) => getEntityByRow(index)).toList();
+      final List<int> indicesToRemove = operationResult.indicesToRemove;
+      final List<T?> entitiesToRemove = indicesToRemove.map((index) => getEntityByRow(index)).toList();
       for (T? entity in entitiesToRemove) {
         removeEntity(entity);
       }
@@ -133,22 +133,22 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   // *** HASHING ***
 
   Future<String> getHash() async {
-    String databaseString = await convertToString("fasta");
-    List<int> bytes = utf8.encode(databaseString);
-    String hash = sha256.convert(bytes).toString();
+    final String databaseString = await convertToString('fasta');
+    final List<int> bytes = utf8.encode(databaseString);
+    final String hash = sha256.convert(bytes).toString();
     return hash;
   }
 
   // *** ATTRIBUTES ***
 
   Future<Map<String, T>> addCustomAttribute(String attributeName, Map<String, dynamic> attributeMap) {
-    Map<String, CustomAttributes> customAttributes = attributeMap
+    final Map<String, CustomAttributes> customAttributes = attributeMap
         .map((entityID, attributeValue) => MapEntry(entityID, CustomAttributes({attributeName: attributeValue})));
     return _updateEntitiesFromCustomAttributes(customAttributes);
   }
 
   Future<Map<String, T>> importCustomAttributesFromFile(FileData fileData) async {
-    Map<String, CustomAttributes>? customAttributes =
+    final Map<String, CustomAttributes> customAttributes =
         await _loadCustomAttributesFromFile(fileData.content, fileData.extension);
     return _updateEntitiesFromCustomAttributes(customAttributes);
   }
@@ -159,11 +159,11 @@ abstract class BiocentralDatabase<T extends BioEntity> {
     }
     int numberUnknownEntities = 0;
     for (MapEntry<String, CustomAttributes> entityIDToAttributes in customAttributes.entries) {
-      T? entityToUpdate = getEntityById(entityIDToAttributes.key);
+      final T? entityToUpdate = getEntityById(entityIDToAttributes.key);
       if (entityToUpdate != null) {
-        T entityUpdated = entityToUpdate.updateFromCustomAttributes(entityIDToAttributes.value);
+        final T entityUpdated = entityToUpdate.updateFromCustomAttributes(entityIDToAttributes.value);
         if (entityUpdated.getID() != entityToUpdate.getID()) {
-          logger.e("Changing IDs via custom attributes is not allowed for biological entities!");
+          logger.e('Changing IDs via custom attributes is not allowed for biological entities!');
           continue;
         }
         updateEntity(entityUpdated.getID(), entityUpdated);
@@ -172,23 +172,23 @@ abstract class BiocentralDatabase<T extends BioEntity> {
       }
     }
     if (numberUnknownEntities > 0) {
-      logger.i("Number unknown entities during update: $numberUnknownEntities");
+      logger.i('Number unknown entities during update: $numberUnknownEntities');
     }
     return databaseToMap();
   }
 
   static Future<Map<String, CustomAttributes>> _loadCustomAttributesFromFile(
-      String? fileContent, String fileType) async {
+      String? fileContent, String fileType,) async {
     try {
-      var handler = BioFileHandler<CustomAttributes>().create(fileType);
-      Map<String, CustomAttributes>? customAttributesFromFile = await handler.readFromString(fileContent);
+      final handler = BioFileHandler<CustomAttributes>().create(fileType);
+      final Map<String, CustomAttributes>? customAttributesFromFile = await handler.readFromString(fileContent);
       if (customAttributesFromFile == null) {
-        logger.e("Error loading custom attributes from file: no values returned!");
+        logger.e('Error loading custom attributes from file: no values returned!');
         return {};
       }
       return customAttributesFromFile;
     } catch (e) {
-      logger.e("Error loading custom attributes from file: $e");
+      logger.e('Error loading custom attributes from file: $e');
       rethrow;
     }
   }
@@ -199,27 +199,27 @@ abstract class BiocentralDatabase<T extends BioEntity> {
 
   Set<String> getAvailableAttributesForAllEntities() {
     return _getKeysWhereDataIsAvailableForAllEntries(
-        entitiesAsMaps().expand((element) => element.entries).toList(), databaseToList().length);
+        entitiesAsMaps().expand((element) => element.entries).toList(), databaseToList().length,);
   }
 
   Set<String> getAvailableSetColumnsForAllEntities() {
     return _getKeysWhereDataIsAvailableForAllEntries(
         entitiesAsMaps()
-            .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains("set")))
+            .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains('set')))
             .toList(),
-        databaseToList().length);
+        databaseToList().length,);
   }
 
   static Set<String> _getKeysWhereDataIsAvailableForAllEntries(
-      List<MapEntry<String, String>> entries, int repositoryLength) {
-    Set<String> result = {};
+      List<MapEntry<String, String>> entries, int repositoryLength,) {
+    final Set<String> result = {};
     // category name -> number of occurrences
-    Map<String, int> uniqueMap = {};
+    final Map<String, int> uniqueMap = {};
     for (MapEntry<String, String> keyValue in entries) {
       uniqueMap.putIfAbsent(keyValue.key, () => 0);
 
-      if (keyValue.value != "") {
-        int count = uniqueMap[keyValue.key]! + 1;
+      if (keyValue.value != '') {
+        final int count = uniqueMap[keyValue.key]! + 1;
         uniqueMap[keyValue.key] = count;
       }
     }

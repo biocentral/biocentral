@@ -21,14 +21,14 @@ class _WikiDialogState extends State<WikiDialog> {
   @override
   void initState() {
     super.initState();
-    TutorialRepository tutorialRepository = context.read<TutorialRepository>();
+    final TutorialRepository tutorialRepository = context.read<TutorialRepository>();
     _availableTutorials = tutorialRepository.getTutorials();
   }
 
   void startTutorial(Tutorial tutorialContainer) {
-    TutorialRepository tutorialRepository = context.read<TutorialRepository>();
-    TutorialRunner tutorialRunner = TutorialRunner(tutorialContainer, tutorialRepository);
-    TutorialHandler tutorialHandler = TutorialHandler(tutorialRunner, tutorialRepository);
+    final TutorialRepository tutorialRepository = context.read<TutorialRepository>();
+    final TutorialRunner tutorialRunner = TutorialRunner(tutorialContainer, tutorialRepository);
+    final TutorialHandler tutorialHandler = TutorialHandler(tutorialRunner, tutorialRepository);
     closeDialog();
     tutorialHandler.startTutorial();
   }
@@ -42,13 +42,12 @@ class _WikiDialogState extends State<WikiDialog> {
     return BlocBuilder<WikiBloc, WikiState>(
       builder: (context, state) {
         return BiocentralDialog(
-          small: false, // TODO Small Dialog not working yet
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Biocentral Wiki",
+                  'Biocentral Wiki',
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 Row(
@@ -57,7 +56,7 @@ class _WikiDialogState extends State<WikiDialog> {
                   children: [Flexible(child: buildDocSelection(state)), Flexible(flex: 2, child: buildDocStringBox())],
                 ),
               ],
-            )
+            ),
           ],
         );
       },
@@ -65,24 +64,24 @@ class _WikiDialogState extends State<WikiDialog> {
   }
 
   Widget buildDocSelection(WikiState state) {
-    List<ListTile> wikiTiles = state.wikiDocs.entries
+    final List<ListTile> wikiTiles = state.wikiDocs.entries
         .map((wikiEntry) => ListTile(
               title: Text(wikiEntry.key),
               onTap: () => setState(() {
                 _showTutorials = false;
                 _selectedDoc = wikiEntry.value;
               }),
-            ))
+            ),)
         .toList();
 
     return ListView(shrinkWrap: true, children: [
       ListTile(
-          title: const Text("Tutorials"),
+          title: const Text('Tutorials'),
           onTap: () => setState(() {
                 _showTutorials = true;
-              })),
-      ...wikiTiles
-    ]);
+              }),),
+      ...wikiTiles,
+    ],);
   }
 
   Widget buildDocStringBox() {
@@ -94,7 +93,7 @@ class _WikiDialogState extends State<WikiDialog> {
           children: [
             ..._availableTutorials.map((tutorialContainer) => BiocentralSmallButton(
                 onTap: () => startTutorial(tutorialContainer), // Wrap in function to ensure lazy loading
-                label: "Start Tutorial: ${tutorialContainer.getName()}"))
+                label: 'Start Tutorial: ${tutorialContainer.getName()}',),),
           ],
         ),
       );
@@ -111,9 +110,9 @@ class _WikiDialogState extends State<WikiDialog> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: MarkdownBody(
-                    data: _selectedDoc ?? "",
+                    data: _selectedDoc ?? '',
                   ),
-                ))));
+                ),),),);
   }
 
   @override

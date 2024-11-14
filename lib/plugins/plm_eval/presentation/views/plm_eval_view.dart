@@ -8,10 +8,6 @@ class PLMEvalView extends StatefulWidget {
 }
 
 class _PLMEvalViewState extends State<PLMEvalView> with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;
@@ -20,6 +16,6 @@ class _PLMEvalViewState extends State<PLMEvalView> with AutomaticKeepAliveClient
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(body: Column(),);
+    return const Scaffold(body: Column(),);
   }
 }

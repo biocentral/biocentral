@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../util/size_config.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
 
 class BiocentralQuickMessage extends StatefulWidget {
   final String message;
@@ -11,11 +11,7 @@ class BiocentralQuickMessage extends StatefulWidget {
   final Function() callback;
 
   const BiocentralQuickMessage({
-    super.key,
-    required this.message,
-    required this.child,
-    required this.triggered,
-    required this.callback,
+    required this.message, required this.child, required this.triggered, required this.callback, super.key,
   });
 
   @override
@@ -34,7 +30,7 @@ class _BiocentralQuickMessageState extends State<BiocentralQuickMessage> {
 
   Stream<double> opacityStream() async* {
     double opacity = _startOpacity;
-    int decreaseDurationMS = (_duration.inMilliseconds / _animationSteps).round();
+    final int decreaseDurationMS = (_duration.inMilliseconds / _animationSteps).round();
     for (int i = 0; i < _animationSteps; i++) {
       await Future.delayed(Duration(milliseconds: decreaseDurationMS));
 
@@ -63,8 +59,8 @@ class _BiocentralQuickMessageState extends State<BiocentralQuickMessage> {
                   child: Text(widget.message, style: Theme.of(context).textTheme.labelSmall),
                 ),
               );
-            }),
-        widget.child
+            },),
+        widget.child,
       ],
     );
   }

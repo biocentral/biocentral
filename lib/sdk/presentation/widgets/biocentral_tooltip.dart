@@ -5,7 +5,7 @@ class BiocentralTooltip extends StatefulWidget {
   final Widget child;
   final Color? color;
 
-  const BiocentralTooltip({super.key, required this.message, required this.child, this.color});
+  const BiocentralTooltip({required this.message, required this.child, super.key, this.color});
 
   @override
   State<BiocentralTooltip> createState() => _BiocentralTooltipState();

@@ -7,10 +7,10 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   ProteinRepository() {
     // EXAMPLE DATA
-    Protein p1 = Protein("P06213", sequence: AminoAcidSequence("MATGGRRGAA"));
-    Protein p2 = Protein("P11111", sequence: AminoAcidSequence("MAGGRGAA"));
-    Protein p3 = Protein("P22222", sequence: AminoAcidSequence("MATGGRRGAATTTTTT"));
-    Protein p4 = Protein("P33333", sequence: AminoAcidSequence("MAGGRGAAMMMMMMAAAAGGGG"));
+    final Protein p1 = Protein('P06213', sequence: AminoAcidSequence('MATGGRRGAA'));
+    final Protein p2 = Protein('P11111', sequence: AminoAcidSequence('MAGGRGAA'));
+    final Protein p3 = Protein('P22222', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
+    final Protein p4 = Protein('P33333', sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
     addEntity(p1);
     addEntity(p2);
     addEntity(p3);
@@ -19,7 +19,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   String getEntityTypeName() {
-    return "Protein";
+    return 'Protein';
   }
 
   @override
@@ -31,7 +31,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void removeEntity(Protein? entity) {
     if (entity != null) {
-      String interactionID = entity.getID();
+      final String interactionID = entity.getID();
       _proteins.remove(interactionID);
       _proteinIDs.remove(interactionID);
     }
@@ -93,8 +93,8 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     if (entities.entries.first.value is ProteinProteinInteraction) {
       clearDatabase();
       for (BioEntity entity in entities.values) {
-        Protein interactor1 = (entity as ProteinProteinInteraction).interactor1;
-        Protein interactor2 = entity.interactor2;
+        final Protein interactor1 = (entity as ProteinProteinInteraction).interactor1;
+        final Protein interactor2 = entity.interactor2;
 
         updateEntity(interactor1.getID(), interactor1);
         updateEntity(interactor2.getID(), interactor2);
@@ -126,7 +126,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   Set<int> getTaxonomyIDs() {
-    Set<int> taxonomyIDs = {};
+    final Set<int> taxonomyIDs = {};
     for (Protein protein in _proteins.values) {
       if (!protein.taxonomy.isUnknown()) {
         taxonomyIDs.add(protein.taxonomy.id);
@@ -143,7 +143,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     int numberUnknownProteins = 0;
 
     for (MapEntry<String, Embedding> proteinIDToEmbedding in newEmbeddings.entries) {
-      Protein? protein = _proteins[proteinIDToEmbedding.key];
+      final Protein? protein = _proteins[proteinIDToEmbedding.key];
       if (protein != null) {
         _proteins[proteinIDToEmbedding.key] =
             protein.copyWith(embeddings: protein.embeddings.addEmbedding(embedding: proteinIDToEmbedding.value));
@@ -153,7 +153,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     }
 
     if (numberUnknownProteins > 0) {
-      logger.w("Number unknown proteins from embeddings: $numberUnknownProteins");
+      logger.w('Number unknown proteins from embeddings: $numberUnknownProteins');
     }
     return Map.from(_proteins);
   }

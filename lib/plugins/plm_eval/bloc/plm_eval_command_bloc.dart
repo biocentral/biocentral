@@ -3,7 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../data/plm_eval_client.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 
 sealed class PLMEvalCommandEvent {}
 
@@ -51,14 +51,14 @@ class PLMEvalCommandBloc extends Bloc<PLMEvalCommandEvent, PLMEvalCommandState> 
       String? taskID;
       await startAutoEvalEither.match((l) async {
         // TODO ERROR MESSAGES NOT CORRECTLY SET!
-        return emit(PLMEvalCommandState.errored("Start of autoeval workflow failed! Error: ${l.error}"));
+        return emit(PLMEvalCommandState.errored('Start of autoeval workflow failed! Error: ${l.error}'));
       }, (tID) async {
         taskID = tID;
         emit(PLMEvalCommandState.running(event.modelID));
       });
 
       if(taskID == null) {
-        return emit(PLMEvalCommandState.errored("Could not get a valid task ID for autoeval workflow!"));
+        return emit(const PLMEvalCommandState.errored('Could not get a valid task ID for autoeval workflow!'));
       }
 
     });

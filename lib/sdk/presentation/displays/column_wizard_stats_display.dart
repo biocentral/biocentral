@@ -1,16 +1,16 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/column_wizard_abstract.dart';
-import '../../util/constants.dart';
-import '../../util/size_config.dart';
-import '../plots/biocentral_bar_plot.dart';
-import '../plots/biocentral_histogram_kde_plot.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
+import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
+import 'package:biocentral/sdk/presentation/plots/biocentral_histogram_kde_plot.dart';
 
 class ColumnWizardStatsDisplay extends StatefulWidget {
   final ColumnWizard columnWizard;
 
-  const ColumnWizardStatsDisplay({super.key, required this.columnWizard});
+  const ColumnWizardStatsDisplay({required this.columnWizard, super.key});
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardStatsDisplayState();
@@ -69,55 +69,55 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
                         return SizedBox(
                             width: SizeConfig.screenWidth(context) * 0.4,
                             height: SizeConfig.screenHeight(context) * 0.3,
-                            child: BiocentralHistogramKDEPlot(data: data));
-                      }),
+                            child: BiocentralHistogramKDEPlot(data: data),);
+                      },),
                       //List.generate(1000, (_) => math.Random().nextDouble() * 100))),
                     ],
                   );
                 }
               }
               return const CircularProgressIndicator();
-            }),
+            },),
       ],
     );
   }
 
   Widget descriptiveStatisticsNumericStats() {
-    NumericStats columnWizard = widget.columnWizard as NumericStats;
+    final NumericStats columnWizard = widget.columnWizard as NumericStats;
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      const Text("Descriptive Statistics:\n"),
-      textFuture("Number values:", columnWizard.length()),
-      textFuture("Number missing values:", columnWizard.numberMissing()),
-      textFuture("Max:", columnWizard.max()),
-      textFuture("Min:", columnWizard.min()),
-      textFuture("Mean:", columnWizard.mean()),
-      textFuture("Median:", columnWizard.median()),
-      textFuture("Mode:", columnWizard.mode()),
-      textFuture("Standard deviation:", columnWizard.stdDev()),
-    ]);
+      const Text('Descriptive Statistics:\n'),
+      textFuture('Number values:', columnWizard.length()),
+      textFuture('Number missing values:', columnWizard.numberMissing()),
+      textFuture('Max:', columnWizard.max()),
+      textFuture('Min:', columnWizard.min()),
+      textFuture('Mean:', columnWizard.mean()),
+      textFuture('Median:', columnWizard.median()),
+      textFuture('Mode:', columnWizard.mode()),
+      textFuture('Standard deviation:', columnWizard.stdDev()),
+    ],);
   }
 
   Widget descriptiveStatisticsCounterStats() {
-    CounterStats columnWizard = widget.columnWizard as CounterStats;
+    final CounterStats columnWizard = widget.columnWizard as CounterStats;
     return FutureBuilder<Map<String, int>>(
         future: columnWizard.getCounts(), // Cached
         builder: (context, snapshot) {
-          List<Widget> classCounts = [];
+          final List<Widget> classCounts = [];
           if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
-            classCounts.add(const Text("Class counts:"));
+            classCounts.add(const Text('Class counts:'));
             classCounts.addAll(snapshot.data!.entries
                 .sorted((e1, e2) => e1.value.compareTo(e2.value))
                 .reversed
-                .map((entry) => Text("${entry.key}: ${entry.value}")));
+                .map((entry) => Text('${entry.key}: ${entry.value}')),);
           }
           return Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text("Descriptive Statistics:\n"),
-            textFuture("Number values:", columnWizard.length()),
-            textFuture("Number different classes:", columnWizard.getCounts().then((counts) => counts.keys.length)),
-            textFuture("Number missing values:", columnWizard.numberMissing()),
+            const Text('Descriptive Statistics:\n'),
+            textFuture('Number values:', columnWizard.length()),
+            textFuture('Number different classes:', columnWizard.getCounts().then((counts) => counts.keys.length)),
+            textFuture('Number missing values:', columnWizard.numberMissing()),
             ...classCounts,
-          ]);
-        });
+          ],);
+        },);
   }
 
   Widget textFuture(String text, Future<num> future) {
@@ -125,32 +125,31 @@ class _ColumnWizardStatsDisplayState extends State<ColumnWizardStatsDisplay> {
         future: future,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            String valueString = "";
+            String valueString = '';
             if (snapshot.data.runtimeType == int) {
               valueString = snapshot.data.toString();
             } else {
-              valueString = snapshot.data?.toStringAsPrecision(Constants.maxDoublePrecision) ?? "";
+              valueString = snapshot.data?.toStringAsPrecision(Constants.maxDoublePrecision) ?? '';
             }
             return Row(
               children: [
-                Text("$text "),
+                Text('$text '),
                 Text(valueString),
               ],
             );
           }
-          return Row(children: [Text("$text "), const CircularProgressIndicator()]);
-        });
+          return Row(children: [Text('$text '), const CircularProgressIndicator()]);
+        },);
   }
 
   Widget barDistributionPlot() {
     return Flexible(
-      fit: FlexFit.loose,
       child: FutureBuilder<ColumnWizardBarChartData>(
         future: widget.columnWizard.getBarChartData(),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            ColumnWizardBarChartData barChartData = snapshot.data!;
-            List<(String, double)> plotData = barChartData.dataPoints
+            final ColumnWizardBarChartData barChartData = snapshot.data!;
+            final List<(String, double)> plotData = barChartData.dataPoints
                 .map((point) => (barChartData.bottomTitles[point.$1], point.$2.toDouble()))
                 .toList();
             return SizedBox(

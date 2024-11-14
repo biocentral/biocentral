@@ -8,11 +8,10 @@ class BiocentralHistogramKDEPlot extends StatelessWidget {
   final double bandwidth;
 
   const BiocentralHistogramKDEPlot({
-    Key? key,
-    required this.data,
+    required this.data, super.key,
     this.bins = 20,
     this.bandwidth = 1.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class _HistogramKDEPainter extends CustomPainter {
   final List<double> data;
   final int bins;
   final double bandwidth;
-  final TextStyle plotTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
+  final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
   _HistogramKDEPainter(this.data, this.bins, this.bandwidth);
 
@@ -40,7 +39,7 @@ class _HistogramKDEPainter extends CustomPainter {
     const double padding = 60;
 
     final Size plotSize = Size(size.width - padding, size.height - padding);
-    final Offset plotOffset = Offset(padding, 0);
+    final Offset plotOffset = const Offset(padding, 0);
 
     // Calculate metrics
     final double minValue = data.reduce(math.min);
@@ -127,7 +126,7 @@ class _HistogramKDEPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     canvas.drawLine(Offset(padding, plotSize.height), Offset(size.width, plotSize.height), axesPaint);
-    canvas.drawLine(Offset(padding, 0), Offset(padding, plotSize.height), axesPaint);
+    canvas.drawLine(const Offset(padding, 0), Offset(padding, plotSize.height), axesPaint);
 
     // Draw x-axis annotations
     final int xTickCount = 5;
@@ -174,23 +173,23 @@ class _HistogramKDEPainter extends CustomPainter {
     canvas.save();
     canvas.translate(0, size.height / 2 + yLabelPainter.width / 2);
     canvas.rotate(-math.pi / 2);
-    yLabelPainter.paint(canvas, Offset(0, -padding / 4));
+    yLabelPainter.paint(canvas, const Offset(0, -padding / 4));
     canvas.restore();
   }
 
   void drawNormalDistribution(Canvas canvas, Size plotSize, Offset plotOffset, double minValue, double maxValue,
-      double mean, double stdDev, double variance) {
+      double mean, double stdDev, double variance,) {
     // Create normal distribution points
-    List<_Point> normalPoints = [];
+    final List<_Point> normalPoints = [];
     for (int i = 0; i <= 100; i++) {
-      double x = minValue + (i / 100) * (maxValue - minValue);
-      double y = (1 / (stdDev * math.sqrt(2 * math.pi))) * math.exp(-math.pow(x - mean, 2) / (2 * variance));
+      final double x = minValue + (i / 100) * (maxValue - minValue);
+      final double y = (1 / (stdDev * math.sqrt(2 * math.pi))) * math.exp(-math.pow(x - mean, 2) / (2 * variance));
       normalPoints.add(_Point(x, y));
     }
 
     // Normalize the points
-    double maxY = normalPoints.map((p) => p.y).reduce(math.max);
-    List<_Point> normalizedPoints = normalPoints.map((p) => _Point(p.x, p.y / maxY)).toList();
+    final double maxY = normalPoints.map((p) => p.y).reduce(math.max);
+    final List<_Point> normalizedPoints = normalPoints.map((p) => _Point(p.x, p.y / maxY)).toList();
 
     // Draw the normal distribution curve
     final Paint normalPaint = Paint()
@@ -213,7 +212,7 @@ class _HistogramKDEPainter extends CustomPainter {
   }
 
   void highlightMeanAndStdDev(
-      Canvas canvas, Size plotSize, Offset plotOffset, double minValue, double maxValue, double mean, double stdDev) {
+      Canvas canvas, Size plotSize, Offset plotOffset, double minValue, double maxValue, double mean, double stdDev,) {
     final Paint meanPaint = Paint()
       ..color = Colors.purple
       ..strokeWidth = 2
@@ -229,7 +228,7 @@ class _HistogramKDEPainter extends CustomPainter {
     final double rightStdDevX = plotOffset.dx + (mean + stdDev - minValue) / (maxValue - minValue) * plotSize.width;
 
     canvas.drawLine(Offset(leftStdDevX, plotOffset.dy + plotSize.height),
-        Offset(rightStdDevX, plotOffset.dy + plotSize.height), meanPaint);
+        Offset(rightStdDevX, plotOffset.dy + plotSize.height), meanPaint,);
 
     // Add labels
     final TextPainter meanPainter = TextPainter(
@@ -245,7 +244,7 @@ class _HistogramKDEPainter extends CustomPainter {
     );
     stdDevPainter.layout();
     stdDevPainter.paint(canvas,
-        Offset((leftStdDevX + rightStdDevX) / 2 - stdDevPainter.width / 2, plotOffset.dy + plotSize.height - 15));
+        Offset((leftStdDevX + rightStdDevX) / 2 - stdDevPainter.width / 2, plotOffset.dy + plotSize.height - 15),);
   }
 
   void drawLegend(Canvas canvas, Size size) {
@@ -257,7 +256,7 @@ class _HistogramKDEPainter extends CustomPainter {
     canvas.drawLine(
         Offset(legendX, legendY),
         Offset(legendX + 30, legendY),
-        Paint()..color = Colors.red..strokeWidth = 2
+        Paint()..color = Colors.red..strokeWidth = 2,
     );
     final kdePainter = TextPainter(
       text: TextSpan(text: 'KDE of your data', style: plotTextStyle),
@@ -270,7 +269,7 @@ class _HistogramKDEPainter extends CustomPainter {
     canvas.drawLine(
         Offset(legendX, legendY + itemHeight),
         Offset(legendX + 30, legendY + itemHeight),
-        Paint()..color = Colors.green..strokeWidth = 2
+        Paint()..color = Colors.green..strokeWidth = 2,
     );
     final normalPainter = TextPainter(
       text: TextSpan(text: 'Theoretical Normal Distribution', style: plotTextStyle),

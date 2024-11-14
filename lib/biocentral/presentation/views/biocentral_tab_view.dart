@@ -11,10 +11,6 @@ class BiocentralTabView extends StatefulWidget {
 }
 
 class _BiocentralTabViewState extends State<BiocentralTabView> with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   // LOGIC FUNCTIONS GO HERE
 
@@ -29,11 +25,11 @@ class _BiocentralTabViewState extends State<BiocentralTabView> with AutomaticKee
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(flex: 3, child: BiocentralCommandLogDisplay()),
-            Flexible(flex: 2, child: BiocentralLogsDisplay())
+            Flexible(flex: 2, child: BiocentralLogsDisplay()),
           ],
         ),
       ),
-    ]);
+    ],);
   }
 
   @override

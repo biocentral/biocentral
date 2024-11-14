@@ -1,8 +1,8 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../domain/biocentral_project_repository.dart';
-import 'biocentral_state.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/bloc/biocentral_state.dart';
 
 abstract class BiocentralCommand<R> {
   // Either is used to carry a state or result.
@@ -28,7 +28,7 @@ abstract class BiocentralCommand<R> {
           // Finished, log successful command
           // TODO Remove state information list, replace with other metadata
           projectRepository.logCommand(
-              BiocentralCommandLog<R>(command: this, startTime: startTime, endTime: endTime, result: rightResult));
+              BiocentralCommandLog<R>(command: this, startTime: startTime, endTime: endTime, result: rightResult),);
         },
       );
       yield result;
@@ -42,7 +42,7 @@ final class BiocentralCommandLog<R> {
   final BiocentralCommandResultData resultData;
 
   BiocentralCommandLog(
-      {required this.command, required DateTime startTime, required DateTime endTime, required R result})
+      {required this.command, required DateTime startTime, required DateTime endTime, required R result,})
       : metaData = BiocentralCommandMetaData(startTime: startTime, endTime: endTime),
         resultData = BiocentralCommandResultData.fromResult(result);
 }
@@ -70,30 +70,30 @@ final class BiocentralCommandResultData<R> {
   BiocentralCommandResultData._({required this.resultMap});
 
   factory BiocentralCommandResultData.fromResult(R result) {
-    Map<String, dynamic> resultMap = _getResultMapFromResult<R>(result);
+    final Map<String, dynamic> resultMap = _getResultMapFromResult<R>(result);
     return BiocentralCommandResultData._(resultMap: resultMap);
   }
 
   static Map<String, dynamic> _getResultMapFromResult<R>(R result) {
-    final Map<String, dynamic> resultMap = {"type": result.runtimeType};
+    final Map<String, dynamic> resultMap = {'type': result.runtimeType};
     switch (result) {
-      case Map r:
-        return resultMap..addAll({"values": r.length});
-      case Set s:
-        return resultMap..addAll({"values": s.length});
-      case List l:
-        return resultMap..addAll({"values": l.length});
+      case final Map r:
+        return resultMap..addAll({'values': r.length});
+      case final Set s:
+        return resultMap..addAll({'values': s.length});
+      case final List l:
+        return resultMap..addAll({'values': l.length});
       case int _:
       case double _:
       case bool _:
-        return resultMap..addAll({"result": result.toString()});
-      case UMAPData umap:
+        return resultMap..addAll({'result': result.toString()});
+      case final UMAPData umap:
         return resultMap
           ..addAll({
-            "identifier": umap.identifier,
-            "values": umap.coordinates.length,
-            "maxX": umap.maxX(),
-            "maxY": umap.maxY()
+            'identifier': umap.identifier,
+            'values': umap.coordinates.length,
+            'maxX': umap.maxX(),
+            'maxY': umap.maxY(),
           });
       default:
         return resultMap;

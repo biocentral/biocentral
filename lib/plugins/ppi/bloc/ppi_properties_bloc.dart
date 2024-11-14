@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../domain/ppi_repository.dart';
-import '../domain/ppi_repository_properties.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository_properties.dart';
 
 sealed class PPIPropertiesEvent {}
 
@@ -34,7 +34,7 @@ class PPIPropertiesBloc extends Bloc<PPIPropertiesEvent, PPIPropertiesState> {
   PPIPropertiesBloc(this._ppiRepository) : super(const PPIPropertiesState.initial([])) {
     on<PPIPropertiesCalculateEvent>((event, emit) async {
       emit(const PPIPropertiesState.loading([]));
-      List<PPIRepositoryProperty> properties = await _ppiRepository.calculateProperties();
+      final List<PPIRepositoryProperty> properties = await _ppiRepository.calculateProperties();
       emit(PPIPropertiesState.loaded(properties));
     });
   }

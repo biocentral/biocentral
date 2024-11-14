@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/load_model_dialog_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/load_model_dialog_bloc.dart';
 
 class LoadModelDialog extends StatefulWidget {
   const LoadModelDialog({super.key});
@@ -24,8 +24,8 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
   }
 
   Future<void> pickFile(void Function(PlatformFile) setFileOnPicked) async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(allowedExtensions: ["yml", "yaml", "log", "pt"], type: FileType.custom, withData: kIsWeb);
+    final FilePickerResult? result = await FilePicker.platform
+        .pickFiles(allowedExtensions: ['yml', 'yaml', 'log', 'pt'], type: FileType.custom, withData: kIsWeb);
     if (result != null) {
       setFileOnPicked(result.files.single);
     } else {
@@ -43,7 +43,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
 
   @override
   Widget build(BuildContext context) {
-    LoadModelDialogBloc loadModelDialogBloc = BlocProvider.of<LoadModelDialogBloc>(context);
+    final LoadModelDialogBloc loadModelDialogBloc = BlocProvider.of<LoadModelDialogBloc>(context);
 
     return BlocConsumer<LoadModelDialogBloc, LoadModelDialogState>(
       listener: (context, state) {
@@ -54,7 +54,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
       builder: (context, state) {
         return BiocentralDialog(children: [
           Text(
-            "Load a model",
+            'Load a model',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           SizedBox(height: SizeConfig.safeBlockVertical(context) * 3),
@@ -62,7 +62,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
             setState(() {
               _selectedImportMode = value!;
             });
-          }),
+          },),
           // Format selection
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -70,23 +70,23 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
               buildConfigFileSelection(loadModelDialogBloc, state),
               buildOutputFileSelection(loadModelDialogBloc, state),
               buildLoggingFileSelection(loadModelDialogBloc, state),
-              buildCheckpointPathSelection(loadModelDialogBloc, state)
+              buildCheckpointPathSelection(loadModelDialogBloc, state),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               BiocentralSmallButton(
-                label: "Load",
+                label: 'Load',
                 onTap: () async => doLoading(loadModelDialogBloc),
               ),
               BiocentralSmallButton(
-                label: "Close",
+                label: 'Close',
                 onTap: closeDialog,
               ),
             ],
-          )
-        ]);
+          ),
+        ],);
       },
     );
   }
@@ -98,7 +98,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
         children: [
           Flexible(
             child: Text(
-              state.selectedConfigFile?.name ?? "path/to/config_file",
+              state.selectedConfigFile?.name ?? 'path/to/config_file',
               softWrap: true,
               maxLines: 2,
               style: Theme.of(context).textTheme.bodyMedium,
@@ -109,8 +109,8 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
                   selectedConfigFile: file,
                   selectedOutputFile: null,
                   selectedLoggingFile: null,
-                  selectedCheckpointFile: null))),
-              icon: const Icon(Icons.search))
+                  selectedCheckpointFile: null,),),),
+              icon: const Icon(Icons.search),),
         ],
       ),
     );
@@ -123,7 +123,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
         children: [
           Flexible(
             child: Text(
-              state.selectedOutputFile?.name ?? "path/to/output_file",
+              state.selectedOutputFile?.name ?? 'path/to/output_file',
               softWrap: true,
               maxLines: 2,
               style: Theme.of(context).textTheme.bodyMedium,
@@ -134,8 +134,8 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
                   selectedConfigFile: null,
                   selectedOutputFile: file,
                   selectedLoggingFile: null,
-                  selectedCheckpointFile: null))),
-              icon: const Icon(Icons.search))
+                  selectedCheckpointFile: null,),),),
+              icon: const Icon(Icons.search),),
         ],
       ),
     );
@@ -148,7 +148,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
         children: [
           Flexible(
             child: Text(
-              state.selectedLoggingFile?.name ?? "path/to/logging_file",
+              state.selectedLoggingFile?.name ?? 'path/to/logging_file',
               softWrap: true,
               maxLines: 2,
               style: Theme.of(context).textTheme.bodyMedium,
@@ -159,8 +159,8 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
                   selectedConfigFile: null,
                   selectedOutputFile: null,
                   selectedLoggingFile: file,
-                  selectedCheckpointFile: null))),
-              icon: const Icon(Icons.search))
+                  selectedCheckpointFile: null,),),),
+              icon: const Icon(Icons.search),),
         ],
       ),
     );
@@ -173,7 +173,7 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
         children: [
           Flexible(
             child: Text(
-              state.selectedCheckpointFile?.name ?? "path/to/checkpoint_file",
+              state.selectedCheckpointFile?.name ?? 'path/to/checkpoint_file',
               softWrap: true,
               maxLines: 2,
               style: Theme.of(context).textTheme.bodyMedium,
@@ -184,8 +184,8 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
                   selectedConfigFile: null,
                   selectedOutputFile: null,
                   selectedLoggingFile: null,
-                  selectedCheckpointFile: file))),
-              icon: const Icon(Icons.search))
+                  selectedCheckpointFile: file,),),),
+              icon: const Icon(Icons.search),),
         ],
       ),
     );

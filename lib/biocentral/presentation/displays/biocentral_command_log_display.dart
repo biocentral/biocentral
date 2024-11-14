@@ -21,7 +21,7 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
     return BlocBuilder<BiocentralCommandLogBloc, BiocentralCommandLogState>(
       builder: (context, state) {
         return BiocentralLogContainer(
-            title: "Executed Commands",
+            title: 'Executed Commands',
             logsWidget: ListView.builder(
               itemCount: state.commandLogs.length,
               itemBuilder: (context, index) {
@@ -33,7 +33,7 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
                   ],
                 );
               },
-            ));
+            ),);
       },
     );
   }
@@ -48,23 +48,23 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
               children: [
             buildCommandConfigTile(log.command),
             buildMetaDataTile(log.metaData),
-            buildResultTile(log.resultData)
-          ])),
+            buildResultTile(log.resultData),
+          ],),),
     );
   }
 
   Icon getIconByCommandType(BiocentralCommand command) {
-    String commandName = command.runtimeType.toString().toLowerCase();
-    if (commandName.contains("load") || commandName.contains("file")) {
+    final String commandName = command.runtimeType.toString().toLowerCase();
+    if (commandName.contains('load') || commandName.contains('file')) {
       return const Icon(Icons.file_open);
     }
-    if (commandName.contains("calculate")) {
+    if (commandName.contains('calculate')) {
       return const Icon(Icons.calculate_outlined);
     }
-    if (commandName.contains("retrieve")) {
+    if (commandName.contains('retrieve')) {
       return const Icon(Icons.nature_people_rounded);
     }
-    if (commandName.contains("remove")) {
+    if (commandName.contains('remove')) {
       return const Icon(Icons.remove_circle);
     }
     return const Icon(Icons.add);
@@ -72,7 +72,7 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
 
   Widget buildCommandConfigTile(BiocentralCommand command) {
     return ExpansionTile(
-      title: Text("Command Config", style: Theme.of(context).textTheme.displaySmall),
+      title: Text('Command Config', style: Theme.of(context).textTheme.displaySmall),
       children: [
         Table(
           children: command
@@ -80,14 +80,14 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
               .entries
               .map((entry) => TableRow(children: [Text(entry.key.toString()), Text(entry.value.toString())]))
               .toList(),
-        )
+        ),
       ],
     );
   }
 
   Widget buildMetaDataTile(BiocentralCommandMetaData metaData) {
     return ExpansionTile(
-      title: Text("Meta Data", style: Theme.of(context).textTheme.displaySmall),
+      title: Text('Meta Data', style: Theme.of(context).textTheme.displaySmall),
       children: [
         Table(
           children: metaData
@@ -95,20 +95,20 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
               .entries
               .map((entry) => TableRow(children: [Text(entry.key.toString()), Text(entry.value.toString())]))
               .toList(),
-        )
+        ),
       ],
     );
   }
 
   Widget buildResultTile(BiocentralCommandResultData resultData) {
     return ExpansionTile(
-      title: Text("Result Data", style: Theme.of(context).textTheme.displaySmall),
+      title: Text('Result Data', style: Theme.of(context).textTheme.displaySmall),
       children: [
         Table(
           children: resultData.resultMap.entries
               .map((entry) => TableRow(children: [Text(entry.key.toString()), Text(entry.value.toString())]))
               .toList(),
-        )
+        ),
       ],
     );
   }

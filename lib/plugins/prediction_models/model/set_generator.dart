@@ -7,11 +7,11 @@ class SetGenerator {
 
   SetGenerator.holdOut({required this.train, required this.validation, required this.test})
       : assert((train + validation + test) <= 1.0,
-            "Percentages must add up to 1.0 (current: ${(train + validation + test)})!");
+            'Percentages must add up to 1.0 (current: ${(train + validation + test)})!',);
 
   SetGenerator.crossValidation({required this.train, required this.test})
       : validation = 0.0,
-        assert((train + test) <= 1.0, "Percentages must add up to 1.0!");
+        assert((train + test) <= 1.0, 'Percentages must add up to 1.0!');
 
   Map<String, SplitSet> splitByMethod(SplitSetGenerationMethod method, List<String> ids) {
     switch (method) {
@@ -24,11 +24,11 @@ class SetGenerator {
     final int rangeTrain = (train * 100).truncate();
     final int rangeValidation = rangeTrain + (validation * 100).truncate();
 
-    Map<String, SplitSet> result = {};
-    Random random = Random();
+    final Map<String, SplitSet> result = {};
+    final Random random = Random();
     for (String id in ids) {
       SplitSet set;
-      int randomValue = random.nextInt(100);
+      final int randomValue = random.nextInt(100);
       if (_inRange(0, rangeTrain, randomValue)) {
         set = SplitSet.train;
       } else if (_inRange(rangeTrain, rangeValidation, randomValue)) {

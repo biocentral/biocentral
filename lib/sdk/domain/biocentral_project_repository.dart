@@ -10,11 +10,11 @@ import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../bloc/biocentral_command.dart';
+import 'package:biocentral/sdk/bloc/biocentral_command.dart';
 
 /// Stores data related to the project, like directory path
 class BiocentralProjectRepository {
-  static const String _webDownloadDirectoryPath = "#flutter_web_downloads";
+  static const String _webDownloadDirectoryPath = '#flutter_web_downloads';
 
   String _directoryPath;
 
@@ -30,16 +30,16 @@ class BiocentralProjectRepository {
       return BiocentralProjectRepository(_webDownloadDirectoryPath);
     }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? lastProjectDirectory = _sanitizePath(prefs.getString("lastProjectDirectory"));
-    bool exists = lastProjectDirectory != null && await Directory(lastProjectDirectory).exists();
-    return BiocentralProjectRepository(exists ? lastProjectDirectory : "");
+    final String? lastProjectDirectory = _sanitizePath(prefs.getString('lastProjectDirectory'));
+    final bool exists = lastProjectDirectory != null && await Directory(lastProjectDirectory).exists();
+    return BiocentralProjectRepository(exists ? lastProjectDirectory : '');
   }
 
   static String? _sanitizePath(String? path) {
     if (path == null) {
       return null;
     } else {
-      return path.endsWith("/") ? path : "$path/";
+      return path.endsWith('/') ? path : '$path/';
     }
   }
 
@@ -50,65 +50,65 @@ class BiocentralProjectRepository {
   Future<void> setDirectoryPath(String value) async {
     _directoryPath = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("lastProjectDirectory", _directoryPath);
+    prefs.setString('lastProjectDirectory', _directoryPath);
   }
 
   Future<Either<BiocentralException, Uint8List?>> handleBytesLoad(
-      {required PlatformFile? platformFile, bool ignoreIfNoFile = false}) async {
+      {required PlatformFile? platformFile, bool ignoreIfNoFile = false,}) async {
     if (ignoreIfNoFile && platformFile == null) {
       return right(null);
     }
     if (platformFile == null) {
-      return left(BiocentralIOException(message: "No file given to load!"));
+      return left(BiocentralIOException(message: 'No file given to load!'));
     }
     Uint8List? fileBytes = platformFile.bytes;
 
     if (fileBytes == null && !kIsWeb && platformFile.path != null) {
-      String filePath = platformFile.path!;
-      XFile xFile = XFile(filePath);
+      final String filePath = platformFile.path!;
+      final XFile xFile = XFile(filePath);
       try {
         fileBytes = await xFile.readAsBytes();
       } catch (e, stackTrace) {
         return left(BiocentralIOException(
-            message: "File ${platformFile.name} could not be read!", error: e, stackTrace: stackTrace));
+            message: 'File ${platformFile.name} could not be read!', error: e, stackTrace: stackTrace,),);
       }
     }
     if (fileBytes == null) {
-      return left(BiocentralIOException(message: "File ${platformFile.name} could not be read!"));
+      return left(BiocentralIOException(message: 'File ${platformFile.name} could not be read!'));
     }
     return right(fileBytes);
   }
 
   Future<Either<BiocentralException, FileData?>> handleLoad(
-      {required PlatformFile? platformFile, bool ignoreIfNoFile = false}) async {
+      {required PlatformFile? platformFile, bool ignoreIfNoFile = false,}) async {
     if (ignoreIfNoFile && platformFile == null) {
       return right(null);
     }
     final fileBytesEither = await handleBytesLoad(platformFile: platformFile, ignoreIfNoFile: ignoreIfNoFile);
     return fileBytesEither.flatMap((unit8List) => right(FileData(
         content: String.fromCharCodes(unit8List ?? []),
-        name: platformFile?.name ?? "",
-        extension: platformFile?.extension ?? "")));
+        name: platformFile?.name ?? '',
+        extension: platformFile?.extension ?? '',),),);
   }
 
   /// TODO Improve error handling
   Future<Either<BiocentralException, String>> handleSave(
-      {required String fileName, String? content, Uint8List? bytes, String? dirPath}) async {
+      {required String fileName, String? content, Uint8List? bytes, String? dirPath,}) async {
     if (content == null && bytes == null) {
       return left(BiocentralIOException(
-          message: "Cannot save file $fileName, because both string content and bytes are null!"));
+          message: 'Cannot save file $fileName, because both string content and bytes are null!',),);
     }
     if (content != null && bytes != null) {
       return left(BiocentralIOException(
-          message: "Cannot save file $fileName, because both string content and bytes are provided!"));
+          message: 'Cannot save file $fileName, because both string content and bytes are provided!',),);
     }
-    String fullPath = "";
+    String fullPath = '';
     if (kIsWeb) {
-      await triggerFileDownload(bytes ?? utf8.encode(content ?? ""), fileName);
+      await triggerFileDownload(bytes ?? utf8.encode(content ?? ''), fileName);
     } else {
-      String directoryPathToSave = _sanitizePath(dirPath) ?? _directoryPath;
+      final String directoryPathToSave = _sanitizePath(dirPath) ?? _directoryPath;
       fullPath = directoryPathToSave + fileName;
-      File fileToSave = File(fullPath);
+      final File fileToSave = File(fullPath);
       if (content != null) {
         await fileToSave.writeAsString(content);
       } else if (bytes != null) {
@@ -119,7 +119,7 @@ class BiocentralProjectRepository {
   }
 
   Future<Either<BiocentralException, String>> handleStreamSave(
-      {required String fileName, required Stream<List<int>> byteStream, String? dirPath}) async {
+      {required String fileName, required Stream<List<int>> byteStream, String? dirPath,}) async {
     try {
       final directoryPathToSave = _sanitizePath(dirPath) ?? _directoryPath;
       final fullPath = directoryPathToSave + fileName;
@@ -130,7 +130,7 @@ class BiocentralProjectRepository {
       await sink.close();
       return right(fullPath);
     } catch (e) {
-      return left(BiocentralIOException(message: "Error saving file: $e"));
+      return left(BiocentralIOException(message: 'Error saving file: $e'));
     }
   }
 
@@ -147,17 +147,17 @@ class BiocentralProjectRepository {
       }
       return right(unit);
     } catch (e) {
-      return left(BiocentralIOException(message: "Error cleaning up file: $e"));
+      return left(BiocentralIOException(message: 'Error cleaning up file: $e'));
     }
   }
 
   Future<Either<BiocentralException, String>> handleArchiveExtraction(
-      {required String archiveFilePath, String? outDirectoryName}) async {
+      {required String archiveFilePath, String? outDirectoryName,}) async {
     // TODO Handle web and errors
-    outDirectoryName ??= "extracted";
+    outDirectoryName ??= 'extracted';
 
     final outFile = "$_directoryPath$outDirectoryName";
-    final extractionFunction = (_) => extractFileToDisk(archiveFilePath, outFile);
+    Future<void> extractionFunction(_) => extractFileToDisk(archiveFilePath, outFile);
     await compute(extractionFunction, []);
 
     return right(outFile);

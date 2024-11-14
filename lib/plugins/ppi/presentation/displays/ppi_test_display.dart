@@ -2,12 +2,12 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-import '../../model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 class PPITestDisplay extends StatefulWidget {
   final PPIDatabaseTest test;
 
-  const PPITestDisplay({super.key, required this.test});
+  const PPITestDisplay({required this.test, super.key});
 
   @override
   State<PPITestDisplay> createState() => _PPITestDisplayState();
@@ -34,8 +34,8 @@ class _PPITestDisplayState extends State<PPITestDisplay> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text("Type: ${widget.test.type.name}"),
-                Text("Requirement(s): ${widget.test.requirements.toString()}")
+                Text('Type: ${widget.test.type.name}'),
+                Text('Requirement(s): ${widget.test.requirements.toString()}'),
               ],
             ),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
@@ -54,8 +54,8 @@ class _PPITestDisplayState extends State<PPITestDisplay> {
     if (widget.test.testResult == null) {
       return Container();
     }
-    List<String> splitsByLinebreak =
-        widget.test.testResult!.information.split("\n").where((split) => split != "" && split != "\n").toList();
+    final List<String> splitsByLinebreak =
+        widget.test.testResult!.information.split('\n').where((split) => split != '' && split != '\n').toList();
     return Column(children: splitsByLinebreak.map((split) => MarkdownBody(data: split)).toList());
   }
 
@@ -74,7 +74,7 @@ class _PPITestDisplayState extends State<PPITestDisplay> {
   }
 
   Widget buildTestStatisticDisplay() {
-    BiocentralTestResult testResult = widget.test.testResult!;
+    final BiocentralTestResult testResult = widget.test.testResult!;
     if (testResult.testStatistic == null) {
       return Container();
     }
@@ -85,7 +85,7 @@ class _PPITestDisplayState extends State<PPITestDisplay> {
     if (widget.test.type == PPIDatabaseTestType.binary) {
       return Container();
     }
-    BiocentralTestResult testResult = widget.test.testResult!;
+    final BiocentralTestResult testResult = widget.test.testResult!;
     if (testResult.testMetrics == null) {
       return Container();
     }

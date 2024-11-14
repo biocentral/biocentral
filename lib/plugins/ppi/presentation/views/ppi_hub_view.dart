@@ -16,27 +16,21 @@ class PPIHubView extends StatefulWidget {
 class _PPIHubViewState extends State<PPIHubView> with AutomaticKeepAliveClientMixin {
   final GlobalKey<PPIDatabaseViewState> _ppiDatabaseViewState = GlobalKey<PPIDatabaseViewState>();
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return DefaultTabController(
-      initialIndex: 0,
       length: 3,
       child: Scaffold(
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Flexible(
-              flex: 1,
-              child: TabBar(tabs: const [
-                Tab(icon: Icon(Icons.list_alt), text: "Database"),
-                Tab(icon: Icon(Icons.auto_graph), text: "Insights"),
-                Tab(icon: Icon(Icons.check_box_rounded), text: "Data Tests")
+            const Flexible(
+              child: TabBar(tabs: [
+                Tab(icon: Icon(Icons.list_alt), text: 'Database'),
+                Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
+                Tab(icon: Icon(Icons.check_box_rounded), text: 'Data Tests'),
               ],),
             ),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
@@ -44,10 +38,10 @@ class _PPIHubViewState extends State<PPIHubView> with AutomaticKeepAliveClientMi
               flex: 5,
               child: TabBarView(children: [
                 PPIDatabaseView(key: _ppiDatabaseViewState, onInteractionSelected: (ppi) => null), // TODO
-                PPIInsightsView(),
-                PPIDatabaseTestsView()
-              ]),
-            )
+                const PPIInsightsView(),
+                const PPIDatabaseTestsView(),
+              ],),
+            ),
           ],
         ),
       ),

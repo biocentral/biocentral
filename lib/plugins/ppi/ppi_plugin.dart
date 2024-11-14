@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
-import 'bloc/ppi_command_bloc.dart';
-import 'bloc/ppi_database_grid_bloc.dart';
-import 'bloc/ppi_database_tests_bloc.dart';
-import 'bloc/ppi_properties_bloc.dart';
-import 'data/ppi_client.dart';
-import 'domain/ppi_repository.dart';
-import 'model/load_example_ppi_dataset_tutorial.dart';
-import 'presentation/views/ppi_command_view.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_command_bloc.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_grid_bloc.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_bloc.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_properties_bloc.dart';
+import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/model/load_example_ppi_dataset_tutorial.dart';
+import 'package:biocentral/plugins/ppi/presentation/views/ppi_command_view.dart';
 
 class PpiPlugin extends BiocentralPlugin
     with
@@ -24,11 +24,11 @@ class PpiPlugin extends BiocentralPlugin
   PpiPlugin(super.eventBus);
 
   @override
-  String get typeName => "PpiPlugin";
+  String get typeName => 'PpiPlugin';
 
   @override
   String getShortDescription() {
-    return "Work with protein-protein interactions";
+    return 'Work with protein-protein interactions';
   }
 
   @override
@@ -53,12 +53,12 @@ class PpiPlugin extends BiocentralPlugin
 
   @override
   Widget getTab() {
-    return Tab(key: ppiTabKey, text: "Interactions", icon: getIcon());
+    return Tab(key: ppiTabKey, text: 'Interactions', icon: getIcon());
   }
 
   @override
   PPIRepository createListeningDatabase() {
-    PPIRepository ppiRepository = PPIRepository();
+    final PPIRepository ppiRepository = PPIRepository();
     eventBus.on<BiocentralDatabaseSyncEvent>().listen((event) {
       ppiRepository.syncFromDatabase(event.updatedEntities, event.importMode);
     });
@@ -68,7 +68,7 @@ class PpiPlugin extends BiocentralPlugin
   @override
   List<BlocProvider> getListeningBlocs(BuildContext context) {
     final ppiCommandBloc = PPICommandBloc(getDatabase(context), getBiocentralClientRepository(context),
-        getBiocentralProjectRepository(context), eventBus);
+        getBiocentralProjectRepository(context), eventBus,);
     final ppiPropertiesBloc = PPIPropertiesBloc(getDatabase(context))..add(PPIPropertiesCalculateEvent());
     final ppiDatabaseGridBloc = PPIDatabaseGridBloc(getDatabase(context))..add(PPIDatabaseGridLoadEvent());
     final ppiDatabaseTestsBloc = PPIDatabaseTestsBloc(getDatabase(context));
@@ -94,7 +94,7 @@ class PpiPlugin extends BiocentralPlugin
       BlocProvider<PPIPropertiesBloc>.value(value: ppiPropertiesBloc),
       BlocProvider<PPIDatabaseGridBloc>.value(value: ppiDatabaseGridBloc),
       BlocProvider<PPIDatabaseTestsBloc>.value(value: ppiDatabaseTestsBloc),
-      BlocProvider<ColumnWizardBloc>.value(value: ppiColumnWizardBloc)
+      BlocProvider<ColumnWizardBloc>.value(value: ppiColumnWizardBloc),
     ];
   }
 

@@ -2,12 +2,12 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 
 class PPIView extends StatefulWidget {
   final ProteinProteinInteraction? proteinProteinInteraction;
 
-  const PPIView({super.key, required this.proteinProteinInteraction});
+  const PPIView({required this.proteinProteinInteraction, super.key});
 
   @override
   State<PPIView> createState() => _PPIViewState();
@@ -32,7 +32,7 @@ class _PPIViewState extends State<PPIView> {
     return Scaffold(
       body: Consumer<PPIRepository>(
         builder: (context, interactionDatabase, child) {
-          ProteinProteinInteraction? interaction = widget.proteinProteinInteraction;
+          final ProteinProteinInteraction? interaction = widget.proteinProteinInteraction;
           if (interaction == null) {
             return Container();
           }
@@ -42,7 +42,7 @@ class _PPIViewState extends State<PPIView> {
               Center(child: Text(interaction.getID())),
               const Spacer(),
               // PROTEINS
-              const Text("Proteins:"),
+              const Text('Proteins:'),
               buildProteinButtons(interaction),
               // INTERACTION PROPERTIES
               const Spacer(),
@@ -54,9 +54,9 @@ class _PPIViewState extends State<PPIView> {
                 ),
                 child: Column(
                   children: [
-                    const Text("Interaction properties"),
-                    Text("Interacting: ${interaction.interacting.toString()}"),
-                    Text("Experimental confidence score: ${interaction.experimentalConfidenceScore ?? "NA"}")
+                    const Text('Interaction properties'),
+                    Text('Interacting: ${interaction.interacting.toString()}'),
+                    Text("Experimental confidence score: ${interaction.experimentalConfidenceScore ?? "NA"}"),
                   ],
                 ),
               ),
@@ -69,9 +69,9 @@ class _PPIViewState extends State<PPIView> {
                   ),
                 ),
                 child: Column(
-                  children: [const Text("Training properties"), Text("SET: ${interaction.attributes["SET"] ?? ""}")],
+                  children: [const Text('Training properties'), Text("SET: ${interaction.attributes["SET"] ?? ""}")],
                 ),
-              )
+              ),
             ],
           );
         },
@@ -84,9 +84,9 @@ class _PPIViewState extends State<PPIView> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton(
-            onPressed: () => openProteinView(interaction.interactor1), child: Text(interaction.interactor1.id)),
+            onPressed: () => openProteinView(interaction.interactor1), child: Text(interaction.interactor1.id),),
         ElevatedButton(
-            onPressed: () => openProteinView(interaction.interactor2), child: Text(interaction.interactor2.id))
+            onPressed: () => openProteinView(interaction.interactor2), child: Text(interaction.interactor2.id),),
       ],
     );
   }

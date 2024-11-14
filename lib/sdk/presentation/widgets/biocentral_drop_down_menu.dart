@@ -7,7 +7,7 @@ class BiocentralDropdownMenu<T> extends StatefulWidget {
   final void Function(T?)? onSelected;
 
   const BiocentralDropdownMenu(
-      {super.key, this.controller, required this.dropdownMenuEntries, required this.label, required this.onSelected});
+      {required this.dropdownMenuEntries, required this.label, required this.onSelected, super.key, this.controller,});
 
   @override
   State<BiocentralDropdownMenu> createState() => _BiocentralDropdownMenuState<T>();
@@ -24,7 +24,6 @@ class _BiocentralDropdownMenuState<T> extends State<BiocentralDropdownMenu<T>> {
     return DropdownMenu<T>(
       expandedInsets: EdgeInsets.zero,
       controller: widget.controller,
-      enableFilter: false,
       leadingIcon: const Icon(Icons.search),
       label: widget.label,
       dropdownMenuEntries: widget.dropdownMenuEntries,

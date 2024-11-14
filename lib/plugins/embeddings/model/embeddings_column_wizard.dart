@@ -38,7 +38,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     if (_perSequenceEmbeddings != null) {
       return _perSequenceEmbeddings!;
     }
-    Map<String, List<PerSequenceEmbedding?>> result = {};
+    final Map<String, List<PerSequenceEmbedding?>> result = {};
     for (EmbeddingManager embeddingManager in valueMap.values) {
       for (String embedderName in embeddingManager.getEmbedderNames()) {
         result.putIfAbsent(embedderName, () => []);
@@ -57,7 +57,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     if (_perResidueEmbeddings != null) {
       return _perResidueEmbeddings!;
     }
-    Map<String, List<PerResidueEmbedding?>> result = {};
+    final Map<String, List<PerResidueEmbedding?>> result = {};
     for (EmbeddingManager embeddingManager in valueMap.values) {
       for (String embedderName in embeddingManager.getEmbedderNames()) {
         result.putIfAbsent(embedderName, () => []);
@@ -93,7 +93,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     _embeddingStats!.putIfAbsent(embedderName, () => {});
 
     if (!_embeddingStats![embedderName]!.containsKey(embeddingType)) {
-      List<List<double>> embeddings = _getEmbeddingsForType(embedderName, embeddingType);
+      final List<List<double>> embeddings = _getEmbeddingsForType(embedderName, embeddingType);
       _embeddingStats![embedderName]![embeddingType] = await compute(_calculateEmbeddingStats, embeddings);
     }
 
@@ -116,22 +116,22 @@ class EmbeddingsColumnWizard extends ColumnWizard {
   }
 
   EmbeddingStats _calculateEmbeddingStats(List<List<double>> embeddings) {
-    Matrix matrix = Matrix.fromList(embeddings);
-    int n = embeddings.length;
-    Vector mean = matrix.reduceRows((acc, column) =>
-            Vector.fromList(List.generate(acc.length, (index) => acc.elementAt(index) + column.elementAt(index)))) /
+    final Matrix matrix = Matrix.fromList(embeddings);
+    final int n = embeddings.length;
+    final Vector mean = matrix.reduceRows((acc, column) =>
+            Vector.fromList(List.generate(acc.length, (index) => acc.elementAt(index) + column.elementAt(index))),) /
         n;
     // TODO Not sure about these..
-    Vector variance = matrix.reduceRows((acc, column) => Vector.fromList(List.generate(
-            acc.length, (index) => acc.elementAt(index) + pow(column.elementAt(index) - mean.elementAt(index), 2)))) /
+    final Vector variance = matrix.reduceRows((acc, column) => Vector.fromList(List.generate(
+            acc.length, (index) => acc.elementAt(index) + pow(column.elementAt(index) - mean.elementAt(index), 2),),),) /
         n;
-    Vector stdDev = variance.sqrt();
+    final Vector stdDev = variance.sqrt();
 // Calculate min and max
-    Vector minimum = matrix.reduceRows((acc, column) =>
-        Vector.fromList(List.generate(acc.length, (index) => min(acc.elementAt(index), column.elementAt(index)))));
+    final Vector minimum = matrix.reduceRows((acc, column) =>
+        Vector.fromList(List.generate(acc.length, (index) => min(acc.elementAt(index), column.elementAt(index)))),);
 
-    Vector maximum = matrix.reduceRows((acc, column) =>
-        Vector.fromList(List.generate(acc.length, (index) => max(acc.elementAt(index), column.elementAt(index)))));
+    final Vector maximum = matrix.reduceRows((acc, column) =>
+        Vector.fromList(List.generate(acc.length, (index) => max(acc.elementAt(index), column.elementAt(index)))),);
 
     // TODO Cosine, Euclidean
     //double averageCosineSimilarity = embeddings

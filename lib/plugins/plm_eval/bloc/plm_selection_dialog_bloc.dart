@@ -3,7 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../data/plm_eval_client.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 
 sealed class PLMSelectionDialogEvent {}
 
@@ -59,11 +59,11 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
   PLMSelectionDialogBloc(this._biocentralClientRepository) : super(const PLMSelectionDialogState.initial()) {
     on<PLMSelectionDialogSelectedEvent>((event, emit) async {
       if (event.plmSelection.isEmpty) {
-        return emit(const PLMSelectionDialogState.errored("Provided model name is empty!"));
+        return emit(const PLMSelectionDialogState.errored('Provided model name is empty!'));
       }
-      if (event.plmSelection.contains("https://huggingface.co")) {
+      if (event.plmSelection.contains('https://huggingface.co')) {
         return emit(
-            const PLMSelectionDialogState.errored("Please only provide the model id, without the huggingface domain!"));
+            const PLMSelectionDialogState.errored('Please only provide the model id, without the huggingface domain!'),);
       }
 
       emit(PLMSelectionDialogState.checking(event.plmSelection));
@@ -71,14 +71,14 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
       final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
       final validateEither = await plmEvalClient.validateModelID(event.plmSelection);
       await validateEither.match((l) async {
-        emit(PLMSelectionDialogState.errored("Validation of model id failed! Error: ${l.error}"));
+        emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: ${l.error}'));
       }, (r) async {
         emit(PLMSelectionDialogState.validated(event.plmSelection, {}));
         final benchmarkDatasetEither = await plmEvalClient.getAvailableBenchmarkDatasets();
         benchmarkDatasetEither.match(
             (l) => emit(
-                PLMSelectionDialogState.errored("Could not retrieve available benchmark datasets! Error: ${l.error}")),
-            (datasets) => emit(PLMSelectionDialogState.validated(event.plmSelection, datasets)));
+                PLMSelectionDialogState.errored('Could not retrieve available benchmark datasets! Error: ${l.error}'),),
+            (datasets) => emit(PLMSelectionDialogState.validated(event.plmSelection, datasets)),);
       });
     });
   }

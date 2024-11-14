@@ -4,8 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../domain/embeddings_repository.dart';
-import '../model/embeddings_column_wizard.dart';
+import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
+import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 
 sealed class EmbeddingsHubEvent {}
 
@@ -50,7 +50,7 @@ final class EmbeddingsHubState extends Equatable {
   final EmbeddingsHubStatus status;
 
   const EmbeddingsHubState(this.status, this.embeddingsColumnWizard, this.selectedEmbedderName,
-      this.selectedEmbeddingType, this.selectedEntityType, this.selectedEntityID, this.umapData);
+      this.selectedEmbeddingType, this.selectedEntityType, this.selectedEntityID, this.umapData,);
 
   const EmbeddingsHubState.initial()
       : status = EmbeddingsHubStatus.initial,
@@ -62,12 +62,12 @@ final class EmbeddingsHubState extends Equatable {
         embeddingsColumnWizard = null;
 
   const EmbeddingsHubState.loading(this.selectedEntityType, this.embeddingsColumnWizard, this.selectedEmbedderName,
-      this.selectedEmbeddingType, this.selectedEntityID)
+      this.selectedEmbeddingType, this.selectedEntityID,)
       : umapData = null,
         status = EmbeddingsHubStatus.loading;
 
   const EmbeddingsHubState.loaded(this.selectedEntityType, this.embeddingsColumnWizard, this.selectedEmbedderName,
-      this.selectedEmbeddingType, this.selectedEntityID, this.umapData)
+      this.selectedEmbeddingType, this.selectedEntityID, this.umapData,)
       : status = EmbeddingsHubStatus.loaded;
 
   @override
@@ -77,7 +77,7 @@ final class EmbeddingsHubState extends Equatable {
         selectedEmbedderName,
         selectedEmbeddingType,
         selectedEntityID,
-        status
+        status,
       ];
 }
 
@@ -89,20 +89,20 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
   final EmbeddingsRepository _embeddingsRepository;
 
   EmbeddingsHubBloc(
-      this._biocentralColumnWizardRepository, this._biocentralDatabaseRepository, this._embeddingsRepository)
+      this._biocentralColumnWizardRepository, this._biocentralDatabaseRepository, this._embeddingsRepository,)
       : super(const EmbeddingsHubState.initial()) {
     on<EmbeddingsHubLoadEvent>((event, emit) async {
       if (event.entityType != null) {
         emit(const EmbeddingsHubState.initial());
         emit(EmbeddingsHubState.loading(event.entityType, state.embeddingsColumnWizard, state.selectedEmbedderName,
-            state.selectedEmbeddingType, state.selectedEntityID));
+            state.selectedEmbeddingType, state.selectedEntityID,),);
 
         // TODO Improve error handling
-        EmbeddingsColumnWizard embeddingsColumnWizard =
+        final EmbeddingsColumnWizard embeddingsColumnWizard =
             await _biocentralColumnWizardRepository.getColumnWizardForColumn<EmbeddingsColumnWizard>(
-                columnName: "embeddings",
+                columnName: 'embeddings',
                 valueMap: _biocentralDatabaseRepository.getFromType(event.entityType!)?.getAllEmbeddings() ?? {},
-                columnType: EmbeddingManager);
+                columnType: EmbeddingManager,);
 
         _embeddingsRepository.updateEmbeddingsColumnWizardForType(event.entityType!, embeddingsColumnWizard);
 
@@ -112,21 +112,21 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
             state.selectedEmbedderName,
             state.selectedEmbeddingType,
             state.selectedEntityID,
-            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType)));
+            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
       }
     });
 
     on<EmbeddingsHubReloadEvent>((event, emit) async {
       if (state.selectedEntityType != null) {
         emit(EmbeddingsHubState.loading(state.selectedEntityType, state.embeddingsColumnWizard,
-            state.selectedEmbedderName, state.selectedEmbeddingType, state.selectedEntityID));
+            state.selectedEmbedderName, state.selectedEmbeddingType, state.selectedEntityID,),);
 
-        EmbeddingsColumnWizard embeddingsColumnWizard =
+        final EmbeddingsColumnWizard embeddingsColumnWizard =
             await _biocentralColumnWizardRepository.getColumnWizardForColumn<EmbeddingsColumnWizard>(
-                columnName: "embeddings",
+                columnName: 'embeddings',
                 valueMap:
                     _biocentralDatabaseRepository.getFromType(state.selectedEntityType!)?.getAllEmbeddings() ?? {},
-                columnType: EmbeddingManager);
+                columnType: EmbeddingManager,);
 
         _embeddingsRepository.updateEmbeddingsColumnWizardForType(state.selectedEntityType!, embeddingsColumnWizard);
         emit(EmbeddingsHubState.loaded(
@@ -135,21 +135,21 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
             state.selectedEmbedderName,
             state.selectedEmbeddingType,
             state.selectedEntityID,
-            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType)));
+            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
       }
     });
 
     on<EmbeddingsHubSelectEmbedderEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, event.embedderName,
-          state.selectedEmbeddingType, null, _loadUMAPData(event.embedderName, state.selectedEmbeddingType)));
+          state.selectedEmbeddingType, null, _loadUMAPData(event.embedderName, state.selectedEmbeddingType),),);
     });
     on<EmbeddingsHubSelectEmbeddingTypeEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, state.selectedEmbedderName,
-          event.embeddingType, null, _loadUMAPData(state.selectedEmbedderName, event.embeddingType)));
+          event.embeddingType, null, _loadUMAPData(state.selectedEmbedderName, event.embeddingType),),);
     });
     on<EmbeddingsHubSelectEntityIDEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, state.selectedEmbedderName,
-          state.selectedEmbeddingType, event.entityID, state.umapData));
+          state.selectedEmbeddingType, event.entityID, state.umapData,),);
     });
   }
 

@@ -29,8 +29,8 @@ void main() {
 
       // Set up default behavior for mockProteinRepo
       when(() => mockProteinRepo.databaseToMap()).thenReturn({
-        "Test1": Protein("Test1", taxonomy: Taxonomy(id: 9606)),
-        "Test2": Protein("Test2", taxonomy: Taxonomy(id: 10090)),
+        'Test1': const Protein('Test1', taxonomy: Taxonomy(id: 9606)),
+        'Test2': const Protein('Test2', taxonomy: Taxonomy(id: 10090)),
       });
       when(() => mockProteinRepo.getTaxonomyIDs()).thenReturn({9606, 10090});
       when(() => mockProteinRepo.addTaxonomyData(any())).thenAnswer((invocation) async {
@@ -55,29 +55,29 @@ void main() {
     testWidgets('Successfully retrieve and update taxonomy data', (WidgetTester tester) async {
       // Arrange
       final mockTaxonomyData = {
-        9606: Taxonomy(id: 9606, name: "Homo sapiens", family: "Hominidae"),
-        10090: Taxonomy(id: 10090, name: "Mus musculus", family: "Muridae"),
+        9606: const Taxonomy(id: 9606, name: 'Homo sapiens', family: 'Hominidae'),
+        10090: const Taxonomy(id: 10090, name: 'Mus musculus', family: 'Muridae'),
       };
 
       when(() => mockProteinClient.retrieveTaxonomy(any()))
           .thenAnswer((_) async => Right(mockTaxonomyData));
 
       // Act
-      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(ProteinsCommandState.idle());
+      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
       // Assert
       await for (final either in result) {
         either.match(
               (state) {
             if (state.status == BiocentralCommandStatus.finished) {
-              expect(state.stateInformation.information, contains("Finished retrieving taxonomy information"));
+              expect(state.stateInformation.information, contains('Finished retrieving taxonomy information'));
             }
           },
               (updatedProteins) {
             expect(updatedProteins, isA<Map<String, Protein>>());
             expect(updatedProteins.length, equals(2));
-            expect(updatedProteins["Test1"]?.taxonomy, equals(mockTaxonomyData[9606]));
-            expect(updatedProteins["Test2"]?.taxonomy, equals(mockTaxonomyData[10090]));
+            expect(updatedProteins['Test1']?.taxonomy, equals(mockTaxonomyData[9606]));
+            expect(updatedProteins['Test2']?.taxonomy, equals(mockTaxonomyData[10090]));
           },
         );
       }
@@ -90,17 +90,17 @@ void main() {
       when(() => mockProteinRepo.getTaxonomyIDs()).thenReturn({});
 
       // Act
-      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(ProteinsCommandState.idle());
+      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
       // Assert
-      var lastEither;
+      Either<ProteinsCommandState, Map<String, Protein>> lastEither;
       await for (final either in result) {
         lastEither = either;
       }
       lastEither.match(
             (state) {
           expect(state.status, equals(BiocentralCommandStatus.errored));
-          expect(state.stateInformation.information, contains("No taxonomy data available"));
+          expect(state.stateInformation.information, contains('No taxonomy data available'));
         },
             (_) => fail('Expected Left, but got Right'),
       );
@@ -112,15 +112,15 @@ void main() {
           .thenAnswer((_) async => Left(BiocentralNetworkException(message: 'Network error', log: false)));
 
       // Act
-      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(ProteinsCommandState.idle());
+      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
       // Assert
       await for (final either in result) {
         either.match(
               (state) {
             if (state.status == BiocentralCommandStatus.errored) {
-              expect(state.stateInformation.information, contains("Taxonomy data could not be retrieved"));
-              expect(state.stateInformation.information, contains("Network error"));
+              expect(state.stateInformation.information, contains('Taxonomy data could not be retrieved'));
+              expect(state.stateInformation.information, contains('Network error'));
             }
           },
               (_) => fail('Expected Left, but got Right'),

@@ -19,7 +19,7 @@ class _TEMPLATEState extends State<TEMPLATE> {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(children: []);
+    return const Column();
   }
 
 // WIDGET FUNCTIONS GO HERE

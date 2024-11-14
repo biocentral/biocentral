@@ -2,13 +2,13 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'bloc/embeddings_command_bloc.dart';
-import 'bloc/embeddings_hub_bloc.dart';
-import 'data/embeddings_client.dart';
-import 'domain/embeddings_repository.dart';
-import 'model/embeddings_column_wizard.dart';
-import 'presentation/views/embeddings_command_view.dart';
-import 'presentation/views/embeddings_hub_view.dart';
+import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
+import 'package:biocentral/plugins/embeddings/bloc/embeddings_hub_bloc.dart';
+import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
+import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
+import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
+import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_command_view.dart';
+import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_hub_view.dart';
 
 class EmbeddingsPlugin extends BiocentralPlugin
     with
@@ -18,11 +18,11 @@ class EmbeddingsPlugin extends BiocentralPlugin
   EmbeddingsPlugin(super.eventBus);
 
   @override
-  String get typeName => "EmbeddingsPlugin";
+  String get typeName => 'EmbeddingsPlugin';
 
   @override
   String getShortDescription() {
-    return "Calculate, analyze and visualize embeddings for biological entities";
+    return 'Calculate, analyze and visualize embeddings for biological entities';
   }
 
   @override
@@ -48,9 +48,9 @@ class EmbeddingsPlugin extends BiocentralPlugin
         getBiocentralClientRepository(context),
         getBiocentralProjectRepository(context),
         getDatabase(context),
-        eventBus);
+        eventBus,);
     final embeddingsHubBloc = EmbeddingsHubBloc(
-        getBiocentralColumnWizardRepository(context), getBiocentralDatabaseRepository(context), getDatabase(context));
+        getBiocentralColumnWizardRepository(context), getBiocentralDatabaseRepository(context), getDatabase(context),);
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
@@ -64,7 +64,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
 
     return [
       BlocProvider<EmbeddingsCommandBloc>.value(value: embeddingsCommandBloc),
-      BlocProvider<EmbeddingsHubBloc>.value(value: embeddingsHubBloc)
+      BlocProvider<EmbeddingsHubBloc>.value(value: embeddingsHubBloc),
     ];
   }
 
@@ -80,7 +80,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
 
   @override
   Widget getTab() {
-    return Tab(text: "Embeddings", icon: getIcon());
+    return Tab(text: 'Embeddings', icon: getIcon());
   }
 
   @override

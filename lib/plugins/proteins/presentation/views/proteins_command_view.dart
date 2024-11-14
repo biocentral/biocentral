@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/proteins_command_bloc.dart';
-import '../../data/asset_protein_datasets.dart';
-import '../../domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
+import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 
 class ProteinsCommandView extends StatefulWidget {
   const ProteinsCommandView({super.key});
@@ -22,8 +22,8 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
   }
 
   void loadProteinFile(ProteinsCommandBloc proteinCommandBloc) async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowedExtensions: ["fasta"], type: FileType.custom, withData: kIsWeb);
+    final FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowedExtensions: ['fasta'], type: FileType.custom, withData: kIsWeb);
 
     if (result != null) {
       DatabaseImportMode importMode = DatabaseImportMode.defaultMode;
@@ -38,8 +38,8 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
   }
 
   void loadCustomAttributesFile(ProteinsCommandBloc proteinCommandBloc) async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowedExtensions: ["csv", "tsv"], type: FileType.custom, withData: kIsWeb);
+    final FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowedExtensions: ['csv', 'tsv'], type: FileType.custom, withData: kIsWeb);
 
     if (result != null) {
       // TODO Import Mode
@@ -53,7 +53,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
     String? outputPath;
     if (!kIsWeb) {
       outputPath = await FilePicker.platform.saveFile(
-          dialogTitle: 'Please select an output file:', fileName: 'proteins.fasta', allowedExtensions: [".fasta"]);
+          dialogTitle: 'Please select an output file:', fileName: 'proteins.fasta', allowedExtensions: ['.fasta'],);
       if (outputPath == null) {
         // User canceled the picker
         return;
@@ -68,13 +68,13 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
         builder: (BuildContext context) {
           return BlocProvider(
             create: (context) => ColumnWizardBloc(
-                context.read<ProteinRepository>(), context.read<BiocentralColumnWizardRepository>())
+                context.read<ProteinRepository>(), context.read<BiocentralColumnWizardRepository>(),)
               ..add(ColumnWizardLoadEvent()),
             child: ColumnWizardDialog(onCalculateColumn: (columnWizard, columnWizardOperation) {
               proteinCommandBloc.add(ProteinsCommandColumnWizardOperationEvent(columnWizard, columnWizardOperation));
-            }),
+            },),
           );
-        });
+        },);
   }
 
   void retrieveTaxonomy(ProteinsCommandBloc proteinCommandBloc) {
@@ -91,55 +91,55 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
                 // TODO FILE / STRING
                 proteinCommandBloc
                     .add(ProteinsCommandLoadProteinsFromFileEvent(fileData: fileData, importMode: importMode));
-              });
-        });
+              },);
+        },);
   }
 
   @override
   Widget build(BuildContext context) {
-    ProteinsCommandBloc proteinCommandBloc = BlocProvider.of<ProteinsCommandBloc>(context);
+    final ProteinsCommandBloc proteinCommandBloc = BlocProvider.of<ProteinsCommandBloc>(context);
 
     return BlocBuilder<ProteinsCommandBloc, ProteinsCommandState>(
         builder: (context, state) => BiocentralCommandBar(
               commands: [
                 BiocentralButton(
-                    label: "Load proteins from file..",
+                    label: 'Load proteins from file..',
                     iconData: Icons.file_open,
-                    onTap: () => loadProteinFile(proteinCommandBloc)),
+                    onTap: () => loadProteinFile(proteinCommandBloc),),
                 BiocentralButton(
-                    label: "Load protein attributes from file..",
+                    label: 'Load protein attributes from file..',
                     iconData: Icons.file_present_rounded,
-                    onTap: () => loadCustomAttributesFile(proteinCommandBloc)),
+                    onTap: () => loadCustomAttributesFile(proteinCommandBloc),),
                 BiocentralButton(
-                    label: "Save proteins to file..",
+                    label: 'Save proteins to file..',
                     iconData: Icons.save,
-                    onTap: () => saveProteins(proteinCommandBloc)),
+                    onTap: () => saveProteins(proteinCommandBloc),),
                 BiocentralTooltip(
-                  message: "Analyze and modify the columns in your dataset",
+                  message: 'Analyze and modify the columns in your dataset',
                   child: BiocentralButton(
-                    label: "Open column wizard..",
+                    label: 'Open column wizard..',
                     iconData: Icons.view_column_outlined,
                     onTap: () => openColumnWizardDialog(proteinCommandBloc),
                   ),
                 ),
                 BiocentralTooltip(
-                  message: "Get missing taxonomy data from the server for your proteins",
+                  message: 'Get missing taxonomy data from the server for your proteins',
                   child: BiocentralButton(
-                    label: "Retrieve taxonomy information..",
+                    label: 'Retrieve taxonomy information..',
                     iconData: Icons.nature_people_rounded,
-                    requiredServices: const ["protein_service"],
+                    requiredServices: const ['protein_service'],
                     onTap: () => retrieveTaxonomy(proteinCommandBloc),
                   ),
                 ),
                 BiocentralTooltip(
-                  message: "Load a predefined dataset to learn and explore",
+                  message: 'Load a predefined dataset to learn and explore',
                   child: BiocentralButton(
-                    label: "Load example protein dataset..",
+                    label: 'Load example protein dataset..',
                     iconData: Icons.bubble_chart_sharp,
                     onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
                   ),
-                )
+                ),
               ],
-            ));
+            ),);
   }
 }

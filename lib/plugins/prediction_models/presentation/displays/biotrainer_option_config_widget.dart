@@ -2,13 +2,13 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/biotrainer_config_dialog_bloc.dart';
-import '../../data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 
 class BiotrainerOptionalConfigWidget extends StatefulWidget {
   final BiotrainerOption option;
 
-  const BiotrainerOptionalConfigWidget({super.key, required this.option});
+  const BiotrainerOptionalConfigWidget({required this.option, super.key});
 
   @override
   State<BiotrainerOptionalConfigWidget> createState() => _BiotrainerOptionalConfigWidgetState();
@@ -17,7 +17,7 @@ class BiotrainerOptionalConfigWidget extends StatefulWidget {
 class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfigWidget> {
   final TextEditingController optionController = TextEditingController();
 
-  String chosenOption = "";
+  String chosenOption = '';
 
   @override
   void initState() {
@@ -27,10 +27,10 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
 
   @override
   Widget build(BuildContext context) {
-    BiotrainerConfigBloc biotrainerConfigBloc = BlocProvider.of<BiotrainerConfigBloc>(context);
+    final BiotrainerConfigBloc biotrainerConfigBloc = BlocProvider.of<BiotrainerConfigBloc>(context);
 
     Widget selector;
-    if (widget.option.category.contains("input")) {
+    if (widget.option.category.contains('input')) {
       selector = buildInputOption(biotrainerConfigBloc);
     } else {
       selector = buildOption(biotrainerConfigBloc);
@@ -44,15 +44,15 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
 
   Widget buildInputOption(BiotrainerConfigBloc biotrainerConfigBloc) {
     Iterable<String> columnNames = [];
-    if (widget.option.name.contains("sequence")) {
-      columnNames = ["SEQUENCE"];
-    } else if (widget.option.name.contains("target")) {
+    if (widget.option.name.contains('sequence')) {
+      columnNames = ['SEQUENCE'];
+    } else if (widget.option.name.contains('target')) {
       //TODO Might be at a bad position costing performance
       //columnNames = proteinRepository.getAvailableAttributesForAllProteins().toList();
     }
 
-    if (chosenOption == "") {
-      chosenOption = columnNames.elementAtOrNull(0) ?? "";
+    if (chosenOption == '') {
+      chosenOption = columnNames.elementAtOrNull(0) ?? '';
     }
 
     return BiocentralDropdownMenu<String>(
@@ -60,7 +60,7 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
       controller: optionController..text = chosenOption,
       dropdownMenuEntries: columnNames.map((value) => DropdownMenuEntry<String>(value: value, label: value)).toList(),
       onSelected: (String? value) {
-        biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, value ?? ""));
+        biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, value ?? ''));
         setState(() {
           chosenOption = value!;
         });
@@ -77,26 +77,26 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
   }
 
   Widget buildTextOption(BiotrainerConfigBloc biotrainerConfigBloc) {
-    String defaultValue = widget.option.defaultValue;
+    final String defaultValue = widget.option.defaultValue;
     return Align(
         alignment: Alignment.bottomCenter,
         child: TextFormField(
           initialValue: defaultValue,
           textAlign: TextAlign.center,
           onChanged: (String? newValue) {
-            biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, newValue ?? ""));
+            biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, newValue ?? ''));
           },
-        ));
+        ),);
   }
 
   Widget buildSelectionOption(BiotrainerConfigBloc biotrainerConfigBloc) {
-    List<String> possibleValues = widget.option.possibleValues;
-    String defaultValue = widget.option.defaultValue;
+    final List<String> possibleValues = widget.option.possibleValues;
+    final String defaultValue = widget.option.defaultValue;
 
-    if (chosenOption == "") {
-      chosenOption = defaultValue != "" ? defaultValue : possibleValues.first;
+    if (chosenOption == '') {
+      chosenOption = defaultValue != '' ? defaultValue : possibleValues.first;
     }
-    if (defaultValue != "" && !possibleValues.contains(defaultValue)) {
+    if (defaultValue != '' && !possibleValues.contains(defaultValue)) {
       possibleValues.add(defaultValue);
     }
 
@@ -106,7 +106,7 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
       dropdownMenuEntries:
           possibleValues.map((value) => DropdownMenuEntry<String>(value: value, label: value)).toList(),
       onSelected: (String? value) {
-        biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, value ?? ""));
+        biotrainerConfigBloc.add(BiotrainerConfigChangeOptionalConfigEvent(widget.option.name, value ?? ''));
         setState(() {
           chosenOption = value!;
         });
