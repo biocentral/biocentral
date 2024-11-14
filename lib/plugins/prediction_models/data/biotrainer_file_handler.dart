@@ -9,6 +9,18 @@ import '../model/prediction_model.dart';
 import 'prediction_models_service_api.dart';
 
 class BiotrainerFileHandler {
+  static CustomAttributes _addOrUpdateCustomAttribute(CustomAttributes attributes, Map keyVals) {
+    CustomAttributes result = attributes;
+    for (var entry in keyVals.entries) {
+      try {
+        result..add(entry.key, entry.value);
+      } catch (Exception) {
+        result..update(entry.key, entry.value);
+      }
+    }
+    return result;
+  }
+
   static Future<(String, String, String)> getBiotrainerInputFiles(
       Type databaseType, Map<String, dynamic> entryMap, String targetColumn, String setColumn) async {
     String sequenceFile = "";
@@ -20,9 +32,8 @@ class BiotrainerFileHandler {
           sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
                   key,
                   (value as Protein).copyWith(
-                      attributes: value.attributes
-                          .add("TARGET", value.toMap()[targetColumn] ?? "")
-                          .add("SET", value.toMap()[setColumn] ?? ""))))) ??
+                      attributes: _addOrUpdateCustomAttribute(value.attributes,
+                          {"TARGET": value.toMap()[targetColumn] ?? "", "SET": value.toMap()[setColumn] ?? ""}))))) ??
               "";
           break;
         }
@@ -32,9 +43,8 @@ class BiotrainerFileHandler {
           sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
                   key,
                   (value as ProteinProteinInteraction).copyWith(
-                      attributes: value.attributes
-                          .add("TARGET", value.toMap()[targetColumn] ?? "")
-                          .update("SET", value.toMap()[setColumn] ?? ""))))) ??
+                      attributes: _addOrUpdateCustomAttribute(value.attributes,
+                          {"TARGET": value.toMap()[targetColumn] ?? "", "SET": value.toMap()[setColumn] ?? ""}))))) ??
               "";
           break;
         }
