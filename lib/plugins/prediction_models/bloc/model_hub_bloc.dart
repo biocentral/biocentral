@@ -2,8 +2,8 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 
-import '../domain/prediction_model_repository.dart';
-import '../model/prediction_model.dart';
+import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 
 sealed class ModelHubEvent {}
 
@@ -26,7 +26,7 @@ final class ModelHubState extends BiocentralCommandState<ModelHubState> {
 
   @override
   ModelHubState copyWith({required Map<String, dynamic> copyMap}) {
-    return ModelHubState(stateInformation, status, copyMap["predictionModels"] ?? predictionModels);
+    return ModelHubState(stateInformation, status, copyMap['predictionModels'] ?? predictionModels);
   }
 
   @override
@@ -38,13 +38,13 @@ class ModelHubBloc extends Bloc<ModelHubEvent, ModelHubState> {
 
   ModelHubBloc(this._predictionModelRepository) : super(const ModelHubState.idle()) {
     on<ModelHubLoadEvent>((event, emit) async {
-      emit(state.setOperating(information: "Loading models.."));
+      emit(state.setOperating(information: 'Loading models..'));
 
-      List<PredictionModel> predictionModels = _predictionModelRepository.predictionModelsToList();
+      final List<PredictionModel> predictionModels = _predictionModelRepository.predictionModelsToList();
 
       emit(state
-          .setFinished(information: "Finished loading models!")
-          .copyWith(copyMap: {"predictionModels": predictionModels}));
+          .setFinished(information: 'Finished loading models!')
+          .copyWith(copyMap: {'predictionModels': predictionModels}),);
     });
   }
 }

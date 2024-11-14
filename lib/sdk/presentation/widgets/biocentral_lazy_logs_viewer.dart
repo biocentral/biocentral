@@ -6,9 +6,7 @@ class BiocentralLazyLogsViewer extends StatefulWidget {
   final int logsPerPage;
 
   const BiocentralLazyLogsViewer({
-    super.key,
-    required this.logs,
-    required this.height,
+    required this.logs, required this.height, super.key,
     this.logsPerPage = 50,
   });
 
@@ -79,7 +77,6 @@ class _BiocentralLazyLogsViewerState extends State<BiocentralLazyLogsViewer> {
 
   Widget _buildLogList() {
     return ListView.builder(
-      reverse: false,
       controller: _scrollController,
       itemCount: _filteredLogs.length + 1,
       itemBuilder: (context, index) {
@@ -121,8 +118,8 @@ class _BiocentralLazyLogsViewerState extends State<BiocentralLazyLogsViewer> {
                 bottom: 16,
                 child: FloatingActionButton(
                   mini: true,
-                  child: const Icon(Icons.arrow_downward),
                   onPressed: _jumpToBottom,
+                  child: const Icon(Icons.arrow_downward),
                 ),
               ),
             ],

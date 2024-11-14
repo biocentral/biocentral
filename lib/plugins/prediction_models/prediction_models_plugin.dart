@@ -2,24 +2,24 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'bloc/biotrainer_training_bloc.dart';
-import 'bloc/model_hub_bloc.dart';
-import 'bloc/prediction_model_events.dart';
-import 'data/prediction_models_client.dart';
-import 'domain/prediction_model_repository.dart';
-import 'presentation/views/model_command_view.dart';
-import 'presentation/views/model_hub_view.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
+import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/views/model_command_view.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/views/model_hub_view.dart';
 
 class PredictionModelsPlugin extends BiocentralPlugin
     with BiocentralClientPluginMixin<PredictionModelsClient>, BiocentralDatabasePluginMixin<PredictionModelRepository> {
   PredictionModelsPlugin(super.eventBus);
 
   @override
-  String get typeName => "PredictionModelsPlugin";
+  String get typeName => 'PredictionModelsPlugin';
 
   @override
   String getShortDescription() {
-    return "Train models on your data and use them for new predictions";
+    return 'Train models on your data and use them for new predictions';
   }
 
   @override
@@ -35,7 +35,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
   @override
   List<BlocProvider> getListeningBlocs(BuildContext context) {
     final biotrainerTrainingBloc = BiotrainerTrainingBloc(getDatabase(context), getBiocentralClientRepository(context),
-        getBiocentralDatabaseRepository(context), getBiocentralProjectRepository(context), eventBus);
+        getBiocentralDatabaseRepository(context), getBiocentralProjectRepository(context), eventBus,);
     final modelHubBloc = ModelHubBloc(getDatabase(context));
 
     eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
@@ -54,7 +54,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
 
     return [
       BlocProvider<BiotrainerTrainingBloc>.value(value: biotrainerTrainingBloc),
-      BlocProvider<ModelHubBloc>.value(value: modelHubBloc)
+      BlocProvider<ModelHubBloc>.value(value: modelHubBloc),
     ];
   }
 
@@ -70,7 +70,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
 
   @override
   Widget getTab() {
-    return Tab(text: "Models", icon: getIcon());
+    return Tab(text: 'Models', icon: getIcon());
   }
 
   @override

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 class PPIExampleDatasetDialog extends BiocentralAssetDatasetLoadingDialog {
-  const PPIExampleDatasetDialog({super.key, required super.loadDatasetCallback, required super.assetDatasets});
+  const PPIExampleDatasetDialog({required super.loadDatasetCallback, required super.assetDatasets, super.key});
 
   @override
   BiocentralAssetDatasetLoadingDialogState createState() => _PPIExampleDatasetDialogState();
@@ -24,7 +24,7 @@ extension TutorialExtExampleDialog on PPIExampleDatasetDialog {
   }
 
   Map<TutorialID, GlobalKey> getAssetDatasetKeys(dynamic state) {
-    Map<TutorialID, GlobalKey> result = {};
+    final Map<TutorialID, GlobalKey> result = {};
     if (state is _PPIExampleDatasetDialogState) {
       for (MapEntry<BiocentralAssetDataset, GlobalKey> entry in state.assetDatasetKeys.entries) {
         if (entry.key.tutorialID != null) {

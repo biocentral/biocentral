@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../domain/ppi_repository.dart';
-import '../model/ppi_database_test.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 sealed class PPIDatabaseTestsEvent {
   PPIDatabaseTestsEvent();
@@ -44,7 +44,7 @@ class PPIDatabaseTestsBloc extends Bloc<PPIDatabaseTestsEvent, PPIDatabaseTestsS
     on<PPIDatabaseTestsLoadTestsEvent>((event, emit) async {
       emit(const PPIDatabaseTestsState.loading());
 
-      List<PPIDatabaseTest> executedTests = _ppiRepository.associatedDatasetTests;
+      final List<PPIDatabaseTest> executedTests = _ppiRepository.associatedDatasetTests;
 
       emit(PPIDatabaseTestsState.loaded(executedTests));
     });

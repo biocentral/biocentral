@@ -43,9 +43,9 @@ class WikiBloc extends Bloc<WikiEvent, WikiState> {
 
       final Map<String, String> wikiDocs = {};
       for (String key in manifestMap.keys) {
-        if (key.split("/").first == "doc") {
+        if (key.split('/').first == 'doc') {
           final String docContent = await rootBundle.loadString(key);
-          wikiDocs[key.split("/").last] = docContent;
+          wikiDocs[key.split('/').last] = docContent;
         }
       }
       emit(WikiState.loaded(wikiDocs));

@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
-import '../data/biocentral_client.dart';
-import '../domain/biocentral_column_wizard_repository.dart';
-import '../domain/biocentral_database.dart';
-import '../domain/biocentral_database_repository.dart';
-import '../model/column_wizard_abstract.dart';
-import 'biocentral_plugin.dart';
+import 'package:biocentral/sdk/data/biocentral_client.dart';
+import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_database.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/plugin/biocentral_plugin.dart';
 
 @immutable
 class BiocentralPluginManager extends Equatable {
@@ -24,28 +24,28 @@ class BiocentralPluginManager extends Equatable {
 
   final _BiocentralPluginProperties _biocentralPluginProperties;
 
-  const BiocentralPluginManager._(this.activePlugins, this.allAvailablePlugins, this._biocentralPluginProperties);
-
   factory BiocentralPluginManager(
-      {BuildContext? context, Set<BiocentralPlugin>? availablePlugins, Set<BiocentralPlugin>? selectedPlugins}) {
+      {BuildContext? context, Set<BiocentralPlugin>? availablePlugins, Set<BiocentralPlugin>? selectedPlugins,}) {
     final Set<BiocentralPlugin> allAvailablePlugins = availablePlugins ?? _loadCorePlugins();
     final List<BiocentralPlugin> allAvailablePluginsListForSorting = allAvailablePlugins.toList();
     // SORT BY POSITION IN ALL PLUGINS
     final SplayTreeSet<BiocentralPlugin> activePlugins = SplayTreeSet.from(
         selectedPlugins ?? allAvailablePlugins,
         (p1, p2) =>
-            allAvailablePluginsListForSorting.indexOf(p1).compareTo(allAvailablePluginsListForSorting.indexOf(p2)));
+            allAvailablePluginsListForSorting.indexOf(p1).compareTo(allAvailablePluginsListForSorting.indexOf(p2)),);
 
     final _BiocentralPluginProperties biocentralPluginProperties = _BiocentralPluginProperties(activePlugins, context);
     return BiocentralPluginManager._(Set.from(activePlugins), allAvailablePlugins, biocentralPluginProperties);
   }
 
+  const BiocentralPluginManager._(this.activePlugins, this.allAvailablePlugins, this._biocentralPluginProperties);
+
   static Set<BiocentralPlugin> _loadCorePlugins() {
-    ProteinPlugin proteinPlugin = ProteinPlugin(eventBus);
-    PpiPlugin ppiPlugin = PpiPlugin(eventBus);
-    EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
-    PredictionModelsPlugin predictionModelsPlugin = PredictionModelsPlugin(eventBus);
-    PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
+    final ProteinPlugin proteinPlugin = ProteinPlugin(eventBus);
+    final PpiPlugin ppiPlugin = PpiPlugin(eventBus);
+    final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
+    final PredictionModelsPlugin predictionModelsPlugin = PredictionModelsPlugin(eventBus);
+    final PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
     return {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin};
   }
 
@@ -53,7 +53,7 @@ class BiocentralPluginManager extends Equatable {
       BiocentralClientRepository biocentralClientRepository,
       BiocentralColumnWizardRepository biocentralColumnWizardRepository,
       BiocentralDatabaseRepository biocentralDatabaseRepository,
-      TutorialRepository tutorialRepository) {
+      TutorialRepository tutorialRepository,) {
     biocentralClientRepository.registerServices(_biocentralPluginProperties.clientFactories);
     biocentralColumnWizardRepository.registerFactories(_biocentralPluginProperties.columnWizardFactories);
     biocentralDatabaseRepository.addDatabases(_biocentralPluginProperties.availableDatabases);
@@ -85,13 +85,6 @@ class _BiocentralPluginProperties {
   final List<ColumnWizardFactory> columnWizardFactories;
   final List<Tutorial> tutorials;
 
-  _BiocentralPluginProperties._(
-      {required this.availableDatabases,
-      required this.pluginRepositories,
-      required this.clientFactories,
-      required this.columnWizardFactories,
-      required this.tutorials});
-
   factory _BiocentralPluginProperties(Set<BiocentralPlugin> activePlugins, BuildContext? context) {
     final List<BiocentralDatabase> availableDatabases = [];
     final List<RepositoryProvider> pluginRepositories = [];
@@ -106,7 +99,6 @@ class _BiocentralPluginProperties {
           if (context != null) {
             database = plugin.getDatabase(context);
           }
-        } catch (e) {
         } finally {
           database ??= plugin.createListeningDatabase();
         }
@@ -131,6 +123,13 @@ class _BiocentralPluginProperties {
         pluginRepositories: pluginRepositories,
         clientFactories: clientFactories,
         columnWizardFactories: columnWizardFactories,
-        tutorials: tutorials);
+        tutorials: tutorials,);
   }
+
+  _BiocentralPluginProperties._(
+      {required this.availableDatabases,
+      required this.pluginRepositories,
+      required this.clientFactories,
+      required this.columnWizardFactories,
+      required this.tutorials,});
 }

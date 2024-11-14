@@ -8,17 +8,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Prediction Model', () {
-    String outputPath = "test/test_files/out.yml";
+    final String outputPath = 'test/test_files/out.yml';
     test('Prediction Model can be loaded from result yaml file', () async {
-      File biotrainerOutput = File(outputPath);
-      PredictionModel model = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
-          biotrainerOutput: biotrainerOutput.readAsStringSync(), failOnConflict: true);
+      final File biotrainerOutput = File(outputPath);
+      final PredictionModel model = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
+          biotrainerOutput: biotrainerOutput.readAsStringSync(), failOnConflict: true,);
       if (model.isEmpty()) {
-        fail("Model could not be loaded!");
+        fail('Model could not be loaded!');
       }
-      expect(model.embedderName, equals("one_hot_encoding"));
-      expect(model.architecture, equals("CNN"));
-      expect(model.databaseType, equals(Protein.empty().typeName));
+      expect(model.embedderName, equals('one_hot_encoding'));
+      expect(model.architecture, equals('CNN'));
+      expect(model.databaseType, equals(const Protein.empty().typeName));
       expect(model.predictionProtocol, equals(PredictionProtocol.residue_to_class));
     });
   });

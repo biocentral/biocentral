@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BiocentralCommandTabBar extends TabBar {
-  const BiocentralCommandTabBar({super.key, required super.tabs, required TabController super.controller});
+  const BiocentralCommandTabBar({required super.tabs, required TabController super.controller, super.key});
 
   @override
   State<BiocentralCommandTabBar> createState() => _BiocentralCommandTabBarState();
@@ -24,7 +24,7 @@ class _BiocentralCommandTabBarState extends State<BiocentralCommandTabBar> {
           unselectedLabelColor: Colors.grey,
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(color: Theme.of(context).primaryColor),
-          tabs: widget.tabs),
+          tabs: widget.tabs,),
     );
   }
 }

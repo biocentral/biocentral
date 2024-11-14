@@ -4,7 +4,7 @@ import 'package:bloc_effects/bloc_effects.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../data/ppi_client.dart';
+import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 
 mixin class PPIImportDialogEvent {}
 
@@ -52,7 +52,7 @@ final class PPIImportDialogState extends BiocentralSimpleMultiTypeUIState<PPIImp
   @override
   PPIImportDialogState updateFromUIEvent(BiocentralSimpleMultiTypeUIUpdateEvent event) {
     return PPIImportDialogState.selected(
-        availableFormatsWithDocs, getValueFromEvent(selectedFormat, event), getValueFromEvent(selectedFile, event));
+        availableFormatsWithDocs, getValueFromEvent(selectedFormat, event), getValueFromEvent(selectedFile, event),);
   }
 }
 
@@ -78,17 +78,17 @@ class PPIImportDialogBloc extends Bloc<PPIImportDialogEvent, PPIImportDialogStat
           await _biocentralClientRepository.getServiceClient<PPIClient>().getAvailableDatasetFormats();
       // TODO ERROR + STATE HANDLING!
       availableFormatsWithDocsEither.match(
-          (error) => null, (availableFormatsWithDocs) => emit(PPIImportDialogState.loaded(availableFormatsWithDocs)));
+          (error) => null, (availableFormatsWithDocs) => emit(PPIImportDialogState.loaded(availableFormatsWithDocs)),);
     });
 
     on<PPIImportDialogSelectEvent>((event, emit) async {
-      PlatformFile? selectedFile = event.updates.whereType<PlatformFile?>().firstOrNull;
+      final PlatformFile? selectedFile = event.updates.whereType<PlatformFile?>().firstOrNull;
 
       if (selectedFile != null) {
         final loadEither = await _biocentralProjectRepository.handleLoad(platformFile: selectedFile);
         await loadEither.match((l) => null, (fileData) async {
           emit(PPIImportDialogState.selected(state.availableFormatsWithDocs, state.selectedFormat, fileData));
-          String? header = fileData?.content.split("\n").first;
+          final String? header = fileData?.content.split('\n').first;
           // Auto-detect format from header of file
           if (header != null) {
             final detectedFormatEither =

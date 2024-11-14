@@ -5,21 +5,21 @@ import 'package:bloc/src/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/src/bloc_provider.dart';
 
-import 'bloc/plm_eval_command_bloc.dart';
-import 'presentation/views/plm_eval_command_view.dart';
-import 'presentation/views/plm_eval_view.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_command_view.dart';
+import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_view.dart';
 
 class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
   PLMEvalPlugin(super.eventBus);
 
   @override
   Widget getCommandView(BuildContext context) {
-    return PLMEvalCommandView();
+    return const PLMEvalCommandView();
   }
 
   @override
   Widget getIcon() {
-    return Icon(Icons.fact_check_outlined);
+    return const Icon(Icons.fact_check_outlined);
   }
 
   @override
@@ -32,21 +32,21 @@ class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
 
   @override
   Widget getScreenView(BuildContext context) {
-    return PLMEvalView();
+    return const PLMEvalView();
   }
 
   @override
   String getShortDescription() {
-    return "Evaluate your protein language model against benchmark datasets";
+    return 'Evaluate your protein language model against benchmark datasets';
   }
 
   @override
   Widget getTab() {
-    return Tab(text: "pLM Evaluation", icon: getIcon());
+    return Tab(text: 'pLM Evaluation', icon: getIcon());
   }
 
   @override
-  String get typeName => "PLMEvalPlugin";
+  String get typeName => 'PLMEvalPlugin';
 
   @override
   BiocentralClientFactory<BiocentralClient> createClientFactory() {

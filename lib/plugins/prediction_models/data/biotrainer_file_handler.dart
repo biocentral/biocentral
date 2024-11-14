@@ -5,92 +5,91 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 
-import '../model/prediction_model.dart';
-import 'prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 
 class BiotrainerFileHandler {
   static CustomAttributes _addOrUpdateCustomAttribute(CustomAttributes attributes, Map keyVals) {
-    CustomAttributes result = attributes;
+    final CustomAttributes result = attributes;
     for (var entry in keyVals.entries) {
       try {
-        result..add(entry.key, entry.value);
+        result.add(entry.key, entry.value);
       } catch (Exception) {
-        result..update(entry.key, entry.value);
+        result.update(entry.key, entry.value);
       }
     }
     return result;
   }
 
   static Future<(String, String, String)> getBiotrainerInputFiles(
-      Type databaseType, Map<String, dynamic> entryMap, String targetColumn, String setColumn) async {
-    String sequenceFile = "";
+      Type databaseType, Map<String, dynamic> entryMap, String targetColumn, String setColumn,) async {
+    String sequenceFile = '';
     // TODO Improve target setting
     switch (databaseType) {
       case Protein:
         {
-          var handler = BioFileHandler<Protein>().create("fasta");
+          final handler = BioFileHandler<Protein>().create('fasta');
           sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
                   key,
                   (value as Protein).copyWith(
                       attributes: _addOrUpdateCustomAttribute(value.attributes,
-                          {"TARGET": value.toMap()[targetColumn] ?? "", "SET": value.toMap()[setColumn] ?? ""}))))) ??
-              "";
+                          {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},),),),),) ??
+              '';
           break;
         }
       case ProteinProteinInteraction:
         {
-          var handler = BioFileHandler<ProteinProteinInteraction>().create("fasta");
+          final handler = BioFileHandler<ProteinProteinInteraction>().create('fasta');
           sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
                   key,
                   (value as ProteinProteinInteraction).copyWith(
                       attributes: _addOrUpdateCustomAttribute(value.attributes,
-                          {"TARGET": value.toMap()[targetColumn] ?? "", "SET": value.toMap()[setColumn] ?? ""}))))) ??
-              "";
+                          {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},),),),),) ??
+              '';
           break;
         }
     }
     // TODO residue_to_ protocols
-    String labelsFile = "";
-    String maskFile = "";
+    final String labelsFile = '';
+    final String maskFile = '';
     return (sequenceFile, labelsFile, maskFile);
   }
 
   static String biotrainerConfigurationToConfigFile(Map<String, String> biotrainerConfiguration) {
-    String result = "";
+    String result = '';
     for (String key in biotrainerConfiguration.keys) {
-      if (biotrainerConfiguration[key] != "" && !key.contains("column")) {
-        result += "$key:";
-        result += "${biotrainerConfiguration[key]!}\n";
+      if (biotrainerConfiguration[key] != '' && !key.contains('column')) {
+        result += '$key:';
+        result += '${biotrainerConfiguration[key]!}\n';
       }
     }
     return result;
   }
 
   static PredictionModel parsePredictionModelFromRawFiles(
-      {String? biotrainerConfig,
+      {required bool failOnConflict, String? biotrainerConfig,
       String? biotrainerOutput,
       String? biotrainerTrainingLog,
-      Map<String, dynamic>? biotrainerCheckpoints,
-      required bool failOnConflict}) {
+      Map<String, dynamic>? biotrainerCheckpoints,}) {
     Map<String, dynamic>? parsedConfigFile;
     if (biotrainerConfig != null) {
-      YamlMap parsedConfigYaml = loadYaml(biotrainerConfig);
+      final YamlMap parsedConfigYaml = loadYaml(biotrainerConfig);
       parsedConfigFile = Map<String, dynamic>.from(parsedConfigYaml.value);
     }
     Map<String, dynamic>? parsedOutputFile;
     if (biotrainerOutput != null) {
-      YamlMap parsedOutputFileYaml = loadYaml(biotrainerOutput);
+      final YamlMap parsedOutputFileYaml = loadYaml(biotrainerOutput);
       parsedOutputFile = Map<String, dynamic>.from(parsedOutputFileYaml.value);
     }
     List<String>? parsedLoggingFile;
     if (biotrainerTrainingLog != null) {
-      parsedLoggingFile = biotrainerTrainingLog.split("\n");
+      parsedLoggingFile = biotrainerTrainingLog.split('\n');
     }
     Map<String, Uint8List>? parsedBiotrainerCheckpoints;
     if (biotrainerCheckpoints != null) {
       parsedBiotrainerCheckpoints = {};
       for (MapEntry<String, dynamic> checkpoint in biotrainerCheckpoints.entries) {
-        Uint8List checkpointBytes = base64Decode(checkpoint.value.toString());
+        final Uint8List checkpointBytes = base64Decode(checkpoint.value.toString());
         parsedBiotrainerCheckpoints[checkpoint.key] = checkpointBytes;
       }
     }
@@ -99,15 +98,14 @@ class BiotrainerFileHandler {
         biotrainerOutputMap: parsedOutputFile,
         biotrainerTrainingLog: parsedLoggingFile,
         biotrainerCheckpoints: parsedBiotrainerCheckpoints,
-        failOnConflict: failOnConflict);
+        failOnConflict: failOnConflict,);
   }
 
   static PredictionModel parsePredictionModel(
-      {Map<String, dynamic>? biotrainerConfig,
+      {required bool failOnConflict, Map<String, dynamic>? biotrainerConfig,
       Map<String, dynamic>? biotrainerOutputMap,
       List<String>? biotrainerTrainingLog,
-      Map<String, dynamic>? biotrainerCheckpoints,
-      required bool failOnConflict}) {
+      Map<String, dynamic>? biotrainerCheckpoints,}) {
     PredictionModel result = const PredictionModel.empty();
     // Output file should have the highest authority => Loaded first
     if (biotrainerOutputMap != null) {
@@ -121,7 +119,7 @@ class BiotrainerFileHandler {
     if (biotrainerTrainingLog != null) {
       result = result.copyWith(
           biotrainerTrainingResult: parseBiotrainerLog(trainingLog: biotrainerTrainingLog, isTraining: false),
-          biotrainerTrainingLog: biotrainerTrainingLog);
+          biotrainerTrainingLog: biotrainerTrainingLog,);
     }
     // Checkpoints
     if (biotrainerCheckpoints != null) {
@@ -133,9 +131,9 @@ class BiotrainerFileHandler {
   static Set<BiocentralMLMetric> _parseMLMetricsMap(Map<String, dynamic> metricsMap) {
     final Set<BiocentralMLMetric> result = {};
     for (MapEntry<String, dynamic> mapEntry in metricsMap.entries) {
-      BiocentralMLMetric? mlMetric = BiocentralMLMetric.tryParse(mapEntry.key, mapEntry.value.toString());
+      final BiocentralMLMetric? mlMetric = BiocentralMLMetric.tryParse(mapEntry.key, mapEntry.value.toString());
       if (mlMetric == null) {
-        logger.e("MLMetric could not be parsed: $mapEntry");
+        logger.e('MLMetric could not be parsed: $mapEntry');
       } else {
         result.add(mlMetric);
       }
@@ -144,22 +142,22 @@ class BiotrainerFileHandler {
   }
 
   static BiotrainerTrainingResult parseBiotrainerLog({required List<String> trainingLog, required bool isTraining}) {
-    const String testSetMetricsIdentifier = "INFO Test set metrics: ";
-    const String sanityChecksStartIdentifier = "INFO Running sanity checks on test results..";
-    const String sanityChecksEndIdentifier = "INFO Sanity check on test results finished!";
-    const String warningStringSeparator = " WARNING ";
-    const String infoStringSeparator = " INFO ";
-    const String epochIdentifier = "INFO Epoch ";
-    const String trainingResultsIdentifier = "INFO Training results";
-    const String validationResultsIdentifier = "INFO Validation results";
-    const String lossIdentifier = "\tloss: ";
+    const String testSetMetricsIdentifier = 'INFO Test set metrics: ';
+    const String sanityChecksStartIdentifier = 'INFO Running sanity checks on test results..';
+    const String sanityChecksEndIdentifier = 'INFO Sanity check on test results finished!';
+    const String warningStringSeparator = ' WARNING ';
+    const String infoStringSeparator = ' INFO ';
+    const String epochIdentifier = 'INFO Epoch ';
+    const String trainingResultsIdentifier = 'INFO Training results';
+    const String validationResultsIdentifier = 'INFO Validation results';
+    const String lossIdentifier = '\tloss: ';
 
     Set<BiocentralMLMetric> parsedTestSetMetrics = {};
-    Set<String> parsedSanityCheckWarnings = {};
-    Map<String, Set<BiocentralMLMetric>> parsedSanityCheckBaselineMetrics = {};
+    final Set<String> parsedSanityCheckWarnings = {};
+    final Map<String, Set<BiocentralMLMetric>> parsedSanityCheckBaselineMetrics = {};
 
-    Map<int, double> trainingLoss = {};
-    Map<int, double> validationLoss = {};
+    final Map<int, double> trainingLoss = {};
+    final Map<int, double> validationLoss = {};
 
     bool inSanityCheckArea = false;
     bool inTrainingResults = false;
@@ -196,8 +194,8 @@ class BiotrainerFileHandler {
       if (!isTraining) {
         // Only parse result metrics after training is done
         if (line.contains(testSetMetricsIdentifier)) {
-          String metrics = line.split(testSetMetricsIdentifier).last;
-          Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", "\""));
+          final String metrics = line.split(testSetMetricsIdentifier).last;
+          final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"'));
           parsedTestSetMetrics = _parseMLMetricsMap(metricsMap);
           continue;
         }
@@ -211,32 +209,32 @@ class BiotrainerFileHandler {
         }
         if (inSanityCheckArea) {
           if (line.contains(warningStringSeparator)) {
-            String sanityCheckWarning = line.split(warningStringSeparator).last;
+            final String sanityCheckWarning = line.split(warningStringSeparator).last;
             parsedSanityCheckWarnings.add(sanityCheckWarning);
           } else if (line.contains(infoStringSeparator)) {
-            List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split(": {'");
+            final List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split(": {'");
             if (baselineNameAndMetrics.length != 2) {
-              logger.e("Invalid sanity check line: $line");
+              logger.e('Invalid sanity check line: $line');
               continue;
             }
-            String baselineName = baselineNameAndMetrics.first;
-            Map<String, dynamic> baselineMetricsMap =
+            final String baselineName = baselineNameAndMetrics.first;
+            final Map<String, dynamic> baselineMetricsMap =
                 jsonDecode("{\"${baselineNameAndMetrics.last.replaceAll("'", "\"")}");
-            Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
+            final Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
             parsedSanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
           } else {
-            logger.e("Invalid sanity check line: $line");
+            logger.e('Invalid sanity check line: $line');
           }
         }
       }
     }
 
-    BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
+    final BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
         trainingLoss: trainingLoss,
         validationLoss: validationLoss,
         testSetMetrics: parsedTestSetMetrics,
         sanityCheckWarnings: parsedSanityCheckWarnings,
-        sanityCheckBaselineMetrics: parsedSanityCheckBaselineMetrics);
+        sanityCheckBaselineMetrics: parsedSanityCheckBaselineMetrics,);
 
     return trainingResult;
   }
@@ -247,10 +245,10 @@ class BiotrainerFileHandler {
 
   static PredictionModel? _predictionModelFromResultFile(Map<String, dynamic> parsedResultFile) {
     return PredictionModel.fromMap({
-      "embedder_name": parsedResultFile["embedder_name"] ?? "",
-      "model_choice": parsedResultFile["model_choice"] ?? "",
-      "interaction": parsedResultFile["interaction"] ?? "",
-      "protocol": parsedResultFile["protocol"] ?? ""
+      'embedder_name': parsedResultFile['embedder_name'] ?? '',
+      'model_choice': parsedResultFile['model_choice'] ?? '',
+      'interaction': parsedResultFile['interaction'] ?? '',
+      'protocol': parsedResultFile['protocol'] ?? '',
     });
   }
 }

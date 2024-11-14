@@ -8,11 +8,10 @@ class BiocentralBarPlot extends StatelessWidget {
   final String yAxisLabel;
 
   const BiocentralBarPlot({
-    Key? key,
-    required this.data,
+    required this.data, super.key,
     this.xAxisLabel = '',
     this.yAxisLabel = '',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class _BarPlotPainter extends CustomPainter {
   final List<(String, double)> data;
   final String xAxisLabel;
   final String yAxisLabel;
-  final TextStyle plotTextStyle = TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
+  final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
   _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel);
 
@@ -39,7 +38,7 @@ class _BarPlotPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     const double padding = 60;
     final Size plotSize = Size(size.width - padding * 2, size.height - padding * 2);
-    final Offset plotOffset = Offset(padding, padding);
+    final Offset plotOffset = const Offset(padding, padding);
 
     // Sort data by value in descending order
     data.sort((a, b) => b.$2.compareTo(a.$2));
@@ -67,18 +66,18 @@ class _BarPlotPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     canvas.drawLine(
-        Offset(padding, size.height - padding), Offset(size.width - padding, size.height - padding), axesPaint);
-    canvas.drawLine(Offset(padding, padding), Offset(padding, size.height - padding), axesPaint);
+        Offset(padding, size.height - padding), Offset(size.width - padding, size.height - padding), axesPaint,);
+    canvas.drawLine(const Offset(padding, padding), Offset(padding, size.height - padding), axesPaint);
 
     // Draw x-axis labels
     for (int i = 0; i < data.length; i++) {
       String label = data[i].$1;
       if(label.length > 8) {
-        label = label.substring(0, 6) + "..";
+        label = '${label.substring(0, 6)}..';
       }
       final textPainter = TextPainter(
         text: TextSpan(
-            text: label, style: plotTextStyle),
+            text: label, style: plotTextStyle,),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -89,7 +88,7 @@ class _BarPlotPainter extends CustomPainter {
       // Rotate canvas by 45 degrees
       canvas.rotate(math.pi / 4);
       // Draw the text
-      textPainter.paint(canvas, Offset(0, 0));
+      textPainter.paint(canvas, const Offset(0, 0));
       canvas.restore();
     }
 
@@ -103,7 +102,7 @@ class _BarPlotPainter extends CustomPainter {
       final textPainter = TextPainter(
         text: TextSpan(
             text: labelValue.toStringAsFixed(1),
-            style: plotTextStyle),
+            style: plotTextStyle,),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
@@ -126,7 +125,7 @@ class _BarPlotPainter extends CustomPainter {
     canvas.save();
     canvas.translate(0, size.height / 2 + yLabelPainter.width / 2);
     canvas.rotate(-math.pi / 2);
-    yLabelPainter.paint(canvas, Offset(0, -padding/4));
+    yLabelPainter.paint(canvas, const Offset(0, -padding/4));
     canvas.restore();
   }
 

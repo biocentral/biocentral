@@ -3,8 +3,8 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../data/protein_client.dart';
-import '../domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/data/protein_client.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 
 final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Protein>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -19,7 +19,7 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
       required ProteinRepository proteinRepository,
       required PlatformFile? platformFile,
       required FileData? fileData,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _proteinRepository = proteinRepository,
         _platformFile = platformFile,
@@ -28,23 +28,23 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
 
   @override
   Stream<Either<T, Map<String, Protein>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: "Loading proteins from file.."));
+    yield left(state.setOperating(information: 'Loading proteins from file..'));
 
     if (_platformFile == null && _fileData == null) {
-      yield left(state.setErrored(information: "Did not receive any data to load!"));
+      yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      FileData? fileData = _fileData ??
+      final FileData? fileData = _fileData ??
           (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
       if (fileData == null) {
-        yield left(state.setErrored(information: "Could not retrieve file data!"));
+        yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
-        Map<String, Protein> proteins = await _proteinRepository.importEntitiesFromFile(fileData, _importMode);
+        final Map<String, Protein> proteins = await _proteinRepository.importEntitiesFromFile(fileData, _importMode);
         yield right(proteins);
         yield left(state.setFinished(
-            information: "Finished loading proteins from file!",
+            information: 'Finished loading proteins from file!',
             commandProgress:
-                BiocentralCommandProgress(current: proteins.values.length, total: proteins.values.length)));
+                BiocentralCommandProgress(current: proteins.values.length, total: proteins.values.length),),);
       }
     }
   }
@@ -52,9 +52,9 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      "fileName": _fileData?.name ?? _platformFile?.name,
-      "fileExtension": _fileData?.extension ?? _platformFile?.extension,
-      "importMode": _importMode.name
+      'fileName': _fileData?.name ?? _platformFile?.name,
+      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'importMode': _importMode.name,
     };
   }
 }
@@ -72,7 +72,7 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
       required ProteinRepository proteinRepository,
       required PlatformFile? platformFile,
       required FileData? fileData,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _proteinRepository = proteinRepository,
         _platformFile = platformFile,
@@ -81,23 +81,23 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
 
   @override
   Stream<Either<T, Map<String, Protein>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: "Loading attributes from file.."));
+    yield left(state.setOperating(information: 'Loading attributes from file..'));
 
     if (_platformFile == null && _fileData == null) {
-      yield left(state.setErrored(information: "Did not receive any data to load!"));
+      yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      FileData? fileData = _fileData ??
+      final FileData? fileData = _fileData ??
           (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
       if (fileData == null) {
-        yield left(state.setErrored(information: "Could not retrieve file data!"));
+        yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
-        Map<String, Protein> updatedProteins = await _proteinRepository.importCustomAttributesFromFile(fileData);
+        final Map<String, Protein> updatedProteins = await _proteinRepository.importCustomAttributesFromFile(fileData);
         yield right(updatedProteins);
         yield left(state.setFinished(
-            information: "Finished loading attributes from file!",
+            information: 'Finished loading attributes from file!',
             commandProgress:
-                BiocentralCommandProgress(current: updatedProteins.length, total: updatedProteins.length)));
+                BiocentralCommandProgress(current: updatedProteins.length, total: updatedProteins.length),),);
       }
     }
   }
@@ -105,9 +105,9 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      "fileName": _fileData?.name ?? _platformFile?.name,
-      "fileExtension": _fileData?.extension ?? _platformFile?.extension,
-      "importMode": _importMode.name
+      'fileName': _fileData?.name ?? _platformFile?.name,
+      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'importMode': _importMode.name,
     };
   }
 }
@@ -124,7 +124,7 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
       {required BiocentralProjectRepository biocentralProjectRepository,
       required ProteinRepository proteinRepository,
       required ProteinClient proteinClient,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _proteinRepository = proteinRepository,
         _proteinClient = proteinClient,
@@ -132,28 +132,28 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
 
   @override
   Stream<Either<T, Map<String, Protein>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: "Retrieving taxonomy information.."));
-    Set<int> taxonomyIDs = _proteinRepository.getTaxonomyIDs();
+    yield left(state.setOperating(information: 'Retrieving taxonomy information..'));
+    final Set<int> taxonomyIDs = _proteinRepository.getTaxonomyIDs();
 
     if (taxonomyIDs.isEmpty) {
-      yield left(state.setErrored(information: "No taxonomy data available!"));
+      yield left(state.setErrored(information: 'No taxonomy data available!'));
     } else {
       final taxonomyDataEither = await _proteinClient.retrieveTaxonomy(taxonomyIDs);
       yield* taxonomyDataEither.match((error) async* {
-        yield left(state.setErrored(information: "Taxonomy data could not be retrieved! Error: ${error.message}"));
+        yield left(state.setErrored(information: 'Taxonomy data could not be retrieved! Error: ${error.message}'));
       }, (taxonomyData) async* {
-        Map<String, Protein> updatedProteins = await _proteinRepository.addTaxonomyData(taxonomyData);
+        final Map<String, Protein> updatedProteins = await _proteinRepository.addTaxonomyData(taxonomyData);
         yield right(updatedProteins);
         yield left(state.setFinished(
-            information: "Finished retrieving taxonomy information!",
+            information: 'Finished retrieving taxonomy information!',
             commandProgress:
-                BiocentralCommandProgress(current: taxonomyData.keys.length, total: taxonomyData.keys.length)));
+                BiocentralCommandProgress(current: taxonomyData.keys.length, total: taxonomyData.keys.length),),);
       });
     }
   }
 
   @override
   Map<String, dynamic> getConfigMap() {
-    return {"importMode": _importMode.name};
+    return {'importMode': _importMode.name};
   }
 }

@@ -3,10 +3,10 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 
-import '../data/embeddings_client.dart';
-import '../data/predefined_embedders.dart';
-import '../domain/embeddings_repository.dart';
-import 'embeddings_commands.dart';
+import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
+import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
+import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
+import 'package:biocentral/plugins/embeddings/bloc/embeddings_commands.dart';
 
 sealed class EmbeddingsCommandEvent {}
 
@@ -49,41 +49,41 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
   final EmbeddingsRepository _embeddingsRepository;
 
   EmbeddingsCommandBloc(this._biocentralDatabaseRepository, this._biocentralClientRepository,
-      this._biocentralProjectRepository, this._embeddingsRepository, EventBus eventBus)
+      this._biocentralProjectRepository, this._embeddingsRepository, EventBus eventBus,)
       : super(const EmbeddingsCommandState.idle(), eventBus) {
     on<EmbeddingsCommandCalculateEmbeddingsEvent>((event, emit) async {
       // TODO IMPORT MODE
       // TODO Generic repository
-      BiocentralDatabase? biocentralDatabase = _biocentralDatabaseRepository.getFromType(Protein);
+      final BiocentralDatabase? biocentralDatabase = _biocentralDatabaseRepository.getFromType(Protein);
 
       if (biocentralDatabase == null) {
-        emit(state.setErrored(information: "Could not find the database for which to calculate embeddings!"));
+        emit(state.setErrored(information: 'Could not find the database for which to calculate embeddings!'));
       } else {
-        CalculateEmbeddingsCommand calculateEmbeddingsCommand = CalculateEmbeddingsCommand(
+        final CalculateEmbeddingsCommand calculateEmbeddingsCommand = CalculateEmbeddingsCommand(
             biocentralProjectRepository: _biocentralProjectRepository,
             biocentralDatabase: biocentralDatabase,
             embeddingClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
             embeddingType: event.embeddingType,
             embedderName: event.predefinedEmbedder.name,
-            biotrainerName: event.predefinedEmbedder.biotrainerName);
+            biotrainerName: event.predefinedEmbedder.biotrainerName,);
         await calculateEmbeddingsCommand
             .executeWithLogging<EmbeddingsCommandState>(_biocentralProjectRepository, state)
             .forEach((either) {
           either.match((l) => emit(l), (r) async {
-            Map<String, BioEntity> updatedDatabase = biocentralDatabase.updateEmbeddings(r);
+            final Map<String, BioEntity> updatedDatabase = biocentralDatabase.updateEmbeddings(r);
             syncWithDatabases(updatedDatabase);
           });
         });
       }
     });
     on<EmbeddingsCommandCalculateUMAPEvent>((event, emit) async {
-      CalculateUMAPCommand calculateUMAPCommand = CalculateUMAPCommand(
+      final CalculateUMAPCommand calculateUMAPCommand = CalculateUMAPCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
           biocentralDatabaseRepository: _biocentralDatabaseRepository,
           embeddingsRepository: _embeddingsRepository,
           embeddingsClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
           embeddings: event.embedding,
-          embedderName: event.embedderName);
+          embedderName: event.embedderName,);
       await calculateUMAPCommand
           .executeWithLogging<EmbeddingsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {

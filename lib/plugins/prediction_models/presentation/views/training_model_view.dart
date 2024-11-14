@@ -4,7 +4,7 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 
 class TrainingModelView extends StatefulWidget {
   const TrainingModelView({super.key});
@@ -21,7 +21,7 @@ class _TrainingModelViewState extends State<TrainingModelView> {
 
   @override
   Widget build(BuildContext context) {
-    BiotrainerTrainingBloc biotrainerTrainingBloc = BlocProvider.of<BiotrainerTrainingBloc>(context);
+    final BiotrainerTrainingBloc biotrainerTrainingBloc = BlocProvider.of<BiotrainerTrainingBloc>(context);
     return BlocBuilder<BiotrainerTrainingBloc, BiotrainerTrainingState>(
       builder: (context, state) {
         return buildModel(biotrainerTrainingBloc, state);
@@ -41,11 +41,11 @@ class _TrainingModelViewState extends State<TrainingModelView> {
                     leading: buildSanityCheckIcon(),
                     title: Text("Training ${state.modelArchitecture ?? "unknown"} Model.."),
                     trailing: SizedBox(
-                        width: SizeConfig.screenWidth(context) * 0.2, child: BiocentralStatusIndicator(state: state)),
+                        width: SizeConfig.screenWidth(context) * 0.2, child: BiocentralStatusIndicator(state: state),),
                     children: [
-                  ExpansionTile(title: const Text("Loss Curves"), children: buildLossCurves(state)),
-                  ExpansionTile(title: const Text("Training Logs"), children: buildLogResult(state)),
-                ])),
+                  ExpansionTile(title: const Text('Loss Curves'), children: buildLossCurves(state)),
+                  ExpansionTile(title: const Text('Training Logs'), children: buildLogResult(state)),
+                ],),),
           ],
         ),
       ),
@@ -61,8 +61,8 @@ class _TrainingModelViewState extends State<TrainingModelView> {
       return [Container()];
     }
     final Map<String, Map<int, double>> linePlotData = {
-      "Training": state.trainingLoss,
-      "Validation": state.validationLoss
+      'Training': state.trainingLoss,
+      'Validation': state.validationLoss,
     };
     return [
       SizedBox(
@@ -71,7 +71,7 @@ class _TrainingModelViewState extends State<TrainingModelView> {
       SizedBox(
           height: SizeConfig.screenHeight(context) * 0.3,
           width: SizeConfig.screenWidth(context) * 0.6,
-          child: BiocentralLinePlot(data: linePlotData)),
+          child: BiocentralLinePlot(data: linePlotData),),
       SizedBox(
         height: SizeConfig.safeBlockVertical(context) * 2,
       ),

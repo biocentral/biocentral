@@ -18,10 +18,10 @@ class _PluginDialogState extends State<PluginDialog> {
   @override
   void initState() {
     super.initState();
-    BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
+    final BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
     _selectedPlugins.addAll(biocentralPluginBloc.state.pluginManager.activePlugins);
     _pluginTypeNames.addEntries(biocentralPluginBloc.state.pluginManager.allAvailablePlugins
-        .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)));
+        .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)),);
   }
 
   void closeDialog() {
@@ -29,8 +29,8 @@ class _PluginDialogState extends State<PluginDialog> {
   }
 
   Set<BiocentralPlugin> getPluginsNecessaryForSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
-    Set<BiocentralPlugin> result = {};
-    Set<Type> pluginDependencies = selected.getDependencies();
+    final Set<BiocentralPlugin> result = {};
+    final Set<Type> pluginDependencies = selected.getDependencies();
     for (Type dependencyType in pluginDependencies) {
       for (BiocentralPlugin plugin in allPlugins) {
         if (plugin.runtimeType == dependencyType) {
@@ -42,9 +42,9 @@ class _PluginDialogState extends State<PluginDialog> {
   }
 
   Set<BiocentralPlugin> getPluginsDependentOnSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
-    Set<BiocentralPlugin> result = {};
+    final Set<BiocentralPlugin> result = {};
     for (BiocentralPlugin plugin in allPlugins) {
-      Set<Type> pluginDependencies = plugin.getDependencies();
+      final Set<Type> pluginDependencies = plugin.getDependencies();
       for (Type dependencyType in pluginDependencies) {
         if (selected.runtimeType == dependencyType) {
           result.add(plugin);
@@ -56,7 +56,7 @@ class _PluginDialogState extends State<PluginDialog> {
 
   @override
   Widget build(BuildContext context) {
-    BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
+    final BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
     return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
       builder: (context, state) {
         if (state.status == BiocentralPluginStatus.loading) {
@@ -64,20 +64,19 @@ class _PluginDialogState extends State<PluginDialog> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Saving and applying plugin changes.."),
+                Text('Saving and applying plugin changes..'),
                 CircularProgressIndicator(),
               ],
             ),
           );
         }
         return BiocentralDialog(
-          small: false, // TODO Small Dialog not working yet
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Biocentral Plugins",
+                  'Biocentral Plugins',
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 buildPluginSelection(biocentralPluginBloc, state),
@@ -86,12 +85,12 @@ class _PluginDialogState extends State<PluginDialog> {
                   children: [
                     BiocentralSmallButton(
                         onTap: () => biocentralPluginBloc.add(BiocentralPluginReloadEvent(_selectedPlugins, context)),
-                        label: "Apply changes"),
-                    BiocentralSmallButton(onTap: closeDialog, label: "Close")
+                        label: 'Apply changes',),
+                    BiocentralSmallButton(onTap: closeDialog, label: 'Close'),
                   ],
-                )
+                ),
               ],
-            )
+            ),
           ],
         );
       },
@@ -104,7 +103,7 @@ class _PluginDialogState extends State<PluginDialog> {
         ...state.pluginManager.allAvailablePlugins.map((plugin) => CheckboxListTile(
             title: Text(plugin.typeName),
             subtitle:
-                Text("${plugin.getShortDescription()}\nDependencies: ${_formatDependencies(plugin.getDependencies())}"),
+                Text('${plugin.getShortDescription()}\nDependencies: ${_formatDependencies(plugin.getDependencies())}'),
             isThreeLine: true,
             controlAffinity: ListTileControlAffinity.leading,
             secondary: plugin.getIcon(),
@@ -113,32 +112,32 @@ class _PluginDialogState extends State<PluginDialog> {
               if (value != null) {
                 setState(() {
                   if (value) {
-                    Set<BiocentralPlugin> necessaryPlugins =
+                    final Set<BiocentralPlugin> necessaryPlugins =
                         getPluginsNecessaryForSelection(plugin, state.pluginManager.allAvailablePlugins);
                     _selectedPlugins.addAll(necessaryPlugins);
                     _selectedPlugins.add(plugin);
                   } else {
-                    Set<BiocentralPlugin> dependentPlugins =
+                    final Set<BiocentralPlugin> dependentPlugins =
                         getPluginsDependentOnSelection(plugin, state.pluginManager.allAvailablePlugins);
                     _selectedPlugins.removeAll(dependentPlugins);
                     _selectedPlugins.remove(plugin);
                   }
                 });
               }
-            })),
+            },),),
       ],
     );
   }
 
   String _formatDependencies(Set<Type> dependencies) {
     if (dependencies.isEmpty) {
-      return "None";
+      return 'None';
     }
     return dependencies
         .map((dependency) => _pluginTypeNames[dependency])
         .toString()
-        .replaceAll("(", "")
-        .replaceAll(")", "");
+        .replaceAll('(', '')
+        .replaceAll(')', '');
   }
 
   @override

@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../bloc/biocentral_plugins_bloc.dart';
-import '../dialogs/welcome_dialog.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
+import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 
 class BiocentralMainView extends StatefulWidget {
   final EventBus eventBus;
 
-  const BiocentralMainView({super.key, required this.eventBus});
+  const BiocentralMainView({required this.eventBus, super.key});
 
   @override
   State<BiocentralMainView> createState() => _BiocentralMainViewState();
@@ -29,7 +29,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
 
   late TabController _tabController;
 
-  final Widget _biocentralTab = const Tab(text: "Biocentral", icon: Icon(Icons.center_focus_weak_outlined));
+  final Widget _biocentralTab = const Tab(text: 'Biocentral', icon: Icon(Icons.center_focus_weak_outlined));
 
   final List<Widget> _tabs = [];
 
@@ -43,7 +43,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
     _exitListener = AppLifecycleListener(onExitRequested: () async {
       await killServer();
       return AppExitResponse.exit;
-    });
+    },);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openWelcomeDialog();
     });
@@ -68,7 +68,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
   }
 
   void createBlocs() {
-    BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
+    final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
 
     biocentralCommandLogBloc = BiocentralCommandLogBloc(biocentralProjectRepository)
       ..add(BiocentralCommandLogLoadEvent());
@@ -91,7 +91,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
         context: context,
         builder: (BuildContext context) {
           return const WelcomeDialog();
-        });
+        },);
   }
 
 
@@ -102,19 +102,19 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
       _tabs.clear();
       _tabs.addAll(pluginState.pluginManager.activePlugins.map((plugin) => plugin.getTab()));
       _tabs.add(_biocentralTab);
-      _tabController = TabController(initialIndex: 0, length: _tabs.length, vsync: this);
+      _tabController = TabController(length: _tabs.length, vsync: this);
       addTabListeners();
       return Scaffold(key: _scaffoldKey, body: buildTabBar(pluginState));
-    });
+    },);
   }
 
   Widget buildTabBar(BiocentralPluginState pluginState) {
-    List<Widget> tabBarViews = [];
+    final List<Widget> tabBarViews = [];
 
     tabBarViews.addAll(pluginState.pluginManager.activePlugins.map((plugin) => plugin.build(context)));
 
     tabBarViews.add(MultiBlocProvider(
-        providers: [BlocProvider.value(value: biocentralCommandLogBloc)], child: const BiocentralTabView()));
+        providers: [BlocProvider.value(value: biocentralCommandLogBloc)], child: const BiocentralTabView(),),);
 
     return SafeArea(
       child: Scaffold(
@@ -127,13 +127,13 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
                   if(snapshot.hasData && snapshot.data != null) {
                     return Align(
                         alignment: Alignment.centerRight,
-                        child: Text("Biocentral - develop - Alpha v${snapshot.data?.version}", style: Theme
+                        child: Text('Biocentral - develop - Alpha v${snapshot.data?.version}', style: Theme
                             .of(context)
                             .textTheme
-                            .labelSmall));
+                            .labelSmall,),);
                   }
                   return const CircularProgressIndicator();
-              }
+              },
             ),
             backgroundColor: Colors.transparent,
             bottom: BiocentralCommandTabBar(
@@ -146,7 +146,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
           children: [
             Flexible(flex: 50, child: TabBarView(controller: _tabController, children: tabBarViews)),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 1),
-            Expanded(flex: 4, child: buildStatusBar())
+            Expanded(flex: 4, child: buildStatusBar()),
           ],
         ),
       ),

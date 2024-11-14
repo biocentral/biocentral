@@ -26,7 +26,7 @@ class _BiocentralLogsDisplayState extends State<BiocentralLogsDisplay> {
             child: Consumer<LoggerService>(
               builder: (context, loggerService, child) {
                 return BiocentralLogContainer(
-                  title: "Application Logs",
+                  title: 'Application Logs',
                   logsWidget: ListView.builder(
                     shrinkWrap: true,
                     itemCount: loggerService.logMessages.length,
@@ -46,7 +46,7 @@ class _BiocentralLogsDisplayState extends State<BiocentralLogsDisplay> {
             child: Consumer<ServerLoggerService>(
               builder: (context, serverLoggerService, child) {
                 return BiocentralLogContainer(
-                  title: "Local Server Logs",
+                  title: 'Local Server Logs',
                   logsWidget: ListView.builder(
                     shrinkWrap: true,
                     itemCount: serverLoggerService.serverLogMessages.length,
@@ -59,7 +59,7 @@ class _BiocentralLogsDisplayState extends State<BiocentralLogsDisplay> {
               },
             ),
           ),
-        )
+        ),
       ],
     );
   }

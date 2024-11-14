@@ -3,7 +3,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
-import '../data/predefined_embedders.dart';
+import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 
 mixin class CalculateEmbeddingsDialogEvent {}
 
@@ -20,7 +20,7 @@ final class CalculateEmbeddingsDialogState extends BiocentralSimpleMultiTypeUISt
   final CalculateEmbeddingsDialogStatus status;
 
   const CalculateEmbeddingsDialogState(
-      this.selectedEmbedder, this.selectedEmbeddingType, this.selectedImportMode, this.status);
+      this.selectedEmbedder, this.selectedEmbeddingType, this.selectedImportMode, this.status,);
 
   const CalculateEmbeddingsDialogState.initial()
       : selectedEmbedder = null,
@@ -29,7 +29,7 @@ final class CalculateEmbeddingsDialogState extends BiocentralSimpleMultiTypeUISt
         status = CalculateEmbeddingsDialogStatus.initial;
 
   const CalculateEmbeddingsDialogState.selected(
-      this.selectedEmbedder, this.selectedEmbeddingType, this.selectedImportMode)
+      this.selectedEmbedder, this.selectedEmbeddingType, this.selectedImportMode,)
       : status = CalculateEmbeddingsDialogStatus.selected;
 
   @override
@@ -38,7 +38,7 @@ final class CalculateEmbeddingsDialogState extends BiocentralSimpleMultiTypeUISt
   @override
   CalculateEmbeddingsDialogState updateFromUIEvent(BiocentralSimpleMultiTypeUIUpdateEvent event) {
     return CalculateEmbeddingsDialogState.selected(getValueFromEvent(selectedEmbedder, event),
-        getValueFromEvent(selectedEmbeddingType, event), getValueFromEvent(selectedImportMode, event));
+        getValueFromEvent(selectedEmbeddingType, event), getValueFromEvent(selectedImportMode, event),);
   }
 }
 

@@ -35,11 +35,11 @@ class BiocentralPluginBloc extends Bloc<BiocentralPluginBlocEvent, BiocentralPlu
       emit(BiocentralPluginState.loading(state.pluginManager));
       await Future.delayed(const Duration(seconds: 1));
 
-      BuildContext? context = event.currentContext.mounted ? event.currentContext : null;
-      BiocentralPluginManager updatedManager = BiocentralPluginManager(
+      final BuildContext? context = event.currentContext.mounted ? event.currentContext : null;
+      final BiocentralPluginManager updatedManager = BiocentralPluginManager(
           context: context,
           availablePlugins: state.pluginManager.allAvailablePlugins,
-          selectedPlugins: event.selectedPlugins);
+          selectedPlugins: event.selectedPlugins,);
       emit(BiocentralPluginState.loaded(updatedManager));
     });
   }

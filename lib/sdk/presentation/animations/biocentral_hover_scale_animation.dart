@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 class BiocentralHoverScaleAnimation extends StatefulWidget {
   final Widget child;
 
-  const BiocentralHoverScaleAnimation({super.key, required this.child});
+  const BiocentralHoverScaleAnimation({required this.child, super.key});
 
   @override
   State<BiocentralHoverScaleAnimation> createState() => _BiocentralHoverScaleAnimationState();
@@ -20,7 +20,7 @@ class _BiocentralHoverScaleAnimationState extends State<BiocentralHoverScaleAnim
 
   @override
   Widget build(BuildContext context) {
-    AnimationController animationController = AnimationController(vsync: this);
+    final AnimationController animationController = AnimationController(vsync: this);
 
     return MouseRegion(
       onEnter: (pointerEnterEvent) => animationController.forward(),
@@ -29,7 +29,7 @@ class _BiocentralHoverScaleAnimationState extends State<BiocentralHoverScaleAnim
           effects: const [ScaleEffect(begin: Offset(0.95, 0.95))],
           controller: animationController,
           autoPlay: false,
-          child: widget.child),
+          child: widget.child,),
     );
   }
 

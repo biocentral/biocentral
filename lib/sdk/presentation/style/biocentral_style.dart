@@ -21,5 +21,5 @@ class BiocentralStyle {
         titleLarge: TextStyle(fontSize: 36, fontStyle: FontStyle.italic),
         titleMedium: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         bodyMedium: TextStyle(fontSize: 18),
-      ));
+      ),);
 }

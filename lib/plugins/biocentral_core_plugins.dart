@@ -1,4 +1,4 @@
-library biocentral_core_plugins;
+library;
 
 export 'embeddings/embeddings_plugin.dart';
 export 'ppi/ppi_plugin.dart';

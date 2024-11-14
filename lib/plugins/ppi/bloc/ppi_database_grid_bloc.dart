@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../domain/ppi_repository.dart';
+import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 
 sealed class PPIDatabaseGridEvent {
   PlutoGridOnSelectedEvent? selectedEvent;
@@ -56,15 +56,15 @@ class PPIDatabaseGridBloc extends Bloc<PPIDatabaseGridEvent, PPIDatabaseGridStat
   PPIDatabaseGridBloc(this._ppiRepository) : super(const PPIDatabaseGridState.initial()) {
     on<PPIDatabaseGridLoadEvent>((event, emit) async {
       emit(PPIDatabaseGridState.loading(state.ppis, state.additionalColumns, state.selectedPPI));
-      List<ProteinProteinInteraction> ppis = _ppiRepository.databaseToList();
-      Set<String>? additionalColumns = _ppiRepository.getAllCustomAttributeKeys();
+      final List<ProteinProteinInteraction> ppis = _ppiRepository.databaseToList();
+      final Set<String> additionalColumns = _ppiRepository.getAllCustomAttributeKeys();
       emit(PPIDatabaseGridState.loaded(ppis, additionalColumns, state.selectedPPI));
     });
 
     on<PPIDatabaseGridSelectionEvent>((event, emit) async {
-      int? rowIndex = event.selectedEvent!.rowIdx;
+      final int? rowIndex = event.selectedEvent!.rowIdx;
       if (rowIndex != null) {
-        ProteinProteinInteraction? selectedPPI = _ppiRepository.getEntityByRow(rowIndex);
+        final ProteinProteinInteraction? selectedPPI = _ppiRepository.getEntityByRow(rowIndex);
         emit(PPIDatabaseGridState.selected(state.ppis, state.additionalColumns, selectedPPI));
       }
     });

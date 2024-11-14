@@ -4,17 +4,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../bloc/biocentral_state.dart';
-import '../../util/format_util.dart';
-import '../../util/size_config.dart';
+import 'package:biocentral/sdk/bloc/biocentral_state.dart';
+import 'package:biocentral/sdk/util/format_util.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
 
 class BiocentralStatusIndicator extends StatefulWidget {
   final BiocentralCommandState state;
   final bool center;
 
   const BiocentralStatusIndicator({
-    super.key,
-    required this.state,
+    required this.state, super.key,
     this.center = false,
   });
 
@@ -23,15 +22,15 @@ class BiocentralStatusIndicator extends StatefulWidget {
 }
 
 class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
-  final String _animatedLogoBaseUrl = "assets/animated_logo/animated_logo";
-  final String _animatedLogoFileFormat = ".png";
+  final String _animatedLogoBaseUrl = 'assets/animated_logo/animated_logo';
+  final String _animatedLogoFileFormat = '.png';
   final int _numberAnimatedLogos = 6;
   final Duration _switchDuration = const Duration(milliseconds: 500);
 
   bool _shimmer = true;
   int _currentShownLogo = 1;
   late Timer _logoTimer;
-  String _currentLogoPath = "";
+  String _currentLogoPath = '';
 
   @override
   void initState() {
@@ -84,7 +83,6 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
       mainAxisAlignment: widget.center ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         Flexible(
-          flex: 1,
           child: Shimmer.fromColors(
             baseColor: Colors.white,
             highlightColor: shimmerHighlightColor,
@@ -107,7 +105,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
         SizedBox(
           width: SizeConfig.safeBlockHorizontal(context) * 1,
         ),
-        Flexible(flex: 2, child: buildStateInformation(widget.state.stateInformation))
+        Flexible(flex: 2, child: buildStateInformation(widget.state.stateInformation)),
       ],
     );
   }
@@ -147,9 +145,9 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   String _formatProgressInformation(BiocentralCommandProgress progress) {
     final String currentString =
         progress.isByteProgress ? bytesAsFormatString(progress.current) : progress.current.toString();
-    final String hint = progress.hint?.trim() ?? "";
+    final String hint = progress.hint?.trim() ?? '';
     if (progress.total != null) {
-      String totalString = progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
+      final String totalString = progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
       final percent = (progress.progress ?? 0) * 100;
       return '$hint $currentString / $totalString (${percent.toStringAsFixed(0)}%)';
     } else {

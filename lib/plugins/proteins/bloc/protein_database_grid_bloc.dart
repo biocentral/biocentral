@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 
 sealed class ProteinDatabaseGridEvent {
   PlutoGridOnSelectedEvent? selectedEvent;
@@ -56,16 +56,16 @@ class ProteinDatabaseGridBloc extends Bloc<ProteinDatabaseGridEvent, ProteinData
   ProteinDatabaseGridBloc(this._proteinRepository) : super(const ProteinDatabaseGridState.initial()) {
     on<ProteinDatabaseGridLoadEvent>((event, emit) async {
       emit(ProteinDatabaseGridState.loading(state.proteins, state.additionalColumns, state.selectedProtein));
-      List<Protein> proteins = _proteinRepository.databaseToList();
+      final List<Protein> proteins = _proteinRepository.databaseToList();
       // TODO Should be extended to all attributes not only those available for all proteins
-      Set<String>? additionalColumns = _proteinRepository.getAllCustomAttributeKeys();
+      final Set<String> additionalColumns = _proteinRepository.getAllCustomAttributeKeys();
       emit(ProteinDatabaseGridState.loaded(proteins, additionalColumns, state.selectedProtein));
     });
 
     on<ProteinDatabaseGridSelectionEvent>((event, emit) async {
-      int? rowIndex = event.selectedEvent!.rowIdx;
+      final int? rowIndex = event.selectedEvent!.rowIdx;
       if (rowIndex != null) {
-        Protein? selectedProtein = _proteinRepository.getEntityByRow(rowIndex);
+        final Protein? selectedProtein = _proteinRepository.getEntityByRow(rowIndex);
         emit(ProteinDatabaseGridState.selected(state.proteins, state.additionalColumns, selectedProtein));
       }
     });

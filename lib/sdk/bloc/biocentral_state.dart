@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../data/biocentral_client.dart';
-import '../util/logging.dart';
+import 'package:biocentral/sdk/data/biocentral_client.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 
 @immutable
 abstract class BiocentralCommandState<T extends BiocentralCommandState<T>> extends Equatable {
@@ -34,23 +34,23 @@ abstract class BiocentralCommandState<T extends BiocentralCommandState<T>> exten
   }
 
   T setIdle({String? information}) {
-    return newState(BiocentralCommandStateInformation(information: information ?? ""), BiocentralCommandStatus.idle);
+    return newState(BiocentralCommandStateInformation(information: information ?? ''), BiocentralCommandStatus.idle);
   }
 
   T setOperating({required String information, BiocentralCommandProgress? commandProgress}) {
     return newState(BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
-        BiocentralCommandStatus.operating);
+        BiocentralCommandStatus.operating,);
   }
 
   T updateOperating({required BiocentralCommandProgress commandProgress}) {
     return newState(
         BiocentralCommandStateInformation(information: stateInformation.information, commandProgress: commandProgress),
-        BiocentralCommandStatus.operating);
+        BiocentralCommandStatus.operating,);
   }
 
   T setFinished({required String information, BiocentralCommandProgress? commandProgress}) {
     return newState(BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
-        BiocentralCommandStatus.finished);
+        BiocentralCommandStatus.finished,);
   }
 
   T setErrored({required String information}) {
@@ -91,7 +91,7 @@ class BiocentralCommandStateInformation {
   const BiocentralCommandStateInformation({required this.information, this.commandProgress});
 
   const BiocentralCommandStateInformation.empty()
-      : information = "",
+      : information = '',
         commandProgress = null;
 }
 
@@ -120,7 +120,7 @@ abstract class BiocentralSimpleMultiTypeUIUpdateEvent {
   void checkForDuplicateTypes() {
     final types = updates.map((u) => u.runtimeType).toSet();
     if (types.length != updates.length) {
-      const String errorMessage = "Duplicate types found in multi type update event!";
+      const String errorMessage = 'Duplicate types found in multi type update event!';
       logger.e(errorMessage);
       throw Exception(errorMessage);
     }

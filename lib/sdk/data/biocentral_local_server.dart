@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 
-import '../util/biocentral_exception.dart';
-import '../util/logging.dart';
+import 'package:biocentral/sdk/util/biocentral_exception.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 
 class BiocentralLocalServer {
   static final BiocentralLocalServer _instance = BiocentralLocalServer._internal();
@@ -21,14 +21,14 @@ class BiocentralLocalServer {
   List<String> _localServices = [];
 
   Future<Either<BiocentralException, List<String>>> start(
-      {required String extractedExecutablePath, required String workingDirectory}) async {
+      {required String extractedExecutablePath, required String workingDirectory,}) async {
     if (_serverProcess != null) {
       logger.w('Server is already running.');
       return right(_localServices);
     }
 
     // Check if the server is running on localhost but started outside of this main application
-    List<String> localServicesFromOutsideProcess = await getLocalServices();
+    final List<String> localServicesFromOutsideProcess = await getLocalServices();
     if (localServicesFromOutsideProcess.isNotEmpty) {
       logger.i('Server is already running as a separate process, connecting to the server now.');
       _localServices = localServicesFromOutsideProcess;
@@ -39,7 +39,7 @@ class BiocentralLocalServer {
       // Change file permissions to executable
       await _setExecutablePermissions(extractedExecutablePath);
 
-      _serverProcess = await Process.start(extractedExecutablePath, ["--headless"], workingDirectory: workingDirectory);
+      _serverProcess = await Process.start(extractedExecutablePath, ['--headless'], workingDirectory: workingDirectory);
 
       _serverProcess!.stdout.transform(utf8.decoder).listen(serverLogger.i);
       _serverProcess!.stderr.transform(utf8.decoder).listen(serverLogger.e);
@@ -66,7 +66,7 @@ class BiocentralLocalServer {
         _serverProcess = null;
         _localServices = [];
         return left(BiocentralServerException(
-            message: "Error starting server process or local server does not provide any services!"));
+            message: 'Error starting server process or local server does not provide any services!',),);
       }
 
       logger.i('Server started successfully.');
@@ -76,7 +76,7 @@ class BiocentralLocalServer {
       _serverProcess?.kill();
       _serverProcess = null;
       _localServices = [];
-      return left(BiocentralServerException(message: "Error starting server process", error: e));
+      return left(BiocentralServerException(message: 'Error starting server process', error: e));
     }
   }
 
@@ -86,7 +86,7 @@ class BiocentralLocalServer {
       return;
     } else if (kIsWeb) {
       throw BiocentralSecurityException(
-        message: "Trying to set file permissions on the web, this should not have happened!",
+        message: 'Trying to set file permissions on the web, this should not have happened!',
       );
     } else if (Platform.isMacOS || Platform.isLinux) {
       // On macOS and Linux, use chmod to set executable permissions
@@ -94,13 +94,13 @@ class BiocentralLocalServer {
         await Process.run('chmod', ['+x', filePath]);
       } catch (e) {
         throw BiocentralServerException(
-          message: "Failed to set executable permissions",
+          message: 'Failed to set executable permissions',
           error: e,
         );
       }
     } else {
       throw BiocentralServerException(
-        message: "Unsupported platform for setting executable permissions",
+        message: 'Unsupported platform for setting executable permissions',
       );
     }
   }
@@ -112,7 +112,7 @@ class BiocentralLocalServer {
     }
 
     logger.i('Stopping server...');
-    _serverProcess!.kill(ProcessSignal.sigterm);
+    _serverProcess!.kill();
 
     // Wait for the process to exit
     await _serverProcess!.exitCode;
@@ -127,8 +127,8 @@ class BiocentralLocalServer {
       if (response.statusCode != 200) {
         return [];
       }
-      Map responseMap = jsonDecode(response.body);
-      return List<String>.from(responseMap["services"]);
+      final Map responseMap = jsonDecode(response.body);
+      return List<String>.from(responseMap['services']);
     } catch (e) {
       return [];
     }

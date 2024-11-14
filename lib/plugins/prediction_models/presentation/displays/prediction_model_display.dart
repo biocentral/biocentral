@@ -3,13 +3,13 @@ import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/prediction_models_service_api.dart';
-import '../../model/prediction_model.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 
 class PredictionModelDisplay extends StatefulWidget {
   final PredictionModel predictionModel;
 
-  const PredictionModelDisplay({super.key, required this.predictionModel});
+  const PredictionModelDisplay({required this.predictionModel, super.key});
 
   @override
   State<PredictionModelDisplay> createState() => _PredictionModelDisplayState();
@@ -27,12 +27,12 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildModel() {
-    BiotrainerTrainingResult? trainingResult = widget.predictionModel.biotrainerTrainingResult;
-    String databaseType = "";
+    final BiotrainerTrainingResult? trainingResult = widget.predictionModel.biotrainerTrainingResult;
+    String databaseType = '';
     if (widget.predictionModel.databaseType != null) {
       databaseType = "${widget.predictionModel.databaseType?.capitalize() ?? "Unknown"}-";
     }
-    String title = "${databaseType}Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
+    final String title = "${databaseType}Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
         "${widget.predictionModel.embedderName ?? "Unknown Embeddings"} - "
         "${widget.predictionModel.predictionProtocol?.name ?? "Unknown protocol"}";
     return SizedBox(
@@ -42,27 +42,27 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
         child: Card(
             child: ExpansionTile(leading: buildSanityCheckIcon(trainingResult), title: Text(title), children: [
           ExpansionTile(
-            title: const Text("Model Information"),
+            title: const Text('Model Information'),
             children: [buildModelInformation()],
           ),
           ExpansionTile(
-            title: const Text("Metrics Table"),
+            title: const Text('Metrics Table'),
             children: [buildMetricsTable(trainingResult)],
           ),
-          ExpansionTile(title: const Text("Loss Curves"), children: buildLossCurves(trainingResult)),
+          ExpansionTile(title: const Text('Loss Curves'), children: buildLossCurves(trainingResult)),
           ExpansionTile(
-            title: const Text("Available Checkpoints"),
+            title: const Text('Available Checkpoints'),
             children: buildAvailableCheckpoints(),
           ),
-          ExpansionTile(title: const Text("Training Logs"), children: buildLogResult())
-        ])),
+          ExpansionTile(title: const Text('Training Logs'), children: buildLogResult()),
+        ],),),
       ),
     );
   }
 
   Widget buildModelInformation() {
-    Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
-    List<TableRow> rows = [];
+    final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
+    final List<TableRow> rows = [];
     for (MapEntry<String, String> mapEntry in modelInformation.entries) {
       rows.add(TableRow(children: [Text(mapEntry.key), Text(mapEntry.value)]));
     }
@@ -72,12 +72,12 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
-    Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
-    String tooltipMessage = "All sanity checks passed!";
+    final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
+    String tooltipMessage = 'All sanity checks passed!';
     if (sanityCheckWarnings.isNotEmpty) {
-      tooltipMessage = "Your model has the following sanity check warnings:";
+      tooltipMessage = 'Your model has the following sanity check warnings:';
       for (String warning in sanityCheckWarnings) {
-        tooltipMessage += "\n$warning";
+        tooltipMessage += '\n$warning';
       }
     }
     Icon sanityCheckIcon = const Icon(Icons.check, color: Colors.green);
@@ -92,8 +92,8 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       return Container();
     }
     return BiocentralMetricsTable(
-        metrics: {"Test Set Metrics": trainingResult.testSetMetrics}
-          ..addAll(trainingResult.sanityCheckBaselineMetrics));
+        metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
+          ..addAll(trainingResult.sanityCheckBaselineMetrics),);
   }
 
   List<Widget> buildLossCurves(BiotrainerTrainingResult? trainingResult) {
@@ -108,8 +108,8 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       ];
     }
     final Map<String, Map<int, double>> linePlotData = {
-      "Training": trainingResult.trainingLoss,
-      "Validation": trainingResult.validationLoss
+      'Training': trainingResult.trainingLoss,
+      'Validation': trainingResult.validationLoss,
     };
     return [
       SizedBox(
@@ -118,7 +118,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       SizedBox(
           height: SizeConfig.screenHeight(context) * 0.3,
           width: SizeConfig.screenWidth(context) * 0.6,
-          child: BiocentralLinePlot(data: linePlotData)),
+          child: BiocentralLinePlot(data: linePlotData),),
       SizedBox(
         height: SizeConfig.safeBlockVertical(context) * 2,
       ),
@@ -126,7 +126,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   List<Widget> buildAvailableCheckpoints() {
-    List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
+    final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
     if (checkpointNames.isEmpty) {
       return [
         Container(),
@@ -143,7 +143,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     }
     return [
       BiocentralLazyLogsViewer(
-          logs: widget.predictionModel.biotrainerTrainingLog ?? [], height: SizeConfig.screenHeight(context) * 0.4),
+          logs: widget.predictionModel.biotrainerTrainingLog ?? [], height: SizeConfig.screenHeight(context) * 0.4,),
     ];
   }
 }

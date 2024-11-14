@@ -1,8 +1,8 @@
 
 import 'package:ml_linalg/vector.dart';
 
-import 'column_wizard_abstract.dart';
-import 'column_wizard_operations.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 
 class IntColumnWizardFactory extends ColumnWizardFactory {
   @override
@@ -10,7 +10,7 @@ class IntColumnWizardFactory extends ColumnWizardFactory {
     return IntColumnWizard(
         columnName,
         Map.fromEntries(valueMap.entries.map(
-            (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())))));
+            (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())),),),);
   }
 
   @override
@@ -35,7 +35,7 @@ class DoubleColumnWizardFactory extends ColumnWizardFactory {
     return DoubleColumnWizard(
         columnName,
         Map.fromEntries(valueMap.entries.map((entry) =>
-            MapEntry(entry.key, entry.value is double ? entry.value : double.parse(entry.value.toString())))));
+            MapEntry(entry.key, entry.value is double ? entry.value : double.parse(entry.value.toString())),),),);
   }
 
   @override
@@ -58,7 +58,7 @@ class StringColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return StringColumnWizard(
-        columnName, Map.fromEntries(valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString()))));
+        columnName, Map.fromEntries(valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString()))),);
   }
 
   @override

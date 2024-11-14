@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../model/column_wizard_operations.dart';
-import '../widgets/biocentral_small_button.dart';
+import 'package:biocentral/sdk/model/column_wizard_operations.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
 
 class ColumnWizardOperationDisplayFactory {
   static Widget fromSelected(
       {required ColumnOperationType columnOperationType,
       required String selectedColumnName,
-      required void Function(ColumnWizardOperation) onCalculateCallback}) {
+      required void Function(ColumnWizardOperation) onCalculateCallback,}) {
     switch (columnOperationType) {
       case ColumnOperationType.toBinary:
         return ColumnWizardToBinaryOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
       case ColumnOperationType.removeMissing:
         return ColumnWizardRemoveMissingOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
       case ColumnOperationType.removeOutliers:
         return Container(); // TODO
       case ColumnOperationType.shuffle:
         return ColumnWizardShuffleOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
     }
   }
 }
@@ -28,17 +28,17 @@ abstract class ColumnWizardOperationDisplay<T extends ColumnWizardOperationResul
   final String selectedColumnName;
   final void Function(ColumnWizardOperation) onCalculateCallback;
 
-  const ColumnWizardOperationDisplay({super.key, required this.selectedColumnName, required this.onCalculateCallback});
+  const ColumnWizardOperationDisplay({required this.selectedColumnName, required this.onCalculateCallback, super.key});
 }
 
 abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperationResult>
     extends State<ColumnWizardOperationDisplay> {
-  String newColumnName = "";
+  String newColumnName = '';
 
   @override
   void initState() {
     super.initState();
-    newColumnName = "${widget.selectedColumnName}-${defaultColumnName()}";
+    newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
   }
 
   bool showNewColumnName() {
@@ -50,7 +50,7 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
   ColumnWizardOperation? collect();
 
   void collectAndInvokeCallback() {
-    ColumnWizardOperation? operation = collect();
+    final ColumnWizardOperation? operation = collect();
     if (operation != null) {
       widget.onCalculateCallback(operation);
     }
@@ -65,7 +65,7 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
       ),
       buildNewColumnNameSelection(),
       buildCalculateButton(),
-    ]);
+    ],);
   }
 
   Widget buildNewColumnNameSelection() {
@@ -74,18 +74,18 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
       child: Flexible(
         child: TextFormField(
             initialValue: newColumnName,
-            decoration: const InputDecoration(labelText: "New Column Name"),
+            decoration: const InputDecoration(labelText: 'New Column Name'),
             onChanged: (String? value) {
               setState(() {
-                newColumnName = value ?? "";
+                newColumnName = value ?? '';
               });
-            }),
+            },),
       ),
     );
   }
 
   Widget buildCalculateButton() {
-    return BiocentralSmallButton(onTap: collectAndInvokeCallback, label: "Calculate");
+    return BiocentralSmallButton(onTap: collectAndInvokeCallback, label: 'Calculate');
   }
 
   List<Widget> buildParameterSelections();
@@ -93,7 +93,7 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
 
 class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
   const ColumnWizardShuffleOperationDisplay(
-      {super.key, required super.selectedColumnName, required super.onCalculateCallback});
+      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardShuffleOperationDisplayState();
@@ -105,7 +105,7 @@ class _ColumnWizardShuffleOperationDisplayState
 
   @override
   String defaultColumnName() {
-    return "shuffled";
+    return 'shuffled';
   }
 
   @override
@@ -119,20 +119,20 @@ class _ColumnWizardShuffleOperationDisplayState
       Flexible(
         child: TextFormField(
             initialValue: seed.toString(),
-            decoration: const InputDecoration(labelText: "Seed"),
+            decoration: const InputDecoration(labelText: 'Seed'),
             onChanged: (String? value) {
               setState(() {
-                seed = int.tryParse(value ?? "") ?? ColumnWizardShuffleOperation.defaultSeed;
+                seed = int.tryParse(value ?? '') ?? ColumnWizardShuffleOperation.defaultSeed;
               });
-            }),
-      )
+            },),
+      ),
     ];
   }
 }
 
 class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
   const ColumnWizardToBinaryOperationDisplay(
-      {super.key, required super.selectedColumnName, required super.onCalculateCallback});
+      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardToBinaryOperationDisplayState();
@@ -140,13 +140,13 @@ class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay<
 
 class _ColumnWizardToBinaryOperationDisplayState
     extends ColumnWizardOperationDisplayState<ColumnWizardAddOperationResult> {
-  String compareToValue = "";
+  String compareToValue = '';
   String valueTrue = ColumnWizardToBinaryOperation.defaultValueTrue;
   String valueFalse = ColumnWizardToBinaryOperation.defaultValueFalse;
 
   @override
   String defaultColumnName() {
-    return "binary";
+    return 'binary';
   }
 
   @override
@@ -164,33 +164,33 @@ class _ColumnWizardToBinaryOperationDisplayState
       Flexible(
         child: TextFormField(
             initialValue: compareToValue,
-            decoration: const InputDecoration(labelText: "Compare to value:"),
+            decoration: const InputDecoration(labelText: 'Compare to value:'),
             onChanged: (String? value) {
               setState(() {
-                compareToValue = value ?? "";
+                compareToValue = value ?? '';
               });
-            }),
+            },),
       ),
       Flexible(
         child: TextFormField(
             initialValue: valueTrue,
-            decoration: const InputDecoration(labelText: "Value if match"),
+            decoration: const InputDecoration(labelText: 'Value if match'),
             onChanged: (String? value) {
               setState(() {
                 valueTrue = value ?? ColumnWizardToBinaryOperation.defaultValueTrue;
               });
-            }),
+            },),
       ),
       Flexible(
         child: TextFormField(
             initialValue: valueFalse,
-            decoration: const InputDecoration(labelText: "Value if no match"),
+            decoration: const InputDecoration(labelText: 'Value if no match'),
             onChanged: (String? value) {
               setState(() {
                 valueFalse = value ?? ColumnWizardToBinaryOperation.defaultValueFalse;
               });
-            }),
-      )
+            },),
+      ),
     ];
   }
 }
@@ -198,7 +198,7 @@ class _ColumnWizardToBinaryOperationDisplayState
 class ColumnWizardRemoveMissingOperationDisplay
     extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
   const ColumnWizardRemoveMissingOperationDisplay(
-      {super.key, required super.selectedColumnName, required super.onCalculateCallback});
+      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardRemoveMissingOperationDisplayState();
@@ -208,7 +208,7 @@ class _ColumnWizardRemoveMissingOperationDisplayState
     extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
   @override
   String defaultColumnName() {
-    return "";
+    return '';
   }
 
   @override

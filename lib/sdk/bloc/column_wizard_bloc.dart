@@ -2,10 +2,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../domain/biocentral_column_wizard_repository.dart';
-import '../domain/biocentral_database.dart';
-import '../model/column_wizard_abstract.dart';
-import '../model/column_wizard_operations.dart';
+import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_database.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 
 sealed class ColumnWizardEvent {}
 
@@ -40,7 +40,7 @@ final class ColumnWizardBlocState extends Equatable {
   final ColumnWizardBlocStatus status;
 
   const ColumnWizardBlocState(
-      this.columns, this.columnWizards, this.selectedColumn, this.selectedOperationType, this.status);
+      this.columns, this.columnWizards, this.selectedColumn, this.selectedOperationType, this.status,);
 
   const ColumnWizardBlocState.initial()
       : columns = const {},
@@ -56,11 +56,11 @@ final class ColumnWizardBlocState extends Equatable {
 
   ColumnWizardBlocState copyWith({Map<String, dynamic>? copyMap}) {
     return ColumnWizardBlocState(
-        copyMap?["columns"] ?? columns,
-        copyMap?["columnWizards"] ?? columnWizards,
-        copyMap?["selectedColumn"] ?? selectedColumn,
-        copyMap?["selectedOperationType"] ?? selectedOperationType,
-        copyMap?["status"] ?? status);
+        copyMap?['columns'] ?? columns,
+        copyMap?['columnWizards'] ?? columnWizards,
+        copyMap?['selectedColumn'] ?? selectedColumn,
+        copyMap?['selectedOperationType'] ?? selectedOperationType,
+        copyMap?['status'] ?? status,);
   }
 }
 
@@ -73,23 +73,23 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
   ColumnWizardBloc(this._biocentralDatabase, this._columnWizardRepository)
       : super(const ColumnWizardBlocState.initial()) {
     on<ColumnWizardLoadEvent>((event, emit) async {
-      emit(const ColumnWizardBlocState.initial().copyWith(copyMap: {"status": ColumnWizardBlocStatus.loading}));
+      emit(const ColumnWizardBlocState.initial().copyWith(copyMap: {'status': ColumnWizardBlocStatus.loading}));
       final Map<String, Map<String, dynamic>> columns = _biocentralDatabase.getColumns();
-      emit(state.copyWith(copyMap: {"columns": columns, "status": ColumnWizardBlocStatus.loaded}));
+      emit(state.copyWith(copyMap: {'columns': columns, 'status': ColumnWizardBlocStatus.loaded}));
     });
     on<ColumnWizardSelectColumnEvent>((event, emit) async {
-      emit(state.copyWith(copyMap: {"selectedColumn": event.selectedColumn}));
-      Map<String, ColumnWizard> columnWizards = state.columnWizards ?? {};
+      emit(state.copyWith(copyMap: {'selectedColumn': event.selectedColumn}));
+      final Map<String, ColumnWizard> columnWizards = state.columnWizards ?? {};
       if (!columnWizards.containsKey(event.selectedColumn)) {
-        ColumnWizard columnWizard = await _columnWizardRepository.getColumnWizardForColumn(
-            columnName: event.selectedColumn, valueMap: state.columns[event.selectedColumn] ?? {});
+        final ColumnWizard columnWizard = await _columnWizardRepository.getColumnWizardForColumn(
+            columnName: event.selectedColumn, valueMap: state.columns[event.selectedColumn] ?? {},);
         columnWizards[event.selectedColumn] = columnWizard;
       }
-      emit(state.copyWith(copyMap: {"columnWizards": columnWizards, "status": ColumnWizardBlocStatus.selected}));
+      emit(state.copyWith(copyMap: {'columnWizards': columnWizards, 'status': ColumnWizardBlocStatus.selected}));
     });
     on<ColumnWizardSelectOperationEvent>((event, emit) async {
       emit(state.copyWith(
-          copyMap: {"selectedOperationType": event.selectedOperationType, "status": ColumnWizardBlocStatus.selected}));
+          copyMap: {'selectedOperationType': event.selectedOperationType, 'status': ColumnWizardBlocStatus.selected},),);
     });
   }
 }

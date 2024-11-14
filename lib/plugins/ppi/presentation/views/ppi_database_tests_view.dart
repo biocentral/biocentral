@@ -1,9 +1,8 @@
-import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/ppi_database_tests_bloc.dart';
-import '../displays/ppi_test_display.dart';
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_bloc.dart';
+import 'package:biocentral/plugins/ppi/presentation/displays/ppi_test_display.dart';
 
 class PPIDatabaseTestsView extends StatefulWidget {
   const PPIDatabaseTestsView({super.key});
@@ -13,10 +12,6 @@ class PPIDatabaseTestsView extends StatefulWidget {
 }
 
 class PPIDatabaseTestsViewState extends State<PPIDatabaseTestsView> with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;
@@ -30,18 +25,18 @@ class PPIDatabaseTestsViewState extends State<PPIDatabaseTestsView> with Automat
         child: InputDecorator(
           expands: true,
           decoration: InputDecoration(
-            labelText: "Database Tests:",
+            labelText: 'Database Tests:',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
           ),
           child: Column(
             children: [
-              ...buildTestDisplays(state)],
+              ...buildTestDisplays(state),],
           ),
         ),
       );
-    });
+    },);
   }
 
   List<Widget> buildTestDisplays(PPIDatabaseTestsState state) {

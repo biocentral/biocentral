@@ -1,5 +1,5 @@
 /// Abstract classes and widgets for the biocentral application
-library biocentral_sdk;
+library;
 
 export 'bloc/biocentral_bloc.dart';
 export 'bloc/biocentral_client_bloc.dart';
