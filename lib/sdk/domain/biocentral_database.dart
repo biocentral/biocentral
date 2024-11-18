@@ -28,7 +28,7 @@ abstract class BiocentralDatabase<T extends BioEntity> {
 
   Map<String, T> databaseToMap();
 
-  List<Map<String, String>> entitiesAsMaps();
+  List<Map<String, dynamic>> entitiesAsMaps();
 
   String getEntityTypeName();
 
@@ -37,14 +37,14 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   Map<String, T> updateEmbeddings(Map<String, Embedding> newEmbeddings);
 
   Map<String, Map<String, dynamic>> getColumns() {
-    final List<Map<String, String>> entityMaps = entitiesAsMaps();
+    final List<Map<String, dynamic>> entityMaps = entitiesAsMaps();
     final Map<String, Map<String, dynamic>> result = {};
-    for (Map<String, String> entityMap in entityMaps) {
+    for (Map<String, dynamic> entityMap in entityMaps) {
       final String entityID = entityMap['id'] ?? '';
       if (entityID.isEmpty) {
         logger.w('Encountered entity without an ID!');
       }
-      for (MapEntry<String, String> entry in entityMap.entries) {
+      for (MapEntry<String, dynamic> entry in entityMap.entries) {
         result.putIfAbsent(entry.key, () => {});
         result[entry.key]?[entityID] = entry.value;
       }
@@ -211,16 +211,16 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   }
 
   static Set<String> _getKeysWhereDataIsAvailableForAllEntries(
-      List<MapEntry<String, String>> entries, int repositoryLength,) {
+      List<MapEntry<String, dynamic>> entries, int repositoryLength,) {
     final Set<String> result = {};
     // category name -> number of occurrences
     final Map<String, int> uniqueMap = {};
-    for (MapEntry<String, String> keyValue in entries) {
-      uniqueMap.putIfAbsent(keyValue.key, () => 0);
+    for (MapEntry<String, dynamic> entry in entries) {
+      uniqueMap.putIfAbsent(entry.key, () => 0);
 
-      if (keyValue.value != '') {
-        final int count = uniqueMap[keyValue.key]! + 1;
-        uniqueMap[keyValue.key] = count;
+      if (entry.value.toString() != '') {
+        final int count = uniqueMap[entry.key]! + 1;
+        uniqueMap[entry.key] = count;
       }
     }
 

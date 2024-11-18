@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
-
+/*
 class TrainingModelView extends StatefulWidget {
   const TrainingModelView({super.key});
 
@@ -39,7 +39,7 @@ class _TrainingModelViewState extends State<TrainingModelView> {
             Card(
                 child: ExpansionTile(
                     leading: buildSanityCheckIcon(),
-                    title: Text("Training ${state.modelArchitecture ?? "unknown"} Model.."),
+                    title: Text("Training ${state.trainingModel?.architecture ?? "unknown"} Model.."),
                     trailing: SizedBox(
                         width: SizeConfig.screenWidth(context) * 0.2, child: BiocentralStatusIndicator(state: state),),
                     children: [
@@ -57,7 +57,7 @@ class _TrainingModelViewState extends State<TrainingModelView> {
   }
 
   List<Widget> buildLossCurves(BiotrainerTrainingState state) {
-    if (state.trainingLoss.isEmpty && state.validationLoss.isEmpty) {
+    if (state.trainingModel.biotrainerTrainingResult?.trainingLoss.isEmpty && state.trainingModel.biotrainerTrainingResult?.validationLoss.isEmpty) {
       return [Container()];
     }
     final Map<String, Map<int, double>> linePlotData = {
@@ -79,13 +79,14 @@ class _TrainingModelViewState extends State<TrainingModelView> {
   }
 
   List<Widget> buildLogResult(BiotrainerTrainingState state) {
-    if (state.trainingOutput.isEmpty) {
+    if (state.trainingModel.biotrainerTrainingLog.isEmpty) {
       return [
         Container(),
       ];
     }
     return [
-      BiocentralLazyLogsViewer(logs: state.trainingOutput, height: SizeConfig.screenHeight(context) * 0.4),
+      BiocentralLazyLogsViewer(logs: state.trainingModel.biotrainerTrainingLog, height: SizeConfig.screenHeight(context) * 0.4),
     ];
   }
 }
+*/

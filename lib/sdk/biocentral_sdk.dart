@@ -31,7 +31,7 @@ export 'presentation/dialogs/biocentral_import_mode_dialog.dart';
 export 'presentation/dialogs/column_wizard_dialog.dart';
 export 'presentation/displays/biocentral_log_display.dart';
 export 'presentation/displays/column_wizard_operation_displays.dart';
-export 'presentation/displays/column_wizard_stats_display.dart';
+export 'presentation/displays/column_wizard_generic_displays.dart';
 export 'presentation/style/biocentral_style.dart';
 export 'presentation/widgets/biocentral_button.dart';
 export 'presentation/widgets/biocentral_command_bar.dart';

@@ -1,11 +1,7 @@
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
-import 'package:biocentral/sdk/domain/biocentral_database.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 
 sealed class ColumnWizardEvent {}
 
@@ -34,16 +30,24 @@ final class ColumnWizardBlocState extends Equatable {
   final Map<String, Map<String, dynamic>> columns;
 
   final Map<String, ColumnWizard>? columnWizards;
+  final Widget Function(ColumnWizard)? customBuildFunction;
   final String? selectedColumn;
   final ColumnOperationType? selectedOperationType;
 
   final ColumnWizardBlocStatus status;
 
   const ColumnWizardBlocState(
-      this.columns, this.columnWizards, this.selectedColumn, this.selectedOperationType, this.status,);
+    this.columns,
+    this.columnWizards,
+    this.customBuildFunction,
+    this.selectedColumn,
+    this.selectedOperationType,
+    this.status,
+  );
 
   const ColumnWizardBlocState.initial()
       : columns = const {},
+        customBuildFunction = null,
         columnWizards = null,
         selectedColumn = null,
         selectedOperationType = null,
@@ -52,15 +56,18 @@ final class ColumnWizardBlocState extends Equatable {
   ColumnWizard? get columnWizard => columnWizards?[selectedColumn];
 
   @override
-  List<Object?> get props => [columns, columnWizards?.keys, selectedColumn, selectedOperationType, status];
+  List<Object?> get props =>
+      [columns, columnWizards, customBuildFunction, selectedColumn, selectedOperationType, status];
 
   ColumnWizardBlocState copyWith({Map<String, dynamic>? copyMap}) {
     return ColumnWizardBlocState(
-        copyMap?['columns'] ?? columns,
-        copyMap?['columnWizards'] ?? columnWizards,
-        copyMap?['selectedColumn'] ?? selectedColumn,
-        copyMap?['selectedOperationType'] ?? selectedOperationType,
-        copyMap?['status'] ?? status,);
+      copyMapExtractor(copyMap, 'columns', columns),
+      copyMapExtractor(copyMap, 'columnWizards', columnWizards),
+      copyMapExtractor(copyMap, 'customBuildFunction', customBuildFunction),
+      copyMapExtractor(copyMap, 'selectedColumn', selectedColumn),
+      copyMapExtractor(copyMap, 'selectedOperationType', selectedOperationType),
+      copyMapExtractor(copyMap, 'status', status),
+    );
   }
 }
 
@@ -78,18 +85,36 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
       emit(state.copyWith(copyMap: {'columns': columns, 'status': ColumnWizardBlocStatus.loaded}));
     });
     on<ColumnWizardSelectColumnEvent>((event, emit) async {
-      emit(state.copyWith(copyMap: {'selectedColumn': event.selectedColumn}));
       final Map<String, ColumnWizard> columnWizards = state.columnWizards ?? {};
-      if (!columnWizards.containsKey(event.selectedColumn)) {
-        final ColumnWizard columnWizard = await _columnWizardRepository.getColumnWizardForColumn(
-            columnName: event.selectedColumn, valueMap: state.columns[event.selectedColumn] ?? {},);
+      Widget Function(ColumnWizard)? customBuildFunction;
+
+      ColumnWizard? columnWizard = columnWizards[event.selectedColumn];
+      if (columnWizard == null) {
+        columnWizard = await _columnWizardRepository.getColumnWizardForColumn(
+          columnName: event.selectedColumn,
+          valueMap: state.columns[event.selectedColumn] ?? {},
+        );
         columnWizards[event.selectedColumn] = columnWizard;
       }
-      emit(state.copyWith(copyMap: {'columnWizards': columnWizards, 'status': ColumnWizardBlocStatus.selected}));
+      customBuildFunction = _columnWizardRepository.getCustomBuildFunctionForColumnWizard(columnWizard);
+
+      emit(
+        state.copyWith(
+          copyMap: {
+            'selectedColumn': event.selectedColumn,
+            'columnWizards': columnWizards,
+            'customBuildFunction': customBuildFunction,
+            'status': ColumnWizardBlocStatus.selected,
+          },
+        ),
+      );
     });
     on<ColumnWizardSelectOperationEvent>((event, emit) async {
-      emit(state.copyWith(
-          copyMap: {'selectedOperationType': event.selectedOperationType, 'status': ColumnWizardBlocStatus.selected},),);
+      emit(
+        state.copyWith(
+          copyMap: {'selectedOperationType': event.selectedOperationType, 'status': ColumnWizardBlocStatus.selected},
+        ),
+      );
     });
   }
 }

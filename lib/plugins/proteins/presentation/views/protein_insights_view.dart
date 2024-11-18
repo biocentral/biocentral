@@ -1,9 +1,9 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/displays/column_wizard_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProteinInsightsView extends StatefulWidget {
-
   const ProteinInsightsView({super.key});
 
   @override
@@ -11,7 +11,6 @@ class ProteinInsightsView extends StatefulWidget {
 }
 
 class _ProteinInsightsViewState extends State<ProteinInsightsView> {
-
   @override
   void initState() {
     super.initState();
@@ -21,21 +20,24 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
   Widget build(BuildContext context) {
     final ColumnWizardBloc columnWizardDialogBloc = BlocProvider.of<ColumnWizardBloc>(context);
     return BlocBuilder<ColumnWizardBloc, ColumnWizardBlocState>(
-        builder: (context, state) {
-          return Column(children: [
+      builder: (context, state) {
+        return Column(
+          children: [
             buildColumnSelection(columnWizardDialogBloc, state),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Expanded(child: buildColumnWizardDisplay(state)),
-          ],);
-        },
+          ],
+        );
+      },
     );
   }
 
   Widget buildColumnSelection(ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state) {
     return BiocentralDropdownMenu<String>(
-        dropdownMenuEntries: state.columns.keys.map((key) => DropdownMenuEntry(value: key, label: key)).toList(),
-        label: const Text('Select column..'),
-        onSelected: (String? value) => columnWizardDialogBloc.add(ColumnWizardSelectColumnEvent(value ?? '')),);
+      dropdownMenuEntries: state.columns.keys.map((key) => DropdownMenuEntry(value: key, label: key)).toList(),
+      label: const Text('Select column..'),
+      onSelected: (String? value) => columnWizardDialogBloc.add(ColumnWizardSelectColumnEvent(value ?? '')),
+    );
   }
 
   Widget buildColumnWizardDisplay(ColumnWizardBlocState state) {
@@ -44,6 +46,9 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
     if (columnWizard == null) {
       return Container();
     }
-    return ColumnWizardStatsDisplay(columnWizard: columnWizard);
+    return ColumnWizardDisplay(
+      columnWizard: columnWizard,
+      customBuildFunction: state.customBuildFunction,
+    );
   }
 }
