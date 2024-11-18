@@ -8,7 +8,7 @@ from biotrainer.utilities import get_device, read_FASTA
 from flask import request, Blueprint, jsonify, current_app
 
 from .umap_analysis import calculate_umap
-from .embed import compute_embeddings, compute_embeddings_and_save_to_db
+from .embed import compute_embeddings_and_save_to_db
 
 from ..utils import str2bool
 from ..server_management import FileManager, UserManager, StorageFileType
@@ -51,19 +51,14 @@ def embed():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
+    # TODO Separate Thread: Embeddings Task
+
     all_seq_records = read_FASTA(str(sequence_file_path))
     all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
 
-    # List of embedder names that should not be saved in the database
-    EXCLUDED_EMBEDDERS = ['one_hot_encoding']
-
-    if embedder_name in EXCLUDED_EMBEDDERS:
-        all_embeddings = compute_embeddings(embedder_name, all_seqs, embeddings_out_path, reduce_by_protocol,
-                                            use_half_precision, device)
-    else:
-        all_embeddings = compute_embeddings_and_save_to_db(embedder_name, all_seqs, embeddings_out_path,
-                                                           reduce_by_protocol,
-                                                           use_half_precision, device)
+    all_embeddings = compute_embeddings_and_save_to_db(embedder_name, all_seqs, embeddings_out_path,
+                                                       reduce_by_protocol,
+                                                       use_half_precision, device)
 
     embeddings_double_list = _round_embeddings({triple.id: triple.embd for triple in all_embeddings}, reduced=reduce)
 

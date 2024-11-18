@@ -1,8 +1,6 @@
 import uuid
-import asyncio
 import logging
 import requests
-import threading
 
 from functools import lru_cache
 from flask import request, jsonify, Blueprint, current_app
@@ -68,7 +66,8 @@ def autoeval():
 
     flip_dict = current_app.config['FLIP_DICT']
     user_id = UserManager.get_user_id_from_request(req=request)
-    task = AutoEvalTask(flip_dict, model_id, user_id)
+    task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id,
+                        embeddings_db_instance=current_app.config["EMBEDDINGS_DATABASE"])
     task_id = f"autoeval_{model_id}_" + str(uuid.uuid4())
 
     ProcessManager.add_task(task_id=task_id, task=task)

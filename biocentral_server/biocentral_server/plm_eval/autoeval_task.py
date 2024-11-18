@@ -8,7 +8,7 @@ from importlib import resources
 from collections import namedtuple
 
 from ..prediction_models import BiotrainerProcess
-from ..server_management import TaskInterface, TaskStatus, FileManager, StorageFileType
+from ..server_management import TaskInterface, TaskStatus, FileManager, StorageFileType, EmbeddingsDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -17,13 +17,14 @@ _ProcessTuple = namedtuple("_ProcessTuple", ["process", "dataset_name", "split_n
 
 class AutoEvalTask(TaskInterface):
 
-    def __init__(self, flip_dict, embedder_name: str, user_id):
+    def __init__(self, flip_dict: dict, embedder_name: str, user_id: str, embeddings_db_instance: EmbeddingsDatabase):
         self.flip_dict = flip_dict
         self.embedder_name = embedder_name
         self.file_manager = FileManager(user_id=user_id)
+        self.embeddings_db_instance = embeddings_db_instance
         self.current_dataset = None
         self.current_split = None
-        self.total_tasks = 1  # TODO sum(len(dataset_dict['splits']) for dataset_dict in flip_dict.values())
+        self.total_tasks = sum(len(dataset_dict['splits']) for dataset_dict in flip_dict.values())
         self.completed_tasks = 0
         self.task_queue = []
         self.results = {}
@@ -48,8 +49,9 @@ class AutoEvalTask(TaskInterface):
 
     async def _start_biotrainer_process(self, dataset_name, split):
         config = self._prepare_config(dataset_name, split)
+        split_name = split['name']
         embedder_path_name = self.embedder_name.replace("/", "_")
-        database_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split['name']}"
+        database_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split_name}"
         model_hash = str(hash(str(config)))
         config_path = self._save_config(config, database_hash=database_hash, model_hash=model_hash)
         log_path = self.file_manager.get_file_path(database_hash=database_hash,
@@ -58,9 +60,11 @@ class AutoEvalTask(TaskInterface):
         # TODO [Optimization] Embed sequence file for some splits before training
 
         # TODO [Optimization] Sub-Process handling via process manager
-        biotrainer_process = BiotrainerProcess(config_path, log_path)
-        self.current_process = _ProcessTuple(biotrainer_process, dataset_name, split)
-        logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split['name']}!")
+        biotrainer_process = BiotrainerProcess(config_path=config_path, config_dict=config,
+                                               database_instance=self.embeddings_db_instance,
+                                               log_path=log_path)
+        self.current_process = _ProcessTuple(biotrainer_process, dataset_name, split_name)
+        logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split_name}!")
         await biotrainer_process.start()
 
     def _prepare_config(self, dataset_name: str, split: dict):
@@ -100,7 +104,8 @@ class AutoEvalTask(TaskInterface):
         logger.info(f"[AUTOEVAL] Progress information: {progress_info}")
         update_dict = {
             'status': self.status.name,
-            'progress': progress_info,
+            'completed_tasks': self.completed_tasks,
+            'total_tasks': self.total_tasks,
             'current_process': f"{self.current_process.dataset_name}_"
                                f"{self.current_process.split_name}" if self.current_process else "",
             'results': self.results

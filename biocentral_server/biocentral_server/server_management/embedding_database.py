@@ -1,10 +1,12 @@
-import base64
+import h5py
 import torch
+import base64
 import blosc2
 import hashlib
 import logging
 import numpy as np
 
+from pathlib import Path
 from flask import current_app
 from datetime import datetime
 from bson.binary import Binary
@@ -303,6 +305,13 @@ class EmbeddingsDatabase:
             else:
                 current_app.logger.error(f"Embedding could not be found for sequence: {seq_id}")
         return result
+
+    @staticmethod
+    def export_embeddings_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path):
+        with h5py.File(output_path, "w") as embeddings_file:
+            for idx, triple in enumerate(triples):
+                embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
+                embeddings_file[str(idx)].attrs["original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
 
 
 def init_embeddings_database_instance(app):
