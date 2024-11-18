@@ -1,16 +1,20 @@
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:biocentral/plugins/proteins/bloc/protein_database_grid_bloc.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
 import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/model/sequence_column_wizard.dart';
+import 'package:biocentral/plugins/proteins/presentation/displays/sequence_column_wizard_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/protein_hub_view.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/proteins_command_view.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProteinPlugin extends BiocentralPlugin
-    with BiocentralClientPluginMixin<ProteinClient>, BiocentralDatabasePluginMixin<ProteinRepository> {
+    with
+        BiocentralClientPluginMixin<ProteinClient>,
+        BiocentralDatabasePluginMixin<ProteinRepository>,
+        BiocentralColumnWizardPluginMixin {
   ProteinPlugin(super.eventBus);
 
   @override
@@ -37,12 +41,15 @@ class ProteinPlugin extends BiocentralPlugin
 
   @override
   List<BlocProvider> getListeningBlocs(BuildContext context) {
-    final proteinCommandBloc = ProteinsCommandBloc(getDatabase(context), getBiocentralClientRepository(context),
-        getBiocentralProjectRepository(context), eventBus,);
+    final proteinCommandBloc = ProteinsCommandBloc(
+      getDatabase(context),
+      getBiocentralClientRepository(context),
+      getBiocentralProjectRepository(context),
+      eventBus,
+    );
     final proteinDatabaseGridBloc = ProteinDatabaseGridBloc(getDatabase(context))..add(ProteinDatabaseGridLoadEvent());
-    final proteinColumnWizardBloc =
-        ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
-          ..add(ColumnWizardLoadEvent());
+    final proteinColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
+      ..add(ColumnWizardLoadEvent());
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
@@ -80,5 +87,13 @@ class ProteinPlugin extends BiocentralPlugin
   @override
   BiocentralClientFactory<ProteinClient> createClientFactory() {
     return ProteinClientFactory();
+  }
+
+  @override
+  Map<ColumnWizardFactory<ColumnWizard>, Widget Function(ColumnWizard)?> createColumnWizardFactories() {
+    return {
+      SequenceColumnWizardFactory(): (seqColumnWizard) =>
+          SequenceColumnWizardDisplay(columnWizard: seqColumnWizard as SequenceColumnWizard),
+    };
   }
 }

@@ -76,7 +76,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
-  List<Map<String, String>> entitiesAsMaps() {
+  List<Map<String, dynamic>> entitiesAsMaps() {
     return _interactions.values.map((interaction) => interaction.toMap()).toList();
   }
 

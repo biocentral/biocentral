@@ -1,15 +1,16 @@
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:flutter/material.dart';
 
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-
 class PredictionModelDisplay extends StatefulWidget {
   final PredictionModel predictionModel;
+  final BiotrainerTrainingState? trainingState;
 
-  const PredictionModelDisplay({required this.predictionModel, super.key});
+  const PredictionModelDisplay({required this.predictionModel, this.trainingState, super.key});
 
   @override
   State<PredictionModelDisplay> createState() => _PredictionModelDisplayState();
@@ -17,133 +18,126 @@ class PredictionModelDisplay extends StatefulWidget {
 
 class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return buildModel();
+    final bool isTraining = widget.trainingState != null;
+    return isTraining ? buildTrainingModel() : buildTrainedModel();
   }
 
-  Widget buildModel() {
+  Widget buildTrainedModel() {
     final BiotrainerTrainingResult? trainingResult = widget.predictionModel.biotrainerTrainingResult;
-    String databaseType = '';
-    if (widget.predictionModel.databaseType != null) {
-      databaseType = "${widget.predictionModel.databaseType?.capitalize() ?? "Unknown"}-";
-    }
-    final String title = "${databaseType}Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
+    final String databaseType = widget.predictionModel.databaseType?.capitalize() ?? 'Unknown';
+    final String title = "$databaseType-Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
         "${widget.predictionModel.embedderName ?? "Unknown Embeddings"} - "
         "${widget.predictionModel.predictionProtocol?.name ?? "Unknown protocol"}";
-    return SizedBox(
-      width: SizeConfig.screenWidth(context) * 0.95,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-            child: ExpansionTile(leading: buildSanityCheckIcon(trainingResult), title: Text(title), children: [
-          ExpansionTile(
-            title: const Text('Model Information'),
-            children: [buildModelInformation()],
-          ),
-          ExpansionTile(
-            title: const Text('Metrics Table'),
-            children: [buildMetricsTable(trainingResult)],
-          ),
-          ExpansionTile(title: const Text('Loss Curves'), children: buildLossCurves(trainingResult)),
-          ExpansionTile(
-            title: const Text('Available Checkpoints'),
-            children: buildAvailableCheckpoints(),
-          ),
-          ExpansionTile(title: const Text('Training Logs'), children: buildLogResult()),
-        ],),),
-      ),
+
+    return buildModelCard(
+      title: title,
+      leadingIcon: buildSanityCheckIcon(trainingResult),
+      childrenWithTitles: {
+        'Model Information': buildModelInformation(),
+        'Metrics': buildMetricsTable(trainingResult),
+        'Loss Curves': buildLossCurves(trainingResult),
+        'Checkpoints': buildAvailableCheckpoints(),
+        'Training Logs': buildLogResult(),
+      },
     );
   }
 
-  Widget buildModelInformation() {
-    final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
-    final List<TableRow> rows = [];
-    for (MapEntry<String, String> mapEntry in modelInformation.entries) {
-      rows.add(TableRow(children: [Text(mapEntry.key), Text(mapEntry.value)]));
-    }
-    return Table(
-      children: rows,
+  Widget buildTrainingModel() {
+    final String title = "Training ${widget.predictionModel.architecture ?? "unknown"} Model..";
+    return buildModelCard(
+      title: title,
+      leadingIcon: const CircularProgressIndicator(),
+      trailing: SizedBox(
+        width: SizeConfig.screenWidth(context) * 0.2,
+        child: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
+      ),
+      childrenWithTitles: {
+        'Loss Curves': buildLossCurves(widget.predictionModel.biotrainerTrainingResult),
+        'Training Logs': buildLogResult(),
+      },
     );
   }
 
-  Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
-    final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
-    String tooltipMessage = 'All sanity checks passed!';
-    if (sanityCheckWarnings.isNotEmpty) {
-      tooltipMessage = 'Your model has the following sanity check warnings:';
-      for (String warning in sanityCheckWarnings) {
-        tooltipMessage += '\n$warning';
-      }
-    }
-    Icon sanityCheckIcon = const Icon(Icons.check, color: Colors.green);
-    if (sanityCheckWarnings.isNotEmpty) {
-      sanityCheckIcon = const Icon(Icons.warning, color: Colors.red);
-    }
-    return BiocentralTooltip(message: tooltipMessage, child: sanityCheckIcon);
-  }
 
-  Widget buildMetricsTable(BiotrainerTrainingResult? trainingResult) {
-    if (trainingResult == null) {
-      return Container();
-    }
-    return BiocentralMetricsTable(
-        metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
-          ..addAll(trainingResult.sanityCheckBaselineMetrics),);
-  }
-
-  List<Widget> buildLossCurves(BiotrainerTrainingResult? trainingResult) {
-    if (trainingResult == null) {
-      return [
-        Container(),
-      ];
-    }
-    if (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty) {
-      return [
-        Container(),
-      ];
-    }
-    final Map<String, Map<int, double>> linePlotData = {
-      'Training': trainingResult.trainingLoss,
-      'Validation': trainingResult.validationLoss,
-    };
-    return [
-      SizedBox(
-        height: SizeConfig.safeBlockVertical(context) * 2,
+Widget buildModelCard({
+  required String title,
+  required Widget leadingIcon,
+  required Map<String, Widget> childrenWithTitles,
+  Widget? trailing,
+}) {
+  return SizedBox(
+    width: SizeConfig.screenWidth(context) * 0.95,
+    child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: ExpansionTile(
+          leading: leadingIcon,
+          title: Text(title),
+          trailing: trailing,
+          children: childrenWithTitles.entries
+              .map((entry) => ExpansionTile(title: Text(entry.key), children: [entry.value]))
+              .toList(),
+        ),
       ),
-      SizedBox(
-          height: SizeConfig.screenHeight(context) * 0.3,
-          width: SizeConfig.screenWidth(context) * 0.6,
-          child: BiocentralLinePlot(data: linePlotData),),
-      SizedBox(
-        height: SizeConfig.safeBlockVertical(context) * 2,
-      ),
-    ];
-  }
-
-  List<Widget> buildAvailableCheckpoints() {
-    final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
-    if (checkpointNames.isEmpty) {
-      return [
-        Container(),
-      ];
-    }
-    return checkpointNames.map((checkpointName) => Text(checkpointName)).toList();
-  }
-
-  List<Widget> buildLogResult() {
-    if (widget.predictionModel.biotrainerTrainingLog?.isEmpty ?? true) {
-      return [
-        Container(),
-      ];
-    }
-    return [
-      BiocentralLazyLogsViewer(
-          logs: widget.predictionModel.biotrainerTrainingLog ?? [], height: SizeConfig.screenHeight(context) * 0.4,),
-    ];
-  }
+    ),
+  );
 }
+
+Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
+  final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
+  final String tooltipMessage = sanityCheckWarnings.isEmpty
+      ? 'All sanity checks passed!'
+      : 'Your model has the following sanity check warnings:\n${sanityCheckWarnings.join('\n')}';
+
+  final Icon sanityCheckIcon = sanityCheckWarnings.isEmpty
+      ? const Icon(Icons.check, color: Colors.green)
+      : const Icon(Icons.warning, color: Colors.red);
+
+  return BiocentralTooltip(message: tooltipMessage, child: sanityCheckIcon);
+}
+
+Widget buildModelInformation() {
+  final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
+  final List<TableRow> rows =
+  modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
+  return Table(children: rows);
+}
+
+Widget buildMetricsTable(BiotrainerTrainingResult? trainingResult) {
+  if (trainingResult == null) return Container();
+  return BiocentralMetricsTable(
+    metrics: {'Test Set Metrics': trainingResult.testSetMetrics}..addAll(trainingResult.sanityCheckBaselineMetrics),
+  );
+}
+
+Widget buildLossCurves(BiotrainerTrainingResult? trainingResult) {
+  if (trainingResult == null || (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty)) {
+    return Container();
+  }
+  final Map<String, Map<int, double>> linePlotData = {
+    'Training': trainingResult.trainingLoss,
+    'Validation': trainingResult.validationLoss,
+  };
+  return SizedBox(
+    height: SizeConfig.screenHeight(context) * 0.3,
+    width: SizeConfig.screenWidth(context) * 0.6,
+    child: BiocentralLinePlot(data: linePlotData),
+  );
+}
+
+Widget buildAvailableCheckpoints() {
+  final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
+  return Column(
+    children: checkpointNames.map((name) => Text(name)).toList(),
+  );
+}
+
+Widget buildLogResult() {
+  final List<String> logs = widget.predictionModel.biotrainerTrainingResult?.trainingLogs ?? [];
+  if (logs.isEmpty) return Container();
+  return BiocentralLazyLogsViewer(
+    logs: logs,
+    height: SizeConfig.screenHeight(context) * 0.4,
+  );
+}}

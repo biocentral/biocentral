@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:biocentral/sdk/util/constants.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralBarPlot extends StatelessWidget {
@@ -101,7 +102,7 @@ class _BarPlotPainter extends CustomPainter {
 
       final textPainter = TextPainter(
         text: TextSpan(
-            text: labelValue.toStringAsFixed(1),
+            text: labelValue.toStringAsFixed(Constants.maxDoublePrecision),
             style: plotTextStyle,),
         textDirection: TextDirection.ltr,
       );

@@ -35,6 +35,8 @@ abstract class ColumnWizard {
 
   ColumnWizard(this.columnName);
 
+  Type get type => valueMap.values.firstOrNull.runtimeType;
+
   int? _length;
 
   Future<int> length() async {
@@ -95,7 +97,7 @@ abstract class ColumnWizard {
   }
 
   Set<ColumnOperationType> getAvailableOperations() {
-    return {ColumnOperationType.toBinary, ColumnOperationType.removeMissing};
+    return {ColumnOperationType.toBinary, ColumnOperationType.removeMissing, ColumnOperationType.calculateLength};
   }
 
   Future<List<(int, double)>> _getBarChartDataPoints() async {
@@ -252,4 +254,10 @@ class ColumnWizardBarChartData {
 
   ColumnWizardBarChartData(
       {required this.maxY, required this.bottomTitles, required this.leftTitleValues, required this.dataPoints,});
+}
+
+class ReOpenColumnWizardEffect {
+  final String column;
+
+  ReOpenColumnWizardEffect(this.column);
 }

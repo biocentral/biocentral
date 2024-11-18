@@ -1,25 +1,34 @@
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
-
 class ColumnWizardOperationDisplayFactory {
-  static Widget fromSelected(
-      {required ColumnOperationType columnOperationType,
-      required String selectedColumnName,
-      required void Function(ColumnWizardOperation) onCalculateCallback,}) {
+  static Widget fromSelected({
+    required ColumnOperationType columnOperationType,
+    required String selectedColumnName,
+    required void Function(ColumnWizardOperation) onCalculateCallback,
+  }) {
     switch (columnOperationType) {
       case ColumnOperationType.toBinary:
         return ColumnWizardToBinaryOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+        );
       case ColumnOperationType.removeMissing:
         return ColumnWizardRemoveMissingOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+        );
       case ColumnOperationType.removeOutliers:
-        return Container(); // TODO
+        return ColumnWizardRemoveOutliersOperationDisplay(
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+      case ColumnOperationType.calculateLength:
+        return ColumnWizardCalculateLengthOperationDisplay(
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
       case ColumnOperationType.shuffle:
         return ColumnWizardShuffleOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+        );
     }
   }
 }
@@ -38,7 +47,9 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
   @override
   void initState() {
     super.initState();
-    newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
+    if(defaultColumnName().isNotEmpty) {
+      newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
+    }
   }
 
   bool showNewColumnName() {
@@ -58,14 +69,17 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: buildParameterSelections(),
-      ),
-      buildNewColumnNameSelection(),
-      buildCalculateButton(),
-    ],);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: buildParameterSelections(),
+        ),
+        buildNewColumnNameSelection(),
+        buildCalculateButton(),
+      ],
+    );
   }
 
   Widget buildNewColumnNameSelection() {
@@ -73,13 +87,14 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
       visible: showNewColumnName(),
       child: Flexible(
         child: TextFormField(
-            initialValue: newColumnName,
-            decoration: const InputDecoration(labelText: 'New Column Name'),
-            onChanged: (String? value) {
-              setState(() {
-                newColumnName = value ?? '';
-              });
-            },),
+          initialValue: newColumnName,
+          decoration: const InputDecoration(labelText: 'New Column Name'),
+          onChanged: (String? value) {
+            setState(() {
+              newColumnName = value ?? '';
+            });
+          },
+        ),
       ),
     );
   }
@@ -92,8 +107,11 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
 }
 
 class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
-  const ColumnWizardShuffleOperationDisplay(
-      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
+  const ColumnWizardShuffleOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardShuffleOperationDisplayState();
@@ -118,21 +136,25 @@ class _ColumnWizardShuffleOperationDisplayState
     return [
       Flexible(
         child: TextFormField(
-            initialValue: seed.toString(),
-            decoration: const InputDecoration(labelText: 'Seed'),
-            onChanged: (String? value) {
-              setState(() {
-                seed = int.tryParse(value ?? '') ?? ColumnWizardShuffleOperation.defaultSeed;
-              });
-            },),
+          initialValue: seed.toString(),
+          decoration: const InputDecoration(labelText: 'Seed'),
+          onChanged: (String? value) {
+            setState(() {
+              seed = int.tryParse(value ?? '') ?? ColumnWizardShuffleOperation.defaultSeed;
+            });
+          },
+        ),
       ),
     ];
   }
 }
 
 class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
-  const ColumnWizardToBinaryOperationDisplay(
-      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
+  const ColumnWizardToBinaryOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardToBinaryOperationDisplayState();
@@ -163,33 +185,36 @@ class _ColumnWizardToBinaryOperationDisplayState
     return [
       Flexible(
         child: TextFormField(
-            initialValue: compareToValue,
-            decoration: const InputDecoration(labelText: 'Compare to value:'),
-            onChanged: (String? value) {
-              setState(() {
-                compareToValue = value ?? '';
-              });
-            },),
+          initialValue: compareToValue,
+          decoration: const InputDecoration(labelText: 'Compare to value:'),
+          onChanged: (String? value) {
+            setState(() {
+              compareToValue = value ?? '';
+            });
+          },
+        ),
       ),
       Flexible(
         child: TextFormField(
-            initialValue: valueTrue,
-            decoration: const InputDecoration(labelText: 'Value if match'),
-            onChanged: (String? value) {
-              setState(() {
-                valueTrue = value ?? ColumnWizardToBinaryOperation.defaultValueTrue;
-              });
-            },),
+          initialValue: valueTrue,
+          decoration: const InputDecoration(labelText: 'Value if match'),
+          onChanged: (String? value) {
+            setState(() {
+              valueTrue = value ?? ColumnWizardToBinaryOperation.defaultValueTrue;
+            });
+          },
+        ),
       ),
       Flexible(
         child: TextFormField(
-            initialValue: valueFalse,
-            decoration: const InputDecoration(labelText: 'Value if no match'),
-            onChanged: (String? value) {
-              setState(() {
-                valueFalse = value ?? ColumnWizardToBinaryOperation.defaultValueFalse;
-              });
-            },),
+          initialValue: valueFalse,
+          decoration: const InputDecoration(labelText: 'Value if no match'),
+          onChanged: (String? value) {
+            setState(() {
+              valueFalse = value ?? ColumnWizardToBinaryOperation.defaultValueFalse;
+            });
+          },
+        ),
       ),
     ];
   }
@@ -197,8 +222,11 @@ class _ColumnWizardToBinaryOperationDisplayState
 
 class ColumnWizardRemoveMissingOperationDisplay
     extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
-  const ColumnWizardRemoveMissingOperationDisplay(
-      {required super.selectedColumnName, required super.onCalculateCallback, super.key,});
+  const ColumnWizardRemoveMissingOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _ColumnWizardRemoveMissingOperationDisplayState();
@@ -214,6 +242,88 @@ class _ColumnWizardRemoveMissingOperationDisplayState
   @override
   ColumnWizardOperation? collect() {
     return ColumnWizardRemoveMissingOperation(newColumnName);
+  }
+
+  @override
+  List<Widget> buildParameterSelections() {
+    return [];
+  }
+}
+
+class ColumnWizardRemoveOutliersOperationDisplay
+    extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
+  const ColumnWizardRemoveOutliersOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
+
+  @override
+  State<StatefulWidget> createState() => _ColumnWizardRemoveOutliersOperationDisplay();
+}
+
+class _ColumnWizardRemoveOutliersOperationDisplay
+    extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
+  ColumnWizardOutlierRemovalMethod? _selectedMethod;
+
+  @override
+  String defaultColumnName() {
+    return '';
+  }
+
+  @override
+  ColumnWizardOperation? collect() {
+    if (_selectedMethod != null) {
+      return ColumnWizardRemoveOutliersOperation(newColumnName, _selectedMethod!);
+    }
+    return null;
+  }
+
+  @override
+  List<Widget> buildParameterSelections() {
+    return [
+      Flexible(
+        child: BiocentralDropdownMenu(
+          dropdownMenuEntries: ColumnWizardOutlierRemovalMethod.values
+              .map((method) => DropdownMenuEntry(value: method, label: method.name))
+              .toList(),
+          label: const Text('Select method'),
+          onSelected: (ColumnWizardOutlierRemovalMethod? method) {
+            setState(() {
+              _selectedMethod = method;
+            });
+          },
+        ),
+      ),
+    ];
+  }
+}
+
+class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
+  const ColumnWizardCalculateLengthOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
+
+  @override
+  State<StatefulWidget> createState() => _ColumnWizardCalculateLengthOperationDisplayState();
+}
+
+class _ColumnWizardCalculateLengthOperationDisplayState
+    extends ColumnWizardOperationDisplayState<ColumnWizardAddOperationResult> {
+  @override
+  String defaultColumnName() {
+    return 'length';
+  }
+
+  @override
+  ColumnWizardOperation? collect() {
+    if (newColumnName.isNotEmpty) {
+      return ColumnWizardCalculateLengthOperation(newColumnName);
+    } else {
+      return null;
+    }
   }
 
   @override

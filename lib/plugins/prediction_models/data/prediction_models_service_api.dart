@@ -1,8 +1,13 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
+  // TODO Remove redundant endpoint suffix everywhere
   static const String protocolsEndpoint = '/prediction_models_service/protocols';
   static const String configOptionsEndpoint = '/prediction_models_service/config_options/';
   static const String verifyConfigEndpoint = '/prediction_models_service/verify_config/';
@@ -34,43 +39,93 @@ enum BiotrainerTrainingStatus {
   failed;
 }
 
-class BiotrainerTrainingStatusDTO {
-  final String logFile;
-  final BiotrainerTrainingStatus trainingStatus;
-
-  BiotrainerTrainingStatusDTO({required this.logFile, required this.trainingStatus});
-
-  BiotrainerTrainingStatusDTO.failed()
-      : logFile = '',
-        trainingStatus = BiotrainerTrainingStatus.failed;
-
-  static Either<BiocentralException, BiotrainerTrainingStatusDTO> fromResponseBody(Map responseBody) {
-    final String? logFile = responseBody['log_file']?.toString();
-    final String? status = responseBody['status']?.toString();
-    if (logFile == null || status == null) {
-      return left(BiocentralParsingException(message: 'BiotrainerTrainingStatusDTO is missing logFile and/or status!'));
-    }
-    final BiotrainerTrainingStatus? trainingStatus = enumFromString(status.toLowerCase(), BiotrainerTrainingStatus.values);
-    if (trainingStatus == null) {
-      return left(BiocentralParsingException(message: 'BiotrainerTrainingStatusDTO is missing trainingStatus!'));
-    }
-    return right(BiotrainerTrainingStatusDTO(logFile: logFile, trainingStatus: trainingStatus));
-  }
-}
-
 class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Map<int, double> trainingLoss;
   final Map<int, double> validationLoss;
   final Set<BiocentralMLMetric> testSetMetrics;
   final Set<String> sanityCheckWarnings;
   final Map<String, Set<BiocentralMLMetric>> sanityCheckBaselineMetrics;
+  final List<String> trainingLogs;
+  final BiotrainerTrainingStatus trainingStatus;
 
-  BiotrainerTrainingResult(
-      {required this.trainingLoss,
-      required this.validationLoss,
-      required this.testSetMetrics,
-      required this.sanityCheckWarnings,
-      required this.sanityCheckBaselineMetrics,});
+  BiotrainerTrainingResult({
+    required this.trainingLoss,
+    required this.validationLoss,
+    required this.testSetMetrics,
+    required this.sanityCheckWarnings,
+    required this.sanityCheckBaselineMetrics,
+    required this.trainingLogs,
+    required this.trainingStatus,
+  });
+
+  BiotrainerTrainingResult.empty()
+      : trainingLoss = const {},
+        validationLoss = const {},
+        testSetMetrics = const {},
+        sanityCheckWarnings = const {},
+        sanityCheckBaselineMetrics = const {},
+        trainingLogs = const [],
+        trainingStatus = BiotrainerTrainingStatus.running;
+
+  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
+    final trainingLog = dto.logFile;
+    final trainingStatus = dto.trainingStatus;
+    if (trainingLog == null) {
+      return left(BiocentralParsingException(message: 'Could not read logFile from server DTO!'));
+    }
+    final result = BiotrainerFileHandler.parseBiotrainerLog(
+      trainingLog: trainingLog,
+      trainingStatus: trainingStatus,
+    );
+    return right(result);
+  }
+
+  BiotrainerTrainingResult copyWith({
+    Map<int, double>? trainingLoss,
+    Map<int, double>? validationLoss,
+    Set<BiocentralMLMetric>? testSetMetrics,
+    Set<String>? sanityCheckWarnings,
+    Map<String, Set<BiocentralMLMetric>>? sanityCheckBaselineMetrics,
+    List<String>? trainingLogs,
+    BiotrainerTrainingStatus? trainingStatus,
+  }) {
+    return BiotrainerTrainingResult(
+      trainingLoss: trainingLoss ?? Map.from(this.trainingLoss),
+      validationLoss: validationLoss ?? Map.from(this.validationLoss),
+      testSetMetrics: testSetMetrics ?? Set.from(this.testSetMetrics),
+      sanityCheckWarnings: sanityCheckWarnings ?? Set.from(this.sanityCheckWarnings),
+      sanityCheckBaselineMetrics: sanityCheckBaselineMetrics ??
+          Map.fromEntries(
+            this.sanityCheckBaselineMetrics.entries.map((entry) => MapEntry(entry.key, Set.from(entry.value))),
+          ),
+      trainingLogs: trainingLogs ?? List.from(this.trainingLogs),
+      trainingStatus: trainingStatus ?? this.trainingStatus,
+    );
+  }
+
+  BiotrainerTrainingResult update(BiotrainerTrainingResult newResult) {
+    final newTrainingLoss = Map.of(trainingLoss)..addAll(newResult.trainingLoss);
+    final newValidationLoss = Map.of(validationLoss)..addAll(newResult.validationLoss);
+    final newTestSetMetrics = Set.of(testSetMetrics)..addAll(newResult.testSetMetrics);
+    final newSanityCheckWarnings = Set.of(sanityCheckWarnings)..addAll(newResult.sanityCheckWarnings);
+    final newSanityCheckBaselineMetrics = Map.of(sanityCheckBaselineMetrics)
+      ..addAll(newResult.sanityCheckBaselineMetrics);
+    final newTrainingLogs = List.of(trainingLogs)..addAll(newResult.trainingLogs);
+    final newTrainingStatus = newResult.trainingStatus;
+    return BiotrainerTrainingResult(
+      trainingLoss: newTrainingLoss,
+      validationLoss: newValidationLoss,
+      testSetMetrics: newTestSetMetrics,
+      sanityCheckWarnings: newSanityCheckWarnings,
+      sanityCheckBaselineMetrics: newSanityCheckBaselineMetrics,
+      trainingLogs: newTrainingLogs,
+      trainingStatus: newTrainingStatus,
+    );
+  }
+
+  int? getLastEpoch() {
+    return trainingLoss.keys.maxOrNull;
+  }
 
   @override
   int compareTo(BiotrainerTrainingResult other) {

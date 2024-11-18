@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-
 import 'package:flutter/physics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,7 +47,7 @@ void main() {
       final List<double> doubles = [1.1, 2.2, 3.3];
       columnWizard = await wizardRepo.getColumnWizardForColumn(columnName: columnName, valueMap: doubles.asStringMap());
       expect(nearEqual(await columnWizard.mean(), 2.2, 0.01), equals(true));
-        });
+    });
     test('Column Wizard converts continuous values to bins correctly', () async {
       final BiocentralColumnWizardRepository wizardRepo = BiocentralColumnWizardRepository.withDefaultWizards();
 
@@ -67,22 +66,23 @@ void main() {
       final List<List<double>> bins = await columnWizard.toBins(numberBins: 3);
       expect(bins.length, equals(3));
       expect(
-          bins,
-          equals([
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            [45.0, 45.0],
-            [100.0],
-          ]),);
-          int n = 20;
+        bins,
+        equals([
+          [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+          [45.0, 45.0],
+          [100.0],
+        ]),
+      );
+      int n = 20;
       List<double> doubles = List.generate(n, (index) => Random().nextDouble());
       columnWizard = await wizardRepo.getColumnWizardForColumn(columnName: columnName, valueMap: doubles.asStringMap());
       final List<List<double>> bins2 = await columnWizard.toBins();
       expect(bins2.length, equals(10));
-          n = 500;
+      n = 500;
       doubles = List.generate(n, (index) => Random().nextDouble());
       columnWizard = await wizardRepo.getColumnWizardForColumn(columnName: columnName, valueMap: doubles.asStringMap());
       final List<List<double>> bins3 = await columnWizard.toBins(numberBins: 5);
       expect(bins3.length, equals(5));
-        });
+    });
   });
 }

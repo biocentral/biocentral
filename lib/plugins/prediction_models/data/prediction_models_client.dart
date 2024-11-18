@@ -1,7 +1,10 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+
+import '../model/prediction_model.dart';
 
 final class PredictionModelsClientFactory extends BiocentralClientFactory<PredictionModelsClient> {
   @override
@@ -43,30 +46,36 @@ class PredictionModelsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['model_hash']));
   }
 
-  Future<Either<BiocentralException, BiotrainerTrainingStatusDTO>> getTrainingStatus(String modelHash) async {
+  Future<Either<BiocentralException, BiotrainerTrainingResult?>> _getTrainingStatus(String modelHash) async {
     final responseEither = await doGetRequest('${PredictionModelsServiceEndpoints.trainingStatusEndpoint}/$modelHash');
-    return responseEither.flatMap((responseMap) => BiotrainerTrainingStatusDTO.fromResponseBody(responseMap));
+    return responseEither.flatMap((responseMap) => BiotrainerTrainingResult.fromDTO(BiocentralDTO(responseMap)));
   }
 
-  Stream<String> biotrainerTrainingStatusStream(String modelHash) async* {
-    const int maxRequests = 3000; // TODO Listening for only 60 Minutes
+  Stream<PredictionModel> biotrainerTrainingStatusStream(String modelHash, PredictionModel initialModel) async* {
+    const int maxRequests = 1800; // TODO Listening for only 60 Minutes
     bool finished = false;
+    PredictionModel currentModel = initialModel;
     for (int i = 0; i < maxRequests; i++) {
       if (finished) {
         break;
       }
       await Future.delayed(const Duration(seconds: 2));
-      final biotrainerTrainingStatusDTOEither = await getTrainingStatus(modelHash);
-      final biotrainerTrainingStatusDTO =
-          biotrainerTrainingStatusDTOEither.getOrElse((l) => BiotrainerTrainingStatusDTO.failed());
-      if (biotrainerTrainingStatusDTO.trainingStatus == BiotrainerTrainingStatus.failed) {
+      final biotrainerTrainingResultEither = await _getTrainingStatus(modelHash);
+
+      if(biotrainerTrainingResultEither.isLeft() || biotrainerTrainingResultEither.getRight().isNone()) {
         finished = true;
         continue;
       }
-      if (biotrainerTrainingStatusDTO.trainingStatus == BiotrainerTrainingStatus.finished) {
+      final biotrainerTrainingResult = biotrainerTrainingResultEither.getRight().getOrElse(() => null);
+      if(biotrainerTrainingResult == null) {
+        finished = true;
+        continue;
+      }
+      if (biotrainerTrainingResult.trainingStatus == BiotrainerTrainingStatus.finished) {
         finished = true;
       }
-      yield biotrainerTrainingStatusDTO.logFile;
+      currentModel = currentModel.updateTrainingResult(biotrainerTrainingResult);
+      yield currentModel;
     }
   }
 

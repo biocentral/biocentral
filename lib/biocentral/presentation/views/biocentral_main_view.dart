@@ -1,15 +1,14 @@
 import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
+import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_tab_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
-import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
-import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 
 class BiocentralMainView extends StatefulWidget {
   final EventBus eventBus;
@@ -20,7 +19,8 @@ class BiocentralMainView extends StatefulWidget {
   State<BiocentralMainView> createState() => _BiocentralMainViewState();
 }
 
-class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProviderStateMixin {
+class _BiocentralMainViewState extends State<BiocentralMainView>
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late final BiocentralCommandLogBloc biocentralCommandLogBloc;
@@ -28,6 +28,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
   late final AppLifecycleListener _exitListener;
 
   late TabController _tabController;
+
+  BiocentralPluginState? cachedPluginState;
 
   final Widget _biocentralTab = const Tab(text: 'Biocentral', icon: Icon(Icons.center_focus_weak_outlined));
 
@@ -40,10 +42,12 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
     createBlocs();
 
     // HANDLE APP EXIT
-    _exitListener = AppLifecycleListener(onExitRequested: () async {
-      await killServer();
-      return AppExitResponse.exit;
-    },);
+    _exitListener = AppLifecycleListener(
+      onExitRequested: () async {
+        await killServer();
+        return AppExitResponse.exit;
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openWelcomeDialog();
     });
@@ -52,11 +56,28 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final pluginState = context.read<BiocentralPluginBloc>().state;
+    if (_checkForUpdatedPlugins(cachedPluginState, pluginState)) {
+      updateTabs();
+    }
+  }
+
+  bool _checkForUpdatedPlugins(BiocentralPluginState? oldState, BiocentralPluginState newState) {
+    if(oldState == null) {
+      return true;
+    }
+
+    if (oldState.pluginManager.activePlugins.length != newState.pluginManager.activePlugins.length) {
+      return true;
+    }
+    return !newState.pluginManager.activePlugins
+        .every((plugin) => oldState.pluginManager.activePlugins.contains(plugin));
   }
 
   @override
   void dispose() {
     _exitListener.dispose();
+
     super.dispose();
   }
 
@@ -86,26 +107,34 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
     });
   }
 
-  void openWelcomeDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const WelcomeDialog();
-        },);
+  void updateTabs() {
+    final pluginState = context.read<BiocentralPluginBloc>().state;
+    cachedPluginState = pluginState;
+    _tabs.clear();
+    _tabs.addAll(pluginState.pluginManager.activePlugins.map((plugin) => plugin.getTab()));
+    _tabs.add(_biocentralTab);
+
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    addTabListeners();
   }
 
+  void openWelcomeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const WelcomeDialog();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(builder: (context, pluginState) {
-      // TABS
-      _tabs.clear();
-      _tabs.addAll(pluginState.pluginManager.activePlugins.map((plugin) => plugin.getTab()));
-      _tabs.add(_biocentralTab);
-      _tabController = TabController(length: _tabs.length, vsync: this);
-      addTabListeners();
-      return Scaffold(key: _scaffoldKey, body: buildTabBar(pluginState));
-    },);
+    super.build(context);
+    return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
+      builder: (context, pluginState) {
+        return Scaffold(key: _scaffoldKey, body: buildTabBar(pluginState));
+      },
+    );
   }
 
   Widget buildTabBar(BiocentralPluginState pluginState) {
@@ -113,8 +142,12 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
 
     tabBarViews.addAll(pluginState.pluginManager.activePlugins.map((plugin) => plugin.build(context)));
 
-    tabBarViews.add(MultiBlocProvider(
-        providers: [BlocProvider.value(value: biocentralCommandLogBloc)], child: const BiocentralTabView(),),);
+    tabBarViews.add(
+      MultiBlocProvider(
+        providers: [BlocProvider.value(value: biocentralCommandLogBloc)],
+        child: const BiocentralTabView(),
+      ),
+    );
 
     return SafeArea(
       child: Scaffold(
@@ -122,17 +155,18 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
           preferredSize: Size.fromHeight(SizeConfig.screenHeight(context) * 0.125),
           child: AppBar(
             title: FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
+              future: PackageInfo.fromPlatform(),
               builder: (context, snapshot) {
-                  if(snapshot.hasData && snapshot.data != null) {
-                    return Align(
-                        alignment: Alignment.centerRight,
-                        child: Text('Biocentral - develop - Alpha v${snapshot.data?.version}', style: Theme
-                            .of(context)
-                            .textTheme
-                            .labelSmall,),);
-                  }
-                  return const CircularProgressIndicator();
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Biocentral - develop - Alpha v${snapshot.data?.version}',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  );
+                }
+                return const CircularProgressIndicator();
               },
             ),
             backgroundColor: Colors.transparent,
@@ -156,4 +190,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView> with TickerProv
   Widget buildStatusBar() {
     return BiocentralStatusBar(eventBus: widget.eventBus);
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

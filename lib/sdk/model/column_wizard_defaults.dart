@@ -4,6 +4,15 @@ import 'package:ml_linalg/vector.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 
+abstract class NumColumnWizard extends ColumnWizard {
+  NumColumnWizard(super.columnName);
+
+  @override
+  Set<ColumnOperationType> getAvailableOperations() {
+    return super.getAvailableOperations()..add(ColumnOperationType.removeOutliers);
+  }
+}
+
 class IntColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
@@ -19,7 +28,7 @@ class IntColumnWizardFactory extends ColumnWizardFactory {
   }
 }
 
-class IntColumnWizard extends ColumnWizard with NumericStats, CounterStats {
+class IntColumnWizard extends NumColumnWizard with NumericStats, CounterStats {
   @override
   final Map<String, int> valueMap;
 
@@ -44,7 +53,7 @@ class DoubleColumnWizardFactory extends ColumnWizardFactory {
   }
 }
 
-class DoubleColumnWizard extends ColumnWizard with NumericStats, CounterStats {
+class DoubleColumnWizard extends NumColumnWizard with NumericStats, CounterStats {
   @override
   final Map<String, double> valueMap;
 

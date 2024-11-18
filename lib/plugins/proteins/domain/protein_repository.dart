@@ -81,7 +81,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  List<Map<String, String>> entitiesAsMaps() {
+  List<Map<String, dynamic>> entitiesAsMaps() {
     return _proteins.values.map((protein) => protein.toMap()).toList();
   }
 

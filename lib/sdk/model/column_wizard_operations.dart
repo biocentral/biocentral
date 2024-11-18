@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:flutter/material.dart';
 
 abstract class ColumnWizardOperation<T extends ColumnWizardOperationResult> {
   final String newColumnName;
@@ -76,5 +75,49 @@ class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation<ColumnWiz
   }
 }
 
+enum ColumnWizardOutlierRemovalMethod {
+  byStandardDeviation,
+}
+
+class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation<ColumnWizardRemoveOperationResult> {
+  final ColumnWizardOutlierRemovalMethod method;
+
+  ColumnWizardRemoveOutliersOperation(super.newColumnName, this.method);
+
+  @override
+  Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
+    switch(method) {
+      case ColumnWizardOutlierRemovalMethod.byStandardDeviation: {
+        // TODO Make this more generic
+        if(columnWizard is NumericStats) {
+          final mean = await columnWizard.mean();
+          final stdDev = await columnWizard.stdDev();
+          final lowerBound = mean - 2 * stdDev;
+          final upperBound = mean + 2 * stdDev;
+          final List<int> indicesToRemove = columnWizard.numericValues
+              .indexed
+              .where((element) => element.$2 < lowerBound || element.$2 > upperBound)
+              .map((element) => element.$1)
+              .toList();
+          return ColumnWizardRemoveOperationResult(indicesToRemove);
+        }
+      }
+    }
+    return ColumnWizardRemoveOperationResult([]);
+  }
+}
+
+class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation<ColumnWizardAddOperationResult> {
+  ColumnWizardCalculateLengthOperation(super.newColumnName);
+
+  @override
+  Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
+    final Map<String, int> result = Map.fromEntries(
+        columnWizard.valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString().length)));
+
+    return ColumnWizardAddOperationResult(newColumnName, result);
+  }
+}
+
 // TODO Replace enum with types to allow extensibility of operations in plugins
-enum ColumnOperationType { toBinary, removeMissing, removeOutliers, shuffle }
+enum ColumnOperationType { toBinary, removeMissing, removeOutliers, calculateLength, shuffle }
