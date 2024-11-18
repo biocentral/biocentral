@@ -80,12 +80,20 @@ mixin BiocentralDatabasePluginMixin<T> on BiocentralPlugin {
   }
 
   T getDatabase(BuildContext context) {
-    return context.read<T>();
+    return RepositoryProvider.of<T>(context);
+  }
+
+  T? getDatabaseIfAvailable(BuildContext context) {
+    try {
+      return RepositoryProvider.of<T>(context);
+    } on FlutterError {
+      return null;
+    }
   }
 }
 
 mixin BiocentralColumnWizardPluginMixin on BiocentralPlugin {
-  List<ColumnWizardFactory> createColumnWizardFactories();
+  Map<ColumnWizardFactory, Widget Function(ColumnWizard)?> createColumnWizardFactories();
 }
 
 mixin BiocentralTutorialPluginMixin on BiocentralPlugin {

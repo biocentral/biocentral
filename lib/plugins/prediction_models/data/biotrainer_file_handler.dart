@@ -2,49 +2,68 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
-
 class BiotrainerFileHandler {
   static CustomAttributes _addOrUpdateCustomAttribute(CustomAttributes attributes, Map keyVals) {
-    final CustomAttributes result = attributes;
+    CustomAttributes result = attributes;
     for (var entry in keyVals.entries) {
       try {
-        result.add(entry.key, entry.value);
+        result = result.add(entry.key, entry.value);
       } catch (Exception) {
-        result.update(entry.key, entry.value);
+        result = result.update(entry.key, entry.value);
       }
     }
     return result;
   }
 
   static Future<(String, String, String)> getBiotrainerInputFiles(
-      Type databaseType, Map<String, dynamic> entryMap, String targetColumn, String setColumn,) async {
+    Type databaseType,
+    Map<String, dynamic> entryMap,
+    String targetColumn,
+    String setColumn,
+  ) async {
     String sequenceFile = '';
     // TODO Improve target setting
     switch (databaseType) {
       case Protein:
         {
           final handler = BioFileHandler<Protein>().create('fasta');
-          sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
-                  key,
-                  (value as Protein).copyWith(
-                      attributes: _addOrUpdateCustomAttribute(value.attributes,
-                          {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},),),),),) ??
+          sequenceFile = await handler.convertToString(
+                entryMap.map(
+                  (key, value) => MapEntry(
+                    key,
+                    (value as Protein).copyWith(
+                      attributes: _addOrUpdateCustomAttribute(
+                        value.attributes,
+                        {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},
+                      ),
+                    ),
+                  ),
+                ),
+              ) ??
               '';
           break;
         }
       case ProteinProteinInteraction:
         {
           final handler = BioFileHandler<ProteinProteinInteraction>().create('fasta');
-          sequenceFile = await handler.convertToString(entryMap.map((key, value) => MapEntry(
-                  key,
-                  (value as ProteinProteinInteraction).copyWith(
-                      attributes: _addOrUpdateCustomAttribute(value.attributes,
-                          {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},),),),),) ??
+          sequenceFile = await handler.convertToString(
+                entryMap.map(
+                  (key, value) => MapEntry(
+                    key,
+                    (value as ProteinProteinInteraction).copyWith(
+                      attributes: _addOrUpdateCustomAttribute(
+                        value.attributes,
+                        {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},
+                      ),
+                    ),
+                  ),
+                ),
+              ) ??
               '';
           break;
         }
@@ -66,11 +85,13 @@ class BiotrainerFileHandler {
     return result;
   }
 
-  static PredictionModel parsePredictionModelFromRawFiles(
-      {required bool failOnConflict, String? biotrainerConfig,
-      String? biotrainerOutput,
-      String? biotrainerTrainingLog,
-      Map<String, dynamic>? biotrainerCheckpoints,}) {
+  static PredictionModel parsePredictionModelFromRawFiles({
+    required bool failOnConflict,
+    String? biotrainerConfig,
+    String? biotrainerOutput,
+    String? biotrainerTrainingLog,
+    Map<String, dynamic>? biotrainerCheckpoints,
+  }) {
     Map<String, dynamic>? parsedConfigFile;
     if (biotrainerConfig != null) {
       final YamlMap parsedConfigYaml = loadYaml(biotrainerConfig);
@@ -81,10 +102,6 @@ class BiotrainerFileHandler {
       final YamlMap parsedOutputFileYaml = loadYaml(biotrainerOutput);
       parsedOutputFile = Map<String, dynamic>.from(parsedOutputFileYaml.value);
     }
-    List<String>? parsedLoggingFile;
-    if (biotrainerTrainingLog != null) {
-      parsedLoggingFile = biotrainerTrainingLog.split('\n');
-    }
     Map<String, Uint8List>? parsedBiotrainerCheckpoints;
     if (biotrainerCheckpoints != null) {
       parsedBiotrainerCheckpoints = {};
@@ -94,18 +111,21 @@ class BiotrainerFileHandler {
       }
     }
     return parsePredictionModel(
-        biotrainerConfig: parsedConfigFile,
-        biotrainerOutputMap: parsedOutputFile,
-        biotrainerTrainingLog: parsedLoggingFile,
-        biotrainerCheckpoints: parsedBiotrainerCheckpoints,
-        failOnConflict: failOnConflict,);
+      biotrainerConfig: parsedConfigFile,
+      biotrainerOutputMap: parsedOutputFile,
+      biotrainerTrainingLog: biotrainerTrainingLog,
+      biotrainerCheckpoints: parsedBiotrainerCheckpoints,
+      failOnConflict: failOnConflict,
+    );
   }
 
-  static PredictionModel parsePredictionModel(
-      {required bool failOnConflict, Map<String, dynamic>? biotrainerConfig,
-      Map<String, dynamic>? biotrainerOutputMap,
-      List<String>? biotrainerTrainingLog,
-      Map<String, dynamic>? biotrainerCheckpoints,}) {
+  static PredictionModel parsePredictionModel({
+    required bool failOnConflict,
+    Map<String, dynamic>? biotrainerConfig,
+    Map<String, dynamic>? biotrainerOutputMap,
+    String? biotrainerTrainingLog,
+    Map<String, dynamic>? biotrainerCheckpoints,
+  }) {
     PredictionModel result = const PredictionModel.empty();
     // Output file should have the highest authority => Loaded first
     if (biotrainerOutputMap != null) {
@@ -117,9 +137,11 @@ class BiotrainerFileHandler {
     }
     // Training log
     if (biotrainerTrainingLog != null) {
+      final logs = biotrainerTrainingLog.split('\n');
       result = result.copyWith(
-          biotrainerTrainingResult: parseBiotrainerLog(trainingLog: biotrainerTrainingLog, isTraining: false),
-          biotrainerTrainingLog: biotrainerTrainingLog,);
+        biotrainerTrainingResult: parseBiotrainerLog(trainingLog: biotrainerTrainingLog),
+        biotrainerTrainingLog: logs,
+      );
     }
     // Checkpoints
     if (biotrainerCheckpoints != null) {
@@ -141,7 +163,8 @@ class BiotrainerFileHandler {
     return result;
   }
 
-  static BiotrainerTrainingResult parseBiotrainerLog({required List<String> trainingLog, required bool isTraining}) {
+  static BiotrainerTrainingResult parseBiotrainerLog(
+      {required String trainingLog, BiotrainerTrainingStatus? trainingStatus}) {
     const String testSetMetricsIdentifier = 'INFO Test set metrics: ';
     const String sanityChecksStartIdentifier = 'INFO Running sanity checks on test results..';
     const String sanityChecksEndIdentifier = 'INFO Sanity check on test results finished!';
@@ -164,7 +187,12 @@ class BiotrainerFileHandler {
     bool inValidationResults = false;
     int currentEpoch = -1;
 
-    for (String line in trainingLog) {
+    // TODO [Optimization] Improve performance
+    final bool parseResultMetrics =
+        trainingStatus == BiotrainerTrainingStatus.finished || trainingLog.contains(testSetMetricsIdentifier);
+
+    final logs = trainingLog.split('\n');
+    for (String line in logs) {
       if (line.contains(epochIdentifier)) {
         currentEpoch = int.parse(line.split(epochIdentifier).last.trim());
         inTrainingResults = false;
@@ -191,7 +219,7 @@ class BiotrainerFileHandler {
         continue;
       }
 
-      if (!isTraining) {
+      if (parseResultMetrics) {
         // Only parse result metrics after training is done
         if (line.contains(testSetMetricsIdentifier)) {
           final String metrics = line.split(testSetMetricsIdentifier).last;
@@ -228,15 +256,25 @@ class BiotrainerFileHandler {
         }
       }
     }
+    final status = trainingStatus ??
+        (parsedTestSetMetrics.isEmpty ? BiotrainerTrainingStatus.running : BiotrainerTrainingStatus.finished);
 
     final BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
-        trainingLoss: trainingLoss,
-        validationLoss: validationLoss,
-        testSetMetrics: parsedTestSetMetrics,
-        sanityCheckWarnings: parsedSanityCheckWarnings,
-        sanityCheckBaselineMetrics: parsedSanityCheckBaselineMetrics,);
+      trainingLoss: trainingLoss,
+      validationLoss: validationLoss,
+      testSetMetrics: parsedTestSetMetrics,
+      sanityCheckWarnings: parsedSanityCheckWarnings,
+      sanityCheckBaselineMetrics: parsedSanityCheckBaselineMetrics,
+      trainingLogs: logs,
+      trainingStatus: status,
+    );
 
     return trainingResult;
+  }
+
+  static PredictionModel? predictionModelFromBiotrainerLog(Map<String, dynamic> configMap, String trainingLog) {
+    return PredictionModel.fromMap(configMap)?.copyWith(
+        biotrainerTrainingResult: parseBiotrainerLog(trainingLog: trainingLog), biotrainerTrainingLog: trainingLog);
   }
 
   static PredictionModel? _predictionModelFromBiotrainerConfig(Map<String, dynamic> configMap) {

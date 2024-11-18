@@ -17,6 +17,13 @@ class BiocentralMLMetric {
     return BiocentralMLMetric(name: name, value: valueParsed);
   }
 
+  /// Determines if the metric is ascending: The lower the better
+  ///
+  /// Defaults to false
+  static bool isAscending(String name) {
+    return ['loss', 'rmse', 'mse', 'mae', 'mean_squared_error', 'mean_absolute_error'].contains(name.toLowerCase());
+  }
+
   @override
   String toString() {
     return '$name: ${value.toStringAsPrecision(Constants.maxDoublePrecision)}';

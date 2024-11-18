@@ -32,8 +32,10 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
 }
 
 mixin BiocentralSyncBloc<Event, T extends BiocentralCommandState<T>> on BiocentralBloc<Event, T> {
-  void syncWithDatabases(Map<String, BioEntity> entities,
-      {DatabaseImportMode importMode = DatabaseImportMode.defaultMode,}) async {
+  void syncWithDatabases(
+    Map<String, BioEntity> entities, {
+    DatabaseImportMode importMode = DatabaseImportMode.defaultMode,
+  }) async {
     _eventBus.fire(BiocentralDatabaseSyncEvent(entities, importMode));
   }
 }

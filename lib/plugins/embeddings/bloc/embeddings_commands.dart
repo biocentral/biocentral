@@ -1,9 +1,8 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:fpdart/fpdart.dart';
-
 import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:fpdart/fpdart.dart';
 
 final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Embedding>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -13,14 +12,14 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
   final String _embedderName;
   final String _biotrainerName;
 
-  CalculateEmbeddingsCommand(
-      {required BiocentralProjectRepository biocentralProjectRepository,
-      required BiocentralDatabase biocentralDatabase,
-      required EmbeddingsClient embeddingClient,
-      required EmbeddingType embeddingType,
-      required String embedderName,
-      String? biotrainerName,})
-      : _biocentralProjectRepository = biocentralProjectRepository,
+  CalculateEmbeddingsCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required BiocentralDatabase biocentralDatabase,
+    required EmbeddingsClient embeddingClient,
+    required EmbeddingType embeddingType,
+    required String embedderName,
+    String? biotrainerName,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _embeddingClient = embeddingClient,
         _embeddingType = embeddingType,
@@ -33,7 +32,10 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
 
     final String databaseHash = await _biocentralDatabase.getHash();
     final transferEither = await _embeddingClient.transferFile(
-        databaseHash, StorageFileType.sequences, () async => _biocentralDatabase.convertToString('fasta'),);
+      databaseHash,
+      StorageFileType.sequences,
+      () async => _biocentralDatabase.convertToString('fasta'),
+    );
     yield* transferEither.match((error) async* {
       yield left(state.setErrored(information: 'Dataset hash could not be transferred! Error: ${error.message}'));
     }, (u) async* {
@@ -54,7 +56,10 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
   }
 
   Stream<Either<T, Map<String, Embedding>>> _handleEmbeddingsFile<T extends BiocentralCommandState<T>>(
-      T state, String embeddingsFile, bool reduce,) async* {
+    T state,
+    String embeddingsFile,
+    bool reduce,
+  ) async* {
     // Save
     final String embeddingsFileName = (_biotrainerName ?? 'custom_embedder_') + (reduce ? '_reduced.json' : '.json');
     _biocentralProjectRepository.handleSave(fileName: embeddingsFileName, content: embeddingsFile);
@@ -65,9 +70,12 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       yield left(state.setErrored(information: 'Error calculating embeddings: no values returned!'));
     } else {
       yield right(embeddings);
-      yield left(state.setFinished(
+      yield left(
+        state.setFinished(
           information: 'Finished calculating embeddings',
-          commandProgress: BiocentralCommandProgress(current: embeddings.length, total: embeddings.length),),);
+          commandProgress: BiocentralCommandProgress(current: embeddings.length, total: embeddings.length),
+        ),
+      );
     }
   }
 
@@ -89,14 +97,14 @@ final class CalculateUMAPCommand extends BiocentralCommand<UMAPData> {
   final List<PerSequenceEmbedding> _embeddings;
   final String? _embedderName;
 
-  CalculateUMAPCommand(
-      {required BiocentralProjectRepository biocentralProjectRepository,
-      required BiocentralDatabaseRepository biocentralDatabaseRepository,
-      required EmbeddingsRepository embeddingsRepository,
-      required EmbeddingsClient embeddingsClient,
-      required List<PerSequenceEmbedding> embeddings,
-      required String? embedderName,})
-      : _biocentralProjectRepository = biocentralProjectRepository,
+  CalculateUMAPCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required BiocentralDatabaseRepository biocentralDatabaseRepository,
+    required EmbeddingsRepository embeddingsRepository,
+    required EmbeddingsClient embeddingsClient,
+    required List<PerSequenceEmbedding> embeddings,
+    required String? embedderName,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabaseRepository = biocentralDatabaseRepository,
         _embeddingsRepository = embeddingsRepository,
         _embeddings = embeddings,
@@ -123,11 +131,17 @@ final class CalculateUMAPCommand extends BiocentralCommand<UMAPData> {
             yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
           } else {
             final Map<UMAPData, List<Map<String, String>>> updatedUMAPData = _embeddingsRepository.updateUMAPData(
-                _embedderName, umapData, database.databaseToList().map((entity) => entity.toMap()).toList(),);
+              _embedderName,
+              umapData,
+              database
+                  .databaseToList()
+                  .map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString())))
+                  .toList(),
+            );
             yield right(umapData);
-            yield left(state
-                .setFinished(information: 'Calculated UMAP data!')
-                .copyWith(copyMap: {'umapData': updatedUMAPData}),);
+            yield left(
+              state.setFinished(information: 'Calculated UMAP data!').copyWith(copyMap: {'umapData': updatedUMAPData}),
+            );
           }
         });
       }

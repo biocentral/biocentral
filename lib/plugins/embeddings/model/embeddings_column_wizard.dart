@@ -8,7 +8,7 @@ import 'package:ml_linalg/linalg.dart';
 class EmbeddingsColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
-    return EmbeddingsColumnWizard(columnName, valueMap as Map<String, EmbeddingManager>);
+    return EmbeddingsColumnWizard(columnName, valueMap.map((k, v) => MapEntry(k, v as EmbeddingManager)));
   }
 
   @override
@@ -20,6 +20,9 @@ class EmbeddingsColumnWizardFactory extends ColumnWizardFactory {
 class EmbeddingsColumnWizard extends ColumnWizard {
   @override
   final Map<String, EmbeddingManager> valueMap;
+
+  @override
+  Type get type => EmbeddingManager;
 
   EmbeddingsColumnWizard(super.columnName, this.valueMap);
 

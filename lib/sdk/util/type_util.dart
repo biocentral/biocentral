@@ -42,6 +42,16 @@ mixin ComparableEnum on Enum implements Comparable<Enum> {
 
 extension StringExtension on String {
   String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
   }
+}
+
+dynamic copyMapExtractor(Map<String, dynamic>? copyMap, String key, dynamic defaultValue) {
+  if (copyMap == null) {
+    return defaultValue;
+  }
+  if (copyMap.containsKey(key)) {
+    return copyMap[key];
+  }
+  return defaultValue;
 }

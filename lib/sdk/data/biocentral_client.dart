@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:biocentral/sdk/data/biocentral_server_data.dart';
+import 'package:biocentral/sdk/data/biocentral_service_api.dart';
+import 'package:biocentral/sdk/util/biocentral_exception.dart';
+import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/logging.dart';
+import 'package:biocentral/sdk/util/type_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-
-import 'package:biocentral/sdk/util/biocentral_exception.dart';
-import 'package:biocentral/sdk/util/constants.dart';
-import 'package:biocentral/sdk/util/logging.dart';
-import 'package:biocentral/sdk/util/type_util.dart';
-import 'package:biocentral/sdk/data/biocentral_server_data.dart';
-import 'package:biocentral/sdk/data/biocentral_service_api.dart';
 
 @immutable
 class DownloadProgress {
@@ -33,18 +32,25 @@ final class _BiocentralClientSandbox {
   static Either<BiocentralException, Map> _handleServerResponse(Response response) {
     if (response.statusCode != 200) {
       if (response.statusCode >= 500) {
-        return left(BiocentralServerException(
+        return left(
+          BiocentralServerException(
             message: 'An error on the server happened, Status Code: ${response.statusCode} '
-                '- Reason: ${response.reasonPhrase}',),);
+                '- Reason: ${response.reasonPhrase}',
+          ),
+        );
       }
-      return left(BiocentralNetworkException(
+      return left(
+        BiocentralNetworkException(
           message:
-              'A networking error happened, Status Code: ${response.statusCode} - Reason: ${response.reasonPhrase}',),);
+              'A networking error happened, Status Code: ${response.statusCode} - Reason: ${response.reasonPhrase}',
+        ),
+      );
     }
     final Map? responseMap = jsonDecode(response.body);
     if (responseMap == null) {
       return left(
-          BiocentralParsingException(message: 'Could not parse response body to json! Response: ${response.body}'),);
+        BiocentralParsingException(message: 'Could not parse response body to json! Response: ${response.body}'),
+      );
     }
     final String? error = responseMap['error'];
     if (error != null) {
@@ -59,8 +65,13 @@ final class _BiocentralClientSandbox {
       final Response response = await http.get(uri);
       return _handleServerResponse(response);
     } catch (e, stackTrace) {
-      return left(BiocentralNetworkException(
-          message: "Error for GET Request at $url$endpoint", error: e, stackTrace: stackTrace,),);
+      return left(
+        BiocentralNetworkException(
+          message: "Error for GET Request at $url$endpoint",
+          error: e,
+          stackTrace: stackTrace,
+        ),
+      );
     }
   }
 
@@ -82,15 +93,23 @@ final class _BiocentralClientSandbox {
   }
 
   static Future<Either<BiocentralException, Map>> doPostRequest(
-      String url, String endpoint, Map<String, String> body,) async {
+    String url,
+    String endpoint,
+    Map<String, String> body,
+  ) async {
     try {
       final Uri uri = Uri.parse(url + endpoint);
       final Map<String, String> headers = {'Content-Type': 'application/json'};
       final Response response = await http.post(uri, headers: headers, body: json.encode(body));
       return _handleServerResponse(response);
     } catch (e, stackTrace) {
-      return left(BiocentralNetworkException(
-          message: "Error for POST Request at $url$endpoint", error: e, stackTrace: stackTrace,),);
+      return left(
+        BiocentralNetworkException(
+          message: "Error for POST Request at $url$endpoint",
+          error: e,
+          stackTrace: stackTrace,
+        ),
+      );
     }
   }
 
@@ -101,7 +120,8 @@ final class _BiocentralClientSandbox {
 
       if (response.statusCode != 200) {
         return left(
-            BiocentralNetworkException(message: 'Failed to download file. Status code: ${response.statusCode}'),);
+          BiocentralNetworkException(message: 'Failed to download file. Status code: ${response.statusCode}'),
+        );
       }
       final Uint8List downloadedBytes = response.bodyBytes;
 
@@ -112,7 +132,8 @@ final class _BiocentralClientSandbox {
       return right(downloadedBytes);
     } catch (e, stackTrace) {
       return left(
-          BiocentralNetworkException(message: 'Error downloading file from $url', error: e, stackTrace: stackTrace),);
+        BiocentralNetworkException(message: 'Error downloading file from $url', error: e, stackTrace: stackTrace),
+      );
     }
   }
 
@@ -133,7 +154,8 @@ final class _BiocentralClientSandbox {
 
       if (response.statusCode != 200) {
         yield left(
-            BiocentralNetworkException(message: 'Failed to start download. Status code: ${response.statusCode}'),);
+          BiocentralNetworkException(message: 'Failed to start download. Status code: ${response.statusCode}'),
+        );
         return;
       }
 
@@ -151,7 +173,8 @@ final class _BiocentralClientSandbox {
       yield right(DownloadProgress(received, received, Uint8List.fromList([])));
     } catch (e, stackTrace) {
       yield left(
-          BiocentralNetworkException(message: 'Error downloading file from $url', error: e, stackTrace: stackTrace),);
+        BiocentralNetworkException(message: 'Error downloading file from $url', error: e, stackTrace: stackTrace),
+      );
     }
   }
 }
@@ -180,8 +203,16 @@ abstract class BiocentralClient {
     return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doPostRequest(url, endpoint, body));
   }
 
+  Future<Either<BiocentralException, String>> doSimpleFileDownload(String url) async {
+    final downloadEither = await _BiocentralClientSandbox.downloadFile(url);
+    return downloadEither.flatMap((bytes) => right(String.fromCharCodes(bytes.toList())));
+  }
+
   Future<Either<BiocentralException, Unit>> transferFile(
-      String databaseHash, StorageFileType fileType, Future<String> Function() databaseConversionFunction,) async {
+    String databaseHash,
+    StorageFileType fileType,
+    Future<String> Function() databaseConversionFunction,
+  ) async {
     // Check if hash exists
     final responseEither =
         await doGetRequest("${BiocentralServiceEndpoints.hashesEndpoint}$databaseHash/${fileType.name}");
@@ -198,8 +229,10 @@ abstract class BiocentralClient {
           return right(unit);
         }
 
-        final transferResponseEither = await doPostRequest(BiocentralServiceEndpoints.transferFileEndpoint,
-            {'hash': databaseHash, 'file_type': fileType.name, 'file': convertedDatabase},);
+        final transferResponseEither = await doPostRequest(
+          BiocentralServiceEndpoints.transferFileEndpoint,
+          {'hash': databaseHash, 'file_type': fileType.name, 'file': convertedDatabase},
+        );
         return transferResponseEither.match((e) => left(e), (r) {
           logger.i('File type $fileType was transferred for database hash $databaseHash!');
           return right(unit);
@@ -295,13 +328,19 @@ final class BiocentralClientRepository {
   }
 
   Future<Either<BiocentralException, Map<String, String>>> _getLatestReleaseDownloadUrl(
-      String owner, String repo, Set<String> osNames,) async {
+    String owner,
+    String repo,
+    Set<String> osNames,
+  ) async {
     final url = Uri.parse('https://api.github.com/repos/$owner/$repo/releases/latest');
 
     try {
-      final response = await http.get(url, headers: {
-        'Accept': 'application/vnd.github.v3+json',
-      },);
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -323,8 +362,11 @@ final class BiocentralClientRepository {
         }
         return right(result);
       } else {
-        return left(BiocentralNetworkException(
-            message: 'Failed to fetch latest biocentral_server release: ${response.statusCode}',),);
+        return left(
+          BiocentralNetworkException(
+            message: 'Failed to fetch latest biocentral_server release: ${response.statusCode}',
+          ),
+        );
       }
     } catch (e) {
       return left(BiocentralNetworkException(message: 'Failed to fetch latest biocentral_server release', error: e));
