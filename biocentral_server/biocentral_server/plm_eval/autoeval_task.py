@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 _ProcessTuple = namedtuple("_ProcessTuple", ["process", "dataset_name", "split_name"])
 
 
+def _process_name(process_tuple: _ProcessTuple):
+    return f"{process_tuple.dataset_name}-{process_tuple.split_name}"
+
+
 class AutoEvalTask(TaskInterface):
 
     def __init__(self, flip_dict: dict, embedder_name: str, user_id: str, embeddings_db_instance: EmbeddingsDatabase):
@@ -27,7 +31,7 @@ class AutoEvalTask(TaskInterface):
         self.total_tasks = sum(len(dataset_dict['splits']) for dataset_dict in flip_dict.values())
         self.completed_tasks = 0
         self.task_queue = []
-        self.results = {}
+        self.results: Dict[str, Dict] = {}
         self.status = TaskStatus.RUNNING
         self.current_process: Optional[_ProcessTuple]
 
@@ -64,6 +68,7 @@ class AutoEvalTask(TaskInterface):
                                                database_instance=self.embeddings_db_instance,
                                                log_path=log_path)
         self.current_process = _ProcessTuple(biotrainer_process, dataset_name, split_name)
+        self.results[_process_name(self.current_process)] = {'config': config}
         logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split_name}!")
         await biotrainer_process.start()
 
@@ -81,6 +86,10 @@ class AutoEvalTask(TaskInterface):
         return config
 
     def _save_config(self, config: dict, database_hash: str, model_hash: str) -> Path:
+        config_file_path = self.file_manager.get_file_path(database_hash=database_hash,
+                                                           file_type=StorageFileType.BIOTRAINER_CONFIG,
+                                                           model_hash=model_hash, check_exists=False)
+        config["output_dir"] = str(config_file_path.parent.absolute())
         config_file_yaml = yaml.dump(config)
         config_file_path = self.file_manager.save_file(database_hash=database_hash,
                                                        file_type=StorageFileType.BIOTRAINER_CONFIG,
@@ -92,7 +101,7 @@ class AutoEvalTask(TaskInterface):
             await asyncio.sleep(5)  # Check every 5 seconds
 
         result = self.current_process.process.update()
-        self.results[f"{self.current_process.dataset_name}_{self.current_process.split_name}"] = result
+        self.results[_process_name(self.current_process)] = result
         self.completed_tasks += 1
         self.current_process = None
 
@@ -100,14 +109,16 @@ class AutoEvalTask(TaskInterface):
         return self.status
 
     def update(self) -> Dict[str, Any]:
+        process_update = self.current_process.process.update()
+        self.results[_process_name(self.current_process)].update(process_update)
         progress_info = f"{self.completed_tasks}/{self.total_tasks}"
         logger.info(f"[AUTOEVAL] Progress information: {progress_info}")
         update_dict = {
             'status': self.status.name,
             'completed_tasks': self.completed_tasks,
+            'embedder_name': self.embedder_name,
             'total_tasks': self.total_tasks,
-            'current_process': f"{self.current_process.dataset_name}_"
-                               f"{self.current_process.split_name}" if self.current_process else "",
+            'current_process': _process_name(self.current_process) if self.current_process else "",
             'results': self.results
         }
         return update_dict
