@@ -33,6 +33,9 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
                                       device,
                                       database_instance: EmbeddingsDatabase = None) -> List[EmbeddingsDatabaseTriple]:
 
+    if isinstance(reduce_by_protocol, str):
+        reduce_by_protocol = Protocol.from_string(reduce_by_protocol)
+
     # List of embedder names that should not be saved in the database
     EXCLUDED_EMBEDDERS = ['one_hot_encoding']
     if embedder_name in EXCLUDED_EMBEDDERS:
@@ -44,9 +47,6 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
                                    device=device)
 
     # Compute with saving
-    if isinstance(reduce_by_protocol, str):
-        reduce_by_protocol = Protocol.from_string(reduce_by_protocol)
-
     reduce = reduce_by_protocol in Protocol.per_sequence_protocols()
     embeddings_db: EmbeddingsDatabase = database_instance if (
             database_instance is not None) else current_app.config["EMBEDDINGS_DATABASE"]
