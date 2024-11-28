@@ -34,6 +34,7 @@ class BiotrainerProcess(TaskInterface):
         self.process.start()
 
     def _pre_embed_with_db(self):
+        # TODO Embed in separate task
         sequence_file = self.config_dict['sequence_file']
 
         all_seq_records = read_FASTA(str(sequence_file))
@@ -51,6 +52,7 @@ class BiotrainerProcess(TaskInterface):
                                                                   use_half_precision=False,
                                                                   device=device,
                                                                   database_instance=self.database_instance)
+            # TODO [Optimization] Try to avoid double reading and saving of embedding files
             EmbeddingsDatabase.export_embeddings_to_hdf5(triples=embedding_triples, output_path=output_path)
         self.config_dict.pop("embedder_name")
         self.config_dict["embeddings_file"] = str(output_path)
