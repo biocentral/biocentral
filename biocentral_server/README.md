@@ -65,53 +65,42 @@ If you want to use TinyDB, you do not have to perform any additional installatio
 all embeddings are stored in `storage/embeddings.json`. 
 
 <details>
-<summary>Advanced MongoDB setup</summary>
+<summary>Advanced PostgreSQL setup</summary>
 
-For advanced users or production deployments we recommend using a [MongoDB](https://www.mongodb.com) instance. 
+For advanced users or production deployments we recommend using a [PostgreSQL](https://www.postgresql.org/) instance. 
 Here's a step-by-step guide how to configure it for *biocentral_server*:
 ```shell
-# 1. Install MongoDB, e.g. for Ubuntu see: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
-# 2. Set up an admin user and enable authentication
-# Go to mongo shell
-mongosh
+# 1. Install PostgreSQL, e.g. for Ubuntu see: https://www.postgresql.org/download/linux/ubuntu/
+# 2. Configure PostgreSQL
+# Switch to postgres user
+sudo -i -u postgres
 
-# Create Admin User
-use admin;
-db.createUser(
-  {
-    user: 'admin',
-    pwd: 'password',  # Change this!
-    roles: [ { role: 'root', db: 'admin' } ]
-  }
-);
-exit;
+# Create a new database
+createdb embeddings_db
 
-# Change config to enable authentication
-sudo nano /etc/mongod.conf 
+# Access PostgreSQL prompt
+psql
 
-# Change security to the following lines:
-security:
-  authorization: enabled
+# Create a new user and set password
+CREATE USER embeddingsuser WITH PASSWORD 'embeddingspwd';
 
-# Restart the mongodb process
-sudo systemctl restart mongod
+# Grant privileges to the user on the database
+GRANT ALL PRIVILEGES ON DATABASE embeddings_db TO embeddingsuser;
 
-# 3. Create the embeddings database
-# Log into mongo shell with the admin user you created
-mongosh -u admin -p
+# Connect to the embeddings database
+\c embeddings_db
 
-# Create a user for the application
-use embeddings_db;
-db.createUser(
-  {
-    user: "embeddingsUser",
-    pwd: "embeddingsPassword",  # Change this!
-    roles: [ { role: "readWrite", db: "embeddings_db" } ]
-  }
-);
+# Grant schema privileges to the user
+GRANT ALL ON SCHEMA public TO embeddingsuser;
 
-# Create the database collection
-db.createCollection("embeddings");
+# Exit PostgreSQL prompt
+\q
+
+# Exit postgres user shell
+exit
+
+# Restart PostgreSQL
+sudo systemctl restart postgresql
 ```
 </details>
 

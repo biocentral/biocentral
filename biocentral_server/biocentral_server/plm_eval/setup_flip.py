@@ -28,6 +28,7 @@ def ensure_flip_is_downloaded():
 def populate_flip_dataset_splits_with_files() -> dict:
     flip_data_dir = Path(_get_flip_data_dir())
     result_dict = {}
+    FLIP_DATASETS["aav"]["splits"].insert(0, "a_test")  # TODO REMOVE - DEBUG!
     for dataset, dataset_info in FLIP_DATASETS.items():
         result_dict[dataset] = {}
         dataset_dir = flip_data_dir / dataset

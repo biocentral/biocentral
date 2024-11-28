@@ -16,8 +16,8 @@ levenshtein = "^0.26.1"
 taxoniq = "^1.0.1"
 appdirs = "^1.4.4"
 blosc2 = "^2.7.1"
-flask-pymongo = "^2.3.0"
 tinydb = "^4.8.2"
+psycopg = "^3.2.3"
 
 # Frontend
 pystray="^0.19.5"
@@ -28,8 +28,6 @@ ttkthemes = "^3.2.2"
 autoeval = {git = "https://github.com/J-SNACKKB/autoeval.git", branch = "update-biotrainer"}
 biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", branch = "develop"}
 hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "main"}
-
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.1"

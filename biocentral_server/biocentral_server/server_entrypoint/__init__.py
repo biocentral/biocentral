@@ -43,15 +43,21 @@ def create_server_app(mongodb_user="embeddingsUser", mongodb_pwd="embeddingsPass
         UserManager.check_request(req=request)
 
     # Setup embeddings database
-    app.config['USE_MONGODB'] = True
+    app.config['USE_POSTGRESQL'] = True
 
-    if app.config['USE_MONGODB']:
-        app.config["MONGO_URI"] = f"mongodb://{mongodb_user}:{mongodb_pwd}@localhost:27017/embeddings_db"
+    if app.config['USE_POSTGRESQL']:
+        app.config['POSTGRESQL_CONFIG'] = {
+            'dbname': 'embeddings_db',
+            'user': 'embeddingsuser',  # TODO Replace with actual value
+            'password': 'embeddingspwd',  # TODO Replace with actual value
+            'host': 'localhost',
+            'port': '5432'
+        }
     else:
         app.config['TINYDB_PATH'] = str(Path("storage/embeddings.json"))
 
     app.config["EMBEDDINGS_DATABASE"] = init_embeddings_database_instance(app)
-    logger.info(f"Using database: {'MongoDB' if app.config['USE_MONGODB'] else 'TinyDB'}")
+    logger.info(f"Using database: {'PostgreSQL' if app.config['USE_POSTGRESQL'] else 'TinyDB'}")
 
     # Setup services if required
     plm_eval_setup(app)
