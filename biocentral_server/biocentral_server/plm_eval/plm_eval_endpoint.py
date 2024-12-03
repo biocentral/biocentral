@@ -2,11 +2,13 @@ import uuid
 import logging
 import requests
 
+from copy import deepcopy
 from functools import lru_cache
 from flask import request, jsonify, Blueprint, current_app
 
 from .autoeval_task import AutoEvalTask
 from ..server_management import UserManager, ProcessManager
+from ..utils import str2bool
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,24 @@ def _validate_model_id(model_id: str):
         return f"Error checking model availability on huggingface: {e}"
 
 
+def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
+    FLIP_RECOMMENDED = {"aav": "seven_vs_many", "meltome": "mixed_split", "gb1": "two_vs_rest", "scl": "mixed_hard",
+                        "bind": "from_publication", "sav": "mixed", "secondary_structure": "sampled",
+                        "conservation": "sampled"}
+    recommended_dict = {}
+    for dataset_name, dataset_dict in flip_dict.items():
+        if dataset_name in FLIP_RECOMMENDED:
+            recommended_split = FLIP_RECOMMENDED[dataset_name]
+            recommended_dict[dataset_name] = deepcopy(dataset_dict)
+            recommended_dict[dataset_name]["splits"] = [split for split in dataset_dict["splits"] if
+                                                        split["name"] == recommended_split]
+    return recommended_dict
+
+
+def _convert_flip_dict_to_dataset_split_dict(flip_dict: dict) -> dict:
+    return {dataset: [split_dict["name"] for split_dict in values["splits"]] for dataset, values in flip_dict.items()}
+
+
 @plm_eval_service_route.route('/plm_eval_service/validate', methods=['POST'])
 def validate():
     plm_eval_data = request.get_json()
@@ -48,11 +68,18 @@ def validate():
 
 
 @plm_eval_service_route.route('/plm_eval_service/get_benchmark_datasets', methods=['GET'])
-def get_splits():
+def get_benchmark_datasets():
     flip_dict = current_app.config['FLIP_DICT']
 
-    return jsonify(
-        {dataset: [split_dict["name"] for split_dict in values["splits"]] for dataset, values in flip_dict.items()})
+    return jsonify(_convert_flip_dict_to_dataset_split_dict(flip_dict))
+
+
+@plm_eval_service_route.route('/plm_eval_service/get_recommended_benchmark_datasets', methods=['GET'])
+def get_recommended_benchmark_datasets():
+    flip_dict = current_app.config['FLIP_DICT']
+
+    recommended_only = _get_recommended_only_flip_dict(flip_dict)
+    return jsonify(_convert_flip_dict_to_dataset_split_dict(recommended_only))
 
 
 @plm_eval_service_route.route('/plm_eval_service/autoeval', methods=['POST'])
@@ -64,7 +91,12 @@ def autoeval():
     if error != "":
         return jsonify({"error": error})
 
+    recommended_only: bool = str2bool(str(plm_eval_data["recommended_only"]))
+
     flip_dict = current_app.config['FLIP_DICT']
+    if recommended_only:
+        flip_dict = _get_recommended_only_flip_dict(flip_dict)
+
     user_id = UserManager.get_user_id_from_request(req=request)
     task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id,
                         embeddings_db_instance=current_app.config["EMBEDDINGS_DATABASE"])
@@ -79,4 +111,3 @@ def autoeval():
 @plm_eval_service_route.route('/plm_eval_service/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
     return ProcessManager.get_task_update(task_id=task_id)
-
