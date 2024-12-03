@@ -64,7 +64,7 @@ class PostgreSQLStrategy(DatabaseStrategy):
             hash_key = self._generate_sequence_hash(sequence)
             compressed_per_sequence = self._compress_embedding(per_sequence)
             compressed_per_residue = self._compress_embedding(per_residue)
-
+            # TODO [Optimization] Keep existing embeddings in an efficient way
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute('''
