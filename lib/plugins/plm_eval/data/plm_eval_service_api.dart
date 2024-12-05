@@ -3,7 +3,7 @@ import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 class PLMEvalServiceEndpoints {
@@ -15,7 +15,8 @@ class PLMEvalServiceEndpoints {
 }
 
 Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDatasetsFromMap(
-    Map<dynamic, dynamic> response,) {
+  Map<dynamic, dynamic> response,
+) {
   final List<BenchmarkDataset> result = [];
   for (final entry in response.entries) {
     final datasetName = entry.key.toString();
@@ -29,24 +30,18 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
   return right(result);
 }
 
-enum AutoEvalStatus {
-  running,
-  finished,
-  failed;
-}
-
 final class AutoEvalProgress {
   final int completedTasks;
   final int totalTasks;
-  final BenchmarkDataset? currentProcess;
+  final BenchmarkDataset? currentTask;
   final Map<BenchmarkDataset, PredictionModel?> results;
   final BiotrainerTrainingState? currentModelTrainingState;
-  final AutoEvalStatus status;
+  final BiocentralTaskStatus status;
 
   AutoEvalProgress({
     required this.completedTasks,
     required this.totalTasks,
-    required this.currentProcess,
+    required this.currentTask,
     required this.results,
     required this.currentModelTrainingState,
     required this.status,
@@ -55,74 +50,56 @@ final class AutoEvalProgress {
   AutoEvalProgress.fromDatasets(List<BenchmarkDataset> datasets)
       : completedTasks = 0,
         totalTasks = datasets.length,
-        currentProcess = null,
+        currentTask = null,
         results = Map.fromEntries(datasets.map((dataset) => MapEntry(dataset, null))),
         currentModelTrainingState = null,
-        status = AutoEvalStatus.running;
+        status = BiocentralTaskStatus.running;
 
   AutoEvalProgress.failed()
       : completedTasks = 0,
         totalTasks = 0,
-        currentProcess = null,
+        currentTask = null,
         results = const {},
         currentModelTrainingState = null,
-        status = AutoEvalStatus.failed;
+        status = BiocentralTaskStatus.failed;
 
-  static Either<BiocentralParsingException, AutoEvalProgress> fromDTO(BiocentralDTO dto) {
-    final int? completedTasks = dto.completedTasks;
-    final int? totalTasks = dto.totalTasks;
-    final AutoEvalStatus? autoEvalStatus = dto.autoEvalStatus;
-    if (completedTasks == null || totalTasks == null || autoEvalStatus == null) {
-      return left(BiocentralParsingException(message: 'Could not parse autoeval update progress!'));
+  AutoEvalProgress updateFromDTO(BiocentralTaskDTO dto) {
+    if(dto.totalTasks == null || dto.completedTasks == null || dto.taskStatus == null) {
+      return this; // Not a valid update
     }
-    final String? currentProcessString = dto.currentProcess;
-    final currentProcess = BenchmarkDataset.fromServerString(currentProcessString);
-    final Map<BenchmarkDataset, PredictionModel?> autoEvalResults = dto.parseResults();
+    final int newCompletedTasks = dto.completedTasks ?? completedTasks;
+    final int newTotalTasks = dto.totalTasks ?? totalTasks;
+    final BiocentralTaskStatus newStatus = dto.taskStatus ?? status;
 
-    final currentModel = autoEvalResults[currentProcess];
+    final String? currentProcessString = dto.currentTask;
+    final currentTask = BenchmarkDataset.fromServerString(currentProcessString);
+
+    final newResults = Map.of(results);
+    if(currentTask != null) {
+
+      final PredictionModel newParsedModel = dto.parseCurrentTaskModel();
+      final PredictionModel? existingModel = results[currentTask];
+      PredictionModel mergedResult = newParsedModel;
+      if(existingModel != null) {
+        mergedResult = existingModel.updateTrainingResult(newParsedModel.biotrainerTrainingResult);
+      }
+      newResults[currentTask] = mergedResult;
+    }
+    final currentModel = newResults[currentTask];
+
     final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
     final commandProgress =
     currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
-    final BiotrainerTrainingState currentModelTrainingState = BiotrainerTrainingState.fromModel(
-        trainingModel: currentModel)
+    final BiotrainerTrainingState currentModelTrainingState =
+    BiotrainerTrainingState.fromModel(trainingModel: currentModel)
         .setOperating(information: 'Training model..', commandProgress: commandProgress);
-
-    return right(
-      AutoEvalProgress(
-        completedTasks: completedTasks,
-        totalTasks: totalTasks,
-        currentProcess: currentProcess,
-        results: autoEvalResults,
-        currentModelTrainingState: currentModelTrainingState,
-        status: autoEvalStatus,
-      ),
-    );
-  }
-
-  AutoEvalProgress update(AutoEvalProgress newProgress) {
-    if (totalTasks != newProgress.totalTasks) {
-      logger.w('Inconsistency in updating autoeval progress: $totalTasks != ${newProgress.totalTasks} !');
-    }
-    final Map<BenchmarkDataset, PredictionModel?> updatedResults = Map.from(results);
-    for (MapEntry<BenchmarkDataset, PredictionModel?> entry in newProgress.results.entries) {
-      if (entry.value != null) {
-        final existingResult = updatedResults[entry.key];
-
-        if (existingResult != null) {
-          final mergedResult = entry.value?.merge(existingResult, failOnConflict: false);
-          updatedResults[entry.key] = mergedResult;
-        } else {
-          updatedResults[entry.key] = entry.value;
-        }
-      }
-    }
     return AutoEvalProgress(
-      completedTasks: newProgress.completedTasks,
-      totalTasks: newProgress.totalTasks,
-      currentProcess: newProgress.currentProcess,
-      results: updatedResults,
-      currentModelTrainingState: newProgress.currentModelTrainingState,
-      status: newProgress.status,
+      completedTasks: newCompletedTasks,
+      totalTasks: newTotalTasks,
+      currentTask: currentTask,
+      results: newResults,
+      currentModelTrainingState: currentModelTrainingState,
+      status: newStatus,
     );
   }
 }

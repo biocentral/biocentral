@@ -74,11 +74,11 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
       return;
     }
 
-    final modelHashEither = await _predictionModelsClient.startTraining(configFile, databaseHash);
-    yield* modelHashEither.match((error) async* {
+    final taskIDEither = await _predictionModelsClient.startTraining(configFile, databaseHash);
+    yield* taskIDEither.match((error) async* {
       yield left(state.setErrored(information: 'Training could not be started! Error: ${error.message}'));
       return;
-    }, (modelHash) async* {
+    }, (taskID) async* {
 
       final initialModel = BiotrainerFileHandler.parsePredictionModel(
         biotrainerConfig: _trainingConfiguration,
@@ -89,8 +89,11 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
           .copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      await for (PredictionModel currentModel
-          in _predictionModelsClient.biotrainerTrainingStatusStream(modelHash, initialModel)) {
+      await for (PredictionModel? currentModel
+          in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
+        if(currentModel == null) {
+          continue;
+        }
         final int? currentEpoch = currentModel.biotrainerTrainingResult?.getLastEpoch();
         final commandProgress =
             currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
@@ -105,7 +108,7 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
 
       // Receive files after training has finished
       // TODO Handle case that training was interrupted/failed
-      final modelFilesEither = await _predictionModelsClient.getModelFiles(databaseHash, modelHash);
+      final modelFilesEither = await _predictionModelsClient.getModelFiles(databaseHash, taskID);
       yield* modelFilesEither.match((error) async* {
         yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
         return;

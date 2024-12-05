@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:fpdart/fpdart.dart';
-
+import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_service_api.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:fpdart/fpdart.dart';
 
 final class EmbeddingsClientFactory extends BiocentralClientFactory<EmbeddingsClient> {
   @override
@@ -16,25 +17,38 @@ final class EmbeddingsClientFactory extends BiocentralClientFactory<EmbeddingsCl
 class EmbeddingsClient extends BiocentralClient {
   EmbeddingsClient(super._server);
 
-  Future<Either<BiocentralException, String>> embed(String embedderName, String biotrainerEmbedderName,
-      String databaseHash, bool reduce, bool useHalfPrecision,) async {
+  Future<Either<BiocentralException, String>> startEmbedding(
+    String embedderName,
+    String biotrainerEmbedderName,
+    String databaseHash,
+    bool reduce,
+    bool useHalfPrecision,
+  ) async {
     final Map<String, String> body = {
       'embedder_name': biotrainerEmbedderName,
       'database_hash': databaseHash,
       'reduce': reduce.toString(),
       'use_half_precision': useHalfPrecision.toString(),
     };
-    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.embeddingEndpoint, body);
+    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.embedding, body);
+    return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
+  }
+
+  Stream<String?> embeddingsTaskStream(String taskID) async* {
     // TODO jsonEncode might cost performance here
-    return responseEither.flatMap((responseMap) => right(jsonEncode(responseMap['embeddings_file'])));
+    String? updateFunction(String? currentString, BiocentralTaskDTO biocentralDTO) =>
+        biocentralDTO.embeddings != null ? jsonEncode(biocentralDTO.embeddings) : null;
+    yield* taskUpdateStream<String?>(taskID, null, updateFunction);
   }
 
   Future<Either<BiocentralException, UMAPData>> umap(
-      String umapIdentifier, List<PerSequenceEmbedding> embeddings,) async {
+    String umapIdentifier,
+    List<PerSequenceEmbedding> embeddings,
+  ) async {
     final Map<String, String> body = {
       'embeddings_per_sequence': jsonEncode(List.generate(embeddings.length, (index) => embeddings[index].rawValues())),
     };
-    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.umapEndpoint, body);
+    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.umap, body);
     return responseEither.flatMap((responseMap) {
       final Map umap = responseMap['umap_data'];
       final List<dynamic> rawCoordinates = umap['umap'];
