@@ -5,6 +5,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:yaml/yaml.dart';
 
 class BiotrainerFileHandler {
@@ -12,9 +13,9 @@ class BiotrainerFileHandler {
     CustomAttributes result = attributes;
     for (var entry in keyVals.entries) {
       try {
-        result = result.add(entry.key, entry.value);
+        result = result.add(entry.key.toString(), entry.value.toString());
       } catch (Exception) {
-        result = result.update(entry.key, entry.value);
+        result = result.update(entry.key.toString(), entry.value.toString());
       }
     }
     return result;
@@ -164,7 +165,7 @@ class BiotrainerFileHandler {
   }
 
   static BiotrainerTrainingResult parseBiotrainerLog(
-      {required String trainingLog, BiotrainerTrainingStatus? trainingStatus}) {
+      {required String trainingLog, BiocentralTaskStatus? trainingStatus}) {
     const String testSetMetricsIdentifier = 'INFO Test set metrics: ';
     const String sanityChecksStartIdentifier = 'INFO Running sanity checks on test results..';
     const String sanityChecksEndIdentifier = 'INFO Sanity check on test results finished!';
@@ -189,7 +190,7 @@ class BiotrainerFileHandler {
 
     // TODO [Optimization] Improve performance
     final bool parseResultMetrics =
-        trainingStatus == BiotrainerTrainingStatus.finished || trainingLog.contains(testSetMetricsIdentifier);
+        trainingStatus == BiocentralTaskStatus.finished || trainingLog.contains(testSetMetricsIdentifier);
 
     final logs = trainingLog.split('\n');
     for (String line in logs) {
@@ -257,7 +258,7 @@ class BiotrainerFileHandler {
       }
     }
     final status = trainingStatus ??
-        (parsedTestSetMetrics.isEmpty ? BiotrainerTrainingStatus.running : BiotrainerTrainingStatus.finished);
+        (parsedTestSetMetrics.isEmpty ? BiocentralTaskStatus.running : BiocentralTaskStatus.finished);
 
     final BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
       trainingLoss: trainingLoss,

@@ -2,18 +2,18 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
   // TODO Remove redundant endpoint suffix everywhere
-  static const String protocolsEndpoint = '/prediction_models_service/protocols';
-  static const String configOptionsEndpoint = '/prediction_models_service/config_options/';
-  static const String verifyConfigEndpoint = '/prediction_models_service/verify_config/';
-  static const String startTrainingEndpoint = '/prediction_models_service/start_training';
-  static const String trainingStatusEndpoint = '/prediction_models_service/training_status';
-  static const String modelFilesEndpoint = '/prediction_models_service/model_files';
+  static const String protocols = '/prediction_models_service/protocols';
+  static const String configOptions = '/prediction_models_service/config_options/';
+  static const String verifyConfig = '/prediction_models_service/verify_config/';
+  static const String startTraining = '/prediction_models_service/start_training';
+  static const String trainingStatus = '/prediction_models_service/training_status';
+  static const String modelFiles = '/prediction_models_service/model_files';
 }
 
 class BiotrainerOption {
@@ -33,12 +33,6 @@ class BiotrainerOption {
         possibleValues = List<String>.from(map['possible_values']);
 }
 
-enum BiotrainerTrainingStatus {
-  running,
-  finished,
-  failed;
-}
-
 class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Map<int, double> trainingLoss;
   final Map<int, double> validationLoss;
@@ -46,7 +40,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Set<String> sanityCheckWarnings;
   final Map<String, Set<BiocentralMLMetric>> sanityCheckBaselineMetrics;
   final List<String> trainingLogs;
-  final BiotrainerTrainingStatus trainingStatus;
+  final BiocentralTaskStatus trainingStatus;
 
   BiotrainerTrainingResult({
     required this.trainingLoss,
@@ -65,13 +59,13 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         sanityCheckWarnings = const {},
         sanityCheckBaselineMetrics = const {},
         trainingLogs = const [],
-        trainingStatus = BiotrainerTrainingStatus.running;
+        trainingStatus = BiocentralTaskStatus.running;
 
-  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
+  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralTaskDTO dto) {
     final trainingLog = dto.logFile;
-    final trainingStatus = dto.trainingStatus;
-    if (trainingLog == null) {
-      return left(BiocentralParsingException(message: 'Could not read logFile from server DTO!'));
+    final trainingStatus = dto.taskStatus;
+   if(trainingLog == null || trainingLog.isEmpty) {
+      return right(null);
     }
     final result = BiotrainerFileHandler.parseBiotrainerLog(
       trainingLog: trainingLog,
@@ -87,7 +81,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
     Set<String>? sanityCheckWarnings,
     Map<String, Set<BiocentralMLMetric>>? sanityCheckBaselineMetrics,
     List<String>? trainingLogs,
-    BiotrainerTrainingStatus? trainingStatus,
+    BiocentralTaskStatus? trainingStatus,
   }) {
     return BiotrainerTrainingResult(
       trainingLoss: trainingLoss ?? Map.from(this.trainingLoss),
@@ -104,6 +98,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   }
 
   BiotrainerTrainingResult update(BiotrainerTrainingResult newResult) {
+    // TODO [Refactoring] Consider creating a function that updates prediction models directly from the DTO
     final newTrainingLoss = Map.of(trainingLoss)..addAll(newResult.trainingLoss);
     final newValidationLoss = Map.of(validationLoss)..addAll(newResult.validationLoss);
     final newTestSetMetrics = Set.of(testSetMetrics)..addAll(newResult.testSetMetrics);

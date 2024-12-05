@@ -4,6 +4,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
@@ -144,14 +145,17 @@ class PredictionModel extends Equatable {
     );
   }
 
-  PredictionModel updateTrainingResult(BiotrainerTrainingResult newResult) {
+  PredictionModel updateTrainingResult(BiotrainerTrainingResult? newResult) {
+    if(newResult == null) {
+      return this;
+    }
     return copyWith(biotrainerTrainingResult: biotrainerTrainingResult?.update(newResult) ?? newResult);
   }
 
   PredictionModel setTraining() {
     final trainingResult = biotrainerTrainingResult ?? BiotrainerTrainingResult.empty();
     return copyWith(
-        biotrainerTrainingResult: trainingResult.copyWith(trainingStatus: BiotrainerTrainingStatus.running));
+        biotrainerTrainingResult: trainingResult.copyWith(trainingStatus: BiocentralTaskStatus.running));
   }
 
   bool isEmpty() {

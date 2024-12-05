@@ -10,7 +10,7 @@ class ProteinAnalysisClient extends BiocentralClient {
   Future<Either<BiocentralException, Map<String, Map<String, LevenshteinDistance>>>> calculateLevenshteinDistance(
       String databaseHash,) async {
     final responseEither =
-        await doPostRequest(ProteinAnalysisAPIEndpoints.levenshteinDistanceEndpoint, {'database_hash': databaseHash});
+        await doPostRequest(ProteinAnalysisAPIEndpoints.levenshteinDistance, {'database_hash': databaseHash});
     return left(BiocentralParsingException(message: 'NOT IMPLEMENTED YET'));
   }
 

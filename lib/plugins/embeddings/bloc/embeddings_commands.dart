@@ -42,16 +42,26 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       // TODO USE HALF PRECISION
       final bool reduce = _embeddingType == EmbeddingType.perSequence;
       const bool useHalfPrecision = false;
-      final embeddingsEither =
-          await _embeddingClient.embed(_embedderName, _biotrainerName, databaseHash, reduce, useHalfPrecision);
-      yield* embeddingsEither.match(
-        (error) async* {
-          yield left(state.setErrored(information: 'Embeddings could not be calculated! Error: ${error.message}'));
-        },
-        (embeddingsFile) async* {
-          yield* _handleEmbeddingsFile(state, embeddingsFile, reduce);
-        },
-      );
+      final taskIDEither =
+          await _embeddingClient.startEmbedding(_embedderName, _biotrainerName, databaseHash, reduce, useHalfPrecision);
+
+      yield* taskIDEither.match((error) async* {
+        yield left(state.setErrored(information: 'Embedding could not be started! Error: ${error.message}'));
+        return;
+      }, (taskID) async* {
+        String? embeddingsFile;
+        await for (String? embFileResponse in _embeddingClient.embeddingsTaskStream(taskID)) {
+          if (embFileResponse != null) {
+            embeddingsFile = embFileResponse;
+            break;
+          }
+        }
+        if (embeddingsFile == null) {
+          yield left(state.setErrored(information: 'Embeddings could not be calculated, no embeddings file received!'));
+          return;
+        }
+        yield* _handleEmbeddingsFile(state, embeddingsFile, reduce);
+      });
     });
   }
 
@@ -68,15 +78,15 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     final Map<String, Embedding>? embeddings = await handler.readFromString(embeddingsFile);
     if (embeddings == null) {
       yield left(state.setErrored(information: 'Error calculating embeddings: no values returned!'));
-    } else {
-      yield right(embeddings);
-      yield left(
-        state.setFinished(
-          information: 'Finished calculating embeddings',
-          commandProgress: BiocentralCommandProgress(current: embeddings.length, total: embeddings.length),
-        ),
-      );
+      return;
     }
+    yield right(embeddings);
+    yield left(
+      state.setFinished(
+        information: 'Finished calculating embeddings',
+        commandProgress: BiocentralCommandProgress(current: embeddings.length, total: embeddings.length),
+      ),
+    );
   }
 
   @override

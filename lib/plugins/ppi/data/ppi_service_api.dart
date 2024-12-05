@@ -125,9 +125,9 @@ class DatasetEvaluatorOptions {
 }
 
 class PPIServiceEndpoints {
-  static const String formatsEndpoint = '/ppi_service/formats';
-  static const String autoDetectFormatEndpoint = '/ppi_service/auto_detect_format';
-  static const String importEndpoint = '/ppi_service/import';
-  static const String getDatasetTestsEndpoint = '/ppi_service/dataset_tests/tests';
-  static const String runDatasetTestEndpoint = '/ppi_service/dataset_tests/run_test';
+  static const String formats = '/ppi_service/formats';
+  static const String autoDetectFormat = '/ppi_service/auto_detect_format';
+  static const String import = '/ppi_service/import';
+  static const String getDatasetTests = '/ppi_service/dataset_tests/tests';
+  static const String runDatasetTest = '/ppi_service/dataset_tests/run_test';
 }
