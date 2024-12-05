@@ -6,19 +6,24 @@ Flask-based python server using REST API that provides functionality for the bio
 
 These are the currently provided modules:
 
-| Module            |                    Features                     | Dependencies  | 
-|-------------------|:-----------------------------------------------:|:-------------:|
-| protein_analysis  |                       wip                       |               | 
-| embeddings        |             Embed protein sequences             | [biotrainer]  | 
-| ppi               |     Work with protein-protein interactions      | [hvi_toolkit] | 
-| prediction_models | Train and evaluate models trained on embeddings | [biotrainer]  |
-| proteins          |             Work with protein data              |   [taxoniq]   |
+| Module            |                    Features                     |    Dependencies    | 
+|-------------------|:-----------------------------------------------:|:------------------:|
+| protein_analysis  |                       wip                       |                    | 
+| embeddings        |             Embed protein sequences             |    [biotrainer]    | 
+| ppi               |     Work with protein-protein interactions      |   [hvi_toolkit]    | 
+| prediction_models | Train and evaluate models trained on embeddings |    [biotrainer]    |
+| proteins          |             Work with protein data              |     [taxoniq]      |
+| plm_eval          | Automatically evaluate protein language models  | [autoeval], [FLIP] |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
 
 [hvi_toolkit]: https://github.com/SebieF/hvi_toolkit
 
 [taxoniq]: https://github.com/taxoniq/taxoniq
+
+[autoeval]: https://github.com/J-SNACKKB/autoeval
+
+[FLIP]: https://github.com/J-SNACKKB/FLIP
 
 ## Supported platforms
 
