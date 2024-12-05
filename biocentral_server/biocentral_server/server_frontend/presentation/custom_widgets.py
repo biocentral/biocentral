@@ -58,7 +58,7 @@ class SysTray:
         else:
             self.root.withdraw()
             self.icon = self._create_icon()
-            self.icon.run()
+            self.icon.run_task()
 
     def stop_server(self):
         self.control_panel.stop_server()

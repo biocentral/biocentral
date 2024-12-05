@@ -1,22 +1,21 @@
 import yaml
 import logging
-import asyncio
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 from importlib import resources
 from collections import namedtuple
 
-from ..prediction_models import BiotrainerProcess
-from ..server_management import TaskInterface, TaskStatus, FileManager, StorageFileType, EmbeddingsDatabase
+from ..prediction_models import BiotrainerTask
+from ..server_management import TaskInterface, TaskStatus, FileManager, StorageFileType, EmbeddingsDatabase, TaskDTO
 
 logger = logging.getLogger(__name__)
 
-_ProcessTuple = namedtuple("_ProcessTuple", ["process", "dataset_name", "split_name"])
+_DatasetTuple = namedtuple("_DatasetTuple", ["dataset_name", "split_name"])
 
 
-def _process_name(process_tuple: _ProcessTuple):
-    return f"{process_tuple.dataset_name}-{process_tuple.split_name}"
+def _task_name(dataset_tuple: _DatasetTuple):
+    return f"{dataset_tuple.dataset_name}-{dataset_tuple.split_name}"
 
 
 class AutoEvalTask(TaskInterface):
@@ -26,53 +25,54 @@ class AutoEvalTask(TaskInterface):
         self.embedder_name = embedder_name
         self.file_manager = FileManager(user_id=user_id)
         self.embeddings_db_instance = embeddings_db_instance
-        self.current_dataset = None
-        self.current_split = None
-        self.total_tasks = sum(len(dataset_dict['splits']) for dataset_dict in flip_dict.values())
-        self.completed_tasks = 0
-        self.task_queue = []
-        self.results: Dict[str, Dict] = {}
-        self.status = TaskStatus.RUNNING
-        self.current_process: Optional[_ProcessTuple]
 
-    async def start(self):
+        self.task_queue = []
+        self.completed_tasks = 0
+        self.current_dataset: Optional[_DatasetTuple] = None
+        self.total_tasks = sum(len(dataset_dict['splits']) for dataset_dict in flip_dict.values())
+
+    def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         for dataset_name, dataset_dict in self.flip_dict.items():
             for split in dataset_dict['splits']:
                 self.task_queue.append((dataset_name, split))
 
-        await self._process_queue()
+        self.task_queue = sorted(self.task_queue, key=lambda x: x[0])
+        self._process_queue(update_dto_callback)
+        return TaskDTO.finished(result={})
 
-    async def _process_queue(self):
+    def _process_queue(self, update_dto_callback):
         while self.task_queue:
             dataset_name, split = self.task_queue.pop(0)
-            await self._start_biotrainer_process(dataset_name, split)
-            await self._await_process_completion()
+            self._run_biotrainer_subtask(dataset_name, split, update_dto_callback)
+            self.completed_tasks += 1
             logger.info(f"[AUTOEVAL] Process for {dataset_name} - split {split['name']} has finished!")
+            logger.info(f"[AUTOEVAL] Progress information: {self.completed_tasks}/{self.total_tasks}")
 
-        self.status = TaskStatus.FINISHED
-
-    async def _start_biotrainer_process(self, dataset_name, split):
+    def _run_biotrainer_subtask(self, dataset_name: str, split: Dict, update_dto_callback):
         config = self._prepare_config(dataset_name, split)
         split_name = split['name']
         embedder_path_name = self.embedder_name.replace("/", "_")
         database_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split_name}"
+
+        # TODO TASK ID
         model_hash = str(hash(str(config)))
         config_path = self._save_config(config, database_hash=database_hash, model_hash=model_hash)
         log_path = self.file_manager.get_file_path(database_hash=database_hash,
                                                    file_type=StorageFileType.BIOTRAINER_LOGGING,
                                                    model_hash=model_hash, check_exists=False)
-        # TODO [Optimization] Embed sequence file for some splits before training
 
-        # TODO [Optimization] Sub-Process handling via process manager
-        biotrainer_process = BiotrainerProcess(config_path=config_path, config_dict=config,
-                                               database_instance=self.embeddings_db_instance,
-                                               log_path=log_path)
-        self.current_process = _ProcessTuple(biotrainer_process, dataset_name, split_name)
-        self.results[_process_name(self.current_process)] = {'config': config}
+        biotrainer_task = BiotrainerTask(config_path=config_path, config_dict=config,
+                                         database_instance=self.embeddings_db_instance,
+                                         log_path=log_path)
+        self.current_dataset = _DatasetTuple(dataset_name, split_name)
         logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split_name}!")
-        await biotrainer_process.start()
+        biotrainer_dto: TaskDTO
+        for current_dto in self.run_subtask(biotrainer_task):
+            biotrainer_dto = current_dto
+            dto_update = self._create_dto_update(current_task_dto=biotrainer_dto, task_config=config)
+            update_dto_callback(TaskDTO.running().add_update(dto_update))
 
-    def _prepare_config(self, dataset_name: str, split: dict):
+    def _prepare_config(self, dataset_name: str, split: Dict):
         with resources.open_text('autoeval.configsbank', f'{dataset_name}.yml') as config_file:
             config = yaml.load(config_file, Loader=yaml.FullLoader)
 
@@ -96,29 +96,13 @@ class AutoEvalTask(TaskInterface):
                                                        file_content=config_file_yaml, model_hash=model_hash)
         return config_file_path
 
-    async def _await_process_completion(self):
-        while self.current_process.process.get_task_status() == TaskStatus.RUNNING:
-            await asyncio.sleep(5)  # Check every 5 seconds
-
-        result = self.current_process.process.update()
-        self.results[_process_name(self.current_process)] = result
-        self.completed_tasks += 1
-        self.current_process = None
-
-    def get_task_status(self) -> TaskStatus:
-        return self.status
-
-    def update(self) -> Dict[str, Any]:
-        process_update = self.current_process.process.update()
-        self.results[_process_name(self.current_process)].update(process_update)
-        progress_info = f"{self.completed_tasks}/{self.total_tasks}"
-        logger.info(f"[AUTOEVAL] Progress information: {progress_info}")
+    def _create_dto_update(self, current_task_dto: TaskDTO, task_config: dict) -> Dict[str, Any]:
         update_dict = {
-            'status': self.status.name,
             'completed_tasks': self.completed_tasks,
             'embedder_name': self.embedder_name,
             'total_tasks': self.total_tasks,
-            'current_process': _process_name(self.current_process) if self.current_process else "",
-            'results': self.results
+            'current_task': _task_name(self.current_dataset) if self.current_dataset else "",
+            'current_task_config': task_config,
+            'current_task_dto': current_task_dto.dict()
         }
         return update_dict

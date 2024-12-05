@@ -72,8 +72,16 @@ class EmbeddingsDatabase:
         return result
 
     @staticmethod
-    def export_embeddings_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path):
+    def export_embedding_triples_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path):
         with h5py.File(output_path, "w") as embeddings_file:
             for idx, triple in enumerate(triples):
                 embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
                 embeddings_file[str(idx)].attrs["original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
+
+    @staticmethod
+    def export_embeddings_task_result_to_hdf5(embeddings_task_result: Dict[str, Any], output_path: Path):
+        with h5py.File(output_path, "w") as embeddings_file:
+            for idx, seq_id in enumerate(embeddings_task_result.keys()):
+                embeddings = embeddings_task_result.get(seq_id)
+                embeddings_file.create_dataset(str(idx), data=embeddings, compression="gzip", chunks=True)
+                embeddings_file[str(idx)].attrs["original_id"] = seq_id

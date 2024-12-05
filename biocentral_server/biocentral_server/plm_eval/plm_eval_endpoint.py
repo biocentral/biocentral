@@ -1,4 +1,3 @@
-import uuid
 import logging
 import requests
 
@@ -7,7 +6,7 @@ from functools import lru_cache
 from flask import request, jsonify, Blueprint, current_app
 
 from .autoeval_task import AutoEvalTask
-from ..server_management import UserManager, ProcessManager
+from ..server_management import UserManager, TaskManager
 from ..utils import str2bool
 
 logger = logging.getLogger(__name__)
@@ -39,7 +38,7 @@ def _validate_model_id(model_id: str):
 
 
 def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
-    FLIP_RECOMMENDED = {"aav": "seven_vs_many", "meltome": "mixed_split", "gb1": "two_vs_rest", "scl": "mixed_hard",
+    FLIP_RECOMMENDED = {"aav": "a_test", "meltome": "mixed_split", "gb1": "two_vs_rest", "scl": "mixed_hard",
                         "bind": "from_publication", "sav": "mixed", "secondary_structure": "sampled",
                         "conservation": "sampled"}
     recommended_dict = {}
@@ -100,14 +99,7 @@ def autoeval():
     user_id = UserManager.get_user_id_from_request(req=request)
     task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id,
                         embeddings_db_instance=current_app.config["EMBEDDINGS_DATABASE"])
-    task_id = f"autoeval_{model_id}_" + str(uuid.uuid4())
 
-    ProcessManager.add_task(task_id=task_id, task=task)
-    ProcessManager.start_task(task_id=task_id)
+    task_id = TaskManager().add_task(task=task)
 
     return jsonify({"task_id": task_id})
-
-
-@plm_eval_service_route.route('/plm_eval_service/task_status/<task_id>', methods=['GET'])
-def task_status(task_id):
-    return ProcessManager.get_task_update(task_id=task_id)

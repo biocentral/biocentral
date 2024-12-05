@@ -8,24 +8,14 @@ from biotrainer.utilities import get_device, read_FASTA
 from flask import request, Blueprint, jsonify, current_app
 
 from .umap_analysis import calculate_umap
-from .embed import compute_embeddings_and_save_to_db
+from .embedding_task import EmbeddingTask
 
 from ..utils import str2bool
-from ..server_management import FileManager, UserManager, StorageFileType
+from ..server_management import FileManager, UserManager, StorageFileType, TaskManager
 
 logger = logging.getLogger(__name__)
 
 embeddings_service_route = Blueprint("embeddings_service", __name__)
-
-
-def _round_embeddings(embeddings: dict, reduced: bool):
-    # TODO Document rounding
-    if reduced:
-        return {sequence_id: [round(val, 4) for val in embedding.tolist()] for sequence_id, embedding in
-                embeddings.items()}
-    return {sequence_id: [[round(val, 4) for val in perResidue.tolist()] for perResidue in embedding] for
-            sequence_id, embedding in
-            embeddings.items()}
 
 
 # Endpoint for embeddings calculation of biotrainer
@@ -51,22 +41,18 @@ def embed():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    # TODO Separate Thread: Embeddings Task
+    embeddings_database = current_app.config["EMBEDDINGS_DATABASE"]
+    embedding_task = EmbeddingTask(embedder_name=embedder_name,
+                                   sequence_file_path=sequence_file_path,
+                                   embeddings_out_path=embeddings_out_path,
+                                   protocol=reduce_by_protocol,
+                                   use_half_precision=use_half_precision,
+                                   device=device,
+                                   embeddings_database=embeddings_database)
 
-    all_seq_records = read_FASTA(str(sequence_file_path))
-    all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
+    task_id = TaskManager().add_task(embedding_task)
 
-    all_embeddings = compute_embeddings_and_save_to_db(embedder_name, all_seqs, embeddings_out_path,
-                                                       reduce_by_protocol,
-                                                       use_half_precision, device)
-
-    embeddings_double_list = _round_embeddings({triple.id: triple.embd for triple in all_embeddings}, reduced=reduce)
-
-    # Remove huggingface / prefix
-    embedder_name = embedder_name.split("/")[-1]
-    if use_half_precision:
-        embedder_name += "-HalfPrecision"
-    return jsonify({"embeddings_file": {embedder_name: embeddings_double_list}})
+    return jsonify({"task_id": task_id})
 
 
 # Endpoint for umap calculation of embeddings

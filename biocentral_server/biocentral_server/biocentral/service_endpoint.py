@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from ..server_management import UserManager, FileManager, StorageFileType
+from ..server_management import UserManager, FileManager, StorageFileType, TaskManager
 
 biocentral_service_route = Blueprint("biocentral_service", __name__)
 
@@ -44,3 +44,13 @@ def transfer_file():
     file_content = database_data.get('file')  # Fasta format
     file_manager.save_file(database_hash=database_hash, file_type=storage_file_type, file_content=file_content)
     return jsonify(success=True)
+
+
+# Endpoint to check task status
+@biocentral_service_route.route('/biocentral_service/task_status/<task_id>', methods=['GET'])
+def task_status(task_id):
+    # Check the status of the task based on task_id
+    # Retrieve task status from the distributed server or backend system
+    # Return the task status
+    dtos = TaskManager().get_all_task_updates(task_id=task_id)
+    return jsonify({idx: dto.dict() for idx, dto in enumerate(dtos)})

@@ -11,7 +11,7 @@ from .custom_widgets import StatusIndicator
 
 from ...utils import Constants
 from ...server_entrypoint import create_server_app, ServerThread
-from ...server_management import FileManager, ProcessManager, UserManager
+from ...server_management import FileManager, TaskManager, UserManager
 
 
 class ControlPanel:
@@ -138,7 +138,7 @@ class ControlPanel:
         number_requests_since_start = UserManager.get_total_number_of_requests_since_start()
         self.stats_label.config(text=f"Number of requests since start: {number_requests_since_start}")
 
-        n_processes = ProcessManager.get_current_number_of_running_tasks()
+        n_processes = TaskManager().get_current_number_of_running_tasks()
         self.n_process_label.config(text=f"Current number of running tasks: {n_processes}")
 
         self.root.after(repeat, self.update_stats)

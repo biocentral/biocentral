@@ -6,7 +6,7 @@ from flask import current_app
 from biotrainer.protocols import Protocol
 from biotrainer.embedders import get_embedding_service
 
-from biocentral_server.server_management.embedding_database import EmbeddingsDatabaseTriple, EmbeddingsDatabase
+from ..server_management import EmbeddingsDatabaseTriple, EmbeddingsDatabase
 
 logger = logging.getLogger(__name__)
 
