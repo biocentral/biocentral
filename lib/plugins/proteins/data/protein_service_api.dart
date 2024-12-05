@@ -16,5 +16,5 @@ Either<BiocentralException, Map<int, Taxonomy>> parseTaxonomy(Map<String, dynami
 }
 
 class ProteinServiceEndpoints {
-  static const String retrieveTaxonomyEndpoint = '/protein_service/taxonomy';
+  static const String retrieveTaxonomy = '/protein_service/taxonomy';
 }

@@ -24,7 +24,7 @@ class EmbeddingsClient extends BiocentralClient {
       'reduce': reduce.toString(),
       'use_half_precision': useHalfPrecision.toString(),
     };
-    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.embeddingEndpoint, body);
+    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.embedding, body);
     // TODO jsonEncode might cost performance here
     return responseEither.flatMap((responseMap) => right(jsonEncode(responseMap['embeddings_file'])));
   }
@@ -34,7 +34,7 @@ class EmbeddingsClient extends BiocentralClient {
     final Map<String, String> body = {
       'embeddings_per_sequence': jsonEncode(List.generate(embeddings.length, (index) => embeddings[index].rawValues())),
     };
-    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.umapEndpoint, body);
+    final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.umap, body);
     return responseEither.flatMap((responseMap) {
       final Map umap = responseMap['umap_data'];
       final List<dynamic> rawCoordinates = umap['umap'];

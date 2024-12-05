@@ -8,12 +8,12 @@ import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
   // TODO Remove redundant endpoint suffix everywhere
-  static const String protocolsEndpoint = '/prediction_models_service/protocols';
-  static const String configOptionsEndpoint = '/prediction_models_service/config_options/';
-  static const String verifyConfigEndpoint = '/prediction_models_service/verify_config/';
-  static const String startTrainingEndpoint = '/prediction_models_service/start_training';
-  static const String trainingStatusEndpoint = '/prediction_models_service/training_status';
-  static const String modelFilesEndpoint = '/prediction_models_service/model_files';
+  static const String protocols = '/prediction_models_service/protocols';
+  static const String configOptions = '/prediction_models_service/config_options/';
+  static const String verifyConfig = '/prediction_models_service/verify_config/';
+  static const String startTraining = '/prediction_models_service/start_training';
+  static const String trainingStatus = '/prediction_models_service/training_status';
+  static const String modelFiles = '/prediction_models_service/model_files';
 }
 
 class BiotrainerOption {

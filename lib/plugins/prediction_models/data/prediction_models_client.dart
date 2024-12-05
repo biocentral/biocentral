@@ -17,7 +17,7 @@ class PredictionModelsClient extends BiocentralClient {
   PredictionModelsClient(super._server);
 
   Future<Either<BiocentralException, List<String>>> getAvailableBiotrainerProtocols() async {
-    final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.protocolsEndpoint);
+    final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.protocols);
     return responseEither.match((error) => left(error), (responseMap) {
       final List<String> availableProtocols = List<String>.from(responseMap['protocols']);
       return right(availableProtocols);
@@ -26,7 +26,7 @@ class PredictionModelsClient extends BiocentralClient {
 
   Future<Either<BiocentralException, List<BiotrainerOption>>> getBiotrainerConfigOptionsByProtocol(
       String protocol,) async {
-    final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.configOptionsEndpoint + protocol.trim());
+    final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.configOptions + protocol.trim());
     return responseEither.match((error) => left(error), (responseMap) {
       final List<dynamic> configOptions = responseMap['options'];
       return right(configOptions.map((configOption) => BiotrainerOption.fromMap(configOption)).toList());
@@ -35,19 +35,19 @@ class PredictionModelsClient extends BiocentralClient {
 
   Future<Either<BiocentralException, Unit>> verifyBiotrainerConfig(String configFile) async {
     final responseEither =
-        await doPostRequest(PredictionModelsServiceEndpoints.verifyConfigEndpoint, {'config_file': configFile});
+        await doPostRequest(PredictionModelsServiceEndpoints.verifyConfig, {'config_file': configFile});
     // EMPTY STRING "" -> NO ERROR
     return responseEither.flatMap((responseMap) => right(unit));
   }
 
   Future<Either<BiocentralException, String>> startTraining(String configFile, String databaseHash) async {
-    final responseEither = await doPostRequest(PredictionModelsServiceEndpoints.startTrainingEndpoint,
+    final responseEither = await doPostRequest(PredictionModelsServiceEndpoints.startTraining,
         {'config_file': configFile, 'database_hash': databaseHash},);
     return responseEither.flatMap((responseMap) => right(responseMap['model_hash']));
   }
 
   Future<Either<BiocentralException, BiotrainerTrainingResult?>> _getTrainingStatus(String modelHash) async {
-    final responseEither = await doGetRequest('${PredictionModelsServiceEndpoints.trainingStatusEndpoint}/$modelHash');
+    final responseEither = await doGetRequest('${PredictionModelsServiceEndpoints.trainingStatus}/$modelHash');
     return responseEither.flatMap((responseMap) => BiotrainerTrainingResult.fromDTO(BiocentralDTO(responseMap)));
   }
 
@@ -82,7 +82,7 @@ class PredictionModelsClient extends BiocentralClient {
   Future<Either<BiocentralException, Map<StorageFileType, dynamic>>> getModelFiles(
       String databaseHash, String modelHash,) async {
     final responseEither = await doPostRequest(
-        PredictionModelsServiceEndpoints.modelFilesEndpoint, {'database_hash': databaseHash, 'model_hash': modelHash},);
+        PredictionModelsServiceEndpoints.modelFiles, {'database_hash': databaseHash, 'model_hash': modelHash},);
     return responseEither.flatMap((responseMap) => right((responseMap as Map<String, dynamic>)
         .map((key, value) => MapEntry(enumFromString<StorageFileType>(key, StorageFileType.values)!, value)),),);
   }

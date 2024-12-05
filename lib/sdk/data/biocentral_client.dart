@@ -215,7 +215,7 @@ abstract class BiocentralClient {
   ) async {
     // Check if hash exists
     final responseEither =
-        await doGetRequest("${BiocentralServiceEndpoints.hashesEndpoint}$databaseHash/${fileType.name}");
+        await doGetRequest("${BiocentralServiceEndpoints.hashes}$databaseHash/${fileType.name}");
     return responseEither.match((l) => left(l), (responseMap) async {
       final bool hashExists = responseMap[databaseHash] ?? false;
       if (hashExists) {
@@ -230,7 +230,7 @@ abstract class BiocentralClient {
         }
 
         final transferResponseEither = await doPostRequest(
-          BiocentralServiceEndpoints.transferFileEndpoint,
+          BiocentralServiceEndpoints.transferFile,
           {'hash': databaseHash, 'file_type': fileType.name, 'file': convertedDatabase},
         );
         return transferResponseEither.match((e) => left(e), (r) {
@@ -313,7 +313,7 @@ final class BiocentralClientRepository {
   }
 
   Future<List<String>> checkServerStatus(String url) async {
-    final serviceMap = await _BiocentralClientSandbox.isServerUp(url, BiocentralServiceEndpoints.servicesEndpoint);
+    final serviceMap = await _BiocentralClientSandbox.isServerUp(url, BiocentralServiceEndpoints.services);
     return List<String>.from(serviceMap['services'] ?? {});
   }
 

@@ -18,7 +18,7 @@ class ProteinClient extends BiocentralClient {
 
   Future<Either<BiocentralException, Map<int, Taxonomy>>> retrieveTaxonomy(Set<int> taxonomyIDs) async {
     final Map<String, String> body = {'taxonomy': jsonEncode(taxonomyIDs.map((e) => e.toString()).toList())};
-    final responseEither = await doPostRequest(ProteinServiceEndpoints.retrieveTaxonomyEndpoint, body);
+    final responseEither = await doPostRequest(ProteinServiceEndpoints.retrieveTaxonomy, body);
     return responseEither.flatMap((responseMap) => parseTaxonomy(responseMap['taxonomy']));
   }
 
