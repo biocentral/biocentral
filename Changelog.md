@@ -1,5 +1,12 @@
 # Biocentral Changelog
 
+## v0.1.2
+* Improving column wizard plots
+* Adding prototype for plm evaluate plugin
+* Applying new linter rules
+* Improving prediction model display
+* Improving build and release workflows
+
 ## v0.1.1
 * Adding welcome dialog
 * Adding tooltips to all command buttons
