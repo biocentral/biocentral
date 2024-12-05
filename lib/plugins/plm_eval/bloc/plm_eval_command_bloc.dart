@@ -75,7 +75,7 @@ class PLMEvalCommandBloc extends Bloc<PLMEvalCommandEvent, PLMEvalCommandState> 
       }
 
       AutoEvalProgress? currentProgress;
-      await for (AutoEvalProgress progress in plmEvalClient.autoEvalStatusStream(taskID!, initialProgress)) {
+      await for (AutoEvalProgress? progress in plmEvalClient.autoEvalProgressStream(taskID!, initialProgress)) {
         currentProgress = progress;
         emit(PLMEvalCommandState.running(event.modelID, currentProgress));
       }

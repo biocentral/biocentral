@@ -13,6 +13,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
+import 'biocentral_task_dto.dart';
+
 @immutable
 class DownloadProgress {
   final int bytesReceived;
@@ -53,7 +55,7 @@ final class _BiocentralClientSandbox {
       );
     }
     final String? error = responseMap['error'];
-    if (error != null) {
+    if (error != null && error.isNotEmpty) {
       return left(BiocentralServerException(message: 'An error on the server happened!', error: error));
     }
     return right(responseMap);
@@ -214,8 +216,7 @@ abstract class BiocentralClient {
     Future<String> Function() databaseConversionFunction,
   ) async {
     // Check if hash exists
-    final responseEither =
-        await doGetRequest("${BiocentralServiceEndpoints.hashesEndpoint}$databaseHash/${fileType.name}");
+    final responseEither = await doGetRequest("${BiocentralServiceEndpoints.hashes}$databaseHash/${fileType.name}");
     return responseEither.match((l) => left(l), (responseMap) async {
       final bool hashExists = responseMap[databaseHash] ?? false;
       if (hashExists) {
@@ -230,7 +231,7 @@ abstract class BiocentralClient {
         }
 
         final transferResponseEither = await doPostRequest(
-          BiocentralServiceEndpoints.transferFileEndpoint,
+          BiocentralServiceEndpoints.transferFile,
           {'hash': databaseHash, 'file_type': fileType.name, 'file': convertedDatabase},
         );
         return transferResponseEither.match((e) => left(e), (r) {
@@ -239,6 +240,41 @@ abstract class BiocentralClient {
         });
       }
     });
+  }
+
+  Future<Either<BiocentralException, List<BiocentralTaskDTO>>> getTaskStatus(String taskID) async {
+    final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatus}/$taskID');
+    return responseEither.flatMap((responseMaps) {
+      final sortedUpdatesKeys = responseMaps.keys.toList()..sort();
+      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralTaskDTO(responseMaps[sortedKey])).toList());
+    });
+  }
+
+  Stream<T?> taskUpdateStream<T>(
+      String taskID, T? initialValue, T? Function(T?, BiocentralTaskDTO) updateFunction) async* {
+    const int maxRequests = 1800; // TODO Listening for only 60 Minutes
+    bool finished = false;
+    T? currentValue = initialValue;
+    for (int i = 0; i < maxRequests; i++) {
+      if (finished) {
+        break;
+      }
+      await Future.delayed(const Duration(seconds: 2));
+      final biocentralDTOEither = await getTaskStatus(taskID);
+
+      if (biocentralDTOEither.isLeft() || biocentralDTOEither.getRight().isNone()) {
+        finished = true;
+        continue;
+      }
+      final biocentralDTOs = biocentralDTOEither.getRight().getOrElse(() => []);
+      for(final biocentralDTO in biocentralDTOs) {
+        if (biocentralDTO.taskStatus?.isFinished() ?? true) {
+          finished = true;
+        }
+        currentValue = updateFunction(currentValue, biocentralDTO) ?? currentValue;
+        yield currentValue;
+      }
+    }
   }
 
   List<String> responseStringToList(String responseBody) {
@@ -313,7 +349,7 @@ final class BiocentralClientRepository {
   }
 
   Future<List<String>> checkServerStatus(String url) async {
-    final serviceMap = await _BiocentralClientSandbox.isServerUp(url, BiocentralServiceEndpoints.servicesEndpoint);
+    final serviceMap = await _BiocentralClientSandbox.isServerUp(url, BiocentralServiceEndpoints.services);
     return List<String>.from(serviceMap['services'] ?? {});
   }
 

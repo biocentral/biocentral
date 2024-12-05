@@ -21,7 +21,6 @@ class PLMEvalPipelineView extends StatefulWidget {
 }
 
 class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with AutomaticKeepAliveClientMixin {
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -29,7 +28,7 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildModelCard(),
+          _buildEmbedderModelCard(),
           const SizedBox(width: 20),
           _buildArrow('Evaluation Progress: ${widget.progress.completedTasks}/${widget.progress.totalTasks}'),
           const SizedBox(width: 20),
@@ -39,7 +38,7 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
     );
   }
 
-  Widget _buildModelCard() {
+  Widget _buildEmbedderModelCard() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -93,13 +92,16 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
   }
 
   Widget _buildSplitCard(String datasetName, String splitName) {
-    final BenchmarkDataset current = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
-    final PredictionModel? model = widget.progress.results[current];
+    final BenchmarkDataset datasetToBuild = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
+    final PredictionModel? model = widget.progress.results[datasetToBuild];
+    final bool isCurrentProcess = widget.progress.currentTask == datasetToBuild;
     if (model != null) {
       // TODO [Refactoring] Usage of the trainingState should be reflected and probably refactored
-      return PredictionModelDisplay(predictionModel: model, trainingState: widget.progress.currentModelTrainingState);
+      return PredictionModelDisplay(
+        predictionModel: model,
+        trainingState: isCurrentProcess ? widget.progress.currentModelTrainingState : null,
+      );
     }
-    final bool isCurrentProcess = widget.progress.currentProcess == current;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
