@@ -25,11 +25,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Configure Git to use HTTPS for poetry git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-tk libcairo2-dev libxt-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           pip install poetry
+          poetry self update
+          poetry cache clear --all pypi
           poetry install --extras linux
 
       - name: Run pytest
