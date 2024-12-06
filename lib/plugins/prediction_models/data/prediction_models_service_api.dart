@@ -33,12 +33,6 @@ class BiotrainerOption {
         possibleValues = List<String>.from(map['possible_values']);
 }
 
-enum BiotrainerTrainingStatus {
-  running,
-  finished,
-  failed;
-}
-
 class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Map<int, double> trainingLoss;
   final Map<int, double> validationLoss;
@@ -46,7 +40,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Set<String> sanityCheckWarnings;
   final Map<String, Set<BiocentralMLMetric>> sanityCheckBaselineMetrics;
   final List<String> trainingLogs;
-  final BiotrainerTrainingStatus trainingStatus;
+  final BiocentralTaskStatus trainingStatus;
 
   BiotrainerTrainingResult({
     required this.trainingLoss,
@@ -65,11 +59,11 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         sanityCheckWarnings = const {},
         sanityCheckBaselineMetrics = const {},
         trainingLogs = const [],
-        trainingStatus = BiotrainerTrainingStatus.running;
+        trainingStatus = BiocentralTaskStatus.running;
 
   static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
     final trainingLog = dto.logFile;
-    final trainingStatus = dto.trainingStatus;
+    final trainingStatus = dto.taskStatus;
     if (trainingLog == null) {
       return left(BiocentralParsingException(message: 'Could not read logFile from server DTO!'));
     }
@@ -87,7 +81,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
     Set<String>? sanityCheckWarnings,
     Map<String, Set<BiocentralMLMetric>>? sanityCheckBaselineMetrics,
     List<String>? trainingLogs,
-    BiotrainerTrainingStatus? trainingStatus,
+    BiocentralTaskStatus? trainingStatus,
   }) {
     return BiotrainerTrainingResult(
       trainingLoss: trainingLoss ?? Map.from(this.trainingLoss),

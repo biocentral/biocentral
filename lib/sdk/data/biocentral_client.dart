@@ -13,6 +13,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
+import 'biocentral_dto.dart';
+
 @immutable
 class DownloadProgress {
   final int bytesReceived;
@@ -239,6 +241,39 @@ abstract class BiocentralClient {
         });
       }
     });
+  }
+
+  Future<Either<BiocentralException, BiocentralDTO?>> getTaskStatus(String taskID) async {
+    final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatus}/$taskID');
+    return responseEither.flatMap((responseMap) => right(BiocentralDTO(responseMap)));
+  }
+
+  Stream<T?> taskUpdateStream<T>(String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
+    const int maxRequests = 1800; // TODO Listening for only 60 Minutes
+    bool finished = false;
+    T? currentValue = initialValue;
+    for (int i = 0; i < maxRequests; i++) {
+      if (finished) {
+        break;
+      }
+      await Future.delayed(const Duration(seconds: 2));
+      final biocentralDTOEither = await getTaskStatus(taskID);
+
+      if(biocentralDTOEither.isLeft() || biocentralDTOEither.getRight().isNone()) {
+        finished = true;
+        continue;
+      }
+      final biocentralDTO = biocentralDTOEither.getRight().getOrElse(() => null);
+      if(biocentralDTO == null) {
+        finished = true;
+        continue;
+      }
+      if (biocentralDTO.taskStatus?.isFinished() ?? true) {
+        finished = true;
+      }
+      currentValue = updateFunction(currentValue, biocentralDTO) ?? currentValue;
+      yield currentValue;
+    }
   }
 
   List<String> responseStringToList(String responseBody) {
