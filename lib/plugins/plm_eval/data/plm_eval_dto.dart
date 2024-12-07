@@ -2,11 +2,11 @@ import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 
 import 'plm_eval_service_api.dart';
 
-extension PlmEvalDTO on BiocentralDTO {
+extension PlmEvalDTO on BiocentralTaskDTO {
   int? get completedTasks {
     return int.tryParse(get<int>('completed_tasks').toString());
   }

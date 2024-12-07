@@ -2,7 +2,7 @@ import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/model/leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class PLMEvalClientFactory extends BiocentralClientFactory<PLMEvalClient> {
@@ -45,7 +45,7 @@ class PLMEvalClient extends BiocentralClient {
 
   Future<Either<BiocentralException, AutoEvalProgress>> _getAutoEvalStatus(String taskID) async {
     final responseEither = await doGetRequest('${PLMEvalServiceEndpoints.taskStatus}/$taskID');
-    return responseEither.flatMap((responseMap) => AutoEvalProgress.fromDTO(BiocentralDTO(responseMap)));
+    return responseEither.flatMap((responseMap) => AutoEvalProgress.fromDTO(BiocentralTaskDTO(responseMap)));
   }
 
   Stream<AutoEvalProgress> autoEvalStatusStream(String taskID, AutoEvalProgress initialProgress) async* {

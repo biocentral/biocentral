@@ -2,7 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -61,7 +61,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         trainingLogs = const [],
         trainingStatus = BiocentralTaskStatus.running;
 
-  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
+  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralTaskDTO dto) {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
     if (trainingLog == null) {

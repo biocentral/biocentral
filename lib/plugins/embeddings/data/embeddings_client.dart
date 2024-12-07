@@ -4,7 +4,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class EmbeddingsClientFactory extends BiocentralClientFactory<EmbeddingsClient> {
@@ -36,7 +36,7 @@ class EmbeddingsClient extends BiocentralClient {
 
   Stream<String?> embeddingsTaskStream(String taskID) async* {
     // TODO jsonEncode might cost performance here
-    String? updateFunction(String? currentString, BiocentralDTO biocentralDTO) =>
+    String? updateFunction(String? currentString, BiocentralTaskDTO biocentralDTO) =>
         biocentralDTO.embeddings != null ? jsonEncode(biocentralDTO.embeddings) : null;
     yield* taskUpdateStream<String?>(taskID, null, updateFunction);
   }

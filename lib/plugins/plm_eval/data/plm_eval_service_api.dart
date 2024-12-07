@@ -3,7 +3,7 @@ import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 class PLMEvalServiceEndpoints {
@@ -68,7 +68,7 @@ final class AutoEvalProgress {
         currentModelTrainingState = null,
         status = AutoEvalStatus.failed;
 
-  static Either<BiocentralParsingException, AutoEvalProgress> fromDTO(BiocentralDTO dto) {
+  static Either<BiocentralParsingException, AutoEvalProgress> fromDTO(BiocentralTaskDTO dto) {
     final int? completedTasks = dto.completedTasks;
     final int? totalTasks = dto.totalTasks;
     final AutoEvalStatus? autoEvalStatus = dto.autoEvalStatus;

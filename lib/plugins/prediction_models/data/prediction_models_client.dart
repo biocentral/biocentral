@@ -1,6 +1,6 @@
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_dto.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -49,7 +49,7 @@ class PredictionModelsClient extends BiocentralClient {
   }
 
   Stream<PredictionModel?> biotrainerTrainingTaskStream(String taskID, PredictionModel initialModel) async* {
-    PredictionModel? updateFunction(PredictionModel? currentModel, BiocentralDTO biocentralDTO) =>
+    PredictionModel? updateFunction(PredictionModel? currentModel, BiocentralTaskDTO biocentralDTO) =>
         currentModel?.updateTrainingResult(BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null));
     yield* taskUpdateStream<PredictionModel?>(taskID, initialModel, updateFunction);
   }

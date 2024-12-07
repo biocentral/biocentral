@@ -13,7 +13,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-import 'biocentral_dto.dart';
+import 'biocentral_task_dto.dart';
 
 @immutable
 class DownloadProgress {
@@ -55,7 +55,7 @@ final class _BiocentralClientSandbox {
       );
     }
     final String? error = responseMap['error'];
-    if (error != null) {
+    if (error != null && error.isNotEmpty) {
       return left(BiocentralServerException(message: 'An error on the server happened!', error: error));
     }
     return right(responseMap);
@@ -243,12 +243,12 @@ abstract class BiocentralClient {
     });
   }
 
-  Future<Either<BiocentralException, BiocentralDTO?>> getTaskStatus(String taskID) async {
+  Future<Either<BiocentralException, BiocentralTaskDTO?>> getTaskStatus(String taskID) async {
     final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatus}/$taskID');
-    return responseEither.flatMap((responseMap) => right(BiocentralDTO(responseMap)));
+    return responseEither.flatMap((responseMap) => right(BiocentralTaskDTO(responseMap)));
   }
 
-  Stream<T?> taskUpdateStream<T>(String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
+  Stream<T?> taskUpdateStream<T>(String taskID, T? initialValue, T? Function(T?, BiocentralTaskDTO) updateFunction) async* {
     const int maxRequests = 1800; // TODO Listening for only 60 Minutes
     bool finished = false;
     T? currentValue = initialValue;

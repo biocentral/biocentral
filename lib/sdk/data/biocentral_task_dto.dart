@@ -1,9 +1,9 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
-class BiocentralDTO {
+class BiocentralTaskDTO {
   final Map responseMap;
 
-  BiocentralDTO(this.responseMap);
+  BiocentralTaskDTO(this.responseMap);
 
   // Default methods used across multiple plugins
   String? get embedderName {
