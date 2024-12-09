@@ -68,17 +68,18 @@ final class AutoEvalProgress {
         currentModelTrainingState = null,
         status = AutoEvalStatus.failed;
 
-  static Either<BiocentralParsingException, AutoEvalProgress> fromDTO(BiocentralTaskDTO dto) {
+  static Either<BiocentralParsingException, AutoEvalProgress?> fromDTO(BiocentralTaskDTO dto) {
     final int? completedTasks = dto.completedTasks;
     final int? totalTasks = dto.totalTasks;
     final AutoEvalStatus? autoEvalStatus = dto.autoEvalStatus;
     if (completedTasks == null || totalTasks == null || autoEvalStatus == null) {
       return left(BiocentralParsingException(message: 'Could not parse autoeval update progress!'));
     }
-    final String? currentProcessString = dto.currentProcess;
+    final String? currentProcessString = dto.currentTask;
     final currentProcess = BenchmarkDataset.fromServerString(currentProcessString);
     final Map<BenchmarkDataset, PredictionModel?> autoEvalResults = dto.parseResults();
 
+    // TODO Results parsing
     final currentModel = autoEvalResults[currentProcess];
     final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
     final commandProgress =
@@ -99,7 +100,11 @@ final class AutoEvalProgress {
     );
   }
 
-  AutoEvalProgress update(AutoEvalProgress newProgress) {
+  AutoEvalProgress update(AutoEvalProgress? newProgress) {
+    if(newProgress == null) {
+      return this;
+    }
+
     if (totalTasks != newProgress.totalTasks) {
       logger.w('Inconsistency in updating autoeval progress: $totalTasks != ${newProgress.totalTasks} !');
     }

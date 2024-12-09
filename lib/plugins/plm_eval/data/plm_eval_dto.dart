@@ -4,7 +4,7 @@ import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 
-import 'plm_eval_service_api.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 
 extension PlmEvalDTO on BiocentralTaskDTO {
   int? get completedTasks {
@@ -19,7 +19,7 @@ extension PlmEvalDTO on BiocentralTaskDTO {
     return enumFromString(get<String>('status') ?? '', AutoEvalStatus.values);
   }
 
-  String? get currentProcess => get<String>('current_process');
+  String? get currentTask => get<String>('current_task');
 
   Map<String, dynamic>? get _results => get<Map<String, dynamic>>('results');
 
