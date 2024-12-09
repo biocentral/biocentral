@@ -64,8 +64,12 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralTaskDTO dto) {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
-    if (trainingLog == null) {
-      return left(BiocentralParsingException(message: 'Could not read logFile from server DTO!'));
+    if(trainingStatus != null && trainingStatus != BiocentralTaskStatus.pending) {
+      if (trainingLog == null) {
+        return left(BiocentralParsingException(message: 'Could not read logFile from server DTO!'));
+      }
+    } else if(trainingLog == null) {
+      return right(null);
     }
     final result = BiotrainerFileHandler.parseBiotrainerLog(
       trainingLog: trainingLog,
