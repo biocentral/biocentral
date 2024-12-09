@@ -78,7 +78,7 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
     yield* taskIDEither.match((error) async* {
       yield left(state.setErrored(information: 'Training could not be started! Error: ${error.message}'));
       return;
-    }, (modelHash) async* {
+    }, (taskID) async* {
 
       final initialModel = BiotrainerFileHandler.parsePredictionModel(
         biotrainerConfig: _trainingConfiguration,
@@ -90,7 +90,7 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
       yield left(trainingState);
 
       await for (PredictionModel? currentModel
-          in _predictionModelsClient.biotrainerTrainingTaskStream(modelHash, initialModel)) {
+          in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
         if(currentModel == null) {
           continue;
         }
@@ -108,7 +108,7 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
 
       // Receive files after training has finished
       // TODO Handle case that training was interrupted/failed
-      final modelFilesEither = await _predictionModelsClient.getModelFiles(databaseHash, modelHash);
+      final modelFilesEither = await _predictionModelsClient.getModelFiles(databaseHash, taskID);
       yield* modelFilesEither.match((error) async* {
         yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
         return;
