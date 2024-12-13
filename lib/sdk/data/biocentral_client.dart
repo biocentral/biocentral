@@ -48,7 +48,7 @@ final class _BiocentralClientSandbox {
         ),
       );
     }
-    final Map? responseMap = jsonDecode(response.body);
+    final responseMap = jsonDecode(response.body);
     if (responseMap == null) {
       return left(
         BiocentralParsingException(message: 'Could not parse response body to json! Response: ${response.body}'),
@@ -181,19 +181,9 @@ final class _BiocentralClientSandbox {
   }
 }
 
-abstract class BiocentralClient {
-  final BiocentralServerData? _server;
+mixin HTTPClient {
 
-  BiocentralClient(this._server);
-
-  String getServiceName();
-
-  Either<BiocentralException, String> _getBaseURL() {
-    if (_server == null) {
-      return left(BiocentralNetworkException(message: 'Not connected to any server to perform request!'));
-    }
-    return right(_server!.url);
-  }
+  Either<BiocentralException, String> _getBaseURL();
 
   Future<Either<BiocentralException, Map>> doGetRequest(String endpoint) async {
     final urlEither = _getBaseURL();
@@ -208,6 +198,26 @@ abstract class BiocentralClient {
   Future<Either<BiocentralException, String>> doSimpleFileDownload(String url) async {
     final downloadEither = await _BiocentralClientSandbox.downloadFile(url);
     return downloadEither.flatMap((bytes) => right(String.fromCharCodes(bytes.toList())));
+  }
+
+}
+
+abstract class BiocentralClient with HTTPClient {
+  final BiocentralServerData? _server;
+  final BiocentralHubServerClient _hubServerClient;
+
+  const BiocentralClient(this._server, this._hubServerClient);
+
+  String getServiceName();
+
+  BiocentralHubServerClient get hubServerClient => _hubServerClient;
+
+  @override
+  Either<BiocentralException, String> _getBaseURL() {
+    if (_server == null) {
+      return left(BiocentralNetworkException(message: 'Not connected to any server to perform request!'));
+    }
+    return right(_server!.url);
   }
 
   Future<Either<BiocentralException, Unit>> transferFile(
@@ -242,16 +252,16 @@ abstract class BiocentralClient {
     });
   }
 
-  Future<Either<BiocentralException, List<BiocentralTaskDTO>>> getTaskStatus(String taskID) async {
+  Future<Either<BiocentralException, List<BiocentralDTO>>> getTaskStatus(String taskID) async {
     final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatus}/$taskID');
     return responseEither.flatMap((responseMaps) {
       final sortedUpdatesKeys = responseMaps.keys.toList()..sort();
-      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralTaskDTO(responseMaps[sortedKey])).toList());
+      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralDTO(responseMaps[sortedKey])).toList());
     });
   }
 
   Stream<T?> taskUpdateStream<T>(
-      String taskID, T? initialValue, T? Function(T?, BiocentralTaskDTO) updateFunction) async* {
+      String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
     const int maxRequests = 1800; // TODO Listening for only 60 Minutes
     bool finished = false;
     T? currentValue = initialValue;
@@ -277,27 +287,33 @@ abstract class BiocentralClient {
     }
   }
 
-  List<String> responseStringToList(String responseBody) {
-    //TODO Use json decode?
-    responseBody = responseBody.replaceAll('[', '');
-    responseBody = responseBody.replaceAll(']', '');
-    responseBody = responseBody.replaceAll('"', '');
-    responseBody = responseBody.replaceAll('\n', '');
-    return responseBody.split(',');
-  }
 }
 
 abstract class BiocentralClientFactory<T extends BiocentralClient> {
-  T create(BiocentralServerData? server);
+  T create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient);
 
   Type getClientType() {
     return T;
   }
 }
 
+class BiocentralHubServerClient with HTTPClient {
+  final String _baseUrl;
+
+  BiocentralHubServerClient(this._baseUrl);
+
+  @override
+  Either<BiocentralException, String> _getBaseURL() {
+    return right(_baseUrl);
+  }
+
+}
+
 class ClientManager {
   final Map<Type, BiocentralClientFactory> _factories = {};
   final Map<Type, BiocentralClient> _clients = {};
+  // TODO Config
+  final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('http://localhost:5000');
 
   BiocentralServerData? _server;
 
@@ -316,9 +332,13 @@ class ClientManager {
       if (factory == null) {
         throw Exception('No factory registered for $T');
       }
-      _clients[T] = factory.create(_server);
+      _clients[T] = factory.create(_server, _hubServerClient);
     }
     return _clients[T] as T;
+  }
+
+  BiocentralHubServerClient getHubServerClient() {
+    return _hubServerClient;
   }
 
   bool isServiceAvailable<T extends BiocentralClient>() {

@@ -9,13 +9,13 @@ import 'package:fpdart/fpdart.dart';
 
 final class EmbeddingsClientFactory extends BiocentralClientFactory<EmbeddingsClient> {
   @override
-  EmbeddingsClient create(BiocentralServerData? server) {
-    return EmbeddingsClient(server);
+  EmbeddingsClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+    return EmbeddingsClient(server, hubServerClient);
   }
 }
 
 class EmbeddingsClient extends BiocentralClient {
-  EmbeddingsClient(super._server);
+  const EmbeddingsClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, String>> startEmbedding(
     String embedderName,
@@ -36,7 +36,7 @@ class EmbeddingsClient extends BiocentralClient {
 
   Stream<String?> embeddingsTaskStream(String taskID) async* {
     // TODO jsonEncode might cost performance here
-    String? updateFunction(String? currentString, BiocentralTaskDTO biocentralDTO) =>
+    String? updateFunction(String? currentString, BiocentralDTO biocentralDTO) =>
         biocentralDTO.embeddings != null ? jsonEncode(biocentralDTO.embeddings) : null;
     yield* taskUpdateStream<String?>(taskID, null, updateFunction);
   }

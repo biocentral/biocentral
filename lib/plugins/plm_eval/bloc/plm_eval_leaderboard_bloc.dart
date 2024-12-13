@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import 'package:biocentral/plugins/plm_eval/model/leaderboard.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 
 sealed class PLMEvalLeaderboardEvent {}
 
@@ -12,24 +12,24 @@ final class PLMEvalLeaderboardLoadEvent extends PLMEvalLeaderboardEvent {}
 
 @immutable
 final class PLMEvalLeaderboardState extends Equatable {
-  final Leaderboard leaderboard;
+  final PLMLeaderboard leaderboard;
 
   final PLMEvalLeaderBoardStatus status;
 
   const PLMEvalLeaderboardState(this.leaderboard, this.status);
 
   const PLMEvalLeaderboardState.initial()
-      : leaderboard = const Leaderboard.empty(),
+      : leaderboard = const PLMLeaderboard.empty(),
         status = PLMEvalLeaderBoardStatus.initial;
 
   const PLMEvalLeaderboardState.loading()
-      : leaderboard = const Leaderboard.empty(),
+      : leaderboard = const PLMLeaderboard.empty(),
         status = PLMEvalLeaderBoardStatus.loading;
 
   const PLMEvalLeaderboardState.loaded(this.leaderboard) : status = PLMEvalLeaderBoardStatus.loaded;
 
   const PLMEvalLeaderboardState.errored()
-      : leaderboard = const Leaderboard.empty(),
+      : leaderboard = const PLMLeaderboard.empty(),
         status = PLMEvalLeaderBoardStatus.errored;
 
   @override
@@ -45,7 +45,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
     on<PLMEvalLeaderboardLoadEvent>((event, emit) async {
       emit(const PLMEvalLeaderboardState.loading());
       final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
-      final leaderboardEither = await plmEvalClient.downloadLeaderboardData();
+      final leaderboardEither = await plmEvalClient.downloadPLMLeaderboardData();
       leaderboardEither.match(
         (left) => emit(const PLMEvalLeaderboardState.errored()),
         (leaderboard) => emit(PLMEvalLeaderboardState.loaded(leaderboard)),

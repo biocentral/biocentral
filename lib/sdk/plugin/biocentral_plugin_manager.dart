@@ -55,7 +55,7 @@ class BiocentralPluginManager extends Equatable {
     final PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
     return (
       {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin},
-      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin},
+      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin},
     );
   }
 

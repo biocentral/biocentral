@@ -9,13 +9,13 @@ import 'package:biocentral/plugins/ppi/data/ppi_service_api.dart';
 
 final class PPIClientFactory extends BiocentralClientFactory<PPIClient> {
   @override
-  PPIClient create(BiocentralServerData? server) {
-    return PPIClient(server);
+  PPIClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+    return PPIClient(server, hubServerClient);
   }
 }
 
 class PPIClient extends BiocentralClient {
-  PPIClient(super._server);
+  const PPIClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, Map<String, String>>> getAvailableDatasetFormats() async {
     final responseEither = await doGetRequest(PPIServiceEndpoints.formats);

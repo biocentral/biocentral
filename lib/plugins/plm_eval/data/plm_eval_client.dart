@@ -1,19 +1,19 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
-import 'package:biocentral/plugins/plm_eval/model/leaderboard.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class PLMEvalClientFactory extends BiocentralClientFactory<PLMEvalClient> {
   @override
-  PLMEvalClient create(BiocentralServerData? server) {
-    return PLMEvalClient(server);
+  PLMEvalClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+    return PLMEvalClient(server, hubServerClient);
   }
 }
 
 class PLMEvalClient extends BiocentralClient {
-  PLMEvalClient(super.server);
+  const PLMEvalClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, Unit>> validateModelID(String modelID) async {
     final Map<String, String> body = {'modelID': modelID};
@@ -44,15 +44,14 @@ class PLMEvalClient extends BiocentralClient {
   }
 
   Stream<AutoEvalProgress?> autoEvalProgressStream(String taskID, AutoEvalProgress initialProgress) async* {
-    AutoEvalProgress? updateFunction(AutoEvalProgress? currentProgress, BiocentralTaskDTO biocentralDTO) =>
+    AutoEvalProgress? updateFunction(AutoEvalProgress? currentProgress, BiocentralDTO biocentralDTO) =>
         currentProgress?.updateFromDTO(biocentralDTO);
     yield* taskUpdateStream<AutoEvalProgress?>(taskID, initialProgress, updateFunction);
   }
 
-  Future<Either<BiocentralException, Leaderboard>> downloadLeaderboardData() async {
-    final leaderboardStringEither =
-        await doSimpleFileDownload('https://biocentral.cloud/downloads/biocentral/plm_leaderboard/leaderboard-v1.csv');
-    return leaderboardStringEither.flatMap((leaderboardString) => right(Leaderboard.fromCsvString(leaderboardString)));
+  Future<Either<BiocentralException, PLMLeaderboard>> downloadPLMLeaderboardData() async {
+    final leaderboardMapEither = await hubServerClient.doGetRequest('/plm_leaderboard/');
+    return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
   }
 
   @override
