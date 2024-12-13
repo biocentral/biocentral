@@ -7,13 +7,13 @@ import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart
 
 final class PredictionModelsClientFactory extends BiocentralClientFactory<PredictionModelsClient> {
   @override
-  PredictionModelsClient create(BiocentralServerData? server) {
-    return PredictionModelsClient(server);
+  PredictionModelsClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+    return PredictionModelsClient(server, hubServerClient);
   }
 }
 
 class PredictionModelsClient extends BiocentralClient {
-  PredictionModelsClient(super._server);
+  const PredictionModelsClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, List<String>>> getAvailableBiotrainerProtocols() async {
     final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.protocols);
@@ -49,7 +49,7 @@ class PredictionModelsClient extends BiocentralClient {
   }
 
   Stream<PredictionModel?> biotrainerTrainingTaskStream(String taskID, PredictionModel initialModel) async* {
-    PredictionModel? updateFunction(PredictionModel? currentModel, BiocentralTaskDTO biocentralDTO) =>
+    PredictionModel? updateFunction(PredictionModel? currentModel, BiocentralDTO biocentralDTO) =>
         currentModel?.updateTrainingResult(BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null));
     yield* taskUpdateStream<PredictionModel?>(taskID, initialModel, updateFunction);
   }

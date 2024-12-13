@@ -20,13 +20,20 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
   final List<BenchmarkDataset> result = [];
   for (final entry in response.entries) {
     final datasetName = entry.key.toString();
-    if (entry.value is! List) {
+    if (entry.value is! Map) {
       return left(BiocentralParsingException(message: 'Could not parse benchmark datasets from response map!'));
     }
-    for (final splitName in entry.value) {
-      result.add(BenchmarkDataset(datasetName: datasetName, splitName: splitName.toString()));
+    final splits = entry.value['splits'] ?? [];
+    for (final splitName in splits) {
+      result.add(
+        BenchmarkDataset(
+            datasetName: datasetName,
+            splitName: splitName.toString(),
+            ),
+      );
     }
   }
+  print(result);
   return right(result);
 }
 
@@ -63,8 +70,8 @@ final class AutoEvalProgress {
         currentModelTrainingState = null,
         status = BiocentralTaskStatus.failed;
 
-  AutoEvalProgress updateFromDTO(BiocentralTaskDTO dto) {
-    if(dto.totalTasks == null || dto.completedTasks == null || dto.taskStatus == null) {
+  AutoEvalProgress updateFromDTO(BiocentralDTO dto) {
+    if (dto.totalTasks == null || dto.completedTasks == null || dto.taskStatus == null) {
       return this; // Not a valid update
     }
     final int newCompletedTasks = dto.completedTasks ?? completedTasks;
@@ -75,12 +82,11 @@ final class AutoEvalProgress {
     final currentTask = BenchmarkDataset.fromServerString(currentProcessString);
 
     final newResults = Map.of(results);
-    if(currentTask != null) {
-
+    if (currentTask != null) {
       final PredictionModel newParsedModel = dto.parseCurrentTaskModel();
       final PredictionModel? existingModel = results[currentTask];
       PredictionModel mergedResult = newParsedModel;
-      if(existingModel != null) {
+      if (existingModel != null) {
         mergedResult = existingModel.updateTrainingResult(newParsedModel.biotrainerTrainingResult);
       }
       newResults[currentTask] = mergedResult;
@@ -89,10 +95,10 @@ final class AutoEvalProgress {
 
     final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
     final commandProgress =
-    currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
+        currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
     final BiotrainerTrainingState currentModelTrainingState =
-    BiotrainerTrainingState.fromModel(trainingModel: currentModel)
-        .setOperating(information: 'Training model..', commandProgress: commandProgress);
+        BiotrainerTrainingState.fromModel(trainingModel: currentModel)
+            .setOperating(information: 'Training model..', commandProgress: commandProgress);
     return AutoEvalProgress(
       completedTasks: newCompletedTasks,
       totalTasks: newTotalTasks,
