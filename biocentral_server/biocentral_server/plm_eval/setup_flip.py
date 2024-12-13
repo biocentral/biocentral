@@ -33,7 +33,7 @@ def populate_flip_dataset_splits_with_files() -> dict:
         result_dict[dataset] = {}
         dataset_dir = flip_data_dir / dataset
         protocol = dataset_info["protocol"]
-        result_dict[dataset]["protocol"] = protocol
+        result_dict[dataset]["protocol"] = Protocol.from_string(protocol)
         result_dict[dataset]["splits"] = []
 
         for split in dataset_info["splits"]:
