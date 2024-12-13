@@ -1,11 +1,11 @@
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
-import 'package:biocentral/plugins/plm_eval/model/leaderboard.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class PLMEvalLeaderboardView extends StatefulWidget {
-  final Leaderboard leaderboard;
+  final PLMLeaderboard leaderboard;
 
   const PLMEvalLeaderboardView({required this.leaderboard, super.key});
 
@@ -58,7 +58,7 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
   }
 
   Widget _buildGlobalRankingTable() {
-    final globalRanking = widget.leaderboard.calculateGlobalRanking();
+    final globalRanking = widget.leaderboard.ranking;
 
     return Card(
       child: Padding(

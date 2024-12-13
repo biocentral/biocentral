@@ -8,13 +8,13 @@ import 'package:biocentral/plugins/proteins/data/protein_service_api.dart';
 
 final class ProteinClientFactory extends BiocentralClientFactory<ProteinClient> {
   @override
-  ProteinClient create(BiocentralServerData? server) {
-    return ProteinClient(server);
+  ProteinClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+    return ProteinClient(server, hubServerClient);
   }
 }
 
 class ProteinClient extends BiocentralClient {
-  ProteinClient(super.server);
+  const ProteinClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, Map<int, Taxonomy>>> retrieveTaxonomy(Set<int> taxonomyIDs) async {
     final Map<String, String> body = {'taxonomy': jsonEncode(taxonomyIDs.map((e) => e.toString()).toList())};

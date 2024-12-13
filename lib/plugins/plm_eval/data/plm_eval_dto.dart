@@ -4,7 +4,9 @@ import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 
-extension PlmEvalDTO on BiocentralTaskDTO {
+extension PlmEvalDTO on BiocentralDTO {
+  String? get embedderName => get<String>('embedder_name');
+
   int? get completedTasks {
     return int.tryParse(get<int>('completed_tasks').toString());
   }
@@ -17,7 +19,7 @@ extension PlmEvalDTO on BiocentralTaskDTO {
 
   Map<String, dynamic>? get currentTaskConfig => get<Map<String, dynamic>>('current_task_config');
 
-  BiocentralTaskDTO get _modelDTO => BiocentralTaskDTO(get<Map>('current_task_dto') ?? {});
+  BiocentralDTO get _modelDTO => BiocentralDTO(get<Map>('current_task_dto') ?? {});
 
   PredictionModel parseCurrentTaskModel() {
     final modelDTO = _modelDTO;

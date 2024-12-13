@@ -61,7 +61,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         trainingLogs = const [],
         trainingStatus = BiocentralTaskStatus.running;
 
-  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralTaskDTO dto) {
+  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
    if(trainingLog == null || trainingLog.isEmpty) {

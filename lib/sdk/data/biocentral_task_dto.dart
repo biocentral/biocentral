@@ -1,20 +1,18 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
-class BiocentralTaskDTO {
+class BiocentralDTO {
   final Map responseMap;
 
-  BiocentralTaskDTO(this.responseMap);
+  BiocentralDTO(this.responseMap);
 
+  T? get<T>(String key) => responseMap[key] as T?;
+}
+
+extension BiocentralTaskDTO on BiocentralDTO {
   // Default methods used across multiple plugins
-  String? get embedderName {
-    return responseMap['embedder_name'];
-  }
-
   BiocentralTaskStatus? get taskStatus {
     return enumFromString(get<String?>('status'), BiocentralTaskStatus.values);
   }
-
-  T? get<T>(String key) => responseMap[key] as T?;
 }
 
 enum BiocentralTaskStatus {
