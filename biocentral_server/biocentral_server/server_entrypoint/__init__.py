@@ -19,7 +19,7 @@ from .server_thread import ServerThread
 logger = logging.getLogger(__name__)
 
 
-def create_server_app(mongodb_user="embeddingsUser", mongodb_pwd="embeddingsPassword"):
+def create_server_app(postgresql_user="embeddingsUser", postgresql_pwd="embeddingsPassword"):
     app = Flask("Biocentral Server")
     app.register_blueprint(biocentral_service_route)
     app.register_blueprint(ppi_service_route)
@@ -48,8 +48,8 @@ def create_server_app(mongodb_user="embeddingsUser", mongodb_pwd="embeddingsPass
     if app.config['USE_POSTGRESQL']:
         app.config['POSTGRESQL_CONFIG'] = {
             'dbname': 'embeddings_db',
-            'user': 'embeddingsuser',  # TODO Replace with actual value
-            'password': 'embeddingspwd',  # TODO Replace with actual value
+            'user': postgresql_user,  # TODO Replace with actual value
+            'password': postgresql_pwd,  # TODO Replace with actual value
             'host': 'localhost',
             'port': '5432'
         }
