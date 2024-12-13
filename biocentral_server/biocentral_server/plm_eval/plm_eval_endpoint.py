@@ -38,16 +38,22 @@ def _validate_model_id(model_id: str):
 
 
 def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
-    FLIP_RECOMMENDED = {"aav": "a_test", "meltome": "mixed_split", "gb1": "two_vs_rest", "scl": "mixed_hard",
-                        "bind": "from_publication", "sav": "mixed", "secondary_structure": "sampled",
-                        "conservation": "sampled"}
+    FLIP_RECOMMENDED = {"aav": ["low_vs_high", "two_vs_many"],
+                        "bind": ["from_publication"],
+                        "conservation": ["sampled"],
+                        "meltome": ["mixed_split"],
+                        "gb1": ["low_vs_high", "two_vs_rest"],
+                        "scl": ["mixed_hard"],
+                        "sav": ["mixed"],
+                        "secondary_structure": ["sampled"],
+                        }
     recommended_dict = {}
     for dataset_name, dataset_dict in flip_dict.items():
         if dataset_name in FLIP_RECOMMENDED:
-            recommended_split = FLIP_RECOMMENDED[dataset_name]
+            recommended_splits = FLIP_RECOMMENDED[dataset_name]
             recommended_dict[dataset_name] = deepcopy(dataset_dict)
             recommended_dict[dataset_name]["splits"] = [split for split in dataset_dict["splits"] if
-                                                        split["name"] == recommended_split]
+                                                        split["name"] in recommended_splits]
     return recommended_dict
 
 
