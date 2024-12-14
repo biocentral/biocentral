@@ -19,7 +19,7 @@ from .server_thread import ServerThread
 logger = logging.getLogger(__name__)
 
 
-def create_server_app(postgresql_user="embeddingsUser", postgresql_pwd="embeddingsPassword"):
+def create_server_app(postgresql_user="embeddingsuser", postgresql_pwd="embeddingspwd"):
     app = Flask("Biocentral Server")
     app.register_blueprint(biocentral_service_route)
     app.register_blueprint(ppi_service_route)

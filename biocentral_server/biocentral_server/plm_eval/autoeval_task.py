@@ -38,7 +38,9 @@ class AutoEvalTask(TaskInterface):
 
         self.task_queue = sorted(self.task_queue, key=lambda x: x[0])
         self._process_queue(update_dto_callback)
-        return TaskDTO.finished(result={})
+
+        return TaskDTO.finished(
+            result=self._create_dto_update(current_task_dto=TaskDTO.finished(result={}), task_config={}))
 
     def _process_queue(self, update_dto_callback):
         while self.task_queue:
