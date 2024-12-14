@@ -252,7 +252,9 @@ class BiotrainerFileHandler {
             final Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
             parsedSanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
           } else {
-            logger.e('Invalid sanity check line: $line');
+            if(line.isNotEmpty) {
+              logger.e('Invalid sanity check line: $line');
+            }
           }
         }
       }

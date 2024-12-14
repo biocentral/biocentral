@@ -20,20 +20,19 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
   final List<BenchmarkDataset> result = [];
   for (final entry in response.entries) {
     final datasetName = entry.key.toString();
-    if (entry.value is! Map) {
+    final splits = entry.value ?? [];
+    if (splits is! List) {
       return left(BiocentralParsingException(message: 'Could not parse benchmark datasets from response map!'));
     }
-    final splits = entry.value['splits'] ?? [];
     for (final splitName in splits) {
       result.add(
         BenchmarkDataset(
-            datasetName: datasetName,
-            splitName: splitName.toString(),
-            ),
+          datasetName: datasetName,
+          splitName: splitName.toString(),
+        ),
       );
     }
   }
-  print(result);
   return right(result);
 }
 
@@ -93,19 +92,52 @@ final class AutoEvalProgress {
     }
     final currentModel = newResults[currentTask];
 
-    final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
-    final commandProgress =
-        currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
-    final BiotrainerTrainingState currentModelTrainingState =
-        BiotrainerTrainingState.fromModel(trainingModel: currentModel)
-            .setOperating(information: 'Training model..', commandProgress: commandProgress);
+    final currentModelFinished = currentModel?.biotrainerTrainingResult?.trainingStatus.isFinished() ?? false;
+    BiotrainerTrainingState? newCurrentModelTrainingState;
+    if (!currentModelFinished) {
+      final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
+      final commandProgress =
+          currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
+      newCurrentModelTrainingState = BiotrainerTrainingState.fromModel(trainingModel: currentModel)
+          .setOperating(information: 'Training model..', commandProgress: commandProgress);
+    }
     return AutoEvalProgress(
       completedTasks: newCompletedTasks,
       totalTasks: newTotalTasks,
       currentTask: currentTask,
       results: newResults,
-      currentModelTrainingState: currentModelTrainingState,
+      currentModelTrainingState: newCurrentModelTrainingState,
       status: newStatus,
     );
+  }
+
+  List<Map<String, Map<String, dynamic>>>? convertResultsForPublishing(String? embedderName) {
+    if (embedderName == null || embedderName.isEmpty) {
+      return null;
+    }
+
+    final List<Map<String, Map<String, dynamic>>> publishingResults = [];
+
+    for (final entry in results.entries) {
+      final testSetMetrics = entry.value?.biotrainerTrainingResult?.testSetMetrics;
+      if (testSetMetrics == null || testSetMetrics.isEmpty) {
+        return null;
+      }
+      final datasetName = entry.key.datasetName;
+      final splitName = entry.key.splitName;
+
+      final Map<String, String> metadata = {
+        'model_name': embedderName,
+        'dataset_name': datasetName,
+        'split_name': splitName,
+        'training_date': DateTime.now().toIso8601String(),
+      };
+
+      final testSetMetricsMap =
+          Map.fromEntries(testSetMetrics.map((mlMetric) => MapEntry(mlMetric.name, mlMetric.value)));
+
+      publishingResults.add({'metadata': metadata, 'metrics': testSetMetricsMap});
+    }
+    return publishingResults;
   }
 }

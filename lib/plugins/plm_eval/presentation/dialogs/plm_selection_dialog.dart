@@ -157,6 +157,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
           ),
         ),
         buildRecommendedOnlyCheckBox(),
+        buildSequenceLengthHint(),
       ],
     );
   }
@@ -179,6 +180,13 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     return BiocentralSmallButton(
       onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogSelectedEvent(plmSelection ?? '')),
       label: 'Check Model',
+    );
+  }
+
+  Widget buildSequenceLengthHint() {
+    return Text(
+      'Note: Proteins in all datasets are currently limited to a length of 2000!',
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.red),
     );
   }
 
