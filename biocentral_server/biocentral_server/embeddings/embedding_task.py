@@ -35,7 +35,7 @@ class EmbeddingTask(TaskInterface):
                                                               database_instance=self.embeddings_database)
 
         rounded_embeddings = self._round_embeddings({triple.id: triple.embd for triple in embedding_triples},
-                                                    reduced=self.protocol in Protocol.per_sequence_protocols())
+                                                    reduced=self.protocol in Protocol.using_per_sequence_embeddings())
 
         return TaskDTO.finished(result={"embeddings_file": {embedder_name: rounded_embeddings}})
 
