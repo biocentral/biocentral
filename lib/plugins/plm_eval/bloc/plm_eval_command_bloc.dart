@@ -1,6 +1,5 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -16,6 +15,10 @@ final class PLMEvalCommandStartAutoEvalEvent extends PLMEvalCommandEvent {
   final bool recommendedOnly;
 
   PLMEvalCommandStartAutoEvalEvent(this.modelID, this.datasets, this.recommendedOnly);
+}
+
+final class PLMEvalCommandPublishResultsEvent extends PLMEvalCommandEvent {
+  PLMEvalCommandPublishResultsEvent();
 }
 
 @immutable
@@ -38,14 +41,17 @@ final class PLMEvalCommandState extends Equatable {
 
   const PLMEvalCommandState.finished(this.modelID, this.autoEvalProgress) : status = PLMEvalCommandStatus.finished;
 
+  const PLMEvalCommandState.publishing(this.modelID, this.autoEvalProgress) : status = PLMEvalCommandStatus.publishing;
+
   const PLMEvalCommandState.errored(this.modelID, this.autoEvalProgress) : status = PLMEvalCommandStatus.errored;
 
   @override
   List<Object?> get props => [modelID, autoEvalProgress, status];
 }
 
-enum PLMEvalCommandStatus { initial, starting, running, finished, errored }
+enum PLMEvalCommandStatus { initial, starting, running, finished, publishing, errored }
 
+// TODO [Refactoring] Make BiocentralBloc
 class PLMEvalCommandBloc extends Bloc<PLMEvalCommandEvent, PLMEvalCommandState> {
   final BiocentralClientRepository _biocentralClientRepository;
 
@@ -80,6 +86,18 @@ class PLMEvalCommandBloc extends Bloc<PLMEvalCommandEvent, PLMEvalCommandState> 
         emit(PLMEvalCommandState.running(event.modelID, currentProgress));
       }
       emit(PLMEvalCommandState.finished(event.modelID, currentProgress));
+    });
+    on<PLMEvalCommandPublishResultsEvent>((event, emit) async {
+      emit(PLMEvalCommandState.publishing(state.modelID, state.autoEvalProgress));
+
+      final publishingResults = state.autoEvalProgress?.convertResultsForPublishing(state.modelID);
+      if (publishingResults == null || publishingResults.isEmpty) {
+        return emit(PLMEvalCommandState.errored('Cannot publish results!', state.autoEvalProgress));
+      }
+      final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
+
+      final publishingEither = await plmEvalClient.publishResults(publishingResults);
+      // TODO Handle publishing result
     });
   }
 }

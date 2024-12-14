@@ -65,7 +65,10 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
    if(trainingLog == null || trainingLog.isEmpty) {
-      return right(null);
+     if(trainingStatus != null) {
+       return right(BiotrainerTrainingResult.empty().copyWith(trainingStatus: trainingStatus));
+     }
+     return right(null);
     }
     final result = BiotrainerFileHandler.parseBiotrainerLog(
       trainingLog: trainingLog,
