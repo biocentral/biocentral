@@ -26,7 +26,7 @@ def _validate_model_id(model_id: str):
         response = requests.get(url)
         if response.status_code == 200:
             # Model exists
-            return {}
+            return ""
         elif response.status_code == 401:
             # Model not found
             return f"Model not found on huggingface!"
