@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
@@ -50,7 +52,15 @@ class PLMEvalClient extends BiocentralClient {
   }
 
   Future<Either<BiocentralException, PLMLeaderboard>> downloadPLMLeaderboardData() async {
+    // TODO [Refactoring] Where to put the hubServerEndpoints?
     final leaderboardMapEither = await hubServerClient.doGetRequest('/plm_leaderboard/');
+    return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
+  }
+
+  Future<Either<BiocentralException, PLMLeaderboard>> publishResults(List publishingResults) async {
+    final Map<String, String> body = {'results': jsonEncode(publishingResults)};
+    
+    final leaderboardMapEither = await hubServerClient.doPostRequest('/plm_leaderboard_publish/', body);
     return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
   }
 

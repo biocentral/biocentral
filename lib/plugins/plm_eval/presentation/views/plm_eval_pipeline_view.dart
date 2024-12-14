@@ -3,7 +3,11 @@ import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/displays/prediction_model_display.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../bloc/plm_eval_command_bloc.dart';
 
 class PLMEvalPipelineView extends StatefulWidget {
   final String modelName;
@@ -39,20 +43,30 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
   }
 
   Widget _buildEmbedderModelCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
-          width: SizeConfig.screenWidth(context) * 0.2,
-          height: SizeConfig.screenHeight(context) * 0.2,
-          child: Center(
-            child: Text(
-              widget.modelName,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
+    final plmEvalCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
+    Widget? child;
+    if (widget.progress.status == BiocentralTaskStatus.finished) {
+      child = ElevatedButton(
+        onPressed: () => plmEvalCommandBloc.add(PLMEvalCommandPublishResultsEvent()),
+        child: Text('Publish results for ${widget.modelName}!'),
+      );
+    } else {
+      child = Card(
+        child: Center(
+          child: Text(
+            widget.modelName,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
           ),
         ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        width: SizeConfig.screenWidth(context) * 0.2,
+        height: SizeConfig.screenHeight(context) * 0.2,
+        child: child,
       ),
     );
   }
@@ -97,9 +111,14 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
     final bool isCurrentProcess = widget.progress.currentTask == datasetToBuild;
     if (model != null) {
       // TODO [Refactoring] Usage of the trainingState should be reflected and probably refactored
-      return PredictionModelDisplay(
-        predictionModel: model,
-        trainingState: isCurrentProcess ? widget.progress.currentModelTrainingState : null,
+      return Row(
+        children: [
+          Text(splitName),
+          PredictionModelDisplay(
+            predictionModel: model,
+            trainingState: isCurrentProcess ? widget.progress.currentModelTrainingState : null,
+          ),
+        ],
       );
     }
     return Card(
