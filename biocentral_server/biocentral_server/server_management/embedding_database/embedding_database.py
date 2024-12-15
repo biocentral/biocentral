@@ -1,12 +1,15 @@
 import h5py
 import logging
 
+from tqdm import tqdm
 from pathlib import Path
+from datetime import datetime
 from flask import current_app
 from collections import namedtuple
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Tuple, Any, Optional, Generator
 
 from .tinydb_strategy import TinyDBStrategy
+from .database_strategy import DatabaseStrategy
 from .postgresql_strategy import PostgreSQLStrategy
 
 logger = logging.getLogger(__name__)
@@ -14,19 +17,22 @@ logger = logging.getLogger(__name__)
 EmbeddingsDatabaseTriple = namedtuple("EmbeddingsDatabaseTriple", ["id", "seq", "embd"])
 
 
+def dict_chunks(dct: Dict[str, str], n) -> Generator[Dict[str, str], None, None]:
+    """Yield successive n-sized chunks from dct."""
+    lst = [(key, value) for key, value in dct.items()]
+    for i in range(0, len(lst), n):
+        chunk = {key: value for (key, value) in lst[i:i + n]}
+        yield chunk
+
+
 class EmbeddingsDatabase:
     def __init__(self):
-        self.strategy = None
+        self.strategy: Optional[DatabaseStrategy] = None
 
     def init_app(self, app):
-        self.strategy = PostgreSQLStrategy() if app.config.get('USE_POSTGRESQL', False) else TinyDBStrategy()
+        self.strategy = PostgreSQLStrategy() if app.config.get('USE_POSTGRESQL',
+                                                               False) else TinyDBStrategy()
         self.strategy.init_app(app)
-
-    def save_embedding(self, sequence, embedder_name, per_sequence, per_residue):
-        return self.strategy.save_embedding(sequence, embedder_name, per_sequence, per_residue)
-
-    def get_embedding(self, sequence, embedder_name):
-        return self.strategy.get_embedding(sequence, embedder_name)
 
     def clear_embeddings(self, sequence=None, model_name=None):
         return self.strategy.clear_embeddings(sequence, model_name)
@@ -36,39 +42,56 @@ class EmbeddingsDatabase:
         return [EmbeddingsDatabaseTriple(seq_id, seq, embds.get(seq_id)) for seq_id, seq in seqs.items() if
                 embds.get(seq_id) is not None]
 
-    def save_embeddings(self, ids_seqs_embds: List[EmbeddingsDatabaseTriple], embedder_name, reduced: bool):
-        for embedding_triple in ids_seqs_embds:
-            self.save_embedding(sequence=embedding_triple.seq,
-                                embedder_name=embedder_name,
-                                per_residue=None if reduced else embedding_triple.embd,
-                                per_sequence=embedding_triple.embd if reduced else None)
+    def _prepare_embedding_data(self, sequence, embedder_name, per_sequence, per_residue):
+        hash_key = self.strategy.generate_sequence_hash(sequence)
+        compressed_per_sequence = self.strategy.compress_embedding(per_sequence)
+        compressed_per_residue = self.strategy.compress_embedding(per_residue)
+        return (hash_key, len(sequence), datetime.utcnow(), embedder_name,
+                compressed_per_sequence, compressed_per_residue)
 
-    def _embedding_exists(self, sequence: str, embedder_name: str, reduced: bool) -> bool:
-        embedding = self.get_embedding(sequence, embedder_name)
-        return embedding and (embedding['per_sequence'] if reduced else embedding['per_residue']) is not None
+    def save_embeddings(self, ids_seqs_embds: List[EmbeddingsDatabaseTriple], embedder_name, reduced: bool):
+        embedding_data = [self._prepare_embedding_data(sequence=embedding_triple.seq,
+                                                       embedder_name=embedder_name,
+                                                       per_sequence=embedding_triple.embd if reduced else None,
+                                                       per_residue=embedding_triple.embd if not reduced else None)
+                          for embedding_triple in ids_seqs_embds]
+        self.strategy.save_embeddings(embedding_data)
 
     def filter_existing_embeddings(self, sequences: Dict[str, str],
                                    embedder_name: str,
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
-        existing = {seq_id: seq for seq_id, seq in sequences.items() if
-                    self._embedding_exists(seq, embedder_name, reduced)}
-        non_existing = {seq_id: seq for seq_id, seq in sequences.items() if seq_id not in existing}
-        return existing, non_existing
+        max_batch_size_filtering = 50000
+        if len(sequences) < max_batch_size_filtering:
+            return self.strategy.filter_existing_embeddings(sequences, embedder_name, reduced)
+
+        exist_result = {}
+        non_exist_result = {}
+        for chunk in tqdm(dict_chunks(sequences, max_batch_size_filtering),
+                          desc="Filtering existing sequences in database"):
+            exist_chunk, non_exist_chunk = self.strategy.filter_existing_embeddings(chunk, embedder_name,
+                                                                                    reduced)
+            exist_result.update(exist_chunk)
+            non_exist_result.update(non_exist_chunk)
+
+        return exist_result, non_exist_result
 
     def get_embeddings(self, sequences: Dict[str, str],
                        embedder_name: str,
                        reduced: bool) -> List[EmbeddingsDatabaseTriple]:
+        max_batch_size_reading = 2500
+
+        if len(sequences) < max_batch_size_reading:
+            result = self.strategy.get_embeddings(sequences=sequences, embedder_name=embedder_name)
+            return [EmbeddingsDatabaseTriple(id=seq_id, seq=sequences[seq_id],
+                                             embd=embd.get("per_sequence" if reduced else "per_residue")) for
+                    seq_id, embd in result.items()]
+
         result = []
-        for seq_id, seq in sequences.items():
-            embedding_dict = self.get_embedding(sequence=seq, embedder_name=embedder_name)
-            if embedding_dict:
-                embedding = embedding_dict.get("per_sequence" if reduced else "per_residue")
-                if embedding is not None:
-                    result.append(EmbeddingsDatabaseTriple(seq_id, seq, embedding))
-                else:
-                    current_app.logger.error(f"Embedding could not be found for sequence: {seq_id}")
-            else:
-                current_app.logger.error(f"Embedding could not be found for sequence: {seq_id}")
+        for chunk in tqdm(dict_chunks(sequences, max_batch_size_reading), desc="Reading embeddings from database"):
+            get_result = self.strategy.get_embeddings(sequences=chunk, embedder_name=embedder_name)
+            result.extend([EmbeddingsDatabaseTriple(id=seq_id, seq=sequences[seq_id],
+                                                    embd=embd.get("per_sequence" if reduced else "per_residue")) for
+                           seq_id, embd in get_result.items()])
         return result
 
     @staticmethod
@@ -76,7 +99,8 @@ class EmbeddingsDatabase:
         with h5py.File(output_path, "w") as embeddings_file:
             for idx, triple in enumerate(triples):
                 embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
-                embeddings_file[str(idx)].attrs["original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
+                embeddings_file[str(idx)].attrs[
+                    "original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
 
     @staticmethod
     def export_embeddings_task_result_to_hdf5(embeddings_task_result: Dict[str, Any], output_path: Path):

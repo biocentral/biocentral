@@ -1,7 +1,7 @@
 import torch
 import hashlib
 
-from typing import Union
+from typing import Union, Dict, Tuple, List, Any
 
 
 class DatabaseStrategy:
@@ -11,25 +11,19 @@ class DatabaseStrategy:
     def db_lookup(self, hash_key):
         raise NotImplementedError
 
-    def save_embedding(self, sequence, embedder_name, per_sequence, per_residue):
+    def save_embeddings(self, embeddings_data: List[Tuple]):
         raise NotImplementedError
 
-    def get_embedding(self, sequence, embedder_name):
+    def get_embeddings(self, sequences: Dict[str, str], embedder_name: str) -> Dict[str, Dict[str, Any]]:
         raise NotImplementedError
 
     def clear_embeddings(self, sequence=None, model_name=None):
         raise NotImplementedError
 
-    def _update_document(self, document, embedder_name, per_residue, per_sequence):
-        update_dict: dict = document["embeddings"].get(embedder_name, {})
-        compressed_per_sequence = self._compress_embedding(per_sequence)
-        compressed_per_residue = self._compress_embedding(per_residue)
-        if compressed_per_sequence:
-            update_dict["per_sequence"] = compressed_per_sequence
-        if compressed_per_residue:
-            update_dict["per_residue"] = compressed_per_residue
-        document["embeddings"][embedder_name] = update_dict
-        return document
+    def filter_existing_embeddings(self, sequences: Dict[str, str],
+                                   embedder_name: str,
+                                   reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
+        raise NotImplementedError
 
     @staticmethod
     def _sanity_check_embedding_lookup(sequence: str, document):
@@ -42,7 +36,7 @@ class DatabaseStrategy:
                             f"Sequence causing the issue: {sequence}")
 
     @staticmethod
-    def _compress_embedding(embedding) -> Union[str, bytes, None]:
+    def compress_embedding(embedding) -> Union[str, bytes, None]:
         raise NotImplementedError
 
     @staticmethod
@@ -50,7 +44,7 @@ class DatabaseStrategy:
         raise NotImplementedError
 
     @staticmethod
-    def _generate_sequence_hash(sequence):
+    def generate_sequence_hash(sequence):
         """Generate a hash for the given sequence, with length suffix as additional hash collision safety."""
         suffix = len(sequence)
         sequence = f"{sequence}_{suffix}"
