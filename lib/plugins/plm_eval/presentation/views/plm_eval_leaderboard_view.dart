@@ -1,6 +1,7 @@
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -116,9 +117,9 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
                           child: GestureDetector(
                               onTap: () => launchUrlString('https://huggingface.co/$embedder'),
                               child: Text(
-                            embedder,
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.lightBlueAccent),
-                          )),
+                                embedder,
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.lightBlueAccent),
+                              )),
                         ),
                       ),
                       TableCell(
@@ -148,7 +149,31 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
     );
 
     final metrics = widget.leaderboard.getMetricsForBenchmark(benchmark);
-    return BiocentralMetricsTable(metrics: metrics);
+    final recommendedMetric = widget.leaderboard.getRecommendedMetricByDataset(benchmark);
+    final plotData = metrics.entries
+        .map((entry) => (entry.key.split('/').last, entry.value.firstWhere((d) => d.name == recommendedMetric).value))
+        .toList();
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          BiocentralMetricsTable(
+            metrics: metrics,
+            initialSortingMetric: recommendedMetric,
+            prominentMetric: recommendedMetric,
+          ),
+          SizedBox(
+            height: SizeConfig.screenHeight(context) * 0.2,
+            width: SizeConfig.screenWidth(context) * 0.4,
+            child: BiocentralBarPlot(
+              data: plotData,
+              xAxisLabel: 'Model',
+              yAxisLabel: recommendedMetric,
+              maxLabelLength: 30,
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
