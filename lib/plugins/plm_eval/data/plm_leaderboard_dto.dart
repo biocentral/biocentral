@@ -9,14 +9,22 @@ extension PlmLeaderboardDTO on BiocentralDTO {
     return BiocentralDTO(responseMap[key]);
   }
 
+  Map<String, String> get recommendedMetrics => Map.fromEntries(
+        (get<Map<String, dynamic>>('recommended_metrics') ?? {})
+            .entries
+            .where((entry) => entry.value != null && entry.value.toString().isNotEmpty)
+            .map((entry) => MapEntry(entry.key.toString(), entry.value.toString())),
+      );
+
   BiocentralDTO get leaderboard => BiocentralDTO(responseMap['leaderboard'] ?? {});
 
-  Map<String, double> get ranking => Map.fromEntries((get<Map<String, dynamic>>('ranking') ?? {})
-      .entries
-      .where((entry) => entry.value != null && entry.value.toString().trim().isNotEmpty && entry.value is num)
-      .map((entry) => MapEntry(entry.key.toString(), double.parse(entry.value.toString())))
-      .whereType<MapEntry<String, double>>(),
-  );
+  Map<String, double> get ranking => Map.fromEntries(
+        (get<Map<String, dynamic>>('ranking') ?? {})
+            .entries
+            .where((entry) => entry.value != null && entry.value.toString().trim().isNotEmpty && entry.value is num)
+            .map((entry) => MapEntry(entry.key.toString(), double.parse(entry.value.toString())))
+            .whereType<MapEntry<String, double>>(),
+      );
 
   BiocentralDTO get metadata => BiocentralDTO(responseMap['metadata'] ?? {});
 
