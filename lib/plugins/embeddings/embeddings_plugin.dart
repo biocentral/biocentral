@@ -47,6 +47,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
         getBiocentralDatabaseRepository(context),
         getBiocentralClientRepository(context),
         getBiocentralProjectRepository(context),
+        getBiocentralPythonCompanion(context),
         getDatabase(context),
         eventBus,);
     final embeddingsHubBloc = EmbeddingsHubBloc(

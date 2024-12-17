@@ -183,15 +183,15 @@ final class _BiocentralClientSandbox {
 
 mixin HTTPClient {
 
-  Either<BiocentralException, String> _getBaseURL();
+  Either<BiocentralException, String> getBaseURL();
 
   Future<Either<BiocentralException, Map>> doGetRequest(String endpoint) async {
-    final urlEither = _getBaseURL();
+    final urlEither = getBaseURL();
     return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doGetRequest(url, endpoint));
   }
 
   Future<Either<BiocentralException, Map>> doPostRequest(String endpoint, Map<String, String> body) async {
-    final urlEither = _getBaseURL();
+    final urlEither = getBaseURL();
     return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doPostRequest(url, endpoint, body));
   }
 
@@ -213,7 +213,7 @@ abstract class BiocentralClient with HTTPClient {
   BiocentralHubServerClient get hubServerClient => _hubServerClient;
 
   @override
-  Either<BiocentralException, String> _getBaseURL() {
+  Either<BiocentralException, String> getBaseURL() {
     if (_server == null) {
       return left(BiocentralNetworkException(message: 'Not connected to any server to perform request!'));
     }
@@ -303,7 +303,7 @@ class BiocentralHubServerClient with HTTPClient {
   BiocentralHubServerClient(this._baseUrl);
 
   @override
-  Either<BiocentralException, String> _getBaseURL() {
+  Either<BiocentralException, String> getBaseURL() {
     return right(_baseUrl);
   }
 

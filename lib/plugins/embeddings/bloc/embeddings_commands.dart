@@ -1,8 +1,68 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
+import 'package:biocentral/plugins/embeddings/data/embeddings_python_companion.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
+
+final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, BioEntity>> {
+  final BiocentralProjectRepository _biocentralProjectRepository;
+  final BiocentralDatabase _biocentralDatabase;
+  final BiocentralPythonCompanion _pythonCompanion;
+
+  final PlatformFile? _platformFile;
+  final FileData? _fileData;
+  final DatabaseImportMode _importMode;
+
+  LoadEmbeddingsFromFileCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required BiocentralDatabase biocentralDatabase,
+    required BiocentralPythonCompanion pythonCompanion,
+    required PlatformFile? platformFile,
+    required FileData? fileData,
+    required DatabaseImportMode importMode,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
+        _biocentralDatabase = biocentralDatabase,
+        _pythonCompanion = pythonCompanion,
+        _platformFile = platformFile,
+        _fileData = fileData,
+        _importMode = importMode;
+
+  @override
+  Stream<Either<T, Map<String, BioEntity>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+    yield left(state.setOperating(information: 'Loading embeddings from file..'));
+
+    if (_platformFile == null && _fileData == null) {
+      yield left(state.setErrored(information: 'Did not receive any data to load!'));
+    } else {
+      final embeddingsData = await _pythonCompanion.loadH5File(_platformFile!);
+      yield* embeddingsData.match((error) async* {
+        yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
+      }, (embeddingsMap) async* {
+        final entities = _biocentralDatabase.updateEmbeddings(embeddingsMap);
+        yield right(entities);
+        yield left(
+          state.setFinished(
+            information: 'Finished loading embeddings from file!',
+            commandProgress:
+                BiocentralCommandProgress(current: embeddingsMap.values.length, total: embeddingsMap.values.length),
+          ),
+        );
+      });
+    }
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {
+      'fileName': _fileData?.name ?? _platformFile?.name,
+      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'importMode': _importMode.name,
+    };
+  }
+}
 
 final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Embedding>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
