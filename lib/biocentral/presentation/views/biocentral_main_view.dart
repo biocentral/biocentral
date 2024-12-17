@@ -5,6 +5,7 @@ import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_tab_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,7 +45,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     // HANDLE APP EXIT
     _exitListener = AppLifecycleListener(
       onExitRequested: () async {
-        await killServer();
+        await terminateServer();
+        await terminatePythonCompanion();
         return AppExitResponse.exit;
       },
     );
@@ -81,12 +83,17 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     super.dispose();
   }
 
-  Future<void> killServer() async {
+  Future<void> terminateServer() async {
     final localServerInstance = BiocentralLocalServer();
     if (localServerInstance.isRunning()) {
       await BiocentralLocalServer().stop();
     }
   }
+
+  Future<void> terminatePythonCompanion() async {
+    final pythonCompanion = context.read<BiocentralPythonCompanion>();
+    final terminated = pythonCompanion.terminateCompanion();
+}
 
   void createBlocs() {
     final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
