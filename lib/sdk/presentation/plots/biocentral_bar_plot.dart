@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,13 @@ class BiocentralBarPlot extends StatelessWidget {
   final List<(String, double)> data;
   final String xAxisLabel;
   final String yAxisLabel;
+  final int maxLabelLength;
 
   const BiocentralBarPlot({
     required this.data, super.key,
     this.xAxisLabel = '',
     this.yAxisLabel = '',
+    this.maxLabelLength = 6,
   });
 
   @override
@@ -20,7 +23,7 @@ class BiocentralBarPlot extends StatelessWidget {
       builder: (context, constraints) {
         return CustomPaint(
           size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: _BarPlotPainter(data, xAxisLabel, yAxisLabel),
+          painter: _BarPlotPainter(data, xAxisLabel, yAxisLabel, maxLabelLength),
         );
       },
     );
@@ -31,9 +34,10 @@ class _BarPlotPainter extends CustomPainter {
   final List<(String, double)> data;
   final String xAxisLabel;
   final String yAxisLabel;
+  final int maxLabelLength;
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
-  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel);
+  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel, this.maxLabelLength);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -73,8 +77,10 @@ class _BarPlotPainter extends CustomPainter {
     // Draw x-axis labels
     for (int i = 0; i < data.length; i++) {
       String label = data[i].$1;
-      if(label.length > 8) {
-        label = '${label.substring(0, 6)}..';
+      final int originalLabelLength = label.length;
+      label = label.substring(0, min(label.length, maxLabelLength));
+      if(originalLabelLength > maxLabelLength) {
+        label = label.replaceRange(label.length - 2, label.length, '..');
       }
       final textPainter = TextPainter(
         text: TextSpan(
@@ -94,7 +100,7 @@ class _BarPlotPainter extends CustomPainter {
     }
 
     // Draw y-axis labels
-    final int yTickCount = 5;
+    final int yTickCount = min(data.length, 5);
     for (int i = 0; i <= yTickCount; i++) {
       final double y = plotOffset.dy + plotSize.height * (1 - i / yTickCount);
       final double labelValue = maxY * (i / yTickCount);
