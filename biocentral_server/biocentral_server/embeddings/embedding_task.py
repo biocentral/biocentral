@@ -1,3 +1,6 @@
+import numpy as np
+
+from tqdm import tqdm
 from typing import Any, Callable
 
 from biotrainer.protocols import Protocol
@@ -34,17 +37,18 @@ class EmbeddingTask(TaskInterface):
                                                               device=self.device,
                                                               database_instance=self.embeddings_database)
 
-        rounded_embeddings = self._round_embeddings({triple.id: triple.embd for triple in embedding_triples},
-                                                    reduced=self.protocol in Protocol.using_per_sequence_embeddings())
+        processed_embeddings = {triple.id: triple.embd.cpu().numpy() for triple in embedding_triples}
+        del embedding_triples
 
-        return TaskDTO.finished(result={"embeddings_file": {embedder_name: rounded_embeddings}})
+        round = False
+        if round:
+            processed_embeddings = self._round_embeddings(processed_embeddings)
+
+        return TaskDTO.finished(result={"embeddings_file": {embedder_name: processed_embeddings}})
 
     @staticmethod
-    def _round_embeddings(embeddings: dict, reduced: bool):
-        # TODO Document rounding
-        if reduced:
-            return {sequence_id: [round(val, 4) for val in embedding.tolist()] for sequence_id, embedding in
-                    embeddings.items()}
-        return {sequence_id: [[round(val, 4) for val in perResidue.tolist()] for perResidue in embedding] for
-                sequence_id, embedding in
-                embeddings.items()}
+    def _round_embeddings(embeddings: dict, decimals: int = 4):
+        return {
+            sequence_id: np.round(embedding, decimals).tolist()
+            for sequence_id, embedding in tqdm(embeddings.items(), desc=f"Rounding embeddings to {decimals} decimals..")
+        }
