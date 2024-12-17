@@ -6,6 +6,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:serious_python/serious_python.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 void main() async {
@@ -13,6 +14,7 @@ void main() async {
       await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager();
 
+  SeriousPython.run('assets/test_normal.zip', appFileName: 'test_normal.py');
   runApp(BiocentralApp(biocentralProjectRepository: biocentralProjectRepository, pluginManager: pluginManager));
 }
 

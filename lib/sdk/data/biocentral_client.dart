@@ -195,6 +195,12 @@ mixin HTTPClient {
     return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doPostRequest(url, endpoint, body));
   }
 
+  Future<Either<BiocentralException, Map>> testRequestNormal(String endpoint, Map<String, String> body) async {
+    await Future.delayed(Duration(seconds: 2));
+    final urlEither = Either.right("http://127.0.0.1:50001/test_normal");
+    return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doPostRequest(url, endpoint, body));
+  }
+
   Future<Either<BiocentralException, String>> doSimpleFileDownload(String url) async {
     final downloadEither = await _BiocentralClientSandbox.downloadFile(url);
     return downloadEither.flatMap((bytes) => right(String.fromCharCodes(bytes.toList())));

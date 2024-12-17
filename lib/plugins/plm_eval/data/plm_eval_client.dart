@@ -64,6 +64,11 @@ class PLMEvalClient extends BiocentralClient {
     return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
   }
 
+  Future<Either<BiocentralException, Map>> testNormal() async {
+    final Map<String, String> body = {'data': jsonEncode([0.5, 0.7, 10, 22, 5, 30])};
+    return hubServerClient.testRequestNormal("", body);
+  }
+
   @override
   String getServiceName() {
     return 'plm_eval_service';

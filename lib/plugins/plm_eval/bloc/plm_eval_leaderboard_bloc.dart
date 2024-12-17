@@ -43,6 +43,11 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
 
   PLMEvalLeaderboardBloc(this._biocentralClientRepository) : super(const PLMEvalLeaderboardState.initial()) {
     on<PLMEvalLeaderboardLoadEvent>((event, emit) async {
+      // TEST
+      final tC = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
+      final res = await tC.testNormal();
+      print(res);
+
       emit(const PLMEvalLeaderboardState.loading());
       final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
       final leaderboardEither = await plmEvalClient.downloadPLMLeaderboardData();
