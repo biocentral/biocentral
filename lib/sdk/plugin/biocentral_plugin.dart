@@ -1,4 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,6 +45,10 @@ abstract class BiocentralPlugin with TypeNameMixin {
 
   BiocentralDatabaseRepository getBiocentralDatabaseRepository(BuildContext context) {
     return context.read<BiocentralDatabaseRepository>();
+  }
+
+  BiocentralPythonCompanion getBiocentralPythonCompanion(BuildContext context) {
+    return context.read<BiocentralPythonCompanion>();
   }
 
   BiocentralColumnWizardRepository getBiocentralColumnWizardRepository(BuildContext context) {

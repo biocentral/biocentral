@@ -19,7 +19,7 @@ Map<String, String> stringMapFromJsonDecode(Map? decodedMap) {
   return result;
 }
 
-Map<Type, T> getTypedMap<T>(List<T>? values) {
+Map<Type, T> convertListToTypeMap<T>(List<T>? values) {
   final Map<Type, T> result = {};
   for (T value in values ?? []) {
     result[value.runtimeType] = value;
