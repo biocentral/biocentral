@@ -1,3 +1,5 @@
+# Compile via dart run serious_python:main package --asset assets/test_normal.zip python_app/ -p Linux --requirements -r,python_app/requirements.txt
+
 import sys
 import json
 import logging
