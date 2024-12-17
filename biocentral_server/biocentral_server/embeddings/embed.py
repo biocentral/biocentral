@@ -51,6 +51,9 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
     embeddings_db: EmbeddingsDatabase = database_instance if (
             database_instance is not None) else current_app.config["EMBEDDINGS_DATABASE"]
 
+    # TODO [Optimization] If per-residue embeddings exist, but per-sequence embeddings not and are required,
+    #  directly calculate them
+
     existing_embds_seqs, non_existing_embds_seqs = embeddings_db.filter_existing_embeddings(sequences=all_seqs,
                                                                                             embedder_name=embedder_name,
                                                                                             reduced=reduce)
