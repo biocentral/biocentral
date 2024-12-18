@@ -63,7 +63,7 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
   }
 
   @override
-  List<ColumnWizardFactory<ColumnWizard>> createColumnWizardFactories() {
-    return [EmbeddingsColumnWizardFactory()];
+  Map<ColumnWizardFactory<ColumnWizard>, Widget Function(ColumnWizard)?> createColumnWizardFactories() {
+    return {EmbeddingsColumnWizardFactory(): null};
   }
 }
