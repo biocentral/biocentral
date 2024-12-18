@@ -38,7 +38,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
 
     final String? metricToInitialSort = widget.initialSortingMetric ?? (allMetricNames.toList()..sort()).firstOrNull;
     if (metricToInitialSort != null) {
-      _sortTableByMetric(metricToInitialSort);
+      _sortTableByMetricInitial(metricToInitialSort);
     }
   }
 
@@ -48,15 +48,21 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
     initialize();
   }
 
+  void _sortTableByMetricInitial(String metric) {
+    setState(() {
+      _sortedMetric = metric;
+      _ascending = BiocentralMLMetric.isAscending(metric);
+      _isExpanded = false;
+      _prominentMetric = metric;
+    });
+  }
+
   void _sortTableByMetric(String metric) {
     setState(() {
       if (_sortedMetric == metric) {
         _ascending = !_ascending;
       } else {
-        _sortedMetric = metric;
-        _ascending = BiocentralMLMetric.isAscending(metric);
-        _isExpanded = false;
-        _prominentMetric = metric;
+        _sortTableByMetricInitial(metric);
       }
     });
   }
