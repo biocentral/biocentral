@@ -1,12 +1,12 @@
 import numpy as np
 
 from tqdm import tqdm
-from typing import Any, Callable
+from typing import Callable, List
 
 from biotrainer.protocols import Protocol
 from biotrainer.utilities import read_FASTA, get_device
 
-from .embed import compute_embeddings_and_save_to_db
+from .embed import compute_embeddings_and_save_to_db, EmbeddingsDatabaseTriple
 
 from ..server_management import TaskInterface, TaskDTO
 
@@ -37,18 +37,21 @@ class EmbeddingTask(TaskInterface):
                                                               device=self.device,
                                                               database_instance=self.embeddings_database)
 
-        processed_embeddings = {triple.id: triple.embd.cpu().numpy() for triple in embedding_triples}
+        post_processed_embeddings = self._postprocess_embeddings(embedding_triples=embedding_triples, do_rounding=False,
+                                                                 round_decimals=4)
         del embedding_triples
 
-        round = False
-        if round:
-            processed_embeddings = self._round_embeddings(processed_embeddings)
-
-        return TaskDTO.finished(result={"embeddings_file": {embedder_name: processed_embeddings}})
+        return TaskDTO.finished(result={"embeddings_file": {embedder_name: post_processed_embeddings}})
 
     @staticmethod
-    def _round_embeddings(embeddings: dict, decimals: int = 4):
-        return {
-            sequence_id: np.round(embedding, decimals).tolist()
-            for sequence_id, embedding in tqdm(embeddings.items(), desc=f"Rounding embeddings to {decimals} decimals..")
-        }
+    def _postprocess_embeddings(embedding_triples: List[EmbeddingsDatabaseTriple],
+                                do_rounding=False,
+                                round_decimals=4):
+        # TODO [Optimization] Check if tolist() is costly regarding RAM
+        if do_rounding:
+            return {
+                triple.id: np.round(triple.embd.cpu().numpy(), round_decimals).tolist()
+                for triple in
+                tqdm(embedding_triples, desc=f"Rounding embeddings to {round_decimals} decimals..")
+            }
+        return {triple.id: triple.embd.cpu().numpy().tolist() for triple in embedding_triples}
