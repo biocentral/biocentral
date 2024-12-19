@@ -53,7 +53,6 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
       _sortedMetric = metric;
       _ascending = BiocentralMLMetric.isAscending(metric);
       _isExpanded = false;
-      _prominentMetric = metric;
     });
   }
 
@@ -63,6 +62,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
         _ascending = !_ascending;
       } else {
         _sortTableByMetricInitial(metric);
+        _prominentMetric = metric;
       }
     });
   }
