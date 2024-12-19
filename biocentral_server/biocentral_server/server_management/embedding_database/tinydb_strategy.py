@@ -4,14 +4,12 @@ import blosc2
 import logging
 import numpy as np
 
-from flask import current_app
-from datetime import datetime
 from tinydb import TinyDB, Query
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
+from typing import Dict, Tuple, List, Any
 
 from .database_strategy import DatabaseStrategy
-
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +23,7 @@ class TinyDBStrategy(DatabaseStrategy):
         self.db = TinyDB(db_path, storage=CachingMiddleware(JSONStorage))
 
     @staticmethod
-    def _compress_embedding(embedding):
+    def compress_embedding(embedding):
         if embedding is None:
             return None
         if torch.is_tensor(embedding):
@@ -43,54 +41,54 @@ class TinyDBStrategy(DatabaseStrategy):
         numpy_array = blosc2.unpack_array(decoded)
         return torch.from_numpy(numpy_array)
 
-    def db_lookup(self, hash_key):
-        embedding = Query()
-        logger.info(f"Looking up: {hash_key}")
-        return self.db.get(embedding._id == hash_key)
-
-    def save_embedding(self, sequence, embedder_name, per_sequence, per_residue):
+    def save_embeddings(self, embeddings_data: List[Tuple]):
         try:
-            hash_key = self._generate_sequence_hash(sequence)
-            document = self.db_lookup(hash_key) or {
-                "_id": hash_key,
-                "embeddings": {},
-                "metadata": {
-                    "last_updated": datetime.utcnow().isoformat(),
-                    "sequence_length": len(sequence)
+            for data in embeddings_data:
+                hash_key, seq_length, last_updated, embedder_name, per_sequence, per_residue = data
+                document = self.db.get(Query()._id == hash_key) or {
+                    "_id": hash_key,
+                    "embeddings": {},
+                    "metadata": {
+                        "sequence_length": seq_length
+                    }
                 }
-            }
 
-            self._sanity_check_embedding_lookup(sequence, document)
+                document["metadata"]["last_updated"] = last_updated.isoformat()
+                document["embeddings"].setdefault(embedder_name, {})
 
-            document = self._update_document(document, embedder_name, per_residue, per_sequence)
+                if per_sequence is not None:
+                    document["embeddings"][embedder_name]["per_sequence"] = per_sequence
+                if per_residue is not None:
+                    document["embeddings"][embedder_name]["per_residue"] = per_residue
 
-            embedding = Query()
-            self.db.upsert(document, embedding._id == hash_key)
+                self.db.upsert(document, Query()._id == hash_key)
             return True
         except Exception as e:
-            current_app.logger.error(f"Error saving embedding: {e}")
+            logger.error(f"Error saving embeddings: {e}")
             return False
 
-    def get_embedding(self, sequence, embedder_name):
+    def get_embeddings(self, sequences: Dict[str, str], embedder_name: str) -> Dict[str, Dict[str, Any]]:
         try:
-            hash_key = self._generate_sequence_hash(sequence)
-            embedding = Query()
-            document = self.db.get(embedding._id == hash_key)
-            if document and embedder_name in document["embeddings"]:
-                embeddings = document["embeddings"][embedder_name]
-                return {
-                    "per_sequence": self._decompress_embedding(embeddings.get("per_sequence", None)),
-                    "per_residue": self._decompress_embedding(embeddings.get("per_residue", None))
-                }
-            return None
+            results = {}
+            for seq_id, seq in sequences.items():
+                hash_key = self.generate_sequence_hash(seq)
+                document = self.db.get(Query()._id == hash_key)
+                if document and embedder_name in document["embeddings"]:
+                    embeddings = document["embeddings"][embedder_name]
+                    results[seq_id] = {
+                        "id": hash_key,
+                        "per_sequence": self._decompress_embedding(embeddings.get("per_sequence", None)),
+                        "per_residue": self._decompress_embedding(embeddings.get("per_residue", None))
+                    }
+            return results
         except Exception as e:
-            current_app.logger.error(f"Error retrieving embedding: {e}")
-            return None
+            logger.error(f"Error retrieving embeddings: {e}")
+            return {}
 
     def clear_embeddings(self, sequence=None, model_name=None):
         embedding = Query()
         if sequence and model_name:
-            hash_key = self._generate_sequence_hash(sequence)
+            hash_key = self.generate_sequence_hash(sequence)
             doc = self.db.get(embedding._id == hash_key)
             if doc and model_name in doc['embeddings']:
                 del doc['embeddings'][model_name]
@@ -98,7 +96,7 @@ class TinyDBStrategy(DatabaseStrategy):
                 return 1
             return 0
         elif sequence:
-            hash_key = self._generate_sequence_hash(sequence)
+            hash_key = self.generate_sequence_hash(sequence)
             return self.db.remove(embedding._id == hash_key)
         elif model_name:
             def remove_model(doc):
@@ -109,3 +107,23 @@ class TinyDBStrategy(DatabaseStrategy):
             return self.db.update(remove_model)
         else:
             return self.db.truncate()
+
+    def filter_existing_embeddings(self, sequences: Dict[str, str],
+                                   embedder_name: str,
+                                   reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
+        existing = {}
+        non_existing = {}
+        for seq_id, seq in sequences.items():
+            hash_key = self.generate_sequence_hash(seq)
+            document = self.db.get(Query()._id == hash_key)
+            if document and embedder_name in document["embeddings"]:
+                embeddings = document["embeddings"][embedder_name]
+                if reduced and embeddings.get("per_sequence") is not None:
+                    existing[seq_id] = seq
+                elif not reduced and embeddings.get("per_residue") is not None:
+                    existing[seq_id] = seq
+                else:
+                    non_existing[seq_id] = seq
+            else:
+                non_existing[seq_id] = seq
+        return existing, non_existing
