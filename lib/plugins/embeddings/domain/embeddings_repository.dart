@@ -5,20 +5,20 @@ import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dar
 class EmbeddingsRepository {
   final Map<Type, EmbeddingsColumnWizard> _embeddingsColumnWizards = {};
 
-  // Embedder Name -> Map<UMAPData, List>
-  final Map<String, Map<UMAPData, List<Map<String, String>>>> _umapDataToPointData = {};
+  // Embedder Name -> Map<ProjectionData, List>
+  final Map<String, Map<ProjectionData, List<Map<String, String>>>> _projectionDataToPointData = {};
 
   EmbeddingsRepository();
 
-  Map<UMAPData, List<Map<String, String>>> updateUMAPData(
-      String embedderName, UMAPData umapData, List<Map<String, String>> pointData,) {
-    _umapDataToPointData.putIfAbsent(embedderName, () => {});
-    _umapDataToPointData[embedderName]![umapData] = pointData;
-    return getUMAPDataMap(embedderName)!;
+  Map<ProjectionData, List<Map<String, String>>> updateProjectionData(
+      String embedderName, ProjectionData projectionData, List<Map<String, String>> pointData,) {
+    _projectionDataToPointData.putIfAbsent(embedderName, () => {});
+    _projectionDataToPointData[embedderName]![projectionData] = pointData;
+    return getProjectionDataMap(embedderName)!;
   }
 
-  Map<UMAPData, List<Map<String, String>>>? getUMAPDataMap(String embedderName) {
-    return _umapDataToPointData[embedderName];
+  Map<ProjectionData, List<Map<String, String>>>? getProjectionDataMap(String embedderName) {
+    return _projectionDataToPointData[embedderName];
   }
 
   Map<Type, EmbeddingsColumnWizard> updateEmbeddingsColumnWizardForType(

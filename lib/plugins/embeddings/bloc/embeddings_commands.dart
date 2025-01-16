@@ -118,9 +118,8 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
         }
         if (embeddingsFile == null) {
           yield left(state.setErrored(information: 'Embeddings could not be calculated, no embeddings file received!'));
-          return;
         }
-        yield* _handleEmbeddingsFile(state, embeddingsFile, reduce);
+        yield* _handleEmbeddingsFile(state, embeddingsFile!, reduce);
       });
     });
   }
@@ -159,63 +158,103 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
   }
 }
 
-final class CalculateUMAPCommand extends BiocentralCommand<UMAPData> {
+final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
+  final BiocentralPythonCompanion _pythonCompanion;
+
   final EmbeddingsRepository _embeddingsRepository;
   final EmbeddingsClient _embeddingsClient;
-  final List<PerSequenceEmbedding> _embeddings;
+  final Map<String, PerSequenceEmbedding> _embeddings;
   final String? _embedderName;
 
   CalculateUMAPCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabaseRepository biocentralDatabaseRepository,
+    required BiocentralPythonCompanion pythonCompanion,
     required EmbeddingsRepository embeddingsRepository,
     required EmbeddingsClient embeddingsClient,
-    required List<PerSequenceEmbedding> embeddings,
+    required Map<String, PerSequenceEmbedding> embeddings,
     required String? embedderName,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabaseRepository = biocentralDatabaseRepository,
+        _pythonCompanion = pythonCompanion,
         _embeddingsRepository = embeddingsRepository,
         _embeddings = embeddings,
         _embeddingsClient = embeddingsClient,
         _embedderName = embedderName;
 
   @override
-  Stream<Either<T, UMAPData>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+  Stream<Either<T, ProjectionData>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     yield left(state.setOperating(information: 'Calculating UMAP..'));
 
     if (_embedderName == null || _embedderName.isEmpty) {
       yield left(state.setErrored(information: 'No embedder name selected for UMAP!'));
-    } else {
-      if (_embeddings.contains(null)) {
-        yield left(state.setErrored(information: 'Some proteins do not have embeddings!'));
-      } else {
-        final umapDataEither = await _embeddingsClient.umap(_embedderName, _embeddings);
-        yield* umapDataEither.match((error) async* {
+    }
+
+    // TODO Make generic
+    final proteinRepository = _biocentralDatabaseRepository.getFromType(Protein);
+    if (proteinRepository == null) {
+      yield left(state.setErrored(information: 'Could not find necessary protein repository!'));
+    }
+    final sequences = Map.fromEntries(
+      proteinRepository!
+          .databaseToMap()
+          .values
+          .map((entity) => MapEntry(entity.getID(), entity.toMap()["sequence"].toString())),
+    );
+
+    final missingEmbeddingsEither = await _embeddingsClient.getMissingEmbeddings(sequences, _embedderName!, true);
+    yield* missingEmbeddingsEither.match((error) async* {
+      yield left(state.setErrored(information: error.message));
+    }, (missingEmbeddings) async* {
+      if (missingEmbeddings.isNotEmpty) {
+        final writeH5Either =
+            await _pythonCompanion.writeH5File('/home/sebie/IdeaProjects/biocentral/test_dir/test.h5', _embeddings);
+        yield* writeH5Either.match((error) async* {
           yield left(state.setErrored(information: error.message));
-        }, (umapData) async* {
-          // TODO Improve Point Data with type of embeddings
-          final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(Protein);
-          if (database == null) {
-            yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
-          } else {
-            final Map<UMAPData, List<Map<String, String>>> updatedUMAPData = _embeddingsRepository.updateUMAPData(
-              _embedderName,
-              umapData,
-              database
-                  .databaseToList()
-                  .map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString())))
-                  .toList(),
-            );
-            yield right(umapData);
-            yield left(
-              state.setFinished(information: 'Calculated UMAP data!').copyWith(copyMap: {'umapData': updatedUMAPData}),
-            );
+        }, (h5Bytes) async* {
+          final addEmbeddingsEither = await _embeddingsClient.addEmbeddings(h5Bytes, sequences, _embedderName, true);
+          if (addEmbeddingsEither.isLeft()) {
+            yield left(state.setErrored(information: 'Could not add embeddings to server!'));
           }
         });
       }
-    }
+      final taskIDEither =
+          await _embeddingsClient.projectionForSequences(sequences, _embedderName, 'umap', 2, _embedderName);
+      yield* taskIDEither.match((error) async* {
+        yield left(state.setErrored(information: error.message));
+      }, (taskID) async* {
+        String? projectionFile;
+        await for (String? projectionFileResponse in _embeddingsClient.projectionTaskStream(taskID)) {
+          if (projectionFileResponse != null) {
+            projectionFile = projectionFileResponse;
+            break;
+          }
+        }
+        if (projectionFile == null) {
+          yield left(
+              state.setErrored(information: 'Projections could not be calculated, no projections file received!'));
+        }
+
+        // TODO Improve Point Data with type of embeddings
+        final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(Protein);
+        if (database == null) {
+          yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
+        }
+        //final Map<ProjectionData, List<Map<String, String>>> updatedProjectionData = _embeddingsRepository.updateProjectionData(
+        //  _embedderName,
+        //  projectionData,
+        //  database!.databaseToList().map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString()))).toList(),
+        //);
+        //yield right(projectionData);
+        //yield left(
+        //  state
+        //      .setFinished(information: 'Calculated UMAP data!')
+        //      .copyWith(copyMap: {'projectionData': updatedProjectionData}),
+        //);
+      });
+    });
   }
 
   @override
