@@ -1,12 +1,11 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/embeddings/bloc/calculate_umap_dialog_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:biocentral/plugins/embeddings/bloc/calculate_umap_dialog_bloc.dart';
-
 class CalculateUMAPDialog extends StatefulWidget {
-  final void Function(String embedderName, List<PerSequenceEmbedding> embeddings, DatabaseImportMode importMode)
+  final void Function(String embedderName, Map<String, PerSequenceEmbedding> embeddings, DatabaseImportMode importMode)
       calculateUMAPCallback;
 
   const CalculateUMAPDialog({required this.calculateUMAPCallback, super.key});
@@ -25,22 +24,15 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
     if (state.selectedEmbedderName != null &&
         state.selectedEmbeddingType != null &&
         state.embeddingsColumnWizard != null) {
-      // TODO Very complicated, rework embeddings column wizard API
-      final List<PerSequenceEmbedding?>? embByEmbedderName =
-          state.embeddingsColumnWizard!.getPerSequenceEmbeddings()[state.selectedEmbedderName];
-      if (embByEmbedderName != null) {
-        final List<PerSequenceEmbedding> embeddings = [];
-        for (PerSequenceEmbedding? perSequenceEmbedding in embByEmbedderName) {
-          if (perSequenceEmbedding != null) {
-            embeddings.add(perSequenceEmbedding);
-          }
-        }
-        if (embeddings.isNotEmpty) {
-          closeDialog();
-
-          widget.calculateUMAPCallback(
-              state.selectedEmbedderName!, embeddings, state.selectedImportMode ?? DatabaseImportMode.defaultMode,);
-        }
+      final Map<String, PerSequenceEmbedding>? embeddings =
+          state.embeddingsColumnWizard!.perSequenceByEmbedderName(state.selectedEmbedderName);
+      if (embeddings != null) {
+        closeDialog();
+        widget.calculateUMAPCallback(
+          state.selectedEmbedderName!,
+          embeddings,
+          state.selectedImportMode ?? DatabaseImportMode.defaultMode,
+        );
       }
     }
   }
@@ -83,9 +75,11 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
   }
 
   Widget buildEntityTypeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc) {
-    return BiocentralEntityTypeSelection(onChangedCallback: (selectedType) {
-      calculateUMAPDialogBloc.add(CalculateUMAPDialogSelectEntityTypeEvent(selectedType));
-    },);
+    return BiocentralEntityTypeSelection(
+      onChangedCallback: (selectedType) {
+        calculateUMAPDialogBloc.add(CalculateUMAPDialogSelectEntityTypeEvent(selectedType));
+      },
+    );
   }
 
   Widget buildEmbedderSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc, CalculateUMAPDialogState state) {
@@ -93,12 +87,13 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
       return const Text('Could not find any embeddings!');
     }
     return BiocentralDiscreteSelection(
-        title: 'Embedder: ',
-        selectableValues: state.embeddingsColumnWizard!.getAllEmbedderNames().toList(),
-        direction: Axis.vertical,
-        onChangedCallback: (String? value) {
-          calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
-        },);
+      title: 'Embedder: ',
+      selectableValues: state.embeddingsColumnWizard!.getAllEmbedderNames().toList(),
+      direction: Axis.vertical,
+      onChangedCallback: (String? value) {
+        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+      },
+    );
   }
 
   Widget buildEmbeddingsTypeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc, CalculateUMAPDialogState state) {
@@ -108,18 +103,21 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
       return Container();
     }
     return BiocentralDiscreteSelection(
-        title: 'Embeddings Type:',
-        selectableValues: const [EmbeddingType.perSequence], // TODO Only perSequence at the moment
-        displayConversion: (type) => type.name,
-        onChangedCallback: (EmbeddingType? value) {
-          calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
-        },);
+      title: 'Embeddings Type:',
+      selectableValues: const [EmbeddingType.perSequence], // TODO Only perSequence at the moment
+      displayConversion: (type) => type.name,
+      onChangedCallback: (EmbeddingType? value) {
+        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+      },
+    );
   }
 
   Widget buildImportModeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc) {
-    return BiocentralImportModeSelection(onChangedCallback: (DatabaseImportMode? value) {
-      calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
-    },);
+    return BiocentralImportModeSelection(
+      onChangedCallback: (DatabaseImportMode? value) {
+        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+      },
+    );
   }
 
   @override

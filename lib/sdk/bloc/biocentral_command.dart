@@ -18,10 +18,14 @@ abstract class BiocentralCommand<R> {
   ) async* {
     final DateTime startTime = DateTime.now();
 
+    bool encounteredError = false;
     await for (final result in this.execute(state)) {
       result.match(
         (leftState) {
           // Ignore at the moment
+          if(leftState.isErrored()) {
+            encounteredError = true;
+          }
         },
         (rightResult) {
           final DateTime endTime = DateTime.now();
@@ -32,8 +36,12 @@ abstract class BiocentralCommand<R> {
         },
       );
       yield result;
+      if(encounteredError) {
+        break;
+      }
     }
   }
+
 }
 
 final class BiocentralCommandLog<R> {
@@ -87,7 +95,7 @@ final class BiocentralCommandResultData<R> {
       case double _:
       case bool _:
         return resultMap..addAll({'result': result.toString()});
-      case final UMAPData umap:
+      case final ProjectionData umap:
         return resultMap
           ..addAll({
             'identifier': umap.identifier,

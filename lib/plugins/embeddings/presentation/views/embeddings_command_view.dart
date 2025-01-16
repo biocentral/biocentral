@@ -67,7 +67,7 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
           create: (context) => CalculateUMAPDialogBloc(context.read<EmbeddingsRepository>()),
           child: CalculateUMAPDialog(
             calculateUMAPCallback:
-                (String embedderName, List<PerSequenceEmbedding> embeddings, DatabaseImportMode importMode) {
+                (String embedderName, Map<String, PerSequenceEmbedding> embeddings, DatabaseImportMode importMode) {
               embeddingsCommandBloc.add(EmbeddingsCommandCalculateUMAPEvent(embedderName, embeddings, importMode));
             },
           ),

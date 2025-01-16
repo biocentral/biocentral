@@ -33,19 +33,18 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     return _embedderNames!;
   }
 
-  // embedder name -> List with per sequence embeddings
-  // TODO Refactor to Map<String, List> for embeddings to include keys
-  Map<String, List<PerSequenceEmbedding?>>? _perSequenceEmbeddings;
+  // embedder name -> Map with per sequence embeddings
+  Map<String, Map<String, PerSequenceEmbedding?>>? _perSequenceEmbeddings;
 
-  Map<String, List<PerSequenceEmbedding?>> getPerSequenceEmbeddings() {
+  Map<String, Map<String, PerSequenceEmbedding?>> _getPerSequenceEmbeddings() {
     if (_perSequenceEmbeddings != null) {
       return _perSequenceEmbeddings!;
     }
-    final Map<String, List<PerSequenceEmbedding?>> result = {};
-    for (EmbeddingManager embeddingManager in valueMap.values) {
-      for (String embedderName in embeddingManager.getEmbedderNames()) {
-        result.putIfAbsent(embedderName, () => []);
-        result[embedderName]!.add(embeddingManager.perSequence(embedderName: embedderName));
+    final Map<String, Map<String, PerSequenceEmbedding?>> result = {};
+    for (final entry in valueMap.entries) {
+      for (String embedderName in entry.value.getEmbedderNames()) {
+        result.putIfAbsent(embedderName, () => {});
+        result[embedderName]!.putIfAbsent(entry.key, () => entry.value.perSequence(embedderName: embedderName));
       }
     }
     _perSequenceEmbeddings = result;
@@ -53,24 +52,40 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     return _perSequenceEmbeddings!;
   }
 
-  // embedder name -> List with per residue embeddings
-  Map<String, List<PerResidueEmbedding?>>? _perResidueEmbeddings;
+  Map<String, PerSequenceEmbedding>? perSequenceByEmbedderName(String? embedderName) {
+    final embeddingMap = _getPerSequenceEmbeddings()[embedderName];
+    if(embeddingMap == null) {
+      return null;
+    }
+    return Map.fromEntries(embeddingMap.entries.whereType<MapEntry<String, PerSequenceEmbedding>>());
+  }
 
-  Map<String, List<PerResidueEmbedding?>> getPerResidueEmbeddings() {
+  // embedder name -> List with per residue embeddings
+  Map<String, Map<String, PerResidueEmbedding?>>? _perResidueEmbeddings;
+
+  Map<String, Map<String, PerResidueEmbedding?>> _getPerResidueEmbeddings() {
     if (_perResidueEmbeddings != null) {
       return _perResidueEmbeddings!;
     }
-    final Map<String, List<PerResidueEmbedding?>> result = {};
-    for (EmbeddingManager embeddingManager in valueMap.values) {
-      for (String embedderName in embeddingManager.getEmbedderNames()) {
-        result.putIfAbsent(embedderName, () => []);
-        result[embedderName]!.add(embeddingManager.perResidue(embedderName: embedderName));
+    final Map<String, Map<String, PerResidueEmbedding?>> result = {};
+    for (final entry in valueMap.entries) {
+      for (String embedderName in entry.value.getEmbedderNames()) {
+        result.putIfAbsent(embedderName, () => {});
+        result[embedderName]!.putIfAbsent(entry.key, () => entry.value.perResidue(embedderName: embedderName));
       }
     }
     _perResidueEmbeddings = result;
     // TODO Embedder names should always be filled completely in both methods (perSequence/perResidue)
     _embedderNames = Set.unmodifiable(result.keys);
     return _perResidueEmbeddings!;
+  }
+
+  Map<String, PerResidueEmbedding>? perResidueByEmbedderName(String embedderName) {
+    final embeddingMap = _getPerResidueEmbeddings()[embedderName];
+    if(embeddingMap == null) {
+      return null;
+    }
+    return Map.fromEntries(embeddingMap.entries.whereType<MapEntry<String, PerResidueEmbedding>>());
   }
 
   Map<String, Set<EmbeddingType>>? _availableEmbeddingTypes;
@@ -81,9 +96,14 @@ class EmbeddingsColumnWizard extends ColumnWizard {
       return _availableEmbeddingTypes![embedderName]!.toSet();
     }
     _availableEmbeddingTypes!.putIfAbsent(embedderName, () => {});
-    for (final embeddings in [getPerSequenceEmbeddings()[embedderName], getPerResidueEmbeddings()[embedderName]]) {
-      if (embeddings != null && embeddings.isNotEmpty && embeddings.any((emb) => emb != null)) {
-        _availableEmbeddingTypes![embedderName]!.add(embeddings.firstWhere((emb) => emb != null)!.getType());
+    final allEmbeddingsLists = [
+      perSequenceByEmbedderName(embedderName)?.values ?? [],
+      perResidueByEmbedderName(embedderName)?.values ?? [],
+    ];
+
+    for (final embeddings in allEmbeddingsLists) {
+      if (embeddings.isNotEmpty) {
+        _availableEmbeddingTypes![embedderName]!.add(embeddings.first.getType());
       }
     }
     return _availableEmbeddingTypes![embedderName]!;
@@ -106,14 +126,14 @@ class EmbeddingsColumnWizard extends ColumnWizard {
   List<List<double>> _getEmbeddingsForType(String embedderName, EmbeddingType embeddingType) {
     switch (embeddingType) {
       case EmbeddingType.perSequence:
-        return getPerSequenceEmbeddings()[embedderName]!
-            .where((emb) => emb != null)
-            .map((emb) => emb!.rawValues())
+        return perSequenceByEmbedderName(embedderName)!
+            .values
+            .map((emb) => emb.rawValues())
             .toList();
       case EmbeddingType.perResidue:
-        return getPerResidueEmbeddings()[embedderName]!
-            .where((emb) => emb != null)
-            .expand((emb) => emb!.rawValues())
+        return perResidueByEmbedderName(embedderName)!
+            .values
+            .expand((emb) => emb.rawValues())
             .toList();
     }
   }
@@ -121,20 +141,32 @@ class EmbeddingsColumnWizard extends ColumnWizard {
   EmbeddingStats _calculateEmbeddingStats(List<List<double>> embeddings) {
     final Matrix matrix = Matrix.fromList(embeddings);
     final int n = embeddings.length;
-    final Vector mean = matrix.reduceRows((acc, column) =>
-            Vector.fromList(List.generate(acc.length, (index) => acc.elementAt(index) + column.elementAt(index))),) /
+    final Vector mean = matrix.reduceRows(
+          (acc, column) =>
+              Vector.fromList(List.generate(acc.length, (index) => acc.elementAt(index) + column.elementAt(index))),
+        ) /
         n;
     // TODO Not sure about these..
-    final Vector variance = matrix.reduceRows((acc, column) => Vector.fromList(List.generate(
-            acc.length, (index) => acc.elementAt(index) + pow(column.elementAt(index) - mean.elementAt(index), 2),),),) /
+    final Vector variance = matrix.reduceRows(
+          (acc, column) => Vector.fromList(
+            List.generate(
+              acc.length,
+              (index) => acc.elementAt(index) + pow(column.elementAt(index) - mean.elementAt(index), 2),
+            ),
+          ),
+        ) /
         n;
     final Vector stdDev = variance.sqrt();
 // Calculate min and max
-    final Vector minimum = matrix.reduceRows((acc, column) =>
-        Vector.fromList(List.generate(acc.length, (index) => min(acc.elementAt(index), column.elementAt(index)))),);
+    final Vector minimum = matrix.reduceRows(
+      (acc, column) =>
+          Vector.fromList(List.generate(acc.length, (index) => min(acc.elementAt(index), column.elementAt(index)))),
+    );
 
-    final Vector maximum = matrix.reduceRows((acc, column) =>
-        Vector.fromList(List.generate(acc.length, (index) => max(acc.elementAt(index), column.elementAt(index)))),);
+    final Vector maximum = matrix.reduceRows(
+      (acc, column) =>
+          Vector.fromList(List.generate(acc.length, (index) => max(acc.elementAt(index), column.elementAt(index)))),
+    );
 
     // TODO Cosine, Euclidean
     //double averageCosineSimilarity = embeddings

@@ -1,6 +1,7 @@
 import sys
 import json
 import h5py
+import base64
 import logging
 import numpy as np
 
@@ -79,6 +80,24 @@ def read_h5():
 
     embeddings_file.close()
     return jsonify({"id2emb": id2emb})
+
+
+@app.route('/write_h5', methods=['POST'])
+def write_h5():
+    absolute_file_path = request.json.get('absolute_file_path')
+    embeddings = json.loads(request.json.get('embeddings'))
+
+    with h5py.File(absolute_file_path, "w") as embeddings_file:
+        # TODO seq_id?
+        for seq_id, embedding in embeddings.items():
+            embeddings_file.create_dataset(seq_id, data=embedding, compression="gzip", chunks=True)
+            embeddings_file[seq_id].attrs["original_id"] = seq_id  # Follows biotrainer & bio_embeddings standard
+    embeddings_file.close()
+
+    h5_byte_data = open(absolute_file_path, "rb").read()
+    h5_base64 = base64.b64encode(h5_byte_data).decode('utf-8')
+
+    return jsonify({"h5_bytes": h5_base64})
 
 
 @app.route('/terminate', methods=['GET'])

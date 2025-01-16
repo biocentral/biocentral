@@ -29,10 +29,10 @@ final class EmbeddingsCommandCalculateEmbeddingsEvent extends EmbeddingsCommandE
 
 final class EmbeddingsCommandCalculateUMAPEvent extends EmbeddingsCommandEvent {
   final String embedderName;
-  final List<PerSequenceEmbedding> embedding;
+  final Map<String, PerSequenceEmbedding> embeddings;
   final DatabaseImportMode importMode;
 
-  EmbeddingsCommandCalculateUMAPEvent(this.embedderName, this.embedding, this.importMode);
+  EmbeddingsCommandCalculateUMAPEvent(this.embedderName, this.embeddings, this.importMode);
 }
 
 @immutable
@@ -117,9 +117,10 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
       final CalculateUMAPCommand calculateUMAPCommand = CalculateUMAPCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabaseRepository: _biocentralDatabaseRepository,
+        pythonCompanion: _pythonCompanion,
         embeddingsRepository: _embeddingsRepository,
         embeddingsClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
-        embeddings: event.embedding,
+        embeddings: event.embeddings,
         embedderName: event.embedderName,
       );
       await calculateUMAPCommand
