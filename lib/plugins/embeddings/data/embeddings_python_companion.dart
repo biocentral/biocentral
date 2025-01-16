@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
@@ -6,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 extension EmbeddingsPythonCompanion on BiocentralPythonCompanion {
-
   Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(PlatformFile platformFile) async {
     final Map<String, String> body = {'absolute_file_path': platformFile.path.toString()};
     final responseEither = await doPostRequest('read_h5', body);
@@ -18,6 +19,20 @@ extension EmbeddingsPythonCompanion on BiocentralPythonCompanion {
         (r['id2emb'] ?? {}) as Map<String, dynamic>,
       );
       return embeddings;
+    });
+  }
+
+  Future<Either<BiocentralException, String>> writeH5File(String filePath, Map<String, Embedding> embeddings) async {
+    final Map<String, String> body = {
+      'absolute_file_path': filePath,
+      'embeddings': jsonEncode(embeddings.map((key, embd) => MapEntry(key, embd.rawValues()))),
+    };
+    final responseEither = await doPostRequest('write_h5', body);
+    return responseEither.match((l) async {
+      return left(l);
+    }, (r) async {
+      final h5Bytes = r['h5_bytes'];
+      return right(h5Bytes);
     });
   }
 

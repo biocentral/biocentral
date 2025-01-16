@@ -215,7 +215,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   }
 
   Widget buildUMAPs(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
-    if (state.umapData == null) {
+    if (state.projectionData == null) {
       return Container();
     }
 
@@ -224,12 +224,12 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
       child: SingleChildScrollView(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: state.umapData!.entries
-                .map((MapEntry<UMAPData, List<Map<String, String>>> mapEntry) => SizedBox(
+            children: state.projectionData!.entries
+                .map((MapEntry<ProjectionData, List<Map<String, String>>> mapEntry) => SizedBox(
                     width: SizeConfig.screenWidth(context) * 0.4,
                     height: SizeConfig.screenHeight(context) * 0.4,
-                    child: UmapVisualizer(
-                      umapData: mapEntry.key,
+                    child: ProjectionVisualizer2D(
+                      projectionData: mapEntry.key,
                       pointData: mapEntry.value,
                       pointIdentifierKey: 'id',
                     ),),)

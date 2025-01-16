@@ -45,12 +45,12 @@ final class EmbeddingsHubState extends Equatable {
 
   final String? selectedEntityID;
 
-  final Map<UMAPData, List<Map<String, String>>>? umapData;
+  final Map<ProjectionData, List<Map<String, String>>>? projectionData;
 
   final EmbeddingsHubStatus status;
 
   const EmbeddingsHubState(this.status, this.embeddingsColumnWizard, this.selectedEmbedderName,
-      this.selectedEmbeddingType, this.selectedEntityType, this.selectedEntityID, this.umapData,);
+      this.selectedEmbeddingType, this.selectedEntityType, this.selectedEntityID, this.projectionData,);
 
   const EmbeddingsHubState.initial()
       : status = EmbeddingsHubStatus.initial,
@@ -58,16 +58,16 @@ final class EmbeddingsHubState extends Equatable {
         selectedEmbedderName = null,
         selectedEmbeddingType = null,
         selectedEntityID = null,
-        umapData = null,
+        projectionData = null,
         embeddingsColumnWizard = null;
 
   const EmbeddingsHubState.loading(this.selectedEntityType, this.embeddingsColumnWizard, this.selectedEmbedderName,
       this.selectedEmbeddingType, this.selectedEntityID,)
-      : umapData = null,
+      : projectionData = null,
         status = EmbeddingsHubStatus.loading;
 
   const EmbeddingsHubState.loaded(this.selectedEntityType, this.embeddingsColumnWizard, this.selectedEmbedderName,
-      this.selectedEmbeddingType, this.selectedEntityID, this.umapData,)
+      this.selectedEmbeddingType, this.selectedEntityID, this.projectionData,)
       : status = EmbeddingsHubStatus.loaded;
 
   @override
@@ -112,7 +112,7 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
             state.selectedEmbedderName,
             state.selectedEmbeddingType,
             state.selectedEntityID,
-            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
+            _loadProjectionData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
       }
     });
 
@@ -135,27 +135,27 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
             state.selectedEmbedderName,
             state.selectedEmbeddingType,
             state.selectedEntityID,
-            _loadUMAPData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
+            _loadProjectionData(state.selectedEmbedderName, state.selectedEmbeddingType),),);
       }
     });
 
     on<EmbeddingsHubSelectEmbedderEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, event.embedderName,
-          state.selectedEmbeddingType, null, _loadUMAPData(event.embedderName, state.selectedEmbeddingType),),);
+          state.selectedEmbeddingType, null, _loadProjectionData(event.embedderName, state.selectedEmbeddingType),),);
     });
     on<EmbeddingsHubSelectEmbeddingTypeEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, state.selectedEmbedderName,
-          event.embeddingType, null, _loadUMAPData(state.selectedEmbedderName, event.embeddingType),),);
+          event.embeddingType, null, _loadProjectionData(state.selectedEmbedderName, event.embeddingType),),);
     });
     on<EmbeddingsHubSelectEntityIDEvent>((event, emit) async {
       emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.embeddingsColumnWizard, state.selectedEmbedderName,
-          state.selectedEmbeddingType, event.entityID, state.umapData,),);
+          state.selectedEmbeddingType, event.entityID, state.projectionData,),);
     });
   }
 
-  Map<UMAPData, List<Map<String, String>>>? _loadUMAPData(String? embedderName, EmbeddingType? embeddingType) {
+  Map<ProjectionData, List<Map<String, String>>>? _loadProjectionData(String? embedderName, EmbeddingType? embeddingType) {
     if (embedderName != null && embeddingType != null && embeddingType == EmbeddingType.perSequence) {
-      return _embeddingsRepository.getUMAPDataMap(embedderName);
+      return _embeddingsRepository.getProjectionDataMap(embedderName);
     }
     return null;
   }
