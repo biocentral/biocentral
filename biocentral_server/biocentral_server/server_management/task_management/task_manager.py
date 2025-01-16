@@ -5,7 +5,7 @@ import threading
 from queue import Queue, Empty
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Any, Type, List, Set
+from typing import Dict, Any, Type, List, Set, Optional
 
 from .task_interface import TaskStatus, TaskInterface, TaskDTO
 
@@ -27,7 +27,7 @@ class TaskManager:
         self._executor = ThreadPoolExecutor(max_workers=_max_concurrent_tasks)
         self._lock = threading.Lock()  # TODO [OPTIMIZATION] Maybe use a log-free data structure
 
-    def add_task(self, task: TaskInterface, task_id: str = "") -> str:
+    def add_task(self, task: TaskInterface, task_id: Optional[str] = "") -> str:
         if task_id == "" or "biocentral" not in task_id:  # biocentral: Sanity check
             task_id = self._generate_task_id(task=task.__class__)
         self._task_dtos[task_id].put(TaskDTO.pending())
