@@ -50,7 +50,8 @@ class EmbeddingsClient extends BiocentralClient {
       'reduced': reduced.toString(),
     };
     final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.getMissingEmbeddings, body);
-    return responseEither.flatMap((responseMap) => right(BiocentralDTO(responseMap).missing));
+    return responseEither
+        .flatMap((responseMap) => right(List<String>.from(responseMap['missing']?.map((v) => v.toString()) ?? [])));
   }
 
   Future<Either<BiocentralException, Unit>> addEmbeddings(
@@ -85,9 +86,16 @@ class EmbeddingsClient extends BiocentralClient {
     //});
   }
 
-  Stream<String?> projectionTaskStream(String taskID) async* {
-    String? updateFunction(String? currentString, BiocentralDTO biocentralDTO) => biocentralDTO.projectionJson;
-    yield* taskUpdateStream<String?>(taskID, null, updateFunction);
+  Stream<Map<ProjectionData, List<Map<String, dynamic>>>?> projectionTaskStream(String taskID) async* {
+    Map<ProjectionData, List<Map<String, dynamic>>>? updateFunction(var currentMap, BiocentralDTO biocentralDTO) {
+      final String? projections = biocentralDTO.projections;
+      if (projections == null) {
+        return null;
+      }
+      return ProtspaceFileHandler.parse(projections);
+    }
+
+    yield* taskUpdateStream<Map<ProjectionData, List<Map<String, dynamic>>>>(taskID, null, updateFunction);
   }
 
   @override
