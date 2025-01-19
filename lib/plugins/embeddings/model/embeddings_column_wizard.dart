@@ -57,7 +57,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     if(embeddingMap == null) {
       return null;
     }
-    return Map.fromEntries(embeddingMap.entries.whereType<MapEntry<String, PerSequenceEmbedding>>());
+    return embeddingMap.filterNull<String, PerSequenceEmbedding>();
   }
 
   // embedder name -> List with per residue embeddings
@@ -85,7 +85,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
     if(embeddingMap == null) {
       return null;
     }
-    return Map.fromEntries(embeddingMap.entries.whereType<MapEntry<String, PerResidueEmbedding>>());
+    return embeddingMap.filterNull<String, PerResidueEmbedding>();
   }
 
   Map<String, Set<EmbeddingType>>? _availableEmbeddingTypes;

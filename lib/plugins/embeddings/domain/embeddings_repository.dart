@@ -6,18 +6,18 @@ class EmbeddingsRepository {
   final Map<Type, EmbeddingsColumnWizard> _embeddingsColumnWizards = {};
 
   // Embedder Name -> Map<ProjectionData, List>
-  final Map<String, Map<ProjectionData, List<Map<String, String>>>> _projectionDataToPointData = {};
+  final Map<String, Map<ProjectionData, List<Map<String, dynamic>>>> _projectionDataToPointData = {};
 
   EmbeddingsRepository();
 
-  Map<ProjectionData, List<Map<String, String>>> updateProjectionData(
+  Map<ProjectionData, List<Map<String, dynamic>>> updateProjectionData(
       String embedderName, ProjectionData projectionData, List<Map<String, String>> pointData,) {
     _projectionDataToPointData.putIfAbsent(embedderName, () => {});
     _projectionDataToPointData[embedderName]![projectionData] = pointData;
     return getProjectionDataMap(embedderName)!;
   }
 
-  Map<ProjectionData, List<Map<String, String>>>? getProjectionDataMap(String embedderName) {
+  Map<ProjectionData, List<Map<String, dynamic>>>? getProjectionDataMap(String embedderName) {
     return _projectionDataToPointData[embedderName];
   }
 
