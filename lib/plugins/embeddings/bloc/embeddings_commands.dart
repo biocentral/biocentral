@@ -225,14 +225,14 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
       yield* taskIDEither.match((error) async* {
         yield left(state.setErrored(information: error.message));
       }, (taskID) async* {
-        String? projectionFile;
-        await for (String? projectionFileResponse in _embeddingsClient.projectionTaskStream(taskID)) {
-          if (projectionFileResponse != null) {
-            projectionFile = projectionFileResponse;
+        Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
+        await for (final projectionDataResponse in _embeddingsClient.projectionTaskStream(taskID)) {
+          if (projectionDataResponse != null) {
+            projectionData = projectionDataResponse;
             break;
           }
         }
-        if (projectionFile == null) {
+        if (projectionData == null) {
           yield left(
               state.setErrored(information: 'Projections could not be calculated, no projections file received!'));
         }
@@ -242,17 +242,24 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
         if (database == null) {
           yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
         }
-        //final Map<ProjectionData, List<Map<String, String>>> updatedProjectionData = _embeddingsRepository.updateProjectionData(
-        //  _embedderName,
-        //  projectionData,
-        //  database!.databaseToList().map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString()))).toList(),
-        //);
-        //yield right(projectionData);
-        //yield left(
-        //  state
-        //      .setFinished(information: 'Calculated UMAP data!')
-        //      .copyWith(copyMap: {'projectionData': updatedProjectionData}),
-        //);
+        for(final ProjectionData projection in projectionData?.keys ?? []) {
+          final Map<ProjectionData, List<Map<String, dynamic>>> updatedProjectionData = _embeddingsRepository
+              .updateProjectionData(
+            _embedderName,
+            projection,
+            database!
+                .databaseToList()
+                .map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString())))
+                .toList(),
+          );
+          yield right(projection);
+          // TODO Handle multiple projections at once
+          yield left(
+            state
+                .setOperating(information: 'Calculated projection data!')
+                .copyWith(copyMap: {'projectionData': updatedProjectionData}),
+          );
+        }
       });
     });
   }

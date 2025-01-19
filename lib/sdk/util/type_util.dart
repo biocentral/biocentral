@@ -27,6 +27,18 @@ Map<Type, T> convertListToTypeMap<T>(List<T>? values) {
   return result;
 }
 
+extension FilterNull on Map {
+  Map<K, V> filterNull<K, V>() {
+    final Map<K, V> result = {};
+    for(final entry in entries) {
+      if(entry.key != null && entry.value != null) {
+        result[entry.key] = entry.value;
+      }
+    }
+    return result;
+  }
+}
+
 mixin ComparableEnum on Enum implements Comparable<Enum> {
   @override
   int compareTo(Enum? other) {

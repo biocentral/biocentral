@@ -1,7 +1,3 @@
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_hub_bloc.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
@@ -9,6 +5,9 @@ import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart'
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_command_view.dart';
 import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_hub_view.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmbeddingsPlugin extends BiocentralPlugin
     with
@@ -44,14 +43,19 @@ class EmbeddingsPlugin extends BiocentralPlugin
   @override
   List<BlocProvider> getListeningBlocs(BuildContext context) {
     final embeddingsCommandBloc = EmbeddingsCommandBloc(
-        getBiocentralDatabaseRepository(context),
-        getBiocentralClientRepository(context),
-        getBiocentralProjectRepository(context),
-        getBiocentralPythonCompanion(context),
-        getDatabase(context),
-        eventBus,);
+      getBiocentralDatabaseRepository(context),
+      getBiocentralClientRepository(context),
+      getBiocentralProjectRepository(context),
+      getBiocentralPythonCompanion(context),
+      getDatabase(context),
+      eventBus,
+    );
     final embeddingsHubBloc = EmbeddingsHubBloc(
-        getBiocentralColumnWizardRepository(context), getBiocentralDatabaseRepository(context), getDatabase(context),);
+      getBiocentralProjectRepository(context),
+      getBiocentralColumnWizardRepository(context),
+      getBiocentralDatabaseRepository(context),
+      getDatabase(context),
+    );
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
