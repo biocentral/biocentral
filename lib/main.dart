@@ -13,7 +13,7 @@ void main() async {
   final BiocentralProjectRepository projectRepository =
       await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager();
-  final BiocentralPythonCompanion pythonCompanion = BiocentralPythonCompanion.start();
+  final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
 
   runApp(
     BiocentralApp(

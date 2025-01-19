@@ -5,9 +5,14 @@ import 'package:serious_python/serious_python.dart';
 class BiocentralPythonCompanion with HTTPClient {
   bool _companionReady = false;
 
-  BiocentralPythonCompanion.start() {
+  static Future<BiocentralPythonCompanion> startCompanion() async {
     // TODO Error handling / maybe downloading of asset
-    SeriousPython.run('assets/python_companion.zip', appFileName: 'python_companion.py');
+    final companion = BiocentralPythonCompanion();
+    final companionAlreadyRunning = await companion._companionHealthCheck();
+    if (!companionAlreadyRunning) {
+      SeriousPython.run('assets/python_companion.zip', appFileName: 'python_companion.py');
+    }
+    return companion;
   }
 
   Future<bool> terminateCompanion() async {
@@ -20,15 +25,23 @@ class BiocentralPythonCompanion with HTTPClient {
     return right('http://127.0.0.1:50001/');
   }
 
-  Future<bool> _isCompanionRunning() async {
+  Future<bool> _companionHealthCheck() async {
+    final response = await super.doGetRequest('health_check');
+    if (response.isRight()) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> _checkCompanionRunning() async {
     if (_companionReady) {
       return true;
     }
     final int maxRetries = 120;
     for (int retry = 0; retry < maxRetries; retry++) {
       try {
-        final response = await super.doGetRequest('health_check');
-        if (response.isRight()) {
+        final companionHealthCheck = await _companionHealthCheck();
+        if (companionHealthCheck) {
           return true;
         }
       } catch (e) {
@@ -56,7 +69,7 @@ class BiocentralPythonCompanion with HTTPClient {
 
   Future<Either<BiocentralException, T>> _intercept<T>(
       Future<Either<BiocentralException, T>> Function() operation) async {
-    final companionRunning = await _isCompanionRunning();
+    final companionRunning = await _checkCompanionRunning();
     if (!companionRunning) {
       return left(BiocentralNetworkException(
           message:
