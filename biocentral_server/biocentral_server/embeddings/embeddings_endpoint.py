@@ -5,15 +5,12 @@ import logging
 
 import h5py
 import numpy as np
-import pandas as pd
 
 from biotrainer.protocols import Protocol
-from biotrainer.utilities import get_device, read_FASTA
+from biotrainer.utilities import get_device
 from flask import request, Blueprint, jsonify, current_app
-from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
 
 from .embedding_task import EmbeddingTask
-from .protspace_task import ProtSpaceTask, load_embeddings_via_sequences
 
 from ..utils import str2bool
 from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingsDatabase, \
@@ -101,31 +98,3 @@ def add_embeddings():
     embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
     embeddings_database.save_embeddings(ids_seqs_embds=triples, embedder_name=embedder_name, reduced=reduced)
     return jsonify({"status": 200})
-
-
-# Endpoint for ProtSpace dimensionality reduction methods for sequences
-@embeddings_service_route.route('/embeddings_service/projection_for_sequences', methods=['POST'])
-def projection_for_sequences():
-    projection_data = request.get_json()
-
-    method = projection_data.get('method')
-    sequences = json.loads(projection_data.get('sequences'))
-    dimensions = int(projection_data.get('dimensions'))
-    embedder_name = projection_data.get('embedder_name')
-
-    if method not in ProtSpaceDataProcessor.REDUCERS:
-        return jsonify({"error": f"Unsupported reduction method: {method}"})
-    if dimensions not in [2, 3]:
-        return jsonify({"error": f"Number of dimensions must be 2 or 3, given: {dimensions}"})
-
-    embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
-    load_embeddings_strategy_seqs = lambda: load_embeddings_via_sequences(embeddings_db=embeddings_database,
-                                                                          embedder_name=embedder_name,
-                                                                          sequences=sequences)
-    protspace_task = ProtSpaceTask(load_embeddings_strategy=load_embeddings_strategy_seqs,
-                                   method=method,
-                                   dimensions=dimensions)
-    task_manager = TaskManager()
-    task_id = task_manager.add_task(task=protspace_task)
-
-    return jsonify({"task_id": task_id})

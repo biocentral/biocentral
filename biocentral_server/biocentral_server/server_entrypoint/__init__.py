@@ -10,7 +10,7 @@ from ..server_management import UserManager, init_embeddings_database_instance
 from ..proteins import protein_service_route
 from ..plm_eval import plm_eval_service_route, plm_eval_setup
 from ..protein_analysis import protein_analysis_route
-from ..embeddings import embeddings_service_route
+from ..embeddings import embeddings_service_route, projection_route
 from ..biocentral import biocentral_service_route
 from ..prediction_models import prediction_models_service_route
 
@@ -26,6 +26,7 @@ def create_server_app(postgresql_user="embeddingsuser", postgresql_pwd="embeddin
     app.register_blueprint(protein_service_route)
     app.register_blueprint(prediction_models_service_route)
     app.register_blueprint(embeddings_service_route)
+    app.register_blueprint(projection_route)
     app.register_blueprint(protein_analysis_route)
     app.register_blueprint(plm_eval_service_route)
 
