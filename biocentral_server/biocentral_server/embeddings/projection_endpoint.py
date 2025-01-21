@@ -17,7 +17,7 @@ def projection_config():
     methods = list(ProtSpaceDataProcessor.REDUCERS.keys())
 
     protspace_default_config = ProtSpaceDimensionReductionConfig()
-    projection_config_by_method = {method: protspace_default_config.to_dict_by_method(method) for method in methods}
+    projection_config_by_method = {method: protspace_default_config.parameters_by_method(method) for method in methods}
     return jsonify(projection_config_by_method)
 
 # Endpoint for ProtSpace dimensionality reduction methods for sequences
