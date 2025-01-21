@@ -6,6 +6,7 @@ import 'package:biocentral/plugins/embeddings/data/embeddings_service_api.dart';
 import 'package:biocentral/plugins/embeddings/data/projection_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class EmbeddingsClientFactory extends BiocentralClientFactory<EmbeddingsClient> {
@@ -66,6 +67,11 @@ class EmbeddingsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(unit));
   }
 
+  Future<Either<BiocentralException, Map<String, List<BiocentralConfigOption>>>> getProjectionConfig() async {
+    final responseEither = await doGetRequest(EmbeddingsServiceEndpoints.projectionConfig);
+    return responseEither.flatMap((responseMap) => ProtspaceConfigHandler.fromMap(responseMap));
+  }
+
   Future<Either<BiocentralException, String>> projectionForSequences(Map<String, String> sequences,
       String projectionIdentifier, String method, int dimensions, String embedderName) async {
     final Map<String, String> body = {
@@ -76,14 +82,6 @@ class EmbeddingsClient extends BiocentralClient {
     };
     final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.projectionForSequences, body);
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
-
-    //return responseEither.flatMap((responseMap) {
-    //  final Map umap = responseMap['umap_data'];
-    //  final List<dynamic> rawCoordinates = umap['umap'];
-    //  final List<(double, double)> coordinates =
-    //      List.generate(rawCoordinates.length, (index) => (rawCoordinates[index][0], rawCoordinates[index][1]));
-    //  return right(ProjectionData(umapIdentifier, null, coordinates));
-    //});
   }
 
   Stream<Map<ProjectionData, List<Map<String, dynamic>>>?> projectionTaskStream(String taskID) async* {

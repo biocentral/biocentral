@@ -1,12 +1,36 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:fpdart/fpdart.dart';
 
 class EmbeddingsServiceEndpoints {
   static const String embedding = '/embeddings_service/embed';
   static const String getMissingEmbeddings = '/embeddings_service/get_missing_embeddings';
   static const String addEmbeddings = '/embeddings_service/add_embeddings';
+
+  static const String projectionConfig = '/embeddings_service/projection_config';
   static const String projectionForSequences = '/embeddings_service/projection_for_sequences';
+}
+
+class ProtspaceConfigHandler {
+  static Either<BiocentralParsingException, Map<String, List<BiocentralConfigOption>>> fromMap(
+      Map<dynamic, dynamic> map) {
+    final Map<String, List<BiocentralConfigOption>> result = {};
+    for (final entry in map.entries) {
+      final method = entry.key.toString();
+      final methodOptions = entry.value;
+      if (methodOptions is! List) {
+        return left(
+          BiocentralParsingException(
+              message: 'Could not parse projection config: Method options for $method are not valid!'),
+        );
+      }
+      result[method] = methodOptions.map((methodOption) => BiocentralConfigOption.fromMap(methodOption)).toList();
+    }
+    return right(result);
+  }
 }
 
 class ProtspaceFileHandler {
@@ -82,9 +106,7 @@ class ProtspaceFileHandler {
         if (proteinID.isNotEmpty) {
           final Map<String, dynamic> features = Map.from(protein)..remove('id');
           proteinData[proteinID] = {
-            'features': {
-              'sequence': protein['sequence']
-            }, // TODO Add actual features
+            'features': {'sequence': protein['sequence']}, // TODO Add actual features
           };
         }
       }

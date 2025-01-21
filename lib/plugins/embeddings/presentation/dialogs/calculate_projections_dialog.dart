@@ -1,26 +1,27 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/embeddings/bloc/calculate_umap_dialog_bloc.dart';
+import 'package:biocentral/plugins/embeddings/bloc/calculate_projections_dialog_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CalculateUMAPDialog extends StatefulWidget {
+class CalculateProjectionsDialog extends StatefulWidget {
   final void Function(String embedderName, Map<String, PerSequenceEmbedding> embeddings, DatabaseImportMode importMode)
       calculateUMAPCallback;
 
-  const CalculateUMAPDialog({required this.calculateUMAPCallback, super.key});
+  const CalculateProjectionsDialog({required this.calculateUMAPCallback, super.key});
 
   @override
-  State<CalculateUMAPDialog> createState() => _CalculateUMAPDialogState();
+  State<CalculateProjectionsDialog> createState() => _CalculateProjectionsDialogState();
 }
 
-class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
+class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog> {
   @override
   void initState() {
     super.initState();
   }
 
-  void doUMAP(CalculateUMAPDialogState state) async {
+  void doProjections(CalculateProjectionsDialogState state) async {
     if (state.selectedEmbedderName != null &&
         state.selectedEmbeddingType != null &&
         state.embeddingsColumnWizard != null) {
@@ -43,25 +44,26 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final CalculateUMAPDialogBloc calculateUMAPDialogBloc = BlocProvider.of<CalculateUMAPDialogBloc>(context);
+    final CalculateProjectionsDialogBloc calculateUMAPDialogBloc = BlocProvider.of<CalculateProjectionsDialogBloc>(context);
 
-    return BlocBuilder<CalculateUMAPDialogBloc, CalculateUMAPDialogState>(
+    return BlocBuilder<CalculateProjectionsDialogBloc, CalculateProjectionsDialogState>(
       builder: (context, state) => BiocentralDialog(
         children: [
           Text(
-            'Calculate UMAPs for embeddings',
+            'Calculate projections for embeddings',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           buildEntityTypeSelection(calculateUMAPDialogBloc),
           buildEmbedderSelection(calculateUMAPDialogBloc, state),
           buildEmbeddingsTypeSelection(calculateUMAPDialogBloc, state),
+          buildConfigSelection(state),
           buildImportModeSelection(calculateUMAPDialogBloc),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               BiocentralSmallButton(
                 label: 'Calculate',
-                onTap: () => doUMAP(state),
+                onTap: () => doProjections(state),
               ),
               BiocentralSmallButton(
                 label: 'Close',
@@ -74,15 +76,15 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
     );
   }
 
-  Widget buildEntityTypeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc) {
+  Widget buildEntityTypeSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc) {
     return BiocentralEntityTypeSelection(
       onChangedCallback: (selectedType) {
-        calculateUMAPDialogBloc.add(CalculateUMAPDialogSelectEntityTypeEvent(selectedType));
+        calculateUMAPDialogBloc.add(CalculateProjectionsDialogSelectEntityTypeEvent(selectedType));
       },
     );
   }
 
-  Widget buildEmbedderSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc, CalculateUMAPDialogState state) {
+  Widget buildEmbedderSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
     if (state.embeddingsColumnWizard == null || state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty) {
       return const Text('Could not find any embeddings!');
     }
@@ -91,12 +93,12 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
       selectableValues: state.embeddingsColumnWizard!.getAllEmbedderNames().toList(),
       direction: Axis.vertical,
       onChangedCallback: (String? value) {
-        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+        calculateUMAPDialogBloc.add(CalculateProjectionsDialogUpdateUIEvent({value}));
       },
     );
   }
 
-  Widget buildEmbeddingsTypeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc, CalculateUMAPDialogState state) {
+  Widget buildEmbeddingsTypeSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
     if (state.embeddingsColumnWizard == null ||
         state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty ||
         state.selectedEmbedderName == null) {
@@ -107,15 +109,22 @@ class _CalculateUMAPDialogState extends State<CalculateUMAPDialog> {
       selectableValues: const [EmbeddingType.perSequence], // TODO Only perSequence at the moment
       displayConversion: (type) => type.name,
       onChangedCallback: (EmbeddingType? value) {
-        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+        calculateUMAPDialogBloc.add(CalculateProjectionsDialogUpdateUIEvent({value}));
       },
     );
   }
 
-  Widget buildImportModeSelection(CalculateUMAPDialogBloc calculateUMAPDialogBloc) {
+  Widget buildConfigSelection(CalculateProjectionsDialogState state) {
+    if(state.projectionConfig.isEmpty) {
+      return Container();
+    }
+    return BiocentralConfigSelection(optionMap: state.projectionConfig);
+  }
+
+  Widget buildImportModeSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc) {
     return BiocentralImportModeSelection(
       onChangedCallback: (DatabaseImportMode? value) {
-        calculateUMAPDialogBloc.add(CalculateUMAPDialogUpdateUIEvent({value}));
+        calculateUMAPDialogBloc.add(CalculateProjectionsDialogUpdateUIEvent({value}));
       },
     );
   }

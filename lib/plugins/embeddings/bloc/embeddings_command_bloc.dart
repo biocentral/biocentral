@@ -27,12 +27,12 @@ final class EmbeddingsCommandCalculateEmbeddingsEvent extends EmbeddingsCommandE
   EmbeddingsCommandCalculateEmbeddingsEvent(this.predefinedEmbedder, this.embeddingType, this.importMode);
 }
 
-final class EmbeddingsCommandCalculateUMAPEvent extends EmbeddingsCommandEvent {
+final class EmbeddingsCommandCalculateProjectionsEvent extends EmbeddingsCommandEvent {
   final String embedderName;
   final Map<String, PerSequenceEmbedding> embeddings;
   final DatabaseImportMode importMode;
 
-  EmbeddingsCommandCalculateUMAPEvent(this.embedderName, this.embeddings, this.importMode);
+  EmbeddingsCommandCalculateProjectionsEvent(this.embedderName, this.embeddings, this.importMode);
 }
 
 @immutable
@@ -113,7 +113,7 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
         });
       });
     });
-    on<EmbeddingsCommandCalculateUMAPEvent>((event, emit) async {
+    on<EmbeddingsCommandCalculateProjectionsEvent>((event, emit) async {
       final CalculateUMAPCommand calculateUMAPCommand = CalculateUMAPCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabaseRepository: _biocentralDatabaseRepository,
