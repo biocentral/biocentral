@@ -1,11 +1,11 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/bloc/calculate_embeddings_dialog_bloc.dart';
-import 'package:biocentral/plugins/embeddings/bloc/calculate_umap_dialog_bloc.dart';
+import 'package:biocentral/plugins/embeddings/bloc/calculate_projections_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_embeddings_dialog.dart';
-import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_umap_dialog.dart';
+import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_projections_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -64,11 +64,14 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
       context: context,
       builder: (BuildContext context) {
         return BlocProvider(
-          create: (context) => CalculateUMAPDialogBloc(context.read<EmbeddingsRepository>()),
-          child: CalculateUMAPDialog(
+          create: (context) => CalculateProjectionsDialogBloc(
+            context.read<BiocentralClientRepository>(),
+            context.read<EmbeddingsRepository>(),
+          )..add(CalculateProjectionsDialogGetConfigEvent()),
+          child: CalculateProjectionsDialog(
             calculateUMAPCallback:
                 (String embedderName, Map<String, PerSequenceEmbedding> embeddings, DatabaseImportMode importMode) {
-              embeddingsCommandBloc.add(EmbeddingsCommandCalculateUMAPEvent(embedderName, embeddings, importMode));
+              embeddingsCommandBloc.add(EmbeddingsCommandCalculateProjectionsEvent(embedderName, embeddings, importMode));
             },
           ),
         );
@@ -99,9 +102,9 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
           ),
         ),
         BiocentralTooltip(
-          message: 'Perform UMAP dimensionality reduction on your embeddings',
+          message: 'Perform dimensionality reduction methods on your embeddings',
           child: BiocentralButton(
-            label: 'Calculate UMAP..',
+            label: 'Calculate projections..',
             iconData: Icons.auto_graph,
             requiredServices: const ['embeddings_service'],
             onTap: () => openCalculateUMAPDialog(embeddingsCommandBloc),

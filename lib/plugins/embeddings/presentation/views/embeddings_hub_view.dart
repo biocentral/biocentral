@@ -31,7 +31,13 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
 
     return DefaultTabController(
       length: 2,
-      child: BlocBuilder<EmbeddingsHubBloc, EmbeddingsHubState>(
+      child: BlocConsumer<EmbeddingsHubBloc, EmbeddingsHubState>(
+        listener: (context, state) {
+          if(state.protspaceURL != null) {
+            handleProtspaceVisualization(embeddingsHubBloc, state);
+          }
+        },
+        listenWhen: (oldState, newState) => oldState.protspaceURL != newState.protspaceURL,
         builder: (context, state) {
           return Scaffold(
             body: Column(

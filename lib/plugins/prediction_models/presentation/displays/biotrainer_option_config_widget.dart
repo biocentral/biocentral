@@ -68,6 +68,7 @@ class _BiotrainerOptionalConfigWidgetState extends State<BiotrainerOptionalConfi
     );
   }
 
+  // TODO [Refactor] Use BiocentralConfigSelection
   Widget buildOption(BiotrainerConfigBloc biotrainerConfigBloc) {
     if (widget.option.possibleValues.isEmpty) {
       return buildTextOption(biotrainerConfigBloc);
