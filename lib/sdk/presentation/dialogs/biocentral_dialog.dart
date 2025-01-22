@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:biocentral/sdk/util/size_config.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
+import 'package:flutter/material.dart';
 
 class BiocentralDialog extends StatefulWidget {
   final bool small;
@@ -34,39 +34,34 @@ class _BiocentralDialogState extends State<BiocentralDialog> with SingleTickerPr
     final double sizeFactor = widget.small ? 0.4 : 0.8;
 
     return AnimatedBuilder(
-        animation: _fadeInAnimation,
-        builder: (context, child) {
-          return Opacity(
-            opacity: _fadeInAnimation.value,
-            child: Dialog(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-              child: Center(
-                child: SizedBox(
-                  width: SizeConfig.screenWidth(context) * sizeFactor,
-                  height: SizeConfig.screenHeight(context) * sizeFactor,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.min,
-                      children: buildChildrenWithPadding(),
+      animation: _fadeInAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _fadeInAnimation.value,
+          child: Dialog(
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+            child: Center(
+              child: SizedBox(
+                width: SizeConfig.screenWidth(context) * sizeFactor,
+                height: SizeConfig.screenHeight(context) * sizeFactor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: widget.children.withPadding(
+                      Padding(
+                        padding: EdgeInsets.all(SizeConfig.safeBlockVertical(context)),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          );
-        },);
-  }
-
-  List<Widget> buildChildrenWithPadding() {
-    final List<Widget> result = [];
-    final double height = SizeConfig.safeBlockVertical(context);
-    for (Widget widget in widget.children) {
-      result.add(widget);
-      result.add(SizedBox(height: height));
-    }
-    return result;
+          ),
+        );
+      },
+    );
   }
 
   @override
