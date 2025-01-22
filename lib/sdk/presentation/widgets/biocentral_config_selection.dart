@@ -5,8 +5,9 @@ import '../../model/biocentral_config_option.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
   final Map<String, List<BiocentralConfigOption>> optionMap;
+  final void Function(Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
 
-  const BiocentralConfigSelection({required this.optionMap, super.key});
+  const BiocentralConfigSelection({required this.optionMap, required this.onConfigChangedCallback, super.key});
 
   @override
   State<BiocentralConfigSelection> createState() => _BiocentralConfigSelectionState();
@@ -21,8 +22,15 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   void initState() {
     super.initState();
     for (final entry in widget.optionMap.entries) {
-      _chosenOptions.putIfAbsent(entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, null))));
+      _chosenOptions.putIfAbsent(
+          entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, option.defaultValue))));
     }
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    widget.onConfigChangedCallback(_chosenOptions);
   }
 
   @override
@@ -38,16 +46,54 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             });
           },
         ),
-        ...buildConfigOptions(),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: buildConfigOptionsTable(),
+        ),
       ],
     );
   }
 
-  List<Widget> buildConfigOptions() {
-    if (_selectedKey == null) {
-      return [];
+  int _getNumberOfColumns(int numberOfOptions) {
+    // TODO [Refactor - Frontend] Adjust dynamically also based on window size
+    if (numberOfOptions % 4 == 0) return 4;
+    if (numberOfOptions % 3 == 0) return 3;
+    return 2;
+  }
+
+  Widget buildConfigOptionsTable() {
+    final options = widget.optionMap[_selectedKey] ?? [];
+    if(_selectedKey == null || options.isEmpty) {
+      return Container();
     }
-    return widget.optionMap[_selectedKey]?.map((option) => buildOption(option)).toList() ?? [];
+
+    final int columns = _getNumberOfColumns(options.length);
+    return ExpansionTile(
+      title: Text('$_selectedKey-specific Configuration:'),
+      initiallyExpanded: true,
+      children: [
+        Table(
+          columnWidths: {
+            for (int i = 0; i < columns; i++) i: const FlexColumnWidth(),
+          },
+          children: [
+            for (int i = 0; i < options.length; i += columns)
+              TableRow(
+                children: [
+                  for (int j = 0; j < columns; j++)
+                    if (i + j < options.length)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: buildOption(options[i + j]),
+                      )
+                    else
+                      Container(),
+                ],
+              ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget buildOption(BiocentralConfigOption option) {
@@ -68,7 +114,9 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
         decoration: InputDecoration(labelText: option.name),
         textAlign: TextAlign.center,
         onChanged: (String? newValue) {
-          //TODO
+          setState(() {
+            _chosenOptions[_selectedKey]?[option] = newValue;
+          });
         },
       ),
     );
@@ -87,6 +135,35 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     //if (defaultValue != '' && !allowedValues.contains(defaultValue)) {
     //  allowedValues.add(defaultValue);
     //}
+
+    if (allowedValues.length <= 4) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: option.name,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        child: Center(
+          child: ToggleButtons(
+              isSelected: allowedValues.map((value) => value == chosenOption).toList(),
+              onPressed: (int index) {
+                final toggled = allowedValues.toList()[index];
+                setState(() {
+                  _chosenOptions[_selectedKey]?[option] = toggled;
+                });
+              },
+              children: allowedValues
+                  .map(
+                    (value) => Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Text(value.toString()),
+                    ),
+                  )
+                  .toList()),
+        ),
+      );
+    }
 
     return BiocentralDropdownMenu(
       label: Text(option.name),
