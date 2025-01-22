@@ -44,7 +44,8 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
 
   @override
   Widget build(BuildContext context) {
-    final CalculateProjectionsDialogBloc calculateUMAPDialogBloc = BlocProvider.of<CalculateProjectionsDialogBloc>(context);
+    final CalculateProjectionsDialogBloc calculateUMAPDialogBloc =
+        BlocProvider.of<CalculateProjectionsDialogBloc>(context);
 
     return BlocBuilder<CalculateProjectionsDialogBloc, CalculateProjectionsDialogState>(
       builder: (context, state) => BiocentralDialog(
@@ -84,7 +85,8 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
     );
   }
 
-  Widget buildEmbedderSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
+  Widget buildEmbedderSelection(
+      CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
     if (state.embeddingsColumnWizard == null || state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty) {
       return const Text('Could not find any embeddings!');
     }
@@ -98,7 +100,8 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
     );
   }
 
-  Widget buildEmbeddingsTypeSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
+  Widget buildEmbeddingsTypeSelection(
+      CalculateProjectionsDialogBloc calculateUMAPDialogBloc, CalculateProjectionsDialogState state) {
     if (state.embeddingsColumnWizard == null ||
         state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty ||
         state.selectedEmbedderName == null) {
@@ -115,10 +118,13 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
   }
 
   Widget buildConfigSelection(CalculateProjectionsDialogState state) {
-    if(state.projectionConfig.isEmpty) {
+    if (state.projectionConfig.isEmpty) {
       return Container();
     }
-    return BiocentralConfigSelection(optionMap: state.projectionConfig);
+    return BiocentralConfigSelection(
+      optionMap: state.projectionConfig,
+      onConfigChangedCallback: (_) => null,  // TODO
+    );
   }
 
   Widget buildImportModeSelection(CalculateProjectionsDialogBloc calculateUMAPDialogBloc) {
