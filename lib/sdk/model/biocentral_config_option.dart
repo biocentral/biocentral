@@ -65,17 +65,61 @@ class BiocentralConfigConstraints {
     };
   }
 
-  bool isValid(dynamic value) {
+  (bool, String?, dynamic) _validate(dynamic value) {
+    // Parse the value if it's a string
+    if (value is String) {
+      dynamic parsedValue;
+      for(final parseFunction in [int.tryParse, double.tryParse, str2bool]) {
+        parsedValue = parseFunction(value);
+        if(parsedValue != null) {
+          value = parsedValue;
+          break;
+        }
+      }
+    }
+
+    // Check type constraint
     if (typeConstraint != null && value.runtimeType != typeConstraint) {
-      return false;
+      return (false, 'Invalid type. Expected: ${typeConstraint.toString()}. Got: ${value.runtimeType}', null);
     }
-    if (allowedValues != null && allowedValues!.isNotEmpty) return allowedValues!.contains(value);
+
+    // Check allowed values
+    if (allowedValues != null && allowedValues!.isNotEmpty) {
+      if (!allowedValues!.contains(value)) {
+        return (false, 'Value must be one of: ${allowedValues!.join(', ')}', null);
+      }
+      return (true, null, value);
+    }
+
+    // Check numeric constraints
     if (value is num) {
-      if (gt != null && value <= gt!) return false;
-      if (gte != null && value < gte!) return false;
-      if (lt != null && value >= lt!) return false;
-      if (lte != null && value > lte!) return false;
+      final List<String> violatedConstraints = [];
+      if (gt != null && value <= gt!) violatedConstraints.add('> $gt');
+      if (gte != null && value < gte!) violatedConstraints.add('≥ $gte');
+      if (lt != null && value >= lt!) violatedConstraints.add('< $lt');
+      if (lte != null && value > lte!) violatedConstraints.add('≤ $lte');
+
+      if (violatedConstraints.isNotEmpty) {
+        return (false, 'Value must be ${violatedConstraints.join(' and ')}', null);
+      }
     }
-    return true;
+
+    return (true, null, value);
+  }
+
+  bool isValid(dynamic value) {
+    final (isValid, _, _) = _validate(value);
+    return isValid;
+  }
+
+  String? Function(String?) get validator {
+    return (String? value) {
+      if (value == null || value.isEmpty) {
+        return 'This field cannot be empty';
+      }
+
+      final (isValid, errorMessage, _) = _validate(value);
+      return isValid ? null : errorMessage;
+    };
   }
 }
