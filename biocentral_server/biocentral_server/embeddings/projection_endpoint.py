@@ -27,13 +27,11 @@ def projection_for_sequences():
 
     method = projection_data.get('method')
     sequences = json.loads(projection_data.get('sequences'))
-    dimensions = int(projection_data.get('dimensions'))
+    config = json.loads(projection_data.get('config'))
     embedder_name = projection_data.get('embedder_name')
 
     if method not in ProtSpaceDataProcessor.REDUCERS:
         return jsonify({"error": f"Unsupported reduction method: {method}"})
-    if dimensions not in [2, 3]:
-        return jsonify({"error": f"Number of dimensions must be 2 or 3, given: {dimensions}"})
 
     embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
     load_embeddings_strategy_seqs = lambda: load_embeddings_via_sequences(embeddings_db=embeddings_database,
@@ -41,7 +39,7 @@ def projection_for_sequences():
                                                                           sequences=sequences)
     protspace_task = ProtSpaceTask(load_embeddings_strategy=load_embeddings_strategy_seqs,
                                    method=method,
-                                   dimensions=dimensions)
+                                   config=config)
     task_manager = TaskManager()
     task_id = task_manager.add_task(task=protspace_task)
 
