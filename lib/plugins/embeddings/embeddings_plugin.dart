@@ -57,6 +57,12 @@ class EmbeddingsPlugin extends BiocentralPlugin
       getDatabase(context),
     );
 
+    eventBus.on<BiocentralDatabaseSyncEvent>().listen((event) {
+      // TODO [Refactoring] This is redundant with the database update event in concept, but necessary because of the
+      // TODO way how the blocs fire events in this plugin
+      embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
+    });
+
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
     });

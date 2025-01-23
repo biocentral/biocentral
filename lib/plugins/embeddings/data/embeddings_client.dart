@@ -72,12 +72,17 @@ class EmbeddingsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => ProtspaceConfigHandler.fromMap(responseMap));
   }
 
-  Future<Either<BiocentralException, String>> projectionForSequences(Map<String, String> sequences,
-      String projectionIdentifier, String method, int dimensions, String embedderName) async {
+  Future<Either<BiocentralException, String>> projectionForSequences(
+    Map<String, String> sequences,
+    String projectionIdentifier,
+    String projectionMethod,
+    Map<BiocentralConfigOption, dynamic> projectionConfig,
+    String embedderName,
+  ) async {
     final Map<String, String> body = {
       'sequences': jsonEncode(sequences),
-      'method': method,
-      'dimensions': dimensions.toString(),
+      'method': projectionMethod,
+      'config': jsonEncode(projectionConfig.map((option, value) => MapEntry(option.name, value))),
       'embedder_name': embedderName,
     };
     final responseEither = await doPostRequest(EmbeddingsServiceEndpoints.projectionForSequences, body);

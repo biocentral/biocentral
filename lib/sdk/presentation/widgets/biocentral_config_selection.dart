@@ -1,11 +1,11 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
   final Map<String, List<BiocentralConfigOption>> optionMap;
-  final void Function(Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
+  final void Function(String?, Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
 
   const BiocentralConfigSelection({required this.optionMap, required this.onConfigChangedCallback, super.key});
 
@@ -14,8 +14,9 @@ class BiocentralConfigSelection extends StatefulWidget {
 }
 
 class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
-  String? _selectedKey;
+  final GlobalKey<FormState> _optionsFormKey = GlobalKey<FormState>();
 
+  String? _selectedKey;
   final Map<String, Map<BiocentralConfigOption, dynamic>> _chosenOptions = {};
 
   @override
@@ -30,7 +31,12 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
-    widget.onConfigChangedCallback(_chosenOptions);
+    // Use a microtask to ensure the state has been updated before validating
+    Future.microtask(() {
+      if (_optionsFormKey.currentState != null && _optionsFormKey.currentState!.validate()) {
+        widget.onConfigChangedCallback(_selectedKey, _chosenOptions);
+      }
+    });
   }
 
   @override
@@ -63,36 +69,39 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
 
   Widget buildConfigOptionsTable() {
     final options = widget.optionMap[_selectedKey] ?? [];
-    if(_selectedKey == null || options.isEmpty) {
+    if (_selectedKey == null || options.isEmpty) {
       return Container();
     }
 
     final int columns = _getNumberOfColumns(options.length);
-    return ExpansionTile(
-      title: Text('$_selectedKey-specific Configuration:'),
-      initiallyExpanded: true,
-      children: [
-        Table(
-          columnWidths: {
-            for (int i = 0; i < columns; i++) i: const FlexColumnWidth(),
-          },
-          children: [
-            for (int i = 0; i < options.length; i += columns)
-              TableRow(
-                children: [
-                  for (int j = 0; j < columns; j++)
-                    if (i + j < options.length)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: buildOption(options[i + j]),
-                      )
-                    else
-                      Container(),
-                ],
-              ),
-          ],
-        ),
-      ],
+    return Form(
+      key: _optionsFormKey,
+      child: ExpansionTile(
+        title: Text('$_selectedKey-specific Configuration:'),
+        initiallyExpanded: true,
+        children: [
+          Table(
+            columnWidths: {
+              for (int i = 0; i < columns; i++) i: const FlexColumnWidth(),
+            },
+            children: [
+              for (int i = 0; i < options.length; i += columns)
+                TableRow(
+                  children: [
+                    for (int j = 0; j < columns; j++)
+                      if (i + j < options.length)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: buildOption(options[i + j]),
+                        )
+                      else
+                        Container(),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -113,10 +122,14 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
         initialValue: defaultValue,
         decoration: InputDecoration(labelText: option.name),
         textAlign: TextAlign.center,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: option.constraints?.validator,
         onChanged: (String? newValue) {
-          setState(() {
-            _chosenOptions[_selectedKey]?[option] = newValue;
-          });
+          if (option.constraints?.validator(newValue) == null) {
+            setState(() {
+              _chosenOptions[_selectedKey]?[option] = newValue;
+            });
+          }
         },
       ),
     );
