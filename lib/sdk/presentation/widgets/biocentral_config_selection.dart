@@ -1,7 +1,6 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:flutter/material.dart';
-
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:flutter/material.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
   final Map<String, List<BiocentralConfigOption>> optionMap;
@@ -125,7 +124,14 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: option.constraints?.validator,
         onChanged: (String? newValue) {
-          if (option.constraints?.validator(newValue) == null) {
+          if (option.constraints != null) {
+            final (valid, error, parsedValue) = option.constraints!.validate(newValue);
+            if (valid) {
+              setState(() {
+                _chosenOptions[_selectedKey]?[option] = parsedValue;
+              });
+            }
+          } else {
             setState(() {
               _chosenOptions[_selectedKey]?[option] = newValue;
             });
