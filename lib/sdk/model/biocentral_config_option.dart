@@ -1,4 +1,15 @@
-import 'package:bio_flutter/bio_flutter.dart';
+// TODO Replace with bio_flutter function
+bool? str2bool(String? string) {
+  if (string == null) {
+    return null;
+  }
+  if (['yes', 'y', 'true', '1', 't'].contains(string.toLowerCase())) {
+    return true;
+  } else if (['no', 'n', 'false', '0', 'f'].contains(string.toLowerCase())) {
+    return false;
+  }
+  return null;
+}
 
 /// Manages configuration options for different tasks on the server
 class BiocentralConfigOption {
@@ -12,7 +23,7 @@ class BiocentralConfigOption {
 
   BiocentralConfigOption.fromMap(Map<String, dynamic> map)
       : name = map['name'],
-        required = str2bool(map['required'] ?? 'false'),
+        required = str2bool(map['required']) ?? false,
         defaultValue = map['default'],
         category = map['category'],
         description = map['description'],
@@ -26,52 +37,51 @@ class BiocentralConfigOption {
 class BiocentralConfigConstraints {
   final Type? typeConstraint;
   final Set<dynamic>? allowedValues;
-  final num? gt;  // Greater Than
-  final num? gte;  // Greater Than Equal
-  final num? lt;  // Lower Than
-  final num? lte;  // Lower Than Equal
+  final num? gt; // Greater Than
+  final num? gte; // Greater Than Equal
+  final num? lt; // Lower Than
+  final num? lte; // Lower Than Equal
 
   BiocentralConfigConstraints({this.typeConstraint, this.gt, this.gte, this.lt, this.lte, this.allowedValues});
 
   static BiocentralConfigConstraints? fromMap(Map<String, dynamic> map) {
-    if(map.isEmpty) {
+    if (map.isEmpty) {
       return null;
     }
-    final typeConstraint = parseTypeConstraint(map['type_constraint']);
+    final typeConstraint = parseTypeConstraint(map['type']);
     var allowedValues = Set.from(map['allowed'] ?? []);
-    if(allowedValues.isEmpty && typeConstraint is bool) {
+    if (allowedValues.isEmpty && typeConstraint is bool) {
       allowedValues = {true, false};
     }
     return BiocentralConfigConstraints(
-      typeConstraint: typeConstraint,
-      gt: map['gt'],
-      gte: map['gte'],
-      lt: map['lt'],
-      lte: map['lte'],
-      allowedValues: allowedValues
-    );
+        typeConstraint: typeConstraint,
+        gt: map['gt'],
+        gte: map['gte'],
+        lt: map['lt'],
+        lte: map['lte'],
+        allowedValues: allowedValues);
   }
 
   static Type? parseTypeConstraint(String? typeConstraint) {
-    if(typeConstraint == null) {
+    if (typeConstraint == null) {
       return null;
     }
-    return switch(typeConstraint) {
+    return switch (typeConstraint) {
       'bool' || 'boolean' => bool,
       'int' || 'integer' => int,
       'float' || 'double' => double,
-      'str' || 'String' => String,
+      'str' || 'String' || 'Literal' || 'Any' => String,
       _ => String,
     };
   }
 
-  (bool, String?, dynamic) _validate(dynamic value) {
-    // Parse the value if it's a string
+  (bool, String?, dynamic) validate(dynamic value) {
+    // Parse the value if it is a string
     if (value is String) {
       dynamic parsedValue;
-      for(final parseFunction in [int.tryParse, double.tryParse, str2bool]) {
+      for (final parseFunction in [int.tryParse, double.tryParse, str2bool]) {
         parsedValue = parseFunction(value);
-        if(parsedValue != null) {
+        if (parsedValue != null) {
           value = parsedValue;
           break;
         }
@@ -79,8 +89,17 @@ class BiocentralConfigConstraints {
     }
 
     // Check type constraint
-    if (typeConstraint != null && value.runtimeType != typeConstraint) {
-      return (false, 'Invalid type. Expected: ${typeConstraint.toString()}. Got: ${value.runtimeType}', null);
+    if (typeConstraint != null && typeConstraint != String) {
+      if (value.runtimeType != typeConstraint) {
+        if (typeConstraint == int && int.tryParse(value.toString()) != null) {
+          // Special case for double that is also an integer
+        } else if(typeConstraint == double && value.runtimeType == int) {
+          // Special case for int that is also a double
+        }
+        else {
+          return (false, 'Invalid type. Expected: ${typeConstraint.toString()}. Got: ${value.runtimeType}', null);
+        }
+      }
     }
 
     // Check allowed values
@@ -108,7 +127,7 @@ class BiocentralConfigConstraints {
   }
 
   bool isValid(dynamic value) {
-    final (isValid, _, _) = _validate(value);
+    final (isValid, _, _) = validate(value);
     return isValid;
   }
 
@@ -118,8 +137,13 @@ class BiocentralConfigConstraints {
         return 'This field cannot be empty';
       }
 
-      final (isValid, errorMessage, _) = _validate(value);
+      final (isValid, errorMessage, _) = validate(value);
       return isValid ? null : errorMessage;
     };
+  }
+
+  dynamic parse(String value) {
+    final (_, _, parsedValue) = validate(value);
+    return parsedValue;
   }
 }
