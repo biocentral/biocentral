@@ -4,6 +4,7 @@ import 'package:biocentral/plugins/embeddings/data/embeddings_python_companion.d
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -131,7 +132,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
   ) async* {
     // Save
     final String embeddingsFileName = (_biotrainerName ?? 'custom_embedder_') + (reduce ? '_reduced.json' : '.json');
-    _biocentralProjectRepository.handleSave(fileName: embeddingsFileName, content: embeddingsFile);
+    await _biocentralProjectRepository.handleSave(fileName: embeddingsFileName, content: embeddingsFile);
     // Load
     final BioFileHandlerContext<Embedding> handler = BioFileHandler<Embedding>().create('json');
     final Map<String, Embedding>? embeddings = await handler.readFromString(embeddingsFile);
@@ -158,7 +159,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
   }
 }
 
-final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
+final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralPythonCompanion _pythonCompanion;
@@ -167,26 +168,32 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
   final EmbeddingsClient _embeddingsClient;
   final Map<String, PerSequenceEmbedding> _embeddings;
   final String? _embedderName;
+  final String _projectionMethod;
+  final Map<BiocentralConfigOption, dynamic> _projectionConfig;
 
-  CalculateUMAPCommand({
-    required BiocentralProjectRepository biocentralProjectRepository,
-    required BiocentralDatabaseRepository biocentralDatabaseRepository,
-    required BiocentralPythonCompanion pythonCompanion,
-    required EmbeddingsRepository embeddingsRepository,
-    required EmbeddingsClient embeddingsClient,
-    required Map<String, PerSequenceEmbedding> embeddings,
-    required String? embedderName,
-  })  : _biocentralProjectRepository = biocentralProjectRepository,
+  CalculateProjectionsCommand(
+      {required BiocentralProjectRepository biocentralProjectRepository,
+      required BiocentralDatabaseRepository biocentralDatabaseRepository,
+      required BiocentralPythonCompanion pythonCompanion,
+      required EmbeddingsRepository embeddingsRepository,
+      required EmbeddingsClient embeddingsClient,
+      required Map<String, PerSequenceEmbedding> embeddings,
+      required String? embedderName,
+      required String projectionMethod,
+      required Map<BiocentralConfigOption, dynamic> projectionConfig})
+      : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabaseRepository = biocentralDatabaseRepository,
         _pythonCompanion = pythonCompanion,
         _embeddingsRepository = embeddingsRepository,
-        _embeddings = embeddings,
         _embeddingsClient = embeddingsClient,
-        _embedderName = embedderName;
+        _embeddings = embeddings,
+        _embedderName = embedderName,
+        _projectionMethod = projectionMethod,
+        _projectionConfig = projectionConfig;
 
   @override
   Stream<Either<T, ProjectionData>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: 'Calculating UMAP..'));
+    yield left(state.setOperating(information: 'Calculating $_projectionMethod projection..'));
 
     if (_embedderName == null || _embedderName.isEmpty) {
       yield left(state.setErrored(information: 'No embedder name selected for UMAP!'));
@@ -201,7 +208,7 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
       proteinRepository!
           .databaseToMap()
           .values
-          .map((entity) => MapEntry(entity.getID(), entity.toMap()["sequence"].toString())),
+          .map((entity) => MapEntry(entity.getID(), entity.toMap()['sequence'].toString())),
     );
 
     final missingEmbeddingsEither = await _embeddingsClient.getMissingEmbeddings(sequences, _embedderName!, true);
@@ -220,8 +227,13 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
           }
         });
       }
-      final taskIDEither =
-          await _embeddingsClient.projectionForSequences(sequences, _embedderName, 'umap', 2, _embedderName);
+      final taskIDEither = await _embeddingsClient.projectionForSequences(
+        sequences,
+        _embedderName,
+        _projectionMethod,
+        _projectionConfig,
+        _embedderName,
+      );
       yield* taskIDEither.match((error) async* {
         yield left(state.setErrored(information: error.message));
       }, (taskID) async* {
@@ -242,9 +254,9 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
         if (database == null) {
           yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
         }
-        for(final ProjectionData projection in projectionData?.keys ?? []) {
-          final Map<ProjectionData, List<Map<String, dynamic>>> updatedProjectionData = _embeddingsRepository
-              .updateProjectionData(
+        for (final ProjectionData projection in projectionData?.keys ?? []) {
+          final Map<ProjectionData, List<Map<String, dynamic>>> updatedProjectionData =
+              _embeddingsRepository.updateProjectionData(
             _embedderName,
             projection,
             database!
@@ -253,7 +265,7 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
                 .toList(),
           );
           yield right(projection);
-          // TODO Handle multiple projections at once
+          // TODO [Feature] Handle multiple projections at once
           yield left(
             state
                 .setOperating(information: 'Calculated projection data!')
@@ -266,6 +278,10 @@ final class CalculateUMAPCommand extends BiocentralCommand<ProjectionData> {
 
   @override
   Map<String, dynamic> getConfigMap() {
-    return {'embedderName': _embedderName};
+    return {
+      'embedderName': _embedderName,
+      'projectionMethod': _projectionMethod,
+      'projectionConfig': _projectionConfig.map((option, value) => MapEntry(option.name, value)),
+    };
   }
 }

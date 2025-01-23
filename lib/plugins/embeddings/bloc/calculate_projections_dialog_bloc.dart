@@ -86,7 +86,7 @@ final class CalculateProjectionsDialogState extends BiocentralSimpleMultiTypeUIS
 
   @override
   List<Object?> get props =>
-      [selectedEmbedderName, selectedEmbeddingType, selectedImportMode, projectionConfig, status];
+      [embeddingsColumnWizard, selectedEmbedderName, selectedEmbeddingType, selectedImportMode, projectionConfig, status];
 
   @override
   CalculateProjectionsDialogState updateFromUIEvent(BiocentralSimpleMultiTypeUIUpdateEvent event) {
@@ -94,11 +94,12 @@ final class CalculateProjectionsDialogState extends BiocentralSimpleMultiTypeUIS
       return const CalculateProjectionsDialogState.initial();
     }
     return CalculateProjectionsDialogState.selected(
-        embeddingsColumnWizard,
-        getValueFromEvent(selectedEmbedderName, event),
-        getValueFromEvent(selectedEmbeddingType, event),
-        getValueFromEvent(selectedImportMode, event),
-        projectionConfig);
+      embeddingsColumnWizard,
+      getValueFromEvent(selectedEmbedderName, event),
+      getValueFromEvent(selectedEmbeddingType, event),
+      getValueFromEvent(selectedImportMode, event),
+      projectionConfig,
+    );
   }
 }
 

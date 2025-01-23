@@ -7,6 +7,7 @@ import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart'
 import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_embeddings_dialog.dart';
 import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_projections_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -69,9 +70,20 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
             context.read<EmbeddingsRepository>(),
           )..add(CalculateProjectionsDialogGetConfigEvent()),
           child: CalculateProjectionsDialog(
-            calculateUMAPCallback:
-                (String embedderName, Map<String, PerSequenceEmbedding> embeddings, DatabaseImportMode importMode) {
-              embeddingsCommandBloc.add(EmbeddingsCommandCalculateProjectionsEvent(embedderName, embeddings, importMode));
+            calculateUMAPCallback: (String embedderName,
+                Map<String, PerSequenceEmbedding> embeddings,
+                String projectionMethod,
+                Map<BiocentralConfigOption, dynamic> projectionConfig,
+                DatabaseImportMode importMode) {
+              embeddingsCommandBloc.add(
+                EmbeddingsCommandCalculateProjectionsEvent(
+                  embedderName,
+                  embeddings,
+                  importMode,
+                  projectionMethod,
+                  projectionConfig,
+                ),
+              );
             },
           ),
         );

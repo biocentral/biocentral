@@ -5,6 +5,7 @@ import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -30,9 +31,12 @@ final class EmbeddingsCommandCalculateEmbeddingsEvent extends EmbeddingsCommandE
 final class EmbeddingsCommandCalculateProjectionsEvent extends EmbeddingsCommandEvent {
   final String embedderName;
   final Map<String, PerSequenceEmbedding> embeddings;
+  final String projectionMethod;
+  final Map<BiocentralConfigOption, dynamic> projectionConfig;
   final DatabaseImportMode importMode;
 
-  EmbeddingsCommandCalculateProjectionsEvent(this.embedderName, this.embeddings, this.importMode);
+  EmbeddingsCommandCalculateProjectionsEvent(
+      this.embedderName, this.embeddings, this.importMode, this.projectionMethod, this.projectionConfig);
 }
 
 @immutable
@@ -114,7 +118,7 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
       });
     });
     on<EmbeddingsCommandCalculateProjectionsEvent>((event, emit) async {
-      final CalculateUMAPCommand calculateUMAPCommand = CalculateUMAPCommand(
+      final CalculateProjectionsCommand calculateProjectionsCommand = CalculateProjectionsCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabaseRepository: _biocentralDatabaseRepository,
         pythonCompanion: _pythonCompanion,
@@ -122,11 +126,15 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
         embeddingsClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
         embeddings: event.embeddings,
         embedderName: event.embedderName,
+        projectionMethod:  event.projectionMethod,
+        projectionConfig: event.projectionConfig,
       );
-      await calculateUMAPCommand
+      await calculateProjectionsCommand
           .executeWithLogging<EmbeddingsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
-        either.match((l) => emit(l), (r) => updateDatabases()); // Ignore result here
+        either.match((l) => emit(l), (r) async {
+          updateDatabases();
+        }); // Ignore result here
       });
     });
   }
