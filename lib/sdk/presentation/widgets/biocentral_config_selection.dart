@@ -104,6 +104,28 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     );
   }
 
+  Widget _buildOptionDecoration({required BiocentralConfigOption option, required Widget child}) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: option.name,
+        // Add a suffix icon if description is available
+        suffixIcon: option.description != null && option.description!.isNotEmpty
+            ? BiocentralTooltip(
+          message: option.description!,
+          child: IconButton(
+            icon: Icon(Icons.help_outline, color: Colors.grey[600]),
+            onPressed: null, // Prevents additional action
+          ),
+        )
+            : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+      child: child,
+    );
+  }
+
   Widget buildOption(BiocentralConfigOption option) {
     final allowedValues = option.constraints?.allowedValues ?? {};
     if (allowedValues.isEmpty) {
@@ -115,28 +137,30 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
 
   Widget buildTextOption(BiocentralConfigOption option) {
     final String defaultValue = option.defaultValue.toString();
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: TextFormField(
-        initialValue: defaultValue,
-        decoration: InputDecoration(labelText: option.name),
-        textAlign: TextAlign.center,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: option.constraints?.validator,
-        onChanged: (String? newValue) {
-          if (option.constraints != null) {
-            final (valid, error, parsedValue) = option.constraints!.validate(newValue);
-            if (valid) {
+    return _buildOptionDecoration(
+      option: option,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: TextFormField(
+          initialValue: defaultValue,
+          textAlign: TextAlign.center,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: option.constraints?.validator,
+          onChanged: (String? newValue) {
+            if (option.constraints != null) {
+              final (valid, error, parsedValue) = option.constraints!.validate(newValue);
+              if (valid) {
+                setState(() {
+                  _chosenOptions[_selectedKey]?[option] = parsedValue;
+                });
+              }
+            } else {
               setState(() {
-                _chosenOptions[_selectedKey]?[option] = parsedValue;
+                _chosenOptions[_selectedKey]?[option] = newValue;
               });
             }
-          } else {
-            setState(() {
-              _chosenOptions[_selectedKey]?[option] = newValue;
-            });
-          }
-        },
+          },
+        ),
       ),
     );
   }
@@ -146,8 +170,9 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     final dynamic defaultValue = option.defaultValue.toString();
     var chosenOption = _chosenOptions[_selectedKey]?[option];
 
-    if (chosenOption == '') {
+    if (chosenOption == null || chosenOption == '') {
       chosenOption = defaultValue != '' ? defaultValue : allowedValues.first;
+      _chosenOptions[_selectedKey]?[option] = chosenOption;
     }
 
     // TODO This should not be necessary?
@@ -156,21 +181,18 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     //}
 
     if (allowedValues.length <= 4) {
-      return InputDecorator(
-        decoration: InputDecoration(
-          labelText: option.name,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
+      return _buildOptionDecoration(
+        option: option,
         child: Center(
           child: ToggleButtons(
               isSelected: allowedValues.map((value) => value == chosenOption).toList(),
               onPressed: (int index) {
                 final toggled = allowedValues.toList()[index];
-                setState(() {
-                  _chosenOptions[_selectedKey]?[option] = toggled;
-                });
+                if (toggled != _chosenOptions[_selectedKey]?[option]) {
+                  setState(() {
+                    _chosenOptions[_selectedKey]?[option] = toggled;
+                  });
+                }
               },
               children: allowedValues
                   .map(
@@ -184,17 +206,22 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       );
     }
 
-    return BiocentralDropdownMenu(
-      label: Text(option.name),
-      initialSelection: defaultValue,
-      dropdownMenuEntries:
-          allowedValues.map((value) => DropdownMenuEntry(value: value, label: value.toString())).toList(),
-      onSelected: (dynamic value) {
-        setState(() {
-          chosenOption = value!;
-          _chosenOptions[_selectedKey]?[option] = chosenOption;
-        });
-      },
+    return _buildOptionDecoration(
+      option: option,
+      child: BiocentralDropdownMenu(
+        label: const Text(''),
+        initialSelection: defaultValue,
+        dropdownMenuEntries:
+            allowedValues.map((value) => DropdownMenuEntry(value: value, label: value.toString())).toList(),
+        onSelected: (dynamic value) {
+          if (value != _chosenOptions[_selectedKey]?[option]) {
+            setState(() {
+              chosenOption = value!;
+              _chosenOptions[_selectedKey]?[option] = chosenOption;
+            });
+          }
+        },
+      ),
     );
   }
 }
