@@ -139,6 +139,7 @@ class ProtspaceFileHandler {
 
       projections.add({
         'name': projection.identifier,
+        'dimensions': projection.coordinates.first.length,
         'data': data,
       });
     }
