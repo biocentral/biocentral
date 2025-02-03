@@ -1,13 +1,13 @@
-import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
-  // TODO Remove redundant endpoint suffix everywhere
+  // TODO Remove redundant endpoint suffix [e.g. protocolsEndpoint] everywhere
   static const String protocols = '/prediction_models_service/protocols';
   static const String configOptions = '/prediction_models_service/config_options/';
   static const String verifyConfig = '/prediction_models_service/verify_config/';
@@ -16,21 +16,30 @@ class PredictionModelsServiceEndpoints {
   static const String modelFiles = '/prediction_models_service/model_files';
 }
 
-class BiotrainerOption {
-  final String name;
-  final String category;
-  final bool required;
-  final String defaultValue;
-  final List<String> possibleValues;
+List<BiocentralConfigOption> filterBiotrainerOptionsForBiocentral(List<BiocentralConfigOption> options) {
+  const Set<String> ignoreCategories = {'input_files'};
+  const Set<String> ignoreNames = {
+    'device',
+    'embeddings_file',
+    'ignore_file_inconsistencies',
+    'pretrained_model',
+    'auto_resume',
+    'embedder_name', // Handled separately
+    'model_choice', // Handled separately
+  };
+  return options
+      .where((option) => !ignoreCategories.contains(option.category) && !ignoreNames.contains(option.name))
+      .toList();
+}
 
-  BiotrainerOption(this.name, this.category, this.required, this.defaultValue, this.possibleValues);
-
-  BiotrainerOption.fromMap(Map<String, dynamic> map)
-      : name = map['name'],
-        category = map['category'],
-        required = str2bool(map['required']),
-        defaultValue = map['default_value'],
-        possibleValues = List<String>.from(map['possible_values']);
+Set<String> getAvailableModelsFromBiotrainerConfig(List<BiocentralConfigOption> config) {
+  return config
+          .firstWhere((biocentralOption) => biocentralOption.name == 'model_choice')
+          .constraints
+          ?.allowedValues
+          ?.map((allowed) => allowed.toString())
+          .toSet() ??
+      {};
 }
 
 class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
@@ -64,11 +73,11 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
-   if(trainingLog == null || trainingLog.isEmpty) {
-     if(trainingStatus != null) {
-       return right(BiotrainerTrainingResult.empty().copyWith(trainingStatus: trainingStatus));
-     }
-     return right(null);
+    if (trainingLog == null || trainingLog.isEmpty) {
+      if (trainingStatus != null) {
+        return right(BiotrainerTrainingResult.empty().copyWith(trainingStatus: trainingStatus));
+      }
+      return right(null);
     }
     final result = BiotrainerFileHandler.parseBiotrainerLog(
       trainingLog: trainingLog,

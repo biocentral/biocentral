@@ -1,14 +1,12 @@
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:event_bus/event_bus.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/displays/biotrainer_option_config_widget.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.dart';
+import 'package:event_bus/event_bus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiotrainerConfigDialog extends StatefulWidget {
   final EventBus eventBus;
@@ -43,21 +41,26 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
 
   void openGenerateSetsDialog(BiotrainerConfigBloc biotrainerConfigBloc, BiotrainerConfigState state) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return BlocProvider(
-            create: (context) => SetGenerationDialogBloc(context.read<BiocentralDatabaseRepository>(), widget.eventBus),
-            child: SetGenerationDialog(
-              initialSelectedType: state.selectedDatabaseType,
-            ),
-          );
-        },);
+      context: context,
+      builder: (BuildContext context) {
+        return BlocProvider(
+          create: (context) => SetGenerationDialogBloc(context.read<BiocentralDatabaseRepository>(), widget.eventBus),
+          child: SetGenerationDialog(
+            initialSelectedType: state.selectedDatabaseType,
+          ),
+        );
+      },
+    );
   }
 
   void startTraining(BiotrainerConfigState state) {
     closeDialog();
-    widget.eventBus.fire(BiotrainerStartTrainingEvent(
-        databaseType: state.selectedDatabaseType!, trainingConfiguration: state.currentConfiguration,),);
+    widget.eventBus.fire(
+      BiotrainerStartTrainingEvent(
+        databaseType: state.selectedDatabaseType!,
+        trainingConfiguration: state.currentConfiguration,
+      ),
+    );
   }
 
   void closeDialog() {
@@ -147,12 +150,13 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
         children: [
           const Text('1. Do you want to train a model for proteins or protein-protein interactions?'),
           BiocentralEntityTypeSelection(
-              initialValue: state.selectedDatabaseType,
-              onChangedCallback: (Type? selected) {
-                if (selected != null) {
-                  biotrainerConfigBloc.add(BiotrainerConfigSelectDatabaseTypeEvent(selected));
-                }
-              },),
+            initialValue: state.selectedDatabaseType,
+            onChangedCallback: (Type? selected) {
+              if (selected != null) {
+                biotrainerConfigBloc.add(BiotrainerConfigSelectDatabaseTypeEvent(selected));
+              }
+            },
+          ),
         ],
       ),
     );
@@ -211,21 +215,24 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
     Widget missingSequencesIcon;
     if (state.proteinsHaveMissingSequences == null || state.proteinsHaveMissingSequences == true) {
       missingSequencesIcon = ElevatedButton.icon(
-          onPressed: null,
-          icon: const Icon(Icons.remove_circle),
-          label: const Text('Missing sequences for your proteins!'),);
+        onPressed: null,
+        icon: const Icon(Icons.remove_circle),
+        label: const Text('Missing sequences for your proteins!'),
+      );
     }
     missingSequencesIcon = ElevatedButton.icon(
-        onPressed: null,
-        icon: const Icon(Icons.check_circle),
-        label: const Text('All of your proteins have sequences!'),);
+      onPressed: null,
+      icon: const Icon(Icons.check_circle),
+      label: const Text('All of your proteins have sequences!'),
+    );
     return Flexible(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           const Flexible(
-              child: Text('3. Which embedder do you want to use for your sequences?'),),
+            child: Text('3. Which embedder do you want to use for your sequences?'),
+          ),
           Flexible(child: missingSequencesIcon),
           Flexible(
             // TODO Available embedders should come from server
@@ -281,10 +288,11 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
               ),
             ),
             Flexible(
-                child: BiocentralSmallButton(
-                  onTap: () => openGenerateSetsDialog(biotrainerConfigBloc, state),
-                  label: 'Calculate sets..',
-                ),),
+              child: BiocentralSmallButton(
+                onTap: () => openGenerateSetsDialog(biotrainerConfigBloc, state),
+                label: 'Calculate sets..',
+              ),
+            ),
           ],
         ),
       ],
@@ -301,7 +309,7 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
           child: BiocentralDropdownMenu<String>(
             label: const Text('Choose model..'),
             dropdownMenuEntries: state
-                .getAvailableModels()
+                .availableModels
                 .map((String target) => DropdownMenuEntry<String>(value: target, label: target))
                 .toList(),
             onSelected: (String? value) => biotrainerConfigBloc.add(BiotrainerConfigSelectModelEvent(value ?? '')),
@@ -312,46 +320,23 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
   }
 
   Widget buildOptionalConfigOptions(BiotrainerConfigState state) {
-    final List<BiotrainerOptionalConfigWidget> optionalConfigWidgets = [];
-
-    if (_showOptionalOptions) {
-      for (BiotrainerOption configOption in state.configOptionsByProtocol[state.selectedProtocol] ?? []) {
-        if (configOption.name != 'protocol') {
-          if (!configOption.required) {
-            final BiotrainerOptionalConfigWidget biotrainerOption = BiotrainerOptionalConfigWidget(
-              option: configOption,
-            );
-            optionalConfigWidgets.add(biotrainerOption);
-          }
-        }
-      }
+    if (state.selectedProtocol != null && state.configOptionsByProtocol[state.selectedProtocol] != null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('6. Do you want to customize default options?'),
+          BiocentralConfigSelection(
+            initiallyExpanded: false,
+            clusterByCategories: true,
+            optionMap: {state.selectedProtocol!: state.configOptionsByProtocol[state.selectedProtocol]!},
+            onConfigChangedCallback: (_, __) {}, // TODO
+          ),
+        ],
+      );
+    } else {
+      return Container();
     }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text('6. Do you want to customize default options?'),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Checkbox(
-              value: _showOptionalOptions,
-              onChanged: (bool? value) {
-                setState(() {
-                  _showOptionalOptions = value ?? false;
-                });
-              },
-            ),
-            const Text('Show options'),
-          ],
-        ),
-        ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(8.0),
-          children: optionalConfigWidgets,
-        ),
-      ],
-    );
   }
 
   Widget buildVerifyingStatus(BiotrainerConfigState state) {
@@ -361,9 +346,7 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Flexible(flex: 4, child: CircularProgressIndicator()),
-          Spacer(
-            
-          ),
+          Spacer(),
           Flexible(flex: 4, child: Text('Verifying..')),
         ],
       ),
@@ -383,15 +366,19 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
   Widget buildVerifiedMessage(BiotrainerConfigState state) {
     return Visibility(
       visible: state.status == BiotrainerConfigStatus.verified,
-      child: Text('Configuration verified!',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).primaryColor),),
+      child: Text(
+        'Configuration verified!',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).primaryColor),
+      ),
     );
   }
 
   Widget buildTrainModelButton(BiotrainerConfigBloc biotrainerConfigBloc, BiotrainerConfigState state) {
     if (state.status != BiotrainerConfigStatus.verified) {
       return BiocentralSmallButton(
-          onTap: () => biotrainerConfigBloc.add(BiotrainerConfigVerifyConfigEvent()), label: 'Verify Config',);
+        onTap: () => biotrainerConfigBloc.add(BiotrainerConfigVerifyConfigEvent()),
+        label: 'Verify Config',
+      );
     } else {
       return BiocentralSmallButton(onTap: () => startTraining(state), label: 'Start Training');
     }

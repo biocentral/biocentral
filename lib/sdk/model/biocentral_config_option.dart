@@ -23,7 +23,7 @@ class BiocentralConfigOption {
 
   BiocentralConfigOption.fromMap(Map<String, dynamic> map)
       : name = map['name'],
-        required = str2bool(map['required']) ?? false,
+        required = str2bool(map['required'].toString()) ?? false,
         defaultValue = map['default'],
         category = map['category'],
         description = map['description'],
@@ -49,7 +49,7 @@ class BiocentralConfigConstraints {
       return null;
     }
     final typeConstraint = parseTypeConstraint(map['type']);
-    var allowedValues = Set.from(map['allowed'] ?? []);
+    var allowedValues = Set.from(map['allowed'] ?? map['allowed_values'] ?? []);
     if (allowedValues.isEmpty && typeConstraint is bool) {
       allowedValues = {true, false};
     }
