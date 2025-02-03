@@ -34,7 +34,8 @@ def _get_config_dict_from_string(config_string: str) -> dict:
 # Endpoint to get configuration options by protocol from biotrainer
 @prediction_models_service_route.route('/prediction_models_service/config_options/<protocol>', methods=['GET'])
 def config_options(protocol):
-    options = Configurator.get_option_dicts_by_protocol(Protocol[protocol])
+    options = Configurator.get_option_dicts_by_protocol(protocol=Protocol.from_string(protocol),
+                                                        sub_configs_to_include=[])
 
     return jsonify({"options": options})
 
@@ -52,7 +53,7 @@ def verify_config():
     except ConfigurationException as config_exception:
         return jsonify({"error": str(config_exception)})
     # Verification successful - no error
-    return jsonify({"config_error": ""})
+    return jsonify({"error": ""})
 
 
 # Endpoint to get available protocols from biotrainer
