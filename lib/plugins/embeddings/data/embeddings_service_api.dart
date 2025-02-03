@@ -106,7 +106,7 @@ class ProtspaceFileHandler {
         if (proteinID.isNotEmpty) {
           final Map<String, dynamic> features = Map.from(protein)..remove('id');
           proteinData[proteinID] = {
-            'features': {'sequence': protein['sequence']}, // TODO Add actual features
+            'features': {}, // TODO [Feature] Add actual features from entity repository
           };
         }
       }
