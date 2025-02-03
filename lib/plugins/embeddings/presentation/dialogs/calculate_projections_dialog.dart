@@ -128,6 +128,7 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
       return Container();
     }
     return BiocentralConfigSelection(
+      label: 'Select method..',
       optionMap: state.projectionConfig,
       onConfigChangedCallback: (String? selectedMethod, Map<String, Map<BiocentralConfigOption, dynamic>>? config) {
         _selectedMethod = selectedMethod;

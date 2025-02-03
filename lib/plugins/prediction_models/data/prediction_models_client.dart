@@ -1,6 +1,7 @@
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -23,13 +24,13 @@ class PredictionModelsClient extends BiocentralClient {
     });
   }
 
-  Future<Either<BiocentralException, List<BiotrainerOption>>> getBiotrainerConfigOptionsByProtocol(
+  Future<Either<BiocentralException, List<BiocentralConfigOption>>> getBiotrainerConfigOptionsByProtocol(
     String protocol,
   ) async {
     final responseEither = await doGetRequest(PredictionModelsServiceEndpoints.configOptions + protocol.trim());
     return responseEither.match((error) => left(error), (responseMap) {
       final List<dynamic> configOptions = responseMap['options'];
-      return right(configOptions.map((configOption) => BiotrainerOption.fromMap(configOption)).toList());
+      return right(configOptions.map((configOption) => BiocentralConfigOption.fromMap(configOption)).toList());
     });
   }
 

@@ -3,10 +3,20 @@ import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
+  final String? label;
+  final bool initiallyExpanded;
+  final bool clusterByCategories;
   final Map<String, List<BiocentralConfigOption>> optionMap;
   final void Function(String?, Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
 
-  const BiocentralConfigSelection({required this.optionMap, required this.onConfigChangedCallback, super.key});
+  const BiocentralConfigSelection({
+    required this.optionMap,
+    required this.onConfigChangedCallback,
+    this.label,
+    this.initiallyExpanded = true,
+    this.clusterByCategories = false,
+    super.key,
+  });
 
   @override
   State<BiocentralConfigSelection> createState() => _BiocentralConfigSelectionState();
@@ -25,32 +35,40 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       _chosenOptions.putIfAbsent(
           entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, option.defaultValue))));
     }
+    if (widget.optionMap.keys.length == 1) {
+      _selectedKey = widget.optionMap.keys.first;
+    }
   }
 
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    // Use a microtask to ensure the state has been updated before validating
-    Future.microtask(() {
+  void updateConfig(VoidCallback fn) {
+    final oldSelectedKey = _selectedKey;
+    fn();
+    if (oldSelectedKey != _selectedKey) {
+      widget.onConfigChangedCallback(_selectedKey, _chosenOptions);
+    } else {
       if (_optionsFormKey.currentState != null && _optionsFormKey.currentState!.validate()) {
         widget.onConfigChangedCallback(_selectedKey, _chosenOptions);
       }
-    });
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final Widget discreteSelection = widget.optionMap.keys.length > 1
+        ? BiocentralDiscreteSelection(
+            title: widget.label ?? '',
+            selectableValues: widget.optionMap.keys.toList(),
+            onChangedCallback: (String? value) {
+              updateConfig(() {
+                _selectedKey = value;
+              });
+            },
+          )
+        : Container();
     return Column(
       children: [
-        BiocentralDiscreteSelection(
-          title: 'Select method:',
-          selectableValues: widget.optionMap.keys.toList(),
-          onChangedCallback: (String? value) {
-            setState(() {
-              _selectedKey = value;
-            });
-          },
-        ),
+        discreteSelection,
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: buildConfigOptionsTable(),
@@ -66,39 +84,66 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     return 2;
   }
 
+  Map<String, List<BiocentralConfigOption>> _clusterByCategory(List<BiocentralConfigOption> options) {
+    final String fallbackName = 'other';
+    final Map<String, List<BiocentralConfigOption>> result = {};
+    for (final option in options) {
+      final optionCategory = option.category ?? fallbackName;
+      result.putIfAbsent(optionCategory, () => []);
+      result[optionCategory]?.add(option);
+    }
+    return result;
+  }
+
+  Widget _buildTable(List<BiocentralConfigOption> options) {
+    final int columns = _getNumberOfColumns(options.length);
+    return Table(
+      columnWidths: {
+        for (int i = 0; i < columns; i++) i: const FlexColumnWidth(),
+      },
+      children: [
+        for (int i = 0; i < options.length; i += columns)
+          TableRow(
+            children: [
+              for (int j = 0; j < columns; j++)
+                if (i + j < options.length)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: buildOption(options[i + j]),
+                  )
+                else
+                  Container(),
+            ],
+          ),
+      ],
+    );
+  }
+
   Widget buildConfigOptionsTable() {
-    final options = widget.optionMap[_selectedKey] ?? [];
+    final String placeholder = "%placeholder%Key%!";
+    var options = {placeholder: widget.optionMap[_selectedKey] ?? []};
     if (_selectedKey == null || options.isEmpty) {
       return Container();
     }
-
-    final int columns = _getNumberOfColumns(options.length);
+    if (widget.clusterByCategories) {
+      options = _clusterByCategory(options[placeholder]?.toList() ?? []);
+    }
     return Form(
       key: _optionsFormKey,
       child: ExpansionTile(
         title: Text('$_selectedKey-specific Configuration:'),
-        initiallyExpanded: true,
+        initiallyExpanded: widget.initiallyExpanded,
         children: [
-          Table(
-            columnWidths: {
-              for (int i = 0; i < columns; i++) i: const FlexColumnWidth(),
-            },
-            children: [
-              for (int i = 0; i < options.length; i += columns)
-                TableRow(
-                  children: [
-                    for (int j = 0; j < columns; j++)
-                      if (i + j < options.length)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: buildOption(options[i + j]),
-                        )
-                      else
-                        Container(),
-                  ],
-                ),
-            ],
-          ),
+          if (options.length == 1)
+            _buildTable(options[placeholder] ?? [])
+          else
+            for (final entry in options.entries)
+              ExpansionTile(
+                title: Text(entry.key),
+                children: [
+                  _buildTable(entry.value),
+                ],
+              )
         ],
       ),
     );
@@ -111,12 +156,12 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
         // Add a suffix icon if description is available
         suffixIcon: option.description != null && option.description!.isNotEmpty
             ? BiocentralTooltip(
-          message: option.description!,
-          child: IconButton(
-            icon: Icon(Icons.help_outline, color: Colors.grey[600]),
-            onPressed: null, // Prevents additional action
-          ),
-        )
+                message: option.description!,
+                child: IconButton(
+                  icon: Icon(Icons.help_outline, color: Colors.grey[600]),
+                  onPressed: null, // Prevents additional action
+                ),
+              )
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -150,12 +195,12 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             if (option.constraints != null) {
               final (valid, error, parsedValue) = option.constraints!.validate(newValue);
               if (valid) {
-                setState(() {
+                updateConfig(() {
                   _chosenOptions[_selectedKey]?[option] = parsedValue;
                 });
               }
             } else {
-              setState(() {
+              updateConfig(() {
                 _chosenOptions[_selectedKey]?[option] = newValue;
               });
             }
@@ -189,7 +234,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
               onPressed: (int index) {
                 final toggled = allowedValues.toList()[index];
                 if (toggled != _chosenOptions[_selectedKey]?[option]) {
-                  setState(() {
+                  updateConfig(() {
                     _chosenOptions[_selectedKey]?[option] = toggled;
                   });
                 }
@@ -215,7 +260,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             allowedValues.map((value) => DropdownMenuEntry(value: value, label: value.toString())).toList(),
         onSelected: (dynamic value) {
           if (value != _chosenOptions[_selectedKey]?[option]) {
-            setState(() {
+            updateConfig(() {
               chosenOption = value!;
               _chosenOptions[_selectedKey]?[option] = chosenOption;
             });

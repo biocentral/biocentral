@@ -3,6 +3,7 @@ import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handle
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -65,9 +66,10 @@ final class BiotrainerConfigVerifyEvent extends BiotrainerConfigEvent {}
 @immutable
 final class BiotrainerConfigState extends Equatable {
   final List<String> availableProtocols;
-  final Map<String, List<BiotrainerOption>> configOptionsByProtocol;
+  final Map<String, List<BiocentralConfigOption>> configOptionsByProtocol;
   final Set<String> availableTargets;
   final Set<String> availableSets;
+  final Set<String> availableModels;
 
   final String? selectedProtocol;
   final Type? selectedDatabaseType;
@@ -84,6 +86,7 @@ final class BiotrainerConfigState extends Equatable {
     this.configOptionsByProtocol,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
     this.selectedProtocol,
     this.selectedDatabaseType,
     this.proteinsHaveMissingSequences,
@@ -98,6 +101,7 @@ final class BiotrainerConfigState extends Equatable {
         configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
+        availableModels = const {},
         currentConfiguration = const {},
         proteinsHaveMissingSequences = null,
         selectedProtocol = '',
@@ -109,6 +113,7 @@ final class BiotrainerConfigState extends Equatable {
         configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
+        availableModels = const {},
         currentConfiguration = const {},
         proteinsHaveMissingSequences = null,
         selectedProtocol = '',
@@ -119,6 +124,7 @@ final class BiotrainerConfigState extends Equatable {
       : configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
+        availableModels = const {},
         currentConfiguration = const {},
         proteinsHaveMissingSequences = null,
         selectedProtocol = '',
@@ -132,6 +138,7 @@ final class BiotrainerConfigState extends Equatable {
   )   : configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
+        availableModels = const {},
         currentConfiguration = const {},
         proteinsHaveMissingSequences = null,
         errorMessage = '',
@@ -144,6 +151,7 @@ final class BiotrainerConfigState extends Equatable {
     this.currentConfiguration,
     this.selectedProtocol,
     this.proteinsHaveMissingSequences,
+    this.availableModels,
   )   : availableTargets = const {},
         availableSets = const {},
         errorMessage = '',
@@ -157,6 +165,7 @@ final class BiotrainerConfigState extends Equatable {
     this.selectedProtocol,
     this.proteinsHaveMissingSequences,
     this.availableTargets,
+    this.availableModels,
   )   : availableSets = const {},
         errorMessage = '',
         status = BiotrainerConfigStatus.selectingTarget;
@@ -170,6 +179,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
   )   : errorMessage = '',
         status = BiotrainerConfigStatus.selectingSets;
 
@@ -182,6 +192,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
   )   : errorMessage = '',
         status = BiotrainerConfigStatus.selectingModel;
 
@@ -194,6 +205,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
   )   : errorMessage = '',
         status = BiotrainerConfigStatus.selectingOptionalConfig;
 
@@ -206,6 +218,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
   )   : errorMessage = '',
         status = BiotrainerConfigStatus.verifying;
 
@@ -218,6 +231,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
   )   : errorMessage = '',
         status = BiotrainerConfigStatus.verified;
 
@@ -230,6 +244,7 @@ final class BiotrainerConfigState extends Equatable {
     this.proteinsHaveMissingSequences,
     this.availableTargets,
     this.availableSets,
+    this.availableModels,
     this.errorMessage,
   ) : status = BiotrainerConfigStatus.configError;
 
@@ -239,6 +254,7 @@ final class BiotrainerConfigState extends Equatable {
         configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
+        availableModels = const {},
         currentConfiguration = const {},
         proteinsHaveMissingSequences = null,
         selectedProtocol = '',
@@ -264,15 +280,6 @@ final class BiotrainerConfigState extends Equatable {
       return protocol;
     }
     return null;
-  }
-
-  Set<String> getAvailableModels() {
-    // TODO Maybe move to biotrainer API
-    return configOptionsByProtocol[selectedProtocol]
-            ?.firstWhere((biotrainerOption) => biotrainerOption.name == 'model_choice')
-            .possibleValues
-            .toSet() ??
-        {};
   }
 
   @override
@@ -331,15 +338,18 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
         ),
       );
 
-      final Map<String, List<BiotrainerOption>> configOptionsByProtocol = Map.from(state.configOptionsByProtocol);
+      final Map<String, List<BiocentralConfigOption>> configOptionsByProtocol = Map.from(state.configOptionsByProtocol);
       final Map<String, String> currentConfiguration = {};
 
-      List<BiotrainerOption>? options = configOptionsByProtocol[selectedProtocol];
+      List<BiocentralConfigOption>? options = configOptionsByProtocol[selectedProtocol];
 
+      Set<String> availableModels = {};
       if (options == null || options.isEmpty) {
         final configOptionsByProtocolEither =
             await _biotrainerTrainingClient.getBiotrainerConfigOptionsByProtocol(selectedProtocol);
         options = List.from(configOptionsByProtocolEither.getOrElse((l) => []));
+        availableModels = getAvailableModelsFromBiotrainerConfig(options);
+        options = filterBiotrainerOptionsForBiocentral(options);
       }
 
       if (options.isEmpty) {
@@ -347,14 +357,16 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       } else {
         configOptionsByProtocol[selectedProtocol] = options;
 
-        for (BiotrainerOption biotrainerOption in configOptionsByProtocol[selectedProtocol]!) {
-          currentConfiguration[biotrainerOption.name] = biotrainerOption.defaultValue;
+        for (BiocentralConfigOption biotrainerOption in configOptionsByProtocol[selectedProtocol]!) {
+          if (biotrainerOption.defaultValue != null) {
+            currentConfiguration[biotrainerOption.name] = biotrainerOption.defaultValue.toString();
+          }
         }
 
         // TODO Maybe move to biotrainer API
         currentConfiguration['protocol'] = selectedProtocol;
         if (state.selectedDatabaseType is Protein) {
-          currentConfiguration['interaction'] = '';
+          currentConfiguration.remove('interaction');
         }
 
         // TODO Could be more generic
@@ -374,6 +386,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
             currentConfiguration,
             selectedProtocol,
             proteinsHaveMissingSequences,
+            availableModels,
           ),
         );
       }
@@ -400,6 +413,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
             state.selectedProtocol,
             state.proteinsHaveMissingSequences,
             availableAttributes,
+            state.availableModels,
           ),
         );
       }
@@ -421,6 +435,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           availableSets,
+          state.availableModels,
         ),
       );
     });
@@ -443,6 +458,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           availableSets,
+          state.availableModels,
         ),
       );
     });
@@ -460,6 +476,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           state.availableSets,
+          state.availableModels,
         ),
       );
     });
@@ -477,6 +494,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           state.availableSets,
+          state.availableModels,
         ),
       );
     });
@@ -494,6 +512,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           state.availableSets,
+          state.availableModels,
         ),
       );
     });
@@ -511,6 +530,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
           state.proteinsHaveMissingSequences,
           state.availableTargets,
           state.availableSets,
+          state.availableModels,
         ),
       );
 
@@ -527,6 +547,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
                   state.proteinsHaveMissingSequences,
                   state.availableTargets,
                   state.availableSets,
+                  state.availableModels,
                   exception.message,
                 ),
               ), (u) {
@@ -540,6 +561,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
             state.proteinsHaveMissingSequences,
             state.availableTargets,
             state.availableSets,
+            state.availableModels,
           ),
         );
       });
