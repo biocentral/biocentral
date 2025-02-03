@@ -211,68 +211,67 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
           .map((entity) => MapEntry(entity.getID(), entity.toMap()['sequence'].toString())),
     );
 
-    final missingEmbeddingsEither = await _embeddingsClient.getMissingEmbeddings(sequences, _embedderName!, true);
-    yield* missingEmbeddingsEither.match((error) async* {
-      yield left(state.setErrored(information: error.message));
-    }, (missingEmbeddings) async* {
-      if (missingEmbeddings.isNotEmpty) {
-        final writeH5Either =
-            await _pythonCompanion.writeH5File('/home/sebie/IdeaProjects/biocentral/test_dir/test.h5', _embeddings);
-        yield* writeH5Either.match((error) async* {
-          yield left(state.setErrored(information: error.message));
-        }, (h5Bytes) async* {
-          final addEmbeddingsEither = await _embeddingsClient.addEmbeddings(h5Bytes, sequences, _embedderName, true);
-          if (addEmbeddingsEither.isLeft()) {
-            yield left(state.setErrored(information: 'Could not add embeddings to server!'));
-          }
-        });
-      }
-      final taskIDEither = await _embeddingsClient.projectionForSequences(
-        sequences,
-        _embedderName,
-        _projectionMethod,
-        _projectionConfig,
-        _embedderName,
-      );
-      yield* taskIDEither.match((error) async* {
+    if (_embedderName != "one_hot_encoding") {
+      final missingEmbeddingsEither = await _embeddingsClient.getMissingEmbeddings(sequences, _embedderName!, true);
+      yield* missingEmbeddingsEither.match((error) async* {
         yield left(state.setErrored(information: error.message));
-      }, (taskID) async* {
-        Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
-        await for (final projectionDataResponse in _embeddingsClient.projectionTaskStream(taskID)) {
-          if (projectionDataResponse != null) {
-            projectionData = projectionDataResponse;
-            break;
-          }
-        }
-        if (projectionData == null) {
-          yield left(
-              state.setErrored(information: 'Projections could not be calculated, no projections file received!'));
-        }
-
-        // TODO Improve Point Data with type of embeddings
-        final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(Protein);
-        if (database == null) {
-          yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
-        }
-        for (final ProjectionData projection in projectionData?.keys ?? []) {
-          final Map<ProjectionData, List<Map<String, dynamic>>> updatedProjectionData =
-              _embeddingsRepository.updateProjectionData(
-            _embedderName,
-            projection,
-            database!
-                .databaseToList()
-                .map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString())))
-                .toList(),
-          );
-          yield right(projection);
-          // TODO [Feature] Handle multiple projections at once
-          yield left(
-            state
-                .setOperating(information: 'Calculated projection data!')
-                .copyWith(copyMap: {'projectionData': updatedProjectionData}),
-          );
+      }, (missingEmbeddings) async* {
+        if (missingEmbeddings.isNotEmpty) {
+          final writeH5Either =
+              await _pythonCompanion.writeH5File('/home/sebie/IdeaProjects/biocentral/test_dir/test.h5', _embeddings);
+          yield* writeH5Either.match((error) async* {
+            yield left(state.setErrored(information: error.message));
+          }, (h5Bytes) async* {
+            final addEmbeddingsEither = await _embeddingsClient.addEmbeddings(h5Bytes, sequences, _embedderName, true);
+            if (addEmbeddingsEither.isLeft()) {
+              yield left(state.setErrored(information: 'Could not add embeddings to server!'));
+            }
+          });
         }
       });
+    }
+
+    final taskIDEither = await _embeddingsClient.projectionForSequences(
+      sequences,
+      _embedderName!,
+      _projectionMethod,
+      _projectionConfig,
+      _embedderName,
+    );
+    yield* taskIDEither.match((error) async* {
+      yield left(state.setErrored(information: error.message));
+    }, (taskID) async* {
+      Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
+      await for (final projectionDataResponse in _embeddingsClient.projectionTaskStream(taskID)) {
+        if (projectionDataResponse != null) {
+          projectionData = projectionDataResponse;
+          break;
+        }
+      }
+      if (projectionData == null) {
+        yield left(state.setErrored(information: 'Projections could not be calculated, no projections file received!'));
+      }
+
+      // TODO Improve Point Data with type of embeddings
+      final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(Protein);
+      if (database == null) {
+        yield left(state.setErrored(information: 'Could not find database for UMAP point data!'));
+      }
+      for (final ProjectionData projection in projectionData?.keys ?? []) {
+        final Map<ProjectionData, List<Map<String, dynamic>>> updatedProjectionData =
+            _embeddingsRepository.updateProjectionData(
+          _embedderName,
+          projection,
+          database!.databaseToList().map((entity) => entity.toMap().map((k, v) => MapEntry(k, v.toString()))).toList(),
+        );
+        yield right(projection);
+        // TODO [Feature] Handle multiple projections at once
+        yield left(
+          state
+              .setOperating(information: 'Calculated projection data!')
+              .copyWith(copyMap: {'projectionData': updatedProjectionData}),
+        );
+      }
     });
   }
 
