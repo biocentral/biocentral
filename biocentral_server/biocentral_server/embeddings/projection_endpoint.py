@@ -5,7 +5,7 @@ from flask import request, Blueprint, jsonify, current_app
 from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
 from protspace.utils.prepare_json import DimensionReductionConfig as ProtSpaceDimensionReductionConfig
 
-from .protspace_task import ProtSpaceTask, load_embeddings_via_sequences
+from .protspace_task import ProtSpaceTask, load_embeddings_strategy_factory
 
 from ..server_management import TaskManager, EmbeddingsDatabase
 
@@ -34,9 +34,9 @@ def projection_for_sequences():
         return jsonify({"error": f"Unsupported reduction method: {method}"})
 
     embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
-    load_embeddings_strategy_seqs = lambda: load_embeddings_via_sequences(embeddings_db=embeddings_database,
-                                                                          embedder_name=embedder_name,
-                                                                          sequences=sequences)
+    load_embeddings_strategy_seqs = load_embeddings_strategy_factory(embedder_name=embedder_name,
+                                                                     sequences=sequences,
+                                                                     embeddings_db=embeddings_database)
     protspace_task = ProtSpaceTask(load_embeddings_strategy=load_embeddings_strategy_seqs,
                                    method=method,
                                    config=config)
