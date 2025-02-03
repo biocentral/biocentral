@@ -50,16 +50,17 @@ class BiocentralConfigConstraints {
     }
     final typeConstraint = parseTypeConstraint(map['type']);
     var allowedValues = Set.from(map['allowed'] ?? map['allowed_values'] ?? []);
-    if (allowedValues.isEmpty && typeConstraint is bool) {
+    if (allowedValues.isEmpty && typeConstraint == bool) {
       allowedValues = {true, false};
     }
     return BiocentralConfigConstraints(
-        typeConstraint: typeConstraint,
-        gt: map['gt'],
-        gte: map['gte'],
-        lt: map['lt'],
-        lte: map['lte'],
-        allowedValues: allowedValues);
+      typeConstraint: typeConstraint,
+      gt: map['gt'],
+      gte: map['gte'],
+      lt: map['lt'],
+      lte: map['lte'],
+      allowedValues: allowedValues,
+    );
   }
 
   static Type? parseTypeConstraint(String? typeConstraint) {
@@ -93,10 +94,9 @@ class BiocentralConfigConstraints {
       if (value.runtimeType != typeConstraint) {
         if (typeConstraint == int && int.tryParse(value.toString()) != null) {
           // Special case for double that is also an integer
-        } else if(typeConstraint == double && value.runtimeType == int) {
+        } else if (typeConstraint == double && value.runtimeType == int) {
           // Special case for int that is also a double
-        }
-        else {
+        } else {
           return (false, 'Invalid type. Expected: ${typeConstraint.toString()}. Got: ${value.runtimeType}', null);
         }
       }
