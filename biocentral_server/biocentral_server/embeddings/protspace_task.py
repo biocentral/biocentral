@@ -50,7 +50,6 @@ class ProtSpaceTask(TaskInterface):
         self.method = method
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        # TODO One Hot Encodings?
         embedding_map = self.load_embeddings_strategy(self)
         protspace_headers = list(embedding_map.keys())
 
