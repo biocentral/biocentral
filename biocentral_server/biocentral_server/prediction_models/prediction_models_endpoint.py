@@ -15,6 +15,15 @@ prediction_models_service_route = Blueprint("prediction_models_service", __name_
 
 def _get_config_dict_from_string(config_string: str) -> dict:
     config_dict = {}
+    def _eval_value(val: str):
+        for v in [val, val.capitalize(), val.lower(), val.upper()]:
+            try:
+                ev = eval(v)
+                return ev
+            except NameError:
+                continue
+        return val
+
     for line in config_string.split("\n"):
         if line == "":
             continue
@@ -22,10 +31,7 @@ def _get_config_dict_from_string(config_string: str) -> dict:
         if len(key_value) == 2:
             key = key_value[0].strip()
             value = key_value[1].strip()
-            try:
-                config_dict[key] = eval(value)
-            except NameError:
-                config_dict[key] = value
+            config_dict[key] = _eval_value(value)
         else:
             raise ConfigurationException(f"Invalid config: {key_value}")
     return config_dict
@@ -49,7 +55,7 @@ def verify_config():
     try:
         config_dict = _get_config_dict_from_string(config_string)
         configurator = Configurator.from_config_dict(config_dict)
-        configurator.get_verified_config(ignore_file_checks=True)
+        configurator.verify_config(ignore_file_checks=True)
     except ConfigurationException as config_exception:
         return jsonify({"error": str(config_exception)})
     # Verification successful - no error

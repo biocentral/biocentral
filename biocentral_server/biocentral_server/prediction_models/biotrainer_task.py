@@ -65,6 +65,7 @@ class BiotrainerTask(TaskInterface):
         device = self.config_dict.get('device', None)
         output_path = self.config_path.parent / "embeddings.h5"
         with tempfile.TemporaryDirectory() as temp_embeddings_dir:
+            # TODO [Refactoring] Consider moving temporary directory to embedding task directly
             temp_embeddings_path = Path(temp_embeddings_dir)
             embedding_task = EmbeddingTask(embedder_name=embedder_name,
                                            sequence_file_path=sequence_file_path,
