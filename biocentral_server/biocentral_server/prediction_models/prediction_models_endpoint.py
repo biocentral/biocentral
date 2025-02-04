@@ -91,18 +91,16 @@ def start_training():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    # TODO Workaround for cuda problem
-    # config_dict["device"] = "cpu"
-
     for file_name, file_path in [("sequence_file", sequence_file), ("labels_file", labels_file),
-                                 ("mask_file", mask_file),
-                                 ("embeddings_file", embeddings_file)]:
+                                 ("mask_file", mask_file)]:
         if file_path != "":
             config_dict[file_name] = file_path
 
     # Remove embedder_name from config if embeddings_file exists, because they are mutually exclusive
     if str(embeddings_file) != "":
-        config_dict["embedder_name"] = ""
+        # TODO [Optimization] Might add an existing embeddings_file or remove embeddings_file from file_manager
+        # config_dict["embedder_name"] = ""
+        pass  # Ignore embeddings_file for now
 
     task_manager = TaskManager()
     # TODO Replace this by a appropriate model hash in the future to avoid costly retraining
