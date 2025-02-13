@@ -65,7 +65,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   }
 
   bool _checkForUpdatedPlugins(BiocentralPluginState? oldState, BiocentralPluginState newState) {
-    if(oldState == null) {
+    if (oldState == null) {
       return true;
     }
 
@@ -92,8 +92,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   Future<void> terminatePythonCompanion() async {
     final pythonCompanion = context.read<BiocentralPythonCompanion>();
-    final terminated = pythonCompanion.terminateCompanion();
-}
+    final terminated = await pythonCompanion.terminate();
+  }
 
   void createBlocs() {
     final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
