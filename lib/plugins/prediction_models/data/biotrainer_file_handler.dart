@@ -153,20 +153,60 @@ class BiotrainerFileHandler {
 
   static Set<BiocentralMLMetric> _parseMLMetricsMap(Map<String, dynamic> metricsMap) {
     final Set<BiocentralMLMetric> result = {};
-    for (MapEntry<String, dynamic> mapEntry in metricsMap.entries) {
-      final BiocentralMLMetric? mlMetric = BiocentralMLMetric.tryParse(mapEntry.key, mapEntry.value.toString());
-      if (mlMetric == null) {
-        logger.e('MLMetric could not be parsed: $mapEntry');
+
+    // Handle regular metrics
+    if (!metricsMap.containsKey('results')) {
+      for (MapEntry<String, dynamic> mapEntry in metricsMap.entries) {
+        final BiocentralMLMetric? mlMetric = BiocentralMLMetric.tryParse(mapEntry.key, mapEntry.value.toString());
+        if (mlMetric == null) {
+          logger.e('MLMetric could not be parsed: $mapEntry');
+        } else {
+          result.add(mlMetric);
+        }
+      }
+      return result;
+    }
+
+    // Handle bootstrapping results
+    final Map<String, dynamic> results = metricsMap['results'] as Map<String, dynamic>;
+    final int? iterations = metricsMap['iterations'] as int?;
+    final int? sampleSize = metricsMap['sample_size'] as int?;
+
+    for (MapEntry<String, dynamic> mapEntry in results.entries) {
+      final String metricName = mapEntry.key;
+      final Map<String, dynamic> uncertaintyData = mapEntry.value as Map<String, dynamic>;
+
+      final double? mean = double.tryParse(uncertaintyData['mean'].toString());
+      final double? error = double.tryParse(uncertaintyData['error'].toString());
+
+      if (mean != null && error != null) {
+        final uncertaintyEstimate = UncertaintyEstimate(
+          method: 'bootstrap',
+          mean: mean,
+          error: error,
+          iterations: iterations,
+          sampleSize: sampleSize,
+        );
+
+        result.add(
+          BiocentralMLMetric(
+            name: metricName,
+            value: mean,
+            uncertaintyEstimate: uncertaintyEstimate,
+          ),
+        );
       } else {
-        result.add(mlMetric);
+        logger.e('Could not parse bootstrapping result: $mapEntry');
       }
     }
+
     return result;
   }
 
   static BiotrainerTrainingResult parseBiotrainerLog(
       {required String trainingLog, BiocentralTaskStatus? trainingStatus}) {
     const String testSetMetricsIdentifier = 'INFO Test set metrics: ';
+    const String bootstrappingResultsIdentifier = 'INFO Bootstrapping results: ';
     const String sanityChecksStartIdentifier = 'INFO Running sanity checks on test results..';
     const String sanityChecksEndIdentifier = 'INFO Sanity check on test results finished!';
     const String warningStringSeparator = ' WARNING ';
@@ -188,7 +228,6 @@ class BiotrainerFileHandler {
     bool inValidationResults = false;
     int currentEpoch = -1;
 
-    // TODO [Optimization] Improve performance
     final bool parseResultMetrics =
         trainingStatus == BiocentralTaskStatus.finished || trainingLog.contains(testSetMetricsIdentifier);
 
@@ -221,9 +260,14 @@ class BiotrainerFileHandler {
       }
 
       if (parseResultMetrics) {
-        // Only parse result metrics after training is done
         if (line.contains(testSetMetricsIdentifier)) {
           final String metrics = line.split(testSetMetricsIdentifier).last;
+          final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"'));
+          parsedTestSetMetrics = _parseMLMetricsMap(metricsMap);
+          continue;
+        }
+        if (line.contains(bootstrappingResultsIdentifier)) {
+          final String metrics = line.split(bootstrappingResultsIdentifier).last;
           final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"'));
           parsedTestSetMetrics = _parseMLMetricsMap(metricsMap);
           continue;
@@ -241,26 +285,22 @@ class BiotrainerFileHandler {
             final String sanityCheckWarning = line.split(warningStringSeparator).last;
             parsedSanityCheckWarnings.add(sanityCheckWarning);
           } else if (line.contains(infoStringSeparator)) {
-            final List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split(": {'");
-            if (baselineNameAndMetrics.length != 2) {
-              logger.e('Invalid sanity check line: $line');
-              continue;
-            }
-            final String baselineName = baselineNameAndMetrics.first;
-            final Map<String, dynamic> baselineMetricsMap =
-                jsonDecode("{\"${baselineNameAndMetrics.last.replaceAll("'", "\"")}");
+            final List<String> baselineNameAndMetrics = line.split(infoStringSeparator).last.split('Baseline: ');
+            final String baselineName = '${baselineNameAndMetrics[0]}Baseline';
+            final Map<String, dynamic> baselineMetricsMap = jsonDecode(baselineNameAndMetrics[1].replaceAll("'", '"'));
             final Set<BiocentralMLMetric> baselineMLMetrics = _parseMLMetricsMap(baselineMetricsMap);
             parsedSanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
           } else {
-            if(line.isNotEmpty) {
+            if (line.isNotEmpty) {
               logger.e('Invalid sanity check line: $line');
             }
           }
         }
       }
     }
-    final status = trainingStatus ??
-        (parsedTestSetMetrics.isEmpty ? BiocentralTaskStatus.running : BiocentralTaskStatus.finished);
+
+    final status =
+        trainingStatus ?? (parsedTestSetMetrics.isEmpty ? BiocentralTaskStatus.running : BiocentralTaskStatus.finished);
 
     final BiotrainerTrainingResult trainingResult = BiotrainerTrainingResult(
       trainingLoss: trainingLoss,

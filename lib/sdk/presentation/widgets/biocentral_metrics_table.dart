@@ -208,13 +208,14 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
   List<TableRow> _buildSortedMetrics(Set<String> allMetricNames) {
     if (widget.metrics.isEmpty) {
       return [
-        const TableRow(children: [Text('No data available yet!')])
+        const TableRow(children: [Text('No data available yet!')]),
       ];
     }
 
     final entries = widget.metrics.entries.toList();
 
     if (_sortedMetric != null) {
+      // TODO [Feature] Improve sorting with uncertainty estimate
       entries.sort((a, b) {
         final valueA = a.value
             .firstWhere(
@@ -250,6 +251,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
       );
       cells.add(_buildCell(
         prominentMetric.value.isNaN ? 'N/A' : prominentMetric.value.toStringAsPrecision(Constants.maxDoublePrecision),
+        estimate: prominentMetric.uncertaintyEstimate,
       ));
 
       if (_isExpanded) {
@@ -260,6 +262,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
           );
           return _buildCell(
             metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
+            estimate: metric.uncertaintyEstimate,
           );
         }));
       } else {
@@ -273,6 +276,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
         );
         return _buildCell(
           metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
+          estimate: metric.uncertaintyEstimate,
         );
       }));
     }
@@ -280,8 +284,8 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
     return TableRow(children: cells);
   }
 
-  Widget _buildCell(String text, {bool isHeader = false}) {
-    return Container(
+  Widget _buildCell(String text, {bool isHeader = false, UncertaintyEstimate? estimate}) {
+    final cell = Container(
       padding: const EdgeInsets.all(8.0),
       alignment: Alignment.center,
       height: _cellHeight,
@@ -293,5 +297,9 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
         textAlign: TextAlign.center,
       ),
     );
+    if(estimate != null) {
+      return BiocentralTooltip(message: 'mean: ${estimate.mean}\nerror: ${estimate.error}', child: cell);
+    }
+    return cell;
   }
 }
