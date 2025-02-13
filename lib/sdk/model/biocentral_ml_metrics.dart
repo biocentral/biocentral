@@ -4,7 +4,9 @@ class BiocentralMLMetric {
   final String name;
   final double value;
 
-  BiocentralMLMetric({required this.name, required this.value});
+  final UncertaintyEstimate? uncertaintyEstimate;
+
+  BiocentralMLMetric({required this.name, required this.value, this.uncertaintyEstimate});
 
   static BiocentralMLMetric? tryParse(String? name, String? value) {
     if (name == null || name == '' || value == null || value == '') {
@@ -28,4 +30,20 @@ class BiocentralMLMetric {
   String toString() {
     return '$name: ${value.toStringAsPrecision(Constants.maxDoublePrecision)}';
   }
+}
+
+final class UncertaintyEstimate {
+  final String method;
+  final double mean;
+  final double error;
+
+  final int? iterations;
+  final int? sampleSize;
+
+  const UncertaintyEstimate(
+      {required this.method,
+      required this.mean,
+      required this.error,
+      required this.iterations,
+      required this.sampleSize});
 }
