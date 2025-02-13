@@ -2,6 +2,22 @@
 
 Overview how to build biocentral for different platforms locally.
 
+## Python Companion
+
+Build python companion via `serious_python` package command before building the flutter app:
+
+```shell
+# Windows
+dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows --requirements "-r,python_companion/requirements.txt"
+# Linux
+dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
+# macOS
+dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin --requirements "-r,python_companion/requirements.txt"
+# Web
+dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide --requirements "-r,python_companion/requirements.txt"
+unzip assets/python_companion.zip -d assets/python_companion
+```
+
 ## Linux
 
 ```shell
