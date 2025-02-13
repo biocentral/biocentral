@@ -10,6 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final BiocentralProjectRepository projectRepository =
       await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager();
