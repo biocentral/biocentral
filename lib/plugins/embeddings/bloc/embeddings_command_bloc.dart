@@ -103,6 +103,7 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
       final CalculateEmbeddingsCommand calculateEmbeddingsCommand = CalculateEmbeddingsCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabase: biocentralDatabase,
+        pythonCompanion: _pythonCompanion,
         embeddingClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
         embeddingType: event.embeddingType,
         embedderName: event.predefinedEmbedder.name,
