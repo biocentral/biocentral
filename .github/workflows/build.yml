@@ -28,7 +28,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang libgtk-3-dev
+          sudo apt-get install -y cmake ninja-build clang libgtk-3-dev unzip
 
       - name: Get Flutter Dependencies
         uses: subosito/flutter-action@v2
@@ -38,7 +38,9 @@ jobs:
       - run: flutter pub get
 
       - name: Build Windows Application
-        run: flutter build windows --release
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows --requirements "-r,python_companion/requirements.txt"
+          flutter build windows --release
         if: matrix.os == 'windows-latest'
       - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
@@ -48,11 +50,16 @@ jobs:
           path: build/windows/x64/runner/Release
 
       - name: Build MacOS Application
-        run: flutter build macos --release
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin --requirements "-r,python_companion/requirements.txt"
+          flutter build macos --release
         if: matrix.os == 'macos-latest'
 
       - name: Build Web Application
-        run: flutter build web --web-renderer html --base-href /app/
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide --requirements "-r,python_companion/requirements.txt"
+          unzip assets/python_companion.zip -d assets/python_companion
+          flutter build web --web-renderer html --base-href /app/
         if: matrix.os == 'ubuntu-latest'
       - name: Upload Web build artifacts
         uses: actions/upload-artifact@v4
@@ -62,7 +69,9 @@ jobs:
           path: build/web
 
       - name: Build Linux Application
-        run: flutter build linux --release
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
+          flutter build linux --release
         if: matrix.os == 'ubuntu-latest'
       - name: Upload build artifacts
         if: matrix.os == 'ubuntu-latest'
