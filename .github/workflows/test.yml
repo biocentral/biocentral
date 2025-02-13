@@ -31,6 +31,9 @@ jobs:
           flutter-version-file: pubspec.yaml
       - run: flutter pub get
 
+      - name: Build companion app
+        run: dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
+
       - name: Run Flutter Unit and Widget Tests
         run: flutter test
 
