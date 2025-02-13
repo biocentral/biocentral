@@ -57,7 +57,7 @@ jobs:
 
       - name: Build Web Application
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide --requirements "-r,python_companion/requirements.txt"
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
           unzip assets/python_companion.zip -d assets/python_companion
           flutter build web --web-renderer html --base-href /app/
         if: matrix.os == 'ubuntu-latest'
