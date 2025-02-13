@@ -1,10 +1,11 @@
+import io
 import h5py
+import base64
 import logging
 
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
-from flask import current_app
 from collections import namedtuple
 from typing import List, Dict, Tuple, Any, Optional, Generator
 
@@ -109,3 +110,17 @@ class EmbeddingsDatabase:
                 embeddings = embeddings_task_result.get(seq_id)
                 embeddings_file.create_dataset(str(idx), data=embeddings, compression="gzip", chunks=True)
                 embeddings_file[str(idx)].attrs["original_id"] = seq_id
+
+    @staticmethod
+    def export_embeddings_task_result_to_hdf5_bytes_string(embeddings_task_result: Dict[str, Any]) -> str:
+        h5_io = io.BytesIO()
+        with h5py.File(h5_io, 'w') as embeddings_file:
+            for idx, seq_id in enumerate(embeddings_task_result.keys()):
+                embeddings = embeddings_task_result.get(seq_id)
+                embeddings_file.create_dataset(str(idx), data=embeddings, compression="gzip", chunks=True)
+                embeddings_file[str(idx)].attrs["original_id"] = seq_id
+
+        h5_io.seek(0)
+        h5_base64 = base64.b64encode(h5_io.getvalue()).decode('utf-8')
+        h5_io.close()
+        return h5_base64

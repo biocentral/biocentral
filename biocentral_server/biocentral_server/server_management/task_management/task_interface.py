@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Callable, Generator
+from typing import Any, Dict, Callable, Generator, Optional
 
 from .task_utils import run_subtask_util
 
@@ -20,6 +20,7 @@ class TaskDTO:
     status: TaskStatus
     error: str
     update: Dict[str, Any]
+    on_result_retrieval_hook: Callable[[Dict[str, Any]], Dict[str, Any]] = lambda result: result
 
     @classmethod
     def pending(cls):
@@ -30,8 +31,9 @@ class TaskDTO:
         return TaskDTO(status=TaskStatus.RUNNING, error="", update={})
 
     @classmethod
-    def finished(cls, result: Dict[str, Any]):
-        return TaskDTO(status=TaskStatus.FINISHED, error="", update=result)
+    def finished(cls, result: Dict[str, Any], on_result_retrieval_hook: Optional[Callable] = None):
+        return TaskDTO(status=TaskStatus.FINISHED, error="",
+                       update=result, on_result_retrieval_hook=on_result_retrieval_hook)
 
     @classmethod
     def failed(cls, error: str):
@@ -41,7 +43,10 @@ class TaskDTO:
         return TaskDTO(status=self.status, error=self.error, update=update)
 
     def dict(self):
-        return {"status": self.status.name, "error": self.error, **self.update}
+        update = self.update
+        if self.status == TaskStatus.FINISHED:
+            update = self.on_result_retrieval_hook(update)
+        return {"status": self.status.name, "error": self.error, **update}
 
 
 class TaskInterface(ABC):

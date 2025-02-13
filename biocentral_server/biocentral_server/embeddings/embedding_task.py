@@ -11,7 +11,7 @@ from biotrainer.utilities import read_FASTA, get_device
 
 from .embed import compute_embeddings_and_save_to_db, EmbeddingsDatabaseTriple
 
-from ..server_management import TaskInterface, TaskDTO
+from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase
 
 
 def _postprocess_embeddings(embedding_triples: List[EmbeddingsDatabaseTriple],
@@ -76,4 +76,8 @@ class EmbeddingTask(TaskInterface):
                                                             round_decimals=4)
         del embedding_triples
 
-        return TaskDTO.finished(result={"embeddings_file": {embedder_name: post_processed_embeddings}})
+        return TaskDTO.finished(result={"embeddings_file": {embedder_name: post_processed_embeddings}},
+                                on_result_retrieval_hook=lambda
+                                    result: {
+                                    "embeddings_file": EmbeddingsDatabase.export_embeddings_task_result_to_hdf5_bytes_string(
+                                        result["embeddings_file"][embedder_name])})
