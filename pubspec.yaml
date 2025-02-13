@@ -37,7 +37,11 @@ dependencies:
   path_provider: '^2.1.1'
   pluto_grid: '^8.0.0'
   provider: '^6.1.2'
-  serious_python: '^0.8.4'
+  serious_python:
+    git:
+      url: https://github.com/biocentral/serious-python.git
+      path: src/serious_python
+      ref: feature/add-web-support
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
   simple_icons: '^10.1.3'
@@ -70,4 +74,8 @@ flutter:
     - 'assets/example_datasets/protein/'
     - 'assets/server_releases/'
     - 'assets/python_companion.zip'
+    - 'assets/python_companion/'
+    - 'assets/python_companion/web/'
+    - 'assets/python_companion/desktop/'
+    - 'assets/python_companion/functionality/'
     - docs/
