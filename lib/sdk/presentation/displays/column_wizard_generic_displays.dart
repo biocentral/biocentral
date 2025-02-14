@@ -138,19 +138,16 @@ class _ColumnWizardGenericDisplayState extends State<ColumnWizardGenericDisplay>
 
   Widget barDistributionPlot() {
     return Flexible(
-      child: FutureBuilder<ColumnWizardBarChartData>(
-        future: widget.columnWizard.getBarChartData(),
+      child: FutureBuilder<BiocentralBarPlotData>(
+        future: widget.columnWizard.getBarPlotData(),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            final ColumnWizardBarChartData barChartData = snapshot.data!;
-            final List<(String, double)> plotData = barChartData.dataPoints
-                .map((point) => (barChartData.bottomTitles[point.$1], point.$2.toDouble()))
-                .toList();
+            final BiocentralBarPlotData barPlotData = snapshot.data!;
             return SizedBox(
               width: SizeConfig.screenWidth(context) * 0.4,
               height: SizeConfig.screenHeight(context) * 0.3,
               child: BiocentralBarPlot(
-                data: plotData,
+                data: barPlotData,
                 xAxisLabel: 'Categories',
                 yAxisLabel: 'Frequency',
               ),

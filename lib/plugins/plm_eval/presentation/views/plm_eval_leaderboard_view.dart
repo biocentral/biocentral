@@ -150,9 +150,8 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
 
     final metrics = widget.leaderboard.getMetricsForBenchmark(benchmark);
     final recommendedMetric = widget.leaderboard.getRecommendedMetricByDataset(benchmark);
-    final plotData = metrics.entries
-        .map((entry) => (entry.key.split('/').last, entry.value.firstWhere((d) => d.name == recommendedMetric).value))
-        .toList();
+    final plotData =
+        metrics.map((k, v) => MapEntry(k.split('/').last, v.firstWhere((d) => d.name == recommendedMetric).value));
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -165,7 +164,7 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
             height: SizeConfig.screenHeight(context) * 0.2,
             width: SizeConfig.screenWidth(context) * 0.4,
             child: BiocentralBarPlot(
-              data: plotData,
+              data: BiocentralBarPlotData.withoutErrors(plotData),
               xAxisLabel: 'Model',
               yAxisLabel: recommendedMetric,
               maxLabelLength: 30,

@@ -22,9 +22,9 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
 
   SequenceColumnWizard(super.columnName, this.valueMap);
 
-  List<(String, double)>? _composition;
+  Map<String, double>? _composition;
 
-  Future<List<(String, double)>> composition() async {
+  Future<Map<String, double>> composition() async {
     if(_composition != null) {
       return _composition!;
     }
@@ -39,10 +39,7 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
       }
     }
 
-    final List<(String, double)> compositionResult = [];
-    for (var entry in counts.entries) {
-      compositionResult.add((entry.key, entry.value / totalCount));
-    }
+    final Map<String, double> compositionResult = counts.map((k, v) => MapEntry(k, v / totalCount));
     _composition = compositionResult;
 
     return _composition!;

@@ -64,7 +64,7 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
   }
 
   Widget buildCompositionPlot() {
-    return FutureBuilder<List<(String, double)>>(
+    return FutureBuilder<Map<String, double>>(
       future: widget.columnWizard.composition(),
       builder: (context, snapshot) {
         if(snapshot.hasData && snapshot.data != null) {
@@ -72,7 +72,7 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
             width: SizeConfig.screenWidth(context) * 0.4,
             height: SizeConfig.screenHeight(context) * 0.3,
             child: BiocentralBarPlot(
-              data: snapshot.data!,
+              data: BiocentralBarPlotData.withoutErrors(snapshot.data!),
               xAxisLabel: 'Composition',
               yAxisLabel: 'Relative Frequency',
             ),

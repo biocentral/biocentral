@@ -3,7 +3,9 @@ import 'package:biocentral/plugins/prediction_models/data/prediction_models_serv
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
+import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 
 class PredictionModelDisplay extends StatefulWidget {
@@ -17,6 +19,8 @@ class PredictionModelDisplay extends StatefulWidget {
 }
 
 class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
+  bool _showMetricsAsTable = true;
+
   @override
   Widget build(BuildContext context) {
     final bool isTraining = widget.trainingState != null;
@@ -35,10 +39,17 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       leadingIcon: buildSanityCheckIcon(trainingResult),
       childrenWithTitles: {
         'Model Information': buildModelInformation(),
-        'Metrics': buildMetricsTable(trainingResult),
+        'Metrics': buildMetricsDisplay(trainingResult),
         'Loss Curves': buildLossCurves(trainingResult),
         'Checkpoints': buildAvailableCheckpoints(),
         'Training Logs': buildLogResult(),
+      },
+      childrenNeedIntrinsicHeight: {
+        'Model Information': true,
+        'Metrics': false,
+        'Loss Curves': false,
+        'Checkpoints': true,
+        'Training Logs': false,
       },
     );
   }
@@ -56,88 +67,161 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
         'Loss Curves': buildLossCurves(widget.predictionModel.biotrainerTrainingResult),
         'Training Logs': buildLogResult(),
       },
+      childrenNeedIntrinsicHeight: {
+        'Loss Curves': true,
+        'Training Logs': false,
+      },
     );
   }
 
-
-Widget buildModelCard({
-  required String title,
-  required Widget leadingIcon,
-  required Map<String, Widget> childrenWithTitles,
-  Widget? trailing,
-}) {
-  return SizedBox(
-    width: SizeConfig.screenWidth(context) * 0.95,
-    child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: ExpansionTile(
-          leading: leadingIcon,
-          title: Text(title),
-          trailing: trailing,
-          children: childrenWithTitles.entries
-              .map((entry) => ExpansionTile(title: Text(entry.key), children: [entry.value]))
-              .toList(),
+  Widget buildModelCard({
+    required String title,
+    required Widget leadingIcon,
+    required Map<String, Widget> childrenWithTitles,
+    required Map<String, bool> childrenNeedIntrinsicHeight,
+    Widget? trailing,
+  }) {
+    return SizedBox(
+      width: SizeConfig.screenWidth(context) * 0.95,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          child: ExpansionTile(
+            leading: leadingIcon,
+            title: Text(title),
+            trailing: trailing,
+            children: childrenWithTitles.entries
+                .map(
+                  (entry) => ExpansionTile(
+                    title: Text(entry.key),
+                    children: [
+                      if (childrenNeedIntrinsicHeight[entry.key] ?? true)
+                        // Use IntrinsicHeight for text and other simple content
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: SizeConfig.screenHeight(context) * 0.7,
+                          ),
+                          child: IntrinsicHeight(
+                            child: entry.value,
+                          ),
+                        )
+                      else
+                        // Use fixed SizedBox for logs, plots, etc.
+                        SizedBox(
+                          height: SizeConfig.screenHeight(context) * 0.7,
+                          child: entry.value,
+                        )
+                    ].withPadding(const Padding(
+                      padding: EdgeInsets.all(10),
+                    )),
+                  ),
+                )
+                .toList(),
+          ),
         ),
       ),
-    ),
-  );
-}
-
-Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
-  final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
-  final String tooltipMessage = sanityCheckWarnings.isEmpty
-      ? 'All sanity checks passed!'
-      : 'Your model has the following sanity check warnings:\n${sanityCheckWarnings.join('\n')}';
-
-  final Icon sanityCheckIcon = sanityCheckWarnings.isEmpty
-      ? const Icon(Icons.check, color: Colors.green)
-      : const Icon(Icons.warning, color: Colors.red);
-
-  return BiocentralTooltip(message: tooltipMessage, child: sanityCheckIcon);
-}
-
-Widget buildModelInformation() {
-  final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
-  final List<TableRow> rows =
-  modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
-  return Table(children: rows);
-}
-
-Widget buildMetricsTable(BiotrainerTrainingResult? trainingResult) {
-  if (trainingResult == null) return Container();
-  return BiocentralMetricsTable(
-    metrics: {'Test Set Metrics': trainingResult.testSetMetrics}..addAll(trainingResult.sanityCheckBaselineMetrics),
-  );
-}
-
-Widget buildLossCurves(BiotrainerTrainingResult? trainingResult) {
-  if (trainingResult == null || (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty)) {
-    return Container();
+    );
   }
-  final Map<String, Map<int, double>> linePlotData = {
-    'Training': trainingResult.trainingLoss,
-    'Validation': trainingResult.validationLoss,
-  };
-  return SizedBox(
-    height: SizeConfig.screenHeight(context) * 0.3,
-    width: SizeConfig.screenWidth(context) * 0.6,
-    child: BiocentralLinePlot(data: linePlotData),
-  );
-}
 
-Widget buildAvailableCheckpoints() {
-  final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
-  return Column(
-    children: checkpointNames.map((name) => Text(name)).toList(),
-  );
-}
+  Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
+    final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
+    final String tooltipMessage = sanityCheckWarnings.isEmpty
+        ? 'All sanity checks passed!'
+        : 'Your model has the following sanity check warnings:\n${sanityCheckWarnings.join('\n')}';
 
-Widget buildLogResult() {
-  final List<String> logs = widget.predictionModel.biotrainerTrainingResult?.trainingLogs ?? [];
-  if (logs.isEmpty) return Container();
-  return BiocentralLazyLogsViewer(
-    logs: logs,
-    height: SizeConfig.screenHeight(context) * 0.4,
-  );
-}}
+    final Icon sanityCheckIcon = sanityCheckWarnings.isEmpty
+        ? const Icon(Icons.check, color: Colors.green)
+        : const Icon(Icons.warning, color: Colors.red);
+
+    return BiocentralTooltip(message: tooltipMessage, child: sanityCheckIcon);
+  }
+
+  Widget buildModelInformation() {
+    final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
+    final List<TableRow> rows =
+        modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
+    return Table(children: rows);
+  }
+
+  Widget buildMetricsDisplay(BiotrainerTrainingResult? trainingResult) {
+    if (trainingResult == null) return Container();
+    final Widget metricsDisplay = _showMetricsAsTable
+        ? BiocentralMetricsTable(
+            metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
+              ..addAll(trainingResult.sanityCheckBaselineMetrics),
+          )
+        : BiocentralMetricsPlot(
+            metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
+              ..addAll(trainingResult.sanityCheckBaselineMetrics));
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            children: [
+              SizedBox(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight * 0.2,
+                child: BiocentralDiscreteSelection<String>(
+                  title: 'Display',
+                  initialValue: _showMetricsAsTable ? 'Table' : 'Plot',
+                  selectableValues: ['Table', 'Plot'],
+                  onChangedCallback: (String? value) {
+                    setState(() {
+                      _showMetricsAsTable = value == 'Table';
+                    });
+                  },
+                ),
+              ),
+              SizedBox(
+                  width: constraints.maxWidth * 0.95, height: constraints.maxHeight * 0.9, child: metricsDisplay),
+            ].withPadding(
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildLossCurves(BiotrainerTrainingResult? trainingResult) {
+    if (trainingResult == null || (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty)) {
+      return Container();
+    }
+    final Map<String, Map<int, double>> linePlotData = {
+      'Training': trainingResult.trainingLoss,
+      'Validation': trainingResult.validationLoss,
+    };
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          width: constraints.maxWidth * 0.6,
+          child: BiocentralLinePlot(data: linePlotData),
+        );
+      },
+    );
+  }
+
+  Widget buildAvailableCheckpoints() {
+    final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
+    if (checkpointNames.isEmpty) return Container();
+    return Column(
+      children: checkpointNames.map((name) => Text(name)).toList(),
+    );
+  }
+
+  Widget buildLogResult() {
+    final List<String> logs = widget.predictionModel.biotrainerTrainingResult?.trainingLogs ?? [];
+    if (logs.isEmpty) return Container();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return BiocentralLazyLogsViewer(
+          logs: logs,
+          height: constraints.maxHeight * 0.8,
+        );
+      },
+    );
+  }
+}
