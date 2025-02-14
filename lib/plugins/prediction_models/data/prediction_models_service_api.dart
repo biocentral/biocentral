@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
+import 'package:biocentral/plugins/prediction_models/data/biotrainer_log_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
@@ -79,7 +79,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       }
       return right(null);
     }
-    final result = BiotrainerFileHandler.parseBiotrainerLog(
+    final result = BiotrainerLogFileHandler.parseBiotrainerLog(
       trainingLog: trainingLog,
       trainingStatus: trainingStatus,
     );
