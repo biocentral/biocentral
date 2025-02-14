@@ -1,9 +1,9 @@
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/displays/prediction_model_display.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/views/model_comparison_view.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/views/model_list_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/animations/biocentral_blinking_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ModelHubView extends StatefulWidget {
   const ModelHubView({super.key});
@@ -13,51 +13,79 @@ class ModelHubView extends StatefulWidget {
 }
 
 class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
-  @override
-  bool get wantKeepAlive => true;
+  final List<PredictionModel> modelsToCompare = [];
+
+  bool _animateComparisonTab = false;
+  void onDragStarted() {
+    setState(() {
+      _animateComparisonTab = true;
+    });
+  }
+
+  void onDragEnd() {
+    setState(() {
+      _animateComparisonTab = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final ModelHubBloc predictionModelsBloc = BlocProvider.of<ModelHubBloc>(context);
-    return BlocBuilder<ModelHubBloc, ModelHubState>(
-      builder: (context, state) {
-        return Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [buildTrainingModel(predictionModelsBloc), ...buildPredictionModels(state)],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: TabBar(
+                tabs: [
+                  const Tab(icon: Icon(Icons.list_alt), text: 'Model List'),
+                  DragTarget<PredictionModel>(
+                    onWillAcceptWithDetails: (dragTargetDetails) => !modelsToCompare.contains(dragTargetDetails.data),
+                    onAcceptWithDetails: (dragTargetDetails) {
+                      setState(() {
+                        modelsToCompare.add(dragTargetDetails.data);
+                      });
+                    },
+                    builder: (context, candidateData, rejectedData) {
+                      return buildComparisonTab();
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+            SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
+            Flexible(
+              flex: 5,
+              child: TabBarView(
+                children: [
+                  ModelListView(
+                    onDragStarted: onDragStarted,
+                    onDragEnd: onDragEnd,
+                  ),
+                  ModelComparisonView(
+                    modelsToCompare: modelsToCompare,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget buildTrainingModel(ModelHubBloc predictionModelsBloc) {
-    return BlocBuilder<BiotrainerTrainingBloc, BiotrainerTrainingState>(
-      builder: (context, state) {
-        if (state.isOperating() && state.trainingModel != null) {
-          return PredictionModelDisplay(
-            predictionModel: state.trainingModel!,
-            trainingState: state,
-          );
-        } else {
-          return Container();
-        }
-      },
-    );
+  Widget buildComparisonTab() {
+    final modelComparisonTab = const Tab(icon: Icon(Icons.compare_arrows), text: 'Model Comparison');
+    if(_animateComparisonTab) {
+      return BiocentralBlinkingAnimation(
+        child: modelComparisonTab,
+      );
+    }
+    return modelComparisonTab;
   }
 
-  List<Widget> buildPredictionModels(ModelHubState state) {
-    return state.predictionModels
-        .map(
-          (predictionModel) => BiocentralHoverScaleAnimation(
-            child: PredictionModelDisplay(
-              predictionModel: predictionModel,
-            ),
-          ),
-        )
-        .toList();
-  }
+  @override
+  bool get wantKeepAlive => true;
 }
