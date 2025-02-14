@@ -29,30 +29,125 @@ class BiocentralBarPlotData {
   Iterable<(int, (String, double, double?))> indexed() => _data.indexed;
 }
 
-class BiocentralBarPlot extends StatelessWidget {
+class _TooltipData {
+  final Offset position;
+  final String label;
+  final double value;
+  final double? errorMargin;
+
+  _TooltipData(this.position, this.label, this.value, this.errorMargin);
+
+  String getTooltipText() {
+    String text = '$label\n'
+        'Value: ${value.toStringAsFixed(Constants.maxDoublePrecision)}';
+    if (errorMargin != null) {
+      text += '\nError: ±${errorMargin?.toStringAsFixed(Constants.maxDoublePrecision)}';
+    }
+    return text;
+  }
+}
+
+class BiocentralBarPlot extends StatefulWidget {
   final BiocentralBarPlotData data;
   final String xAxisLabel;
   final String yAxisLabel;
   final int maxLabelLength;
 
-  const BiocentralBarPlot({
-    required this.data,
+  BiocentralBarPlot({
+    required BiocentralBarPlotData data,
     super.key,
     this.xAxisLabel = '',
     this.yAxisLabel = '',
     this.maxLabelLength = 6,
-  });
+  }) : data = data.sorted();
+
+  @override
+  State<BiocentralBarPlot> createState() => _BiocentralBarPlotState();
+}
+
+class _BiocentralBarPlotState extends State<BiocentralBarPlot> {
+  _TooltipData? tooltipData;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return CustomPaint(
-          size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: _BarPlotPainter(data, xAxisLabel, yAxisLabel, maxLabelLength),
+        return MouseRegion(
+          onHover: (event) {
+            // Update tooltip data based on mouse position
+            final RenderBox box = context.findRenderObject() as RenderBox;
+            final localPosition = box.globalToLocal(event.position);
+            final tooltipInfo = _getTooltipData(localPosition, constraints.maxWidth, constraints.maxHeight);
+            setState(() {
+              tooltipData = tooltipInfo;
+            });
+          },
+          onExit: (event) {
+            setState(() {
+              tooltipData = null;
+            });
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              CustomPaint(
+                size: Size(constraints.maxWidth, constraints.maxHeight),
+                painter: _BarPlotPainter(
+                  widget.data,
+                  widget.xAxisLabel,
+                  widget.yAxisLabel,
+                  widget.maxLabelLength,
+                  tooltipData,
+                ),
+              ),
+              if (tooltipData != null)
+                Positioned(
+                  left: tooltipData!.position.dx,
+                  top: tooltipData!.position.dy - 40, // Offset above the cursor
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      tooltipData?.getTooltipText() ?? '',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
+  }
+
+  _TooltipData? _getTooltipData(Offset localPosition, double width, double height) {
+    const double padding = 60;
+    final plotWidth = width - padding * 2;
+    final barWidth = plotWidth / widget.data.length;
+
+    // Check if we're within the plot area
+    if (localPosition.dx < padding ||
+        localPosition.dx > width - padding ||
+        localPosition.dy < padding ||
+        localPosition.dy > height - padding) {
+      return null;
+    }
+
+    // Calculate which bar we're hovering over
+    final barIndex = ((localPosition.dx - padding) / barWidth).floor();
+    if (barIndex >= 0 && barIndex < widget.data.length) {
+      final data = widget.data[barIndex];
+      return _TooltipData(
+        localPosition,
+        data.$1,
+        data.$2,
+        data.$3,
+      );
+    }
+    return null;
   }
 }
 
@@ -61,10 +156,12 @@ class _BarPlotPainter extends CustomPainter {
   final String xAxisLabel;
   final String yAxisLabel;
   final int maxLabelLength;
+
+  final _TooltipData? tooltipData;
+
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
-  _BarPlotPainter(BiocentralBarPlotData data, this.xAxisLabel, this.yAxisLabel, this.maxLabelLength)
-      : data = data.sorted();
+  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel, this.maxLabelLength, this.tooltipData);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -109,7 +206,11 @@ class _BarPlotPainter extends CustomPainter {
         barWidth * 0.8, // Leave some space between bars
         barHeight,
       );
-      canvas.drawRect(rect, Paint()..color = Colors.blue);
+
+      // Change color if this bar is being hovered
+      final bool isHovered = tooltipData != null && tooltipData!.label == data[i].$1;
+      final color = isHovered ? Colors.blue.shade300 : Colors.blue;
+      canvas.drawRect(rect, Paint()..color = color);
 
       final errorMargin = dataPoint.$2.$3;
       if (errorMargin != null) {
@@ -204,8 +305,8 @@ class _BarPlotPainter extends CustomPainter {
       if (needsRotation) {
         // Rotated placement
         canvas.translate(
-            plotOffset.dx + (i + 0.4) * barWidth,
-            size.height - padding + 5,
+          plotOffset.dx + (i + 0.4) * barWidth,
+          size.height - padding + 5,
         );
         canvas.rotate(rotationAngle);
         textPainter.paint(canvas, const Offset(0, 0));
@@ -262,5 +363,10 @@ class _BarPlotPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    if (oldDelegate is _BarPlotPainter) {
+      return oldDelegate.tooltipData != tooltipData;
+    }
+    return false;
+  }
 }
