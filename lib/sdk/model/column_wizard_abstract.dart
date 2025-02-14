@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:collection/collection.dart';
 import 'package:ml_linalg/vector.dart';
 
@@ -100,45 +101,19 @@ abstract class ColumnWizard {
     return {ColumnOperationType.toBinary, ColumnOperationType.removeMissing, ColumnOperationType.calculateLength};
   }
 
-  Future<List<(int, double)>> _getBarChartDataPoints() async {
+  Future<Map<String, int>> _getBarPlotDataPoints() async {
     if (await handleAsDiscrete()) {
       final Map<String, int> counts = await getCounts();
-      return counts.entries.indexed.map((indexEntry) => (indexEntry.$1, indexEntry.$2.value.toDouble())).toList();
+      return counts;
     } else {
       // TODO BINS
-      return [];
+      return {};
     }
   }
 
-  Future<List<String>> _getBarChartBottomTitles() async {
-    if (await handleAsDiscrete()) {
-      final Map<String, int> counts = await getCounts();
-      return counts.keys.toList();
-    } else {
-      // TODO BINS
-      return [];
-    }
-  }
-
-  Future<List<double>> _getBarChartLeftTitles() async {
-    if (await handleAsDiscrete()) {
-      final List<double> countValues = (await getCounts()).values.map((value) => value.toDouble()).toList();
-      final double middle = Vector.fromList(countValues).median();
-      final double max = countValues.max;
-      return [0.0, middle, max];
-    } else {
-      // TODO BINS
-      return [];
-    }
-  }
-
-  Future<ColumnWizardBarChartData> getBarChartData() async {
-    final List<String> bottomTitles = await _getBarChartBottomTitles();
-    final List<double> leftTitleValues = await _getBarChartLeftTitles();
-    final List<(int, double)> dataPoints = await _getBarChartDataPoints();
-    final double maxY = Vector.fromList(dataPoints.map((e) => e.$2).toList()).max();
-    return ColumnWizardBarChartData(
-        maxY: maxY, bottomTitles: bottomTitles, leftTitleValues: leftTitleValues, dataPoints: dataPoints,);
+  Future<BiocentralBarPlotData> getBarPlotData() async {
+    final Map<String, int> dataPoints = await _getBarPlotDataPoints();
+    return BiocentralBarPlotData.withoutErrors(dataPoints.map((k, v) => MapEntry(k, v.toDouble())));
   }
 }
 
@@ -245,16 +220,6 @@ mixin NumericStats on ColumnWizard {
 }
 
 mixin CounterStats on ColumnWizard {}
-
-class ColumnWizardBarChartData {
-  final double maxY;
-  final List<String> bottomTitles;
-  final List<double> leftTitleValues;
-  final List<(int, double)> dataPoints;
-
-  ColumnWizardBarChartData(
-      {required this.maxY, required this.bottomTitles, required this.leftTitleValues, required this.dataPoints,});
-}
 
 class ReOpenColumnWizardEffect {
   final String column;
