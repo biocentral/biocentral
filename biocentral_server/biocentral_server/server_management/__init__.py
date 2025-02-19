@@ -1,6 +1,6 @@
 from .user_manager import UserManager
-from .file_manager import FileManager, StorageFileType
-from .embedding_database import init_embeddings_database_instance, EmbeddingsDatabase, EmbeddingsDatabaseTriple
+from .file_management import FileManager, StorageFileType
+from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase, EmbeddingsDatabaseTriple
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
 
 __all__ = [
@@ -11,7 +11,7 @@ __all__ = [
     'TaskStatus',
     'TaskDTO',
     'TaskManager',
-    'init_embeddings_database_instance',
+    'EmbeddingDatabaseFactory',
     'EmbeddingsDatabase',
     'EmbeddingsDatabaseTriple'
 ]

@@ -18,8 +18,8 @@ class PostgreSQLStrategy(DatabaseStrategy):
     def __init__(self):
         self.db_config = None
 
-    def init_app(self, app):
-        self.db_config = app.config.get('POSTGRESQL_CONFIG')
+    def init_db(self, config):
+        self.db_config = config.get('POSTGRESQL_CONFIG')
         with self._get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute('''

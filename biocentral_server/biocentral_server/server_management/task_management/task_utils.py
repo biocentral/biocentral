@@ -9,8 +9,9 @@ def run_subtask_util(subtask) -> Generator:
     subtask_id = task_manager.add_task(subtask)
     while not task_manager.is_task_finished(subtask_id):
         time.sleep(1)
-        task_dto = task_manager.get_task_dto(subtask_id)
-        yield task_dto
+        task_dtos = task_manager.get_all_task_updates(subtask_id)
+        for task_dto in task_dtos:
+            yield task_dto
 
     # Get remaining updates
     remaining_task_dtos = task_manager.get_all_task_updates(subtask_id)

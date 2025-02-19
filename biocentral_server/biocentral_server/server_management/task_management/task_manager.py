@@ -1,15 +1,27 @@
+import os
 import uuid
 import logging
-import threading
 
-from queue import Queue, Empty
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Any, Type, List, Set, Optional
+from redis import Redis
+from rq import Queue, get_current_job
+from typing import Dict, Any, Type, List, Optional
 
 from .task_interface import TaskStatus, TaskInterface, TaskDTO
 
 logger = logging.getLogger(__name__)
+
+
+def run_task_with_updates(task: TaskInterface) -> TaskDTO:
+    current_job = get_current_job()
+
+    def update_dto_callback(dto: TaskDTO):
+        if "dto" not in current_job.meta:
+            current_job.meta["dto"] = []
+        current_job.meta["dto"].append(dto)
+        current_job.save_meta()
+
+    return task.run_task(update_dto_callback=update_dto_callback)
+
 
 class TaskManager:
     _instance = None
@@ -21,19 +33,48 @@ class TaskManager:
         return cls._instance
 
     def _initialize(self):
-        self._task_dtos: Dict[str, Queue] = defaultdict(lambda: Queue())
-        self._finished_tasks: Dict[str, TaskStatus] = dict()
-        _max_concurrent_tasks = 5  # TODO [CONFIG] Make this configurable from config and UI
-        self._executor = ThreadPoolExecutor(max_workers=_max_concurrent_tasks)
-        self._lock = threading.Lock()  # TODO [OPTIMIZATION] Maybe use a log-free data structure
+        # Initialize Redis connection
+        redis_jobs_host = os.environ.get("REDIS_JOBS_HOST", "redis-jobs")
+        redis_jobs_port = os.environ.get("REDIS_JOBS_PORT", 6379)
+        self.redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
+
+        # TODO [Feature] Add priority queues
+        self.default_queue = Queue('default', connection=self.redis_conn)
 
     def add_task(self, task: TaskInterface, task_id: Optional[str] = "") -> str:
-        if task_id == "" or "biocentral" not in task_id:  # biocentral: Sanity check
+        if task_id == "" or "biocentral" not in task_id:
             task_id = self._generate_task_id(task=task.__class__)
-        self._task_dtos[task_id].put(TaskDTO.pending())
-        future = self._executor.submit(self._execute_task, task_id, task)
-        future.add_done_callback(lambda f: self._task_completed_callback(task_id, f))
+
+        # Enqueue the task using RQ
+        job = self.default_queue.enqueue(
+            run_task_with_updates,
+            args=(task,),
+            job_id=task_id,
+            result_ttl=500,  # How long to keep successful job results
+            failure_ttl=3600 * 24,  # Keep failed jobs for 24 hours
+            meta={'task_class': task.__class__.__name__}
+        )
+
         return task_id
+
+    def get_task_status(self, task_id: str) -> TaskStatus:
+        job = self.default_queue.fetch_job(task_id)
+        if job is None:
+            return TaskStatus.PENDING
+
+        # Map RQ job status to your TaskStatus enum
+        if job.is_finished:
+            return TaskStatus.FINISHED
+        elif job.is_failed:
+            return TaskStatus.FAILED
+        elif job.is_started:
+            return TaskStatus.RUNNING
+        else:
+            return TaskStatus.PENDING
+
+    def get_current_number_of_running_tasks(self) -> int:
+        # Count jobs that are currently being processed
+        return len(self.default_queue.started_job_registry)
 
     def get_unique_task_id(self, task: Type) -> str:
         return self._generate_task_id(task=task)
@@ -42,65 +83,26 @@ class TaskManager:
     def _generate_task_id(task):
         return f"biocentral-{task.__name__}-{str(uuid.uuid4())}"
 
-    def _execute_task(self, task_id: str, task: TaskInterface):
-        self._task_dtos[task_id].put(TaskDTO.running())
+    def get_all_task_updates(self, task_id: str) -> List[TaskDTO]:
+        job = self.default_queue.fetch_job(task_id)
 
-        def dto_callback(dto: TaskDTO):
-            self._update_task_dto_callback(task_id=task_id, task_dto=dto)
+        dtos = []
+        if "dto" in job.meta.keys():
+            dtos = job.meta["dto"]
 
-        return task.run_task(update_dto_callback=dto_callback)
+        additional_dto = None
+        if job is None:
+            additional_dto = TaskDTO.failed(error=f"task {task_id} not found on server!")
 
-    def _task_completed_callback(self, task_id: str, future):
-        try:
-            result_dto = future.result()
-            self._update_task_dto_callback(task_id=task_id, task_dto=result_dto)
-            self._finished_tasks[task_id] = result_dto.status
-        except Exception as e:
-            logger.error(f"Task {task_id} failed with error: {e}")
-            self._task_dtos[task_id].put(TaskDTO.failed(str(e)))
-            self._finished_tasks[task_id] = TaskStatus.FAILED
+        if job.is_failed:
+            additional_dto = TaskDTO.failed(error=str(job.latest_result()))
+        elif job.is_finished:
+            additional_dto = job.latest_result().return_value
 
-    def _update_task_dto_callback(self, task_id: str, task_dto: TaskDTO):
-        with self._lock:
-            self._task_dtos[task_id].put(task_dto)
-
-    def get_task_status(self, task_id: str) -> TaskStatus:
-        if self.is_task_finished(task_id):
-            return self._finished_tasks[task_id]
-
-        queue = self._task_dtos.get(task_id)
-        return queue.queue[-1].status if queue and not queue.empty() else TaskStatus.PENDING
+        if additional_dto is not None:
+            dtos.append(additional_dto)
+        return dtos
 
     def is_task_finished(self, task_id: str) -> bool:
-        return task_id in self._finished_tasks
-
-    def get_task_dto(self, task_id: str) -> Any:
-        if task_id in self._task_dtos:
-            queue = self._task_dtos.get(task_id)
-            if queue and not queue.empty():
-                dto = queue.get()
-                return dto
-            # No updates
-            last_status = self.get_task_status(task_id)
-            return TaskDTO(status=last_status, error="", update={})
-        return TaskDTO.failed(error=f"task {task_id} not found on server!")
-
-    def get_all_task_updates(self, task_id: str) -> List[TaskDTO]:
-        with self._lock:
-            queue = self._task_dtos.get(task_id)
-            list_copy = []
-            # Use while loop to ensure lock safety
-            while True:
-                try:
-                    elem = queue.get(block=False)
-                except Empty:
-                    break
-                else:
-                    list_copy.append(elem)
-            return list_copy
-
-    def get_current_number_of_running_tasks(self) -> int:
-        return sum(1 for queue in self._task_dtos.values() if
-                   not queue.empty() and queue.queue[-1].status == TaskStatus.RUNNING)
-    def __del__(self):
-        self._executor.shutdown(wait=True)
+        job = self.default_queue.fetch_job(task_id)
+        return job is not None and job.is_finished

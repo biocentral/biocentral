@@ -6,8 +6,9 @@ from functools import lru_cache
 from flask import request, jsonify, Blueprint, current_app
 
 from .autoeval_task import AutoEvalTask
-from ..server_management import UserManager, TaskManager
+
 from ..utils import str2bool
+from ..server_management import UserManager, TaskManager
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +102,7 @@ def autoeval():
         flip_dict = _get_recommended_only_flip_dict(flip_dict)
 
     user_id = UserManager.get_user_id_from_request(req=request)
-    task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id,
-                        embeddings_db_instance=current_app.config["EMBEDDINGS_DATABASE"])
+    task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id)
 
     task_id = TaskManager().add_task(task=task)
 

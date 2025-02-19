@@ -2,13 +2,10 @@ import os
 import time
 import yaml
 import tempfile
-import threading
 import torch.multiprocessing as mp
 
 from pathlib import Path
-from typing import Dict, Any, Callable
-
-
+from typing import Callable
 from biotrainer.utilities.cli import headless_main
 
 from ..embeddings import EmbeddingTask
@@ -17,11 +14,10 @@ from ..server_management import TaskInterface, EmbeddingsDatabase, TaskDTO
 
 class BiotrainerTask(TaskInterface):
 
-    def __init__(self, config_path: Path, config_dict: dict, database_instance: EmbeddingsDatabase, log_path: Path):
+    def __init__(self, config_path: Path, config_dict: dict, log_path: Path):
         super().__init__()
         self.config_path = config_path
         self.config_dict = config_dict
-        self.database_instance = database_instance
         self.log_path = log_path
         self.stop_reading = False
         self._last_read_position_in_log_file = 0
@@ -64,6 +60,7 @@ class BiotrainerTask(TaskInterface):
         protocol = self.config_dict['protocol']
         device = self.config_dict.get('device', None)
         output_path = self.config_path.parent / "embeddings.h5"
+
         with tempfile.TemporaryDirectory() as temp_embeddings_dir:
             # TODO [Refactoring] Consider moving temporary directory to embedding task directly
             temp_embeddings_path = Path(temp_embeddings_dir)
@@ -72,8 +69,7 @@ class BiotrainerTask(TaskInterface):
                                            embeddings_out_path=temp_embeddings_path,
                                            protocol=protocol,
                                            use_half_precision=False,
-                                           device=device,
-                                           embeddings_database=self.database_instance)
+                                           device=device)
             embedding_dto: TaskDTO
             for current_dto in self.run_subtask(embedding_task):
                 embedding_dto = current_dto

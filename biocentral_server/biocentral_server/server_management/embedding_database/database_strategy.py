@@ -5,7 +5,7 @@ from typing import Union, Dict, Tuple, List, Any
 
 
 class DatabaseStrategy:
-    def init_app(self, app):
+    def init_db(self, config):
         raise NotImplementedError
 
     def db_lookup(self, hash_key):

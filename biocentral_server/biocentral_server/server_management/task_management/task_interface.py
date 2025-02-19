@@ -20,7 +20,7 @@ class TaskDTO:
     status: TaskStatus
     error: str
     update: Dict[str, Any]
-    on_result_retrieval_hook: Callable[[Dict[str, Any]], Dict[str, Any]] = lambda result: result
+    _hook_result: Optional[Dict[str, Any]] = None  # Store the processed result
 
     @classmethod
     def pending(cls):
@@ -32,21 +32,45 @@ class TaskDTO:
 
     @classmethod
     def finished(cls, result: Dict[str, Any], on_result_retrieval_hook: Optional[Callable] = None):
-        return TaskDTO(status=TaskStatus.FINISHED, error="",
-                       update=result, on_result_retrieval_hook=on_result_retrieval_hook)
+        # Process the result immediately if there's a hook
+        processed_result = result
+        if on_result_retrieval_hook:
+            processed_result = on_result_retrieval_hook(result)
+
+        return TaskDTO(
+            status=TaskStatus.FINISHED,
+            error="",
+            update=result,
+            _hook_result=processed_result
+        )
 
     @classmethod
     def failed(cls, error: str):
         return TaskDTO(status=TaskStatus.FAILED, error=error, update={})
 
-    def add_update(self, update: Dict[str, Any]) -> TaskDTO:
+    def add_update(self, update: Dict[str, Any]) -> 'TaskDTO':
         return TaskDTO(status=self.status, error=self.error, update=update)
 
     def dict(self):
-        update = self.update
-        if self.status == TaskStatus.FINISHED:
-            update = self.on_result_retrieval_hook(update)
-        return {"status": self.status.name, "error": self.error, **update}
+        if self.status == TaskStatus.FINISHED and self._hook_result is not None:
+            return {"status": self.status.name, "error": self.error, **self._hook_result}
+        return {"status": self.status.name, "error": self.error, **self.update}
+
+    def __getstate__(self):
+        """Called when pickling - return a serializable state"""
+        return {
+            'status': self.status,
+            'error': self.error,
+            'update': self.update,
+            '_hook_result': self._hook_result
+        }
+
+    def __setstate__(self, state):
+        """Called when unpickling - restore from serializable state"""
+        self.status = state['status']
+        self.error = state['error']
+        self.update = state['update']
+        self._hook_result = state.get('_hook_result')
 
 
 class TaskInterface(ABC):

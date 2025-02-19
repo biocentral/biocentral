@@ -7,7 +7,7 @@ from importlib import resources
 from collections import namedtuple
 
 from ..prediction_models import BiotrainerTask
-from ..server_management import TaskInterface, TaskStatus, FileManager, StorageFileType, EmbeddingsDatabase, TaskDTO
+from ..server_management import TaskInterface, FileManager, StorageFileType, TaskDTO
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,10 @@ def _task_name(dataset_tuple: _DatasetTuple):
 
 class AutoEvalTask(TaskInterface):
 
-    def __init__(self, flip_dict: dict, embedder_name: str, user_id: str, embeddings_db_instance: EmbeddingsDatabase):
+    def __init__(self, flip_dict: dict, embedder_name: str, user_id: str):
         self.flip_dict = flip_dict
         self.embedder_name = embedder_name
         self.file_manager = FileManager(user_id=user_id)
-        self.embeddings_db_instance = embeddings_db_instance
 
         self.task_queue = []
         self.completed_tasks = 0
@@ -63,9 +62,7 @@ class AutoEvalTask(TaskInterface):
                                                    file_type=StorageFileType.BIOTRAINER_LOGGING,
                                                    model_hash=model_hash, check_exists=False)
 
-        biotrainer_task = BiotrainerTask(config_path=config_path, config_dict=config,
-                                         database_instance=self.embeddings_db_instance,
-                                         log_path=log_path)
+        biotrainer_task = BiotrainerTask(config_path=config_path, config_dict=config, log_path=log_path)
         self.current_dataset = _DatasetTuple(dataset_name, split_name)
         logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split_name}!")
         biotrainer_dto: TaskDTO

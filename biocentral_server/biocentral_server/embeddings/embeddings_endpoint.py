@@ -13,8 +13,8 @@ from flask import request, Blueprint, jsonify, current_app
 from .embedding_task import EmbeddingTask
 
 from ..utils import str2bool
-from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingsDatabase, \
-    EmbeddingsDatabaseTriple
+from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingDatabaseFactory, \
+    EmbeddingsDatabase, EmbeddingsDatabaseTriple
 
 logger = logging.getLogger(__name__)
 
@@ -44,14 +44,12 @@ def embed():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    embeddings_database = current_app.config["EMBEDDINGS_DATABASE"]
     embedding_task = EmbeddingTask(embedder_name=embedder_name,
                                    sequence_file_path=sequence_file_path,
                                    embeddings_out_path=embeddings_out_path,
                                    protocol=reduce_by_protocol,
                                    use_half_precision=use_half_precision,
-                                   device=device,
-                                   embeddings_database=embeddings_database)
+                                   device=device)
 
     task_id = TaskManager().add_task(embedding_task)
 
@@ -67,7 +65,7 @@ def get_missing_embeddings():
     embedder_name = missing_embeddings_data.get('embedder_name')
     reduced = missing_embeddings_data.get('reduced')
 
-    embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
+    embeddings_database: EmbeddingsDatabase = EmbeddingDatabaseFactory().get_embeddings_db()
 
     exist, non_exist = embeddings_database.filter_existing_embeddings(sequences=sequences, embedder_name=embedder_name,
                                                                       reduced=reduced)
@@ -95,6 +93,6 @@ def add_embeddings():
                                         embd=np.array(embedding)) for (idx, embedding) in
                embeddings_file.items()]
 
-    embeddings_database: EmbeddingsDatabase = current_app.config["EMBEDDINGS_DATABASE"]
+    embeddings_database: EmbeddingsDatabase = EmbeddingDatabaseFactory().get_embeddings_db()
     embeddings_database.save_embeddings(ids_seqs_embds=triples, embedder_name=embedder_name, reduced=reduced)
     return jsonify({"status": 200})

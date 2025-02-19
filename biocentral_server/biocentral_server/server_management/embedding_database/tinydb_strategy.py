@@ -18,8 +18,8 @@ class TinyDBStrategy(DatabaseStrategy):
     def __init__(self):
         self.db = None
 
-    def init_app(self, app):
-        db_path = app.config.get('TINYDB_PATH')
+    def init_db(self, config):
+        db_path = config.get('TINYDB_PATH')
         self.db = TinyDB(db_path, storage=CachingMiddleware(JSONStorage))
 
     @staticmethod

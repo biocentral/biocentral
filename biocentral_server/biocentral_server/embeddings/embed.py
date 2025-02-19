@@ -31,7 +31,7 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
                                       reduce_by_protocol: Union[Protocol, str],
                                       use_half_precision: bool,
                                       device,
-                                      database_instance: EmbeddingsDatabase = None) -> List[EmbeddingsDatabaseTriple]:
+                                      embeddings_db: EmbeddingsDatabase = None) -> List[EmbeddingsDatabaseTriple]:
 
     if isinstance(reduce_by_protocol, str):
         reduce_by_protocol = Protocol.from_string(reduce_by_protocol)
@@ -48,8 +48,6 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
 
     # Compute with saving
     reduce = reduce_by_protocol in Protocol.per_sequence_protocols()
-    embeddings_db: EmbeddingsDatabase = database_instance if (
-            database_instance is not None) else current_app.config["EMBEDDINGS_DATABASE"]
 
     # TODO [Optimization] If per-residue embeddings exist, but per-sequence embeddings not and are required,
     #  directly calculate them

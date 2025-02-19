@@ -1,3 +1,5 @@
+import psutil
+import torch
 from flask import Blueprint, jsonify, request
 
 from ..server_management import UserManager, FileManager, StorageFileType, TaskManager
@@ -53,4 +55,34 @@ def task_status(task_id):
     # Retrieve task status from the distributed server or backend system
     # Return the task status
     dtos = TaskManager().get_all_task_updates(task_id=task_id)
-    return jsonify({idx: dto.dict() for idx, dto in enumerate(dtos)})
+    return jsonify({idx: dto for idx, dto in enumerate(dtos)})
+
+
+# Endpoint to get some server statistics
+@biocentral_service_route.route('/biocentral_service/stats/', methods=['GET'])
+def stats():
+    def _get_usable_cpu_count():
+        try:
+            # Try to use psutil, which works on Windows, Linux, and macOS
+            return len(psutil.Process().cpu_affinity())
+        except AttributeError:
+            # If cpu_affinity is not available (e.g., on macOS), fall back to logical CPU count
+            return psutil.cpu_count(logical=True)
+
+    usable_cpu_count = _get_usable_cpu_count()
+    disk_usage: str = FileManager.get_disk_usage()
+
+    number_requests_since_start = UserManager.get_total_number_of_requests_since_start()
+    n_processes = TaskManager().get_current_number_of_running_tasks()
+
+    cuda_available = torch.cuda.is_available()
+    cuda_device_count = torch.cuda.device_count() if cuda_available else 0
+    mps_available = torch.backends.mps.is_available()
+
+    return jsonify({"usable_cpu_count": usable_cpu_count,
+                    "disk_usage": disk_usage,
+                    "number_requests_since_start": number_requests_since_start,
+                    "n_processes": n_processes,
+                    "cuda_available": cuda_available,
+                    "cuda_device_count": cuda_device_count,
+                    "mps_available": mps_available})

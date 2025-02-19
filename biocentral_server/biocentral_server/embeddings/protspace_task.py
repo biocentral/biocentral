@@ -10,47 +10,44 @@ from biotrainer.protocols import Protocol
 from protspace.utils.prepare_json import DataProcessor
 
 from .embedding_task import OneHotEncodeTask
-from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase
+from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase, EmbeddingDatabaseFactory
 
 logger = logging.getLogger(__name__)
-
-def load_embeddings_strategy_factory(embedder_name: str,
-                                     sequences: Dict[str, str],
-                                     embeddings_db: EmbeddingsDatabase,
-                                     ) -> Callable:
-    if embedder_name == "one_hot_encoding":
-        return lambda protspace_task: _load_one_hot_encodings(protspace_task, sequences)
-    return lambda protspace_task: _load_embeddings_via_sequences(protspace_task, embeddings_db, embedder_name, sequences)
-
-
-def _load_embeddings_via_sequences(protspace_task: ProtSpaceTask,
-                                   embeddings_db: EmbeddingsDatabase,
-                                   embedder_name: str,
-                                   sequences: Dict[str, str]) -> Dict[str, np.ndarray]:
-    triples = embeddings_db.get_embeddings(sequences=sequences, embedder_name=embedder_name, reduced=True)
-    return {triple.id: triple.embd for triple in triples}
-
-
-def _load_one_hot_encodings(protspace_task: ProtSpaceTask,
-                           sequences: Dict[str, str]) -> Dict[str, np.ndarray]:
-    one_hot_encode_subtask = OneHotEncodeTask(sequences=sequences, protocol=Protocol.using_per_sequence_embeddings()[0])
-    current_dto = None
-    for dto in protspace_task.run_subtask(one_hot_encode_subtask):
-        current_dto = dto
-    if current_dto:
-        return current_dto.update["one_hot_encoding"]
-    raise ValueError("No one hot encoding found in subtask dto!")
 
 
 class ProtSpaceTask(TaskInterface):
 
-    def __init__(self, load_embeddings_strategy, method: str, config: Dict):
-        self.load_embeddings_strategy = load_embeddings_strategy
-        self.config = config
+    def __init__(self, embedder_name: str, sequences: Dict[str, str], method: str, config: Dict):
+        self.embedder_name = embedder_name
+        self.sequences = sequences
+
         self.method = method
+        self.config = config
+
+    def _load_embeddings(self) -> Dict[str, np.ndarray]:
+        if self.embedder_name == "one_hot_encoding":
+            return self._load_one_hot_encodings()
+        return self._load_embeddings_via_sequences()
+
+    def _load_embeddings_via_sequences(self) -> Dict[str, np.ndarray]:
+        embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+        triples = embeddings_db.get_embeddings(sequences=self.sequences, embedder_name=self.embedder_name,
+                                               reduced=True)
+        return {triple.id: triple.embd for triple in triples}
+
+    def _load_one_hot_encodings(self) -> Dict[str, np.ndarray]:
+        one_hot_encode_subtask = OneHotEncodeTask(sequences=self.sequences,
+                                                  protocol=Protocol.using_per_sequence_embeddings()[0])
+        current_dto = None
+        for dto in self.run_subtask(one_hot_encode_subtask):
+            current_dto = dto
+        if current_dto:
+            return current_dto.update["one_hot_encoding"]
+        raise ValueError("No one hot encoding found in subtask dto!")
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        embedding_map = self.load_embeddings_strategy(self)
+        self.embedder_name = "one_hot_encoding"  # TODO
+        embedding_map = self._load_embeddings()
         protspace_headers = list(embedding_map.keys())
 
         dimensions = self.config.pop('n_components')

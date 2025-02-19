@@ -119,9 +119,7 @@ def start_training():
                                           file_type=StorageFileType.BIOTRAINER_LOGGING,
                                           model_hash=task_id, check_exists=False)
 
-    biotrainer_process = BiotrainerTask(config_path=config_file_path, config_dict=config_dict,
-                                        database_instance=current_app.config["EMBEDDINGS_DATABASE"],
-                                        log_path=log_path)
+    biotrainer_process = BiotrainerTask(config_path=config_file_path, config_dict=config_dict, log_path=log_path)
     task_id = task_manager.add_task(task=biotrainer_process, task_id=task_id)
 
     return jsonify({"task_id": task_id})
