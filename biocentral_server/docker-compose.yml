@@ -1,0 +1,91 @@
+services:
+  biocentral-server:
+    build: .
+    ports:
+      - "9540:9540"
+    environment:
+      - POSTGRES_HOST=embeddings-db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      biocentral-worker:
+        condition: service_started
+      redis-jobs:
+        condition: service_healthy
+      embeddings-db:
+        condition: service_healthy
+    networks:
+      - biocentral-network
+
+  biocentral-worker:
+    build: .
+    command: rq worker --url redis://redis-jobs:6379/0 high default low
+    environment:
+      - POSTGRES_HOST=embeddings-db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    depends_on:
+      redis-jobs:
+        condition: service_healthy
+      embeddings-db:
+        condition: service_healthy
+    networks:
+      - biocentral-network
+
+  embeddings-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biocentral-network
+  redis-jobs:
+    image: redis:alpine
+    ports:
+      - "${REDIS_JOBS_PORT}:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biocentral-network
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_DATA_PATH}
+
+networks:
+  biocentral-network:
+    driver: bridge
