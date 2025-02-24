@@ -4,9 +4,7 @@ import 'package:biocentral/plugins/ppi/presentation/views/ppi_insights_view.dart
 import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:flutter/material.dart';
 
-
 class PPIHubView extends StatefulWidget {
-
   const PPIHubView({super.key});
 
   @override
@@ -15,7 +13,6 @@ class PPIHubView extends StatefulWidget {
 
 class _PPIHubViewState extends State<PPIHubView> with AutomaticKeepAliveClientMixin {
   final GlobalKey<PPIDatabaseViewState> _ppiDatabaseViewState = GlobalKey<PPIDatabaseViewState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +23,27 @@ class _PPIHubViewState extends State<PPIHubView> with AutomaticKeepAliveClientMi
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Flexible(
-              child: TabBar(tabs: [
-                Tab(icon: Icon(Icons.list_alt), text: 'Database'),
-                Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
-                Tab(icon: Icon(Icons.check_box_rounded), text: 'Data Tests'),
-              ],),
+            Flexible(
+              child: TabBar(
+                labelColor: Theme.of(context).colorScheme.onSurface,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                tabs: [
+                  const Tab(icon: Icon(Icons.list_alt), text: 'Database'),
+                  const Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
+                  const Tab(icon: Icon(Icons.check_box_rounded), text: 'Data Tests'),
+                ],
+              ),
             ),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Flexible(
               flex: 5,
-              child: TabBarView(children: [
-                PPIDatabaseView(key: _ppiDatabaseViewState, onInteractionSelected: (ppi) => null), // TODO
-                const PPIInsightsView(),
-                const PPIDatabaseTestsView(),
-              ],),
+              child: TabBarView(
+                children: [
+                  PPIDatabaseView(key: _ppiDatabaseViewState, onInteractionSelected: (ppi) => null), // TODO
+                  const PPIInsightsView(),
+                  const PPIDatabaseTestsView(),
+                ],
+              ),
             ),
           ],
         ),

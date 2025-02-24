@@ -1,58 +1,55 @@
 name: biocentral
-version: '0.2.0+1'
+version: "0.1.2+1"
 publish_to: none
 environment:
-  sdk: '>=3.5.0'
+  sdk: ">=3.5.0"
   flutter: 3.24.0
-description: 'Biomedical data, from lab to paper.'
+description: "Biomedical data, from lab to paper."
 
 dependencies:
-  animated_splash_screen: '^1.3.0'
-  archive: '^3.6.1'
-  async: '^2.11.0'
+  animated_splash_screen: ^1.3.0
+  archive: ^3.6.1
+  async: ^2.11.0
   auto_size_text: ^3.0.0
-  bio_flutter: '^0.0.9'
-  bloc: '^8.1.3'
-  bloc_effects: '^1.0.4'
-  collection: '^1.18.0'
-  cross_file: '^0.3.4+1'
-  crypto: '^3.0.3'
-  equatable: '^2.0.5'
-  event_bus: '^2.0.0'
-  file_picker: '^8.0.3'
+  bio_flutter: ^0.0.9
+  bloc: ^8.1.3
+  bloc_effects: ^1.0.4
+  collection: ^1.18.0
+  cross_file: ^0.3.4+1
+  crypto: ^3.0.3
+  equatable: ^2.0.5
+  event_bus: ^2.0.0
+  file_picker: ^8.0.3
   flutter:
-    sdk:
-      flutter
-  flutter_animate: '^4.5.0'
-  flutter_bloc: '^8.1.4'
-  flutter_markdown: '^0.7.1'
-  fpdart: '^1.1.0'
-  http: '^1.2.1'
-  intl: '^0.19.0'
-  logger: '^2.0.2+1'
-  ml_linalg: '^13.12.6'
-  mocktail: '^1.0.4'
+    sdk: flutter
+  flutter_animate: ^4.5.0
+  flutter_bloc: ^8.1.4
+  flutter_markdown: ^0.7.1
+  fpdart: ^1.1.0
+  http: ^1.2.1
+  intl: ^0.19.0
+  logger: ^2.0.2+1
+  ml_linalg: ^13.12.6
+  mocktail: ^1.0.4
   nested: any
-  onnxruntime: ^1.4.1
-  package_info_plus: '^8.0.2'
-  path_provider: '^2.1.1'
-  pluto_grid: '^8.0.0'
-  provider: '^6.1.2'
+  package_info_plus: ^8.0.2
+  path_provider: ^2.1.1
+  pluto_grid: ^8.0.0
+  provider: ^6.1.2
   serious_python:
     git:
       url: https://github.com/biocentral/serious-python.git
       path: src/serious_python
       ref: feature/add-web-support
-  shared_preferences: '^2.2.2'
-  shimmer: '^3.0.0'
-  simple_icons: '^10.1.3'
-  tutorial_system: '^0.0.4'
-  universal_io: ^2.2.2
-  url_launcher: '^6.3.0'
-  yaml: '^3.1.2'
+  shared_preferences: ^2.5.2
+  shimmer: ^3.0.0
+  simple_icons: ^10.1.3
+  tutorial_system: ^0.0.4
+  url_launcher: ^6.3.0
+  yaml: ^3.1.2
 
 dev_dependencies:
-  flutter_launcher_icons: '^0.14.1'
+  flutter_launcher_icons: ^0.14.1
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
@@ -60,26 +57,27 @@ dev_dependencies:
     sdk: flutter
 
 flutter_launcher_icons:
-  image_path: 'assets/biocentral_logo/biocentral_logo.png'
+  image_path: "assets/biocentral_logo/biocentral_logo.png"
   windows:
     generate: true
-    image_path: 'assets/biocentral_logo/biocentral_logo.png'
+    image_path: "assets/biocentral_logo/biocentral_logo.png"
     icon_size: 48
-  flutter_lints: '^4.0.0'
+  flutter_lints: "^4.0.0"
 
 flutter:
   uses-material-design: true
   assets:
-    - 'assets/animated_logo/'
-    - 'assets/biocentral_logo/'
-    - 'assets/example_datasets/interaction/'
-    - 'assets/example_datasets/protein/'
-    - 'assets/python_companion.zip'  # TODO: Could be optimized not to be included on the web platform
-    - 'docs/'
+    - "assets/animated_logo/"
+    - "assets/biocentral_logo/"
+    - "assets/example_datasets/interaction/"
+    - "assets/example_datasets/protein/"
+    - "assets/server_releases/"
+    - "assets/python_companion.zip"  # TODO: Could be optimized not to be included on the web platform
+    - "docs/"
 
 web:
   assets:
-    - 'assets/python_companion/'
-    - 'assets/python_companion/web/'
-    - 'assets/python_companion/desktop/'
-    - 'assets/python_companion/functionality/'
+    - "assets/python_companion/"
+    - "assets/python_companion/web/"
+    - "assets/python_companion/desktop/"
+    - "assets/python_companion/functionality/"

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/protein_insights_view.dart';
 
 class ProteinHubView extends StatefulWidget {
-
   const ProteinHubView({super.key});
 
   @override
@@ -14,7 +13,6 @@ class ProteinHubView extends StatefulWidget {
 
 class _ProteinHubViewState extends State<ProteinHubView> with AutomaticKeepAliveClientMixin {
   final GlobalKey<ProteinDatabaseViewState> _proteinDatabaseViewState = GlobalKey<ProteinDatabaseViewState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +23,25 @@ class _ProteinHubViewState extends State<ProteinHubView> with AutomaticKeepAlive
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Flexible(
-              child: TabBar(tabs: [
-                Tab(icon: Icon(Icons.list_alt), text: 'Database'),
-                Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
-              ],),
+            Flexible(
+              child: TabBar(
+                labelColor: Theme.of(context).colorScheme.onSurface,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                tabs: const [
+                  Tab(icon: Icon(Icons.list_alt), text: 'Database'),
+                  Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
+                ],
+              ),
             ),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Flexible(
               flex: 5,
-              child: TabBarView(children: [
-                ProteinDatabaseView(key: _proteinDatabaseViewState, onProteinSelected: (protein) => null), // TODO
-                const ProteinInsightsView(),
-              ],),
+              child: TabBarView(
+                children: [
+                  ProteinDatabaseView(key: _proteinDatabaseViewState, onProteinSelected: (protein) => null), // TODO
+                  const ProteinInsightsView(),
+                ],
+              ),
             ),
           ],
         ),

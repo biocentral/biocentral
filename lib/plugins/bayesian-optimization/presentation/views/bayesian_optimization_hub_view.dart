@@ -7,13 +7,10 @@ class BayesianOptimizationHubView extends StatefulWidget {
   const BayesianOptimizationHubView({super.key});
 
   @override
-  State<BayesianOptimizationHubView> createState() =>
-      _BayesianOptimizationHubViewState();
+  State<BayesianOptimizationHubView> createState() => _BayesianOptimizationHubViewState();
 }
 
-class _BayesianOptimizationHubViewState
-    extends State<BayesianOptimizationHubView>
-    with AutomaticKeepAliveClientMixin {
+class _BayesianOptimizationHubViewState extends State<BayesianOptimizationHubView> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -23,11 +20,13 @@ class _BayesianOptimizationHubViewState
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Flexible(
+            Flexible(
               child: TabBar(
+                labelColor: Theme.of(context).colorScheme.onSurface,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 tabs: [
-                  Tab(icon: Icon(Icons.graphic_eq), text: 'Plot'),
-                  Tab(icon: Icon(Icons.list_alt), text: 'Database'),
+                  const Tab(icon: Icon(Icons.graphic_eq), text: 'Plot'),
+                  const Tab(icon: Icon(Icons.list_alt), text: 'Database'),
                 ],
               ),
             ),

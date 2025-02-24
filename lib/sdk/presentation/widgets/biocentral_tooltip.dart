@@ -22,7 +22,7 @@ class _BiocentralTooltipState extends State<BiocentralTooltip> {
     return Tooltip(
       message: widget.message,
       textStyle: Theme.of(context).textTheme.labelMedium,
-      decoration: BoxDecoration(color: widget.color ?? Colors.black),
+      decoration: BoxDecoration(color: widget.color ?? Theme.of(context).colorScheme.secondary),
       child: widget.child,
     );
   }
