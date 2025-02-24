@@ -40,5 +40,15 @@ linter:
     avoid_dynamic_calls: true
     avoid_redundant_argument_values: true
     unnecessary_null_aware_assignments: true
+    lines_longer_than_80_chars: false # Disable default 80 char rule
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+# Line length configuration
+dart_code_metrics:
+  metrics:
+    maximum-lines-of-code: 120
+
+# Configure line length to 120
+formatter:
+  line_length: 120

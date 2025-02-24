@@ -1,4 +1,9 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:biocentral/plugins/embeddings/bloc/calculate_embeddings_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/calculate_projections_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
@@ -8,10 +13,6 @@ import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_emb
 import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_projections_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmbeddingsCommandView extends StatefulWidget {
   const EmbeddingsCommandView({super.key});
@@ -99,7 +100,6 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
         BiocentralTooltip(
           message: 'Load existing representations for your data',
           child: BiocentralButton(
-            label: 'Load embeddings..',
             iconData: Icons.file_open,
             onTap: () => loadEmbeddingsFile(embeddingsCommandBloc),
           ),
@@ -107,7 +107,6 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
         BiocentralTooltip(
           message: 'Get meaningful representations for your data',
           child: BiocentralButton(
-            label: 'Calculate embeddings..',
             iconData: Icons.calculate,
             requiredServices: const ['embeddings_service'],
             onTap: () => openCalculateEmbeddingsDialog(embeddingsCommandBloc),
@@ -116,7 +115,6 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
         BiocentralTooltip(
           message: 'Perform dimensionality reduction methods on your embeddings',
           child: BiocentralButton(
-            label: 'Calculate projections..',
             iconData: Icons.auto_graph,
             requiredServices: const ['embeddings_service'],
             onTap: () => openCalculateUMAPDialog(embeddingsCommandBloc),

@@ -1,21 +1,19 @@
-import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
-import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/start_bayesian_optimization_dialog.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../embeddings/data/predefined_embedders.dart';
+import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
+import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/start_bayesian_optimization_dialog.dart';
+import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class BayesianOptimizationCommandView extends StatefulWidget {
   const BayesianOptimizationCommandView({super.key});
 
   @override
-  State<BayesianOptimizationCommandView> createState() =>
-      _BayesianOptimizationCommandViewState();
+  State<BayesianOptimizationCommandView> createState() => _BayesianOptimizationCommandViewState();
 }
 
-class _BayesianOptimizationCommandViewState
-    extends State<BayesianOptimizationCommandView> {
+class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCommandView> {
   @override
   void initState() {
     super.initState();
@@ -68,7 +66,6 @@ class _BayesianOptimizationCommandViewState
         BiocentralTooltip(
           message: 'Start new training',
           child: BiocentralButton(
-            label: 'Start new training',
             iconData: Icons.add,
             onTap: () {
               openStartTrainingDialog(context);
@@ -78,7 +75,6 @@ class _BayesianOptimizationCommandViewState
         BiocentralTooltip(
           message: 'Add new experimental data',
           child: BiocentralButton(
-            label: 'Add new experimental data',
             iconData: Icons.model_training,
             onTap: () {
               // Add your onTap logic here

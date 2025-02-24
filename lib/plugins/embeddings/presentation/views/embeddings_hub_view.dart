@@ -13,6 +13,7 @@ class EmbeddingsHubView extends StatefulWidget {
 }
 
 class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKeepAliveClientMixin {
+
   @override
   bool get wantKeepAlive => true;
 
@@ -45,17 +46,16 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                 // Custom AppBar
                 Container(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  color: Theme.of(context).primaryColor,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'Embeddings Hub',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -68,10 +68,12 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
                         ],
                       ),
                       const SizedBox(height: 16),
-                      const TabBar(
+                      TabBar(
+                        labelColor: Theme.of(context).colorScheme.onSurface,
+                        unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                         tabs: [
-                          Tab(icon: Icon(Icons.zoom_in), text: 'Details'),
-                          Tab(icon: Icon(Icons.visibility), text: 'Visualizations'),
+                          const Tab(icon: Icon(Icons.zoom_in), text: 'Details'),
+                          const Tab(icon: Icon(Icons.visibility), text: 'Visualizations'),
                         ],
                       ),
                     ],
@@ -100,17 +102,11 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8,),
           Flexible(child: buildEntityIDSelection(embeddingsHubBloc, state)),
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8,),
           Flexible(child: buildSingleEmbedding(embeddingsHubBloc, state)),
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8,),
           Flexible(child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
         ],
       ),
@@ -118,11 +114,9 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   }
 
   Widget buildEntityTypeSelection(EmbeddingsHubBloc embeddingsHubBloc) {
-    return BiocentralEntityTypeSelection(
-      onChangedCallback: (selectedType) {
-        embeddingsHubBloc.add(EmbeddingsHubLoadEvent(selectedType));
-      },
-    );
+    return BiocentralEntityTypeSelection(onChangedCallback: (selectedType) {
+      embeddingsHubBloc.add(EmbeddingsHubLoadEvent(selectedType));
+    },);
   }
 
   Widget buildEmbedderSelection(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -212,8 +206,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
     }
 
     return FutureBuilder(
-      future:
-          state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!),
+      future: state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           final embeddingStats = snapshot.data!;

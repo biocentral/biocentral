@@ -1,5 +1,12 @@
 import 'dart:async';
 
+import 'package:bloc_effects/bloc_effects.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tutorial_system/tutorial_system.dart';
+
 import 'package:biocentral/plugins/ppi/bloc/ppi_command_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_dialog_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_import_dialog_bloc.dart';
@@ -12,12 +19,6 @@ import 'package:biocentral/plugins/ppi/presentation/dialogs/ppi_database_tests_d
 import 'package:biocentral/plugins/ppi/presentation/dialogs/ppi_dataset_import_dialog.dart';
 import 'package:biocentral/plugins/ppi/presentation/dialogs/ppi_example_dataset_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:bloc_effects/bloc_effects.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tutorial_system/tutorial_system.dart';
 
 class PPICommandView extends StatefulWidget {
   const PPICommandView({super.key});
@@ -154,26 +155,29 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
 
     // TODO [Refactoring] Duplicated in every command view that uses column wizard dialogs
     return BlocEffectListener<PPICommandBloc, ReOpenColumnWizardEffect>(
-        listener: (context, effect) {
-      openColumnWizardDialog(ppiCommandBloc, effect.column);
-    },
+      listener: (context, effect) {
+        openColumnWizardDialog(ppiCommandBloc, effect.column);
+      },
       child: BlocBuilder<PPICommandBloc, PPICommandState>(
         builder: (context, state) => BiocentralCommandBar(
           commands: [
-            BiocentralButton(
-              label: 'Load interactions from file..',
-              iconData: Icons.file_open_outlined,
-              onTap: () => loadInteractionFile(ppiCommandBloc),
+            BiocentralTooltip(
+              message: 'Load interactions from file..',
+              child: BiocentralButton(
+                iconData: Icons.file_open_outlined,
+                onTap: () => loadInteractionFile(ppiCommandBloc),
+              ),
             ),
-            BiocentralButton(
-              label: 'Save interactions to file..',
-              iconData: Icons.save,
-              onTap: () => saveInteractions(ppiCommandBloc),
+            BiocentralTooltip(
+              message: 'Save interactions to file..',
+              child: BiocentralButton(
+                iconData: Icons.save,
+                onTap: () => saveInteractions(ppiCommandBloc),
+              ),
             ),
             BiocentralTooltip(
               message: 'Analyze and modify the columns in your dataset',
               child: BiocentralButton(
-                label: 'Open column wizard..',
                 iconData: Icons.view_column_outlined,
                 onTap: () => openColumnWizardDialog(ppiCommandBloc, null),
               ),
@@ -181,7 +185,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             BiocentralTooltip(
               message: 'Remove redundant interactions from the database',
               child: BiocentralButton(
-                label: 'Remove duplicates..',
                 iconData: Icons.remove_circle,
                 onTap: () => removeDuplicates(ppiCommandBloc),
               ),
@@ -189,7 +192,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             BiocentralTooltip(
               message: 'Import a ppi dataset from various database formats',
               child: BiocentralButton(
-                label: 'Import interactions from database..',
                 iconData: Icons.downloading,
                 requiredServices: const ['ppi_service'],
                 onTap: () => openInteractionsImportDialog(ppiCommandBloc),
@@ -198,7 +200,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             BiocentralTooltip(
               message: 'Perform bias and descriptive analysis on your interactions',
               child: BiocentralButton(
-                label: 'Run test on interaction database..',
                 iconData: Icons.check_box_outlined,
                 requiredServices: const ['ppi_service'],
                 onTap: () => openRunInteractionDatabaseTestDialog(ppiCommandBloc),
@@ -208,7 +209,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
               message: 'Load a predefined dataset to learn and explore',
               child: BiocentralButton(
                 key: loadExamplePPIDatasetButtonKey,
-                label: 'Load example interaction dataset..',
                 iconData: Icons.bubble_chart_sharp,
                 onTap: () => openLoadExampleInteractionDatasetDialog(ppiCommandBloc),
               ),

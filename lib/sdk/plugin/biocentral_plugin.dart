@@ -1,16 +1,17 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
-import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
-import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
-import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
-import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
+
+import 'package:biocentral/sdk/data/biocentral_client.dart';
+import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
+
 
 abstract class BiocentralPlugin with TypeNameMixin {
   final EventBus eventBus;
@@ -32,7 +33,7 @@ abstract class BiocentralPlugin with TypeNameMixin {
 
   Widget getScreenView(BuildContext context);
 
-  Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context);
+  List<BlocProvider> getListeningBlocs(BuildContext context);
 
   BiocentralClientRepository getBiocentralClientRepository(BuildContext context) {
     return context.read<BiocentralClientRepository>();
@@ -55,21 +56,23 @@ abstract class BiocentralPlugin with TypeNameMixin {
   }
 
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          flex: 4,
-          child: getCommandView(context),
-        ),
-        Expanded(
-          flex: 14,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75, vertical: 1),
-            child: getScreenView(context),
+    return MultiBlocProvider(
+      providers: getListeningBlocs(context),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          getCommandView(context),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75,
+                vertical: 1,
+              ),
+              child: getScreenView(context),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -79,9 +82,7 @@ mixin BiocentralClientPluginMixin<T extends BiocentralClient> on BiocentralPlugi
 }
 
 mixin BiocentralDatabasePluginMixin<T> on BiocentralPlugin {
-  T createListeningDatabase(BiocentralProjectRepository projectRepository);
-
-  List<BiocentralPluginDirectory> getPluginDirectories();
+  T createListeningDatabase();
 
   RepositoryProvider<T> createRepositoryProvider(T database) {
     return RepositoryProvider<T>.value(value: database);
