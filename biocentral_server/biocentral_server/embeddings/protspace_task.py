@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
+
 import numpy as np
 import pandas as pd
 
 from typing import Callable, Dict
 
 from biotrainer.protocols import Protocol
+from biotrainer.embedders import EmbeddingService
 from protspace.utils.prepare_json import DataProcessor
 
 from .embedding_task import OneHotEncodeTask
-from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase, EmbeddingDatabaseFactory
+from ..server_management import TaskInterface, TaskDTO, EmbeddingDatabaseFactory, FileContextManager
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +38,18 @@ class ProtSpaceTask(TaskInterface):
         return {triple.id: triple.embd for triple in triples}
 
     def _load_one_hot_encodings(self) -> Dict[str, np.ndarray]:
-        one_hot_encode_subtask = OneHotEncodeTask(sequences=self.sequences,
-                                                  protocol=Protocol.using_per_sequence_embeddings()[0])
+        file_context_manager = FileContextManager()
+        # TODO [OPTIMIZATION] Create temporary directory in file system
+        with file_context_manager.storage_write("/tmp/ohe.h5") as tmpfile:
+            one_hot_encode_subtask = OneHotEncodeTask(sequences=self.sequences,
+                                                      protocol=Protocol.using_per_sequence_embeddings()[0],
+                                                      embeddings_out_path=tmpfile)
         current_dto = None
         for dto in self.run_subtask(one_hot_encode_subtask):
             current_dto = dto
         if current_dto:
-            return current_dto.update["one_hot_encoding"]
+            h5_file_path = current_dto.update["embeddings_file"]
+            return EmbeddingService.load_embeddings(embeddings_file_path=str(h5_file_path))
         raise ValueError("No one hot encoding found in subtask dto!")
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:

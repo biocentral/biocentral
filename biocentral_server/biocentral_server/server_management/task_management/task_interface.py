@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from enum import Enum
+from pathlib import Path
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Callable, Generator, Optional
 
 from .task_utils import run_subtask_util
+
+from ..file_management import FileContextManager
+from ..embedding_database import EmbeddingsDatabase
 
 
 class TaskStatus(Enum):
@@ -27,7 +31,6 @@ class TaskDTO:
     status: TaskStatus
     error: str
     update: Dict[str, Any]
-    _hook_result: Optional[Dict[str, Any]] = None  # Store the processed result
 
     @classmethod
     def pending(cls):
@@ -38,17 +41,11 @@ class TaskDTO:
         return TaskDTO(status=TaskStatus.RUNNING, error="", update={})
 
     @classmethod
-    def finished(cls, result: Dict[str, Any], on_result_retrieval_hook: Optional[Callable] = None):
-        # Process the result immediately if there's a hook
-        processed_result = result
-        if on_result_retrieval_hook:
-            processed_result = on_result_retrieval_hook(result)
-
+    def finished(cls, result: Dict[str, Any]):
         return TaskDTO(
             status=TaskStatus.FINISHED,
             error="",
             update=result,
-            _hook_result=processed_result
         )
 
     @classmethod
@@ -58,9 +55,19 @@ class TaskDTO:
     def add_update(self, update: Dict[str, Any]) -> 'TaskDTO':
         return TaskDTO(status=self.status, error=self.error, update=update)
 
+    def finished_task_postprocessing(self):
+        # TODO This could be improved architecturally to be registered by the embedding module as a hook
+        if self.update["embeddings_file"] is not None:
+            embeddings_path = Path(self.update["embeddings_file"])
+            file_context_manager = FileContextManager()
+            with file_context_manager.storage_read(embeddings_path) as embeddings_file:
+                h5_string = EmbeddingsDatabase.h5_file_to_base64(h5_file_path=embeddings_file)
+                self.update["embeddings_file"] = h5_string
+
     def dict(self):
-        if self.status == TaskStatus.FINISHED and self._hook_result is not None:
-            return {"status": self.status.name, "error": self.error, **self._hook_result}
+        if self.status == TaskStatus.FINISHED:
+            self.finished_task_postprocessing()
+
         return {"status": self.status.name, "error": self.error, **self.update}
 
     def __getstate__(self):
@@ -69,7 +76,6 @@ class TaskDTO:
             'status': self.status.name,
             'error': self.error,
             'update': self.update,
-            '_hook_result': self._hook_result
         }
 
     def __setstate__(self, state):
@@ -77,7 +83,6 @@ class TaskDTO:
         self.status = TaskStatus.from_string(state['status'])
         self.error = state['error']
         self.update = state['update']
-        self._hook_result = state.get('_hook_result')
 
 
 class TaskInterface(ABC):

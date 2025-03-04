@@ -102,12 +102,22 @@ class EmbeddingsDatabase:
         return result
 
     @staticmethod
-    def export_embedding_triples_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path):
+    def append_to_hdf5(triples: List[EmbeddingsDatabaseTriple], existing_embeddings_path: Path) -> Path:
+        with h5py.File(existing_embeddings_path, "a") as existing_embeddings_file:
+            for idx, triple in enumerate(triples):
+                existing_embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
+                existing_embeddings_file[str(idx)].attrs[
+                    "original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
+        return existing_embeddings_path
+
+    @staticmethod
+    def export_embedding_triples_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path) -> Path:
         with h5py.File(output_path, "w") as embeddings_file:
             for idx, triple in enumerate(triples):
                 embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
                 embeddings_file[str(idx)].attrs[
                     "original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
+        return output_path
 
     @staticmethod
     def export_embeddings_task_result_to_hdf5(embeddings_task_result: Dict[str, Any], output_path: Path):
@@ -130,3 +140,10 @@ class EmbeddingsDatabase:
         h5_base64 = base64.b64encode(h5_io.getvalue()).decode('utf-8')
         h5_io.close()
         return h5_base64
+
+    @staticmethod
+    def h5_file_to_base64(h5_file_path: Path) -> str:
+        with open(h5_file_path, "rb") as h5_file:
+            h5_bytes = h5_file.read()
+            h5_base64 = base64.b64encode(h5_bytes).decode('utf-8')
+            return h5_base64
