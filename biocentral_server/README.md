@@ -62,7 +62,15 @@ poetry run run-biocentral_server.py
 poetry run run-biocentral_server.py --headless
 ```
 
-### Additional setup
+### Local setup
+
+1. Redis
+
+```shell
+sudo apt-get install redis-server
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+```
 
 Embeddings that are computed via the server are stored in a NoSQL database. For local deployments, 
 [TinyDB](https://github.com/msiemens/tinydb) is used by default and should be performant for most use cases. 

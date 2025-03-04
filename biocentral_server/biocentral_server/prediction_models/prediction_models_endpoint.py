@@ -1,8 +1,5 @@
-import yaml
-
-from flask import request, jsonify, Blueprint, current_app
-
 from biotrainer.protocols import Protocol
+from flask import request, jsonify, Blueprint, current_app
 from biotrainer.config import Configurator, ConfigurationException
 
 from .biotrainer_task import BiotrainerTask
@@ -107,19 +104,11 @@ def start_training():
     task_id = task_manager.get_unique_task_id(task=BiotrainerTask)
 
     model_path = file_manager.get_biotrainer_model_path(database_hash=database_hash, model_hash=task_id)
-    if model_path.exists():
-        return jsonify({"task_id": task_id})
+    # TODO Move this to the file backend
+    # if model_path.exists():
+    #    return jsonify({"task_id": task_id})
 
-    config_dict["output_dir"] = str(model_path.absolute())
-
-    config_file_yaml = yaml.dump(config_dict)
-    config_file_path = file_manager.save_file(database_hash=database_hash, file_type=StorageFileType.BIOTRAINER_CONFIG,
-                                              file_content=config_file_yaml, model_hash=task_id)
-    log_path = file_manager.get_file_path(database_hash=database_hash,
-                                          file_type=StorageFileType.BIOTRAINER_LOGGING,
-                                          model_hash=task_id, check_exists=False)
-
-    biotrainer_process = BiotrainerTask(config_path=config_file_path, config_dict=config_dict, log_path=log_path)
+    biotrainer_process = BiotrainerTask(model_path=model_path, config_dict=config_dict)
     task_id = task_manager.add_task(task=biotrainer_process, task_id=task_id)
 
     return jsonify({"task_id": task_id})

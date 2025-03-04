@@ -12,7 +12,7 @@ from biotrainer.utilities import read_FASTA, get_device
 from .embed import compute_embeddings_and_save_to_db
 
 from ..server_management import (TaskInterface, TaskDTO, EmbeddingsDatabase, EmbeddingsDatabaseTriple,
-                                 EmbeddingDatabaseFactory)
+                                 EmbeddingDatabaseFactory, FileContextManager)
 
 
 def _postprocess_embeddings(embedding_triples: List[EmbeddingsDatabaseTriple],
@@ -47,7 +47,7 @@ class OneHotEncodeTask(TaskInterface):
 
 
 class EmbeddingTask(TaskInterface):
-    def __init__(self, embedder_name, sequence_file_path, embeddings_out_path, protocol, use_half_precision, device):
+    def __init__(self, embedder_name: str, sequence_file_path, embeddings_out_path, protocol, use_half_precision, device):
         self.embedder_name = embedder_name
         self.sequence_file_path = sequence_file_path
         self.embeddings_out_path = embeddings_out_path
@@ -56,24 +56,28 @@ class EmbeddingTask(TaskInterface):
         self.device = get_device(device)
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        all_seq_records = read_FASTA(str(self.sequence_file_path))
-        all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
+        file_context_manager = FileContextManager()
+        with file_context_manager.storage_read(self.sequence_file_path) as seq_file_path:
+            all_seq_records = read_FASTA(str(seq_file_path))
+            all_seqs = {seq.id: str(seq.seq) for seq in all_seq_records}
+
         embedder_name = self.embedder_name
         if self.use_half_precision:
             embedder_name += "-HalfPrecision"
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        embedding_triples = compute_embeddings_and_save_to_db(embedder_name=self.embedder_name,
-                                                              all_seqs=all_seqs,
-                                                              embeddings_out_path=self.embeddings_out_path,
-                                                              reduce_by_protocol=self.protocol,
-                                                              use_half_precision=self.use_half_precision,
-                                                              device=self.device,
-                                                              embeddings_db=embeddings_db)
+        with file_context_manager.storage_write(self.embeddings_out_path) as embeddings_out_path:
+            embedding_triples = compute_embeddings_and_save_to_db(embedder_name=self.embedder_name,
+                                                                  all_seqs=all_seqs,
+                                                                  embeddings_out_path=embeddings_out_path,
+                                                                  reduce_by_protocol=self.protocol,
+                                                                  use_half_precision=self.use_half_precision,
+                                                                  device=self.device,
+                                                                  embeddings_db=embeddings_db)
 
-        post_processed_embeddings = _postprocess_embeddings(embedding_triples=embedding_triples, do_rounding=False,
-                                                            round_decimals=4)
-        del embedding_triples
+            post_processed_embeddings = _postprocess_embeddings(embedding_triples=embedding_triples, do_rounding=False,
+                                                                round_decimals=4)
+            del embedding_triples
 
         return TaskDTO.finished(result={"embeddings_file": {embedder_name: post_processed_embeddings}},
                                 on_result_retrieval_hook=lambda

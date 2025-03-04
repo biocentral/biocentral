@@ -40,7 +40,7 @@ def embed():
         file_manager = FileManager(user_id=user_id)
         sequence_file_path = file_manager.get_file_path(database_hash=database_hash,
                                                         file_type=StorageFileType.SEQUENCES)
-        embeddings_out_path = file_manager.get_embeddings_files_path(database_hash=database_hash)
+        embeddings_out_path = file_manager.get_embeddings_path(database_hash=database_hash)
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 

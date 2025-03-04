@@ -20,7 +20,7 @@ def services():
 def hashes(hash_id, file_type):
     user_id = UserManager.get_user_id_from_request(req=request)
     file_manager = FileManager(user_id=user_id)
-    storage_file_type: StorageFileType = FileManager.convert_file_type_str_to_enum(file_type=file_type)
+    storage_file_type: StorageFileType = StorageFileType.from_string(file_type=file_type)
 
     exists = file_manager.check_file_exists(database_hash=hash_id, file_type=storage_file_type)
 
@@ -35,9 +35,8 @@ def transfer_file():
 
     database_data = request.get_json()
     database_hash = database_data.get('hash')
-    file_manager.create_hash_dir_structure_if_necessary(database_hash=database_hash)
 
-    storage_file_type: StorageFileType = FileManager.convert_file_type_str_to_enum(database_data.get('file_type'))
+    storage_file_type: StorageFileType = StorageFileType.from_string(database_data.get('file_type'))
     if file_manager.check_file_exists(database_hash=database_hash, file_type=storage_file_type):
         return jsonify({"error": "Hash already exists at server, "
                                  "this endpoint should not have been used because transferring the file "
@@ -55,7 +54,7 @@ def task_status(task_id):
     # Retrieve task status from the distributed server or backend system
     # Return the task status
     dtos = TaskManager().get_all_task_updates(task_id=task_id)
-    return jsonify({idx: dto for idx, dto in enumerate(dtos)})
+    return jsonify({idx: dto.dict() for idx, dto in enumerate(dtos)})
 
 
 # Endpoint to get some server statistics
@@ -70,7 +69,7 @@ def stats():
             return psutil.cpu_count(logical=True)
 
     usable_cpu_count = _get_usable_cpu_count()
-    disk_usage: str = FileManager.get_disk_usage()
+    disk_usage: str = FileManager(user_id="").get_disk_usage()
 
     number_requests_since_start = UserManager.get_total_number_of_requests_since_start()
     n_processes = TaskManager().get_current_number_of_running_tasks()

@@ -1,10 +1,9 @@
-import yaml
 import logging
 
-from pathlib import Path
-from typing import Dict, Any, Optional, Callable
+from ruamel import yaml
 from importlib import resources
 from collections import namedtuple
+from typing import Dict, Any, Optional, Callable
 
 from ..prediction_models import BiotrainerTask
 from ..server_management import TaskInterface, FileManager, StorageFileType, TaskDTO
@@ -57,12 +56,9 @@ class AutoEvalTask(TaskInterface):
 
         # TODO TASK ID
         model_hash = str(hash(str(config)))
-        config_path = self._save_config(config, database_hash=database_hash, model_hash=model_hash)
-        log_path = self.file_manager.get_file_path(database_hash=database_hash,
-                                                   file_type=StorageFileType.BIOTRAINER_LOGGING,
-                                                   model_hash=model_hash, check_exists=False)
+        model_path = self.file_manager.get_biotrainer_model_path(database_hash, model_hash)
 
-        biotrainer_task = BiotrainerTask(config_path=config_path, config_dict=config, log_path=log_path)
+        biotrainer_task = BiotrainerTask(model_path=model_path, config_dict=config)
         self.current_dataset = _DatasetTuple(dataset_name, split_name)
         logger.info(f"[AUTOEVAL] Starting process for dataset {dataset_name} - split {split_name}!")
         biotrainer_dto: TaskDTO
@@ -73,7 +69,7 @@ class AutoEvalTask(TaskInterface):
 
     def _prepare_config(self, dataset_name: str, split: Dict):
         with resources.open_text('autoeval.configsbank', f'{dataset_name}.yml') as config_file:
-            config = yaml.load(config_file, Loader=yaml.FullLoader)
+            config = yaml.load(config_file, Loader=yaml.Loader)
 
         config["embedder_name"] = self.embedder_name
 
@@ -83,17 +79,6 @@ class AutoEvalTask(TaskInterface):
             if file_path is not None:
                 config[file_name] = file_path
         return config
-
-    def _save_config(self, config: dict, database_hash: str, model_hash: str) -> Path:
-        config_file_path = self.file_manager.get_file_path(database_hash=database_hash,
-                                                           file_type=StorageFileType.BIOTRAINER_CONFIG,
-                                                           model_hash=model_hash, check_exists=False)
-        config["output_dir"] = str(config_file_path.parent.absolute())
-        config_file_yaml = yaml.dump(config)
-        config_file_path = self.file_manager.save_file(database_hash=database_hash,
-                                                       file_type=StorageFileType.BIOTRAINER_CONFIG,
-                                                       file_content=config_file_yaml, model_hash=model_hash)
-        return config_file_path
 
     def _create_dto_update(self, current_task_dto: TaskDTO, task_config: dict) -> Dict[str, Any]:
         update_dict = {

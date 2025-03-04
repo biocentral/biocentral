@@ -14,6 +14,13 @@ class TaskStatus(Enum):
     FINISHED = 2
     FAILED = 3
 
+    @staticmethod
+    def _all():
+        return [TaskStatus.PENDING, TaskStatus.RUNNING, TaskStatus.FINISHED, TaskStatus.FAILED]
+
+    @staticmethod
+    def from_string(status: str) -> TaskStatus:
+        return {s.name: s for s in TaskStatus._all()}[status.upper()]
 
 @dataclass
 class TaskDTO:
@@ -59,7 +66,7 @@ class TaskDTO:
     def __getstate__(self):
         """Called when pickling - return a serializable state"""
         return {
-            'status': self.status,
+            'status': self.status.name,
             'error': self.error,
             'update': self.update,
             '_hook_result': self._hook_result
@@ -67,7 +74,7 @@ class TaskDTO:
 
     def __setstate__(self, state):
         """Called when unpickling - restore from serializable state"""
-        self.status = state['status']
+        self.status = TaskStatus.from_string(state['status'])
         self.error = state['error']
         self.update = state['update']
         self._hook_result = state.get('_hook_result')

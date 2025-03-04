@@ -1,3 +1,3 @@
-from .file_manager import StorageFileType, FileManager
+from .file_manager import StorageFileType, FileManager, FileContextManager
 
-__all__ = ['StorageFileType', 'FileManager']
+__all__ = ['StorageFileType', 'FileManager', 'FileContextManager']
