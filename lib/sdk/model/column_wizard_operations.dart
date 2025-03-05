@@ -86,22 +86,52 @@ class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation<ColumnWi
 
   @override
   Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
-    switch(method) {
-      case ColumnWizardOutlierRemovalMethod.byStandardDeviation: {
-        // TODO Make this more generic
-        if(columnWizard is NumericStats) {
-          final mean = await columnWizard.mean();
-          final stdDev = await columnWizard.stdDev();
-          final lowerBound = mean - 2 * stdDev;
-          final upperBound = mean + 2 * stdDev;
-          final List<int> indicesToRemove = columnWizard.numericValues
-              .indexed
-              .where((element) => element.$2 < lowerBound || element.$2 > upperBound)
-              .map((element) => element.$1)
-              .toList();
-          return ColumnWizardRemoveOperationResult(indicesToRemove);
+    switch (method) {
+      case ColumnWizardOutlierRemovalMethod.byStandardDeviation:
+        {
+          // TODO Make this more generic
+          if (columnWizard is NumericStats) {
+            final mean = await columnWizard.mean();
+            final stdDev = await columnWizard.stdDev();
+            final lowerBound = mean - 2 * stdDev;
+            final upperBound = mean + 2 * stdDev;
+            final List<int> indicesToRemove = columnWizard.numericValues.indexed
+                .where((element) => element.$2 < lowerBound || element.$2 > upperBound)
+                .map((element) => element.$1)
+                .toList();
+            return ColumnWizardRemoveOperationResult(indicesToRemove);
+          }
         }
-      }
+    }
+    return ColumnWizardRemoveOperationResult([]);
+  }
+}
+
+class ColumnWizardClampOperation extends ColumnWizardOperation<ColumnWizardRemoveOperationResult> {
+  final double? low;
+  final double? high;
+
+  ColumnWizardClampOperation(super.newColumnName, this.low, this.high);
+
+  bool _isInRange(num value) {
+    bool inRange = true;
+    if (low != null) {
+      inRange = value > low!;
+    }
+    if (high != null) {
+      inRange = inRange && value < high!;
+    }
+    return inRange;
+  }
+
+  @override
+  Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
+    if (columnWizard is NumericStats) {
+      final List<int> indicesToRemove = columnWizard.numericValues.indexed
+          .where((element) => !_isInRange(element.$2))
+          .map((element) => element.$1)
+          .toList();
+      return ColumnWizardRemoveOperationResult(indicesToRemove);
     }
     return ColumnWizardRemoveOperationResult([]);
   }
@@ -120,4 +150,4 @@ class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation<ColumnW
 }
 
 // TODO Replace enum with types to allow extensibility of operations in plugins
-enum ColumnOperationType { toBinary, removeMissing, removeOutliers, calculateLength, shuffle }
+enum ColumnOperationType { toBinary, removeMissing, removeOutliers, calculateLength, shuffle, clamp }
