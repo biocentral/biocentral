@@ -68,7 +68,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
         'Training Logs': buildLogResult(),
       },
       childrenNeedIntrinsicHeight: {
-        'Loss Curves': true,
+        'Loss Curves': false,
         'Training Logs': false,
       },
     );

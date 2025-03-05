@@ -45,13 +45,15 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
         continue;
       }
 
-      result.add(_createBootstrappingMetric(
-        name: entry.key,
-        mean: mean,
-        error: error,
-        iterations: iterations,
-        sampleSize: sampleSize,
-      ));
+      result.add(
+        _createBootstrappingMetric(
+          name: entry.key,
+          mean: mean,
+          error: error,
+          iterations: iterations,
+          sampleSize: sampleSize,
+        ),
+      );
     }
 
     return result;
@@ -85,12 +87,7 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
   }) {
     final parser = _BiotrainerLogParser(trainingLog);
 
-    final bool parseResultMetrics = trainingStatus == BiocentralTaskStatus.finished ||
-        trainingLog.contains(_BiotrainerLogIdentifiers.testSetMetrics);
-
-    if (parseResultMetrics) {
-      parser.parseMetrics();
-    }
+    parser.parse();
 
     final status = trainingStatus ??
         (parser.testSetMetrics.isEmpty ? BiocentralTaskStatus.running : BiocentralTaskStatus.finished);
@@ -135,7 +132,7 @@ class _BiotrainerLogParser {
 
   _BiotrainerLogParser(String trainingLog) : logs = trainingLog.split('\n');
 
-  void parseMetrics() {
+  void parse() {
     for (String line in logs) {
       _parseLine(line);
     }
@@ -210,7 +207,7 @@ class _BiotrainerLogParser {
 
     final String metrics = line.split(_BiotrainerLogIdentifiers.bootstrappingResults).last;
     final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"'));
-    testSetMetrics.clear();  // Bootstrapping results overwrite regular test set metrics
+    testSetMetrics.clear(); // Bootstrapping results overwrite regular test set metrics
     testSetMetrics.addAll(BiotrainerLogFileHandler._parseMLMetricsMap(metricsMap));
     return true;
   }

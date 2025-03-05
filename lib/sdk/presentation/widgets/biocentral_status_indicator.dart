@@ -42,7 +42,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   @override
   void didUpdateWidget(covariant BiocentralStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(oldWidget.state != widget.state) {
+    if(oldWidget.state.runtimeType != widget.state.runtimeType) {
       _setInitialLogo();
       _startLogoAnimation();
     }
