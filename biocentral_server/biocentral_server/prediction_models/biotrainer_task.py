@@ -37,11 +37,11 @@ class BiotrainerTask(TaskInterface):
                     self.config_dict[key] = str(temp_path)
 
             # Save embeddings to temp dir
-            hdf5_temp_path = biotrainer_out_path / "embeddings.h5"
-            self._pre_embed_with_db(server_sequence_file_path=server_sequence_file_path,
-                                    hdf5_temp_path=hdf5_temp_path)
+            h5_path = self._pre_embed_with_db(server_sequence_file_path=server_sequence_file_path,
+                                              embeddings_out_path=biotrainer_out_path)
+            file_context_manager.save_file_temporarily(biotrainer_out_path / h5_path.name, h5_path)
             self.config_dict.pop("embedder_name")
-            self.config_dict["embeddings_file"] = str(hdf5_temp_path)
+            self.config_dict["embeddings_file"] = str(biotrainer_out_path / h5_path.name)
 
             # Run biotrainer
             self.biotrainer_process = mp.Process(target=headless_main, args=(self.config_dict,), )
@@ -71,14 +71,14 @@ class BiotrainerTask(TaskInterface):
                 return new_log_content
         return ""
 
-    def _pre_embed_with_db(self, server_sequence_file_path: str, hdf5_temp_path: Path):
+    def _pre_embed_with_db(self, server_sequence_file_path: str, embeddings_out_path: Path) -> Path:
         embedder_name = self.config_dict['embedder_name']
         protocol = self.config_dict['protocol']
         device = self.config_dict.get('device', None)
 
         embedding_task = EmbeddingTask(embedder_name=embedder_name,
                                        sequence_file_path=server_sequence_file_path,
-                                       embeddings_out_path=hdf5_temp_path.parent,
+                                       embeddings_out_path=embeddings_out_path,
                                        protocol=protocol,
                                        use_half_precision=False,
                                        device=device)
@@ -87,7 +87,6 @@ class BiotrainerTask(TaskInterface):
             embedding_dto = current_dto
 
         if embedding_dto:
-            embeddings_task_result = embedding_dto.update["embeddings_file"][embedder_name]
-            # TODO [Optimization] Try to avoid double reading and saving of embedding files
-            EmbeddingsDatabase.export_embeddings_task_result_to_hdf5(embeddings_task_result=embeddings_task_result,
-                                                                 output_path=hdf5_temp_path)
+            h5_file_path = embedding_dto.update["embeddings_file"]
+            return Path(h5_file_path)
+        raise Exception("Could not find embeddings file in Embeddings TaskDTO Result!")

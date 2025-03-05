@@ -27,17 +27,21 @@ def dict_chunks(dct: Dict[str, str], n) -> Generator[Dict[str, str], None, None]
 
 
 class EmbeddingsDatabase:
-    def __init__(self, config):
+    def __init__(self, postgres_config, tinydb_config):
         self.strategy: Optional[DatabaseStrategy] = None
-        use_postgresql = config.get("USE_POSTGRESQL", False)
+        use_postgresql = postgres_config.pop("USE_POSTGRES")
         try:
-            self.strategy = PostgreSQLStrategy() if use_postgresql else TinyDBStrategy()
-            self.strategy.init_db(config)
+            if use_postgresql:
+                self.strategy = PostgreSQLStrategy()
+                self.strategy.init_db(postgres_config)
+            else:
+                self.strategy = TinyDBStrategy()
+                self.strategy.init_db(tinydb_config)
         except Exception as e:
             logger.error(f"Failed to init database strategy with exception {e}")
             logger.error(f"Trying to fall back to tindydb strategy..")
             self.strategy = TinyDBStrategy()
-            self.strategy.init_db(config)
+            self.strategy.init_db(tinydb_config)
 
         logger.info(f"Using database: {'PostgreSQL' if use_postgresql else 'TinyDB'}")
 

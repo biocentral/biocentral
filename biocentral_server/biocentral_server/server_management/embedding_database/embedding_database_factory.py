@@ -5,9 +5,11 @@ from typing import Dict, Any
 
 from .embedding_database import EmbeddingsDatabase
 
+
 class EmbeddingDatabaseFactory:
     _instance = None
-    _config: Dict[str, Any] = {}
+    _postgres_config: Dict[str, Any] = {}
+    _tinydb_config: Dict[str, Any] = {}
     _database_instance: EmbeddingsDatabase = None
 
     def __new__(cls):
@@ -17,17 +19,20 @@ class EmbeddingDatabaseFactory:
         return cls._instance
 
     def _initialize(self):
-        self._config['POSTGRESQL_CONFIG'] = {
-                'USE_POSTGRESQL': True,
-                'POSTGRES_HOST': 'embeddings-db',
-                'POSTGRES_DB': os.getenv('POSTGRES_DB'),
-                'POSTGRES_USER': os.getenv('POSTGRES_USER'),
-                'POSTGRES_PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-                'POSTGRES_PORT': os.getenv('POSTGRES_PORT'),
-            }
-        self._config['TINYDB_PATH'] = str(Path("storage/embeddings.json"))
+        self._postgres_config = {
+            'USE_POSTGRES': os.getenv('USE_POSTGRES'),
+            'host': os.getenv('POSTGRES_HOST'),
+            'port': os.getenv('POSTGRES_PORT'),
+            'dbname': os.getenv('POSTGRES_DB'),
+            'user': os.getenv('POSTGRES_USER'),
+            'password': os.getenv('POSTGRES_PASSWORD'),
+        }
+        self._tinydb_config = {
+            "TINYDB_PATH": str(Path("storage/embeddings.json"))
+        }
 
     def get_embeddings_db(self) -> EmbeddingsDatabase:
         if self._database_instance is None:
-            self._database_instance = EmbeddingsDatabase(config=self._config)
+            self._database_instance = EmbeddingsDatabase(postgres_config=self._postgres_config,
+                                                         tinydb_config=self._tinydb_config)
         return self._database_instance

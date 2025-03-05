@@ -19,7 +19,7 @@ class PostgreSQLStrategy(DatabaseStrategy):
         self.db_config = None
 
     def init_db(self, config):
-        self.db_config = config.get('POSTGRESQL_CONFIG')
+        self.db_config = config
         with self._get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute('''
@@ -30,12 +30,12 @@ class PostgreSQLStrategy(DatabaseStrategy):
                         embedder_name TEXT,
                         per_sequence BYTEA,
                         per_residue BYTEA,
-                        PRIMARY KEY (sequence_hash, sequence_length, embedder_name)
+                        PRIMARY KEY (sequence_hash, embedder_name)
                     )
                 ''')
                 cur.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_sequence_hash_length_embedder_name 
-                    ON embeddings(sequence_hash, sequence_length, embedder_name)
+                    CREATE INDEX IF NOT EXISTS idx_sequence_hash_embedder_name 
+                    ON embeddings(sequence_hash, embedder_name)
                 ''')
             conn.commit()
 
@@ -102,7 +102,6 @@ class PostgreSQLStrategy(DatabaseStrategy):
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     placeholders = ','.join(['%s'] * len(hash_keys))
-                    # TODO Add sequence length to query
                     cur.execute(f'''
                         SELECT sequence_hash, per_sequence, per_residue
                         FROM embeddings 

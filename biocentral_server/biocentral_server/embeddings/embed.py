@@ -59,6 +59,10 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
     existing_embds_seqs, non_existing_embds_seqs = embeddings_db.filter_existing_embeddings(sequences=all_seqs,
                                                                                             embedder_name=embedder_name,
                                                                                             reduced=reduce)
+    existing_embds = []
+    if len(existing_embds_seqs) > 0:
+        existing_embds = embeddings_db.get_embeddings(sequences=existing_embds_seqs, embedder_name=embedder_name,
+                                                      reduced=reduce)
 
     if len(non_existing_embds_seqs) > 0:
         h5_path = _compute_embeddings(embedder_name=embedder_name,
@@ -68,19 +72,14 @@ def compute_embeddings_and_save_to_db(embedder_name: str,
                                       use_half_precision=use_half_precision,
                                       device=device)
         computed_embeddings_triples = _load_embeddings(all_seqs=non_existing_embds_seqs, embeddings_file_path=h5_path)
-
-        existing_embds = embeddings_db.get_embeddings(sequences=existing_embds_seqs, embedder_name=embedder_name,
-                                                      reduced=reduce)
         embeddings_db.save_embeddings(ids_seqs_embds=computed_embeddings_triples, embedder_name=embedder_name,
                                       reduced=reduce)
         final_h5_path = embeddings_db.append_to_hdf5(triples=existing_embds,
-                                                     existing_embeddings_path=embeddings_out_path)
+                                                     existing_embeddings_path=h5_path)
         return final_h5_path
 
     else:
         logger.debug(f"All {len(existing_embds_seqs)} embeddings already computed!")
-        existing_embds = embeddings_db.get_embeddings(sequences=existing_embds_seqs, embedder_name=embedder_name,
-                                                      reduced=reduce)
         final_h5_path = embeddings_db.export_embedding_triples_to_hdf5(triples=existing_embds,
-                                                                       output_path=embeddings_out_path)
+                                                                       output_path=embeddings_out_path / "embeddings.h5")
         return final_h5_path
