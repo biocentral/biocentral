@@ -9,7 +9,7 @@ abstract class NumColumnWizard extends ColumnWizard {
 
   @override
   Set<ColumnOperationType> getAvailableOperations() {
-    return super.getAvailableOperations()..add(ColumnOperationType.removeOutliers);
+    return super.getAvailableOperations()..addAll([ColumnOperationType.removeOutliers, ColumnOperationType.clamp]);
   }
 }
 
