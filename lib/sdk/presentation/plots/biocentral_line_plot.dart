@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralLinePlot extends StatelessWidget {
@@ -7,7 +8,8 @@ class BiocentralLinePlot extends StatelessWidget {
   final List<Color> colors;
 
   const BiocentralLinePlot({
-    required this.data, super.key,
+    required this.data,
+    super.key,
     this.colors = const [Colors.blue, Colors.orange],
   });
 
@@ -52,7 +54,15 @@ class _LinePlotPainter extends CustomPainter {
     // Draw lines
     data.forEach((key, values) {
       drawLine(
-          canvas, plotSize, plotOffset, values, maxEpoch, minValue, maxValue, colors[data.keys.toList().indexOf(key)],);
+        canvas,
+        plotSize,
+        plotOffset,
+        values,
+        maxEpoch,
+        minValue,
+        maxValue,
+        colors[data.keys.toList().indexOf(key)],
+      );
     });
 
     // Draw axes
@@ -71,8 +81,16 @@ class _LinePlotPainter extends CustomPainter {
     drawLegend(canvas, size);
   }
 
-  void drawLine(Canvas canvas, Size plotSize, Offset plotOffset, Map<int, double> values, int maxEpoch, double minValue,
-      double maxValue, Color color,) {
+  void drawLine(
+    Canvas canvas,
+    Size plotSize,
+    Offset plotOffset,
+    Map<int, double> values,
+    int maxEpoch,
+    double minValue,
+    double maxValue,
+    Color color,
+  ) {
     final Paint linePaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -175,11 +193,12 @@ class _LinePlotPainter extends CustomPainter {
 
     data.keys.toList().asMap().forEach((index, key) {
       canvas.drawLine(
-          Offset(legendX, legendY + index * itemHeight),
-          Offset(legendX + 30, legendY + index * itemHeight),
-          Paint()
-            ..color = colors[index]
-            ..strokeWidth = 2,);
+        Offset(legendX, legendY + index * itemHeight),
+        Offset(legendX + 30, legendY + index * itemHeight),
+        Paint()
+          ..color = colors[index]
+          ..strokeWidth = 2,
+      );
       final textPainter = TextPainter(
         text: TextSpan(text: key, style: plotTextStyle),
         textDirection: TextDirection.ltr,
