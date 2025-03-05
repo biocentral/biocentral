@@ -8,7 +8,9 @@ import 'package:serious_python/serious_python.dart';
 
 abstract class _BiocentralPythonCompanionUtils {
   static Future<Either<BiocentralIOException, Map<String, Embedding>>> _readEmbeddingsFromResponse(
-      Map<String, dynamic>? id2emb) async {
+    Map<String, dynamic>? id2emb,
+    String embedderName,
+  ) async {
     if (id2emb == null) {
       return left(
         BiocentralIOException(message: 'Parsing of embeddings failed - Could not convert result map from companion!'),
@@ -17,7 +19,7 @@ abstract class _BiocentralPythonCompanionUtils {
 
     final Map<String, Embedding> result = {};
     for (final entry in id2emb.entries) {
-      final conversion = _fromList(entry.value);
+      final conversion = _fromList(entry.value, embedderName);
       if (conversion == null) {
         return left(
           BiocentralIOException(message: 'Parsing of embeddings failed - could not create embedding!'),
@@ -28,12 +30,16 @@ abstract class _BiocentralPythonCompanionUtils {
     return right(result);
   }
 
-  static Embedding? _fromList(dynamic embd) {
-    if (embd is List<dynamic>) {
-      return PerSequenceEmbedding(List<double>.from(embd), embedderName: 'TODO');
+  static Embedding? _fromList(List<dynamic> embd, String embedderName) {
+    if (embd.first is List) {
+      final List<List<double>> convertedEmbedding = embd.map<List<double>>((innerList) {
+        return (innerList as List).cast<double>();
+      }).toList();
+
+      return PerResidueEmbedding(convertedEmbedding, embedderName: embedderName);
     }
-    if (embd is List<List<dynamic>>) {
-      return PerResidueEmbedding(List<List<double>>.from(embd), embedderName: 'TODO');
+    if (embd.first is double) {
+      return PerSequenceEmbedding(embd.cast<double>(), embedderName: embedderName);
     }
     return null;
   }
@@ -42,7 +48,7 @@ abstract class _BiocentralPythonCompanionUtils {
 abstract class _BiocentralPythonCompanionStrategy {
   bool _companionReady = false;
 
-  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes);
+  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName);
 
   Future<Either<BiocentralException, String>> writeH5File(Map<String, Embedding> embeddings);
 
@@ -97,16 +103,20 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
   }
 
   @override
-  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes) async {
+  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) async {
     final Map<String, String> body = {'h5_bytes': base64Encode(bytes)};
     final responseEither = await doPostRequest('read_h5', body);
     return responseEither.match((l) async {
       return left(l);
     }, (r) async {
-      final embeddings = await compute<Map<String, dynamic>, Either<BiocentralIOException, Map<String, Embedding>>>(
-        _BiocentralPythonCompanionUtils._readEmbeddingsFromResponse,
-        (r['id2emb'] ?? {}) as Map<String, dynamic>,
-      );
+      Future<Either<BiocentralIOException, Map<String, Embedding>>> readFunction(dynamic _) {
+        return _BiocentralPythonCompanionUtils._readEmbeddingsFromResponse(
+          (r['id2emb'] ?? {}) as Map<String, dynamic>,
+          embedderName,
+        );
+      }
+      final embeddings = await compute(readFunction, null);
+
       return embeddings;
     });
   }
@@ -194,7 +204,7 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
   }
 
   @override
-  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes) async {
+  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) async {
     final String? result = await runPythonCommand(
       environmentVariables: {
         'PYODIDE_COMMAND': 'read_h5',
@@ -202,13 +212,22 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
       },
     );
     if (result == null || result.isEmpty) {
-      return left(BiocentralServerException(message: 'Could not load embeddings via python companion!'));
+      return left(
+        BiocentralServerException(
+            message: 'Could not load embeddings for $embedderName'
+                ' via python companion!'),
+      );
     }
     final decodedResult = jsonDecode(result);
-    final embeddings = await compute<Map<String, dynamic>, Either<BiocentralIOException, Map<String, Embedding>>>(
-      _BiocentralPythonCompanionUtils._readEmbeddingsFromResponse,
-      (decodedResult['id2emb'] ?? {}) as Map<String, dynamic>,
-    );
+
+    Future<Either<BiocentralIOException, Map<String, Embedding>>> readFunction(dynamic _) {
+      return _BiocentralPythonCompanionUtils._readEmbeddingsFromResponse(
+        (decodedResult['id2emb'] ?? {}) as Map<String, dynamic>,
+        embedderName,
+      );
+    }
+    final embeddings = await compute(readFunction, null);
+
     return embeddings;
   }
 
@@ -299,8 +318,8 @@ class BiocentralPythonCompanion {
     return _strategy.terminate();
   }
 
-  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes) {
-    return _strategy.loadH5File(bytes);
+  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) {
+    return _strategy.loadH5File(bytes, embedderName);
   }
 
   Future<Either<BiocentralException, String>> writeH5File(Map<String, Embedding> embeddings) {
