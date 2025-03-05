@@ -21,6 +21,9 @@ class ColumnWizardOperationDisplayFactory {
       case ColumnOperationType.removeOutliers:
         return ColumnWizardRemoveOutliersOperationDisplay(
             selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+      case ColumnOperationType.clamp:
+        return ColumnWizardClampOperationDisplay(
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
       case ColumnOperationType.calculateLength:
         return ColumnWizardCalculateLengthOperationDisplay(
             selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
@@ -47,7 +50,7 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
   @override
   void initState() {
     super.initState();
-    if(defaultColumnName().isNotEmpty) {
+    if (defaultColumnName().isNotEmpty) {
       newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
     }
   }
@@ -259,10 +262,10 @@ class ColumnWizardRemoveOutliersOperationDisplay
   });
 
   @override
-  State<StatefulWidget> createState() => _ColumnWizardRemoveOutliersOperationDisplay();
+  State<StatefulWidget> createState() => _ColumnWizardRemoveOutliersOperationDisplayState();
 }
 
-class _ColumnWizardRemoveOutliersOperationDisplay
+class _ColumnWizardRemoveOutliersOperationDisplayState
     extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
   ColumnWizardOutlierRemovalMethod? _selectedMethod;
 
@@ -291,6 +294,70 @@ class _ColumnWizardRemoveOutliersOperationDisplay
           onSelected: (ColumnWizardOutlierRemovalMethod? method) {
             setState(() {
               _selectedMethod = method;
+            });
+          },
+        ),
+      ),
+    ];
+  }
+}
+
+class ColumnWizardClampOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
+  const ColumnWizardClampOperationDisplay({
+    required super.selectedColumnName,
+    required super.onCalculateCallback,
+    super.key,
+  });
+
+  @override
+  State<StatefulWidget> createState() => _ColumnWizardClampOperationDisplayState();
+}
+
+class _ColumnWizardClampOperationDisplayState
+    extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
+  double? low;
+  double? high;
+
+  @override
+  String defaultColumnName() {
+    return '';
+  }
+
+  @override
+  ColumnWizardOperation? collect() {
+    if (low != null || high != null) {
+      return ColumnWizardClampOperation(newColumnName, low, high);
+    }
+    return null;
+  }
+
+  @override
+  List<Widget> buildParameterSelections() {
+    return [
+      Flexible(
+        child: TextFormField(
+          initialValue: '0.0',
+          decoration: const InputDecoration(
+            labelText: 'Lower value:',
+            helperText: 'Remove all values strictly lower than this.',
+          ),
+          onChanged: (String? value) {
+            setState(() {
+              low = double.tryParse(value ?? '');
+            });
+          },
+        ),
+      ),
+      Flexible(
+        child: TextFormField(
+          initialValue: '0.0',
+          decoration: const InputDecoration(
+            labelText: 'Upper value:',
+            helperText: 'Remove all values strictly higher than this.',
+          ),
+          onChanged: (String? value) {
+            setState(() {
+              high = double.tryParse(value ?? '');
             });
           },
         ),
