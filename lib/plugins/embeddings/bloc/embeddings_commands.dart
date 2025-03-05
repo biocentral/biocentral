@@ -49,7 +49,8 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         yield left(state.setErrored(information: 'Embeddings file could not be parsed!'));
         return;
       }
-      final embeddingsData = await _pythonCompanion.loadH5File(embeddingsFileBytes);
+      final embeddingsData = await _pythonCompanion.loadH5File(
+          embeddingsFileBytes, _platformFile?.name.split('.').first ?? 'loaded_embeddings');
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -150,7 +151,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     // TODO [Error Handling] Handle save errors
     await _biocentralProjectRepository.handleSave(fileName: embeddingsFileName, bytes: embeddingBytes);
     // Load
-    final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes);
+    final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes, _embedderName);
     yield* embeddingsEither.match((error) async* {
       yield left(
         state.setErrored(
@@ -230,7 +231,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
           .map((entity) => MapEntry(entity.getID(), entity.toMap()['sequence'].toString())),
     );
 
-    if (_embedderName != "one_hot_encoding") {
+    if (_embedderName != 'one_hot_encoding') {
       final missingEmbeddingsEither = await _embeddingsClient.getMissingEmbeddings(sequences, _embedderName!, true);
       yield* missingEmbeddingsEither.match((error) async* {
         yield left(state.setErrored(information: error.message));
