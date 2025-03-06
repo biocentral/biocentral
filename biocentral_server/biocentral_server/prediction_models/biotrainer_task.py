@@ -38,7 +38,7 @@ class BiotrainerTask(TaskInterface):
 
             # Save embeddings to temp dir
             h5_path = self._pre_embed_with_db(server_sequence_file_path=server_sequence_file_path,
-                                              embeddings_out_path=biotrainer_out_path)
+                                              embeddings_out_path=self.model_path)
             file_context_manager.save_file_temporarily(biotrainer_out_path / h5_path.name, h5_path)
             self.config_dict.pop("embedder_name")
             self.config_dict["embeddings_file"] = str(biotrainer_out_path / h5_path.name)
