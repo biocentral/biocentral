@@ -53,13 +53,11 @@ class ProtSpaceTask(TaskInterface):
         raise ValueError("No one hot encoding found in subtask dto!")
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        self.embedder_name = "one_hot_encoding"  # TODO
         embedding_map = self._load_embeddings()
         protspace_headers = list(embedding_map.keys())
 
         dimensions = self.config.pop('n_components')
         data_processor = DataProcessor(config=self.config)
-        # TODO Metadata
         metadata = pd.DataFrame({"identifier": protspace_headers})
 
         logger.info(f"Applying {self.method.upper()} reduction. Dimensions: {dimensions}. Config: {self.config}")
