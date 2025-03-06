@@ -9,7 +9,6 @@ from datetime import datetime
 from collections import namedtuple
 from typing import List, Dict, Tuple, Any, Optional, Generator
 
-from .tinydb_strategy import TinyDBStrategy
 from .database_strategy import DatabaseStrategy
 from .postgresql_strategy import PostgreSQLStrategy
 
@@ -27,23 +26,12 @@ def dict_chunks(dct: Dict[str, str], n) -> Generator[Dict[str, str], None, None]
 
 
 class EmbeddingsDatabase:
-    def __init__(self, postgres_config, tinydb_config):
+    def __init__(self, postgres_config):
         self.strategy: Optional[DatabaseStrategy] = None
-        use_postgresql = postgres_config.pop("USE_POSTGRES")
-        try:
-            if use_postgresql:
-                self.strategy = PostgreSQLStrategy()
-                self.strategy.init_db(postgres_config)
-            else:
-                self.strategy = TinyDBStrategy()
-                self.strategy.init_db(tinydb_config)
-        except Exception as e:
-            logger.error(f"Failed to init database strategy with exception {e}")
-            logger.error(f"Trying to fall back to tindydb strategy..")
-            self.strategy = TinyDBStrategy()
-            self.strategy.init_db(tinydb_config)
+        self.strategy = PostgreSQLStrategy()
+        self.strategy.init_db(postgres_config)
 
-        logger.info(f"Using database: {'PostgreSQL' if use_postgresql else 'TinyDB'}")
+        logger.info(f"Using database: PostgreSQL")
 
     def clear_embeddings(self, sequence=None, model_name=None):
         return self.strategy.clear_embeddings(sequence, model_name)
