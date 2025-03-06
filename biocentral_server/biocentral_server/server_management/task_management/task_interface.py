@@ -57,7 +57,7 @@ class TaskDTO:
 
     def finished_task_postprocessing(self):
         # TODO This could be improved architecturally to be registered by the embedding module as a hook
-        if self.update["embeddings_file"] is not None:
+        if "embeddings_file" in self.update.keys() and self.update["embeddings_file"] is not None:
             embeddings_path = Path(self.update["embeddings_file"])
             file_context_manager = FileContextManager()
             with file_context_manager.storage_read(embeddings_path) as embeddings_file:
