@@ -1,3 +1,4 @@
+import os
 import torch
 import base64
 import blosc2
@@ -20,6 +21,8 @@ class TinyDBStrategy(DatabaseStrategy):
 
     def init_db(self, config):
         db_path = config.get('TINYDB_PATH')
+        if not os.path.exists(db_path):
+            os.makedirs(db_path, exist_ok=True)
         self.db = TinyDB(db_path, storage=CachingMiddleware(JSONStorage))
 
     @staticmethod
