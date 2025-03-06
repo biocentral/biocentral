@@ -45,7 +45,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     // HANDLE APP EXIT
     _exitListener = AppLifecycleListener(
       onExitRequested: () async {
-        await terminateServer();
         await terminatePythonCompanion();
         return AppExitResponse.exit;
       },
@@ -81,13 +80,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     _exitListener.dispose();
 
     super.dispose();
-  }
-
-  Future<void> terminateServer() async {
-    final localServerInstance = BiocentralLocalServer();
-    if (localServerInstance.isRunning()) {
-      await BiocentralLocalServer().stop();
-    }
   }
 
   Future<void> terminatePythonCompanion() async {

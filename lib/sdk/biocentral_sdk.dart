@@ -8,7 +8,6 @@ export 'bloc/biocentral_events.dart';
 export 'bloc/biocentral_state.dart';
 export 'bloc/column_wizard_bloc.dart';
 export 'data/biocentral_client.dart';
-export 'data/biocentral_local_server.dart';
 export 'data/biocentral_server_data.dart';
 export 'data/biocentral_service_api.dart';
 export 'domain/biocentral_column_wizard_repository.dart';

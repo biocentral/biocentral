@@ -7,8 +7,6 @@ import 'package:logger/logger.dart';
 
 LoggerService get logger => LoggerService._instance;
 
-ServerLoggerService get serverLogger => ServerLoggerService._instance;
-
 class LoggerService extends ChangeNotifier {
   final Logger _logger;
   final List<BiocentralLog> _logMessages = [];
@@ -63,51 +61,6 @@ class LoggerService extends ChangeNotifier {
 
   void clearLogs() {
     _logMessages.clear();
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    // TODO dispose() is called after plugins are unloaded
-    // super.dispose();
-  }
-}
-
-class ServerLoggerService extends ChangeNotifier {
-  final List<BiocentralLog> _serverLogMessages = [];
-
-  ServerLoggerService._();
-
-  static final ServerLoggerService _instance = ServerLoggerService._();
-
-  List<BiocentralLog> get serverLogMessages => List.unmodifiable(_serverLogMessages);
-
-  void i(dynamic message) {
-    final time = DateTime.now();
-    _serverLogMessages.add(BiocentralLogMessage(message: message, time: time));
-    if (kDebugMode) {
-      _printServerLog(message);
-    }
-    notifyListeners();
-  }
-
-  void e(dynamic message) {
-    final time = DateTime.now();
-    _serverLogMessages.add(BiocentralLogError(message: message, time: time));
-    if (kDebugMode) {
-      _printServerLog(message);
-    }
-    notifyListeners();
-  }
-
-  void _printServerLog(dynamic message) {
-    if (kDebugMode) {
-      stdout.write('\x1B[35m LOCAL SERVER: $message\x1B[0m');
-    }
-  }
-
-  void clearLogs() {
-    _serverLogMessages.clear();
     notifyListeners();
   }
 

@@ -72,7 +72,6 @@ flutter:
     - 'assets/biocentral_logo/'
     - 'assets/example_datasets/interaction/'
     - 'assets/example_datasets/protein/'
-    - 'assets/server_releases/'
     - 'assets/python_companion.zip'  # TODO: Could be optimized not to be included on the web platform
     - 'docs/'
 
