@@ -30,7 +30,7 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
           SizedBox(
               width: SizeConfig.screenWidth(context) * 0.75,
               height: SizeConfig.screenHeight(context) * 0.6,
-              child: buildServerTabBar(biocentralClientBloc, state),),
+              child: buildServerConnection(biocentralClientBloc, state),),
           BiocentralStatusIndicator(state: state, center: true),
           BiocentralSmallButton(
             label: 'Close',
@@ -41,30 +41,45 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
     },);
   }
 
-  Widget buildServerTabBar(BiocentralClientBloc biocentralClientBloc, BiocentralClientState state) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Center(child: Text('Connect to a Server for Advanced Calculations')),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.cloud_outlined), text: 'Connect'),
-              Tab(icon: Icon(Icons.file_download_outlined), text: 'Download Local Server'),
-            ],
-          ),
+  Widget buildServerConnection(BiocentralClientBloc biocentralClientBloc, BiocentralClientState state) {
+    Widget serverList = const Text('No servers available!');
+    if(state.availableServersToConnect.isNotEmpty) {
+      serverList = Expanded(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: state.availableServersToConnect.length,
+          itemBuilder: (context, index) {
+            final BiocentralServerData serverData = state.availableServersToConnect.toList()[index];
+            final bool connectedToThisServer = serverData == state.connectedServer;
+            return Card(
+              child: ExpansionTile(
+                leading: Icon(Icons.circle, color: connectedToThisServer ? Colors.green : Colors.grey),
+                title: Text(
+                  serverData.name,
+                ),
+                children: [
+                  const Text('URL:'),
+                  Text(serverData.url),
+                  const Text('Available Services on this Server:'),
+                  ...serverData.availableServices.map((service) => Text(service)),
+                  BiocentralSmallButton(
+                    label: connectedToThisServer ? 'Disconnect' : 'Connect',
+                    onTap: () {
+                      final event = connectedToThisServer
+                          ? BiocentralClientDisconnectEvent(server: serverData)
+                          : BiocentralClientConnectEvent(server: serverData);
+                      biocentralClientBloc.add(event);
+                    },
+                  ),
+                ],),);
+          },
         ),
-        body: TabBarView(
-          children: [buildConnectionTab(biocentralClientBloc, state), buildDownloadTab(biocentralClientBloc, state)],
-        ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget buildConnectionTab(BiocentralClientBloc biocentralClientBloc, BiocentralClientState state) {
     return Column(
       children: [
+        Text('Connect to a Server for Advanced Calculations', style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 8),
         ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
@@ -74,119 +89,7 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
         const SizedBox(height: 20),
         const Text('Available servers:'),
         const SizedBox(height: 8),
-        Expanded(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: state.availableServersToConnect.length,
-            itemBuilder: (context, index) {
-              final BiocentralServerData serverData = state.availableServersToConnect.toList()[index];
-              final bool connectedToThisServer = serverData == state.connectedServer;
-              return Card(
-                  child: ExpansionTile(
-                      leading: Icon(Icons.circle, color: connectedToThisServer ? Colors.green : Colors.grey),
-                      title: Text(
-                        serverData.name,
-                      ),
-                      children: [
-                    const Text('URL:'),
-                    Text(serverData.url),
-                    const Text('Available Services on this Server:'),
-                    ...serverData.availableServices.map((service) => Text(service)),
-                    BiocentralSmallButton(
-                      label: connectedToThisServer ? 'Disconnect' : 'Connect',
-                      onTap: () {
-                        final event = connectedToThisServer
-                            ? BiocentralClientDisconnectEvent(server: serverData)
-                            : BiocentralClientConnectEvent(server: serverData);
-                        biocentralClientBloc.add(event);
-                      },
-                    ),
-                  ],),);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildDownloadTab(BiocentralClientBloc biocentralClientBloc, BiocentralClientState state) {
-    if (state.serverDownloadURLs.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return DefaultTabController(
-      length: state.serverDownloadURLs.length,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          state.extractedExecutablePath == null
-              ? Container()
-              : BiocentralSmallButton(
-                  label: 'Launch now!',
-                  onTap: () => biocentralClientBloc.add(BiocentralClientLaunchExistingLocalServerEvent()),
-                ),
-          Expanded(
-            child: TabBar(
-              isScrollable: true,
-              tabs: state.serverDownloadURLs.keys
-                  .map((os) => Tab(
-                        text: os.capitalize(),
-                        icon: getIconForOS(os),
-                      ),)
-                  .toList(),
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              children: state.serverDownloadURLs.entries.map((entry) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: BiocentralSmallButton(
-                        label: 'Download biocentral server for ${entry.key.capitalize()} (Download Size: ~5GB)',
-                        onTap: state.isOperating()
-                            ? null
-                            : () => biocentralClientBloc
-                                .add(BiocentralClientDownloadLocalServerEvent(entry.key, entry.value)),
-                      ),
-                    ),
-                    buildLaunchServer(state.downloadedExecutablePaths[entry.key], biocentralClientBloc, state),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget getIconForOS(String os) {
-    final iconData = switch (os.toLowerCase()) {
-      'windows' => SimpleIcons.windows10,
-      'linux' => SimpleIcons.linux,
-      'macos' => SimpleIcons.macos,
-      _ => Icons.personal_video
-    };
-    return Icon(iconData);
-  }
-
-  Widget buildLaunchServer(
-      String? executablePath, BiocentralClientBloc biocentralClientBloc, BiocentralClientState state,) {
-    if (executablePath == null) {
-      return Container();
-    }
-    return Column(
-      children: [
-        const Text('Executable Path:'),
-        Text(executablePath),
-        BiocentralSmallButton(
-          label: 'Start server now!',
-          onTap: state.isOperating()
-              ? null
-              : () => biocentralClientBloc.add(BiocentralClientLaunchLocalServerEvent(executablePath)),
-        ),
+        serverList,
       ],
     );
   }
