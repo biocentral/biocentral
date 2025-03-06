@@ -19,6 +19,8 @@ class FLIPDataHandler:
     DOWNLOAD_FILE_NAME = "all_fastas"
     DOWNLOAD_URL = f"http://data.bioembeddings.com/public/FLIP/fasta/{DOWNLOAD_FILE_NAME}.zip"
     IGNORE_SPLITS = ["mixed_vs_human_2"]
+    MIN_SEQ_SIZE = 0
+    MAX_SEQ_SIZE = 10000
 
     @staticmethod
     def download_and_preprocess(flip_path: Path) -> None:
@@ -165,8 +167,7 @@ class FLIPDataHandler:
         return raw_path
 
     @staticmethod
-    def _ensure_preprocessed_file(dataset_dir: Path, name: str, min_seq_size: int = 0,
-                                  max_seq_size: int = 2000) -> Path:
+    def _ensure_preprocessed_file(dataset_dir: Path, name: str) -> Path:
         """Ensure a preprocessed version of the file exists and return its path"""
         download_path = dataset_dir / f"{name}.fasta"
         preprocessed_path = dataset_dir / "preprocessed" / f"{name}.fasta"
@@ -185,7 +186,7 @@ class FLIPDataHandler:
 
         keep_seqs = [
             seq for seq in all_seq_records
-            if (min_seq_size < len(seq.seq) < max_seq_size and
+            if (FLIPDataHandler.MIN_SEQ_SIZE <= len(seq.seq) <= FLIPDataHandler.MAX_SEQ_SIZE and
                 all_attributes[seq.id].get("SET", "") != "nan")
         ]
 
