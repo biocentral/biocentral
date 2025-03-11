@@ -125,7 +125,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
       maxLines: 2,
       style: Theme.of(context).textTheme.labelSmall,
     );
-    if (stateInformation.commandProgress == null) {
+    if (stateInformation.commandProgress == null || stateInformation.commandProgress!.total == 0) {
       return stateInformationText;
     }
     final progress = stateInformation.commandProgress!;

@@ -4,7 +4,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 class ProteinRepository extends BiocentralDatabase<Protein> {
 
   final Map<String, Protein> _proteins = {};
-  final List<String> _proteinIDs = [];
 
   ProteinRepository(super.biocentralProjectRepository) : super() {
     // EXAMPLE DATA
@@ -16,7 +15,6 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     _proteins[p2.id] = p2;
     _proteins[p3.id] = p3;
     _proteins[p4.id] = p4;
-    _proteinIDs.addAll([p1.id, p2.id, p3.id, p4.id]);
   }
 
   @override
@@ -27,7 +25,12 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void addEntityImpl(Protein entity) {
     _proteins[entity.id] = entity;
-    _proteinIDs.add(entity.id);
+  }
+
+  @override
+  void addAllEntitiesImpl(Iterable<Protein> entities) {
+    final entityMap = Map.fromEntries(entities.map((entity) => MapEntry(entity.getID(), entity)));
+    _proteins.addAll(entityMap);
   }
 
   @override
@@ -35,7 +38,6 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     if (entity != null) {
       final String interactionID = entity.getID();
       _proteins.remove(interactionID);
-      _proteinIDs.remove(interactionID);
     }
   }
 
@@ -51,7 +53,6 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void clearDatabaseImpl() {
     _proteins.clear();
-    _proteinIDs.clear();
   }
 
   @override
@@ -66,10 +67,10 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   Protein? getEntityByRow(int rowIndex) {
-    if (rowIndex >= _proteinIDs.length) {
+    if (rowIndex >= _proteins.length) {
       return null;
     }
-    return _proteins[_proteinIDs[rowIndex]];
+    return _proteins.values.toList()[rowIndex];
   }
 
   @override
@@ -89,6 +90,10 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
+    if(entities.isEmpty) {
+      return;
+    }
+
     if (entities.entries.first.value is Protein) {
       importEntities(entities as Map<String, Protein>, importMode);
     } else if (entities.entries.first.value is ProteinProteinInteraction) {
@@ -119,8 +124,8 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   Future<Map<String, Protein>> addTaxonomyData(Map<int, Taxonomy> taxonomyData) async {
     for (MapEntry<String, Protein> proteinEntry in _proteins.entries) {
       if (taxonomyData.keys.contains(proteinEntry.value.taxonomy.id)) {
-        _proteins[proteinEntry.key] =
-            proteinEntry.value.copyWith(taxonomy: taxonomyData[proteinEntry.value.taxonomy.id]);
+        final updatedEntry = proteinEntry.value.copyWith(taxonomy: taxonomyData[proteinEntry.value.taxonomy.id]);
+        updateEntity(proteinEntry.key, updatedEntry);
       }
     }
     return Map.from(_proteins);

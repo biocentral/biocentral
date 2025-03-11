@@ -5,7 +5,6 @@ import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   final Map<String, ProteinProteinInteraction> _interactions = {};
-  final List<String> _interactionIDs = [];
 
   final List<PPIDatabaseTest> _associatedDatasetTests = [];
 
@@ -20,7 +19,12 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   void addEntityImpl(ProteinProteinInteraction entity) {
     final String interactionID = entity.getID();
     _interactions[interactionID] = entity;
-    _interactionIDs.add(interactionID);
+  }
+
+  @override
+  void addAllEntitiesImpl(Iterable<ProteinProteinInteraction> entities) {
+    final entityMap = Map.fromEntries(entities.map((entity) => MapEntry(entity.getID(), entity)));
+    _interactions.addAll(entityMap);
   }
 
   @override
@@ -28,7 +32,6 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
     if (entity != null) {
       final String interactionID = entity.getID();
       _interactions.remove(interactionID);
-      _interactionIDs.remove(interactionID);
     }
   }
 
@@ -47,7 +50,6 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   @override
   void clearDatabaseImpl() {
     _interactions.clear();
-    _interactionIDs.clear();
     _associatedDatasetTests.clear();
   }
 
@@ -80,25 +82,23 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
 
   @override
   ProteinProteinInteraction? getEntityByRow(int rowIndex) {
-    if (rowIndex >= _interactionIDs.length) {
+    if (rowIndex >= _interactions.length) {
       return null;
     }
-    return _interactions[_interactionIDs[rowIndex]];
+    return _interactions.values.toList()[rowIndex];
   }
 
   Future<int> removeDuplicates() async {
     final Set<String> duplicates = {};
-    for (String interactionID in _interactionIDs) {
+    for (String interactionID in _interactions.keys) {
       final String flippedInteractionID = ProteinProteinInteraction.flipInteractionID(interactionID);
       if (_interactions.containsKey(flippedInteractionID) && !duplicates.contains(interactionID)) {
         duplicates.add(flippedInteractionID);
       }
     }
     for (String duplicate in duplicates) {
-      _interactions.remove(duplicate);
+      removeEntity(_interactions[duplicate]);
     }
-    _interactionIDs.clear();
-    _interactionIDs.addAll(_interactions.keys);
 
     if (duplicates.isNotEmpty) {
       logger.i('Removed ${duplicates.length} duplicated interactions from interaction database!');
@@ -112,6 +112,9 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   @override
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) {
     // TODO Improve syncing condition, check for importMode, Future/await?
+    if(entities.isEmpty) {
+      return;
+    }
     if (entities.entries.first.value is Protein) {
       final Map<String, ProteinProteinInteraction> alignedInteractions = databaseToMap();
       for (MapEntry<String, ProteinProteinInteraction> interactionEntry in _interactions.entries) {
@@ -126,10 +129,8 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
           alignedInteractions.remove(interactionEntry.key);
         }
       }
-      _interactions.clear();
-      _interactionIDs.clear();
-      _interactions.addAll(alignedInteractions);
-      _interactionIDs.addAll(alignedInteractions.keys);
+      clearDatabase();
+      addAllEntities(alignedInteractions.values);
     } else if (entities.entries.first.value is ProteinProteinInteraction) {
       importEntities(entities as Map<String, ProteinProteinInteraction>, importMode);
     }
