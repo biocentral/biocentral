@@ -60,7 +60,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
         for (final pluginDirectory in _pluginDirectories) {
           emit(state.setOperating(information: 'Loading ${pluginDirectory.path}..'));
 
-          await Future.delayed(Duration(seconds: 1)); // TODO ONLY FOR TESTING
+          await Future.delayed(const Duration(milliseconds: 50)); // For visual purposes
 
           final pluginScanResult = scanResult.subdirectoryResults[pluginDirectory.path];
           if (pluginScanResult == null) {
