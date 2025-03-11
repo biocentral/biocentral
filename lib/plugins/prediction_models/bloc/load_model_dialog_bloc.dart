@@ -1,8 +1,8 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
@@ -10,10 +10,10 @@ import 'package:biocentral/plugins/prediction_models/domain/prediction_model_rep
 sealed class LoadModelDialogEvent {}
 
 final class LoadModelDialogSelectionEvent extends LoadModelDialogEvent {
-  final PlatformFile? selectedConfigFile;
-  final PlatformFile? selectedOutputFile;
-  final PlatformFile? selectedLoggingFile;
-  final PlatformFile? selectedCheckpointFile;
+  final XFile? selectedConfigFile;
+  final XFile? selectedOutputFile;
+  final XFile? selectedLoggingFile;
+  final XFile? selectedCheckpointFile;
 
   LoadModelDialogSelectionEvent(
       {required this.selectedConfigFile,
@@ -30,10 +30,10 @@ final class LoadModelDialogLoadEvent extends LoadModelDialogEvent {
 
 @immutable
 final class LoadModelDialogState extends Equatable {
-  final PlatformFile? selectedConfigFile;
-  final PlatformFile? selectedOutputFile;
-  final PlatformFile? selectedLoggingFile;
-  final PlatformFile? selectedCheckpointFile;
+  final XFile? selectedConfigFile;
+  final XFile? selectedOutputFile;
+  final XFile? selectedLoggingFile;
+  final XFile? selectedCheckpointFile;
 
   final LoadModelDialogStatus status;
 
@@ -99,18 +99,18 @@ class LoadModelDialogBloc extends Bloc<LoadModelDialogEvent, LoadModelDialogStat
           selectedLoggingFile: state.selectedLoggingFile,
           selectedCheckpointFile: state.selectedCheckpointFile,),);
 
-      final FileData? configFileData =
-          (await _biocentralProjectRepository.handleLoad(platformFile: state.selectedConfigFile, ignoreIfNoFile: true))
+      final LoadedFileData? configFileData =
+          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedConfigFile, ignoreIfNoFile: true))
               .getOrElse((l) => null);
-      final FileData? outputFileData =
-          (await _biocentralProjectRepository.handleLoad(platformFile: state.selectedOutputFile, ignoreIfNoFile: true))
+      final LoadedFileData? outputFileData =
+          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedOutputFile, ignoreIfNoFile: true))
               .getOrElse((l) => null);
-      final FileData? loggingFileData =
-          (await _biocentralProjectRepository.handleLoad(platformFile: state.selectedLoggingFile, ignoreIfNoFile: true))
+      final LoadedFileData? loggingFileData =
+          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedLoggingFile, ignoreIfNoFile: true))
               .getOrElse((l) => null);
 
       final Uint8List? checkpointBytes = (await _biocentralProjectRepository.handleBytesLoad(
-              platformFile: state.selectedCheckpointFile, ignoreIfNoFile: true,))
+              xFile: state.selectedCheckpointFile, ignoreIfNoFile: true,))
           .getOrElse((l) => null);
       final Map<String, Uint8List>? checkpoints =
           checkpointBytes != null ? {state.selectedCheckpointFile!.name: checkpointBytes} : null;

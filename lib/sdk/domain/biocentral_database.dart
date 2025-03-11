@@ -1,28 +1,49 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
+import 'package:biocentral/sdk/model/column_wizard_operations.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
-import 'package:biocentral/sdk/util/logging.dart';
-import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
+  @override
+  late final BiocentralRepositoryAutoSaver autoSaver;
 
-abstract class BiocentralDatabase<T extends BioEntity> {
+  BiocentralDatabase(BiocentralProjectRepository biocentralProjectRepository) {
+    autoSaver = BiocentralRepositoryAutoSaver(biocentralProjectRepository, () async {
+      final String content = await convertToString('fasta');
+      return ('${getEntityTypeName().toLowerCase()}.fasta', T, content, null);  // TODO Make file extension customizable
+    });
+  }
+
   // *** READ/WRITE/UPDATE ***
-  void addEntity(T entity);
+  // ** AUTOSAVING **
+  void addEntity(T entity) => withAutoSave(() => addEntityImpl(entity));
 
-  void removeEntity(T? entity);
+  void addEntityImpl(T entity);
 
-  void updateEntity(String id, T entityUpdated);
+  void removeEntity(T? entity) => withAutoSave(() => removeEntityImpl(entity));
+
+  void removeEntityImpl(T? entity);
+
+  void updateEntity(String id, T entityUpdated) => withAutoSave(() => updateEntityImpl(id, entityUpdated));
+
+  void updateEntityImpl(String id, T entityUpdated);
+
+  void clearDatabase() => withAutoSave(() => clearDatabaseImpl());
+
+  void clearDatabaseImpl();
+
+  // ** AUTOSAVING **
 
   bool containsEntity(String id);
 
   T? getEntityById(String id);
 
   T? getEntityByRow(int rowIndex);
-
-  void clearDatabase();
 
   List<T> databaseToList();
 
@@ -87,18 +108,20 @@ abstract class BiocentralDatabase<T extends BioEntity> {
     return databaseToMap();
   }
 
-  Future<Map<String, T>> importEntitiesFromFile(FileData fileData, DatabaseImportMode databaseImportMode) async {
+  Future<Map<String, T>> importEntitiesFromFile(
+      LoadedFileData fileData, DatabaseImportMode databaseImportMode) async {
     final Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
     return importEntities(loadedEntities, databaseImportMode);
   }
 
-  Future<Map<String, T>> _loadEntitiesFromFile(FileData fileData) async {
+  static Future<Map<String, T>> _loadEntitiesFromFile<T>(LoadedFileData fileData) async {
     try {
       // TODO Add option for consistency check into UI
       // TODO Add different file formats: fileData.extension
       final handler = BioFileHandler<T>()
           .create('fasta', config: BioFileHandlerConfig.serialDefaultConfig().copyWith(checkFileConsistency: false));
-      final Map<String, T>? entitiesFromFastaFile = await handler.readFromString(fileData.content, fileName: fileData.name);
+      final Map<String, T>? entitiesFromFastaFile =
+          await handler.readFromString(fileData.content, fileName: fileData.name);
       if (entitiesFromFastaFile == null) {
         logger.e('Error loading entities from file: no values returned!');
         return {};
@@ -147,7 +170,7 @@ abstract class BiocentralDatabase<T extends BioEntity> {
     return _updateEntitiesFromCustomAttributes(customAttributes);
   }
 
-  Future<Map<String, T>> importCustomAttributesFromFile(FileData fileData) async {
+  Future<Map<String, T>> importCustomAttributesFromFile(LoadedFileData fileData) async {
     final Map<String, CustomAttributes> customAttributes =
         await _loadCustomAttributesFromFile(fileData.content, fileData.extension);
     return _updateEntitiesFromCustomAttributes(customAttributes);
@@ -178,7 +201,9 @@ abstract class BiocentralDatabase<T extends BioEntity> {
   }
 
   static Future<Map<String, CustomAttributes>> _loadCustomAttributesFromFile(
-      String? fileContent, String fileType,) async {
+    String? fileContent,
+    String fileType,
+  ) async {
     try {
       final handler = BioFileHandler<CustomAttributes>().create(fileType);
       final Map<String, CustomAttributes>? customAttributesFromFile = await handler.readFromString(fileContent);
@@ -199,19 +224,24 @@ abstract class BiocentralDatabase<T extends BioEntity> {
 
   Set<String> getAvailableAttributesForAllEntities() {
     return _getKeysWhereDataIsAvailableForAllEntries(
-        entitiesAsMaps().expand((element) => element.entries).toList(), databaseToList().length,);
+      entitiesAsMaps().expand((element) => element.entries).toList(),
+      databaseToList().length,
+    );
   }
 
   Set<String> getAvailableSetColumnsForAllEntities() {
     return _getKeysWhereDataIsAvailableForAllEntries(
-        entitiesAsMaps()
-            .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains('set')))
-            .toList(),
-        databaseToList().length,);
+      entitiesAsMaps()
+          .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains('set')))
+          .toList(),
+      databaseToList().length,
+    );
   }
 
   static Set<String> _getKeysWhereDataIsAvailableForAllEntries(
-      List<MapEntry<String, dynamic>> entries, int repositoryLength,) {
+    List<MapEntry<String, dynamic>> entries,
+    int repositoryLength,
+  ) {
     final Set<String> result = {};
     // category name -> number of occurrences
     final Map<String, int> uniqueMap = {};

@@ -10,7 +10,7 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_tooltip.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 
 class BiocentralAssetDatasetLoadingDialog extends StatefulWidget {
-  final void Function(FileData fileData, DatabaseImportMode importMode) loadDatasetCallback;
+  final void Function(LoadedFileData fileData, DatabaseImportMode importMode) loadDatasetCallback;
   final List<BiocentralAssetDataset> assetDatasets;
 
   const BiocentralAssetDatasetLoadingDialog(
@@ -40,7 +40,7 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
 
       closeDialog();
 
-      widget.loadDatasetCallback(FileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite);
+      widget.loadDatasetCallback(LoadedFileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite);
     }
   }
 

@@ -1,7 +1,8 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_load_project_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
-import 'package:biocentral/biocentral/presentation/views/biocentral_main_view.dart';
-import 'package:biocentral/biocentral/presentation/views/start_page_view.dart';
+import 'package:biocentral/biocentral/presentation/views/biocentral_load_project_view.dart';
+import 'package:biocentral/biocentral/presentation/views/biocentral_start_page_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:flutter/foundation.dart';
@@ -12,9 +13,8 @@ import 'package:tutorial_system/tutorial_system.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final BiocentralProjectRepository projectRepository =
-      await BiocentralProjectRepository.fromLastProjectDirectory();
-  final BiocentralPluginManager pluginManager = BiocentralPluginManager();
+  final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
+  final BiocentralPluginManager pluginManager = BiocentralPluginManager(projectRepository: projectRepository);
   final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
 
   runApp(
@@ -80,18 +80,6 @@ class _BiocentralAppState extends State<BiocentralApp> {
     ];
   }
 
-  /// Creates global blocs that are available to all plugins
-  List<BlocProvider> getGlobalBlocProviders() {
-    return [
-      BlocProvider<BiocentralClientBloc>(
-        create: (context) => BiocentralClientBloc(
-          context.read<BiocentralClientRepository>(),
-          context.read<BiocentralProjectRepository>(),
-        ),
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<BiocentralPluginBloc>(
@@ -108,34 +96,70 @@ class _BiocentralAppState extends State<BiocentralApp> {
             navigatorKey: globalNavigatorKey,
             title: 'Biocentral',
             theme: BiocentralStyle.darkTheme,
-            home: buildHome(pluginState),
+            home: BiocentralAppHome(isDirectoryPathSet: widget.projectRepository.isProjectDirectoryPathSet()),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget buildHome(BiocentralPluginState pluginState) {
-    return AnimatedSplashScreen(
-      backgroundColor: const Color.fromRGBO(0, 19, 58, 1.0),
-      duration: 1500,
-      splash: 'assets/biocentral_logo/biocentral_logo.png',
-      nextScreen: buildScreenAfterSplash(pluginState),
+class BiocentralAppHome extends StatelessWidget {
+  final bool isDirectoryPathSet;
+
+  const BiocentralAppHome({required this.isDirectoryPathSet, super.key});
+
+  /// Creates global blocs that are available to all plugins
+  Map<BlocProvider, Bloc> getGlobalBlocProviders(BuildContext context) {
+    final biocentralClientBloc = BiocentralClientBloc(
+      context.read<BiocentralClientRepository>(),
+      context.read<BiocentralProjectRepository>(),
+    );
+    return {
+      BlocProvider<BiocentralClientBloc>.value(
+        value: biocentralClientBloc,
+      ): biocentralClientBloc,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
+      builder: (context, pluginState) => AnimatedSplashScreen(
+        backgroundColor: const Color.fromRGBO(0, 19, 58, 1.0),
+        duration: 1500,
+        splash: 'assets/biocentral_logo/biocentral_logo.png',
+        nextScreen: buildScreenAfterSplash(pluginState, context),
+      ),
     );
   }
 
-  Widget buildScreenAfterSplash(BiocentralPluginState pluginState) {
-    final List<BlocProvider> globalBlocProviders = getGlobalBlocProviders();
-    if (kIsWeb || !widget.projectRepository.isDirectoryPathSet()) {
-      return StartPageView(
-        providers: globalBlocProviders,
+  Widget buildScreenAfterSplash(BiocentralPluginState pluginState, BuildContext context) {
+    final Map<BlocProvider, Bloc> globalBlocProviders = getGlobalBlocProviders(context);
+    final Map<BlocProvider, Bloc> pluginBlocProviders = pluginState.pluginManager.getPluginBlocs(context);
+    final Map<BlocProvider, Bloc> allBlocProviders = {...globalBlocProviders, ...pluginBlocProviders};
+
+    final projectRepository = context.read<BiocentralProjectRepository>();
+    if (kIsWeb || !isDirectoryPathSet) {
+      return BiocentralStartPageView(
+        providers: allBlocProviders.keys.toList(),
         pluginManager: pluginState.pluginManager,
         eventBus: BiocentralPluginManager.eventBus,
       );
     } else {
-      return MultiBlocProvider(
-        providers: globalBlocProviders,
-        child: BiocentralMainView(eventBus: BiocentralPluginManager.eventBus),
+      return BlocProvider(
+        create: (context) =>
+            BiocentralLoadProjectBloc(allBlocProviders.values.toList(), projectRepository.getAllPluginDirectories())
+              ..add(
+                BiocentralLoadProjectFromDirectoryEvent(
+                  projectRepository.getProjectDirectoryPath(),
+                ),
+              ),
+        child: BiocentralLoadProjectView(
+          providers: allBlocProviders.keys.toList(),
+          pluginManager: pluginState.pluginManager,
+          eventBus: BiocentralPluginManager.eventBus,
+        ),
       );
     }
   }
