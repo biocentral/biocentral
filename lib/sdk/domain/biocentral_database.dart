@@ -25,6 +25,10 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
   void addEntityImpl(T entity);
 
+  void addAllEntities(Iterable<T> entities) => withAutoSave(() => addAllEntitiesImpl(entities));
+
+  void addAllEntitiesImpl(Iterable<T> entities);
+
   void removeEntity(T? entity) => withAutoSave(() => removeEntityImpl(entity));
 
   void removeEntityImpl(T? entity);
@@ -87,9 +91,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
       case DatabaseImportMode.overwrite:
         {
           clearDatabase();
-          for (T entity in entities.values) {
-            addEntity(entity);
-          }
+          addAllEntities(entities.values);
           break;
         }
       case DatabaseImportMode.merge:
