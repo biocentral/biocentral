@@ -6,18 +6,18 @@ import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart'
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class EmbeddingsCommandEvent {}
 
 final class EmbeddingsCommandLoadEmbeddingsEvent extends EmbeddingsCommandEvent {
-  final PlatformFile? platformFile;
-  final FileData? fileData;
+  final XFile? xFile;
+  final LoadedFileData? fileData;
   final DatabaseImportMode importMode;
 
-  EmbeddingsCommandLoadEmbeddingsEvent({required this.platformFile, required this.importMode, this.fileData});
+  EmbeddingsCommandLoadEmbeddingsEvent({required this.xFile, required this.importMode, this.fileData});
 }
 
 final class EmbeddingsCommandCalculateEmbeddingsEvent extends EmbeddingsCommandEvent {
@@ -82,7 +82,7 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabase: biocentralDatabase,
         pythonCompanion: _pythonCompanion,
-        platformFile: event.platformFile,
+        xFile: event.xFile,
         fileData: event.fileData,
         importMode: event.importMode,
       );

@@ -2,12 +2,8 @@ import 'dart:collection';
 
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
 import 'package:biocentral/plugins/plm_eval/plm_eval_plugin.dart';
-import 'package:biocentral/sdk/data/biocentral_client.dart';
-import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
-import 'package:biocentral/sdk/domain/biocentral_database.dart';
-import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/plugin/biocentral_plugin.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +20,7 @@ class BiocentralPluginManager extends Equatable {
   final _BiocentralPluginProperties _biocentralPluginProperties;
 
   factory BiocentralPluginManager({
+    required BiocentralProjectRepository projectRepository,
     BuildContext? context,
     Set<BiocentralPlugin>? availablePlugins,
     Set<BiocentralPlugin>? selectedPlugins,
@@ -41,7 +38,8 @@ class BiocentralPluginManager extends Equatable {
           allAvailablePluginsListForSorting.indexOf(p1).compareTo(allAvailablePluginsListForSorting.indexOf(p2)),
     );
 
-    final _BiocentralPluginProperties biocentralPluginProperties = _BiocentralPluginProperties(activePlugins, context);
+    final _BiocentralPluginProperties biocentralPluginProperties =
+        _BiocentralPluginProperties(activePlugins, context, projectRepository);
     return BiocentralPluginManager._(Set.from(activePlugins), allAvailablePlugins, biocentralPluginProperties);
   }
 
@@ -85,6 +83,14 @@ class BiocentralPluginManager extends Equatable {
     return _biocentralPluginProperties.pluginRepositories;
   }
 
+  Map<BlocProvider, Bloc> getPluginBlocs(BuildContext context) {
+    final Map<BlocProvider, Bloc> result = {};
+    for(final plugin in activePlugins) {
+      result.addAll(plugin.getListeningBlocs(context));
+    }
+    return result;
+  }
+
   @override
   List<Object?> get props => [activePlugins, allAvailablePlugins];
 }
@@ -96,7 +102,11 @@ class _BiocentralPluginProperties {
   final Map<ColumnWizardFactory, Widget Function(ColumnWizard)?> columnWizardFactories;
   final List<Tutorial> tutorials;
 
-  factory _BiocentralPluginProperties(Set<BiocentralPlugin> activePlugins, BuildContext? context) {
+  factory _BiocentralPluginProperties(
+    Set<BiocentralPlugin> activePlugins,
+    BuildContext? context,
+    BiocentralProjectRepository projectRepository,
+  ) {
     final List<BiocentralDatabase> availableDatabases = [];
     final List<RepositoryProvider> pluginRepositories = [];
     final List<BiocentralClientFactory> clientFactories = [];
@@ -105,6 +115,7 @@ class _BiocentralPluginProperties {
 
     for (BiocentralPlugin plugin in activePlugins) {
       if (plugin is BiocentralDatabasePluginMixin) {
+        // Database
         dynamic database;
         try {
           if (context != null) {
@@ -112,13 +123,19 @@ class _BiocentralPluginProperties {
           }
         } finally {
           // TODO [BUG] Create empty database without example data or sync
-          database ??= plugin.createListeningDatabase();
+          database ??= plugin.createListeningDatabase(projectRepository);
         }
 
         if (database is BiocentralDatabase) {
           availableDatabases.add(database);
         }
         pluginRepositories.add(plugin.createRepositoryProvider(database));
+
+        // Directory
+        final pluginDirectories = plugin.getPluginDirectories();
+        for(final pluginDirectory in pluginDirectories) {
+          projectRepository.registerPluginDirectory(pluginDirectory.saveType, pluginDirectory);
+        }
       }
       if (plugin is BiocentralClientPluginMixin) {
         clientFactories.add(plugin.createClientFactory());

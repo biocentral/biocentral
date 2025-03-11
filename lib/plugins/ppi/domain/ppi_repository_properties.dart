@@ -5,9 +5,8 @@ import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 
 enum PPIRepositoryProperty { unique, duplicates, hviDataset, mixedDataset }
 
-extension CalculateInteractionRepositoryProperties on PPIRepository {
-  Future<List<PPIRepositoryProperty>> calculateProperties() async {
-    final List<ProteinProteinInteraction> interactions = databaseToList();
+class PpiRepositoryProperties {
+  Future<List<PPIRepositoryProperty>> calculateProperties(final List<ProteinProteinInteraction> interactions) async {
     if (interactions.isEmpty) {
       return [];
     }

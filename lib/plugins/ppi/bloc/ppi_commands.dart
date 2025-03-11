@@ -1,6 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
@@ -11,19 +11,19 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
   final BiocentralProjectRepository _biocentralProjectRepository;
   final PPIRepository _ppiRepository;
 
-  final PlatformFile? _platformFile;
-  final FileData? _fileData;
+  final XFile? _xFile;
+  final LoadedFileData? _fileData;
   final DatabaseImportMode _importMode;
 
   LoadPPIsFromFileCommand(
       {required BiocentralProjectRepository biocentralProjectRepository,
       required PPIRepository ppiRepository,
-      required PlatformFile? platformFile,
-      required FileData? fileData,
+      required XFile? xFile,
+      required LoadedFileData? fileData,
       required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
-        _platformFile = platformFile,
+        _xFile = xFile,
         _fileData = fileData,
         _importMode = importMode;
 
@@ -32,12 +32,12 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
       T state,) async* {
     yield left(state.setOperating(information: 'Loading interactions from file..'));
 
-    if (_platformFile == null && _fileData == null) {
+    if (_xFile == null && _fileData == null) {
       yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      final FileData? fileData = _fileData ??
-          (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
+      final LoadedFileData? fileData = _fileData ??
+          (await _biocentralProjectRepository.handleLoad(xFile: _xFile)).getOrElse((l) => null);
       if (fileData == null) {
         yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
@@ -56,8 +56,8 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
   Map<String, dynamic> getConfigMap() {
     return {
       // TODO Values are not correct for asset datasets
-      'fileName': _fileData?.name ?? _platformFile?.name,
-      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'fileName': _fileData?.name ?? _xFile?.name,
+      'fileExtension': _fileData?.extension ?? _xFile?.extension,
       'importMode': _importMode.name,
     };
   }

@@ -1,8 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository_properties.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class PPIDatabaseTest {
   final String name;
@@ -20,10 +19,10 @@ class PPIDatabaseTest {
       final bool requirementMet = switch (requirement) {
         PPIDatabaseTestRequirement.sequences => !(ppiRepository.hasMissingSequences()),
         PPIDatabaseTestRequirement.containsPositivesAndNegatives =>
-          await ppiRepository.containsNegativeInteractions(interactions) &&
-              await ppiRepository.containsPositiveInteractions(interactions),
+          await PpiRepositoryProperties().containsNegativeInteractions(interactions) &&
+              await PpiRepositoryProperties().containsPositiveInteractions(interactions),
         PPIDatabaseTestRequirement.containsOnlyHVI =>
-          await ppiRepository.calculateTaxonomyProperty(interactions) == PPIRepositoryProperty.hviDataset,
+          await PpiRepositoryProperties().calculateTaxonomyProperty(interactions) == PPIRepositoryProperty.hviDataset,
         PPIDatabaseTestRequirement.none => true
       };
       if (!requirementMet) {

@@ -6,7 +6,7 @@ import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart'
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, BioEntity>> {
@@ -14,21 +14,21 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
   final BiocentralDatabase _biocentralDatabase;
   final BiocentralPythonCompanion _pythonCompanion;
 
-  final PlatformFile? _platformFile;
-  final FileData? _fileData;
+  final XFile? _xFile;
+  final LoadedFileData? _fileData;
   final DatabaseImportMode _importMode;
 
   LoadEmbeddingsFromFileCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabase biocentralDatabase,
     required BiocentralPythonCompanion pythonCompanion,
-    required PlatformFile? platformFile,
-    required FileData? fileData,
+    required XFile? xFile,
+    required LoadedFileData? fileData,
     required DatabaseImportMode importMode,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _pythonCompanion = pythonCompanion,
-        _platformFile = platformFile,
+        _xFile = xFile,
         _fileData = fileData,
         _importMode = importMode;
 
@@ -36,11 +36,11 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
   Stream<Either<T, Map<String, BioEntity>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     yield left(state.setOperating(information: 'Loading embeddings from file..'));
 
-    if (_platformFile == null && _fileData == null) {
+    if (_xFile == null && _fileData == null) {
       yield left(state.setErrored(information: 'Did not receive any data to load!'));
       return;
     }
-    final embeddingsFileBytesEither = await _biocentralProjectRepository.handleBytesLoad(platformFile: _platformFile);
+    final embeddingsFileBytesEither = await _biocentralProjectRepository.handleBytesLoad(xFile: _xFile);
 
     yield* embeddingsFileBytesEither.match((error) async* {
       yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
@@ -50,7 +50,7 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         return;
       }
       final embeddingsData = await _pythonCompanion.loadH5File(
-          embeddingsFileBytes, _platformFile?.name.split('.').first ?? 'loaded_embeddings');
+          embeddingsFileBytes, _xFile?.name.split('.').first ?? 'loaded_embeddings');
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -70,8 +70,8 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'fileName': _fileData?.name ?? _platformFile?.name,
-      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'fileName': _fileData?.name ?? _xFile?.name,
+      'fileExtension': _fileData?.extension ?? _xFile?.extension,
       'importMode': _importMode.name,
     };
   }
@@ -149,7 +149,8 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     final String embeddingsFileName = (_biotrainerName ?? 'custom_embedder_') + (reduce ? '_reduced.h5' : '.h5');
     final embeddingBytes = base64Decode(embeddingsFile);
     // TODO [Error Handling] Handle save errors
-    await _biocentralProjectRepository.handleSave(fileName: embeddingsFileName, bytes: embeddingBytes);
+    await _biocentralProjectRepository.handleProjectInternalSave(
+        fileName: embeddingsFileName, type: Embedding, bytes: embeddingBytes);
     // Load
     final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes, _embedderName);
     yield* embeddingsEither.match((error) async* {
@@ -237,14 +238,15 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
         yield left(state.setErrored(information: error.message));
       }, (missingEmbeddings) async* {
         if (missingEmbeddings.isNotEmpty) {
+          // TODO Filter _embeddings by missingEmbeddings
           final writeH5Either = await _pythonCompanion.writeH5File(_embeddings);
           yield* writeH5Either.match((error) async* {
             yield left(state.setErrored(information: error.message));
           }, (h5Bytes) async* {
-            final bytesDecoded = base64Decode(h5Bytes);
-            // TODO [Error handling] Save error handling
-            final handleSaveEither =
-                await _biocentralProjectRepository.handleSave(fileName: 'saved_embeddings.h5', bytes: bytesDecoded);
+            // TODO Saving is not necessary here
+            // final bytesDecoded = base64Decode(h5Bytes);
+            // final handleSaveEither = await _biocentralProjectRepository.handleProjectInternalSave(
+            //     fileName: 'saved_embeddings.h5', type: Embedding, bytes: bytesDecoded);
             final addEmbeddingsEither = await _embeddingsClient.addEmbeddings(h5Bytes, sequences, _embedderName, true);
             if (addEmbeddingsEither.isLeft()) {
               yield left(state.setErrored(information: 'Could not add embeddings to server!'));

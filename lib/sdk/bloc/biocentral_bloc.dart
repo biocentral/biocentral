@@ -8,6 +8,7 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
 
   BiocentralBloc(super.initialState, this._eventBus) {
     stream.listen((T state) {
+      // TODO This is not listened to
       _eventBus.fire(BiocentralCommandStateChangedEvent(state));
     });
   }

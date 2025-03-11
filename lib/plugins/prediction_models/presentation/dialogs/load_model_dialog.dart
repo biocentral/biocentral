@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,11 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
     super.initState();
   }
 
-  Future<void> pickFile(void Function(PlatformFile) setFileOnPicked) async {
+  Future<void> pickFile(void Function(XFile) setFileOnPicked) async {
     final FilePickerResult? result = await FilePicker.platform
         .pickFiles(allowedExtensions: ['yml', 'yaml', 'log', 'pt'], type: FileType.custom, withData: kIsWeb);
     if (result != null) {
-      setFileOnPicked(result.files.single);
+      setFileOnPicked(result.xFiles.single);
     } else {
       // User canceled the picker
     }

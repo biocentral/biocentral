@@ -41,7 +41,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
 
     if (result != null) {
       //TODO Import Mode
-      interactionsCommandBloc.add(PPICommandLoadFromFileEvent(platformFile: result.files.single));
+      interactionsCommandBloc.add(PPICommandLoadFromFileEvent(xFile: result.xFiles.single));
     } else {
       // User canceled the picker
     }
@@ -77,7 +77,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             context.read<BiocentralClientRepository>(),
           )..add(PPIImportDialogLoadFormatsEvent()),
           child: PPIDatasetImportDialog(
-            onImportInteractions: (FileData selectedFile, String format, DatabaseImportMode importMode) async {
+            onImportInteractions: (LoadedFileData selectedFile, String format, DatabaseImportMode importMode) async {
               interactionsCommandBloc.add(
                 PPICommandImportWithHVIToolkitEvent(
                   fileData: selectedFile,
@@ -138,7 +138,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
       builder: (BuildContext context) {
         return PPIExampleDatasetDialog(
           assetDatasets: PPIAssetDatasetContainer.assetInteractionDatasets(),
-          loadDatasetCallback: (FileData fileData, DatabaseImportMode importMode) {
+          loadDatasetCallback: (LoadedFileData fileData, DatabaseImportMode importMode) {
             // TODO FILE / STRING
             interactionsCommandBloc.add(PPICommandLoadFromFileEvent(fileData: fileData, importMode: importMode));
           },

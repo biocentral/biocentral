@@ -2,19 +2,21 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class ProteinRepository extends BiocentralDatabase<Protein> {
+
   final Map<String, Protein> _proteins = {};
   final List<String> _proteinIDs = [];
 
-  ProteinRepository() {
+  ProteinRepository(super.biocentralProjectRepository) : super() {
     // EXAMPLE DATA
-    final Protein p1 = Protein('P06213', sequence: AminoAcidSequence('MATGGRRGAA'));
-    final Protein p2 = Protein('P11111', sequence: AminoAcidSequence('MAGGRGAA'));
-    final Protein p3 = Protein('P22222', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
-    final Protein p4 = Protein('P33333', sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
-    addEntity(p1);
-    addEntity(p2);
-    addEntity(p3);
-    addEntity(p4);
+    final Protein p1 = Protein('Example1', sequence: AminoAcidSequence('MATGGRRGAA'));
+    final Protein p2 = Protein('Example2', sequence: AminoAcidSequence('MAGGRGAA'));
+    final Protein p3 = Protein('Example3', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
+    final Protein p4 = Protein('Example4', sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
+    _proteins[p1.id] = p1;
+    _proteins[p2.id] = p2;
+    _proteins[p3.id] = p3;
+    _proteins[p4.id] = p4;
+    _proteinIDs.addAll([p1.id, p2.id, p3.id, p4.id]);
   }
 
   @override
@@ -23,13 +25,13 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void addEntity(Protein entity) {
+  void addEntityImpl(Protein entity) {
     _proteins[entity.id] = entity;
     _proteinIDs.add(entity.id);
   }
 
   @override
-  void removeEntity(Protein? entity) {
+  void removeEntityImpl(Protein? entity) {
     if (entity != null) {
       final String interactionID = entity.getID();
       _proteins.remove(interactionID);
@@ -38,7 +40,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void updateEntity(String id, Protein entityUpdated) {
+  void updateEntityImpl(String id, Protein entityUpdated) {
     if (containsEntity(id)) {
       _proteins[id] = entityUpdated;
     } else {
@@ -47,7 +49,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void clearDatabase() {
+  void clearDatabaseImpl() {
     _proteins.clear();
     _proteinIDs.clear();
   }
@@ -89,8 +91,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
     if (entities.entries.first.value is Protein) {
       importEntities(entities as Map<String, Protein>, importMode);
-    }
-    if (entities.entries.first.value is ProteinProteinInteraction) {
+    } else if (entities.entries.first.value is ProteinProteinInteraction) {
       clearDatabase();
       for (BioEntity entity in entities.values) {
         final Protein interactor1 = (entity as ProteinProteinInteraction).interactor1;

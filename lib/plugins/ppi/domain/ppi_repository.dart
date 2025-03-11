@@ -9,15 +9,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
 
   final List<PPIDatabaseTest> _associatedDatasetTests = [];
 
-  PPIRepository() {
-    // EXAMPLE DATA
-    final Protein p1 = Protein('P06213', sequence: AminoAcidSequence('MATGGRRGAA'));
-    final Protein p2 = Protein('P11111', sequence: AminoAcidSequence('MAGGRGAA'));
-    final Protein p3 = Protein('P22222', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
-    final Protein p4 = Protein('P33333', sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
-    addEntity(ProteinProteinInteraction(p1, p2, true));
-    addEntity(ProteinProteinInteraction(p3, p4, false));
-  }
+  PPIRepository(super.biocentralProjectRepository) : super();
 
   @override
   String getEntityTypeName() {
@@ -25,14 +17,14 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
-  void addEntity(ProteinProteinInteraction entity) {
+  void addEntityImpl(ProteinProteinInteraction entity) {
     final String interactionID = entity.getID();
     _interactions[interactionID] = entity;
     _interactionIDs.add(interactionID);
   }
 
   @override
-  void removeEntity(ProteinProteinInteraction? entity) {
+  void removeEntityImpl(ProteinProteinInteraction? entity) {
     if (entity != null) {
       final String interactionID = entity.getID();
       _interactions.remove(interactionID);
@@ -41,7 +33,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
-  void updateEntity(String id, ProteinProteinInteraction entityUpdated) {
+  void updateEntityImpl(String id, ProteinProteinInteraction entityUpdated) {
     final String flippedID = ProteinProteinInteraction.flipInteractionID(id);
     if (_interactions.containsKey(id)) {
       _interactions[id] = entityUpdated;
@@ -53,7 +45,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
-  void clearDatabase() {
+  void clearDatabaseImpl() {
     _interactions.clear();
     _interactionIDs.clear();
     _associatedDatasetTests.clear();
