@@ -24,15 +24,15 @@ class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
   }
 
   @override
-  List<BlocProvider<StateStreamableSource<Object?>>> getListeningBlocs(BuildContext context) {
+  Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     final plmEvalCommandBloc = PLMEvalCommandBloc(getBiocentralClientRepository(context));
     final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralClientRepository(context))
       ..add(PLMEvalLeaderboardLoadEvent());
 
-    return [
-      BlocProvider<PLMEvalCommandBloc>.value(value: plmEvalCommandBloc),
-      BlocProvider<PLMEvalLeaderboardBloc>.value(value: plmEvalLeaderboardBloc),
-    ];
+    return {
+      BlocProvider<PLMEvalCommandBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,
+      BlocProvider<PLMEvalLeaderboardBloc>.value(value: plmEvalLeaderboardBloc): plmEvalLeaderboardBloc,
+    };
   }
 
   @override

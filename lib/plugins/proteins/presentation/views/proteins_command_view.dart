@@ -31,7 +31,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
         importMode = await getImportModeFromDialog(context: context);
       }
       proteinCommandBloc
-          .add(ProteinsCommandLoadProteinsFromFileEvent(platformFile: result.files.single, importMode: importMode));
+          .add(ProteinsCommandLoadProteinsFromFileEvent(xFile: result.xFiles.single, importMode: importMode));
     } else {
       // User canceled the picker
     }
@@ -43,7 +43,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
 
     if (result != null) {
       // TODO Import Mode
-      proteinCommandBloc.add(ProteinsCommandLoadCustomAttributesFromFileEvent(platformFile: result.files.single));
+      proteinCommandBloc.add(ProteinsCommandLoadCustomAttributesFromFileEvent(xFile: result.xFiles.single));
     } else {
       // User canceled the picker
     }
@@ -95,7 +95,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
       builder: (BuildContext context) {
         return BiocentralAssetDatasetLoadingDialog(
           assetDatasets: AssetProteinDatasetContainer.assetProteinDatasets(),
-          loadDatasetCallback: (FileData fileData, DatabaseImportMode importMode) {
+          loadDatasetCallback: (LoadedFileData fileData, DatabaseImportMode importMode) {
             // TODO FILE / STRING
             proteinCommandBloc
                 .add(ProteinsCommandLoadProteinsFromFileEvent(fileData: fileData, importMode: importMode));

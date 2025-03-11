@@ -1,14 +1,16 @@
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/views/model_command_view.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/views/model_hub_view.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PredictionModelsPlugin extends BiocentralPlugin
     with BiocentralClientPluginMixin<PredictionModelsClient>, BiocentralDatabasePluginMixin<PredictionModelRepository> {
@@ -23,7 +25,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
   }
 
   @override
-  PredictionModelRepository createListeningDatabase() {
+  PredictionModelRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
     return PredictionModelRepository();
   }
 
@@ -33,9 +35,14 @@ class PredictionModelsPlugin extends BiocentralPlugin
   }
 
   @override
-  List<BlocProvider> getListeningBlocs(BuildContext context) {
-    final biotrainerTrainingBloc = BiotrainerTrainingBloc(getDatabase(context), getBiocentralClientRepository(context),
-        getBiocentralDatabaseRepository(context), getBiocentralProjectRepository(context), eventBus,);
+  Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    final biotrainerTrainingBloc = BiotrainerTrainingBloc(
+      getDatabase(context),
+      getBiocentralClientRepository(context),
+      getBiocentralDatabaseRepository(context),
+      getBiocentralProjectRepository(context),
+      eventBus,
+    );
     final modelHubBloc = ModelHubBloc(getDatabase(context));
 
     eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
@@ -52,10 +59,10 @@ class PredictionModelsPlugin extends BiocentralPlugin
       }
     });
 
-    return [
-      BlocProvider<BiotrainerTrainingBloc>.value(value: biotrainerTrainingBloc),
-      BlocProvider<ModelHubBloc>.value(value: modelHubBloc),
-    ];
+    return {
+      BlocProvider<BiotrainerTrainingBloc>.value(value: biotrainerTrainingBloc): biotrainerTrainingBloc,
+      BlocProvider<ModelHubBloc>.value(value: modelHubBloc): modelHubBloc,
+    };
   }
 
   @override
@@ -76,5 +83,24 @@ class PredictionModelsPlugin extends BiocentralPlugin
   @override
   BiocentralClientFactory<PredictionModelsClient> createClientFactory() {
     return PredictionModelsClientFactory();
+  }
+
+  @override
+  List<BiocentralPluginDirectory> getPluginDirectories() {
+    return [
+      BiocentralPluginDirectory(
+        path: 'models',
+        saveType: PredictionModel,
+        commandBlocType: ModelHubBloc,
+        createDirectoryLoadingEvents: (
+            List<XFile> scannedFiles,
+            Map<String, List<XFile>> scannedSubDirectories,
+          dynamic commandBloc
+        ) {
+          // TODO Load from Directories
+          return [];
+        },
+      ),
+    ];
   }
 }

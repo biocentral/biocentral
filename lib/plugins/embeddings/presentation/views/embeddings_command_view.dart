@@ -36,7 +36,7 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
         importMode = await getImportModeFromDialog(context: context);
       }
       embeddingsCommandBloc
-          .add(EmbeddingsCommandLoadEmbeddingsEvent(platformFile: result.files.single, importMode: importMode));
+          .add(EmbeddingsCommandLoadEmbeddingsEvent(xFile: result.xFiles.single, importMode: importMode));
     } else {
       // User canceled the picker
     }

@@ -5,19 +5,19 @@ import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc_effects/bloc_effects.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 sealed class PPICommandEvent {}
 
 final class PPICommandLoadFromFileEvent extends PPICommandEvent {
-  PlatformFile? platformFile;
-  FileData? fileData;
+  XFile? xFile;
+  LoadedFileData? fileData;
 
   DatabaseImportMode importMode;
 
-  PPICommandLoadFromFileEvent({this.platformFile, this.fileData, this.importMode = DatabaseImportMode.overwrite});
+  PPICommandLoadFromFileEvent({this.xFile, this.fileData, this.importMode = DatabaseImportMode.overwrite});
 }
 
 final class PPICommandSaveToFileEvent extends PPICommandEvent {
@@ -27,7 +27,7 @@ final class PPICommandSaveToFileEvent extends PPICommandEvent {
 }
 
 final class PPICommandImportWithHVIToolkitEvent extends PPICommandEvent {
-  FileData fileData;
+  LoadedFileData fileData;
   String databaseFormat;
   DatabaseImportMode importMode;
 
@@ -86,14 +86,16 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
       final LoadPPIsFromFileCommand loadPPIsFromFileCommand = LoadPPIsFromFileCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         ppiRepository: _ppiRepository,
-        platformFile: event.platformFile,
+        xFile: event.xFile,
         fileData: event.fileData,
         importMode: event.importMode,
       );
       await loadPPIsFromFileCommand
           .executeWithLogging<PPICommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
-        either.match((l) => emit(l), (r) => syncWithDatabases(r));
+        either.match((l) => emit(l), (r) {
+          syncWithDatabases(r);
+        });
       });
     });
 
@@ -101,8 +103,8 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
       emit(state.setOperating(information: 'Saving interactions to file..'));
 
       final String convertedInteractions = await _ppiRepository.convertToString('fasta');
-      final saveEither =
-          await _biocentralProjectRepository.handleSave(fileName: 'interactions.fasta', content: convertedInteractions);
+      final saveEither = await _biocentralProjectRepository.handleExternalSave(
+          fileName: 'interactions.fasta', content: convertedInteractions);
       saveEither.match(
         (l) => emit(state.setErrored(information: 'Error saving interactions!')),
         (r) => emit(state.setFinished(information: 'Finished saving interactions to file!')),
@@ -149,7 +151,9 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
         columnWizard: event.columnWizard,
         columnWizardOperation: event.columnWizardOperation,
       );
-      await columnWizardOperationCommand.executeWithLogging(_biocentralProjectRepository, state).forEach((either) async {
+      await columnWizardOperationCommand
+          .executeWithLogging(_biocentralProjectRepository, state)
+          .forEach((either) async {
         await either.match((l) async {
           emit(l);
         }, (r) async {

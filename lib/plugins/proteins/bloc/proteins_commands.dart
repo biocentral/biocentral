@@ -1,5 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -10,19 +11,19 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
   final BiocentralProjectRepository _biocentralProjectRepository;
   final ProteinRepository _proteinRepository;
 
-  final PlatformFile? _platformFile;
-  final FileData? _fileData;
+  final XFile? _xFile;
+  final LoadedFileData? _fileData;
   final DatabaseImportMode _importMode;
 
   LoadProteinsFromFileCommand(
       {required BiocentralProjectRepository biocentralProjectRepository,
       required ProteinRepository proteinRepository,
-      required PlatformFile? platformFile,
-      required FileData? fileData,
+      required XFile? xFile,
+      required LoadedFileData? fileData,
       required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _proteinRepository = proteinRepository,
-        _platformFile = platformFile,
+        _xFile = xFile,
         _fileData = fileData,
         _importMode = importMode;
 
@@ -30,12 +31,12 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
   Stream<Either<T, Map<String, Protein>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     yield left(state.setOperating(information: 'Loading proteins from file..'));
 
-    if (_platformFile == null && _fileData == null) {
+    if (_xFile == null && _fileData == null) {
       yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      final FileData? fileData = _fileData ??
-          (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
+      final LoadedFileData? fileData = _fileData ??
+          (await _biocentralProjectRepository.handleLoad(xFile: _xFile)).getOrElse((l) => null);
       if (fileData == null) {
         yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
@@ -52,8 +53,8 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'fileName': _fileData?.name ?? _platformFile?.name,
-      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'fileName': _fileData?.name ?? _xFile?.name,
+      'fileExtension': _fileData?.extension ?? _xFile?.extension,
       'importMode': _importMode.name,
     };
   }
@@ -63,19 +64,19 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
   final BiocentralProjectRepository _biocentralProjectRepository;
   final ProteinRepository _proteinRepository;
 
-  final PlatformFile? _platformFile;
-  final FileData? _fileData;
+  final XFile? _xFile;
+  final LoadedFileData? _fileData;
   final DatabaseImportMode _importMode;
 
   LoadCustomAttributesFromFileCommand(
       {required BiocentralProjectRepository biocentralProjectRepository,
       required ProteinRepository proteinRepository,
-      required PlatformFile? platformFile,
-      required FileData? fileData,
+      required XFile? xFile,
+      required LoadedFileData? fileData,
       required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _proteinRepository = proteinRepository,
-        _platformFile = platformFile,
+        _xFile = xFile,
         _fileData = fileData,
         _importMode = importMode;
 
@@ -83,12 +84,12 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
   Stream<Either<T, Map<String, Protein>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     yield left(state.setOperating(information: 'Loading attributes from file..'));
 
-    if (_platformFile == null && _fileData == null) {
+    if (_xFile == null && _fileData == null) {
       yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      final FileData? fileData = _fileData ??
-          (await _biocentralProjectRepository.handleLoad(platformFile: _platformFile)).getOrElse((l) => null);
+      final LoadedFileData? fileData = _fileData ??
+          (await _biocentralProjectRepository.handleLoad(xFile: _xFile)).getOrElse((l) => null);
       if (fileData == null) {
         yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
@@ -105,8 +106,8 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'fileName': _fileData?.name ?? _platformFile?.name,
-      'fileExtension': _fileData?.extension ?? _platformFile?.extension,
+      'fileName': _fileData?.name ?? _xFile?.name,
+      'fileExtension': _fileData?.extension ?? _xFile?.extension,
       'importMode': _importMode.name,
     };
   }

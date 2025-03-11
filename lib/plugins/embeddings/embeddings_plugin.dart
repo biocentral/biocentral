@@ -1,3 +1,4 @@
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_hub_bloc.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
@@ -6,6 +7,8 @@ import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dar
 import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_command_view.dart';
 import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_hub_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,7 +33,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
   }
 
   @override
-  EmbeddingsRepository createListeningDatabase() {
+  EmbeddingsRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
     final embeddingsRepository = EmbeddingsRepository();
     return embeddingsRepository;
   }
@@ -41,7 +44,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
   }
 
   @override
-  List<BlocProvider> getListeningBlocs(BuildContext context) {
+  Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     final embeddingsCommandBloc = EmbeddingsCommandBloc(
       getBiocentralDatabaseRepository(context),
       getBiocentralClientRepository(context),
@@ -73,10 +76,10 @@ class EmbeddingsPlugin extends BiocentralPlugin
       }
     });
 
-    return [
-      BlocProvider<EmbeddingsCommandBloc>.value(value: embeddingsCommandBloc),
-      BlocProvider<EmbeddingsHubBloc>.value(value: embeddingsHubBloc),
-    ];
+    return {
+      BlocProvider<EmbeddingsCommandBloc>.value(value: embeddingsCommandBloc): embeddingsCommandBloc,
+      BlocProvider<EmbeddingsHubBloc>.value(value: embeddingsHubBloc): embeddingsHubBloc,
+    };
   }
 
   @override
@@ -97,5 +100,39 @@ class EmbeddingsPlugin extends BiocentralPlugin
   @override
   Map<ColumnWizardFactory<ColumnWizard>, Widget Function(ColumnWizard)?> createColumnWizardFactories() {
     return {EmbeddingsColumnWizardFactory(): null};
+  }
+
+  @override
+  List<BiocentralPluginDirectory> getPluginDirectories() {
+    return [
+      BiocentralPluginDirectory(
+        path: 'embeddings',
+        saveType: Embedding,
+        commandBlocType: EmbeddingsCommandBloc,
+        createDirectoryLoadingEvents:
+            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+          final List<void Function()> loadingFunctions = [];
+          for (final scannedFile in scannedFiles) {
+            if (scannedFile.name.contains('embeddings.') && scannedFile.extension == 'h5') {
+              void loadingFunction() => commandBloc?.add(
+                    EmbeddingsCommandLoadEmbeddingsEvent(xFile: scannedFile, importMode: DatabaseImportMode.overwrite),
+                  );
+              loadingFunctions.add(loadingFunction);
+            }
+          }
+          return loadingFunctions;
+        },
+      ),
+      BiocentralPluginDirectory(
+        path: 'projections',
+        saveType: ProjectionData,
+        commandBlocType: EmbeddingsCommandBloc,
+        createDirectoryLoadingEvents:
+            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+          // TODO Handle Projection Data loading
+          return [];
+        },
+      )
+    ];
   }
 }

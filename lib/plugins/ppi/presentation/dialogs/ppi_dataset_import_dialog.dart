@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_import_dialog_bloc.dart';
 
 class PPIDatasetImportDialog extends StatefulWidget {
-  final Function(FileData fileData, String format, DatabaseImportMode importMode) onImportInteractions;
+  final Function(LoadedFileData fileData, String format, DatabaseImportMode importMode) onImportInteractions;
 
   const PPIDatasetImportDialog({required this.onImportInteractions, super.key});
 
@@ -28,6 +28,7 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
   Future<void> pickFilePath(PPIImportDialogBloc ppiImportDialogBloc) async {
     final FilePickerResult? result =
         await FilePicker.platform.pickFiles(allowedExtensions: ['fasta', 'csv', 'txt', 'json', 'tsv']);
+
     if (result != null) {
       ppiImportDialogBloc.add(PPIImportDialogSelectEvent({result.files.single}));
     } else {

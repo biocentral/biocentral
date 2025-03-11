@@ -1,6 +1,7 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_effects/bloc_effects.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ final class PPIImportDialogState extends BiocentralSimpleMultiTypeUIState<PPIImp
   final Map<String, String>? availableFormatsWithDocs;
 
   final String? selectedFormat;
-  final FileData? selectedFile;
+  final LoadedFileData? selectedFile;
   final PPIImportDialogStatus status;
 
   const PPIImportDialogState(this.availableFormatsWithDocs, this.selectedFormat, this.selectedFile, this.status);
@@ -82,10 +83,10 @@ class PPIImportDialogBloc extends Bloc<PPIImportDialogEvent, PPIImportDialogStat
     });
 
     on<PPIImportDialogSelectEvent>((event, emit) async {
-      final PlatformFile? selectedFile = event.updates.whereType<PlatformFile?>().firstOrNull;
+      final XFile? selectedFile = event.updates.whereType<XFile?>().firstOrNull;
 
       if (selectedFile != null) {
-        final loadEither = await _biocentralProjectRepository.handleLoad(platformFile: selectedFile);
+        final loadEither = await _biocentralProjectRepository.handleLoad(xFile: selectedFile);
         await loadEither.match((l) => null, (fileData) async {
           emit(PPIImportDialogState.selected(state.availableFormatsWithDocs, state.selectedFormat, fileData));
           final String? header = fileData?.content.split('\n').first;

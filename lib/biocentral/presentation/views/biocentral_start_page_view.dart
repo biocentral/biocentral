@@ -7,18 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/single_child_widget.dart';
 
-class StartPageView extends StatefulWidget {
+class BiocentralStartPageView extends StatefulWidget {
   final List<SingleChildWidget> providers;
   final BiocentralPluginManager pluginManager;
   final EventBus eventBus;
 
-  const StartPageView({required this.providers, required this.pluginManager, required this.eventBus, super.key});
+  const BiocentralStartPageView(
+      {required this.providers, required this.pluginManager, required this.eventBus, super.key});
 
   @override
-  State<StartPageView> createState() => _StartPageViewState();
+  State<BiocentralStartPageView> createState() => _BiocentralStartPageViewState();
 }
 
-class _StartPageViewState extends State<StartPageView> {
+class _BiocentralStartPageViewState extends State<BiocentralStartPageView> {
   @override
   void initState() {
     super.initState();
@@ -37,19 +38,18 @@ class _StartPageViewState extends State<StartPageView> {
     }
   }
 
-  Future<void> saveLastProjectRepository() async {}
-
   void switchToProjectView(String? dirPath) {
     if (dirPath != null) {
       final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
-      biocentralProjectRepository.setDirectoryPath(dirPath);
+      biocentralProjectRepository.setProjectDirectoryPath(dirPath);
     }
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              MultiBlocProvider(providers: widget.providers, child: BiocentralMainView(eventBus: widget.eventBus)),),
+        builder: (context) =>
+            MultiBlocProvider(providers: widget.providers, child: BiocentralMainView(eventBus: widget.eventBus)),
+      ),
     );
   }
 
@@ -59,16 +59,19 @@ class _StartPageViewState extends State<StartPageView> {
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(
-              'Biocentral - Project Wizard',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            ...buildProjectSelection(),
-          ],),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Biocentral - Project Wizard',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ...buildProjectSelection(),
+            ],
+          ),
         ],
       ),
     );

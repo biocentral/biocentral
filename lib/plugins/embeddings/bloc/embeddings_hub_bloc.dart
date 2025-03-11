@@ -1,5 +1,4 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_service_api.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
@@ -264,8 +263,8 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
       if (event.projectionData != null) {
         final protspaceHTML = ProtspaceFileHandler.createProtspaceHTML(event.projectionData!);
         // TODO Error handling, File name
-        final saveEither =
-            await _biocentralProjectRepository.handleSave(fileName: 'protspace.html', content: protspaceHTML);
+        final saveEither = await _biocentralProjectRepository.handleProjectInternalSave(
+            fileName: 'protspace.html', type: ProjectionData, content: protspaceHTML);
         saveEither.match((saveError) {}, (fullPath) {
           final url = 'file://$fullPath';
           emit(state.copyWith(protspaceURL: url));

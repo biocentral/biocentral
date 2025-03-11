@@ -1,7 +1,7 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 sealed class BiocentralPluginBlocEvent {}
 
@@ -36,11 +36,17 @@ class BiocentralPluginBloc extends Bloc<BiocentralPluginBlocEvent, BiocentralPlu
       await Future.delayed(const Duration(seconds: 1));
 
       final BuildContext? context = event.currentContext.mounted ? event.currentContext : null;
-      final BiocentralPluginManager updatedManager = BiocentralPluginManager(
+      if (context == null) {
+        // TODO HANDLE ERROR
+      } else {
+        final BiocentralPluginManager updatedManager = BiocentralPluginManager(
+          projectRepository: context.read<BiocentralProjectRepository>(),
           context: context,
           availablePlugins: state.pluginManager.allAvailablePlugins,
-          selectedPlugins: event.selectedPlugins,);
-      emit(BiocentralPluginState.loaded(updatedManager));
+          selectedPlugins: event.selectedPlugins,
+        );
+        emit(BiocentralPluginState.loaded(updatedManager));
+      }
     });
   }
 }

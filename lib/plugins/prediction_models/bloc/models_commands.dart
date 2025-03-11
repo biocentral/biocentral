@@ -124,8 +124,10 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
 
         // Save files
         for (MapEntry<StorageFileType, dynamic> fileEntry in modelFiles.entries) {
-          await _biocentralProjectRepository.handleSave(
+          await _biocentralProjectRepository.handleProjectInternalSave(
             fileName: fileEntry.key.name,
+            type: PredictionModel,
+            subDir: taskID,
             content: fileEntry.value.toString(),
           );
         }

@@ -4,8 +4,8 @@ import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc_effects/bloc_effects.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class ProteinsCommandEvent {
@@ -13,18 +13,18 @@ sealed class ProteinsCommandEvent {
 }
 
 final class ProteinsCommandLoadProteinsFromFileEvent extends ProteinsCommandEvent {
-  final PlatformFile? platformFile;
-  final FileData? fileData;
+  final XFile? xFile;
+  final LoadedFileData? fileData;
   final DatabaseImportMode importMode;
 
-  ProteinsCommandLoadProteinsFromFileEvent({required this.importMode, this.platformFile, this.fileData});
+  ProteinsCommandLoadProteinsFromFileEvent({required this.importMode, this.xFile, this.fileData});
 }
 
 final class ProteinsCommandLoadCustomAttributesFromFileEvent extends ProteinsCommandEvent {
-  final PlatformFile? platformFile;
+  final XFile? xFile;
   final DatabaseImportMode importMode;
 
-  ProteinsCommandLoadCustomAttributesFromFileEvent({this.platformFile, this.importMode = DatabaseImportMode.overwrite});
+  ProteinsCommandLoadCustomAttributesFromFileEvent({this.xFile, this.importMode = DatabaseImportMode.overwrite});
 }
 
 final class ProteinsCommandSaveToFileEvent extends ProteinsCommandEvent {
@@ -75,14 +75,16 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
       final LoadProteinsFromFileCommand loadProteinsFromFileCommand = LoadProteinsFromFileCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         proteinRepository: _proteinRepository,
-        platformFile: event.platformFile,
+        xFile: event.xFile,
         fileData: event.fileData,
         importMode: event.importMode,
       );
       await loadProteinsFromFileCommand
           .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
           .forEach((either) {
-        either.match((l) => emit(l), (r) => syncWithDatabases(r));
+        either.match((l) => emit(l), (r) {
+          syncWithDatabases(r);
+        });
       });
     });
 
@@ -91,7 +93,7 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
           LoadCustomAttributesFromFileCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         proteinRepository: _proteinRepository,
-        platformFile: event.platformFile,
+        xFile: event.xFile,
         fileData: null,
         importMode: event.importMode,
       );
@@ -107,7 +109,7 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
 
       final String convertedProteins = await _proteinRepository.convertToString('fasta');
       final saveEither =
-          await _biocentralProjectRepository.handleSave(fileName: 'proteins.fasta', content: convertedProteins);
+          await _biocentralProjectRepository.handleExternalSave(fileName: 'proteins.fasta', content: convertedProteins);
       saveEither.match(
         (l) => emit(state.setErrored(information: 'Error saving proteins!')),
         (r) => emit(state.setFinished(information: 'Finished saving proteins!')),
