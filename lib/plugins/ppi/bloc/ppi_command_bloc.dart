@@ -102,9 +102,8 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
     on<PPICommandSaveToFileEvent>((event, emit) async {
       emit(state.setOperating(information: 'Saving interactions to file..'));
 
-      final String convertedInteractions = await _ppiRepository.convertToString('fasta');
       final saveEither = await _biocentralProjectRepository.handleExternalSave(
-          fileName: 'interactions.fasta', content: convertedInteractions);
+          fileName: 'interactions.fasta', contentFunction: () => _ppiRepository.convertToString('fasta'));
       saveEither.match(
         (l) => emit(state.setErrored(information: 'Error saving interactions!')),
         (r) => emit(state.setFinished(information: 'Finished saving interactions to file!')),

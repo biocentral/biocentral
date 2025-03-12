@@ -148,13 +148,15 @@ class BiocentralAppHome extends StatelessWidget {
       );
     } else {
       return BlocProvider(
-        create: (context) =>
-            BiocentralLoadProjectBloc(allBlocProviders.values.toList(), projectRepository.getAllPluginDirectories())
-              ..add(
-                BiocentralLoadProjectFromDirectoryEvent(
-                  projectRepository.getProjectDirectoryPath(),
-                ),
-              ),
+        create: (context) => BiocentralLoadProjectBloc(
+          projectRepository,
+          allBlocProviders.values.toList(),
+          projectRepository.getAllPluginDirectories(),
+        )..add(
+            BiocentralLoadProjectFromDirectoryEvent(
+              projectRepository.getProjectDirectoryPath(),
+            ),
+          ),
         child: BiocentralLoadProjectView(
           providers: allBlocProviders.keys.toList(),
           pluginManager: pluginState.pluginManager,

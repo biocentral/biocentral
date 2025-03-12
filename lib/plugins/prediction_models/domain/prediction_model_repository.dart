@@ -60,14 +60,18 @@ class PredictionModelRepository {
           fileName: fileEntry.key.getDefaultFileName(),
           type: PredictionModel,
           subDir: modelID,
-          content: fileEntry.value.toString(),
+          contentFunction: () async => fileEntry.value.toString(),
         );
       }
     }
     if (checkpoints != null) {
       for (MapEntry<String, Uint8List> checkpoint in checkpoints.entries) {
         await _projectRepository.handleProjectInternalSave(
-            fileName: checkpoint.key, type: PredictionModel, subDir: modelID, bytes: checkpoint.value);
+          fileName: checkpoint.key,
+          type: PredictionModel,
+          subDir: modelID,
+          bytesFunction: () async => checkpoint.value,
+        );
       }
     }
   }
