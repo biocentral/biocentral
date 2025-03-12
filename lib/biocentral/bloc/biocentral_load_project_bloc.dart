@@ -34,9 +34,9 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
   final BiocentralProjectRepository _projectRepository;
   final List<Bloc> _loadProjectBlocs;
   final List<BiocentralPluginDirectory> _pluginDirectories;
-  
+
   String? lastProjectDir;
-  
+
   BiocentralLoadProjectBloc(this._projectRepository, this._loadProjectBlocs, this._pluginDirectories)
       : super(const BiocentralLoadProjectState.idle()) {
     on<BiocentralLoadProjectFromDirectoryEvent>((event, emit) async {
@@ -44,7 +44,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
         return emit(state.setFinished(information: 'Web - nothing to load'));
       }
 
-      if(lastProjectDir == event.projectDir) {
+      if (lastProjectDir == event.projectDir) {
         return; // Nothing to do
       }
       _projectRepository.enterProjectLoadingContext();
@@ -52,6 +52,15 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
 
       emit(state.setOperating(information: 'Scanning project directory..'));
       final PathScanResult scanResult = PathScanner.scanDirectory(event.projectDir);
+
+      // Handle top-level files
+      final commandLogFile = scanResult.baseFiles
+          .where((file) => file.name.contains('command_log') && file.extension == 'json')
+          .firstOrNull;
+      if(commandLogFile != null) {
+        emit(state.setOperating(information: 'Loading command log..'));
+        _projectRepository.loadCommandLog(commandLogFile);
+      }
 
       final typedCommandBlocMap = convertListToTypeMap(_loadProjectBlocs);
 
