@@ -206,7 +206,8 @@ class _BiotrainerLogParser {
     if (!line.contains(_BiotrainerLogIdentifiers.bootstrappingResults)) return false;
 
     final String metrics = line.split(_BiotrainerLogIdentifiers.bootstrappingResults).last;
-    final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"'));
+    // TODO [BUG] NAN cannot be properly parsed
+    final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"').replaceAll('nan', 'null'));
     testSetMetrics.clear(); // Bootstrapping results overwrite regular test set metrics
     testSetMetrics.addAll(BiotrainerLogFileHandler._parseMLMetricsMap(metricsMap));
     return true;
