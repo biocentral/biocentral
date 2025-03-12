@@ -113,7 +113,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
             (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
           final List<void Function()> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
-            if (scannedFile.name.contains('embeddings.') && scannedFile.extension == 'h5') {
+            if (scannedFile.extension == 'h5') {
               void loadingFunction() => commandBloc?.add(
                     EmbeddingsCommandLoadEmbeddingsEvent(xFile: scannedFile, importMode: DatabaseImportMode.overwrite),
                   );
