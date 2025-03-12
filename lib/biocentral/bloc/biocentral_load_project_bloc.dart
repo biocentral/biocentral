@@ -66,9 +66,9 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
 
       StreamSubscription? currentSubscription;
       try {
-        final completer = Completer<void>();
-
         for (final pluginDirectory in _pluginDirectories) {
+          final completer = Completer<void>();
+
           emit(state.setOperating(information: 'Loading ${pluginDirectory.path}..'));
 
           await Future.delayed(const Duration(milliseconds: 50)); // For visual purposes
