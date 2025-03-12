@@ -1,6 +1,7 @@
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
+import 'package:biocentral/plugins/prediction_models/data/biotrainer_output_dir_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -26,7 +27,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
 
   @override
   PredictionModelRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
-    return PredictionModelRepository();
+    return PredictionModelRepository(projectRepository);
   }
 
   @override
@@ -43,7 +44,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
       getBiocentralProjectRepository(context),
       eventBus,
     );
-    final modelHubBloc = ModelHubBloc(getDatabase(context));
+    final modelHubBloc = ModelHubBloc(getBiocentralProjectRepository(context), getDatabase(context));
 
     eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
       biotrainerTrainingBloc.add(BiotrainerTrainingStartTrainingEvent(event.databaseType, event.trainingConfiguration));
@@ -92,13 +93,24 @@ class PredictionModelsPlugin extends BiocentralPlugin
         path: 'models',
         saveType: PredictionModel,
         commandBlocType: ModelHubBloc,
-        createDirectoryLoadingEvents: (
-            List<XFile> scannedFiles,
-            Map<String, List<XFile>> scannedSubDirectories,
-          dynamic commandBloc
-        ) {
-          // TODO Load from Directories
-          return [];
+        createDirectoryLoadingEvents:
+            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+          final List<void Function()> loadingFunctions = [];
+          for (final subDir in scannedSubDirectories.entries) {
+            final (configFile, outputFile, loggingFile, checkpointFile) =
+                BiotrainerOutputDirHandler.scanDirectoryFiles(subDir.value);
+            void loadingFunction() => commandBloc?.add(
+                  ModelHubLoadModelEvent(
+                    configFile: configFile,
+                    outputFile: outputFile,
+                    loggingFile: loggingFile,
+                    checkpointFile: checkpointFile,
+                    importMode: DatabaseImportMode.overwrite,
+                  ),
+                );
+            loadingFunctions.add(loadingFunction);
+          }
+          return loadingFunctions;
         },
       ),
     ];
