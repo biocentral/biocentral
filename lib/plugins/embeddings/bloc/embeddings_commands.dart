@@ -14,32 +14,25 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
   final BiocentralDatabase _biocentralDatabase;
   final BiocentralPythonCompanion _pythonCompanion;
 
-  final XFile? _xFile;
-  final LoadedFileData? _fileData;
+  final XFile _xFile;
   final DatabaseImportMode _importMode;
 
   LoadEmbeddingsFromFileCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabase biocentralDatabase,
     required BiocentralPythonCompanion pythonCompanion,
-    required XFile? xFile,
-    required LoadedFileData? fileData,
+    required XFile xFile,
     required DatabaseImportMode importMode,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _pythonCompanion = pythonCompanion,
         _xFile = xFile,
-        _fileData = fileData,
         _importMode = importMode;
 
   @override
   Stream<Either<T, Map<String, BioEntity>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     yield left(state.setOperating(information: 'Loading embeddings from file..'));
 
-    if (_xFile == null && _fileData == null) {
-      yield left(state.setErrored(information: 'Did not receive any data to load!'));
-      return;
-    }
     final embeddingsFileBytesEither = await _biocentralProjectRepository.handleBytesLoad(xFile: _xFile);
 
     yield* embeddingsFileBytesEither.match((error) async* {
@@ -50,7 +43,7 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         return;
       }
       final embeddingsData =
-          await _pythonCompanion.loadH5File(embeddingsFileBytes, _xFile?.name.split('.').first ?? 'loaded_embeddings');
+          await _pythonCompanion.loadH5File(embeddingsFileBytes, _xFile.name.split('.').first ?? 'loaded_embeddings');
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -70,8 +63,8 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'fileName': _fileData?.name ?? _xFile?.name,
-      'fileExtension': _fileData?.extension ?? _xFile?.extension,
+      'fileName': _xFile.name,
+      'fileExtension': _xFile.extension,
       'importMode': _importMode.name,
     };
   }

@@ -13,11 +13,10 @@ import 'package:flutter/foundation.dart';
 sealed class EmbeddingsCommandEvent {}
 
 final class EmbeddingsCommandLoadEmbeddingsEvent extends EmbeddingsCommandEvent {
-  final XFile? xFile;
-  final LoadedFileData? fileData;
+  final XFile xFile;
   final DatabaseImportMode importMode;
 
-  EmbeddingsCommandLoadEmbeddingsEvent({required this.xFile, required this.importMode, this.fileData});
+  EmbeddingsCommandLoadEmbeddingsEvent({required this.xFile, required this.importMode});
 }
 
 final class EmbeddingsCommandCalculateEmbeddingsEvent extends EmbeddingsCommandEvent {
@@ -83,7 +82,6 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
         biocentralDatabase: biocentralDatabase,
         pythonCompanion: _pythonCompanion,
         xFile: event.xFile,
-        fileData: event.fileData,
         importMode: event.importMode,
       );
       await loadEmbeddingsFromFileCommand
