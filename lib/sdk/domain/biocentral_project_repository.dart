@@ -69,7 +69,7 @@ class BiocentralProjectRepository {
   void exitProjectLoadingContext() {
     // TODO [Refactoring] A bit of a hacky solution here to decouple auto-saving from the project repository
     final Timer autoSaveDebounce =
-        Timer(Duration(seconds: Constants.autoSaveDebounceTime.inSeconds + 1), () => _isLoadingProject = false);
+        Timer(Duration(seconds: Constants.autoSaveDebounceTime.inSeconds + 2), () => _isLoadingProject = false);
   }
 
   Future<Either<BiocentralException, Uint8List?>> handleBytesLoad({
@@ -258,8 +258,21 @@ class BiocentralProjectRepository {
     return right(outFile);
   }
 
-  void loadCommands(List<BiocentralCommandLog> commandLogs) {
-    _commandLog.addAll(commandLogs);
+  Future<void> loadCommandLog(XFile? commandLogFile) async {
+    //TODO [Refactoring] Move command log handling to separate repository
+    final loadedEither = await handleLoad(xFile: commandLogFile);
+    final commandLogLoadedEither = loadedEither.flatMap((loadedFile) {
+      final List decodedContent = jsonDecode(loadedFile?.content ?? '[]');
+
+      final List<BiocentralCommandLog> reconstructedCommandLog = [];
+      for(final commandMap in decodedContent) {
+        final reconstructedLog = BiocentralCommandLog.fromJsonMap(commandMap);
+        reconstructedCommandLog.add(reconstructedLog);
+      }
+      return right(reconstructedCommandLog);
+    });
+    _commandLog.clear();
+    _commandLog.addAll(commandLogLoadedEither.getOrElse((_) => []));
   }
 
   void logCommand(BiocentralCommandLog commandLog) {
@@ -270,7 +283,8 @@ class BiocentralProjectRepository {
   }
 
   Future<String> _saveCommandLog() async {
-    final result = jsonEncode(_commandLog);
+    final commandLogMapped = _commandLog.map((loggedCommand) => loggedCommand.toMap()).toList();
+    final result = jsonEncode(commandLogMapped);
     return result;
   }
 
