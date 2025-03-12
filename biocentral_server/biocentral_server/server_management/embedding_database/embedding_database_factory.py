@@ -19,7 +19,6 @@ class EmbeddingDatabaseFactory:
 
     def _initialize(self):
         self._postgres_config = {
-            'USE_POSTGRES': os.getenv('USE_POSTGRES'),
             'host': os.getenv('POSTGRES_HOST'),
             'port': os.getenv('POSTGRES_PORT'),
             'dbname': os.getenv('POSTGRES_DB'),
