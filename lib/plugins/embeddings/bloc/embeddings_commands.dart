@@ -139,7 +139,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     bool reduce,
   ) async* {
     // Save
-    final String embeddingsFileName = (_biotrainerName ?? 'custom_embedder_') + (reduce ? '_reduced.h5' : '.h5');
+    final String embeddingsFileName = (_embedderName ?? 'custom_embedder_') + (reduce ? '_reduced.h5' : '.h5');
     final embeddingBytes = base64Decode(embeddingsFile);
     // TODO [Error Handling] Handle save errors
     await _biocentralProjectRepository.handleProjectInternalSave(
