@@ -49,8 +49,8 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         yield left(state.setErrored(information: 'Embeddings file could not be parsed!'));
         return;
       }
-      final embeddingsData = await _pythonCompanion.loadH5File(
-          embeddingsFileBytes, _xFile?.name.split('.').first ?? 'loaded_embeddings');
+      final embeddingsData =
+          await _pythonCompanion.loadH5File(embeddingsFileBytes, _xFile?.name.split('.').first ?? 'loaded_embeddings');
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -150,7 +150,10 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     final embeddingBytes = base64Decode(embeddingsFile);
     // TODO [Error Handling] Handle save errors
     await _biocentralProjectRepository.handleProjectInternalSave(
-        fileName: embeddingsFileName, type: Embedding, bytes: embeddingBytes);
+      fileName: embeddingsFileName,
+      type: Embedding,
+      bytesFunction: () async => embeddingBytes,
+    );
     // Load
     final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes, _embedderName);
     yield* embeddingsEither.match((error) async* {

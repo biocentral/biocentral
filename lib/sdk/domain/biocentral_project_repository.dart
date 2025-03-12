@@ -1,11 +1,13 @@
-import 'dart:io';
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:biocentral/sdk/util/biocentral_exception.dart';
+import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
@@ -16,15 +18,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class BiocentralProjectRepository {
   static const String _webDownloadDirectoryPath = '#flutter_web_downloads';
 
-  String _projectDir;
   final Map<Type, BiocentralPluginDirectory> _registeredPluginDirectories = {};
-
-  //TODO Disable autoSaving during project loading via flag
-
   final List<BiocentralCommandLog> _commandLog = [];
 
   /// Map to store paths of downloaded files to clean them up if the download fails
   final Map<String, String> _temporaryPartialFilePaths = {};
+
+  String _projectDir;
+  bool _isLoadingProject = false; // If project is loading, no saves should be done
 
   BiocentralProjectRepository(this._projectDir);
 
@@ -33,28 +34,20 @@ class BiocentralProjectRepository {
       return BiocentralProjectRepository(_webDownloadDirectoryPath);
     }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? lastProjectDirectory = _sanitizePath(prefs.getString('lastProjectDirectory'));
+    final String? lastProjectDirectory = PathResolver.sanitize(prefs.getString('lastProjectDirectory'));
     final bool exists = lastProjectDirectory != null && await Directory(lastProjectDirectory).exists();
     return BiocentralProjectRepository(exists ? lastProjectDirectory : '');
   }
 
-  void registerPluginDirectory(Type pluginType, BiocentralPluginDirectory directory) {
-    if (_registeredPluginDirectories.containsKey(pluginType)) {
-      throw Exception('Plugin type $pluginType already registered for biocentral project repository directories!');
+  void registerPluginDirectory(Type fileType, BiocentralPluginDirectory directory) {
+    if (_registeredPluginDirectories.containsKey(fileType)) {
+      throw Exception('Plugin type $fileType already registered for biocentral project repository directories!');
     }
-    _registeredPluginDirectories[pluginType] = directory;
+    _registeredPluginDirectories[fileType] = directory;
   }
-  
+
   List<BiocentralPluginDirectory> getAllPluginDirectories() {
     return _registeredPluginDirectories.values.toList();
-  }
-  
-  static String? _sanitizePath(String? path) {
-    if (path == null) {
-      return null;
-    } else {
-      return path.endsWith('/') ? path : '$path/';
-    }
   }
 
   bool isProjectDirectoryPathSet() {
@@ -66,8 +59,18 @@ class BiocentralProjectRepository {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('lastProjectDirectory', _projectDir);
   }
-  
+
   String getProjectDirectoryPath() => _projectDir;
+
+  void enterProjectLoadingContext() {
+    _isLoadingProject = true;
+  }
+
+  void exitProjectLoadingContext() {
+    // TODO [Refactoring] A bit of a hacky solution here to decouple auto-saving from the project repository
+    final Timer autoSaveDebounce =
+        Timer(Duration(seconds: Constants.autoSaveDebounceTime.inSeconds + 1), () => _isLoadingProject = false);
+  }
 
   Future<Either<BiocentralException, Uint8List?>> handleBytesLoad({
     required XFile? xFile,
@@ -79,8 +82,8 @@ class BiocentralProjectRepository {
     if (xFile == null) {
       return left(BiocentralIOException(message: 'No file given to load!'));
     }
-    
-    Uint8List? fileBytes; 
+
+    Uint8List? fileBytes;
     if (!kIsWeb) {
       try {
         fileBytes = await xFile.readAsBytes();
@@ -113,19 +116,25 @@ class BiocentralProjectRepository {
         LoadedFileData(
           content: String.fromCharCodes(unit8List ?? []),
           name: xFile?.name ?? '',
-          extension: xFile?.extension ?? '',  // TODO Check if this is correct
+          extension: xFile?.extension ?? '', // TODO Check if this is correct
         ),
       ),
     );
   }
 
   /// TODO Improve error handling
-  Future<Either<BiocentralException, String>> _handleSave({
+  Future<Either<BiocentralException, String?>> _handleSave({
     required String fileName,
-    String? content,
-    Uint8List? bytes,
+    Future<String?> Function()? contentFunction,
+    Future<Uint8List?> Function()? bytesFunction,
     String? dirPath,
   }) async {
+    if (_isLoadingProject) {
+      return right(null);
+    }
+    final content = contentFunction != null ? await contentFunction() : null;
+    final bytes = bytesFunction != null ? await bytesFunction() : null;
+
     if (content == null && bytes == null) {
       return left(
         BiocentralIOException(
@@ -144,7 +153,7 @@ class BiocentralProjectRepository {
     if (kIsWeb) {
       await triggerFileDownload(bytes ?? utf8.encode(content ?? ''), fileName);
     } else {
-      final String directoryPathToSave = _sanitizePath(dirPath) ?? _projectDir;
+      final String directoryPathToSave = PathResolver.sanitize(dirPath) ?? _projectDir;
 
       final Directory dir = Directory(directoryPathToSave);
       await dir.create(recursive: true);
@@ -161,21 +170,26 @@ class BiocentralProjectRepository {
     return right(fullPath);
   }
 
-  Future<Either<BiocentralException, String>> handleExternalSave({
+  Future<Either<BiocentralException, String?>> handleExternalSave({
     required String fileName,
-    String? content,
-    Uint8List? bytes,
+    Future<String?> Function()? contentFunction,
+    Future<Uint8List?> Function()? bytesFunction,
     String? dirPath,
   }) async {
-    return _handleSave(fileName: fileName, content: content, bytes: bytes, dirPath: dirPath);
+    return _handleSave(
+      fileName: fileName,
+      contentFunction: contentFunction,
+      bytesFunction: bytesFunction,
+      dirPath: dirPath,
+    );
   }
 
   Future<Either<BiocentralException, String?>> handleProjectInternalSave({
     required String fileName,
     required Type type,
     String? subDir,
-    String? content,
-    Uint8List? bytes,
+    Future<String?> Function()? contentFunction,
+    Future<Uint8List?> Function()? bytesFunction,
   }) async {
     if (!isProjectDirectoryPathSet()) {
       return right('');
@@ -186,7 +200,12 @@ class BiocentralProjectRepository {
       return left(BiocentralIOException(message: 'Cannot find registered plugin for type $type in autoSave!'));
     }
     final String path = PathResolver.resolve(_projectDir, pluginDir, subDir, null);
-    return _handleSave(fileName: fileName, content: content, bytes: bytes, dirPath: path);
+    return _handleSave(
+      fileName: fileName,
+      contentFunction: contentFunction,
+      bytesFunction: bytesFunction,
+      dirPath: path,
+    );
   }
 
   Future<Either<BiocentralException, String>> handleStreamSave({
@@ -195,7 +214,7 @@ class BiocentralProjectRepository {
     String? dirPath,
   }) async {
     try {
-      final directoryPathToSave = _sanitizePath(dirPath) ?? _projectDir;
+      final directoryPathToSave = PathResolver.sanitize(dirPath) ?? _projectDir;
       final fullPath = directoryPathToSave + fileName;
       _temporaryPartialFilePaths[fileName] = fullPath;
       final fileToSave = File(fullPath);
@@ -239,8 +258,20 @@ class BiocentralProjectRepository {
     return right(outFile);
   }
 
+  void loadCommands(List<BiocentralCommandLog> commandLogs) {
+    _commandLog.addAll(commandLogs);
+  }
+
   void logCommand(BiocentralCommandLog commandLog) {
-    _commandLog.add(commandLog);
+    if (!_isLoadingProject) {
+      _commandLog.add(commandLog);
+      _handleSave(fileName: 'command_log.json', dirPath: _projectDir, contentFunction: _saveCommandLog);
+    }
+  }
+
+  Future<String> _saveCommandLog() async {
+    final result = jsonEncode(_commandLog);
+    return result;
   }
 
   Future<Map<String, String>> getMatchingFilesInProjectDirectory(String? Function(String) matchingFunction) async {

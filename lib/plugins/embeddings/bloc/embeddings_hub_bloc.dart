@@ -261,10 +261,11 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
     on<EmbeddingsHubVisualizeOnProtspaceEvent>((event, emit) async {
       // TODO Refactor to separate BLOC
       if (event.projectionData != null) {
-        final protspaceHTML = ProtspaceFileHandler.createProtspaceHTML(event.projectionData!);
         // TODO Error handling, File name
         final saveEither = await _biocentralProjectRepository.handleProjectInternalSave(
-            fileName: 'protspace.html', type: ProjectionData, content: protspaceHTML);
+            fileName: 'protspace.html',
+            type: ProjectionData,
+            contentFunction: () async => ProtspaceFileHandler.createProtspaceHTML(event.projectionData!));
         saveEither.match((saveError) {}, (fullPath) {
           final url = 'file://$fullPath';
           emit(state.copyWith(protspaceURL: url));

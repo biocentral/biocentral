@@ -41,7 +41,6 @@ abstract class BiocentralCommand<R> {
       }
     }
   }
-
 }
 
 final class BiocentralCommandLog<R> {
