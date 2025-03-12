@@ -19,6 +19,8 @@ class BiocentralProjectRepository {
   String _projectDir;
   final Map<Type, BiocentralPluginDirectory> _registeredPluginDirectories = {};
 
+  //TODO Disable autoSaving during project loading via flag
+
   final List<BiocentralCommandLog> _commandLog = [];
 
   /// Map to store paths of downloaded files to clean them up if the download fails

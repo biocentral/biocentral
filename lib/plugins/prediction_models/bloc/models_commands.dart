@@ -22,7 +22,8 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
     required PredictionModelRepository predictionModelRepository,
     required PredictionModelsClient predictionModelsClient,
     required Map<String, String> trainingConfiguration,
-  })  : _biocentralProjectRepository = biocentralProjectRepository,
+  })
+      : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _predictionModelRepository = predictionModelRepository,
         _predictionModelsClient = predictionModelsClient,
@@ -62,12 +63,12 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
     final transferEitherSequences = await _predictionModelsClient.transferFile(
       databaseHash,
       StorageFileType.sequences,
-      () async => fileRecord.$1,
+          () async => fileRecord.$1,
     );
     final transferEitherLabels =
-        await _predictionModelsClient.transferFile(databaseHash, StorageFileType.labels, () async => fileRecord.$2);
+    await _predictionModelsClient.transferFile(databaseHash, StorageFileType.labels, () async => fileRecord.$2);
     final transferEitherMasks =
-        await _predictionModelsClient.transferFile(databaseHash, StorageFileType.masks, () async => fileRecord.$3);
+    await _predictionModelsClient.transferFile(databaseHash, StorageFileType.masks, () async => fileRecord.$3);
 
     if (transferEitherSequences.isLeft() || transferEitherLabels.isLeft() || transferEitherMasks.isLeft()) {
       yield left(state.setErrored(information: 'Error transferring training files to server!'));
@@ -79,30 +80,30 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
       yield left(state.setErrored(information: 'Training could not be started! Error: ${error.message}'));
       return;
     }, (taskID) async* {
-
       final initialModel = BiotrainerFileHandler.parsePredictionModel(
         biotrainerConfig: _trainingConfiguration,
         failOnConflict: false,
-      )..setTraining();
+      )
+        ..setTraining();
       T trainingState = state
           .setOperating(information: 'Training model..')
           .copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
       await for (PredictionModel? currentModel
-          in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
-        if(currentModel == null) {
+      in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
+        if (currentModel == null) {
           continue;
         }
         final int? currentEpoch = currentModel.biotrainerTrainingResult?.getLastEpoch();
         final commandProgress =
-            currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
+        currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
         trainingState =
             trainingState.setOperating(information: 'Training model..', commandProgress: commandProgress).copyWith(
-          copyMap: {
-            'trainingModel': currentModel,
-          },
-        );
+              copyMap: {
+                'trainingModel': currentModel,
+              },
+            );
         yield left(trainingState);
       }
 
@@ -113,27 +114,17 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
         yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
         return;
       }, (modelFiles) async* {
-        final PredictionModel predictionModel = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
-          biotrainerConfig: modelFiles[StorageFileType.biotrainer_config],
-          biotrainerOutput: modelFiles[StorageFileType.biotrainer_result],
-          // TODO Might be a good idea to optimize this not to transfer logs twice
-          biotrainerTrainingLog: modelFiles[StorageFileType.biotrainer_logging],
-          biotrainerCheckpoints: modelFiles[StorageFileType.biotrainer_checkpoint],
-          failOnConflict: true,
+        final updatedModels = await _predictionModelRepository.addModelFromBiotrainerFiles(
+          configFile: modelFiles[StorageFileType.biotrainer_config],
+          outputFile: modelFiles[StorageFileType.biotrainer_result],
+          // TODO [Optimization] Might be a good idea to optimize this not to transfer logs twice
+          loggingFile: modelFiles[StorageFileType.biotrainer_logging],
+          checkpointFiles: modelFiles[StorageFileType.biotrainer_checkpoint],
         );
 
-        // Save files
-        for (MapEntry<StorageFileType, dynamic> fileEntry in modelFiles.entries) {
-          await _biocentralProjectRepository.handleProjectInternalSave(
-            fileName: fileEntry.key.name,
-            type: PredictionModel,
-            subDir: taskID,
-            content: fileEntry.value.toString(),
-          );
-        }
+        final modelResult = updatedModels.last;
 
-        _predictionModelRepository.addModel(predictionModel);
-        yield right(predictionModel);
+        yield right(modelResult);
         yield left(state.setFinished(information: 'Finished training model!'));
       });
     });
@@ -143,6 +134,7 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
   Map<String, dynamic> getConfigMap() {
     return {
       'databaseType': _biocentralDatabase.getType(),
-    }..addAll(_trainingConfiguration);
+    }
+      ..addAll(_trainingConfiguration);
   }
 }

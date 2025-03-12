@@ -1,12 +1,14 @@
+import 'package:biocentral/plugins/prediction_models/data/biotrainer_output_dir_handler.dart';
+import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-
+// TODO [Refactoring] Handling of loading is different than in other plugins (here: in dialog bloc, other: command bloc)
 sealed class LoadModelDialogEvent {}
 
 final class LoadModelDialogSelectionEvent extends LoadModelDialogEvent {
@@ -15,17 +17,18 @@ final class LoadModelDialogSelectionEvent extends LoadModelDialogEvent {
   final XFile? selectedLoggingFile;
   final XFile? selectedCheckpointFile;
 
-  LoadModelDialogSelectionEvent(
-      {required this.selectedConfigFile,
-      required this.selectedOutputFile,
-      required this.selectedLoggingFile,
-      required this.selectedCheckpointFile,});
+  LoadModelDialogSelectionEvent({
+    required this.selectedConfigFile,
+    required this.selectedOutputFile,
+    required this.selectedLoggingFile,
+    required this.selectedCheckpointFile,
+  });
 }
 
-final class LoadModelDialogLoadEvent extends LoadModelDialogEvent {
-  final DatabaseImportMode databaseImportMode;
+final class LoadModelDialogDirectorySelectionEvent extends LoadModelDialogEvent {
+  final String directoryPath;
 
-  LoadModelDialogLoadEvent(this.databaseImportMode);
+  LoadModelDialogDirectorySelectionEvent(this.directoryPath);
 }
 
 @immutable
@@ -37,11 +40,13 @@ final class LoadModelDialogState extends Equatable {
 
   final LoadModelDialogStatus status;
 
-  const LoadModelDialogState(this.status,
-      {required this.selectedConfigFile,
-      required this.selectedOutputFile,
-      required this.selectedLoggingFile,
-      required this.selectedCheckpointFile,});
+  const LoadModelDialogState(
+    this.status, {
+    required this.selectedConfigFile,
+    required this.selectedOutputFile,
+    required this.selectedLoggingFile,
+    required this.selectedCheckpointFile,
+  });
 
   const LoadModelDialogState.initial()
       : selectedConfigFile = null,
@@ -50,26 +55,26 @@ final class LoadModelDialogState extends Equatable {
         selectedCheckpointFile = null,
         status = LoadModelDialogStatus.initial;
 
-  const LoadModelDialogState.selecting(
-      {required this.selectedConfigFile,
-      required this.selectedOutputFile,
-      required this.selectedLoggingFile,
-      required this.selectedCheckpointFile,})
-      : status = LoadModelDialogStatus.selecting;
+  const LoadModelDialogState.selecting({
+    required this.selectedConfigFile,
+    required this.selectedOutputFile,
+    required this.selectedLoggingFile,
+    required this.selectedCheckpointFile,
+  }) : status = LoadModelDialogStatus.selecting;
 
-  const LoadModelDialogState.loading(
-      {required this.selectedConfigFile,
-      required this.selectedOutputFile,
-      required this.selectedLoggingFile,
-      required this.selectedCheckpointFile,})
-      : status = LoadModelDialogStatus.loading;
+  const LoadModelDialogState.loading({
+    required this.selectedConfigFile,
+    required this.selectedOutputFile,
+    required this.selectedLoggingFile,
+    required this.selectedCheckpointFile,
+  }) : status = LoadModelDialogStatus.loading;
 
-  const LoadModelDialogState.loaded(
-      {required this.selectedConfigFile,
-      required this.selectedOutputFile,
-      required this.selectedLoggingFile,
-      required this.selectedCheckpointFile,})
-      : status = LoadModelDialogStatus.loaded;
+  const LoadModelDialogState.loaded({
+    required this.selectedConfigFile,
+    required this.selectedOutputFile,
+    required this.selectedLoggingFile,
+    required this.selectedCheckpointFile,
+  }) : status = LoadModelDialogStatus.loaded;
 
   @override
   List<Object?> get props =>
@@ -86,45 +91,36 @@ class LoadModelDialogBloc extends Bloc<LoadModelDialogEvent, LoadModelDialogStat
   LoadModelDialogBloc(this._predictionModelRepository, this._biocentralProjectRepository, this._eventBus)
       : super(const LoadModelDialogState.initial()) {
     on<LoadModelDialogSelectionEvent>((event, emit) async {
-      emit(LoadModelDialogState.selecting(
+      emit(
+        LoadModelDialogState.selecting(
           selectedConfigFile: event.selectedConfigFile ?? state.selectedConfigFile,
           selectedOutputFile: event.selectedOutputFile ?? state.selectedOutputFile,
           selectedLoggingFile: event.selectedLoggingFile ?? state.selectedLoggingFile,
-          selectedCheckpointFile: event.selectedCheckpointFile ?? state.selectedCheckpointFile,),);
+          selectedCheckpointFile: event.selectedCheckpointFile ?? state.selectedCheckpointFile,
+        ),
+      );
     });
-    on<LoadModelDialogLoadEvent>((event, emit) async {
-      emit(LoadModelDialogState.loading(
-          selectedConfigFile: state.selectedConfigFile,
-          selectedOutputFile: state.selectedOutputFile,
-          selectedLoggingFile: state.selectedLoggingFile,
-          selectedCheckpointFile: state.selectedCheckpointFile,),);
+    on<LoadModelDialogDirectorySelectionEvent>((event, emit) async {
+      final directoryPath = event.directoryPath;
 
-      final LoadedFileData? configFileData =
-          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedConfigFile, ignoreIfNoFile: true))
-              .getOrElse((l) => null);
-      final LoadedFileData? outputFileData =
-          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedOutputFile, ignoreIfNoFile: true))
-              .getOrElse((l) => null);
-      final LoadedFileData? loggingFileData =
-          (await _biocentralProjectRepository.handleLoad(xFile: state.selectedLoggingFile, ignoreIfNoFile: true))
-              .getOrElse((l) => null);
+      final pathScanResult = PathScanner.scanDirectory(directoryPath);
 
-      final Uint8List? checkpointBytes = (await _biocentralProjectRepository.handleBytesLoad(
-              xFile: state.selectedCheckpointFile, ignoreIfNoFile: true,))
-          .getOrElse((l) => null);
-      final Map<String, Uint8List>? checkpoints =
-          checkpointBytes != null ? {state.selectedCheckpointFile!.name: checkpointBytes} : null;
-      await _predictionModelRepository.addModelFromBiotrainerFiles(
-          configFile: configFileData?.content,
-          outputFile: outputFileData?.content,
-          loggingFile: loggingFileData?.content,
-          checkpointFiles: checkpoints,);
-      _eventBus.fire(BiocentralDatabaseUpdatedEvent());
-      emit(LoadModelDialogState.loaded(
-          selectedConfigFile: state.selectedConfigFile,
-          selectedOutputFile: state.selectedOutputFile,
-          selectedLoggingFile: state.selectedLoggingFile,
-          selectedCheckpointFile: state.selectedCheckpointFile,),);
+      final List<XFile> allFiles = [
+        ...pathScanResult.baseFiles,
+        ...pathScanResult.getAllSubdirectoryFiles().values.reduce((l1, l2) => l1 + l2),
+      ];
+
+      final (configFile, outputFile, loggingFile, checkpointFile) =
+          BiotrainerOutputDirHandler.scanDirectoryFiles(allFiles);
+
+      emit(
+        LoadModelDialogState.selecting(
+          selectedConfigFile: configFile ?? state.selectedConfigFile,
+          selectedOutputFile: outputFile ?? state.selectedOutputFile,
+          selectedLoggingFile: loggingFile ?? state.selectedLoggingFile,
+          selectedCheckpointFile: checkpointFile ?? state.selectedCheckpointFile,
+        ),
+      );
     });
   }
 }
