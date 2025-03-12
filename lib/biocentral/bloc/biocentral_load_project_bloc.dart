@@ -31,12 +31,13 @@ final class BiocentralLoadProjectState extends BiocentralCommandState<Biocentral
 }
 
 class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, BiocentralLoadProjectState> {
+  final BiocentralProjectRepository _projectRepository;
   final List<Bloc> _loadProjectBlocs;
   final List<BiocentralPluginDirectory> _pluginDirectories;
   
   String? lastProjectDir;
   
-  BiocentralLoadProjectBloc(this._loadProjectBlocs, this._pluginDirectories)
+  BiocentralLoadProjectBloc(this._projectRepository, this._loadProjectBlocs, this._pluginDirectories)
       : super(const BiocentralLoadProjectState.idle()) {
     on<BiocentralLoadProjectFromDirectoryEvent>((event, emit) async {
       if (kIsWeb) {
@@ -46,6 +47,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
       if(lastProjectDir == event.projectDir) {
         return; // Nothing to do
       }
+      _projectRepository.enterProjectLoadingContext();
       lastProjectDir = event.projectDir;
 
       emit(state.setOperating(information: 'Scanning project directory..'));
@@ -128,7 +130,11 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
       } catch (e) {
         currentSubscription?.cancel();
         emit(state.setErrored(information: e.toString()));
+      } finally {
+        currentSubscription?.cancel();
+        _projectRepository.exitProjectLoadingContext();
       }
+
       currentSubscription?.cancel();
       emit(state.setFinished(information: 'Project loading completed successfully!'));
     });

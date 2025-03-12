@@ -15,6 +15,15 @@ class PathResolver {
     result += fileName ?? '';
     return result;
   }
+
+
+  static String? sanitize(String? path) {
+    if (path == null) {
+      return null;
+    } else {
+      return path.endsWith('/') ? path : '$path/';
+    }
+  }
 }
 class PathScanner {
   /// Scans the provided directory and returns a PathScanResult containing:

@@ -13,10 +13,15 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   late final BiocentralRepositoryAutoSaver autoSaver;
 
   BiocentralDatabase(BiocentralProjectRepository biocentralProjectRepository) {
-    autoSaver = BiocentralRepositoryAutoSaver(biocentralProjectRepository, () async {
-      final String content = await convertToString('fasta');
-      return ('${getEntityTypeName().toLowerCase()}.fasta', T, content, null);  // TODO Make file extension customizable
-    });
+    autoSaver = BiocentralRepositoryAutoSaver(
+      biocentralProjectRepository: biocentralProjectRepository,
+      fileName: '${getEntityTypeName().toLowerCase()}.fasta',
+      fileType: T,
+      saveFunctionString: () async {
+        final String content = await convertToString('fasta');
+        return content; // TODO Make file extension customizable
+      },
+    );
   }
 
   // *** READ/WRITE/UPDATE ***
@@ -110,8 +115,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     return databaseToMap();
   }
 
-  Future<Map<String, T>> importEntitiesFromFile(
-      LoadedFileData fileData, DatabaseImportMode databaseImportMode) async {
+  Future<Map<String, T>> importEntitiesFromFile(LoadedFileData fileData, DatabaseImportMode databaseImportMode) async {
     final Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
     return importEntities(loadedEntities, databaseImportMode);
   }

@@ -2,35 +2,47 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/logging.dart';
 
 class BiocentralRepositoryAutoSaver {
   final BiocentralProjectRepository _biocentralProjectRepository;
-  final Future<(String, Type, String?, Uint8List?)> Function() _saveFunction; // TODO Bundle in file data
+  final String _fileName;
+  final Type _fileType;
+  final Future<String?> Function()? _saveFunctionString;
+  final Future<Uint8List?> Function()? _saveFunctionBytes;
 
   Timer? _debounceTimer;
-  static const Duration _defaultDebounceTime = Duration(seconds: 2);
 
   bool _saveScheduled = false;
 
-  BiocentralRepositoryAutoSaver(this._biocentralProjectRepository, this._saveFunction);
+  BiocentralRepositoryAutoSaver({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required String fileName,
+    required Type fileType,
+    Future<String?> Function()? saveFunctionString,
+    Future<Uint8List?> Function()? saveFunctionBytes,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
+        _fileName = fileName,
+        _fileType = fileType,
+        _saveFunctionString = saveFunctionString,
+        _saveFunctionBytes = saveFunctionBytes;
 
   void scheduleSave() {
     _saveScheduled = true;
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(_defaultDebounceTime, _executeSave);
+    _debounceTimer = Timer(Constants.autoSaveDebounceTime, _executeSave);
   }
 
   Future<void> _executeSave() async {
     if (!_saveScheduled) return;
 
     try {
-      final (fileName, type, content, bytes) = await _saveFunction();
       await _biocentralProjectRepository.handleProjectInternalSave(
-        fileName: fileName,
-        type: type,
-        content: content,
-        bytes: bytes,
+        fileName: _fileName,
+        type: _fileType,
+        contentFunction: _saveFunctionString,
+        bytesFunction: _saveFunctionBytes,
       );
     } catch (e) {
       logger.e('Error during auto-save: $e');

@@ -107,9 +107,8 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     on<ProteinsCommandSaveToFileEvent>((event, emit) async {
       emit(state.setOperating(information: 'Saving proteins to file..'));
 
-      final String convertedProteins = await _proteinRepository.convertToString('fasta');
-      final saveEither =
-          await _biocentralProjectRepository.handleExternalSave(fileName: 'proteins.fasta', content: convertedProteins);
+      final saveEither = await _biocentralProjectRepository.handleExternalSave(
+          fileName: 'proteins.fasta', contentFunction: () async => _proteinRepository.convertToString('fasta'));
       saveEither.match(
         (l) => emit(state.setErrored(information: 'Error saving proteins!')),
         (r) => emit(state.setFinished(information: 'Finished saving proteins!')),
