@@ -1,9 +1,10 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/bloc/biocentral_state.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
+import 'package:biocentral/sdk/util/type_util.dart';
 import 'package:fpdart/fpdart.dart';
 
-abstract class BiocentralCommand<R> {
+abstract class BiocentralCommand<R> with TypeNameMixin {
   // Either is used to carry a state or result.
   // Yield result before last state in order to ensure correct logging.
   Stream<Either<T, R>> execute<T extends BiocentralCommandState<T>>(T state);
@@ -16,6 +17,11 @@ abstract class BiocentralCommand<R> {
     T state,
   ) async* {
     final DateTime startTime = DateTime.now();
+
+    // Log operating command before starting
+    projectRepository.logCommand(
+      BiocentralCommandLog<R>.operating(commandName: typeName, commandConfig: getConfigMap(), startTime: startTime),
+    );
 
     bool encounteredError = false;
     await for (final result in this.execute(state)) {
@@ -31,7 +37,12 @@ abstract class BiocentralCommand<R> {
           // Finished, log successful command
           // TODO Remove state information list, replace with other metadata
           projectRepository.logCommand(
-            BiocentralCommandLog<R>(command: this, startTime: startTime, endTime: endTime, result: rightResult),
+            BiocentralCommandLog<R>.finished(
+                commandName: typeName,
+                commandConfig: getConfigMap(),
+                startTime: startTime,
+                endTime: endTime,
+                result: rightResult),
           );
         },
       );
@@ -43,83 +54,94 @@ abstract class BiocentralCommand<R> {
   }
 }
 
-final class BiocentralReconstructedCommand extends BiocentralCommand {
-  final String _originalCommandType;
-  final Map<String, dynamic> _originalConfigMap;
-
-  BiocentralReconstructedCommand(this._originalCommandType, this._originalConfigMap);
-
-  @override
-  Stream<Either<T, dynamic>> execute<T extends BiocentralCommandState<T>>(T state) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Map<String, dynamic> getConfigMap() => _originalConfigMap;
+abstract class BiocentralResumableCommand<R> extends BiocentralCommand<R> {
+  /// Resume execution from intermediate result received via taskID
+  Stream<Either<T, R>> resumeExecution<T extends BiocentralCommandState<T>>(
+    String taskId,
+    T state,
+  );
 }
 
 final class BiocentralCommandLog<R> {
-  final BiocentralCommand command;
+  final String commandName;
+  final Map<String, dynamic> commandConfig;
+  final BiocentralCommandStatus commandStatus;
   final BiocentralCommandMetaData metaData;
-  final BiocentralCommandResultData resultData;
+  final BiocentralCommandResultData? resultData;
 
-  BiocentralCommandLog({
-    required this.command,
+  BiocentralCommandLog.operating({
+    required this.commandName,
+    required this.commandConfig,
+    required DateTime startTime,
+  })  : commandStatus = BiocentralCommandStatus.operating,
+        metaData = BiocentralCommandMetaData(startTime: startTime),
+        resultData = null;
+
+  BiocentralCommandLog.finished({
+    required this.commandName,
+    required this.commandConfig,
     required DateTime startTime,
     required DateTime endTime,
     required R result,
-  })  : metaData = BiocentralCommandMetaData(startTime: startTime, endTime: endTime),
+  })  : commandStatus = BiocentralCommandStatus.finished,
+        metaData = BiocentralCommandMetaData(startTime: startTime, endTime: endTime),
         resultData = BiocentralCommandResultData.fromResult(result);
 
-  BiocentralCommandLog._internal(this.command, this.metaData, this.resultData);
+  BiocentralCommandLog._internal(
+      this.commandName, this.commandConfig, this.commandStatus, this.metaData, this.resultData);
 
   factory BiocentralCommandLog.fromJsonMap(Map<String, dynamic> jsonMap) {
-    final commandType = jsonMap['commandType'];
+    final commandName = jsonMap['commandName'];
     final commandConfig = jsonMap['commandConfig'];
+    // TODO Enum conversion not perfect here
+    final commandStatus =
+        enumFromString(jsonMap['commandStatus'], BiocentralCommandStatus.values) ?? BiocentralCommandStatus.errored;
     final metaData = jsonMap['metaData'];
-    final resultData = jsonMap['resultData'];
+    final resultData = jsonMap['resultData'] ?? {};
 
-    final commandReconstructed = BiocentralReconstructedCommand(commandType, commandConfig);
     final metaDataReconstructed = BiocentralCommandMetaData.fromJsonMap(metaData);
+
     final resultDataReconstructed = BiocentralCommandResultData.fromJsonMap(resultData);
 
-    return BiocentralCommandLog._internal(commandReconstructed, metaDataReconstructed, resultDataReconstructed);
+    return BiocentralCommandLog._internal(
+        commandName, commandConfig, commandStatus, metaDataReconstructed, resultDataReconstructed);
   }
 
   Map<String, dynamic> toMap() {
-    String commandType = command.runtimeType.toString();
-    if (command is BiocentralReconstructedCommand) {
-      commandType = (command as BiocentralReconstructedCommand)._originalCommandType;
-    }
     return {
-      'commandType': commandType,
-      'commandConfig': command.getConfigMap(),
+      'commandName': commandName,
+      'commandConfig': commandConfig,
+      'status': commandStatus.name,
       'metaData': metaData.toMap(),
-      'resultData': resultData.resultMap,
+      'resultData': resultData?.resultMap ?? {},
     };
   }
 }
 
 final class BiocentralCommandMetaData {
   final DateTime startTime;
-  final DateTime endTime;
-  final Duration timeToExecute;
+  final DateTime? endTime;
+  final Duration? timeToExecute;
 
-  BiocentralCommandMetaData({required this.startTime, required this.endTime})
-      : timeToExecute = endTime.difference(startTime);
+  BiocentralCommandMetaData({required this.startTime, this.endTime}) : timeToExecute = endTime?.difference(startTime);
 
   factory BiocentralCommandMetaData.fromJsonMap(Map<String, dynamic> jsonMap) {
     final startTime = jsonMap['startTime'];
-    final endTime = jsonMap['endTime'];
-    return BiocentralCommandMetaData(startTime: DateTime.parse(startTime), endTime: DateTime.parse(endTime));
+    final endTime = jsonMap['endTime'] ?? '';
+    return BiocentralCommandMetaData(startTime: DateTime.parse(startTime), endTime: DateTime.tryParse(endTime));
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final Map<String, dynamic> result = {
       'startTime': startTime.toString(),
-      'endTime': endTime.toString(),
-      'timeToExecute': timeToExecute.inSeconds,
     };
+    if (endTime != null && timeToExecute != null) {
+      result.addAll({
+        'endTime': endTime.toString(),
+        'timeToExecute': timeToExecute?.inSeconds,
+      });
+    }
+    return result;
   }
 }
 

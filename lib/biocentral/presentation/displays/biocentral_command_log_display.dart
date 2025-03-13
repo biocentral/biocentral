@@ -43,20 +43,26 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Card(
           child: ExpansionTile(
-              leading: getIconByCommandType(log.command),
-              title: Text(log.command.runtimeType.toString(), style: Theme.of(context).textTheme.displaySmall),
+              leading: getIconByCommandType(log),
+              title: Text(log.commandName, style: Theme.of(context).textTheme.displaySmall),
               children: [
-            buildCommandConfigTile(log.command),
+            buildCommandConfigTile(log.commandConfig),
             buildMetaDataTile(log.metaData),
             buildResultTile(log.resultData),
           ],),),
     );
   }
 
-  Icon getIconByCommandType(BiocentralCommand command) {
-    final String commandName = command.runtimeType.toString().toLowerCase();
+  Widget getIconByCommandType(BiocentralCommandLog log) {
+    if(log.commandStatus == BiocentralCommandStatus.operating) {
+      return const CircularProgressIndicator();
+    }
+    final commandName = log.commandName.toLowerCase();
     if (commandName.contains('load') || commandName.contains('file')) {
       return const Icon(Icons.file_open);
+    }
+    if (commandName.contains('train')) {
+      return const Icon(Icons.model_training);
     }
     if (commandName.contains('calculate')) {
       return const Icon(Icons.calculate_outlined);
@@ -70,13 +76,12 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
     return const Icon(Icons.add);
   }
 
-  Widget buildCommandConfigTile(BiocentralCommand command) {
+  Widget buildCommandConfigTile(Map<String, dynamic> commandConfig) {
     return ExpansionTile(
       title: Text('Command Config', style: Theme.of(context).textTheme.displaySmall),
       children: [
         Table(
-          children: command
-              .getConfigMap()
+          children: commandConfig
               .entries
               .map((entry) => TableRow(children: [Text(entry.key.toString()), Text(entry.value.toString())]))
               .toList(),
@@ -100,7 +105,10 @@ class _BiocentralCommandLogDisplayState extends State<BiocentralCommandLogDispla
     );
   }
 
-  Widget buildResultTile(BiocentralCommandResultData resultData) {
+  Widget buildResultTile(BiocentralCommandResultData? resultData) {
+    if(resultData == null) {
+      return Container();
+    }
     return ExpansionTile(
       title: Text('Result Data', style: Theme.of(context).textTheme.displaySmall),
       children: [

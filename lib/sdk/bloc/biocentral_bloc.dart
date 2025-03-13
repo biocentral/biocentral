@@ -8,7 +8,6 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
 
   BiocentralBloc(super.initialState, this._eventBus) {
     stream.listen((T state) {
-      // TODO This is not listened to
       _eventBus.fire(BiocentralCommandStateChangedEvent(state));
     });
   }
@@ -24,7 +23,6 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
   }) {
     wrappedHandler(E event, Emitter<T> emit) async {
       await handler(event, emit);
-      _eventBus.fire(BiocentralCommandExecutedEvent());
       await _setIdleAfterCommandExecution(emit);
     }
 

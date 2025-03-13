@@ -68,6 +68,9 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
       'importMode': _importMode.name,
     };
   }
+
+  @override
+  String get typeName => 'LoadEmbeddingsFromFileCommand';
 }
 
 final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Embedding>> {
@@ -174,6 +177,9 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       'embedderNameInBiotrainer': _biotrainerName,
     };
   }
+
+  @override
+  String get typeName => 'CalculateEmbeddingsCommand';
 }
 
 final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData> {
@@ -304,4 +310,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
       'projectionConfig': _projectionConfig.map((option, value) => MapEntry(option.name, value)),
     };
   }
+
+  @override
+  String get typeName => 'CalculateProjectionsCommand';
 }

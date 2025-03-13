@@ -5,9 +5,11 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command.dart';
+import 'package:biocentral/sdk/bloc/biocentral_state.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:biocentral/sdk/util/biocentral_exception.dart';
 import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
@@ -265,7 +267,7 @@ class BiocentralProjectRepository {
       final List decodedContent = jsonDecode(loadedFile?.content ?? '[]');
 
       final List<BiocentralCommandLog> reconstructedCommandLog = [];
-      for(final commandMap in decodedContent) {
+      for (final commandMap in decodedContent) {
         final reconstructedLog = BiocentralCommandLog.fromJsonMap(commandMap);
         reconstructedCommandLog.add(reconstructedLog);
       }
@@ -275,13 +277,43 @@ class BiocentralProjectRepository {
     _commandLog.addAll(commandLogLoadedEither.getOrElse((_) => []));
   }
 
-  void logCommand(BiocentralCommandLog commandLog) {
-    if (!_isLoadingProject) {
-      _commandLog.add(commandLog);
-      _handleSave(fileName: 'command_log.json', dirPath: _projectDir, contentFunction: _saveCommandLog);
+  void logCommand(BiocentralCommandLog newCommand) {
+    if (_isLoadingProject) {
+      return;
     }
-  }
 
+    switch (newCommand.commandStatus) {
+      case BiocentralCommandStatus.operating:
+        _commandLog.add(newCommand);
+        break;
+
+      case BiocentralCommandStatus.finished:
+      case BiocentralCommandStatus.errored:
+      // Try to find and replace existing operating command with result command
+        final indexExisting = _commandLog.indexWhere(
+                (log) =>
+            log.commandStatus == BiocentralCommandStatus.operating &&
+                log.metaData.startTime == newCommand.metaData.startTime
+        );
+
+        if (indexExisting != -1) {
+          _commandLog[indexExisting] = newCommand;
+        } else {
+          logger.e('Did not find an operating command for finished command: $newCommand!');
+          _commandLog.add(newCommand);
+        }
+        break;
+      default:
+        _commandLog.add(newCommand);
+        break;
+    }
+
+    _handleSave(
+        fileName: 'command_log.json',
+        dirPath: _projectDir,
+        contentFunction: _saveCommandLog
+    );
+  }
   Future<String> _saveCommandLog() async {
     final commandLogMapped = _commandLog.map((loggedCommand) => loggedCommand.toMap()).toList();
     final result = jsonEncode(commandLogMapped);
