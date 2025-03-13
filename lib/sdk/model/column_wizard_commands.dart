@@ -27,4 +27,8 @@ final class ColumnWizardOperationCommand extends BiocentralCommand<ColumnWizardO
   Map<String, dynamic> getConfigMap() {
     return {'originalColumnName': _columnWizard.columnName, 'newColumnName': _columnWizardOperation.newColumnName};
   }
+
+  @override
+  String get typeName => 'ColumnWizardOperationCommand';
+
 }

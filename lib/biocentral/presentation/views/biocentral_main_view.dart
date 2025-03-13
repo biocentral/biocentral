@@ -92,7 +92,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
     biocentralCommandLogBloc = BiocentralCommandLogBloc(biocentralProjectRepository)
       ..add(BiocentralCommandLogLoadEvent());
-    widget.eventBus.on<BiocentralCommandExecutedEvent>().listen((event) {
+    widget.eventBus.on<BiocentralCommandStateChangedEvent>().listen((event) {
       biocentralCommandLogBloc.add(BiocentralCommandLogLoadEvent());
     });
   }

@@ -137,4 +137,8 @@ final class TrainBiotrainerModelCommand extends BiocentralCommand<PredictionMode
     }
       ..addAll(_trainingConfiguration);
   }
+
+  @override
+  String get typeName => 'TrainBiotrainerModelCommand';
+
 }

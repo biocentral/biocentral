@@ -22,10 +22,6 @@ class BiocentralDatabaseSyncEvent extends BiocentralDatabaseUpdatedEvent {
   BiocentralDatabaseSyncEvent(this.updatedEntities, this.importMode);
 }
 
-class BiocentralCommandExecutedEvent extends BiocentralEvent {
-  BiocentralCommandExecutedEvent();
-}
-
 class BiocentralPluginTabSwitchedEvent extends BiocentralEvent {
   final Widget switchedTab;
 

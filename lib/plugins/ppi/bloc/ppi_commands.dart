@@ -1,11 +1,10 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:cross_file/cross_file.dart';
-import 'package:fpdart/fpdart.dart';
-
 import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:fpdart/fpdart.dart';
 
 final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, ProteinProteinInteraction>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -15,13 +14,13 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
   final LoadedFileData? _fileData;
   final DatabaseImportMode _importMode;
 
-  LoadPPIsFromFileCommand(
-      {required BiocentralProjectRepository biocentralProjectRepository,
-      required PPIRepository ppiRepository,
-      required XFile? xFile,
-      required LoadedFileData? fileData,
-      required DatabaseImportMode importMode,})
-      : _biocentralProjectRepository = biocentralProjectRepository,
+  LoadPPIsFromFileCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required PPIRepository ppiRepository,
+    required XFile? xFile,
+    required LoadedFileData? fileData,
+    required DatabaseImportMode importMode,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
         _xFile = xFile,
         _fileData = fileData,
@@ -29,25 +28,29 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
 
   @override
   Stream<Either<T, Map<String, ProteinProteinInteraction>>> execute<T extends BiocentralCommandState<T>>(
-      T state,) async* {
+    T state,
+  ) async* {
     yield left(state.setOperating(information: 'Loading interactions from file..'));
 
     if (_xFile == null && _fileData == null) {
       yield left(state.setErrored(information: 'Did not receive any data to load!'));
     } else {
       // TODO Change handleLoad to return Either
-      final LoadedFileData? fileData = _fileData ??
-          (await _biocentralProjectRepository.handleLoad(xFile: _xFile)).getOrElse((l) => null);
+      final LoadedFileData? fileData =
+          _fileData ?? (await _biocentralProjectRepository.handleLoad(xFile: _xFile)).getOrElse((l) => null);
       if (fileData == null) {
         yield left(state.setErrored(information: 'Could not retrieve file data!'));
       } else {
         final Map<String, ProteinProteinInteraction> interactions =
             await _ppiRepository.importEntitiesFromFile(fileData, _importMode);
         yield right(interactions);
-        yield left(state.setFinished(
+        yield left(
+          state.setFinished(
             information: 'Finished loading interactions from file!',
             commandProgress:
-                BiocentralCommandProgress(current: interactions.values.length, total: interactions.values.length),),);
+                BiocentralCommandProgress(current: interactions.values.length, total: interactions.values.length),
+          ),
+        );
       }
     }
   }
@@ -61,6 +64,10 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
       'importMode': _importMode.name,
     };
   }
+
+  @override
+  String get typeName => 'LoadPPIsFromFileCommand';
+
 }
 
 final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProteinInteraction>> {
@@ -76,7 +83,8 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
 
   @override
   Stream<Either<T, Map<String, ProteinProteinInteraction>>> execute<T extends BiocentralCommandState<T>>(
-      T state,) async* {
+    T state,
+  ) async* {
     yield left(state.setOperating(information: 'Importing interaction dataset..'));
 
     if (_loadedDataset == '') {
@@ -88,10 +96,13 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
       }, (importedInteractions) async* {
         yield right(importedInteractions);
 
-        yield left(state.setFinished(
+        yield left(
+          state.setFinished(
             information: 'Imported ${importedInteractions.length} interactions from $_datasetFormat dataset!',
             commandProgress:
-                BiocentralCommandProgress(current: importedInteractions.length, total: importedInteractions.length),),);
+                BiocentralCommandProgress(current: importedInteractions.length, total: importedInteractions.length),
+          ),
+        );
       });
     }
   }
@@ -103,6 +114,10 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
       'datasetFormat': _datasetFormat,
     };
   }
+
+  @override
+  String get typeName => 'ImportPPIsCommand';
+
 }
 
 final class RemoveDuplicatedPPIsCommand extends BiocentralCommand<int> {
@@ -121,15 +136,21 @@ final class RemoveDuplicatedPPIsCommand extends BiocentralCommand<int> {
 
     final int numberDuplicates = await _ppiRepository.removeDuplicates();
     yield right(numberDuplicates);
-    yield left(state.setFinished(
+    yield left(
+      state.setFinished(
         information: 'Removed duplicated interactions!',
-        commandProgress: BiocentralCommandProgress(current: numberDuplicates, total: numberDuplicates),),);
+        commandProgress: BiocentralCommandProgress(current: numberDuplicates, total: numberDuplicates),
+      ),
+    );
   }
 
   @override
   Map<String, dynamic> getConfigMap() {
     return {};
   }
+
+  @override
+  String get typeName => 'RemoveDuplicatedPPIsCommand';
 }
 
 final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestResult> {
@@ -138,12 +159,12 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
   final PPIClient _ppiClient;
   final PPIDatabaseTest _testToRun;
 
-  RunPPIDatabaseTestCommand(
-      {required BiocentralProjectRepository biocentralProjectRepository,
-      required PPIRepository ppiRepository,
-      required PPIClient ppiClient,
-      required PPIDatabaseTest testToRun,})
-      : _biocentralProjectRepository = biocentralProjectRepository,
+  RunPPIDatabaseTestCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required PPIRepository ppiRepository,
+    required PPIClient ppiClient,
+    required PPIDatabaseTest testToRun,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
         _ppiClient = ppiClient,
         _testToRun = testToRun;
@@ -154,7 +175,10 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
 
     final String datasetHash = await _ppiRepository.getHash();
     final transferEither = await _ppiClient.transferFile(
-        datasetHash, StorageFileType.sequences, () async => _ppiRepository.convertToString('fasta'),);
+      datasetHash,
+      StorageFileType.sequences,
+      () async => _ppiRepository.convertToString('fasta'),
+    );
 
     yield* transferEither.match((error) async* {
       yield left(state.setErrored(information: 'Could not transfer file to server!'));
@@ -165,9 +189,11 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
       }, (testResult) async* {
         final List<PPIDatabaseTest> executedTests = _ppiRepository.addFinishedTest(_testToRun..testResult = testResult);
         yield right(testResult);
-        yield left(state
-            .setFinished(information: 'Done running dataset test!')
-            .copyWith(copyMap: {'executedTests': executedTests}),);
+        yield left(
+          state
+              .setFinished(information: 'Done running dataset test!')
+              .copyWith(copyMap: {'executedTests': executedTests}),
+        );
       });
     });
   }
@@ -176,4 +202,7 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
   Map<String, dynamic> getConfigMap() {
     return {'testToRun': _testToRun};
   }
+
+  @override
+  String get typeName => 'RunPPIDatabaseTestCommand';
 }
