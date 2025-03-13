@@ -44,4 +44,7 @@ final class CalculateLevenshteinDistanceCommand
     // TODO Change if more parameters are necessary
     return {};
   }
+
+  @override
+  String get typeName => 'CalculateLevenshteinDistanceCommand';
 }

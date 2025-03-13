@@ -58,6 +58,10 @@ final class LoadProteinsFromFileCommand extends BiocentralCommand<Map<String, Pr
       'importMode': _importMode.name,
     };
   }
+
+  @override
+  String get typeName => 'LoadProteinsFromFileCommand';
+
 }
 
 final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<String, Protein>> {
@@ -111,6 +115,10 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
       'importMode': _importMode.name,
     };
   }
+
+  @override
+  String get typeName => 'LoadCustomAttributesFromFileCommand';
+
 }
 
 final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protein>> {
@@ -157,4 +165,8 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
   Map<String, dynamic> getConfigMap() {
     return {'importMode': _importMode.name};
   }
+
+  @override
+  String get typeName => 'RetrieveTaxonomyCommand';
+
 }
