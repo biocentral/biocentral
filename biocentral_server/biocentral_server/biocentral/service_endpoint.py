@@ -53,7 +53,17 @@ def task_status(task_id):
     # Check the status of the task based on task_id
     # Retrieve task status from the distributed server or backend system
     # Return the task status
-    dtos = TaskManager().get_all_task_updates(task_id=task_id)
+    dtos = TaskManager().get_new_task_updates(task_id=task_id)
+    return jsonify({idx: dto.dict() for idx, dto in enumerate(dtos)})
+
+
+# Endpoint to check task status
+@biocentral_service_route.route('/biocentral_service/task_status_resumed/<task_id>', methods=['GET'])
+def task_status_resumed(task_id):
+    # Check the status of the task based on task_id
+    # Retrieve task status from the distributed server or backend system
+    # Return the task status
+    dtos = TaskManager().get_all_task_updates_from_start(task_id=task_id)
     return jsonify({idx: dto.dict() for idx, dto in enumerate(dtos)})
 
 

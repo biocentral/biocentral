@@ -52,11 +52,10 @@ class AutoEvalTask(TaskInterface):
         config = self._prepare_config(dataset_name, split)
         split_name = split['name']
         embedder_path_name = self.embedder_name.replace("/", "_")
-        database_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split_name}"
 
-        # TODO TASK ID
-        model_hash = str(hash(str(config)))
-        model_path = self.file_manager.get_biotrainer_model_path(database_hash, model_hash)
+        # TODO TASK ID: Do we need a model hash here?
+        model_hash = f"autoeval_{embedder_path_name}_{dataset_name}_{split_name}"
+        model_path = self.file_manager.get_biotrainer_model_path(model_hash)
 
         biotrainer_task = BiotrainerTask(model_path=model_path, config_dict=config)
         self.current_dataset = _DatasetTuple(dataset_name, split_name)

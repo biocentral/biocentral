@@ -12,6 +12,7 @@ prediction_models_service_route = Blueprint("prediction_models_service", __name_
 
 def _get_config_dict_from_string(config_string: str) -> dict:
     config_dict = {}
+
     def _eval_value(val: str):
         for v in [val, val.capitalize(), val.lower(), val.upper()]:
             try:
@@ -103,7 +104,7 @@ def start_training():
     # TODO Replace this by a appropriate model hash in the future to avoid costly retraining
     task_id = task_manager.get_unique_task_id(task=BiotrainerTask)
 
-    model_path = file_manager.get_biotrainer_model_path(database_hash=database_hash, model_hash=task_id)
+    model_path = file_manager.get_biotrainer_model_path(model_hash=task_id)
     # TODO Move this to the file backend
     # if model_path.exists():
     #    return jsonify({"task_id": task_id})
@@ -118,7 +119,6 @@ def start_training():
 @prediction_models_service_route.route('/prediction_models_service/model_files', methods=['POST'])
 def model_files():
     model_file_data = request.get_json()
-    database_hash = model_file_data.get("database_hash")
     model_hash = model_file_data.get("model_hash")
 
     task_status = TaskManager().get_task_status(model_hash)
@@ -127,5 +127,5 @@ def model_files():
 
     user_id = UserManager.get_user_id_from_request(request)
     file_manager = FileManager(user_id=user_id)
-    model_file_dict = file_manager.get_biotrainer_result_files(database_hash=database_hash, model_hash=model_hash)
+    model_file_dict = file_manager.get_biotrainer_result_files(model_hash=model_hash)
     return jsonify(model_file_dict)

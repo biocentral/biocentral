@@ -23,7 +23,8 @@ class FileManager:
     def check_base_dir_exists(self) -> bool:
         return len(self.storage_backend.list_files(self.user_id)) > 0
 
-    def check_file_exists(self, database_hash: str, file_type: StorageFileType,
+    def check_file_exists(self, file_type: StorageFileType,
+                          database_hash: Optional[str] = "",
                           embedder_name: Optional[str] = "",
                           model_hash: Optional[str] = "") -> bool:
         file_name, file_path = self.path_manager.get_file_name_and_path(
@@ -51,7 +52,9 @@ class FileManager:
         self.storage_backend.save_file(str(full_path), file_content)
         return full_path
 
-    def get_file_path(self, database_hash: str, file_type: StorageFileType,
+    def get_file_path(self,
+                      file_type: StorageFileType,
+                      database_hash: Optional[str] = "",
                       embedder_name: Optional[str] = "",
                       model_hash: Optional[str] = "",
                       check_exists: Optional[bool] = True) -> Path:
@@ -74,36 +77,35 @@ class FileManager:
     def get_embeddings_path(self, database_hash: str):
         return self.path_manager.get_embeddings_files_path(database_hash=database_hash)
 
-    def get_biotrainer_model_path(self, database_hash: str, model_hash: str) -> Path:
-        return self.path_manager.get_biotrainer_model_path(database_hash=database_hash, model_hash=model_hash)
+    def get_biotrainer_model_path(self, model_hash: str) -> Path:
+        return self.path_manager.get_biotrainer_model_path(model_hash=model_hash)
 
-    def get_file_paths_for_biotrainer(self, database_hash: str,
-                                      embedder_name: str, protocol: Protocol) -> Tuple[str, str, str, str]:
-        sequence_file = self.get_file_path(database_hash=database_hash, file_type=StorageFileType.SEQUENCES)
+    def get_file_paths_for_biotrainer(self, database_hash: str, embedder_name: str, protocol: Protocol) -> Tuple[str, str, str, str]:
+        sequence_file = self.get_file_path(file_type=StorageFileType.SEQUENCES, database_hash=database_hash)
         labels_file = ""
         mask_file = ""
         if protocol in Protocol.per_residue_protocols():
-            labels_file = self.get_file_path(database_hash=database_hash, file_type=StorageFileType.LABELS)
+            labels_file = self.get_file_path(file_type=StorageFileType.LABELS, database_hash=database_hash)
             try:
-                mask_file = self.get_file_path(database_hash=database_hash, file_type=StorageFileType.MASKS)
+                mask_file = self.get_file_path(file_type=StorageFileType.MASKS, database_hash=database_hash)
             except FileNotFoundError as e:
                 mask_file = ""
         try:
             embeddings_type = StorageFileType.EMBEDDINGS_PER_RESIDUE if protocol in Protocol.per_residue_protocols() \
                 else StorageFileType.EMBEDDINGS_PER_SEQUENCE
-            embeddings_file = self.get_file_path(database_hash=database_hash, file_type=embeddings_type,
+            embeddings_file = self.get_file_path(file_type=embeddings_type,
+                                                 database_hash=database_hash,
                                                  embedder_name=embedder_name)
         except FileNotFoundError as e:
             embeddings_file = ""
         return str(sequence_file), str(labels_file), str(mask_file), str(embeddings_file)
 
-    def get_biotrainer_result_files(self, database_hash: str, model_hash: str) -> Dict[str, Any]:
+    def get_biotrainer_result_files(self, model_hash: str) -> Dict[str, Any]:
         result = {}
 
         # Get result file
         try:
             result_file = self._get_file_content(
-                database_hash=database_hash,
                 file_type=StorageFileType.BIOTRAINER_RESULT,
                 model_hash=model_hash
             )
@@ -114,7 +116,6 @@ class FileManager:
         # Get logging file
         try:
             logging_file = self._get_file_content(
-                database_hash=database_hash,
                 file_type=StorageFileType.BIOTRAINER_LOGGING,
                 model_hash=model_hash
             )
@@ -126,7 +127,6 @@ class FileManager:
         checkpoint_files = {}
         try:
             _, checkpoint_base_dir = self.path_manager.get_file_name_and_path(
-                database_hash=database_hash,
                 file_type=StorageFileType.BIOTRAINER_CHECKPOINT,
                 model_hash=model_hash
             )
@@ -145,7 +145,8 @@ class FileManager:
         result[StorageFileType.BIOTRAINER_CHECKPOINT.name] = checkpoint_files
         return result
 
-    def _get_file_content(self, database_hash: str, file_type: StorageFileType,
+    def _get_file_content(self, file_type: StorageFileType,
+                          database_hash: Optional[str] = "",
                           embedder_name: Optional[str] = "",
                           model_hash: Optional[str] = "") -> Union[str, bytes]:
         file_name, file_path = self.path_manager.get_file_name_and_path(
@@ -162,6 +163,7 @@ class FileManager:
             content = content.decode('utf-8')
 
         return content
+
 
 class FileContextManager:
     def __init__(self):
@@ -189,4 +191,3 @@ class FileContextManager:
         """Convenience context manager for writing files to the storage backend"""
         with StorageFileWriter(self.storage_backend, file_path) as temp_dir:
             yield temp_dir
-

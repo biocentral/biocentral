@@ -113,21 +113,16 @@ class TaskManager:
     def _generate_task_id(task):
         return f"biocentral-{task.__name__}-{str(uuid.uuid4())}"
 
-    def get_all_task_updates(self, task_id: str) -> List[TaskDTO]:
+    def _read_task_updates_from_job(self, task_id: str, read_counter: int = 0) -> (List[TaskDTO], int):
         job = self._get_job(task_id)
 
-        redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
-
         dtos = []
+        length_read = 0
         if job is not None:
-            counter: Optional[int] = self.redis_conn.get(redis_task_counter_key)
-            if counter is None:
-                counter = 0
-            counter = int(counter)
             if "dto" in job.meta.keys() and len(job.meta["dto"]) > 0:
                 all_dtos = job.meta["dto"]
-                dtos = all_dtos[counter:]
-                self.redis_conn.set(redis_task_counter_key, len(all_dtos))
+                dtos = all_dtos[read_counter:]
+                length_read = len(all_dtos)
 
         additional_dto = None
         if job is None:
@@ -139,7 +134,28 @@ class TaskManager:
 
         if additional_dto is not None:
             dtos.append(additional_dto)
+        return dtos, length_read
+
+    def get_new_task_updates(self, task_id: str) -> List[TaskDTO]:
+        redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
+        counter: Optional[int] = self.redis_conn.get(redis_task_counter_key)
+        if counter is None:
+            counter = 0
+        counter = int(counter)
+
+        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        self.redis_conn.set(redis_task_counter_key, length_read)
+
         return dtos
+
+    def get_all_task_updates_from_start(self, task_id: str):
+        redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
+        counter = 0
+        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        self.redis_conn.set(redis_task_counter_key, length_read)
+
+        return dtos
+
 
     def is_task_finished(self, task_id: str) -> bool:
         job = self._get_job(task_id)
