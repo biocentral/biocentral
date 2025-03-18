@@ -1,13 +1,11 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
+import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_results_view.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/displays/prediction_model_display.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../bloc/plm_eval_command_bloc.dart';
 
 class PLMEvalPipelineView extends StatefulWidget {
   final String modelName;
@@ -28,114 +26,85 @@ class _PLMEvalPipelineViewState extends State<PLMEvalPipelineView> with Automati
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildEmbedderModelCard(),
-          const SizedBox(width: 20),
-          _buildArrow('Evaluation Progress: ${widget.progress.completedTasks}/${widget.progress.totalTasks}'),
-          const SizedBox(width: 20),
-          _buildDatasets(),
-        ],
-      ),
+    return Scaffold(body: SingleChildScrollView(child: buildPLMEvalTaskDisplay()));
+  }
+
+  Widget buildPLMEvalTaskDisplay() {
+    return BiocentralTaskDisplay(
+      title: 'Evaluating ${widget.modelName}',
+      leadingIcon: const CircularProgressIndicator(),
+      trailing: Text('Evaluation Progress: ${widget.progress.completedTasks}/${widget.progress.totalTasks}'),
+      children: [buildResultsView(), buildTaskQueue()],
     );
   }
 
-  Widget _buildEmbedderModelCard() {
-    final plmEvalCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
-    Widget? child;
-    if (widget.progress.status == BiocentralTaskStatus.finished) {
-      child = ElevatedButton(
-        onPressed: () => plmEvalCommandBloc.add(PLMEvalCommandPublishResultsEvent()),
-        child: Text('Publish results for ${widget.modelName}!'),
-      );
-    } else {
-      child = Card(
-        child: Center(
-          child: Text(
-            widget.modelName,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+  Widget buildResultsView() {
+    final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
+    for (final entry in widget.progress.results.entries) {
+      metrics.putIfAbsent(entry.key.datasetName, () => {});
+      if (entry.value != null && entry.value?.biotrainerTrainingResult != null) {
+        metrics[entry.key.datasetName]?[entry.key.splitName] = entry.value!.biotrainerTrainingResult!.testSetMetrics;
+      }
     }
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        width: SizeConfig.screenWidth(context) * 0.2,
-        height: SizeConfig.screenHeight(context) * 0.2,
-        child: child,
-      ),
-    );
+    return ExpansionTile(title: const Text('Results'), children: [PLMEvalResultsView(metrics: metrics)]);
   }
 
-  Widget _buildArrow(String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.arrow_forward, size: 30),
-        Text(label),
-      ],
-    );
-  }
+  Widget buildTaskQueue() {
+    final Map<String, List<Widget>> datasetGroups = {};
 
-  Widget _buildDatasets() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            widget._datasetNamesToSplits.entries.map((entry) => _buildDatasetGroup(entry.key, entry.value)).toList(),
-      ),
-    );
-  }
+    for (final entry in widget._datasetNamesToSplits.entries) {
+      final datasetName = entry.key;
+      final groupTasks = <Widget>[];
 
-  Widget _buildDatasetGroup(String datasetName, List<String> splits) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(datasetName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          ...splits.map((split) => _buildSplitCard(datasetName, split)),
-        ],
-      ),
-    );
-  }
+      for (final splitName in entry.value) {
+        final BenchmarkDataset datasetToBuild = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
+        final PredictionModel? model = widget.progress.results[datasetToBuild];
+        final bool isCurrentProcess = widget.progress.currentTask == datasetToBuild;
 
-  Widget _buildSplitCard(String datasetName, String splitName) {
-    final BenchmarkDataset datasetToBuild = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
-    final PredictionModel? model = widget.progress.results[datasetToBuild];
-    final bool isCurrentProcess = widget.progress.currentTask == datasetToBuild;
-    if (model != null) {
-      // TODO [Refactoring] Usage of the trainingState should be reflected and probably refactored
-      return Row(
-        children: [
-          Text(splitName),
-          PredictionModelDisplay(
-            predictionModel: model,
-            trainingState: isCurrentProcess ? widget.progress.currentModelTrainingState : null,
-          ),
-        ],
-      );
-    }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
-          width: SizeConfig.screenWidth(context) * 0.3,
-          height: SizeConfig.screenHeight(context) * 0.1,
-          child: Center(
-            child: Text(
-              splitName,
-              style: TextStyle(fontSize: 14, color: isCurrentProcess ? Colors.purple : Colors.grey),
-              textAlign: TextAlign.center,
+        if (model != null) {
+          groupTasks.add(
+            InputDecorator(
+              decoration: InputDecoration(labelText: ' $splitName'),
+              child: PredictionModelDisplay(
+                predictionModel: model,
+                trainingState: isCurrentProcess ? widget.progress.currentModelTrainingState : null,
+              ),
             ),
-          ),
+          );
+        } else {
+          final Widget leadingWidget = const Icon(Icons.query_builder);
+          groupTasks.add(
+            ListTile(
+              leading: leadingWidget,
+              title: Text(datasetToBuild.splitName),
+            ),
+          );
+        }
+      }
+
+      datasetGroups[datasetName] = groupTasks;
+    }
+
+    final List<Widget> groupedTasks = datasetGroups.entries.map((entry) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8.0),
         ),
-      ),
+        child: ExpansionTile(
+          title: Text(
+            entry.key,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          children: entry.value,
+        ),
+      );
+    }).toList();
+
+    return ExpansionTile(
+      title: const Text('Task Queue'),
+      children: groupedTasks,
     );
   }
 
