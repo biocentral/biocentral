@@ -19,17 +19,24 @@ abstract class BiocentralCommand<R> with TypeNameMixin {
     final DateTime startTime = DateTime.now();
 
     // Log operating command before starting
-    projectRepository.logCommand(
-      BiocentralCommandLog<R>.operating(commandName: typeName, commandConfig: getConfigMap(), startTime: startTime),
-    );
+    final initialCommandLog =
+        BiocentralCommandLog<R>.operating(commandName: typeName, commandConfig: getConfigMap(), startTime: startTime);
+    projectRepository.logCommand(initialCommandLog);
 
     bool encounteredError = false;
+    bool loggedTaskID = false;
     await for (final result in this.execute(state)) {
       result.match(
         (leftState) {
-          // Ignore at the moment
           if (leftState.isErrored()) {
+            // Ignore at the moment
             encounteredError = true;
+          }
+          if (!loggedTaskID && leftState.stateInformation.serverTaskID != null) {
+            // Log task id retrieved from server
+            final commandWithTaskID = initialCommandLog.addTaskID(leftState.stateInformation.serverTaskID!);
+            projectRepository.logCommand(commandWithTaskID);
+            loggedTaskID = true;
           }
         },
         (rightResult) {
@@ -38,11 +45,12 @@ abstract class BiocentralCommand<R> with TypeNameMixin {
           // TODO Remove state information list, replace with other metadata
           projectRepository.logCommand(
             BiocentralCommandLog<R>.finished(
-                commandName: typeName,
-                commandConfig: getConfigMap(),
-                startTime: startTime,
-                endTime: endTime,
-                result: rightResult),
+              commandName: typeName,
+              commandConfig: getConfigMap(),
+              startTime: startTime,
+              endTime: endTime,
+              result: rightResult,
+            ),
           );
         },
       );
@@ -57,9 +65,47 @@ abstract class BiocentralCommand<R> with TypeNameMixin {
 abstract class BiocentralResumableCommand<R> extends BiocentralCommand<R> {
   /// Resume execution from intermediate result received via taskID
   Stream<Either<T, R>> resumeExecution<T extends BiocentralCommandState<T>>(
-    String taskId,
+    String taskID,
     T state,
   );
+
+  Stream<Either<T, R>> resumeWithLogging<T extends BiocentralCommandState<T>>(
+      BiocentralProjectRepository projectRepository,
+      DateTime originalStartTime,
+      String taskID,
+      T state,
+      ) async* {
+
+    bool encounteredError = false;
+    await for (final result in this.resumeExecution(taskID, state)) {
+      result.match(
+            (leftState) {
+          if (leftState.isErrored()) {
+            // Ignore at the moment
+            encounteredError = true;
+          }
+        },
+            (rightResult) {
+          final DateTime endTime = DateTime.now();
+          // Finished, log successful command
+          // TODO Remove state information list, replace with other metadata
+          projectRepository.logCommand(
+            BiocentralCommandLog<R>.finished(
+              commandName: typeName,
+              commandConfig: getConfigMap(),
+              startTime: originalStartTime,
+              endTime: endTime,
+              result: rightResult,
+            ),
+          );
+        },
+      );
+      yield result;
+      if (encounteredError) {
+        break;
+      }
+    }
+  }
 }
 
 final class BiocentralCommandLog<R> {
@@ -95,7 +141,7 @@ final class BiocentralCommandLog<R> {
     final commandConfig = jsonMap['commandConfig'];
     // TODO Enum conversion not perfect here
     final commandStatus =
-        enumFromString(jsonMap['commandStatus'], BiocentralCommandStatus.values) ?? BiocentralCommandStatus.errored;
+        enumFromString(jsonMap['status'], BiocentralCommandStatus.values) ?? BiocentralCommandStatus.errored;
     final metaData = jsonMap['metaData'];
     final resultData = jsonMap['resultData'] ?? {};
 
@@ -105,6 +151,12 @@ final class BiocentralCommandLog<R> {
 
     return BiocentralCommandLog._internal(
         commandName, commandConfig, commandStatus, metaDataReconstructed, resultDataReconstructed);
+  }
+
+  BiocentralCommandLog addTaskID(String taskID) {
+    final updatedMetaData = metaData.addTaskID(taskID);
+    return BiocentralCommandLog._internal(
+        commandName, commandConfig, commandStatus, updatedMetaData, resultData);
   }
 
   Map<String, dynamic> toMap() {
@@ -121,14 +173,23 @@ final class BiocentralCommandLog<R> {
 final class BiocentralCommandMetaData {
   final DateTime startTime;
   final DateTime? endTime;
+  final String? serverTaskID;
   final Duration? timeToExecute;
 
-  BiocentralCommandMetaData({required this.startTime, this.endTime}) : timeToExecute = endTime?.difference(startTime);
+  BiocentralCommandMetaData({required this.startTime, this.serverTaskID, this.endTime})
+      : timeToExecute = endTime?.difference(startTime);
 
   factory BiocentralCommandMetaData.fromJsonMap(Map<String, dynamic> jsonMap) {
     final startTime = jsonMap['startTime'];
     final endTime = jsonMap['endTime'] ?? '';
-    return BiocentralCommandMetaData(startTime: DateTime.parse(startTime), endTime: DateTime.tryParse(endTime));
+    final serverTaskID = jsonMap['serverTaskID'] ?? '';
+    return BiocentralCommandMetaData(
+        startTime: DateTime.parse(startTime), endTime: DateTime.tryParse(endTime), serverTaskID: serverTaskID);
+  }
+
+  BiocentralCommandMetaData addTaskID(String taskID) {
+    // TODO Check that there is no serverTaskID already
+    return BiocentralCommandMetaData(startTime: startTime, serverTaskID: taskID, endTime: endTime);
   }
 
   Map<String, dynamic> toMap() {
@@ -140,6 +201,9 @@ final class BiocentralCommandMetaData {
         'endTime': endTime.toString(),
         'timeToExecute': timeToExecute?.inSeconds,
       });
+    }
+    if (serverTaskID != null) {
+      result.addAll({'serverTaskID': serverTaskID});
     }
     return result;
   }

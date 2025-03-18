@@ -43,4 +43,8 @@ mixin BiocentralUpdateBloc<Event, T extends BiocentralCommandState<T>> on Biocen
   void updateDatabases() async {
     _eventBus.fire(BiocentralDatabaseUpdatedEvent());
   }
+
+  void finishedResumableCommand(BiocentralCommandLog finishedCommand) async {
+    _eventBus.fire(BiocentralResumableCommandFinishedEvent(finishedCommand));
+  }
 }

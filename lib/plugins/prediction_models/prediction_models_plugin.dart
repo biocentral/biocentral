@@ -46,8 +46,13 @@ class PredictionModelsPlugin extends BiocentralPlugin
     );
     final modelHubBloc = ModelHubBloc(getBiocentralProjectRepository(context), getDatabase(context));
 
+    // TODO This should probably be directly injected into the bloc, not via event bus
     eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
       biotrainerTrainingBloc.add(BiotrainerTrainingStartTrainingEvent(event.databaseType, event.trainingConfiguration));
+    });
+
+    eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
+      modelHubBloc.add(ModelHubRemoveResumableCommandEvent(event.finishedCommand));
     });
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
@@ -93,8 +98,12 @@ class PredictionModelsPlugin extends BiocentralPlugin
         path: 'models',
         saveType: PredictionModel,
         commandBlocType: ModelHubBloc,
-        createDirectoryLoadingEvents:
-            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
           final List<void Function()> loadingFunctions = [];
           for (final subDir in scannedSubDirectories.entries) {
             final (configFile, outputFile, loggingFile, checkpointFile) =
@@ -110,6 +119,8 @@ class PredictionModelsPlugin extends BiocentralPlugin
                 );
             loadingFunctions.add(loadingFunction);
           }
+          void loadResumableCommandFunction() => commandBloc?.add(ModelHubAddResumableCommandsEvent(commandLogs));
+          loadingFunctions.add(loadResumableCommandFunction);
           return loadingFunctions;
         },
       ),

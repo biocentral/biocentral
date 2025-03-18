@@ -282,19 +282,28 @@ class BiocentralProjectRepository {
       return;
     }
 
+    final indexExisting = _commandLog.indexWhere(
+            (log) =>
+        log.commandStatus == BiocentralCommandStatus.operating &&
+            log.metaData.startTime == newCommand.metaData.startTime,
+    );
+
     switch (newCommand.commandStatus) {
       case BiocentralCommandStatus.operating:
-        _commandLog.add(newCommand);
+        if(indexExisting != -1) {
+          final existingCommand = _commandLog[indexExisting];
+          if(existingCommand.metaData.serverTaskID == null && newCommand.metaData.serverTaskID != null) {
+            // Replace after retrieving serverTaskID
+            _commandLog[indexExisting] = newCommand;
+          }
+        } else {
+          _commandLog.add(newCommand);
+        }
         break;
 
       case BiocentralCommandStatus.finished:
       case BiocentralCommandStatus.errored:
       // Try to find and replace existing operating command with result command
-        final indexExisting = _commandLog.indexWhere(
-                (log) =>
-            log.commandStatus == BiocentralCommandStatus.operating &&
-                log.metaData.startTime == newCommand.metaData.startTime
-        );
 
         if (indexExisting != -1) {
           _commandLog[indexExisting] = newCommand;

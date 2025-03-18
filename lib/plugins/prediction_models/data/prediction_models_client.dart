@@ -1,10 +1,9 @@
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:fpdart/fpdart.dart';
-
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 
 final class PredictionModelsClientFactory extends BiocentralClientFactory<PredictionModelsClient> {
   @override
@@ -49,19 +48,35 @@ class PredictionModelsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
+  Future<Either<BiocentralException, PredictionModel>> resumeTraining(
+      String taskID, PredictionModel initialModel) async {
+    final responseEither = await resumeTask(taskID);
+    return responseEither.flatMap((dtos) {
+      PredictionModel? currentModel = initialModel;
+      for (final dto in dtos) {
+        currentModel = _updateFunction(currentModel, dto);
+      }
+      if (currentModel == null) {
+        return left(BiocentralParsingException(message: 'Could not parse resumed model from server dtos!'));
+      }
+      return right(currentModel);
+    });
+  }
+
+  PredictionModel? _updateFunction(PredictionModel? currentModel, BiocentralDTO biocentralDTO) {
+    return currentModel?.updateTrainingResult(BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null));
+  }
+
   Stream<PredictionModel?> biotrainerTrainingTaskStream(String taskID, PredictionModel initialModel) async* {
-    PredictionModel? updateFunction(PredictionModel? currentModel, BiocentralDTO biocentralDTO) =>
-        currentModel?.updateTrainingResult(BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null));
-    yield* taskUpdateStream<PredictionModel?>(taskID, initialModel, updateFunction);
+    yield* taskUpdateStream<PredictionModel?>(taskID, initialModel, _updateFunction);
   }
 
   Future<Either<BiocentralException, Map<StorageFileType, dynamic>>> getModelFiles(
-    String databaseHash,
     String modelHash,
   ) async {
     final responseEither = await doPostRequest(
       PredictionModelsServiceEndpoints.modelFiles,
-      {'database_hash': databaseHash, 'model_hash': modelHash},
+      {'model_hash': modelHash},
     );
     return responseEither.flatMap(
       (responseMap) => right(

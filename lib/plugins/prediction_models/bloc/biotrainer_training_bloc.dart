@@ -1,3 +1,4 @@
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/models_commands.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
@@ -13,6 +14,12 @@ final class BiotrainerTrainingStartTrainingEvent extends BiotrainerTrainingEvent
   final Map<String, String> trainingConfiguration;
 
   BiotrainerTrainingStartTrainingEvent(this.biocentralDatabaseType, this.trainingConfiguration);
+}
+
+final class BiotrainerTrainingResumeTrainingEvent extends BiotrainerTrainingEvent {
+  final BiocentralCommandLog resumableCommand;
+
+  BiotrainerTrainingResumeTrainingEvent(this.resumableCommand);
 }
 
 @immutable
@@ -84,6 +91,37 @@ class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, Bio
             .executeWithLogging<BiotrainerTrainingState>(_biocentralProjectRepository, state)
             .forEach((either) {
           either.match((l) => emit(l), (r) => updateDatabases()); // Ignore result here
+        });
+      }
+    });
+    on<BiotrainerTrainingResumeTrainingEvent>((event, emit) async {
+      // TODO [Refactoring] Should be able to map this generically (static type name function, change getFromType)
+      final resumableCommand = event.resumableCommand;
+      final databaseType =
+          resumableCommand.commandConfig['databaseType'].toString().toLowerCase().contains('interaction')
+              ? ProteinProteinInteraction
+              : Protein;
+      final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(databaseType);
+      // TODO [Error Handling] TaskID must not be absent here
+      final taskID = resumableCommand.metaData.serverTaskID ?? 'BIOCENTRAL_CLIENT_ERROR';
+      if (database == null) {
+        emit(state.setErrored(information: 'Could not find database to train model!'));
+      } else {
+        final TrainBiotrainerModelCommand trainBiotrainerModelCommand = TrainBiotrainerModelCommand(
+          biocentralProjectRepository: _biocentralProjectRepository,
+          biocentralDatabase: database,
+          predictionModelRepository: _predictionModelRepository,
+          predictionModelsClient: _biocentralClientRepository.getServiceClient<PredictionModelsClient>(),
+          trainingConfiguration: convertToStringMap(resumableCommand.commandConfig['trainingConfiguration']),
+        );
+        await trainBiotrainerModelCommand
+            .resumeWithLogging<BiotrainerTrainingState>(
+                _biocentralProjectRepository, resumableCommand.metaData.startTime, taskID, state)
+            .forEach((either) {
+          either.match((l) => emit(l), (r) {
+            updateDatabases();
+            finishedResumableCommand(resumableCommand);
+          }); // Ignore result here
         });
       }
     });

@@ -260,6 +260,14 @@ abstract class BiocentralClient with HTTPClient {
     });
   }
 
+  Future<Either<BiocentralException, List<BiocentralDTO>>> resumeTask(String taskID) async {
+    final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatusResumed}/$taskID');
+    return responseEither.flatMap((responseMaps) {
+      final sortedUpdatesKeys = responseMaps.keys.toList()..sort();
+      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralDTO(responseMaps[sortedKey])).toList());
+    });
+  }
+
   Stream<T?> taskUpdateStream<T>(
       String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
     const int maxRequests = 1800; // TODO Listening for only 60 Minutes
