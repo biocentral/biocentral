@@ -1,10 +1,13 @@
+import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
+import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
+class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimizationTrainingResult> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabase _biocentralDatabase;
   final BayesianOptimizationClient _boClient;
@@ -21,13 +24,12 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
         _trainingConfiguration = trainingConfiguration;
 
   @override
-  Stream<Either<T, void>> execute<T extends BiocentralCommandState<T>>(
+  Stream<Either<T, BayesianOptimizationTrainingResult>> execute<T extends BiocentralCommandState<T>>(
     T state,
   ) async* {
     yield left(state.setOperating(information: 'Training new model!'));
 
-    final String configFile =
-        BiotrainerFileHandler.biotrainerConfigurationToConfigFile(
+    final String configFile = BiotrainerFileHandler.biotrainerConfigurationToConfigFile(
       _trainingConfiguration,
     );
 
@@ -40,8 +42,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
     if (modelArchitecture == null || targetFeature == null) {
       yield left(
         state.setErrored(
-          information:
-              'Invalid training configuration: $modelArchitecture, $targetFeature',
+          information: 'Invalid training configuration: $modelArchitecture, $targetFeature',
         ),
       );
       return;
@@ -72,9 +73,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
       () async => fileRecord.$3,
     );
 
-    if (transferEitherSequences.isLeft() ||
-        transferEitherLabels.isLeft() ||
-        transferEitherMasks.isLeft()) {
+    if (transferEitherSequences.isLeft() || transferEitherLabels.isLeft() || transferEitherMasks.isLeft()) {
       yield left(
         state.setErrored(
           information: 'Error transferring training files to server!',
@@ -83,8 +82,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
       return;
     }
 
-    final taskIDEither =
-        await _boClient.startTraining(configFile, databaseHash);
+    final taskIDEither = await _boClient.startTraining(configFile, databaseHash);
     yield* taskIDEither.match((error) async* {
       yield left(
         state.setErrored(
@@ -97,21 +95,17 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
         biotrainerConfig: _trainingConfiguration,
         failOnConflict: false,
       )..setTraining();
-      T trainingState = state
-          .setOperating(information: 'Training model..')
-          .copyWith(copyMap: {'trainingModel': initialModel});
+      T trainingState =
+          state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      await for (PredictionModel? currentModel
-          in _boClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
+      await for (PredictionModel? currentModel in _boClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
         if (currentModel == null) {
           continue;
         }
-        final int? currentEpoch =
-            currentModel.biotrainerTrainingResult?.getLastEpoch();
-        final commandProgress = currentEpoch != null
-            ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch')
-            : null;
+        final int? currentEpoch = currentModel.biotrainerTrainingResult?.getLastEpoch();
+        final commandProgress =
+            currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
         trainingState = trainingState
             .setOperating(
           information: 'Training model..',
@@ -124,6 +118,10 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
         );
         yield left(trainingState);
       }
+
+      state.setFinished(information: 'Training finished');
+      //TODO: Yield the result
+      yield right(dummyData);
     });
   }
 
@@ -137,4 +135,28 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<void> {
       'databaseType': _biocentralDatabase.getType(),
     }..addAll(_trainingConfiguration);
   }
+
+  // EXAMPLE DATA
+  final BayesianOptimizationTrainingResult dummyData = const BayesianOptimizationTrainingResult(
+    results: [
+      BayesianOptimizationTrainingResultData(proteinId: '1', prediction: 32, uncertainty: -1.4, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '2', prediction: 35, uncertainty: -1.0, utility: -1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '3', prediction: 37, uncertainty: -0.8, utility: -0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '4', prediction: 40, uncertainty: -0.5, utility: -0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '5', prediction: 42, uncertainty: -0.2, utility: 0.0),
+      BayesianOptimizationTrainingResultData(proteinId: '6', prediction: 45, uncertainty: 0.0, utility: 0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '7', prediction: 47, uncertainty: 0.2, utility: 0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '8', prediction: 50, uncertainty: 0.5, utility: 0.8),
+      BayesianOptimizationTrainingResultData(proteinId: '9', prediction: 52, uncertainty: 0.8, utility: 1.0),
+      BayesianOptimizationTrainingResultData(proteinId: '10', prediction: 55, uncertainty: 1.0, utility: 1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '11', prediction: 32, uncertainty: -1.5, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '12', prediction: 35, uncertainty: -1.1, utility: -1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '13', prediction: 37, uncertainty: -0.1, utility: -0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '14', prediction: 40, uncertainty: -0.2, utility: -0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '15', prediction: 42, uncertainty: -0.5, utility: 1.0),
+      BayesianOptimizationTrainingResultData(proteinId: '16', prediction: 45, uncertainty: 0.5, utility: 1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '17', prediction: 47, uncertainty: 0.6, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
+    ],
+  );
 }

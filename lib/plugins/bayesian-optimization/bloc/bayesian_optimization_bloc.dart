@@ -1,23 +1,27 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_commands.dart';
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
+import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_effects/bloc_effects.dart';
 import 'package:event_bus/event_bus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class BayesianOptimizationEvent {}
 
 class BayesianOptimizationInitial extends BayesianOptimizationEvent {
-  //TODO: List<BayesianOptimizationTrainingResult> previousTrainings;
+  List<BayesianOptimizationTrainingResult>? previousTrainings;
+  BayesianOptimizationInitial({this.previousTrainings});
 }
 
-class BayesianOptimizationLoaded extends BayesianOptimizationEvent {
-  BayesianOptimizationTrainingResult? currentResult;
+class BayesianOptimizationLoadPreviousTrainings extends BayesianOptimizationEvent {
+  BayesianOptimizationLoadPreviousTrainings();
 }
 
 class BayesianOptimizationTrainingStarted extends BayesianOptimizationEvent {
@@ -49,8 +53,7 @@ class BayesianOptimizationTrainingStarted extends BayesianOptimizationEvent {
 }
 
 @immutable
-final class BayesianOptimizationState
-    extends BiocentralCommandState<BayesianOptimizationState> {
+final class BayesianOptimizationState extends BiocentralCommandState<BayesianOptimizationState> {
   const BayesianOptimizationState(super.stateInformation, super.status);
 
   const BayesianOptimizationState.idle() : super.idle();
@@ -67,33 +70,62 @@ final class BayesianOptimizationState
   List<Object?> get props => [stateInformation, status];
 }
 
-class BayesianOptimizationBloc
-    extends BiocentralBloc<BayesianOptimizationEvent, BayesianOptimizationState>
+class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent, BayesianOptimizationState>
     with BiocentralSyncBloc, Effects<ReOpenColumnWizardEffect> {
+  final BayesianOptimizationRepository _bayesianOptimizationRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralClientRepository _bioCentralClientRepository;
 
   BayesianOptimizationBloc(
+    this._bayesianOptimizationRepository,
     this._biocentralProjectRepository,
     this._bioCentralClientRepository,
     EventBus eventBus,
     this._biocentralDatabaseRepository,
   ) : super(const BayesianOptimizationState.idle(), eventBus) {
     on<BayesianOptimizationTrainingStarted>(_onTrainingStarted);
+    on<BayesianOptimizationLoadPreviousTrainings>(_onLoadPreviousTrainings);
+  }
+
+  List<BayesianOptimizationTrainingResult>? get previousResults =>
+      _bayesianOptimizationRepository.previousTrainingResults;
+  BayesianOptimizationTrainingResult? get currentResult => _bayesianOptimizationRepository.currentResult;
+
+  Future<void> _onLoadPreviousTrainings(
+    BayesianOptimizationLoadPreviousTrainings event,
+    Emitter<BayesianOptimizationState> emit,
+  ) async {
+    emit(state.setOperating(information: 'Loading previous trainings...'));
+
+    final FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowedExtensions: ['csv'], type: FileType.custom, withData: kIsWeb);
+
+    if (result != null) {
+      _bayesianOptimizationRepository.previousTrainingResults = [];
+      for (PlatformFile file in result.files) {
+        _bayesianOptimizationRepository.addPickedPreviousTrainingResults(file.bytes);
+      }
+      emit(
+        state.newState(
+          const BiocentralCommandStateInformation(information: 'Previous Training Loaded'),
+          BiocentralCommandStatus.finished,
+        ),
+      );
+    } else {
+      emit(state.setErrored(information: 'No file selected'));
+    }
   }
 
   void _onTrainingStarted(
     BayesianOptimizationTrainingStarted event,
     Emitter<BayesianOptimizationState> emit,
   ) async {
-    final BiocentralDatabase? biocentralDatabase =
-        _biocentralDatabaseRepository.getFromType(Protein);
+    final BiocentralDatabase? biocentralDatabase = _biocentralDatabaseRepository.getFromType(Protein);
     if (biocentralDatabase == null) {
       emit(
         state.setErrored(
-          information:
-              'Could not find the database for which to calculate embeddings!',
+          information: 'Could not find the database for which to calculate embeddings!',
         ),
       );
     } else {
@@ -102,40 +134,42 @@ class BayesianOptimizationBloc
         'task': event.selectedTask.toString(),
         'feature': event.selectedFeature.toString(),
         'model': event.selectedModel.toString(),
-        'exploitationExplorationValue':
-            event.exploitationExplorationValue.toString(),
+        'exploitationExplorationValue': event.exploitationExplorationValue.toString(),
         'selectedEmbedder': event.selectedEmbedder?.name,
         'optimizationType': event.optimizationType,
-        if (event.targetValue != null)
-          'targetValue': event.targetValue.toString(),
-        if (event.targetRangeMin != null)
-          'targetRangeMin': event.targetRangeMin.toString(),
-        if (event.targetRangeMax != null)
-          'targetRangeMax': event.targetRangeMax.toString(),
-        if (event.desiredBooleanValue != null)
-          'desiredBooleanValue': event.desiredBooleanValue.toString(),
+        if (event.targetValue != null) 'targetValue': event.targetValue.toString(),
+        if (event.targetRangeMin != null) 'targetRangeMin': event.targetRangeMin.toString(),
+        if (event.targetRangeMax != null) 'targetRangeMax': event.targetRangeMax.toString(),
+        if (event.desiredBooleanValue != null) 'desiredBooleanValue': event.desiredBooleanValue.toString(),
       };
 
       final command = TransferBOTrainingConfigCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         biocentralDatabase: biocentralDatabase,
-        client: _bioCentralClientRepository
-            .getServiceClient<BayesianOptimizationClient>(),
+        client: _bioCentralClientRepository.getServiceClient<BayesianOptimizationClient>(),
         trainingConfiguration: config,
       );
 
-      // await command
-      //     .executeWithLogging<BayesianOptimizationState>(
-      //   _biocentralProjectRepository,
-      //   const BayesianOptimizationState(
-      //       const BiocentralCommandStateInformation(information: ''),
-      //       BiocentralCommandStatus.operating),
-      // )
-      //     .forEach(
-      //   (either) {
-      //     either.match((l) => emit(l), (r) => ());
-      //   },
-      // );
+      await command
+          .executeWithLogging<BayesianOptimizationState>(
+        _biocentralProjectRepository,
+        const BayesianOptimizationState(
+          BiocentralCommandStateInformation(information: ''),
+          BiocentralCommandStatus.operating,
+        ),
+      )
+          .forEach(
+        (either) {
+          either.match((l) => emit(l), (r) {
+            _bayesianOptimizationRepository.setCurrentResult(r);
+            emit(
+              state.setFinished(
+                information: 'Training completed',
+              ),
+            );
+          });
+        },
+      );
     }
   }
 }
