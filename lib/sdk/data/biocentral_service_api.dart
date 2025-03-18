@@ -6,6 +6,7 @@ class BiocentralServiceEndpoints {
   static const hashes = '/biocentral_service/hashes/';
   static const transferFile = '/biocentral_service/transfer_file';
   static const taskStatus = '/biocentral_service/task_status';
+  static const taskStatusResumed = '/biocentral_service/task_status_resumed';
 }
 
 enum StorageFileType {

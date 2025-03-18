@@ -1,8 +1,7 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-
 import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:biocentral/sdk/util/logging.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 @immutable
 abstract class BiocentralCommandState<T extends BiocentralCommandState<T>> extends Equatable {
@@ -33,24 +32,34 @@ abstract class BiocentralCommandState<T extends BiocentralCommandState<T>> exten
     return status == BiocentralCommandStatus.errored;
   }
 
+  T setTaskID(String taskID) {
+    return newState(
+        BiocentralCommandStateInformation(information: stateInformation.information, serverTaskID: taskID), status);
+  }
+
   T setIdle({String? information}) {
     return newState(BiocentralCommandStateInformation(information: information ?? ''), BiocentralCommandStatus.idle);
   }
 
   T setOperating({required String information, BiocentralCommandProgress? commandProgress}) {
-    return newState(BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
-        BiocentralCommandStatus.operating,);
+    return newState(
+      BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
+      BiocentralCommandStatus.operating,
+    );
   }
 
   T updateOperating({required BiocentralCommandProgress commandProgress}) {
     return newState(
-        BiocentralCommandStateInformation(information: stateInformation.information, commandProgress: commandProgress),
-        BiocentralCommandStatus.operating,);
+      BiocentralCommandStateInformation(information: stateInformation.information, commandProgress: commandProgress),
+      BiocentralCommandStatus.operating,
+    );
   }
 
   T setFinished({required String information, BiocentralCommandProgress? commandProgress}) {
-    return newState(BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
-        BiocentralCommandStatus.finished,);
+    return newState(
+      BiocentralCommandStateInformation(information: information, commandProgress: commandProgress),
+      BiocentralCommandStatus.finished,
+    );
   }
 
   T setErrored({required String information}) {
@@ -86,12 +95,14 @@ class BiocentralCommandProgress {
 @immutable
 class BiocentralCommandStateInformation {
   final String information;
+  final String? serverTaskID;
   final BiocentralCommandProgress? commandProgress;
 
-  const BiocentralCommandStateInformation({required this.information, this.commandProgress});
+  const BiocentralCommandStateInformation({required this.information, this.serverTaskID, this.commandProgress});
 
   const BiocentralCommandStateInformation.empty()
       : information = '',
+        serverTaskID = null,
         commandProgress = null;
 }
 

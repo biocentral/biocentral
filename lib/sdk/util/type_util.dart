@@ -9,11 +9,11 @@ Enum? enumFromString<Enum>(String? name, List<Enum> values) {
   }
 }
 
-Map<String, String> stringMapFromJsonDecode(Map? decodedMap) {
+Map<String, String> convertToStringMap(Map? map) {
   Map<String, String> result = {};
 
-  if (decodedMap != null) {
-    result = Map.fromEntries(decodedMap.entries.map((entry) => MapEntry(entry.key.toString(), entry.value.toString())));
+  if (map != null) {
+    result = Map.fromEntries(map.entries.map((entry) => MapEntry(entry.key.toString(), entry.value.toString())));
   }
 
   return result;

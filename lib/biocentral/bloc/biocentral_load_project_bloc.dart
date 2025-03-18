@@ -59,8 +59,9 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
           .firstOrNull;
       if(commandLogFile != null) {
         emit(state.setOperating(information: 'Loading command log..'));
-        _projectRepository.loadCommandLog(commandLogFile);
+        await _projectRepository.loadCommandLog(commandLogFile);
       }
+      final commandLogs = _projectRepository.getCommandLog();
 
       final typedCommandBlocMap = convertListToTypeMap(_loadProjectBlocs);
 
@@ -74,10 +75,6 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
           await Future.delayed(const Duration(milliseconds: 50)); // For visual purposes
 
           final pluginScanResult = scanResult.subdirectoryResults[pluginDirectory.path];
-          if (pluginScanResult == null) {
-            // Nothing to load here
-            continue;
-          }
 
           final commandBloc = typedCommandBlocMap[pluginDirectory.commandBlocType];
           if (commandBloc == null) {
@@ -88,11 +85,11 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
             );
           }
 
-          final pluginFiles = pluginScanResult.baseFiles;
-          final pluginSubdirs = pluginScanResult.getAllSubdirectoryFiles();
+          final pluginFiles = pluginScanResult?.baseFiles ?? [];
+          final pluginSubdirs = pluginScanResult?.getAllSubdirectoryFiles() ?? {};
 
           final List<void Function()> loadFunctions =
-              pluginDirectory.createDirectoryLoadingEvents(pluginFiles, pluginSubdirs, commandBloc);
+              pluginDirectory.createDirectoryLoadingEvents(pluginFiles, pluginSubdirs, commandLogs, commandBloc);
 
           if (loadFunctions.isNotEmpty) {
             final int totalLoads = loadFunctions.length;
@@ -145,6 +142,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
       }
 
       currentSubscription?.cancel();
+      _projectRepository.exitProjectLoadingContext();
       emit(state.setFinished(information: 'Project loading completed successfully!'));
     });
   }
