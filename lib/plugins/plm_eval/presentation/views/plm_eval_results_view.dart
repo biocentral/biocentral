@@ -1,4 +1,5 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
 import 'package:flutter/material.dart';
 
 class PLMEvalResultsView extends StatefulWidget {
@@ -38,9 +39,12 @@ class _PLMEvalResultsViewState extends State<PLMEvalResultsView> with AutomaticK
             }
           },
         ),
-        BiocentralMetricsTable(
-          metrics: widget.metrics[_selectedDatasetName] ?? {},
-        )
+        SizedBox(
+          height: SizeConfig.screenHeight(context) * 0.7,
+          child: BiocentralMetricsDisplay(
+            metrics: widget.metrics[_selectedDatasetName] ?? {},
+          ),
+        ),
       ],
     );
   }
