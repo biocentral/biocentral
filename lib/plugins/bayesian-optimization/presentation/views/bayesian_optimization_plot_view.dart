@@ -1,32 +1,32 @@
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class BayesianOptimizationPlotView extends StatelessWidget {
   String yLabel;
   String xLabel;
-  List<PlotData>? plotData;
+  BayesianOptimizationTrainingResult? data;
 
   BayesianOptimizationPlotView({
     required this.yLabel,
     required this.xLabel,
-    this.plotData,
+    this.data,
     super.key,
   }) {
-    plotData = plotData ?? dummyData;
+    data = data ?? dummyData;
   }
 
   late MinMaxValues minMaxValues;
 
   @override
   Widget build(BuildContext context) {
-    minMaxValues = minMax(plotData);
+    minMaxValues = minMax(data!.results);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
             Expanded(
-              flex: 5,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ScatterChart(
@@ -68,7 +68,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
                       ),
                     ),
                     gridData: const FlGridData(),
-                    scatterSpots: getData(plotData!),
+                    scatterSpots: getData(data!),
                     minX: minMaxValues.getMinX,
                     maxX: minMaxValues.getMaxX,
                     minY: minMaxValues.getMinY,
@@ -91,48 +91,46 @@ class BayesianOptimizationPlotView extends StatelessWidget {
             ),
 
             // Color Legend Bar
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 64),
-                width: 100,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Colors.blue, // Low utility
-                            Colors.purple,
-                            Colors.red,
-                            Colors.orange,
-                          ],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 64),
+              width: 100,
+              child: Row(
+                children: [
+                  Container(
+                    width: 20,
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.blue, // Low utility
+                          Colors.purple,
+                          Colors.red,
+                          Colors.orange,
+                        ],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${minMaxValues.maxY}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          '${(minMaxValues.maxY - minMaxValues.minY) / 2}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          '${minMaxValues.minY}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        minMaxValues.maxY.toStringAsFixed(2),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        ((minMaxValues.maxY - minMaxValues.minY) / 2).toStringAsFixed(2),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        minMaxValues.minY.toStringAsFixed(2),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -142,35 +140,40 @@ class BayesianOptimizationPlotView extends StatelessWidget {
   }
 
 // Dummy list of PlotData
-  final List<PlotData> dummyData = [
-    PlotData(row: 1, x: 32, y: -1.4, utility: -1.5),
-    PlotData(row: 2, x: 35, y: -1.0, utility: -1.2),
-    PlotData(row: 3, x: 37, y: -0.8, utility: -0.5),
-    PlotData(row: 4, x: 40, y: -0.5, utility: -0.3),
-    PlotData(row: 5, x: 42, y: -0.2, utility: -0.1),
-    PlotData(row: 6, x: 45, y: 0.0, utility: 0.0),
-    PlotData(row: 7, x: 48, y: 0.3, utility: 0.1),
-    PlotData(row: 8, x: 50, y: 0.5, utility: 0.5),
-    PlotData(row: 9, x: 52, y: 0.7, utility: 0.8),
-    PlotData(row: 10, x: 55, y: 0.9, utility: 1.0),
-    PlotData(row: 11, x: 57, y: 0.6, utility: 0.7),
-    PlotData(row: 12, x: 60, y: 0.3, utility: 0.2),
-    PlotData(row: 13, x: 40, y: -1.5, utility: -1.4),
-    PlotData(row: 14, x: 55, y: -0.5, utility: -0.2),
-    PlotData(row: 15, x: 50, y: -1.2, utility: -1.0),
-  ];
+  final BayesianOptimizationTrainingResult dummyData = const BayesianOptimizationTrainingResult(
+    results: [
+      BayesianOptimizationTrainingResultData(proteinId: '1', prediction: 32, uncertainty: -1.4, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '2', prediction: 35, uncertainty: -1.0, utility: -1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '3', prediction: 37, uncertainty: -0.8, utility: -0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '4', prediction: 40, uncertainty: -0.5, utility: -0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '5', prediction: 42, uncertainty: -0.2, utility: 0.0),
+      BayesianOptimizationTrainingResultData(proteinId: '6', prediction: 45, uncertainty: 0.0, utility: 0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '7', prediction: 47, uncertainty: 0.2, utility: 0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '8', prediction: 50, uncertainty: 0.5, utility: 0.8),
+      BayesianOptimizationTrainingResultData(proteinId: '9', prediction: 52, uncertainty: 0.8, utility: 1.0),
+      BayesianOptimizationTrainingResultData(proteinId: '10', prediction: 55, uncertainty: 1.0, utility: 1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '11', prediction: 32, uncertainty: -1.5, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '12', prediction: 35, uncertainty: -1.1, utility: -1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '13', prediction: 37, uncertainty: -0.1, utility: -0.5),
+      BayesianOptimizationTrainingResultData(proteinId: '14', prediction: 40, uncertainty: -0.2, utility: -0.2),
+      BayesianOptimizationTrainingResultData(proteinId: '15', prediction: 42, uncertainty: -0.5, utility: 1.0),
+      BayesianOptimizationTrainingResultData(proteinId: '16', prediction: 45, uncertainty: 0.5, utility: 1.2),
+      BayesianOptimizationTrainingResultData(proteinId: '17', prediction: 47, uncertainty: 0.6, utility: -1.5),
+      BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
+    ],
+  );
 
-  List<ScatterSpot> getData(List<PlotData> plotData) {
+  List<ScatterSpot> getData(BayesianOptimizationTrainingResult plotData) {
     final List<ScatterSpot> scatterSpots = [];
 
     // Map the dummyData to ScatterSpot
-    for (var data in plotData) {
-      final Color pointColor = getColorBasedOnUtility(data.utility);
+    for (var data in plotData.results!) {
+      final Color pointColor = getColorBasedOnUtility(data.utility!);
 
       scatterSpots.add(
         ScatterSpot(
-          data.x,
-          data.y,
+          data.prediction!,
+          data.uncertainty!,
           show: true,
           dotPainter: FlDotCirclePainter(
             radius: 8,
@@ -198,44 +201,29 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     }
   }
 
-  MinMaxValues minMax(List<PlotData>? plotData) {
+  MinMaxValues minMax(List<BayesianOptimizationTrainingResultData>? plotData) {
     double minX = 99999;
     double minY = 99999;
     double maxX = -99999;
     double maxY = -99999;
 
     for (var data in plotData!) {
-      if (data.x < minX) {
-        minX = data.x;
+      if (data.prediction! < minX) {
+        minX = data.prediction!;
       }
-      if (data.y < minY) {
-        minY = data.y;
+      if (data.uncertainty! < minY) {
+        minY = data.uncertainty!;
       }
-      if (data.x > maxX) {
-        maxX = data.x;
+      if (data.prediction! > maxX) {
+        maxX = data.prediction!;
       }
-      if (data.y > maxY) {
-        maxY = data.y;
+      if (data.uncertainty! > maxY) {
+        maxY = data.uncertainty!;
       }
     }
 
     return MinMaxValues(minX: minX, minY: minY, maxX: maxX, maxY: maxY);
   }
-}
-
-// Define a class to hold Row, X, Y, and Utility
-class PlotData {
-  final int row;
-  final double x;
-  final double y;
-  final double utility;
-
-  PlotData({
-    required this.row,
-    required this.x,
-    required this.y,
-    required this.utility,
-  });
 }
 
 class MinMaxValues {

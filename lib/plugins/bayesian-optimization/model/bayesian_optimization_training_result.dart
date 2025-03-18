@@ -3,13 +3,29 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class BayesianOptimizationTrainingResult extends Equatable {
-  final String? databaseType;
+  final List<BayesianOptimizationTrainingResultData>? results;
 
   const BayesianOptimizationTrainingResult({
-    required this.databaseType,
+    required this.results,
   });
 
   @override
-// TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [results];
+}
+
+class BayesianOptimizationTrainingResultData extends Equatable {
+  final String? proteinId;
+  final double? utility;
+  final double? prediction;
+  final double? uncertainty;
+
+  const BayesianOptimizationTrainingResultData({
+    required this.proteinId,
+    required this.utility,
+    required this.prediction,
+    required this.uncertainty,
+  });
+
+  @override
+  List<Object?> get props => [proteinId, utility, prediction, uncertainty];
 }

@@ -59,6 +59,10 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
     );
   }
 
+  void openPreviousTrainingsDialog(BuildContext context) async {
+    BlocProvider.of<BayesianOptimizationBloc>(context).add(BayesianOptimizationLoadPreviousTrainings());
+  }
+
   @override
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
@@ -78,6 +82,15 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
             iconData: Icons.model_training,
             onTap: () {
               // Add your onTap logic here
+            },
+          ),
+        ),
+        BiocentralTooltip(
+          message: 'Select previous training to view results',
+          child: BiocentralButton(
+            iconData: Icons.history,
+            onTap: () {
+              openPreviousTrainingsDialog(context);
             },
           ),
         ),
