@@ -2,6 +2,7 @@ import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bl
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
@@ -88,11 +89,12 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       trailing: trailing,
       children: childrenWithTitles.entries
           .map(
-            (entry) => ExpansionTile(
+            (entry) =>
+            ExpansionTile(
               title: Text(entry.key),
               children: [
                 if (childrenNeedIntrinsicHeight[entry.key] ?? true)
-                  // Use IntrinsicHeight for text and other simple content
+                // Use IntrinsicHeight for text and other simple content
                   ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: SizeConfig.screenHeight(context) * 0.7,
@@ -102,7 +104,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
                     ),
                   )
                 else
-                  // Use fixed SizedBox for logs, plots, etc.
+                // Use fixed SizedBox for logs, plots, etc.
                   SizedBox(
                     height: SizeConfig.screenHeight(context) * 0.7,
                     child: entry.value,
@@ -113,7 +115,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
                 ),
               ),
             ),
-          )
+      )
           .toList(),
     );
   }
@@ -134,50 +136,15 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   Widget buildModelInformation() {
     final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
     final List<TableRow> rows =
-        modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
+    modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
     return Table(children: rows);
   }
 
   Widget buildMetricsDisplay(BiotrainerTrainingResult? trainingResult) {
     if (trainingResult == null) return Container();
-    final Widget metricsDisplay = _showMetricsAsTable
-        ? BiocentralMetricsTable(
-            metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
-              ..addAll(trainingResult.sanityCheckBaselineMetrics),
-          )
-        : BiocentralMetricsPlot(
-            metrics: {'Test Set Metrics': trainingResult.testSetMetrics}
-              ..addAll(trainingResult.sanityCheckBaselineMetrics));
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            children: [
-              SizedBox(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight * 0.2,
-                child: BiocentralDiscreteSelection<String>(
-                  title: 'Display',
-                  initialValue: _showMetricsAsTable ? 'Table' : 'Plot',
-                  selectableValues: ['Table', 'Plot'],
-                  onChangedCallback: (String? value) {
-                    setState(() {
-                      _showMetricsAsTable = value == 'Table';
-                    });
-                  },
-                ),
-              ),
-              SizedBox(width: constraints.maxWidth * 0.95, height: constraints.maxHeight * 0.9, child: metricsDisplay),
-            ].withPadding(
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+    final metrics = {'Test Set Metrics': trainingResult.testSetMetrics}
+      ..addAll(trainingResult.sanityCheckBaselineMetrics);
+    return BiocentralMetricsDisplay(metrics: metrics);
   }
 
   Widget buildLossCurves(BiotrainerTrainingResult? trainingResult) {
