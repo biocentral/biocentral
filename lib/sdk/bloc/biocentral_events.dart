@@ -15,6 +15,12 @@ class BiocentralCommandStateChangedEvent extends BiocentralEvent {
   BiocentralCommandStateChangedEvent(this.state);
 }
 
+class BiocentralResumableCommandFinishedEvent extends BiocentralEvent {
+  final BiocentralCommandLog finishedCommand;
+
+  BiocentralResumableCommandFinishedEvent(this.finishedCommand);
+}
+
 class BiocentralDatabaseSyncEvent extends BiocentralDatabaseUpdatedEvent {
   final Map<String, BioEntity> updatedEntities;
   final DatabaseImportMode importMode;

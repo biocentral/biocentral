@@ -120,8 +120,12 @@ class PpiPlugin extends BiocentralPlugin
         path: 'ppi',
         saveType: ProteinProteinInteraction,
         commandBlocType: PPICommandBloc,
-        createDirectoryLoadingEvents:
-            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
           final List<void Function()> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('proteinproteininteraction.') && scannedFile.extension == 'fasta') {

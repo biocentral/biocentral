@@ -109,8 +109,12 @@ class EmbeddingsPlugin extends BiocentralPlugin
         path: 'embeddings',
         saveType: Embedding,
         commandBlocType: EmbeddingsCommandBloc,
-        createDirectoryLoadingEvents:
-            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
           final List<void Function()> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
             if (scannedFile.extension == 'h5') {
@@ -127,8 +131,12 @@ class EmbeddingsPlugin extends BiocentralPlugin
         path: 'projections',
         saveType: ProjectionData,
         commandBlocType: EmbeddingsCommandBloc,
-        createDirectoryLoadingEvents:
-            (List<XFile> scannedFiles, Map<String, List<XFile>> scannedSubDirectories, dynamic commandBloc) {
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
           // TODO Handle Projection Data loading
           return [];
         },

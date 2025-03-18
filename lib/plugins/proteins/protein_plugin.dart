@@ -110,6 +110,7 @@ class ProteinPlugin extends BiocentralPlugin
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
           dynamic commandBloc,
         ) {
           final List<void Function()> loadingFunctions = [];

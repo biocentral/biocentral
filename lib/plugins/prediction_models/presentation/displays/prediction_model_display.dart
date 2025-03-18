@@ -5,6 +5,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_task_display.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 
@@ -81,45 +82,39 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     required Map<String, bool> childrenNeedIntrinsicHeight,
     Widget? trailing,
   }) {
-    return SizedBox(
-      width: SizeConfig.screenWidth(context) * 0.95,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          child: ExpansionTile(
-            leading: leadingIcon,
-            title: Text(title),
-            trailing: trailing,
-            children: childrenWithTitles.entries
-                .map(
-                  (entry) => ExpansionTile(
-                    title: Text(entry.key),
-                    children: [
-                      if (childrenNeedIntrinsicHeight[entry.key] ?? true)
-                        // Use IntrinsicHeight for text and other simple content
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: SizeConfig.screenHeight(context) * 0.7,
-                          ),
-                          child: IntrinsicHeight(
-                            child: entry.value,
-                          ),
-                        )
-                      else
-                        // Use fixed SizedBox for logs, plots, etc.
-                        SizedBox(
-                          height: SizeConfig.screenHeight(context) * 0.7,
-                          child: entry.value,
-                        )
-                    ].withPadding(const Padding(
-                      padding: EdgeInsets.all(10),
-                    )),
+    return BiocentralTaskDisplay(
+      title: title,
+      leadingIcon: leadingIcon,
+      trailing: trailing,
+      children: childrenWithTitles.entries
+          .map(
+            (entry) => ExpansionTile(
+              title: Text(entry.key),
+              children: [
+                if (childrenNeedIntrinsicHeight[entry.key] ?? true)
+                  // Use IntrinsicHeight for text and other simple content
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: SizeConfig.screenHeight(context) * 0.7,
+                    ),
+                    child: IntrinsicHeight(
+                      child: entry.value,
+                    ),
+                  )
+                else
+                  // Use fixed SizedBox for logs, plots, etc.
+                  SizedBox(
+                    height: SizeConfig.screenHeight(context) * 0.7,
+                    child: entry.value,
                   ),
-                )
-                .toList(),
-          ),
-        ),
-      ),
+              ].withPadding(
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -173,8 +168,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
                   },
                 ),
               ),
-              SizedBox(
-                  width: constraints.maxWidth * 0.95, height: constraints.maxHeight * 0.9, child: metricsDisplay),
+              SizedBox(width: constraints.maxWidth * 0.95, height: constraints.maxHeight * 0.9, child: metricsDisplay),
             ].withPadding(
               const Padding(
                 padding: EdgeInsets.all(8.0),
