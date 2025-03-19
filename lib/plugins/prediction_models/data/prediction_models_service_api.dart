@@ -70,6 +70,38 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         trainingLogs = const [],
         trainingStatus = BiocentralTaskStatus.running;
 
+  static BiotrainerTrainingResult? fromMap(Map<String, dynamic> map) {
+    final Map<int, double> trainingLoss =
+        Map<int, double>.from((map['trainingLoss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)));
+    final Map<int, double> validationLoss =
+        Map<int, double>.from((map['validationLoss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)));
+    final List<dynamic> testSetMetrics = map['testSetMetrics'] ?? [];
+    final Set<String> sanityCheckWarnings = Set<String>.from(map['sanityCheckWarnings'] ?? []);
+    final Map<String, dynamic> sanityCheckBaselineMetrics = map['sanityCheckBaselineMetrics'] ?? {};
+    final List<String> trainingLogs = List<String>.from(map['trainingLogs'] ?? []);
+    final trainingStatus = enumFromString(map['trainingStatus'], BiocentralTaskStatus.values);
+
+    if (trainingStatus == null) {
+      return null;
+    }
+
+    final convertedTestSetMetrics =
+        testSetMetrics.map((element) => BiocentralMLMetric.fromMap(element)).whereType<BiocentralMLMetric>().toSet();
+    final Map<String, Set<BiocentralMLMetric>> convertedSanityCheckBaselineMetrics = sanityCheckBaselineMetrics.map(
+      (k, v) =>
+          MapEntry(k, v.map((element) => BiocentralMLMetric.fromMap(element)).whereType<BiocentralMLMetric>().toSet()),
+    );
+    return BiotrainerTrainingResult(
+      trainingLoss: trainingLoss,
+      validationLoss: validationLoss,
+      testSetMetrics: convertedTestSetMetrics,
+      sanityCheckWarnings: sanityCheckWarnings,
+      sanityCheckBaselineMetrics: convertedSanityCheckBaselineMetrics,
+      trainingLogs: trainingLogs,
+      trainingStatus: trainingStatus,
+    );
+  }
+
   static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
     final trainingLog = dto.logFile;
     final trainingStatus = dto.taskStatus;
@@ -132,6 +164,22 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
 
   int? getLastEpoch() {
     return trainingLoss.keys.maxOrNull;
+  }
+
+  Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
+    final result = {
+      'trainingLoss': trainingLoss.map((k, v) => MapEntry(k.toString(), v)),
+      'validationLoss': validationLoss.map((k, v) => MapEntry(k.toString(), v)),
+      'testSetMetrics': testSetMetrics.map((metric) => metric.toMap()).toList(),
+      'sanityCheckWarnings': sanityCheckWarnings.toList(),
+      'sanityCheckBaselineMetrics':
+          sanityCheckBaselineMetrics.map((k, v) => MapEntry(k, v.map((metric) => metric.toMap()).toList())),
+      'trainingStatus': trainingStatus.name,
+    };
+    if (includeTrainingLogs) {
+      result.addAll({'trainingLogs': trainingLogs});
+    }
+    return result;
   }
 
   @override

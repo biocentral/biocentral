@@ -75,7 +75,10 @@ class _BiocentralTaskDisplayState extends State<BiocentralTaskDisplay> {
           child: ExpansionTile(
             leading: widget.leadingIcon,
             title: Text(widget.title),
-            trailing: widget.trailing,
+            trailing: SizedBox(
+              width: SizeConfig.screenWidth(context) * 0.2,
+              child: widget.trailing,
+            ),
             children: widget.children,
           ),
         ),
