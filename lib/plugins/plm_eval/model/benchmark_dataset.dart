@@ -24,6 +24,15 @@ class BenchmarkDataset implements Comparable<BenchmarkDataset> {
     return result;
   }
 
+  static Map<String, List<(String, T)>> separateBenchmarkDatasetsMapToSplitList<T>(Map<BenchmarkDataset, T> map) {
+    final result = <String, List<(String, T)>>{};
+    for(final entry in map.entries) {
+      result.putIfAbsent(entry.key.datasetName, () => []);
+      result[entry.key.datasetName]?.add((entry.key.splitName, entry.value));
+    }
+    return result;
+  }
+
   @override
   int compareTo(BenchmarkDataset other) {
     if(datasetName == other.datasetName) {

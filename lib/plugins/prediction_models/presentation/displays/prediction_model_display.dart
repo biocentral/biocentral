@@ -61,10 +61,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     return buildModelCard(
       title: title,
       leadingIcon: const CircularProgressIndicator(),
-      trailing: SizedBox(
-        width: SizeConfig.screenWidth(context) * 0.2,
-        child: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
-      ),
+      trailing: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
       childrenWithTitles: {
         'Loss Curves': buildLossCurves(widget.predictionModel.biotrainerTrainingResult),
         'Training Logs': buildLogResult(),

@@ -2,16 +2,16 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
 import 'package:flutter/material.dart';
 
-class PLMEvalResultsView extends StatefulWidget {
+class PLMEvalResultsDisplay extends StatefulWidget {
   final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics; // Dataset name -> Split name -> Metrics
 
-  const PLMEvalResultsView({required this.metrics, super.key});
+  const PLMEvalResultsDisplay({required this.metrics, super.key});
 
   @override
-  State<PLMEvalResultsView> createState() => _PLMEvalResultsViewState();
+  State<PLMEvalResultsDisplay> createState() => _PLMEvalResultsDisplayState();
 }
 
-class _PLMEvalResultsViewState extends State<PLMEvalResultsView> with AutomaticKeepAliveClientMixin {
+class _PLMEvalResultsDisplayState extends State<PLMEvalResultsDisplay> with AutomaticKeepAliveClientMixin {
   String? _selectedDatasetName;
 
   @override

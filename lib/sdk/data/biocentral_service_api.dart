@@ -9,6 +9,7 @@ class BiocentralServiceEndpoints {
   static const taskStatusResumed = '/biocentral_service/task_status_resumed';
 }
 
+// TODO [Refactoring] Refactor to BiocentralFile and make available via some repository for generic enhance-ability
 enum StorageFileType {
   sequences,
   labels,

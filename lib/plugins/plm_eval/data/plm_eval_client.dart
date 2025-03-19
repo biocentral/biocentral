@@ -45,10 +45,29 @@ class PLMEvalClient extends BiocentralClient {
     });
   }
 
+  Future<Either<BiocentralException, AutoEvalProgress>> resumeAutoEval(
+    String taskID,
+    AutoEvalProgress initialProgress,
+  ) async {
+    final responseEither = await resumeTask(taskID);
+    return responseEither.flatMap((dtos) {
+      AutoEvalProgress? currentProgress = initialProgress;
+      for (final dto in dtos) {
+        currentProgress = _updateFunction(currentProgress, dto);
+      }
+      if (currentProgress == null) {
+        return left(BiocentralParsingException(message: 'Could not parse resumed eval progress from server dtos!'));
+      }
+      return right(currentProgress);
+    });
+  }
+
+  AutoEvalProgress? _updateFunction(AutoEvalProgress? currentProgress, BiocentralDTO biocentralDTO) {
+    return currentProgress?.updateFromDTO(biocentralDTO);
+  }
+
   Stream<AutoEvalProgress?> autoEvalProgressStream(String taskID, AutoEvalProgress initialProgress) async* {
-    AutoEvalProgress? updateFunction(AutoEvalProgress? currentProgress, BiocentralDTO biocentralDTO) =>
-        currentProgress?.updateFromDTO(biocentralDTO);
-    yield* taskUpdateStream<AutoEvalProgress?>(taskID, initialProgress, updateFunction);
+    yield* taskUpdateStream<AutoEvalProgress?>(taskID, initialProgress, _updateFunction);
   }
 
   Future<Either<BiocentralException, PLMLeaderboard>> downloadPLMLeaderboardData() async {
@@ -59,7 +78,7 @@ class PLMEvalClient extends BiocentralClient {
 
   Future<Either<BiocentralException, PLMLeaderboard>> publishResults(List publishingResults) async {
     final Map<String, String> body = {'results': jsonEncode(publishingResults)};
-    
+
     final leaderboardMapEither = await hubServerClient.doPostRequest('/plm_leaderboard_publish/', body);
     return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
   }

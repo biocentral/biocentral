@@ -151,8 +151,9 @@ class BiotrainerFileHandler {
 
   static PredictionModel? predictionModelFromBiotrainerLog(Map<String, dynamic> configMap, String trainingLog) {
     return PredictionModel.fromMap(configMap)?.copyWith(
-        biotrainerTrainingResult: BiotrainerLogFileHandler.parseBiotrainerLog(trainingLog: trainingLog),
-        biotrainerTrainingLog: trainingLog);
+      biotrainerTrainingResult: BiotrainerLogFileHandler.parseBiotrainerLog(trainingLog: trainingLog),
+      biotrainerTrainingLog: trainingLog,
+    );
   }
 
   static PredictionModel? _predictionModelFromBiotrainerConfig(Map<String, dynamic> configMap) {
