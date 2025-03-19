@@ -27,6 +27,12 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
+  Set<String> getSystemColumns() {
+    // Define system columns that should be excluded from training
+    return {"id", "sequence", "taxonomyID", "embeddings"};
+  }
+
+  @override
   void addEntity(Protein entity) {
     _proteins[entity.id] = entity;
     _proteinIDs.add(entity.id);
@@ -172,146 +178,4 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     if (_proteins.isEmpty) return [];
     return _proteins.values.first.toMap().keys.toList();
   }
-
-  // List<String> getTrainableColumnNames() {
-  //   var columnNames = getColumnNames();
-  //   return columnNames
-  //       .where((column) {
-  //         return _proteins.values.any((protein) {
-  //           return protein.attributes.toMap()[column] == null ||
-  //               protein.attributes.toMap()[column] == "Unknown";
-  //         });
-  //       })
-  //       .where((column) =>
-  //           column != "id" && column != "taxonomyID" && column != "embeddings")
-  //       .toList();
-  // }
-
-  bool _isNumeric(String value) {
-    return num.tryParse(value) != null;
-  }
-
-  bool _isBoolean(String value) {
-    value = value.toLowerCase();
-    return value == "true" || value == "false" || value == "1" || value == "0";
-  }
-
-  Map<String, String> getColumnDatatypesMap() {
-    if (_proteins.isEmpty) return {};
-
-    final Map<String, String> datatypes = {};
-    final columnNames = getColumnNames();
-
-    // First pass: initialize with most restrictive type possible
-    for (var column in columnNames) {
-      if (column == "id" ||
-          column == "sequence" ||
-          column == "taxonomyID" ||
-          column == "embeddings") {
-        datatypes[column] = "other";
-        continue;
-      }
-
-      datatypes[column] = "numeric"; // Start with most restrictive
-    }
-
-    // Second pass: downgrade types as needed based on actual values
-    for (var protein in _proteins.values) {
-      final attributes = protein.attributes.toMap();
-
-      for (var column in columnNames) {
-        if (datatypes[column] == "other") continue;
-
-        final value = attributes[column]?.toString();
-        if (value == null || value == "Unknown") continue;
-
-        if (datatypes[column] == "numeric" && !_isNumeric(value)) {
-          datatypes[column] = _isBoolean(value) ? "boolean" : "other";
-        } else if (datatypes[column] == "boolean" && !_isBoolean(value)) {
-          datatypes[column] = "other";
-        }
-      }
-    }
-
-    return datatypes;
-  }
-
-  List<String> getTrainableColumnNames(
-      [bool? booleanTypes, bool? numericTypes]) {
-    var columnNames = getColumnNames();
-    final datatypes = getColumnDatatypesMap();
-
-    return columnNames.where((column) {
-      // Check if column has any null or Unknown values (trainable)
-      bool isTrainable = _proteins.values.any((protein) {
-        return protein.attributes.toMap()[column] == null ||
-            protein.attributes.toMap()[column] == "Unknown";
-      });
-
-      // Skip non-trainable columns
-      if (!isTrainable) return false;
-
-      // Skip system columns
-      if (column == "id" || column == "taxonomyID" || column == "embeddings")
-        return false;
-
-      // If no type filters specified, include all trainable columns
-      if (booleanTypes == null && numericTypes == null) return true;
-
-      // Apply type filters
-      String type = datatypes[column] ?? "other";
-      if (booleanTypes == true && type == "boolean") return true;
-      if (numericTypes == true && type == "numeric") return true;
-
-      // If both filters are false, return false
-      if (booleanTypes == false && numericTypes == false) return false;
-
-      // If one filter is true and the other is null, only return that type
-      if (booleanTypes == true && numericTypes == null)
-        return type == "boolean";
-      if (numericTypes == true && booleanTypes == null)
-        return type == "numeric";
-
-      return false;
-    }).toList();
-  }
 }
-
-/*
-  void handleGridChangedEvent(PlutoGridOnChangedEvent event) {
-    int columnIndex = event.columnIdx;
-    int rowIndex = event.rowIdx;
-    if (event.value != event.oldValue) {
-      if (isNewlyAddedRow(columnIndex, rowIndex)) {
-        addProtein(Protein(event.value));
-      } else {
-        _updateProteinFromPlutoGrid(columnIndex, rowIndex, event.value);
-      }
-    }
-  }
-    bool isNewlyAddedRow(int columnIndex, int rowIndex) {
-    return rowIndex > (_proteins.length - 1) && columnIndex == 0;
-  }
-    void _updateProteinFromPlutoGrid(int columnIndex, int rowIndex, String value) {
-    String proteinToChangeID = _proteinIDs[rowIndex];
-    Protein toChange = _proteins[proteinToChangeID]!;
-    _proteins[proteinToChangeID] = _copyProteinByColumnIndex(toChange, columnIndex, value);
-  }
-
-  Protein _copyProteinByColumnIndex(Protein toChange, int columnIndex, String value) {
-    Map<String, String> newAttributes = Map.from(toChange.attributes.toMap());
-    switch (columnIndex) {
-      case 0:
-        return toChange.copyWith(id: value);
-      case 1:
-        return toChange.copyWith(sequence: AminoAcidSequence(value));
-      case 2:
-        newAttributes["TARGET"] = value;
-        return toChange.copyWith(attributes: newAttributes);
-      case 3:
-        newAttributes["SET"] = value;
-        return toChange.copyWith(attributes: newAttributes);
-    }
-    return toChange;
-  }
-  */
