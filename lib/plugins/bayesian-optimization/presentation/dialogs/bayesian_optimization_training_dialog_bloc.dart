@@ -188,8 +188,7 @@ class BOTrainingDialogState {
       selectedFeature: selectedFeature ?? this.selectedFeature,
       selectedEmbedder: selectedEmbedder ?? this.selectedEmbedder,
       selectedModel: selectedModel ?? this.selectedModel,
-      exploitationExplorationValue:
-          exploitationExplorationValue ?? this.exploitationExplorationValue,
+      exploitationExplorationValue: exploitationExplorationValue ?? this.exploitationExplorationValue,
       availableFeatures: availableFeatures ?? this.availableFeatures,
       tasks: tasks ?? this.tasks,
       models: models ?? this.models,
@@ -204,8 +203,7 @@ class BOTrainingDialogState {
 }
 
 // Update the Bloc class to handle the new flow
-class BOTrainingDialogBloc
-    extends Bloc<BOTrainingDialogEvent, BOTrainingDialogState> {
+class BOTrainingDialogBloc extends Bloc<BOTrainingDialogEvent, BOTrainingDialogState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository biocentralProjectRepository;
 
@@ -228,15 +226,14 @@ class BOTrainingDialogBloc
     on<DesiredBooleanValueUpdated>(_onDesiredBooleanValueUpdated);
   }
 
-  void _onDatasetSelected(
-      DatasetSelected event, Emitter<BOTrainingDialogState> emit) {
+  void _onDatasetSelected(DatasetSelected event, Emitter<BOTrainingDialogState> emit) {
     var availableFeatures = [''];
     if (event.dataset.toString() == 'Protein') {
       final ProteinRepository? biocentralDatabase =
-          _biocentralDatabaseRepository.getFromType(Protein)
-              as ProteinRepository?;
-      availableFeatures = biocentralDatabase!.getTrainableColumnNames();
+          _biocentralDatabaseRepository.getFromType(Protein) as ProteinRepository?;
+      availableFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames();
     }
+
     emit(state.copyWith(
       selectedDataset: event.dataset,
       currentStep: BOTrainingDialogStep.taskSelection,
@@ -244,18 +241,15 @@ class BOTrainingDialogBloc
     ));
   }
 
-  void _onTaskSelected(
-      TaskSelected event, Emitter<BOTrainingDialogState> emit) {
-    final ProteinRepository? biocentralDatabase = _biocentralDatabaseRepository
-        .getFromType(Protein) as ProteinRepository?;
+  void _onTaskSelected(TaskSelected event, Emitter<BOTrainingDialogState> emit) {
+    final ProteinRepository? biocentralDatabase =
+        _biocentralDatabaseRepository.getFromType(Protein) as ProteinRepository?;
 
     List<String> filteredFeatures = [];
     if (event.task.contains('highest probability')) {
-      filteredFeatures =
-          biocentralDatabase!.getTrainableColumnNames(true, false);
+      filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: true, numericTypes: false);
     } else if (event.task.contains('optimal values')) {
-      filteredFeatures =
-          biocentralDatabase!.getTrainableColumnNames(false, true);
+      filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: false, numericTypes: true);
     }
 
     emit(state.copyWith(
@@ -265,8 +259,7 @@ class BOTrainingDialogBloc
     ));
   }
 
-  void _onFeatureSelected(
-      FeatureSelected event, Emitter<BOTrainingDialogState> emit) {
+  void _onFeatureSelected(FeatureSelected event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(
       selectedFeature: event.feature,
       currentStep: BOTrainingDialogStep.featureConfiguration,
@@ -281,8 +274,7 @@ class BOTrainingDialogBloc
     }
   }
 
-  void _onOptimizationTypeSelected(
-      OptimizationTypeSelected event, Emitter<BOTrainingDialogState> emit) {
+  void _onOptimizationTypeSelected(OptimizationTypeSelected event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(
       optimizationType: event.type,
       targetValue: null,
@@ -292,48 +284,41 @@ class BOTrainingDialogBloc
     _updateFeatureConfigurationStep(emit);
   }
 
-  void _onTargetValueUpdated(
-      TargetValueUpdated event, Emitter<BOTrainingDialogState> emit) {
+  void _onTargetValueUpdated(TargetValueUpdated event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(targetValue: event.value));
     _updateFeatureConfigurationStep(emit);
   }
 
-  void _onTargetRangeMinUpdated(
-      TargetRangeMinUpdated event, Emitter<BOTrainingDialogState> emit) {
+  void _onTargetRangeMinUpdated(TargetRangeMinUpdated event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(targetRangeMin: event.min));
     _updateFeatureConfigurationStep(emit);
   }
 
-  void _onTargetRangeMaxUpdated(
-      TargetRangeMaxUpdated event, Emitter<BOTrainingDialogState> emit) {
+  void _onTargetRangeMaxUpdated(TargetRangeMaxUpdated event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(targetRangeMax: event.max));
     _updateFeatureConfigurationStep(emit);
   }
 
-  void _onDesiredBooleanValueUpdated(
-      DesiredBooleanValueUpdated event, Emitter<BOTrainingDialogState> emit) {
+  void _onDesiredBooleanValueUpdated(DesiredBooleanValueUpdated event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(desiredBooleanValue: event.value));
     _updateFeatureConfigurationStep(emit);
   }
 
-  void _onEmbedderSelected(
-      EmbedderSelected event, Emitter<BOTrainingDialogState> emit) {
+  void _onEmbedderSelected(EmbedderSelected event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(
       selectedEmbedder: event.embedder,
       currentStep: BOTrainingDialogStep.modelSelection,
     ));
   }
 
-  void _onModelSelected(
-      ModelSelected event, Emitter<BOTrainingDialogState> emit) {
+  void _onModelSelected(ModelSelected event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(
       selectedModel: event.model,
       currentStep: BOTrainingDialogStep.exploitationExplorationSelection,
     ));
   }
 
-  void _onExploitationExplorationUpdated(ExploitationExplorationUpdated event,
-      Emitter<BOTrainingDialogState> emit) {
+  void _onExploitationExplorationUpdated(ExploitationExplorationUpdated event, Emitter<BOTrainingDialogState> emit) {
     emit(state.copyWith(
       exploitationExplorationValue: event.value,
       currentStep: BOTrainingDialogStep.complete,
