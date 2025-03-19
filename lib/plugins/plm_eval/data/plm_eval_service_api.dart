@@ -37,6 +37,7 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
 }
 
 final class AutoEvalProgress {
+  final String modelName;
   final int completedTasks;
   final int totalTasks;
   final BenchmarkDataset? currentTask;
@@ -45,6 +46,7 @@ final class AutoEvalProgress {
   final BiocentralTaskStatus status;
 
   AutoEvalProgress({
+    required this.modelName,
     required this.completedTasks,
     required this.totalTasks,
     required this.currentTask,
@@ -53,7 +55,7 @@ final class AutoEvalProgress {
     required this.status,
   });
 
-  AutoEvalProgress.fromDatasets(List<BenchmarkDataset> datasets)
+  AutoEvalProgress.fromDatasets(this.modelName, List<BenchmarkDataset> datasets)
       : completedTasks = 0,
         totalTasks = datasets.length,
         currentTask = null,
@@ -62,7 +64,8 @@ final class AutoEvalProgress {
         status = BiocentralTaskStatus.running;
 
   AutoEvalProgress.failed()
-      : completedTasks = 0,
+      : modelName = '',
+        completedTasks = 0,
         totalTasks = 0,
         currentTask = null,
         results = const {},
@@ -73,6 +76,9 @@ final class AutoEvalProgress {
     if (dto.totalTasks == null || dto.completedTasks == null || dto.taskStatus == null) {
       return this; // Not a valid update
     }
+
+    // TODO [Error handling] modelName should never change!
+    final String modelName = dto.embedderName ?? this.modelName;
     final int newCompletedTasks = dto.completedTasks ?? completedTasks;
     final int newTotalTasks = dto.totalTasks ?? totalTasks;
     final BiocentralTaskStatus newStatus = dto.taskStatus ?? status;
@@ -102,6 +108,7 @@ final class AutoEvalProgress {
           .setOperating(information: 'Training model..', commandProgress: commandProgress);
     }
     return AutoEvalProgress(
+      modelName: modelName,
       completedTasks: newCompletedTasks,
       totalTasks: newTotalTasks,
       currentTask: currentTask,
@@ -109,6 +116,10 @@ final class AutoEvalProgress {
       currentModelTrainingState: newCurrentModelTrainingState,
       status: newStatus,
     );
+  }
+
+  BiocentralCommandProgress toCommandProgress() {
+    return BiocentralCommandProgress(current: completedTasks, total: totalTasks);
   }
 
   List<Map<String, Map<String, dynamic>>>? convertResultsForPublishing(String? embedderName) {

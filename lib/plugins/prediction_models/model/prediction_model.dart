@@ -42,25 +42,24 @@ class PredictionModel extends Equatable {
   static PredictionModel? fromMap(Map<String, dynamic> map) {
     final String? embedderName = map['embedder_name'] ?? map['embedderName'];
     final String? architecture = map['model_choice'] ?? map['modelChoice'];
-    final String databaseType = map['interaction'] != null && map['interaction'] != ''
-        ? const ProteinProteinInteraction.empty().typeName
-        : const Protein.empty().typeName;
+    final String databaseType = map['databaseType'] ??
+        (map['interaction'] != null && map['interaction'] != ''
+            ? const ProteinProteinInteraction.empty().typeName
+            : const Protein.empty().typeName);
     final PredictionProtocol? predictionProtocol =
         enumFromString<PredictionProtocol>(map['protocol'], PredictionProtocol.values);
 
-    // No information contained - return null
-    if (databaseType is! ProteinProteinInteraction &&
-        (architecture?.isEmpty ?? true) &&
-        (embedderName?.isEmpty ?? true) &&
-        predictionProtocol == null) {
-      return null;
-    }
+    final trainingConfig = map['trainingConfig'];
+    final trainingResult = BiotrainerTrainingResult.fromMap(map['trainingResult'] ?? {});
 
-    return const PredictionModel.empty().copyWith(
+    return PredictionModel(
       embedderName: embedderName,
       architecture: architecture,
       databaseType: databaseType,
       predictionProtocol: predictionProtocol,
+      biotrainerTrainingConfig: trainingConfig,
+      biotrainerTrainingResult: trainingResult,
+      biotrainerCheckpoints: null,
     );
   }
 
@@ -146,7 +145,7 @@ class PredictionModel extends Equatable {
   }
 
   PredictionModel updateTrainingResult(BiotrainerTrainingResult? newResult) {
-    if(newResult == null) {
+    if (newResult == null) {
       return this;
     }
     return copyWith(biotrainerTrainingResult: biotrainerTrainingResult?.update(newResult) ?? newResult);
@@ -154,8 +153,7 @@ class PredictionModel extends Equatable {
 
   PredictionModel setTraining() {
     final trainingResult = biotrainerTrainingResult ?? BiotrainerTrainingResult.empty();
-    return copyWith(
-        biotrainerTrainingResult: trainingResult.copyWith(trainingStatus: BiocentralTaskStatus.running));
+    return copyWith(biotrainerTrainingResult: trainingResult.copyWith(trainingStatus: BiocentralTaskStatus.running));
   }
 
   bool isEmpty() {
@@ -164,6 +162,18 @@ class PredictionModel extends Equatable {
 
   bool isNotEmpty() {
     return props.any((element) => element != null);
+  }
+
+  Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
+    // Checkpoints are not included at the moment
+    return {
+      'embedderName': embedderName,
+      'architecture': architecture,
+      'databaseType': databaseType,
+      'protocol': predictionProtocol?.name,
+      'trainingConfig': biotrainerTrainingConfig,
+      'trainingResult': biotrainerTrainingResult?.toMap(includeTrainingLogs: includeTrainingLogs),
+    };
   }
 
   Map<String, String> getModelInformationMap() {

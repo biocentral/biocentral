@@ -1,16 +1,21 @@
 import 'package:biocentral/plugins/embeddings/embeddings_plugin.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_hub_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_leaderboard_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
+import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_command_view.dart';
-import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_view.dart';
+import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_hub_view.dart';
 import 'package:biocentral/plugins/prediction_models/prediction_models_plugin.dart';
-import 'package:biocentral/sdk/data/biocentral_client.dart';
-import 'package:biocentral/sdk/plugin/biocentral_plugin.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
+class PLMEvalPlugin extends BiocentralPlugin
+    with BiocentralClientPluginMixin, BiocentralDatabasePluginMixin<PLMEvalRepository> {
   PLMEvalPlugin(super.eventBus);
 
   @override
@@ -25,19 +30,32 @@ class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
-    final plmEvalCommandBloc = PLMEvalCommandBloc(getBiocentralClientRepository(context));
+    final plmEvalCommandBloc = PLMEvalCommandBloc(
+      getBiocentralProjectRepository(context),
+      getBiocentralClientRepository(context),
+      getDatabase(context),
+      eventBus,
+    );
+
+    final plmEvalHubBloc = PLMEvalHubBloc(getBiocentralProjectRepository(context), getDatabase(context), eventBus);
+
+    eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+      plmEvalHubBloc.add(PLMEvalHubLoadEvent());
+    });
+
     final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralClientRepository(context))
       ..add(PLMEvalLeaderboardLoadEvent());
 
     return {
       BlocProvider<PLMEvalCommandBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,
+      BlocProvider<PLMEvalHubBloc>.value(value: plmEvalHubBloc): plmEvalHubBloc,
       BlocProvider<PLMEvalLeaderboardBloc>.value(value: plmEvalLeaderboardBloc): plmEvalLeaderboardBloc,
     };
   }
 
   @override
   Widget getScreenView(BuildContext context) {
-    return const PLMEvalView();
+    return const PLMEvalHubView();
   }
 
   @override
@@ -63,4 +81,36 @@ class PLMEvalPlugin extends BiocentralPlugin with BiocentralClientPluginMixin {
     return {PredictionModelsPlugin, EmbeddingsPlugin};
   }
 
+  @override
+  PLMEvalRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+    return PLMEvalRepository(projectRepository);
+  }
+
+  @override
+  List<BiocentralPluginDirectory> getPluginDirectories() {
+    return [
+      BiocentralPluginDirectory(
+        path: 'plm_eval',
+        saveType: PLMEvalPersistentResult,
+        commandBlocType: PLMEvalHubBloc,
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
+          final List<void Function()> loadingFunctions = [];
+          for (final scannedFile in scannedFiles) {
+            if (scannedFile.name.contains('plm_eval_results.') && scannedFile.extension == 'json') {
+              void loadingFunction() => commandBloc?.add(
+                    PLMEvalHubLoadPersistentResultsEvent(scannedFile),
+                  );
+              loadingFunctions.add(loadingFunction);
+            }
+          }
+          return loadingFunctions;
+        },
+      ),
+    ];
+  }
 }
