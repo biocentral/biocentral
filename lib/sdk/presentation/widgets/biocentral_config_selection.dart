@@ -78,7 +78,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   int _getNumberOfColumns(int numberOfOptions) {
-    // TODO [Refactor - Frontend] Adjust dynamically also based on window size
+    // TODO [Refactoring] Adjust dynamically also based on window size
     if (numberOfOptions % 4 == 0) return 4;
     if (numberOfOptions % 3 == 0) return 3;
     return 2;
@@ -220,52 +220,22 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       _chosenOptions[_selectedKey]?[option] = chosenOption;
     }
 
-    // TODO This should not be necessary?
-    //if (defaultValue != '' && !allowedValues.contains(defaultValue)) {
-    //  allowedValues.add(defaultValue);
-    //}
-
-    if (allowedValues.length <= 4) {
-      return _buildOptionDecoration(
-        option: option,
-        child: Center(
-          child: ToggleButtons(
-              isSelected: allowedValues.map((value) => value == chosenOption).toList(),
-              onPressed: (int index) {
-                final toggled = allowedValues.toList()[index];
-                if (toggled != _chosenOptions[_selectedKey]?[option]) {
-                  updateConfig(() {
-                    _chosenOptions[_selectedKey]?[option] = toggled;
-                  });
-                }
-              },
-              children: allowedValues
-                  .map(
-                    (value) => Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Text(value.toString()),
-                    ),
-                  )
-                  .toList()),
-        ),
-      );
-    }
-
     return _buildOptionDecoration(
       option: option,
-      child: BiocentralDropdownMenu(
-        label: const Text(''),
-        initialSelection: defaultValue,
-        dropdownMenuEntries:
-            allowedValues.map((value) => DropdownMenuEntry(value: value, label: value.toString())).toList(),
-        onSelected: (dynamic value) {
-          if (value != _chosenOptions[_selectedKey]?[option]) {
-            updateConfig(() {
-              chosenOption = value!;
-              _chosenOptions[_selectedKey]?[option] = chosenOption;
-            });
-          }
-        },
+      child: Center(
+        child: BiocentralDiscreteSelection(
+          title: '',
+          initialValue: chosenOption,
+          selectableValues: allowedValues.toList(),
+          onChangedCallback: (dynamic value) {
+            if (value != _chosenOptions[_selectedKey]?[option]) {
+              updateConfig(() {
+                chosenOption = value;
+                _chosenOptions[_selectedKey]?[option] = chosenOption;
+              });
+            }
+          },
+        ),
       ),
     );
   }
