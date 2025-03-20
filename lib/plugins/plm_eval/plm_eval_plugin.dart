@@ -39,6 +39,10 @@ class PLMEvalPlugin extends BiocentralPlugin
 
     final plmEvalHubBloc = PLMEvalHubBloc(getBiocentralProjectRepository(context), getDatabase(context), eventBus);
 
+    eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
+      plmEvalHubBloc.add(PLMEvalHubRemoveResumableCommandEvent(event.finishedCommand));
+    });
+
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubLoadEvent());
     });
@@ -108,6 +112,8 @@ class PLMEvalPlugin extends BiocentralPlugin
               loadingFunctions.add(loadingFunction);
             }
           }
+          void loadResumableCommandFunction() => commandBloc?.add(PLMEvalHubAddResumableCommandsEvent(commandLogs));
+          loadingFunctions.add(loadResumableCommandFunction);
           return loadingFunctions;
         },
       ),

@@ -16,21 +16,37 @@ final class PLMEvalHubLoadPersistentResultsEvent extends PLMEvalHubEvent {
   PLMEvalHubLoadPersistentResultsEvent(this.persistentResultFile);
 }
 
+final class PLMEvalHubAddResumableCommandsEvent extends PLMEvalHubEvent {
+  final List<BiocentralCommandLog> resumableCommands;
+
+  PLMEvalHubAddResumableCommandsEvent(this.resumableCommands);
+}
+
+final class PLMEvalHubRemoveResumableCommandEvent extends PLMEvalHubEvent {
+  final BiocentralCommandLog commandToRemove;
+
+  PLMEvalHubRemoveResumableCommandEvent(this.commandToRemove);
+}
+
 @immutable
 final class PLMEvalHubState extends BiocentralCommandState<PLMEvalHubState> {
   final List<AutoEvalProgress> sessionResults;
   final List<PLMEvalPersistentResult> persistentResults;
 
-  const PLMEvalHubState(super.stateInformation, super.status, this.sessionResults, this.persistentResults);
+  final List<BiocentralCommandLog> resumableCommands;
+
+  const PLMEvalHubState(
+      super.stateInformation, super.status, this.sessionResults, this.persistentResults, this.resumableCommands);
 
   const PLMEvalHubState.idle()
       : sessionResults = const [],
         persistentResults = const [],
+        resumableCommands = const [],
         super.idle();
 
   @override
   PLMEvalHubState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
-    return PLMEvalHubState(stateInformation, status, sessionResults, persistentResults);
+    return PLMEvalHubState(stateInformation, status, sessionResults, persistentResults, resumableCommands);
   }
 
   @override
@@ -40,11 +56,12 @@ final class PLMEvalHubState extends BiocentralCommandState<PLMEvalHubState> {
       status,
       copyMap['sessionResults'] ?? sessionResults,
       copyMap['persistentResults'] ?? persistentResults,
+      copyMap['resumableCommands'] ?? resumableCommands,
     );
   }
 
   @override
-  List<Object?> get props => [sessionResults, persistentResults, status];
+  List<Object?> get props => [sessionResults, persistentResults, resumableCommands, status];
 }
 
 enum PLMEvalHubStatus { initial, loading, loaded, errored }
@@ -77,6 +94,32 @@ class PLMEvalHubBloc extends BiocentralBloc<PLMEvalHubEvent, PLMEvalHubState> {
               .copyWith(copyMap: {'persistentResults': updatedPersistentResults}),
         );
       });
+    });
+    on<PLMEvalHubAddResumableCommandsEvent>((event, emit) async {
+      emit(state.setOperating(information: 'Looking for resumable commands..'));
+
+      // TODO [Refactoring] make command type name static to avoid string here
+      final resumableCommands = event.resumableCommands
+          .where(
+            (commandLog) =>
+                commandLog.commandName == 'AutoEvalPLMCommand' &&
+                commandLog.commandStatus == BiocentralCommandStatus.operating &&
+                commandLog.metaData.serverTaskID != null,
+          )
+          .toList();
+
+      emit(
+        state
+            .setFinished(information: 'Finished loading resumable commands!')
+            .copyWith(copyMap: {'resumableCommands': resumableCommands}),
+      );
+    });
+    on<PLMEvalHubRemoveResumableCommandEvent>((event, emit) async {
+      final updatedResumableCommands = List<BiocentralCommandLog>.from(state.resumableCommands)
+        ..remove(event.commandToRemove);
+      emit(
+        state.copyWith(copyMap: {'resumableCommands': updatedResumableCommands}),
+      );
     });
   }
 }
