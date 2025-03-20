@@ -21,7 +21,9 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
     super.build(context);
     return BlocBuilder<PLMEvalCommandBloc, PLMEvalCommandState>(
       builder: (context, state) {
-        if(state.modelID == null || state.autoEvalProgress == null) {
+        if (state.modelID == null ||
+            state.autoEvalProgress == null ||
+            state.status == BiocentralCommandStatus.finished) { // Finished gets replaced with other display
           return Container();
         }
         return BiocentralTaskDisplay(
