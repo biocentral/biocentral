@@ -1,4 +1,4 @@
-import 'package:biocentral/sdk/util/type_util.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralDiscreteSelection<T> extends StatefulWidget {
@@ -28,25 +28,50 @@ class BiocentralDiscreteSelection<T> extends StatefulWidget {
 }
 
 class _BiocentralDiscreteSelectionState<T> extends State<BiocentralDiscreteSelection<T>> {
-  late Set<T?> selection;
+  T? _selection;
 
   @override
   void initState() {
     super.initState();
-    selection = {widget.initialValue};
+    _selection = widget.initialValue;
   }
 
   @override
   void didUpdateWidget(BiocentralDiscreteSelection<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != oldWidget.initialValue) {
-      selection = {widget.initialValue};
+      _selection = widget.initialValue;
+    }
+  }
+
+  void onSelection(T? selected) {
+    if (_selection != selected) {
+      setState(() {
+        _selection = selected;
+      });
+      widget.onChangedCallback(selected);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.selectableValues.length > Constants.discreteSelectionThreshold) {
+      return buildDropdown();
+    }
     return widget.direction == Axis.horizontal ? buildHorizontal() : buildVertical();
+  }
+
+  Widget buildDropdown() {
+    return BiocentralDropdownMenu<T>(
+      dropdownMenuEntries: widget.selectableValues
+          .map(
+            (value) => DropdownMenuEntry(value: value, label: widget.displayConversion(value)),
+          )
+          .toList(),
+      label: Text(widget.title),
+      initialSelection: _selection,
+      onSelected: onSelection,
+    );
   }
 
   Widget buildHorizontal() {
@@ -61,15 +86,8 @@ class _BiocentralDiscreteSelectionState<T> extends State<BiocentralDiscreteSelec
         segments: widget.selectableValues
             .map((value) => ButtonSegment(value: value, label: Text(widget.displayConversion(value))))
             .toList(),
-        selected: selection,
-        onSelectionChanged: (selected) {
-          if (selection.first != selected) {
-            setState(() {
-              selection = selected;
-            });
-            widget.onChangedCallback(selected.first);
-          }
-        },
+        selected: {_selection},
+        onSelectionChanged: (selectionSet) => onSelection(selectionSet.firstOrNull),
       ),
     );
   }
@@ -94,16 +112,9 @@ class _BiocentralDiscreteSelectionState<T> extends State<BiocentralDiscreteSelec
                 title: Text(widget.displayConversion(value), style: Theme.of(context).textTheme.bodyMedium),
                 value: value,
                 dense: true,
-                groupValue: selection.first,
+                groupValue: _selection,
                 activeColor: Theme.of(context).primaryColor,
-                onChanged: (T? selected) {
-                  if (selection != {selected}) {
-                    setState(() {
-                      selection = {selected};
-                    });
-                    widget.onChangedCallback(selected);
-                  }
-                },
+                onChanged: onSelection,
               ),
             ),
           ),
