@@ -5,6 +5,8 @@ class Constants {
 
   static const int discreteColumnThreshold = 10; // handle columns with more than 10 discrete values as numerical
 
+  static const int discreteSelectionThreshold = 4;
+
   static const String localHostServerURL = 'http://localhost:9540';
 
   static const Duration autoSaveDebounceTime = Duration(seconds: 2);
