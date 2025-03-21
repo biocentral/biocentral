@@ -1,12 +1,15 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/prediction_models/data/biotrainer_log_file_handler.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fpdart/fpdart.dart';
 
 @immutable
 class PredictionModel extends Equatable {
@@ -61,6 +64,18 @@ class PredictionModel extends Equatable {
       biotrainerTrainingResult: trainingResult,
       biotrainerCheckpoints: null,
     );
+  }
+
+  PredictionModel updateFromDTO(BiocentralDTO dto) {
+    final trainingLog = dto.logFile;
+    final trainingStatus = dto.taskStatus;
+    
+    final newLogs = (biotrainerTrainingResult?.trainingLogs ?? []).join('\n') + (trainingLog ?? '');
+    final newResult = BiotrainerLogFileHandler.parseBiotrainerLog(
+      trainingLog: newLogs,
+      trainingStatus: trainingStatus,
+    );
+    return copyWith(biotrainerTrainingResult: newResult);
   }
 
   PredictionModel copyWith({
@@ -142,13 +157,6 @@ class PredictionModel extends Equatable {
       biotrainerTrainingResult: biotrainerTrainingResultMerged,
       biotrainerCheckpoints: biotrainerCheckpointsMerged.isNotEmpty ? biotrainerCheckpointsMerged : null,
     );
-  }
-
-  PredictionModel updateTrainingResult(BiotrainerTrainingResult? newResult) {
-    if (newResult == null) {
-      return this;
-    }
-    return copyWith(biotrainerTrainingResult: biotrainerTrainingResult?.update(newResult) ?? newResult);
   }
 
   PredictionModel setTraining() {

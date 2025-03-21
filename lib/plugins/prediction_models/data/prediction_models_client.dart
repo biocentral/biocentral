@@ -64,8 +64,8 @@ class PredictionModelsClient extends BiocentralClient {
   }
 
   PredictionModel? _updateFunction(PredictionModel? currentModel, BiocentralDTO biocentralDTO) {
-    // TODO [Refactoring] Simplify this function by adding PredictionModel.fromDTO()
-    return currentModel?.updateTrainingResult(BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null));
+    // TODO IF fromDTO returns null, current model will never update again
+    return currentModel?.updateFromDTO(biocentralDTO);
   }
 
   Stream<PredictionModel?> biotrainerTrainingTaskStream(String taskID, PredictionModel initialModel) async* {
