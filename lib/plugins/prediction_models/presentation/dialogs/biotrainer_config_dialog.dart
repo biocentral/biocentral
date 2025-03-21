@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiotrainerConfigDialog extends StatefulWidget {
+  // TODO [Refactoring] this eventBus should not really be necessary here, should use blocs directly
   final EventBus eventBus;
 
   const BiotrainerConfigDialog({required this.eventBus, super.key});

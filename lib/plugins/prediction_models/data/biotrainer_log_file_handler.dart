@@ -40,45 +40,32 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
       final mean = double.tryParse(uncertaintyData['mean'].toString());
       final error = double.tryParse(uncertaintyData['error'].toString());
 
-      if (mean == null || error == null) {
+      if (mean == null || error == null && (iterations != null && iterations > 1)) {
         logger.e('Could not parse bootstrapping result: $entry');
         continue;
       }
 
-      result.add(
-        _createBootstrappingMetric(
-          name: entry.key,
+      UncertaintyEstimate? uncertaintyEstimate;
+      if (error != null && (iterations != null && iterations > 1)) {
+        uncertaintyEstimate = UncertaintyEstimate(
+          method: 'bootstrap',
           mean: mean,
           error: error,
           iterations: iterations,
           sampleSize: sampleSize,
+        );
+      }
+
+      result.add(
+        BiocentralMLMetric(
+          name: entry.key,
+          value: mean,
+          uncertaintyEstimate: uncertaintyEstimate,
         ),
       );
     }
 
     return result;
-  }
-
-  static BiocentralMLMetric _createBootstrappingMetric({
-    required String name,
-    required double mean,
-    required double error,
-    int? iterations,
-    int? sampleSize,
-  }) {
-    final uncertaintyEstimate = UncertaintyEstimate(
-      method: 'bootstrap',
-      mean: mean,
-      error: error,
-      iterations: iterations,
-      sampleSize: sampleSize,
-    );
-
-    return BiocentralMLMetric(
-      name: name,
-      value: mean,
-      uncertaintyEstimate: uncertaintyEstimate,
-    );
   }
 
   static BiotrainerTrainingResult parseBiotrainerLog({
@@ -130,7 +117,7 @@ class _BiotrainerLogParser {
   bool _inValidationResults = false;
   int _currentEpoch = -1;
 
-  _BiotrainerLogParser(String trainingLog) : logs = trainingLog.split('\n');
+  _BiotrainerLogParser(String trainingLog) : logs = trainingLog.split('\n').toSet().toList();
 
   void parse() {
     for (String line in logs) {
@@ -207,7 +194,7 @@ class _BiotrainerLogParser {
 
     final String metrics = line.split(_BiotrainerLogIdentifiers.bootstrappingResults).last;
     // TODO [BUG] NAN cannot be properly parsed
-    final Map<String, dynamic> metricsMap = jsonDecode(metrics.replaceAll("'", '"').replaceAll('nan', 'null'));
+    final Map<String, dynamic> metricsMap = _decodeMetricsMap(metrics);
     testSetMetrics.clear(); // Bootstrapping results overwrite regular test set metrics
     testSetMetrics.addAll(BiotrainerLogFileHandler._parseMLMetricsMap(metricsMap));
     return true;
@@ -249,11 +236,15 @@ class _BiotrainerLogParser {
     final String baselineName = '${baselineNameAndMetrics[0]}Baseline';
 
     try {
-      final Map<String, dynamic> baselineMetricsMap = jsonDecode(baselineNameAndMetrics[1].replaceAll("'", '"'));
+      final Map<String, dynamic> baselineMetricsMap = _decodeMetricsMap(baselineNameAndMetrics[1]);
       final Set<BiocentralMLMetric> baselineMLMetrics = BiotrainerLogFileHandler._parseMLMetricsMap(baselineMetricsMap);
       sanityCheckBaselineMetrics[baselineName] = baselineMLMetrics;
     } catch (e) {
       logger.e('Failed to parse baseline metrics: $e');
     }
+  }
+
+  Map<String, dynamic> _decodeMetricsMap(String json) {
+    return jsonDecode(json.replaceAll("'", '"').replaceAll('nan', 'null'));
   }
 }

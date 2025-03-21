@@ -19,15 +19,13 @@ extension PlmEvalDTO on BiocentralDTO {
 
   Map<String, dynamic>? get currentTaskConfig => get<Map<String, dynamic>>('current_task_config');
 
-  BiocentralDTO get _modelDTO => BiocentralDTO(get<Map>('current_task_dto') ?? {});
+  BiocentralDTO get modelDTO => BiocentralDTO(get<Map>('current_task_dto') ?? {});
 
   PredictionModel parseCurrentTaskModel() {
-    final modelDTO = _modelDTO;
-    final currentTrainingResultEither = BiotrainerTrainingResult.fromDTO(modelDTO);
     final embedderName = this.embedderName;
     final config = currentTaskConfig;
     final predictionModel =
         (PredictionModel.fromMap(config ?? {}) ?? const PredictionModel.empty()).copyWith(embedderName: embedderName);
-    return currentTrainingResultEither.match((l) => predictionModel, (r) => predictionModel.updateTrainingResult(r));
+    return predictionModel.updateFromDTO(modelDTO);
   }
 }

@@ -88,11 +88,13 @@ final class AutoEvalProgress {
 
     final newResults = Map.of(results);
     if (currentTask != null) {
-      final PredictionModel newParsedModel = dto.parseCurrentTaskModel();
       final PredictionModel? existingModel = results[currentTask];
-      PredictionModel mergedResult = newParsedModel;
-      if (existingModel != null) {
-        mergedResult = existingModel.updateTrainingResult(newParsedModel.biotrainerTrainingResult);
+      PredictionModel mergedResult;
+
+      if(existingModel == null) {
+        mergedResult = dto.parseCurrentTaskModel();
+      } else {
+        mergedResult = existingModel.updateFromDTO(dto.modelDTO);
       }
       newResults[currentTask] = mergedResult;
     }
