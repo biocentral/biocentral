@@ -102,22 +102,6 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
     );
   }
 
-  static Either<BiocentralParsingException, BiotrainerTrainingResult?> fromDTO(BiocentralDTO dto) {
-    final trainingLog = dto.logFile;
-    final trainingStatus = dto.taskStatus;
-    if (trainingLog == null || trainingLog.isEmpty) {
-      if (trainingStatus != null) {
-        return right(BiotrainerTrainingResult.empty().copyWith(trainingStatus: trainingStatus));
-      }
-      return right(null);
-    }
-    final result = BiotrainerLogFileHandler.parseBiotrainerLog(
-      trainingLog: trainingLog,
-      trainingStatus: trainingStatus,
-    );
-    return right(result);
-  }
-
   BiotrainerTrainingResult copyWith({
     Map<int, double>? trainingLoss,
     Map<int, double>? validationLoss,
@@ -138,27 +122,6 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
           ),
       trainingLogs: trainingLogs ?? List.from(this.trainingLogs),
       trainingStatus: trainingStatus ?? this.trainingStatus,
-    );
-  }
-
-  BiotrainerTrainingResult update(BiotrainerTrainingResult newResult) {
-    // TODO [Refactoring] Consider creating a function that updates prediction models directly from the DTO
-    final newTrainingLoss = Map.of(trainingLoss)..addAll(newResult.trainingLoss);
-    final newValidationLoss = Map.of(validationLoss)..addAll(newResult.validationLoss);
-    final newTestSetMetrics = Set.of(testSetMetrics)..addAll(newResult.testSetMetrics);
-    final newSanityCheckWarnings = Set.of(sanityCheckWarnings)..addAll(newResult.sanityCheckWarnings);
-    final newSanityCheckBaselineMetrics = Map.of(sanityCheckBaselineMetrics)
-      ..addAll(newResult.sanityCheckBaselineMetrics);
-    final newTrainingLogs = List.of(trainingLogs)..addAll(newResult.trainingLogs);
-    final newTrainingStatus = newResult.trainingStatus;
-    return BiotrainerTrainingResult(
-      trainingLoss: newTrainingLoss,
-      validationLoss: newValidationLoss,
-      testSetMetrics: newTestSetMetrics,
-      sanityCheckWarnings: newSanityCheckWarnings,
-      sanityCheckBaselineMetrics: newSanityCheckBaselineMetrics,
-      trainingLogs: newTrainingLogs,
-      trainingStatus: newTrainingStatus,
     );
   }
 
