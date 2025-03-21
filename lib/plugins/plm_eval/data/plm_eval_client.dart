@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
@@ -73,14 +74,23 @@ class PLMEvalClient extends BiocentralClient {
   Future<Either<BiocentralException, PLMLeaderboard>> downloadPLMLeaderboardData() async {
     // TODO [Refactoring] Where to put the hubServerEndpoints?
     final leaderboardMapEither = await hubServerClient.doGetRequest('/plm_leaderboard/');
-    return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
+    return leaderboardMapEither.flatMap((leaderboardMap) => _parseLeaderboardFromResponse(leaderboardMap));
   }
 
-  Future<Either<BiocentralException, PLMLeaderboard>> publishResults(List publishingResults) async {
-    final Map<String, String> body = {'results': jsonEncode(publishingResults)};
+  Future<Either<BiocentralException, PLMLeaderboard>> publishResult(PLMEvalPersistentResult result) async {
+    final Map<String, String> body = {'result': jsonEncode(result.toMap())};
 
     final leaderboardMapEither = await hubServerClient.doPostRequest('/plm_leaderboard_publish/', body);
-    return leaderboardMapEither.flatMap((leaderboardMap) => PLMLeaderboard.fromDTO(BiocentralDTO(leaderboardMap)));
+    return leaderboardMapEither.flatMap((leaderboardMap) => _parseLeaderboardFromResponse(leaderboardMap));
+  }
+
+  Either<BiocentralException, PLMLeaderboard> _parseLeaderboardFromResponse(Map<dynamic, dynamic> leaderboardMap) {
+    final leaderboardEntries = leaderboardMap['leaderboard'];
+    if(leaderboardEntries == null || leaderboardEntries.runtimeType != List) {
+      return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
+    }
+    final plmPersistentResults = leaderboardEntries.map((map) => PLMEvalPersistentResult.fromMap(map));
+    return right(PLMLeaderboard.fromPersistentResults(plmPersistentResults));
   }
 
   @override
