@@ -23,7 +23,7 @@ class BiocentralMLMetric {
     final name = map['metric'];
     final value = double.tryParse(map['value'].toString());
     final uncertaintyEstimate = UncertaintyEstimate.fromMap(map['uncertaintyEstimate'] ?? {});
-    if(name == null || value == null) {
+    if (name == null || value == null) {
       return null;
     }
     return BiocentralMLMetric(name: name, value: value, uncertaintyEstimate: uncertaintyEstimate);
@@ -50,36 +50,96 @@ class BiocentralMLMetric {
   }
 }
 
-final class UncertaintyEstimate {
+final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   final String method;
   final double mean;
   final double error;
 
   final int? iterations;
   final int? sampleSize;
+  final double? confidenceLevel;
 
-  const UncertaintyEstimate(
-      {required this.method,
-      required this.mean,
-      required this.error,
-      required this.iterations,
-      required this.sampleSize});
+  const UncertaintyEstimate({
+    required this.method,
+    required this.mean,
+    required this.error,
+    required this.iterations,
+    required this.sampleSize,
+    required this.confidenceLevel,
+  });
 
   static UncertaintyEstimate? fromMap(Map<String, dynamic> map) {
     final method = map['method'];
     final mean = map['mean'];
     final error = map['error'];
     final iterations = map['iterations'];
-    final sampleSize = map['sampleSize'];
+    final sampleSize = map['sampleSize'] ?? map['sample_size'];
+    final confidenceLevel = map['confidenceLevel'] ?? map ['confidence_level'];
 
     if (method == null || mean == null || error == null) {
       return null;
     }
     return UncertaintyEstimate(
-        method: method, mean: mean, error: error, iterations: iterations, sampleSize: sampleSize);
+      method: method,
+      mean: mean,
+      error: error,
+      iterations: iterations,
+      sampleSize: sampleSize,
+      confidenceLevel: confidenceLevel,
+    );
+  }
+
+  /// Checks if two uncertainty estimates are comparable, i.e. the parameters of the uncertainty estimate are the same
+  bool isComparableTo(UncertaintyEstimate other) {
+    return method == other.method &&
+        iterations == other.iterations &&
+        sampleSize == other.sampleSize &&
+        confidenceLevel == other.confidenceLevel;
+  }
+
+  /// Returns the lower bound of the confidence interval
+  double get lowerBound => mean - error;
+
+  /// Returns the upper bound of the confidence interval
+  double get upperBound => mean + error;
+
+  /// Implements the Comparable interface
+  @override
+  int compareTo(UncertaintyEstimate other) {
+    // Verify that the estimates are comparable
+    if (!isComparableTo(other)) {
+      throw ArgumentError(
+          'Cannot compare uncertainty estimates with different parameters:\n'
+              'This: $this\n'
+              'Other: $other'
+      );
+    }
+
+    // Check for exact equality
+    if (mean == other.mean && error == other.error) {
+      return 0;
+    }
+
+    // Compare non-overlapping ranges
+    if (lowerBound > other.upperBound) {
+      return 1;
+    }
+    if (upperBound < other.lowerBound) {
+      return -1;
+    }
+
+    // Ranges overlap, consider them equal
+    return 0;
   }
 
   Map<String, dynamic> toMap() {
-    return {'method': method, 'mean': mean, 'error': error, 'iterations': iterations, 'sampleSize': sampleSize};
+    return {
+      'method': method,
+      'mean': mean,
+      'error': error,
+      'iterations': iterations,
+      'sampleSize': sampleSize,
+      'confidenceLevel': confidenceLevel
+    };
   }
 }

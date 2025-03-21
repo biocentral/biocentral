@@ -37,6 +37,10 @@ class PLMEvalPlugin extends BiocentralPlugin
       eventBus,
     );
 
+
+    final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralClientRepository(context), getDatabase(context))
+      ..add(PLMEvalLeaderboardDownloadEvent());
+
     final plmEvalHubBloc = PLMEvalHubBloc(getBiocentralProjectRepository(context), getDatabase(context), eventBus);
 
     eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
@@ -45,10 +49,8 @@ class PLMEvalPlugin extends BiocentralPlugin
 
     eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubLoadEvent());
+      plmEvalLeaderboardBloc.add(PLMEvalLeaderboardLoadLocalEvent());
     });
-
-    final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralClientRepository(context))
-      ..add(PLMEvalLeaderboardLoadEvent());
 
     return {
       BlocProvider<PLMEvalCommandBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,

@@ -34,6 +34,7 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
     final results = metricsMap['results'] as Map<String, dynamic>;
     final iterations = metricsMap['iterations'] as int?;
     final sampleSize = metricsMap['sample_size'] as int?;
+    final confidenceLevel = metricsMap['confidence_level'] as double?;
 
     for (var entry in results.entries) {
       final uncertaintyData = entry.value as Map<String, dynamic>;
@@ -53,6 +54,7 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
           error: error,
           iterations: iterations,
           sampleSize: sampleSize,
+          confidenceLevel: confidenceLevel,
         );
       }
 

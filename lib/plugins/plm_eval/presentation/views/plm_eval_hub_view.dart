@@ -67,7 +67,7 @@ class _PLMEvalHubViewState extends State<PLMEvalHubView> with AutomaticKeepAlive
   Widget buildLeaderboardView() {
     return BlocBuilder<PLMEvalLeaderboardBloc, PLMEvalLeaderboardState>(builder: (context, state) {
       if (state.status == PLMEvalLeaderBoardStatus.loaded) {
-        return PLMEvalLeaderboardView(leaderboard: state.leaderboard);
+        return PLMEvalLeaderboardView(leaderboard: state.remoteLeaderboard);
       }
       return const CircularProgressIndicator();
     });

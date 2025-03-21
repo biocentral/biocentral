@@ -59,7 +59,8 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
   }
 
   Widget _buildGlobalRankingTable() {
-    final globalRanking = widget.leaderboard.ranking;
+    // TODO RECOMMENDED METRICS
+    final globalRanking = widget.leaderboard.getRanking({});
 
     return Card(
       child: Padding(
@@ -115,11 +116,12 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
-                              onTap: () => launchUrlString('https://huggingface.co/$embedder'),
-                              child: Text(
-                                embedder,
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.lightBlueAccent),
-                              )),
+                            onTap: () => launchUrlString('https://huggingface.co/$embedder'),
+                            child: Text(
+                              embedder,
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.lightBlueAccent),
+                            ),
+                          ),
                         ),
                       ),
                       TableCell(
@@ -149,7 +151,7 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
     );
 
     final metrics = widget.leaderboard.getMetricsForBenchmark(benchmark);
-    final recommendedMetric = widget.leaderboard.getRecommendedMetricByDataset(benchmark);
+    final recommendedMetric = 'loss'; // TODO Add recommendedMetrics to state
     final plotData =
         metrics.map((k, v) => MapEntry(k.split('/').last, v.firstWhere((d) => d.name == recommendedMetric).value));
     return SingleChildScrollView(
@@ -169,7 +171,7 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
               yAxisLabel: recommendedMetric,
               maxLabelLength: 30,
             ),
-          )
+          ),
         ],
       ),
     );

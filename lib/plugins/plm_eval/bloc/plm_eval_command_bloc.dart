@@ -147,13 +147,11 @@ class PLMEvalCommandBloc extends BiocentralBloc<PLMEvalCommandEvent, PLMEvalComm
     on<PLMEvalCommandPublishResultsEvent>((event, emit) async {
       emit(state.setOperating(information: 'Publishing results..'));
 
-      final publishingResults = state.autoEvalProgress?.convertResultsForPublishing(state.modelID);
-      if (publishingResults == null || publishingResults.isEmpty) {
-        return emit(state.setErrored(information: 'Could not publish results!'));
-      }
-      final plmEvalClient = _clientRepository.getServiceClient<PLMEvalClient>();
+      final persistentResult = state.autoEvalProgress?.convertResultsForPublishing();
 
-      final publishingEither = await plmEvalClient.publishResults(publishingResults);
+      final plmEvalClient = _clientRepository.getServiceClient<PLMEvalClient>();
+      //TODO
+      final publishingEither = await plmEvalClient.publishResult(persistentResult!);
       // TODO Handle publishing result
     });
   }
