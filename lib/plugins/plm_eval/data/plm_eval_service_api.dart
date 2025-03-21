@@ -1,5 +1,6 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_dto.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -124,33 +125,7 @@ final class AutoEvalProgress {
     return BiocentralCommandProgress(current: completedTasks, total: totalTasks);
   }
 
-  List<Map<String, Map<String, dynamic>>>? convertResultsForPublishing(String? embedderName) {
-    if (embedderName == null || embedderName.isEmpty) {
-      return null;
-    }
-
-    final List<Map<String, Map<String, dynamic>>> publishingResults = [];
-
-    for (final entry in results.entries) {
-      final testSetMetrics = entry.value?.biotrainerTrainingResult?.testSetMetrics;
-      if (testSetMetrics == null || testSetMetrics.isEmpty) {
-        return null;
-      }
-      final datasetName = entry.key.datasetName;
-      final splitName = entry.key.splitName;
-
-      final Map<String, String> metadata = {
-        'model_name': embedderName,
-        'dataset_name': datasetName,
-        'split_name': splitName,
-        'training_date': DateTime.now().toIso8601String(),
-      };
-
-      final testSetMetricsMap =
-          Map.fromEntries(testSetMetrics.map((mlMetric) => MapEntry(mlMetric.name, mlMetric.value)));
-
-      publishingResults.add({'metadata': metadata, 'metrics': testSetMetricsMap});
-    }
-    return publishingResults;
+  PLMEvalPersistentResult convertResultsForPublishing() {
+    return PLMEvalPersistentResult.fromAutoEvalProgress(this);
   }
 }

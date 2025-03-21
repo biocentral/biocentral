@@ -57,4 +57,9 @@ class PLMEvalRepository {
   List<PLMEvalPersistentResult> getPersistentResults() {
     return List.from(_persistentResults);
   }
+
+  List<PLMEvalPersistentResult> getAllResultsAsPersistent() {
+    return getPersistentResults()
+      ..addAll(getSessionResults().map((sessionResult) => PLMEvalPersistentResult.fromAutoEvalProgress(sessionResult)));
+  }
 }

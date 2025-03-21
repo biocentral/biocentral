@@ -4,19 +4,21 @@ import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart
 
 class PLMEvalPersistentResult {
   final String modelName;
-  final Map<BenchmarkDataset, PredictionModel?> results; // TODO Prediction Model from/to minimal JSON
+  final DateTime trainingDate;
+  final Map<BenchmarkDataset, PredictionModel?> results;
 
-  PLMEvalPersistentResult._internal(this.modelName, this.results);
+  PLMEvalPersistentResult._internal(this.modelName, this.trainingDate, this.results);
 
-  // TODO TO JSON, DOMAIN, DIRECTORY, SAVE, LOAD
   PLMEvalPersistentResult.fromAutoEvalProgress(AutoEvalProgress progress)
       : modelName = progress.modelName,
+        trainingDate = DateTime.now(),
         results = Map.from(progress.results);
 
   static PLMEvalPersistentResult? fromMap(Map<String, dynamic> map) {
-    final embedderName = map['modelName'];
+    final modelName = map['modelName'];
+    final trainingDate = DateTime.tryParse(map['trainingDate']);
     final Map<String, dynamic> parsedResults = map['results'] ?? {};
-    if (embedderName == null || parsedResults.isEmpty) {
+    if (modelName == null || trainingDate == null || parsedResults.isEmpty) {
       return null;
     }
     final Map<BenchmarkDataset, PredictionModel?> results = {};
@@ -30,7 +32,7 @@ class PLMEvalPersistentResult {
         results[benchmarkDataset] = predictionModel;
       }
     }
-    return PLMEvalPersistentResult._internal(embedderName, results);
+    return PLMEvalPersistentResult._internal(modelName, trainingDate, results);
   }
 
   Map<String, dynamic> toMap() {
@@ -42,6 +44,6 @@ class PLMEvalPersistentResult {
         resultsMap[entry.key]?[splitName] = predictionModel?.toMap(includeTrainingLogs: false) ?? {};
       }
     }
-    return {'modelName': modelName, 'results': resultsMap};
+    return {'modelName': modelName, 'trainingDate': trainingDate.toIso8601String(), 'results': resultsMap};
   }
 }
