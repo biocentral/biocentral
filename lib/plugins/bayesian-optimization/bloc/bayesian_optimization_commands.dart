@@ -10,16 +10,19 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   final BiocentralDatabase _biocentralDatabase;
   final BayesianOptimizationClient _boClient;
   final Map<String, dynamic?> _trainingConfiguration;
+  final String _targetFeature;
 
   TransferBOTrainingConfigCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabase biocentralDatabase,
     required BayesianOptimizationClient client,
     required Map<String, dynamic?> trainingConfiguration,
+    required String targetFeature,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _boClient = client,
-        _trainingConfiguration = trainingConfiguration;
+        _trainingConfiguration = trainingConfiguration,
+        _targetFeature = targetFeature;
 
   @override
   Stream<Either<T, BayesianOptimizationTrainingResult>> execute<T extends BiocentralCommandState<T>>(
@@ -27,29 +30,17 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   ) async* {
     yield left(state.setOperating(information: 'Training new model!'));
 
-    final String configFile = BiotrainerFileHandler.biotrainerConfigurationToConfigFile(
-      _trainingConfiguration,
-    );
+    // final String configFile = BiotrainerFileHandler.biotrainerConfigurationToConfigFile(
+    //   _trainingConfiguration,
+    // );
 
     final Map<String, dynamic> entryMap = _biocentralDatabase.databaseToMap();
     final String databaseHash = await _biocentralDatabase.getHash();
 
-    final String? modelArchitecture = _trainingConfiguration['model'];
-    final String? targetFeature = _trainingConfiguration['feature'];
-
-    if (modelArchitecture == null || targetFeature == null) {
-      yield left(
-        state.setErrored(
-          information: 'Invalid training configuration: $modelArchitecture, $targetFeature',
-        ),
-      );
-      return;
-    }
-
     final fileRecord = await BiotrainerFileHandler.getBiotrainerInputFiles(
       _biocentralDatabase.getType(),
       entryMap,
-      targetFeature,
+      _targetFeature,
       '',
     );
 
@@ -80,7 +71,8 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       return;
     }
 
-    final taskIDEither = await _boClient.startTraining(configFile, databaseHash);
+    // TODO aclaude; bis hierher. PyCharm debuggen statt poetry run um backend zu debuggen
+    final taskIDEither = await _boClient.startTraining(_trainingConfiguration, databaseHash);
     yield* taskIDEither.match((error) async* {
       yield left(
         state.setErrored(

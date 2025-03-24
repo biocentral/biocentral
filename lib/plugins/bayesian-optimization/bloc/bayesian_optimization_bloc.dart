@@ -140,9 +140,11 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
         'model_type': event.selectedModel.toString(),
         'coefficient': event.exploitationExplorationValue.toString(),
         // 'selectedEmbedder': event.selectedEmbedder?.name, //TODO: Tell Shuze to add
-        if (event.optimizationType != null) 'value_preference': event.optimizationType.toString,
+        if (event.optimizationType != null) 'value_preference': event.optimizationType.toString(),
         //TODO: If targetRange or value, provide neutral
-        if (event.targetValue != null) 'targetValue': event.targetValue.toString(),
+        // if (event.targetValue != null) 'targetValue': event.targetValue.toString(),
+        if (event.targetValue != null) 'target_interval_lb': event.targetValue.toString(),
+        if (event.targetValue != null) 'target_interval_ub': event.targetValue.toString(),
         //TODO: If value, then lb/ub is the same number (Clarify with Shuze)
         if (event.targetRangeMin != null) 'target_interval_lb': event.targetRangeMin.toString(),
         if (event.targetRangeMax != null) 'target_interval_ub': event.targetRangeMax.toString(),
@@ -150,12 +152,33 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
         if (event.desiredBooleanValue != null) 'discrete_targets': event.desiredBooleanValue.toString(),
       };
 
+      //     Example for continuous target:
+      //     {
+      //       "database_hash": "hello",
+      //   "model_type": "gaussian_process",
+      //   "discrete": false,
+      //   "target_interval_lb": 100,
+      //   "target_interval_ub": 2000,
+      //   "value_preference": "neutral",
+      //   "coefficient": 0.7
+      // }
+      //
+      //   Example for discrete target:
+      //   {
+      //   "database_hash": "hello",
+      //   "model_type": "gaussian_process",
+      //   "discrete": true,
+      //   "discrete_labels": ["red", "green", "blue", "yellow"],
+      //   "discrete_targets": ["red", "yellow"],
+      //   "coefficient": 0.7
+      //   }
+
       final command = TransferBOTrainingConfigCommand(
-        biocentralProjectRepository: _biocentralProjectRepository,
-        biocentralDatabase: biocentralDatabase,
-        client: _bioCentralClientRepository.getServiceClient<BayesianOptimizationClient>(),
-        trainingConfiguration: config,
-      );
+          biocentralProjectRepository: _biocentralProjectRepository,
+          biocentralDatabase: biocentralDatabase,
+          client: _bioCentralClientRepository.getServiceClient<BayesianOptimizationClient>(),
+          trainingConfiguration: config,
+          targetFeature: event.selectedFeature.toString());
 
       await command
           .executeWithLogging<BayesianOptimizationState>(
