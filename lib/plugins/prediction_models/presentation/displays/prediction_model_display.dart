@@ -6,7 +6,7 @@ import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_task_display.dart';
+import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 

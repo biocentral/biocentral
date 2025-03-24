@@ -133,7 +133,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
     return Column(
       children: [
         stateInformationText,
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         SizedBox(
           width: min(SizeConfig.screenWidth(context) * 0.125, 125),
           child: LinearProgressIndicator(
@@ -142,7 +142,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           _formatProgressInformation(progress),
           style: Theme.of(context).textTheme.labelSmall,

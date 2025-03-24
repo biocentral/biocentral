@@ -71,26 +71,37 @@ class PLMEvalClient extends BiocentralClient {
     yield* taskUpdateStream<AutoEvalProgress?>(taskID, initialProgress, _updateFunction);
   }
 
-  Future<Either<BiocentralException, PLMLeaderboard>> downloadPLMLeaderboardData() async {
-    // TODO [Refactoring] Where to put the hubServerEndpoints?
-    final leaderboardMapEither = await hubServerClient.doGetRequest('/plm_leaderboard/');
+  Future<Either<BiocentralException, (PLMLeaderboard, Map<String, String>)>> downloadPLMLeaderboardData() async {
+    final leaderboardMapEither = await hubServerClient.doGetRequest(BiocentralHubServerClient.leaderBoardEndpoint);
     return leaderboardMapEither.flatMap((leaderboardMap) => _parseLeaderboardFromResponse(leaderboardMap));
   }
 
-  Future<Either<BiocentralException, PLMLeaderboard>> publishResult(PLMEvalPersistentResult result) async {
+  Future<Either<BiocentralException, (PLMLeaderboard, Map<String, String>)>> publishResult(
+      PLMEvalPersistentResult result) async {
     final Map<String, String> body = {'result': jsonEncode(result.toMap())};
 
-    final leaderboardMapEither = await hubServerClient.doPostRequest('/plm_leaderboard_publish/', body);
+    final leaderboardMapEither =
+        await hubServerClient.doPostRequest(BiocentralHubServerClient.publishLeaderboardEntryEndpoint, body);
     return leaderboardMapEither.flatMap((leaderboardMap) => _parseLeaderboardFromResponse(leaderboardMap));
   }
 
-  Either<BiocentralException, PLMLeaderboard> _parseLeaderboardFromResponse(Map<dynamic, dynamic> leaderboardMap) {
+  Either<BiocentralException, (PLMLeaderboard, Map<String, String>)> _parseLeaderboardFromResponse(
+      Map<dynamic, dynamic> leaderboardMap) {
     final leaderboardEntries = leaderboardMap['leaderboard'];
-    if(leaderboardEntries == null || leaderboardEntries.runtimeType != List) {
+    final recommendedMetrics = convertToStringMap(leaderboardMap['recommended_metrics'] ?? {});
+    if (leaderboardEntries == null || leaderboardEntries.runtimeType != List) {
       return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
     }
-    final plmPersistentResults = leaderboardEntries.map((map) => PLMEvalPersistentResult.fromMap(map));
-    return right(PLMLeaderboard.fromPersistentResults(plmPersistentResults));
+
+    final List<PLMEvalPersistentResult>plmPersistentResults = [];
+    for(final entryMap in leaderboardEntries) {
+      final persistentResult = PLMEvalPersistentResult.fromMap(jsonDecode(entryMap));
+      if(persistentResult == null) {
+        return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
+      }
+      plmPersistentResults.add(persistentResult);
+    }
+    return right((PLMLeaderboard.fromPersistentResults(plmPersistentResults), recommendedMetrics));
   }
 
   @override

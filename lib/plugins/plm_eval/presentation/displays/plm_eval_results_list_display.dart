@@ -1,11 +1,11 @@
-import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_evaluation_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_hub_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/displays/plm_eval_queue_display.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/displays/plm_eval_results_display.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_task_display.dart';
+import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,9 +36,9 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
   }
 
   Widget buildResumableEvaluations(BiocentralCommandLog commandLog) {
-    final PLMEvalCommandBloc plmEvalCommandBloc = BlocProvider.of<PLMEvalCommandBloc>(context);
+    final PLMEvalEvaluationBloc plmEvalCommandBloc = BlocProvider.of<PLMEvalEvaluationBloc>(context);
     return BiocentralTaskDisplay.resumable(
-        commandLog, () => plmEvalCommandBloc.add(PLMEvalCommandResumeAutoEvalEvent(commandLog)));
+        commandLog, () => plmEvalCommandBloc.add(PLMEvalEvaluationResumeEvent(commandLog)));
   }
 
   Widget buildPLMEvalPersistentResultDisplay(PLMEvalPersistentResult persistentResult) {

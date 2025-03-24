@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_commands.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
@@ -66,7 +67,7 @@ final class PLMEvalHubState extends BiocentralCommandState<PLMEvalHubState> {
 
 enum PLMEvalHubStatus { initial, loading, loaded, errored }
 
-class PLMEvalHubBloc extends BiocentralBloc<PLMEvalHubEvent, PLMEvalHubState> {
+class PLMEvalHubBloc extends BiocentralBloc<PLMEvalHubEvent, PLMEvalHubState> with BiocentralUpdateBloc {
   final BiocentralProjectRepository _projectRepository;
   final PLMEvalRepository _plmEvalRepository;
 
@@ -78,21 +79,18 @@ class PLMEvalHubBloc extends BiocentralBloc<PLMEvalHubEvent, PLMEvalHubState> {
       emit(state.copyWith(copyMap: {'sessionResults': sessionResults, 'persistentResults': persistentResults}));
     });
     on<PLMEvalHubLoadPersistentResultsEvent>((event, emit) async {
-      // TODO Move to command
-      emit(state.setOperating(information: 'Loading plm evaluation result from file..'));
-      final contentEither = await _projectRepository.handleLoad(xFile: event.persistentResultFile);
+      final PLMEvalLoadPersistentResultCommand loadPersistentResultCommand = PLMEvalLoadPersistentResultCommand(
+        projectRepository: _projectRepository,
+        plmEvalRepository: _plmEvalRepository,
+        persistentResultFile: event.persistentResultFile,
+      );
 
-      // TODO [Error handling] Improve loading file error, file is null, file is empty
-      contentEither.match(
-          (error) => emit(state.setErrored(information: 'Encountered error during loading of plm eval file: $error')),
-          (persistentFileContent) {
-        final updatedPersistentResults =
-            _plmEvalRepository.addPersistentResultsFromFile(persistentFileContent?.content ?? '');
-        emit(
-          state
-              .setFinished(information: 'Finished loading plm evaluation result from file!')
-              .copyWith(copyMap: {'persistentResults': updatedPersistentResults}),
-        );
+      await loadPersistentResultCommand
+          .executeWithLogging<PLMEvalHubState>(_projectRepository, state)
+          .forEach((either) {
+        either.match((l) => emit(l), (r) {
+          updateDatabases();
+        }); // Ignore result here
       });
     });
     on<PLMEvalHubAddResumableCommandsEvent>((event, emit) async {

@@ -308,6 +308,9 @@ abstract class BiocentralClientFactory<T extends BiocentralClient> {
 class BiocentralHubServerClient with HTTPClient {
   final String _baseUrl;
 
+  static const String leaderBoardEndpoint = '/plm_leaderboard/';
+  static const String publishLeaderboardEntryEndpoint = '/plm_leaderboard_publish/';
+
   BiocentralHubServerClient(this._baseUrl);
 
   @override

@@ -2,9 +2,10 @@ import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
-import 'package:biocentral/sdk/bloc/biocentral_command.dart';
-import 'package:biocentral/sdk/bloc/biocentral_state.dart';
+import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
 class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
@@ -105,4 +106,46 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
 
   @override
   String get typeName => 'AutoEvalPLMCommand';
+}
+
+class PLMEvalLoadPersistentResultCommand extends BiocentralCommand<PLMEvalPersistentResult> {
+  final BiocentralProjectRepository _projectRepository;
+  final PLMEvalRepository _plmEvalRepository;
+  final XFile _persistentResultFile;
+
+  PLMEvalLoadPersistentResultCommand(
+      {required BiocentralProjectRepository projectRepository,
+      required PLMEvalRepository plmEvalRepository,
+      required XFile persistentResultFile})
+      : _projectRepository = projectRepository,
+        _plmEvalRepository = plmEvalRepository,
+        _persistentResultFile = persistentResultFile;
+
+  @override
+  Stream<Either<T, PLMEvalPersistentResult>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+    yield left(state.setOperating(information: 'Loading plm evaluation result from file..'));
+    final contentEither = await _projectRepository.handleLoad(xFile: _persistentResultFile);
+
+    // TODO [Error handling] Improve loading file error, file is null, file is empty
+    yield* contentEither.match((error) async* {
+      yield left(state.setErrored(information: 'Encountered error during loading of plm eval file: $error'));
+    }, (persistentFileContent) async* {
+      final updatedPersistentResults =
+          _plmEvalRepository.addPersistentResultsFromFile(persistentFileContent?.content ?? '');
+      yield left(
+        state
+            .setFinished(information: 'Finished loading plm evaluation result from file!')
+            .copyWith(copyMap: {'persistentResults': updatedPersistentResults}),
+      );
+      yield right(updatedPersistentResults.last);
+    });
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {'fileName': _persistentResultFile.name, 'fileExtension': _persistentResultFile.extension};
+  }
+
+  @override
+  String get typeName => 'PLMEvalLoadPersistentResultCommand';
 }

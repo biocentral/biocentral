@@ -16,7 +16,7 @@ class PLMEvalPersistentResult {
 
   static PLMEvalPersistentResult? fromMap(Map<String, dynamic> map) {
     final modelName = map['modelName'];
-    final trainingDate = DateTime.tryParse(map['trainingDate']);
+    final trainingDate = DateTime.tryParse(map['trainingDate'] ?? '');
     final Map<String, dynamic> parsedResults = map['results'] ?? {};
     if (modelName == null || trainingDate == null || parsedResults.isEmpty) {
       return null;
