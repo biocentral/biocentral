@@ -24,28 +24,34 @@ class _PLMEvalHubViewState extends State<PLMEvalHubView> with AutomaticKeepAlive
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Flexible(
-              child: TabBar(
-                tabs: [
-                  Tab(icon: Icon(Icons.fact_check_outlined), text: 'Evaluations'),
-                  Tab(icon: Icon(Icons.sports_score), text: 'Leaderboard'),
-                ],
-              ),
-            ),
-            SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
-            Flexible(
-              flex: 5,
-              child: TabBarView(
-                children: [
-                  buildEvaluationsView(),
-                  buildLeaderboardView(),
-                ],
-              ),
-            ),
-          ],
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            print(constraints);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: constraints.maxHeight * 0.125,
+                  child: const TabBar(
+                    tabs: [
+                      Tab(icon: Icon(Icons.fact_check_outlined), text: 'Evaluations'),
+                      Tab(icon: Icon(Icons.sports_score), text: 'Leaderboard'),
+                    ],
+                  ),
+                ),
+                SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
+                SizedBox(
+                  height: constraints.maxHeight * 0.8,
+                  child: TabBarView(
+                    children: [
+                      buildEvaluationsView(),
+                      buildLeaderboardView(),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -65,11 +71,6 @@ class _PLMEvalHubViewState extends State<PLMEvalHubView> with AutomaticKeepAlive
   }
 
   Widget buildLeaderboardView() {
-    return BlocBuilder<PLMEvalLeaderboardBloc, PLMEvalLeaderboardState>(builder: (context, state) {
-      if (state.status == PLMEvalLeaderBoardStatus.loaded) {
-        return PLMEvalLeaderboardView(leaderboard: state.remoteLeaderboard);
-      }
-      return const CircularProgressIndicator();
-    });
+    return const PLMEvalLeaderboardSelectionView();
   }
 }

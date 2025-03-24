@@ -72,14 +72,22 @@ class _BiocentralTaskDisplayState extends State<BiocentralTaskDisplay> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Card(
-          child: ExpansionTile(
-            leading: widget.leadingIcon,
-            title: Text(widget.title),
-            trailing: SizedBox(
-              width: SizeConfig.screenWidth(context) * 0.2,
-              child: widget.trailing,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              listTileTheme: ListTileTheme.of(context).copyWith(
+                dense: true,
+              ),
             ),
-            children: widget.children,
+            child: ExpansionTile(
+              leading: widget.leadingIcon,
+              title: Text(widget.title),
+              trailing: SizedBox(
+                width: SizeConfig.screenWidth(context) * 0.35,
+                height: 44.0,
+                child: widget.trailing,
+              ),
+              children: widget.children,
+            ),
           ),
         ),
       ),

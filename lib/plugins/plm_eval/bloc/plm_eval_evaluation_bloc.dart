@@ -8,39 +8,35 @@ import 'package:flutter/material.dart';
 
 import '../data/plm_eval_service_api.dart';
 
-sealed class PLMEvalCommandEvent {}
+sealed class PLMEvalEvaluationEvent {}
 
-final class PLMEvalCommandStartAutoEvalEvent extends PLMEvalCommandEvent {
+final class PLMEvalEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final String modelID;
   final List<BenchmarkDataset> benchmarkDatasets;
   final bool recommendedOnly;
 
-  PLMEvalCommandStartAutoEvalEvent(this.modelID, this.benchmarkDatasets, this.recommendedOnly);
+  PLMEvalEvaluationStartEvent(this.modelID, this.benchmarkDatasets, this.recommendedOnly);
 }
 
-final class PLMEvalCommandResumeAutoEvalEvent extends PLMEvalCommandEvent {
+final class PLMEvalEvaluationResumeEvent extends PLMEvalEvaluationEvent {
   final BiocentralCommandLog commandLog;
 
-  PLMEvalCommandResumeAutoEvalEvent(this.commandLog);
-}
-
-final class PLMEvalCommandPublishResultsEvent extends PLMEvalCommandEvent {
-  PLMEvalCommandPublishResultsEvent();
+  PLMEvalEvaluationResumeEvent(this.commandLog);
 }
 
 @immutable
-final class PLMEvalCommandState extends BiocentralCommandState<PLMEvalCommandState> {
+final class PLMEvalEvaluationState extends BiocentralCommandState<PLMEvalEvaluationState> {
   final String? modelID;
   final AutoEvalProgress? autoEvalProgress;
 
-  const PLMEvalCommandState(
+  const PLMEvalEvaluationState(
     super.stateInformation,
     super.status,
     this.modelID,
     this.autoEvalProgress,
   );
 
-  const PLMEvalCommandState.idle()
+  const PLMEvalEvaluationState.idle()
       : modelID = null,
         autoEvalProgress = null,
         super.idle();
@@ -49,8 +45,8 @@ final class PLMEvalCommandState extends BiocentralCommandState<PLMEvalCommandSta
   List<Object?> get props => [modelID, autoEvalProgress, status];
 
   @override
-  PLMEvalCommandState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
-    return PLMEvalCommandState(
+  PLMEvalEvaluationState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
+    return PLMEvalEvaluationState(
       stateInformation,
       status,
       modelID,
@@ -59,13 +55,13 @@ final class PLMEvalCommandState extends BiocentralCommandState<PLMEvalCommandSta
   }
 
   @override
-  PLMEvalCommandState setIdle({String? information}) {
-    return const PLMEvalCommandState.idle();
+  PLMEvalEvaluationState setIdle({String? information}) {
+    return const PLMEvalEvaluationState.idle();
   }
 
   @override
-  PLMEvalCommandState copyWith({required Map<String, dynamic> copyMap}) {
-    return PLMEvalCommandState(
+  PLMEvalEvaluationState copyWith({required Map<String, dynamic> copyMap}) {
+    return PLMEvalEvaluationState(
       stateInformation,
       status,
       copyMap['modelID'] ?? modelID,
@@ -74,19 +70,19 @@ final class PLMEvalCommandState extends BiocentralCommandState<PLMEvalCommandSta
   }
 }
 
-// TODO [Refactoring] Make BiocentralBloc
-class PLMEvalCommandBloc extends BiocentralBloc<PLMEvalCommandEvent, PLMEvalCommandState> with BiocentralUpdateBloc {
+class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEvalEvaluationState>
+    with BiocentralUpdateBloc {
   final BiocentralProjectRepository _projectRepository;
   final BiocentralClientRepository _clientRepository;
   final PLMEvalRepository _plmEvalRepository;
 
-  PLMEvalCommandBloc(
+  PLMEvalEvaluationBloc(
     this._projectRepository,
     this._clientRepository,
     this._plmEvalRepository,
     EventBus eventBus,
-  ) : super(const PLMEvalCommandState.idle(), eventBus) {
-    on<PLMEvalCommandStartAutoEvalEvent>((event, emit) async {
+  ) : super(const PLMEvalEvaluationState.idle(), eventBus) {
+    on<PLMEvalEvaluationStartEvent>((event, emit) async {
       final autoEvalCommand = AutoEvalPLMCommand(
         plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
         plmEvalRepository: _plmEvalRepository,
@@ -94,13 +90,13 @@ class PLMEvalCommandBloc extends BiocentralBloc<PLMEvalCommandEvent, PLMEvalComm
         recommendedOnly: event.recommendedOnly,
         benchmarkDatasets: event.benchmarkDatasets,
       );
-      await autoEvalCommand.executeWithLogging<PLMEvalCommandState>(_projectRepository, state).forEach((either) {
+      await autoEvalCommand.executeWithLogging<PLMEvalEvaluationState>(_projectRepository, state).forEach((either) {
         either.match((l) => emit(l), (r) {
           updateDatabases();
         }); // Ignore result here
       });
     });
-    on<PLMEvalCommandResumeAutoEvalEvent>((event, emit) async {
+    on<PLMEvalEvaluationResumeEvent>((event, emit) async {
       final String? modelID = event.commandLog.commandConfig['modelID'];
       final bool? recommendedOnly = event.commandLog.commandConfig['recommendedOnly'];
       final Map<String, dynamic>? benchmarkDatasets = event.commandLog.commandConfig['benchmarkDatasets'];
@@ -131,7 +127,7 @@ class PLMEvalCommandBloc extends BiocentralBloc<PLMEvalCommandEvent, PLMEvalComm
         benchmarkDatasets: convertedBenchmarkDatasets,
       );
       await autoEvalCommand
-          .resumeWithLogging<PLMEvalCommandState>(
+          .resumeWithLogging<PLMEvalEvaluationState>(
         _projectRepository,
         event.commandLog.metaData.startTime,
         taskID,
@@ -143,16 +139,6 @@ class PLMEvalCommandBloc extends BiocentralBloc<PLMEvalCommandEvent, PLMEvalComm
           finishedResumableCommand(event.commandLog);
         }); // Ignore result here
       });
-    });
-    on<PLMEvalCommandPublishResultsEvent>((event, emit) async {
-      emit(state.setOperating(information: 'Publishing results..'));
-
-      final persistentResult = state.autoEvalProgress?.convertResultsForPublishing();
-
-      final plmEvalClient = _clientRepository.getServiceClient<PLMEvalClient>();
-      //TODO
-      final publishingEither = await plmEvalClient.publishResult(persistentResult!);
-      // TODO Handle publishing result
     });
   }
 }

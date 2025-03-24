@@ -1,5 +1,5 @@
 import 'package:biocentral/plugins/embeddings/embeddings_plugin.dart';
-import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_command_bloc.dart';
+import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_evaluation_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_hub_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_leaderboard_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
@@ -30,7 +30,7 @@ class PLMEvalPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
-    final plmEvalCommandBloc = PLMEvalCommandBloc(
+    final plmEvalCommandBloc = PLMEvalEvaluationBloc(
       getBiocentralProjectRepository(context),
       getBiocentralClientRepository(context),
       getDatabase(context),
@@ -53,7 +53,7 @@ class PLMEvalPlugin extends BiocentralPlugin
     });
 
     return {
-      BlocProvider<PLMEvalCommandBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,
+      BlocProvider<PLMEvalEvaluationBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,
       BlocProvider<PLMEvalHubBloc>.value(value: plmEvalHubBloc): plmEvalHubBloc,
       BlocProvider<PLMEvalLeaderboardBloc>.value(value: plmEvalLeaderboardBloc): plmEvalLeaderboardBloc,
     };
