@@ -1,6 +1,4 @@
-import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -11,13 +9,13 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabase _biocentralDatabase;
   final BayesianOptimizationClient _boClient;
-  final Map<String, String?> _trainingConfiguration;
+  final Map<String, dynamic?> _trainingConfiguration;
 
   TransferBOTrainingConfigCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabase biocentralDatabase,
     required BayesianOptimizationClient client,
-    required Map<String, String?> trainingConfiguration,
+    required Map<String, dynamic?> trainingConfiguration,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
         _boClient = client,

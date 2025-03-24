@@ -3,6 +3,7 @@ import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimizat
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
 import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
@@ -17,6 +18,7 @@ abstract class BayesianOptimizationEvent {}
 
 class BayesianOptimizationInitial extends BayesianOptimizationEvent {
   List<BayesianOptimizationTrainingResult>? previousTrainings;
+
   BayesianOptimizationInitial({this.previousTrainings});
 }
 
@@ -26,7 +28,7 @@ class BayesianOptimizationLoadPreviousTrainings extends BayesianOptimizationEven
 
 class BayesianOptimizationTrainingStarted extends BayesianOptimizationEvent {
   final BuildContext context;
-  final String? selectedTask;
+  final TaskType? selectedTask;
   final String? selectedFeature;
   final String? selectedModel;
   final double exploitationExplorationValue;
@@ -90,6 +92,7 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
 
   List<BayesianOptimizationTrainingResult>? get previousResults =>
       _bayesianOptimizationRepository.previousTrainingResults;
+
   BayesianOptimizationTrainingResult? get currentResult => _bayesianOptimizationRepository.currentResult;
 
   Future<void> _onLoadPreviousTrainings(
@@ -129,18 +132,22 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
         ),
       );
     } else {
-      final config = {
-        'databaseHash': biocentralDatabase.getHash().toString(),
-        'task': event.selectedTask.toString(),
-        'feature': event.selectedFeature.toString(),
-        'model': event.selectedModel.toString(),
-        'exploitationExplorationValue': event.exploitationExplorationValue.toString(),
-        'selectedEmbedder': event.selectedEmbedder?.name,
-        'optimizationType': event.optimizationType,
+      final String databaseHash = await biocentralDatabase.getHash();
+      final Map<String, dynamic> config = {
+        'database_hash': databaseHash,
+        'discrete': event.selectedTask != TaskType.findOptimalValues,
+        // 'feature': event.selectedFeature.toString(), //TODO: Set target value in the fasta file according to the feature
+        'model_type': event.selectedModel.toString(),
+        'coefficient': event.exploitationExplorationValue.toString(),
+        // 'selectedEmbedder': event.selectedEmbedder?.name, //TODO: Tell Shuze to add
+        if (event.optimizationType != null) 'value_preference': event.optimizationType.toString,
+        //TODO: If targetRange or value, provide neutral
         if (event.targetValue != null) 'targetValue': event.targetValue.toString(),
-        if (event.targetRangeMin != null) 'targetRangeMin': event.targetRangeMin.toString(),
-        if (event.targetRangeMax != null) 'targetRangeMax': event.targetRangeMax.toString(),
-        if (event.desiredBooleanValue != null) 'desiredBooleanValue': event.desiredBooleanValue.toString(),
+        //TODO: If value, then lb/ub is the same number (Clarify with Shuze)
+        if (event.targetRangeMin != null) 'target_interval_lb': event.targetRangeMin.toString(),
+        if (event.targetRangeMax != null) 'target_interval_ub': event.targetRangeMax.toString(),
+        if (event.selectedTask == TaskType.findHighestProbability) 'discrete_labels': ["true", "false"],
+        if (event.desiredBooleanValue != null) 'discrete_targets': event.desiredBooleanValue.toString(),
       };
 
       final command = TransferBOTrainingConfigCommand(
