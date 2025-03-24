@@ -8,6 +8,10 @@ class BiocentralMLMetric {
 
   BiocentralMLMetric({required this.name, required this.value, this.uncertaintyEstimate});
 
+  BiocentralMLMetric absolute() {
+    return BiocentralMLMetric(name: name, value: value.abs(), uncertaintyEstimate: uncertaintyEstimate?.absolute());
+  }
+
   static BiocentralMLMetric? tryParse(String? name, String? value) {
     if (name == null || name == '' || value == null || value == '') {
       return null;
@@ -68,13 +72,24 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
     required this.confidenceLevel,
   });
 
+  UncertaintyEstimate absolute() {
+    return UncertaintyEstimate(
+      method: method,
+      mean: mean.abs(),
+      error: error.abs(),
+      iterations: iterations,
+      sampleSize: sampleSize,
+      confidenceLevel: confidenceLevel,
+    );
+  }
+
   static UncertaintyEstimate? fromMap(Map<String, dynamic> map) {
     final method = map['method'];
     final mean = map['mean'];
     final error = map['error'];
     final iterations = map['iterations'];
     final sampleSize = map['sampleSize'] ?? map['sample_size'];
-    final confidenceLevel = map['confidenceLevel'] ?? map ['confidence_level'];
+    final confidenceLevel = map['confidenceLevel'] ?? map['confidence_level'];
 
     if (method == null || mean == null || error == null) {
       return null;
@@ -108,23 +123,24 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   int compareTo(UncertaintyEstimate other) {
     // Verify that the estimates are comparable
     if (!isComparableTo(other)) {
-      throw ArgumentError(
-          'Cannot compare uncertainty estimates with different parameters:\n'
-              'This: $this\n'
-              'Other: $other'
-      );
+      throw ArgumentError('Cannot compare uncertainty estimates with different parameters:\n'
+          'This: $this\n'
+          'Other: $other');
     }
 
+    final comp1 = absolute();
+    final comp2 = other.absolute();
+
     // Check for exact equality
-    if (mean == other.mean && error == other.error) {
+    if (comp1.mean == comp2.mean && comp1.error == comp2.error) {
       return 0;
     }
 
     // Compare non-overlapping ranges
-    if (lowerBound > other.upperBound) {
+    if (comp1.lowerBound > comp2.upperBound) {
       return 1;
     }
-    if (upperBound < other.lowerBound) {
+    if (comp1.upperBound < comp2.lowerBound) {
       return -1;
     }
 
