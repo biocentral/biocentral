@@ -12,7 +12,6 @@ class PLMEvalServiceEndpoints {
   static const String getBenchmarkDatasets = '/plm_eval_service/get_benchmark_datasets';
   static const String getRecommendedBenchmarkDatasets = '/plm_eval_service/get_recommended_benchmark_datasets';
   static const String autoeval = '/plm_eval_service/autoeval';
-  static const String taskStatus = '/plm_eval_service/task_status';
 }
 
 Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDatasetsFromMap(

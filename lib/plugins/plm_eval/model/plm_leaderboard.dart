@@ -4,7 +4,6 @@ import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:collection/collection.dart';
 
-
 typedef ModelName = String;
 typedef DatasetName = String;
 
@@ -21,8 +20,12 @@ class PLMLeaderboardEntry {
   });
 }
 
+enum PLMLeaderboardKind { remote, local, mixed }
+
 class PLMLeaderboard {
   final Map<ModelName, List<PLMLeaderboardEntry>> modelNameToEntries;
+
+  static const String fallbackMetric = 'spearmans-corr-coeff';
 
   const PLMLeaderboard._({required this.modelNameToEntries});
 
@@ -50,13 +53,12 @@ class PLMLeaderboard {
   }
 
   factory PLMLeaderboard.mixed(PLMLeaderboard remote, PLMLeaderboard local) {
-    final mixedEntries = remote.modelNameToEntries;
-    for(final (localModelName, map) in local.modelNameToEntries.entriesRecord) {
-      String modelName = localModelName;
-      if(mixedEntries.containsKey(localModelName)) {
-        modelName = '$localModelName - LOCAL';
+    final Map<ModelName, List<PLMLeaderboardEntry>> mixedEntries = Map.from(remote.modelNameToEntries);
+    for (final (localModelName, map) in local.modelNameToEntries.entriesRecord) {
+      if (mixedEntries.containsKey(localModelName)) {
+        continue;
       }
-      mixedEntries[modelName] = map;
+      mixedEntries[localModelName] = map;
     }
     return PLMLeaderboard._(modelNameToEntries: mixedEntries);
   }
@@ -68,21 +70,26 @@ class PLMLeaderboard {
   // Get all unique dataset-split combinations
   Set<BenchmarkDataset> get benchmarkDatasets => PLMLeaderboardRankingCalculator.benchmarkDatasets(modelNameToEntries);
 
-  // Get entries for a specific benchmark dataset
-  List<PLMLeaderboardEntry> getEntriesForBenchmark(BenchmarkDataset benchmark) =>
-      PLMLeaderboardRankingCalculator.getEntriesForBenchmark(modelNameToEntries, benchmark).map((e) => e.$2).toList();
+  (Map<String, Set<BiocentralMLMetric>>, List<(String, double, double?)>) getMetricsDataForBenchmark(
+      BenchmarkDataset benchmark, String metricForDataset) {
+    final Map<String, Set<BiocentralMLMetric>> tableData = {};
+    final List<(String, double, double?)> plotData = [];
+    final relevantEntries = PLMLeaderboardRankingCalculator.getEntriesForBenchmark(modelNameToEntries, benchmark);
 
-  Map<String, Set<BiocentralMLMetric>> getMetricsForBenchmark(BenchmarkDataset benchmark) {
-    final relevantEntries = getEntriesForBenchmark(benchmark);
-
-    return Map.fromEntries(
-      relevantEntries.map(
-        (entry) => MapEntry(
-          entry.predictionModel.embedderName ?? 'Unknown',
-          entry.predictionModel.biotrainerTrainingResult?.testSetMetrics ?? {},
-        ),
-      ),
-    );
+    for (final (modelName, entry) in relevantEntries) {
+      final mlMetrics = entry.predictionModel.biotrainerTrainingResult?.testSetMetrics
+          .where((testMetric) => testMetric.name == metricForDataset);
+      if (mlMetrics == null || mlMetrics.isEmpty) {
+        // TODO [Error handling]
+        continue;
+      }
+      final mlMetric = mlMetrics.first;
+      plotData
+          .add((modelName, mlMetric.uncertaintyEstimate?.mean ?? mlMetric.value, mlMetric.uncertaintyEstimate?.error));
+      tableData.putIfAbsent(modelName, () => {});
+      tableData[modelName]?.add(mlMetric);
+    }
+    return (tableData, plotData);
   }
 }
 
@@ -109,7 +116,8 @@ class PLMLeaderboardRankingCalculator {
           modelNameToEntries,
           BenchmarkDataset(datasetName: datasetName, splitName: splitName),
         );
-        final splitRanking = _getSplitRanking(recommendedMetrics[datasetName] ?? 'loss', entriesForSplit);
+        final splitRanking =
+            _getSplitRanking(recommendedMetrics[datasetName] ?? PLMLeaderboard.fallbackMetric, entriesForSplit);
         splitRankings.add(splitRanking);
       }
 
@@ -125,13 +133,13 @@ class PLMLeaderboardRankingCalculator {
 
     // PER-CATEGORY
     final Map<DatasetName, Map<ModelName, double>> categoryRankings = _getCategoryRankings(datasetRankings);
-    
+
     final Map<String, double> rankingResult = {};
-    for(final rankingMap in categoryRankings.values) {
-      for(final (modelName, rankingValue) in rankingMap.entriesRecord) {
+    for (final rankingMap in categoryRankings.values) {
+      for (final (modelName, rankingValue) in rankingMap.entriesRecord) {
         rankingResult.putIfAbsent(modelName, () => 0.0);
         final newValue = (rankingResult[modelName] ?? 0.0) + rankingValue;
-        rankingResult[modelName] = newValue; 
+        rankingResult[modelName] = newValue;
       }
     }
     return _sortRanking(rankingResult);
@@ -158,9 +166,30 @@ class PLMLeaderboardRankingCalculator {
     if (BiocentralMLMetric.isAscending(sorted.first.$2.name)) {
       sorted = sorted.reversed.toList();
     }
-    final Map<ModelName, int> result = {};
-    for (final (index, (name, metric)) in sorted.indexed) {
-      result[name] = index;
+    final Map<String, int> result = {};
+    int currentRank = 1;
+    int sameRankCount = 0;
+
+    // Handle first entry
+    UncertaintyEstimate previousScore = sorted.first.$2.uncertaintyEstimate!;
+    result[sorted.first.$1] = currentRank;
+
+    // Process remaining entries
+    for (int i = 1; i < sorted.length; i++) {
+      final currentScore = sorted[i].$2.uncertaintyEstimate!;
+
+      if (currentScore.compareTo(previousScore) == 0) {
+        // Same score as previous entry, assign same rank
+        result[sorted[i].$1] = currentRank;
+        sameRankCount++;
+      } else {
+        // Different score, assign next rank (skip ranks for ties)
+        currentRank += sameRankCount + 1;
+        result[sorted[i].$1] = currentRank;
+        sameRankCount = 0;
+      }
+
+      previousScore = currentScore;
     }
     return result;
   }
@@ -171,7 +200,8 @@ class PLMLeaderboardRankingCalculator {
   }
 
   // Averages over datasets in the same category
-  Map<DatasetName, Map<ModelName, double>> _getCategoryRankings(Map<DatasetName, Map<ModelName, double>> datasetRankings) {
+  Map<DatasetName, Map<ModelName, double>> _getCategoryRankings(
+      Map<DatasetName, Map<ModelName, double>> datasetRankings) {
     final Map<String, Map<String, double>> result = {};
     final Set<String> datasetsToSummarize = {};
     for (final datasetCategory in flipCategories.entries) {
@@ -183,8 +213,8 @@ class PLMLeaderboardRankingCalculator {
       result[datasetCategory.key] = categoryRanking;
       datasetsToSummarize.addAll(datasetCategory.value);
     }
-    for(final entry in datasetRankings.entries) {
-      if(datasetsToSummarize.contains(entry.key)) {
+    for (final entry in datasetRankings.entries) {
+      if (datasetsToSummarize.contains(entry.key)) {
         continue;
       }
       result[entry.key] = entry.value;

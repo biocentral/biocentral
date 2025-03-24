@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralBarPlotData {
+  // (Name, Mean, Error)
   final List<(String, double, double?)> _data;
 
   BiocentralBarPlotData.withoutErrors(Map<String, double> data)
