@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,7 +26,7 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
       builder: (BuildContext context) {
         return StartBOTrainingDialog(
           (
-            String? selectedTask,
+            TaskType? selectedTask,
             String? selectedFeature,
             String? selectedModel,
             double exploitationExplorationValue,

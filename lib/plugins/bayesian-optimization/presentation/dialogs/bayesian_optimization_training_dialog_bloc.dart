@@ -6,7 +6,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../embeddings/data/predefined_embedders.dart';
 
-// Events
+// Define an enum for task types
+enum TaskType {
+  findOptimalValues,
+  findHighestProbability,
+}
+
+// Extension to get display string for UI
+extension TaskTypeExtension on TaskType {
+  String get displayName {
+    switch (this) {
+      case TaskType.findOptimalValues:
+        return 'Find proteins with optimal values for feature...';
+      case TaskType.findHighestProbability:
+        return 'Find proteins with the highest probability to have feature...';
+    }
+  }
+}
+
 abstract class BOTrainingDialogEvent {}
 
 class DatasetSelected extends BOTrainingDialogEvent {
@@ -16,7 +33,7 @@ class DatasetSelected extends BOTrainingDialogEvent {
 }
 
 class TaskSelected extends BOTrainingDialogEvent {
-  final String task;
+  final TaskType task;
 
   TaskSelected(this.task);
 }
@@ -45,7 +62,6 @@ class ExploitationExplorationUpdated extends BOTrainingDialogEvent {
   ExploitationExplorationUpdated(this.value);
 }
 
-// Add to BOTrainingDialogEvent section:
 class OptimizationTypeSelected extends BOTrainingDialogEvent {
   final String type; // 'Maximize', 'Minimize', 'Target Value', 'Target Range'
   OptimizationTypeSelected(this.type);
@@ -75,8 +91,6 @@ class DesiredBooleanValueUpdated extends BOTrainingDialogEvent {
   DesiredBooleanValueUpdated(this.value);
 }
 
-// State
-// First, let's fix the step enum to reflect the correct order
 enum BOTrainingDialogStep {
   datasetSelection,
   taskSelection,
@@ -88,17 +102,16 @@ enum BOTrainingDialogStep {
   complete
 }
 
-// Update the state class to better handle feature configuration
 class BOTrainingDialogState {
   final BOTrainingDialogStep currentStep;
   final Type? selectedDataset;
-  final String? selectedTask;
+  final TaskType? selectedTask;
   final String? selectedFeature;
   final PredefinedEmbedder? selectedEmbedder;
   final String? selectedModel;
   final double exploitationExplorationValue;
   final List<String> availableFeatures;
-  final List<String> tasks;
+  final List<TaskType> tasks;
   final List<String> models;
   final List<PredefinedEmbedder> availableEmbedders;
   final String? optimizationType;
@@ -108,7 +121,7 @@ class BOTrainingDialogState {
   final bool? desiredBooleanValue;
 
   bool get isFeatureConfigurationComplete {
-    if (selectedTask?.contains('optimal values') ?? false) {
+    if (selectedTask == TaskType.findOptimalValues) {
       switch (optimizationType) {
         case 'Maximize':
         case 'Minimize':
@@ -120,7 +133,7 @@ class BOTrainingDialogState {
         default:
           return false;
       }
-    } else if (selectedTask?.contains('highest probability') ?? false) {
+    } else if (selectedTask == TaskType.findHighestProbability) {
       return desiredBooleanValue != null;
     }
     return false;
@@ -136,8 +149,8 @@ class BOTrainingDialogState {
     this.exploitationExplorationValue = 0.5,
     this.availableFeatures = const [],
     this.tasks = const [
-      'Find proteins with optimal values for feature...',
-      'Find proteins with the highest probability to have feature...',
+      TaskType.findOptimalValues,
+      TaskType.findHighestProbability,
     ],
     this.models = const ['Gaussian Processes', 'Random Forest'],
     this.availableEmbedders = const [],
@@ -148,17 +161,16 @@ class BOTrainingDialogState {
     this.desiredBooleanValue,
   });
 
-  // Update copyWith to reset dependent fields when necessary
   BOTrainingDialogState copyWith({
     BOTrainingDialogStep? currentStep,
     Type? selectedDataset,
-    String? selectedTask,
+    TaskType? selectedTask,
     String? selectedFeature,
     PredefinedEmbedder? selectedEmbedder,
     String? selectedModel,
     double? exploitationExplorationValue,
     List<String>? availableFeatures,
-    List<String>? tasks,
+    List<TaskType>? tasks,
     List<String>? models,
     List<PredefinedEmbedder>? availableEmbedders,
     String? optimizationType,
@@ -202,7 +214,6 @@ class BOTrainingDialogState {
   }
 }
 
-// Update the Bloc class to handle the new flow
 class BOTrainingDialogBloc extends Bloc<BOTrainingDialogEvent, BOTrainingDialogState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository biocentralProjectRepository;
@@ -246,10 +257,14 @@ class BOTrainingDialogBloc extends Bloc<BOTrainingDialogEvent, BOTrainingDialogS
         _biocentralDatabaseRepository.getFromType(Protein) as ProteinRepository?;
 
     List<String> filteredFeatures = [];
-    if (event.task.contains('highest probability')) {
-      filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: true, numericTypes: false);
-    } else if (event.task.contains('optimal values')) {
-      filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: false, numericTypes: true);
+
+    switch (event.task) {
+      case TaskType.findHighestProbability:
+        filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: true, numericTypes: false);
+        break;
+      case TaskType.findOptimalValues:
+        filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: false, numericTypes: true);
+        break;
     }
 
     emit(state.copyWith(
