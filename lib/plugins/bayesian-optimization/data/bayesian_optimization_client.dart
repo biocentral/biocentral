@@ -4,11 +4,9 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
-final class BayesianOptimizationClientFactory
-    extends BiocentralClientFactory<BayesianOptimizationClient> {
+final class BayesianOptimizationClientFactory extends BiocentralClientFactory<BayesianOptimizationClient> {
   @override
-  BayesianOptimizationClient create(
-      BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
+  BayesianOptimizationClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
     return BayesianOptimizationClient(server, hubServerClient);
   }
 }
@@ -17,15 +15,12 @@ class BayesianOptimizationClient extends BiocentralClient {
   BayesianOptimizationClient(super._server, super._hubServerClient);
 
   Future<Either<BiocentralException, String>> startTraining(
-    String configFile,
+    Map<String, dynamic> trainingConfig,
     String databaseHash,
   ) async {
-    final responseEither = await doPostRequest(
-      PredictionModelsServiceEndpoints.startTraining,
-      {'config_file': configFile, 'database_hash': databaseHash},
-    );
-    return responseEither
-        .flatMap((responseMap) => right(responseMap['task_id']));
+    final responseEither = await doPostRequest(PredictionModelsServiceEndpoints.startTraining,
+        trainingConfig.map((key, value) => MapEntry(key, value.toString())));
+    return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
   Stream<PredictionModel?> biotrainerTrainingTaskStream(
@@ -37,8 +32,7 @@ class BayesianOptimizationClient extends BiocentralClient {
       BiocentralDTO biocentralDTO,
     ) =>
         currentModel?.updateTrainingResult(
-          BiotrainerTrainingResult.fromDTO(biocentralDTO)
-              .getOrElse((e) => null),
+          BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null),
         );
     yield* taskUpdateStream<PredictionModel?>(
       taskID,
