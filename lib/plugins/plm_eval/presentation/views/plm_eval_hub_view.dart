@@ -26,7 +26,6 @@ class _PLMEvalHubViewState extends State<PLMEvalHubView> with AutomaticKeepAlive
       child: Scaffold(
         body: LayoutBuilder(
           builder: (context, constraints) {
-            print(constraints);
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [

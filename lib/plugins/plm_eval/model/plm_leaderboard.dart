@@ -83,7 +83,7 @@ class PLMLeaderboard {
         // TODO [Error handling]
         continue;
       }
-      final mlMetric = mlMetrics.first;
+      final mlMetric = mlMetrics.first.absolute();
       plotData
           .add((modelName, mlMetric.uncertaintyEstimate?.mean ?? mlMetric.value, mlMetric.uncertaintyEstimate?.error));
       tableData.putIfAbsent(modelName, () => {});
