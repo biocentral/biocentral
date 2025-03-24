@@ -11,7 +11,7 @@ import '../../../embeddings/data/predefined_embedders.dart';
 // Dialog Widget
 class StartBOTrainingDialog extends StatelessWidget {
   final Function(
-    String? selectedTask,
+    TaskType? selectedTask,
     String? selectedFeature,
     String? selectedModel,
     double exploitationExplorationValue,
@@ -42,13 +42,11 @@ class StartBOTrainingDialog extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Dataset Selection
-              if (state.currentStep.index >=
-                  BOTrainingDialogStep.datasetSelection.index)
+              if (state.currentStep.index >= BOTrainingDialogStep.datasetSelection.index)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Select Dataset:',
-                        style: TextStyle(fontSize: 16)),
+                    const Text('Select Dataset:', style: TextStyle(fontSize: 16)),
                     const SizedBox(height: 8),
                     BiocentralEntityTypeSelection(
                       onChangedCallback: (Type? value) {
@@ -60,20 +58,17 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Task Selection
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep.taskSelection.index &&
-                  state.selectedDataset != null)
+              if (state.currentStep.index >= BOTrainingDialogStep.taskSelection.index && state.selectedDataset != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
                     const Text('Select Task:', style: TextStyle(fontSize: 16)),
-                    DropdownButton<String>(
+                    DropdownButton<TaskType>(
                       value: state.selectedTask,
                       hint: const Text('Choose a task'),
                       items: state.tasks
-                          .map((task) =>
-                              DropdownMenuItem(value: task, child: Text(task)))
+                          .map((task) => DropdownMenuItem(value: task, child: Text(task.displayName)))
                           .toList(),
                       onChanged: (value) {
                         if (value != null) bloc.add(TaskSelected(value));
@@ -83,21 +78,17 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Feature Selection
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep.featureSelection.index &&
-                  state.selectedTask != null)
+              if (state.currentStep.index >= BOTrainingDialogStep.featureSelection.index && state.selectedTask != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    const Text('Select Feature:',
-                        style: TextStyle(fontSize: 16)),
+                    const Text('Select Feature:', style: TextStyle(fontSize: 16)),
                     DropdownButton<String>(
                       value: state.selectedFeature,
                       hint: const Text('Choose a feature'),
                       items: state.availableFeatures
-                          .map((feature) => DropdownMenuItem(
-                              value: feature, child: Text(feature)))
+                          .map((feature) => DropdownMenuItem(value: feature, child: Text(feature)))
                           .toList(),
                       onChanged: (value) {
                         if (value != null) bloc.add(FeatureSelected(value));
@@ -107,40 +98,30 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Feature Configuration
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep.featureConfiguration.index &&
+              if (state.currentStep.index >= BOTrainingDialogStep.featureConfiguration.index &&
                   state.selectedFeature != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    if (state.selectedTask?.contains('optimal values') ?? false)
+                    if (state.selectedTask == TaskType.findOptimalValues)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Optimization Type:',
-                              style: TextStyle(fontSize: 16)),
+                          const Text('Optimization Type:', style: TextStyle(fontSize: 16)),
                           DropdownButton<String>(
                             value: state.optimizationType,
                             hint: const Text('Choose optimization type'),
-                            items: [
-                              'Maximize',
-                              'Minimize',
-                              'Target Value',
-                              'Target Range'
-                            ]
-                                .map((type) => DropdownMenuItem(
-                                    value: type, child: Text(type)))
+                            items: ['Maximize', 'Minimize', 'Target Value', 'Target Range']
+                                .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                                 .toList(),
                             onChanged: (value) {
-                              if (value != null)
-                                bloc.add(OptimizationTypeSelected(value));
+                              if (value != null) bloc.add(OptimizationTypeSelected(value));
                             },
                           ),
                           if (state.optimizationType == 'Target Value')
                             TextFormField(
-                              decoration: const InputDecoration(
-                                  labelText: 'Target Value'),
+                              decoration: const InputDecoration(labelText: 'Target Value'),
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
                                 final number = double.tryParse(value);
@@ -154,8 +135,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: TextFormField(
-                                    decoration:
-                                        const InputDecoration(labelText: 'Min'),
+                                    decoration: const InputDecoration(labelText: 'Min'),
                                     keyboardType: TextInputType.number,
                                     onChanged: (value) {
                                       final number = double.tryParse(value);
@@ -168,8 +148,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: TextFormField(
-                                    decoration:
-                                        const InputDecoration(labelText: 'Max'),
+                                    decoration: const InputDecoration(labelText: 'Max'),
                                     keyboardType: TextInputType.number,
                                     onChanged: (value) {
                                       final number = double.tryParse(value);
@@ -183,26 +162,20 @@ class StartBOTrainingDialog extends StatelessWidget {
                             ),
                         ],
                       )
-                    else if (state.selectedTask
-                            ?.contains('highest probability') ??
-                        false)
+                    else if (state.selectedTask == TaskType.findHighestProbability)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Desired Value:',
-                              style: TextStyle(fontSize: 16)),
+                          const Text('Desired Value:', style: TextStyle(fontSize: 16)),
                           DropdownButton<bool>(
                             value: state.desiredBooleanValue,
                             hint: const Text('Choose desired value'),
                             items: [
-                              const DropdownMenuItem(
-                                  value: true, child: Text('True')),
-                              const DropdownMenuItem(
-                                  value: false, child: Text('False')),
+                              const DropdownMenuItem(value: true, child: Text('True')),
+                              const DropdownMenuItem(value: false, child: Text('False')),
                             ],
                             onChanged: (value) {
-                              if (value != null)
-                                bloc.add(DesiredBooleanValueUpdated(value));
+                              if (value != null) bloc.add(DesiredBooleanValueUpdated(value));
                             },
                           ),
                         ],
@@ -211,15 +184,13 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Embedder Selection
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep.embedderSelection.index &&
+              if (state.currentStep.index >= BOTrainingDialogStep.embedderSelection.index &&
                   state.isFeatureConfigurationComplete)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    const Text('Select Embedder:',
-                        style: TextStyle(fontSize: 16)),
+                    const Text('Select Embedder:', style: TextStyle(fontSize: 16)),
                     DropdownButton<PredefinedEmbedder>(
                       value: state.selectedEmbedder,
                       hint: const Text('Choose an embedder'),
@@ -237,8 +208,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Model Selection
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep.modelSelection.index &&
+              if (state.currentStep.index >= BOTrainingDialogStep.modelSelection.index &&
                   state.selectedEmbedder != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,10 +218,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                     DropdownButton<String>(
                       value: state.selectedModel,
                       hint: const Text('Choose a model'),
-                      items: state.models
-                          .map((model) => DropdownMenuItem(
-                              value: model, child: Text(model)))
-                          .toList(),
+                      items: state.models.map((model) => DropdownMenuItem(value: model, child: Text(model))).toList(),
                       onChanged: (value) {
                         if (value != null) bloc.add(ModelSelected(value));
                       },
@@ -260,25 +227,20 @@ class StartBOTrainingDialog extends StatelessWidget {
                 ),
 
               // Exploitation vs. Exploration Selection
-              if (state.currentStep.index >=
-                      BOTrainingDialogStep
-                          .exploitationExplorationSelection.index &&
+              if (state.currentStep.index >= BOTrainingDialogStep.exploitationExplorationSelection.index &&
                   state.selectedModel != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    const Text('Exploitation vs Exploration:',
-                        style: TextStyle(fontSize: 16)),
+                    const Text('Exploitation vs Exploration:', style: TextStyle(fontSize: 16)),
                     Slider(
                       value: state.exploitationExplorationValue,
                       min: 0,
                       max: 1,
                       divisions: 10,
-                      label:
-                          state.exploitationExplorationValue.toStringAsFixed(1),
-                      onChanged: (value) =>
-                          bloc.add(ExploitationExplorationUpdated(value)),
+                      label: state.exploitationExplorationValue.toStringAsFixed(1),
+                      onChanged: (value) => bloc.add(ExploitationExplorationUpdated(value)),
                     ),
                   ],
                 ),
@@ -294,8 +256,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   TextButton(
-                    onPressed: state.currentStep ==
-                            BOTrainingDialogStep.complete
+                    onPressed: state.currentStep == BOTrainingDialogStep.complete
                         ? () {
                             _startTraining(
                               state.selectedTask,
