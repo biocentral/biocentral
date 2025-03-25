@@ -25,20 +25,6 @@ These are the currently provided modules:
 
 [FLIP]: https://github.com/J-SNACKKB/FLIP
 
-## Supported platforms
-
-`Biocentral` and `biocentral_server` are designed to provide all common desktop operating systems
-(Windows, Linux, macOS).
-The following table gives an overview about the current test and packaging status:
-
-| OS           | Tested  | Packaging |
-|--------------|:-------:|:---------:|
-| Ubuntu 24.04 |    ✅    |   .zip    |
-| Ubuntu 22.04 |    ✅    |   .zip    |
-| Windows 10   |    ✅    |   .zip    |
-| Windows 11   | planned |    tbd    |
-| macOS        | planned |    tbd    |
-
 ## Installing and running
 
 Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/docs/#installation) installed.
@@ -62,90 +48,8 @@ poetry run run-biocentral_server.py
 poetry run run-biocentral_server.py --headless
 ```
 
-### Local setup
+### Installation
 
-1. Redis
-
-```shell
-sudo apt-get install redis-server
-sudo systemctl start redis-server
-sudo systemctl enable redis-server
-```
-
-Embeddings that are computed via the server are stored in a NoSQL database. For local deployments, 
-[TinyDB](https://github.com/msiemens/tinydb) is used by default and should be performant for most use cases. 
-If you want to use TinyDB, you do not have to perform any additional installation steps - 
-all embeddings are stored in `storage/embeddings.json`. 
-
-<details>
-<summary>Advanced PostgreSQL setup</summary>
-
-For advanced users or production deployments we recommend using a [PostgreSQL](https://www.postgresql.org/) instance. 
-Here's a step-by-step guide how to configure it for *biocentral_server*:
-```shell
-# 1. Install PostgreSQL, e.g. for Ubuntu see: https://www.postgresql.org/download/linux/ubuntu/
-# 2. Configure PostgreSQL
-# Switch to postgres user
-sudo -i -u postgres
-
-# Create a new database
-createdb embeddings_db
-
-# Access PostgreSQL prompt
-psql
-
-# Create a new user and set password
-CREATE USER embeddingsuser WITH PASSWORD 'embeddingspwd';
-
-# Grant privileges to the user on the database
-GRANT ALL PRIVILEGES ON DATABASE embeddings_db TO embeddingsuser;
-
-# Connect to the embeddings database
-\c embeddings_db
-
-# Grant schema privileges to the user
-GRANT ALL ON SCHEMA public TO embeddingsuser;
-
-# Exit PostgreSQL prompt
-\q
-
-# Exit postgres user shell
-exit
-
-# Restart PostgreSQL
-sudo systemctl restart postgresql
-```
-</details>
-
-## Building
-
-Building and bundling is done using [pyinstaller](https://pyinstaller.org/en/stable/) and `make`.
-
-On Windows, you can use `winget` to install `make`:
-
-```shell
-winget install ezwinports.make
-```
-
-Check that all build variables are correct:
-
-```shell
-make print-info
-```
-
-Then call build:
-
-```shell
-make build
-```
-
-To create a `zip` file with all required files for distribution:
-
-```shell
-make bundle
-```
-
-*Note that this file only works on the operating system version you ran `make build` on!*
 
 
 # Citation

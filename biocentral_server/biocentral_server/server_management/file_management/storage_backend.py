@@ -138,7 +138,7 @@ class StorageFileWriter:
         return self.temp_dir
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:  # Only sync if no exception occurred
+        if exc_type is None:  # Only sync if no exception occurred and saving is enabled
             # Sync all files in temp directory to SeaweedFS
             for file_path in self.temp_dir.rglob('*'):
                 if file_path.is_file():
@@ -157,21 +157,12 @@ class SeaweedFSStorageBackend(StorageBackend):
         filer_port = os.environ.get("SEAWEEDFS_FILER_PORT", 8888)
         self.filer_url: str = f"http://{filer_host}:{filer_port}/"
 
-    def _ensure_directory(self, path: str) -> None:
-        """Ensure directory exists in SeaweedFS"""
-        dir_path = str(Path(path).parent)
-        if dir_path:
-            requests.post(f"{self.filer_url}{dir_path}?op=mkdir", allow_redirects=True)
-
     def save_file(self, path: str, data: Union[bytes, str, BinaryIO]) -> str:
         """
         Save file to SeaweedFS
         Returns: full path to the saved file
         """
         try:
-            # Ensure parent directory exists
-            self._ensure_directory(path)
-
             # Prepare data
             if isinstance(data, str):
                 data = data.encode('utf-8')
@@ -186,6 +177,7 @@ class SeaweedFSStorageBackend(StorageBackend):
                 f"{self.filer_url}{path}",
                 files=files
             )
+            logger.info(f"Saved file to SeaweedFS: {response.content}")
             response.raise_for_status()
 
             return path

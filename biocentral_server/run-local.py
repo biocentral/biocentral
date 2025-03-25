@@ -19,7 +19,9 @@ def run_server():
 
 def run_worker(worker_id):
     """Run a single worker process with a specific name"""
-    redis_conn = Redis(host='localhost', port=6379)
+    redis_jobs_host = os.environ.get("REDIS_JOBS_HOST")
+    redis_jobs_port = os.environ.get("REDIS_JOBS_PORT")
+    redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port)
 
     # Use custom worker name to identify in monitoring
     worker_name = f"biocentral-worker-{worker_id}"

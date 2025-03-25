@@ -1,6 +1,6 @@
 import json
 
-from flask import request, Blueprint, jsonify, current_app
+from flask import request, Blueprint, jsonify
 
 from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
 from protspace.utils.prepare_json import DimensionReductionConfig as ProtSpaceDimensionReductionConfig

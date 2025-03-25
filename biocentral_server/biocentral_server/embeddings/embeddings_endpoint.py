@@ -1,16 +1,15 @@
-import base64
 import io
-import json
-import logging
-
 import h5py
+import json
+import base64
+import logging
 import numpy as np
 
 from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_device
-from flask import request, Blueprint, jsonify, current_app
+from flask import request, Blueprint, jsonify
 
-from .embedding_task import EmbeddingTask
+from .embedding_task import ExportEmbeddingsTask
 
 from ..utils import str2bool
 from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingDatabaseFactory, \
@@ -29,12 +28,11 @@ def embed():
     user_id = UserManager.get_user_id_from_request(req=request)
 
     embedder_name: str = embedding_data.get('embedder_name')
-    reduce: bool = str2bool(embedding_data.get('reduce'))
+    reduced: bool = str2bool(embedding_data.get('reduce'))  # TODO Change to reduced in API
     database_hash: str = embedding_data.get('database_hash')
     use_half_precision: bool = str2bool(embedding_data.get('use_half_precision'))
 
     device = get_device()
-    reduce_by_protocol = Protocol.sequence_to_class if reduce else Protocol.residue_to_class
 
     try:
         file_manager = FileManager(user_id=user_id)
@@ -44,12 +42,13 @@ def embed():
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    embedding_task = EmbeddingTask(embedder_name=embedder_name,
-                                   sequence_file_path=sequence_file_path,
-                                   embeddings_out_path=embeddings_out_path,
-                                   protocol=reduce_by_protocol,
-                                   use_half_precision=use_half_precision,
-                                   device=device)
+    embedding_task = ExportEmbeddingsTask(embedder_name=embedder_name,
+                                          sequence_input=sequence_file_path,
+                                          embeddings_out_path=embeddings_out_path,
+                                          reduced=reduced,
+                                          use_half_precision=use_half_precision,
+                                          device=device,
+                                          )
 
     task_id = TaskManager().add_task(embedding_task)
 
