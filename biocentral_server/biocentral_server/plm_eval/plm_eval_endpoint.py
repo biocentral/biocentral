@@ -39,11 +39,11 @@ def _validate_model_id(model_id: str):
 
 
 def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
-    FLIP_RECOMMENDED = {#"aav": ["low_vs_high", "two_vs_many"],
-                        #"bind": ["from_publication"],
-                        #"meltome": ["mixed_split"],
-                        #"gb1": ["low_vs_high", "two_vs_rest"],
-                        #"scl": ["mixed_hard"],
+    FLIP_RECOMMENDED = {"aav": ["low_vs_high", "two_vs_many"],
+                        "bind": ["from_publication"],
+                        "meltome": ["mixed_split"],
+                        "gb1": ["low_vs_high", "two_vs_rest"],
+                        "scl": ["mixed_hard"],
                         "secondary_structure": ["sampled"],
                         }
     recommended_dict = {}

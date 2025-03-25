@@ -70,6 +70,12 @@ class AutoEvalTask(TaskInterface):
         with resources.open_text('autoeval.configsbank', f'{dataset_name}.yml') as config_file:
             config = yaml.load(config_file, Loader=yaml.Loader)
 
+        # Subcellular localization is SOTA LightAttention, i.e. residues_to_class
+        # But here we are using per-sequence embeddings for now because of much smaller storage and faster computation
+        if dataset_name == "scl":
+            config["protocol"] = "sequence_to_class"
+            config["model_choice"] = "FNN"
+
         config["embedder_name"] = self.embedder_name
 
         for file_name, file_path in split.items():
