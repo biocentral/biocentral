@@ -8,7 +8,7 @@ from .embed import compute_embeddings, compute_one_hot_encodings
 from ..server_management import TaskInterface, TaskDTO, EmbeddingDatabaseFactory, FileContextManager
 
 
-class _CalculateEmbeddingsTask(TaskInterface):
+class CalculateEmbeddingsTask(TaskInterface):
     """ Calculate embeddings via biotrainer embeddings service adapter using the embeddings database """
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
                  use_half_precision: bool, device):
@@ -29,10 +29,6 @@ class _CalculateEmbeddingsTask(TaskInterface):
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         all_seqs = self._read_sequence_input()
 
-        embedder_name = self.embedder_name
-        if self.use_half_precision:
-            embedder_name += "-half"
-
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
         _ = compute_embeddings(embedder_name=self.embedder_name,
                                all_seqs=all_seqs,
@@ -44,7 +40,7 @@ class _CalculateEmbeddingsTask(TaskInterface):
         return TaskDTO.finished(result={"all_seqs": all_seqs})
 
 
-class _OneHotEncodeTask(_CalculateEmbeddingsTask):
+class _OneHotEncodeTask(CalculateEmbeddingsTask):
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         all_seqs = self._read_sequence_input()
         ohe = compute_one_hot_encodings(all_seqs=all_seqs, reduced=self.reduced)
@@ -56,6 +52,9 @@ class LoadEmbeddingsTask(TaskInterface):
 
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
                  use_half_precision: bool, device):
+        if use_half_precision:
+            embedder_name += "-half"
+
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
@@ -78,9 +77,9 @@ class LoadEmbeddingsTask(TaskInterface):
         if self.embedder_name == "one_hot_encoding":
             return self._handle_ohe()
 
-        calculate_task = _CalculateEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
-                                                  reduced=self.reduced, use_half_precision=self.use_half_precision,
-                                                  device=self.device)
+        calculate_task = CalculateEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
+                                                 reduced=self.reduced, use_half_precision=self.use_half_precision,
+                                                 device=self.device)
         calculate_dto = None
         for dto in self.run_subtask(calculate_task):
             calculate_dto = dto
@@ -104,6 +103,10 @@ class ExportEmbeddingsTask(TaskInterface):
 
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
                  use_half_precision: bool, device, embeddings_out_path: Path):
+        # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
+        if use_half_precision:
+            embedder_name += "-half"
+
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
@@ -132,5 +135,7 @@ class ExportEmbeddingsTask(TaskInterface):
         file_context_manager = FileContextManager()
 
         with file_context_manager.storage_write(self.embeddings_out_path) as h5_out_path:
-            _ = embeddings_db.export_embedding_triples_to_hdf5(embeddings, h5_out_path)
-        return TaskDTO.finished(result={"embeddings_file": self.embeddings_out_path})
+            h5_file_name = self.embedder_name.replace("/", "_")
+            h5_file_name += f"_reduced.h5" if self.reduced else ".h5"
+            _ = embeddings_db.export_embedding_triples_to_hdf5(embeddings, Path(h5_out_path) / h5_file_name)
+        return TaskDTO.finished(result={"embeddings_file": self.embeddings_out_path / h5_file_name})

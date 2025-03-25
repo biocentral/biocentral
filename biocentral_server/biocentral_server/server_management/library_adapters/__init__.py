@@ -1,0 +1,4 @@
+from .biotrainer_database_storage_trainer import BiotrainerDatabaseStorageTrainer
+from .biotrainer_embedding_adapter import get_adapter_embedding_service
+
+__all__ = ['get_adapter_embedding_service', 'BiotrainerDatabaseStorageTrainer']

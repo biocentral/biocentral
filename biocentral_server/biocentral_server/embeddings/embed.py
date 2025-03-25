@@ -61,7 +61,7 @@ def compute_embeddings(embedder_name: str,
                                                               embeddings_db=embeddings_db,
                                                               sequence_dict=all_seqs,
                                                               reduced=reduced)
-            _ = embedding_service.compute_embeddings(input_data=all_seqs,
+            _ = embedding_service.compute_embeddings(input_data=non_existing_embds_seqs,
                                                      output_dir=Path(tmpdir),
                                                      protocol=reduced_by_protocol,
                                                      force_output_dir=True)

@@ -72,16 +72,10 @@ class PostgreSQLStrategy(DatabaseStrategy):
                         INSERT INTO embeddings 
                         (sequence_hash, sequence_length, last_updated, embedder_name, per_sequence, per_residue)
                         VALUES (%s, %s, %s, %s, %s, %s)
-                        ON CONFLICT (sequence_hash, sequence_length, embedder_name) DO UPDATE SET
+                        ON CONFLICT (sequence_hash, embedder_name) DO UPDATE SET
                         last_updated = EXCLUDED.last_updated,
-                        per_sequence = CASE
-                            WHEN EXCLUDED.per_sequence IS NOT NULL THEN EXCLUDED.per_sequence
-                            ELSE embeddings.per_sequence
-                        END,
-                        per_residue = CASE
-                            WHEN EXCLUDED.per_residue IS NOT NULL THEN EXCLUDED.per_residue
-                            ELSE embeddings.per_residue
-                        END
+                        per_sequence = COALESCE(EXCLUDED.per_sequence, embeddings.per_sequence),
+                        per_residue = COALESCE(EXCLUDED.per_residue, embeddings.per_residue)
                     ''', embeddings_data)
                 conn.commit()
             return True
@@ -130,7 +124,8 @@ class PostgreSQLStrategy(DatabaseStrategy):
     def filter_existing_embeddings(self, sequences: Dict[str, str],
                                    embedder_name: str,
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
-        hash_keys = [self.generate_sequence_hash(seq) for seq in sequences.values()]
+        hash_key_dict = {seq_id: self.generate_sequence_hash(seq) for seq_id, seq in sequences.items()}
+        hash_keys = list(hash_key_dict.values())
 
         with self._get_connection() as conn:
             with conn.cursor() as cur:
@@ -146,7 +141,7 @@ class PostgreSQLStrategy(DatabaseStrategy):
                 existing_hashes = set(row[0] for row in fetch_result)
 
         existing = {seq_id: seq for seq_id, seq in sequences.items()
-                    if self.generate_sequence_hash(seq) in existing_hashes}
+                    if hash_key_dict[seq_id] in existing_hashes}
         non_existing = {seq_id: seq for seq_id, seq in sequences.items()
                         if seq_id not in existing}
 

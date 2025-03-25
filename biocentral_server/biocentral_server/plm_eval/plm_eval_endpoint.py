@@ -43,8 +43,8 @@ def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
                         #"bind": ["from_publication"],
                         #"meltome": ["mixed_split"],
                         #"gb1": ["low_vs_high", "two_vs_rest"],
-                        "scl": ["mixed_hard"],
-                        #"secondary_structure": ["sampled"],
+                        #"scl": ["mixed_hard"],
+                        "secondary_structure": ["sampled"],
                         }
     recommended_dict = {}
     for dataset_name, dataset_dict in flip_dict.items():

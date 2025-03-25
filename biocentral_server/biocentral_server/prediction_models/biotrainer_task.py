@@ -1,14 +1,18 @@
 import os
 import time
+import threading
 import torch.multiprocessing as mp
 
 from pathlib import Path
-from typing import Callable, Optional
+from copy import deepcopy
+from typing import Callable, Optional, Dict
 from biotrainer.protocols import Protocol
-from biotrainer.utilities.cli import headless_main
+from biotrainer.utilities import read_FASTA
+from biotrainer.utilities.cli import headless_main_with_custom_trainer
 
-from ..embeddings import ExportEmbeddingsTask
-from ..server_management import TaskInterface, TaskDTO, FileContextManager, EmbeddingDatabaseFactory, EmbeddingsDatabase
+from ..embeddings import CalculateEmbeddingsTask
+from ..server_management import TaskInterface, TaskDTO, FileContextManager, EmbeddingDatabaseFactory, \
+    EmbeddingsDatabase, BiotrainerDatabaseStorageTrainer
 
 
 class BiotrainerTask(TaskInterface):
@@ -19,10 +23,27 @@ class BiotrainerTask(TaskInterface):
         self.config_dict = config_dict
         self.stop_reading = False
         self._last_read_position_in_log_file = 0
-        self.biotrainer_process = None
+        self.biotrainer_process: Optional[mp.Process] = None
+
+    @staticmethod
+    def _read_seqs(server_sequence_file_path):
+        file_context_manager = FileContextManager()
+        with file_context_manager.storage_read(server_sequence_file_path) as seq_file_path:
+            all_seq_records = read_FASTA(str(seq_file_path))
+        return {seq.id: str(seq.seq) for seq in all_seq_records}
+
+    @staticmethod
+    def _create_custom_trainer(hp_manager, output_vars, config):
+        embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+        return BiotrainerDatabaseStorageTrainer(hp_manager=hp_manager, output_vars=output_vars,
+                                                embeddings_db=embeddings_db, **config)
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         server_sequence_file_path = self.config_dict["sequence_file"]
+        all_seqs = self._read_seqs(server_sequence_file_path)
+
+        protocol = Protocol.from_string(self.config_dict['protocol'])
+        reduced = protocol in Protocol.using_per_sequence_embeddings()
 
         file_context_manager = FileContextManager()
         with file_context_manager.storage_write(self.model_path) as biotrainer_out_path:
@@ -40,17 +61,19 @@ class BiotrainerTask(TaskInterface):
             # Save embeddings to temp dir
             embedder_name = self.config_dict["embedder_name"]
             if embedder_name != "one_hot_encoding":  # Encode OHE during biotrainer process
-                h5_path = self._pre_embed_with_db(server_sequence_file_path=server_sequence_file_path,
-                                                  embeddings_out_path=biotrainer_out_path)
-                self.config_dict.pop("embedder_name")
-                self.config_dict["embeddings_file"] = str(biotrainer_out_path / h5_path.name)
+                self._pre_embed_with_db(all_seqs=all_seqs, reduced=reduced)
+
+            # TODO Device Management
+            self.config_dict["device"] = "cuda"
+            config = deepcopy(self.config_dict)
 
             # Run biotrainer
-            self.biotrainer_process = mp.Process(target=headless_main, args=(self.config_dict,), )
+            self.biotrainer_process = mp.Process(target=headless_main_with_custom_trainer,
+                                                 args=(config, self._create_custom_trainer), )
             self.biotrainer_process.start()
 
-            # Read logs until process is finished
             self._read_logs(update_dto_callback=update_dto_callback, log_path=log_path)
+            self.biotrainer_process.join()
 
         return TaskDTO.finished(result={})
 
@@ -73,23 +96,18 @@ class BiotrainerTask(TaskInterface):
                 return new_log_content
         return ""
 
-    def _pre_embed_with_db(self, server_sequence_file_path: str, embeddings_out_path: Path) -> Path:
+    def _pre_embed_with_db(self, all_seqs: Dict[str, str], reduced: bool):
         embedder_name = self.config_dict['embedder_name']
-        protocol = Protocol.from_string(self.config_dict['protocol'])
-        reduced = protocol in Protocol.using_per_sequence_embeddings()
         device = self.config_dict.get('device', None)
 
-        export_embedding_task = ExportEmbeddingsTask(embedder_name=embedder_name,
-                                              sequence_input=Path(server_sequence_file_path),
-                                              embeddings_out_path=embeddings_out_path,
-                                              reduced=reduced,
-                                              use_half_precision=False,
-                                              device=device)
+        calculate_embedding_task = CalculateEmbeddingsTask(embedder_name=embedder_name,
+                                                           sequence_input=all_seqs,
+                                                           reduced=reduced,
+                                                           use_half_precision=False,
+                                                           device=device)
         embedding_dto: Optional[TaskDTO] = None
-        for current_dto in self.run_subtask(export_embedding_task):
+        for current_dto in self.run_subtask(calculate_embedding_task):
             embedding_dto = current_dto
 
         if not embedding_dto:
             raise Exception("Could not compute embeddings!")
-        h5_path = embedding_dto.update["embeddings_file"]
-        return h5_path

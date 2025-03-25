@@ -15,7 +15,7 @@ class EmbeddingStorageStrategy(ABC):
         pass
 
     @abstractmethod
-    def load_embeddings(self, path: str) -> Dict[str, Any]:
+    def load_embeddings(self, embeddings_file_path: str) -> Dict[str, Any]:
         pass
 
 
@@ -24,8 +24,8 @@ class H5EmbeddingStorage(EmbeddingStorageStrategy):
         # Original H5 implementation from EmbeddingService
         return EmbeddingService._save_embeddings(save_id, embeddings, path)
 
-    def load_embeddings(self, path: str) -> Dict[str, Any]:
-        return EmbeddingService.load_embeddings(path)
+    def load_embeddings(self, embeddings_file_path: str) -> Dict[str, Any]:
+        return EmbeddingService.load_embeddings(embeddings_file_path)
 
 
 class DatabaseEmbeddingStorage(EmbeddingStorageStrategy):
@@ -38,14 +38,14 @@ class DatabaseEmbeddingStorage(EmbeddingStorageStrategy):
     def save_embeddings(self, save_id: int, embeddings: Dict[str, ndarray], path: Path) -> int:
         embedding_triples = [EmbeddingsDatabaseTriple(id=seq_id, seq=self.seq_dict[seq_id], embd=emb) for
                              seq_id, emb in embeddings.items()]
-        self.embeddings_db.save_embeddings(embedding_triples, embedder_name=self.embedder_name, reduced=True)
+        self.embeddings_db.save_embeddings(embedding_triples, embedder_name=self.embedder_name, reduced=self.reduced)
         return save_id + len(embeddings)
 
-    def load_embeddings(self, path: str) -> Dict[str, Any]:
+    def load_embeddings(self, embeddings_file_path: str) -> Dict[str, Any]:
         # Implement database loading logic
         triples = self.embeddings_db.get_embeddings(sequences=self.seq_dict, embedder_name=self.embedder_name,
                                                     reduced=self.reduced)
-        return {triple.id: triple.embd for triple in triples}
+        return {triple.id: torch.tensor(triple.embd) for triple in triples}
 
 
 class OHEMemoryStorage(EmbeddingStorageStrategy):
@@ -59,8 +59,8 @@ class OHEMemoryStorage(EmbeddingStorageStrategy):
         self.embeddings_dict.update(embeddings)
         return save_id + len(embeddings)
 
-    def load_embeddings(self, path: str) -> Dict[str, Any]:
-        return self.embeddings_dict
+    def load_embeddings(self, embeddings_file_path: str) -> Dict[str, Any]:
+        return {idx: torch.tensor(embd) for idx, embd in self.embeddings_dict.items()}
 
 
 class BiotrainerEmbeddingServiceAdapter(EmbeddingService):
@@ -76,8 +76,8 @@ class BiotrainerEmbeddingServiceAdapter(EmbeddingService):
         """
         return self.storage_strategy.save_embeddings(save_id, embeddings, embeddings_file_path)
 
-    def load_embeddings(self, path: str) -> Dict[str, Any]:
-        return self.storage_strategy.load_embeddings(path)
+    def load_embeddings(self, embeddings_file_path: str) -> Dict[str, Any]:
+        return self.storage_strategy.load_embeddings(embeddings_file_path)
 
 
 def get_adapter_embedding_service(embeddings_file_path: Union[str, None], embedder_name: Union[str, None],
