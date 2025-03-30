@@ -43,6 +43,7 @@ class BayesianOptimizationRepository {
     );
   }
 
+  //TODO: Test if convertCSVtoTrainingResult works
   BayesianOptimizationTrainingResult convertCSVtoTrainingResult(Uint8List? bytes) {
     if (bytes == null) {
       return dummyData;
@@ -86,6 +87,7 @@ class BayesianOptimizationRepository {
     return BayesianOptimizationTrainingResult(results: results);
   }
 
+  //TODO: Test if convertTrainingResultToCSV works
   String convertTrainingResultToCSV(BayesianOptimizationTrainingResult result) {
     final StringBuffer buffer = StringBuffer();
 
