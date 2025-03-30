@@ -110,7 +110,6 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       }
 
       state.setFinished(information: 'Training finished');
-      //TODO: Yield the result
       yield right(dummyData);
     });
   }
