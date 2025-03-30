@@ -26,7 +26,6 @@ class BiotrainerFileHandler {
     String setColumn,
   ) async {
     String sequenceFile = '';
-    // TODO Improve target setting
     switch (databaseType) {
       case Protein:
         {

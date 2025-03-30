@@ -30,10 +30,6 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   ) async* {
     yield left(state.setOperating(information: 'Training new model!'));
 
-    // final String configFile = BiotrainerFileHandler.biotrainerConfigurationToConfigFile(
-    //   _trainingConfiguration,
-    // );
-
     final Map<String, dynamic> entryMap = _biocentralDatabase.databaseToMap();
     final String databaseHash = await _biocentralDatabase.getHash();
 
@@ -43,8 +39,6 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       _targetFeature,
       '',
     );
-
-    // TODO Error handling
 
     final transferEitherSequences = await _boClient.transferFile(
       databaseHash,
