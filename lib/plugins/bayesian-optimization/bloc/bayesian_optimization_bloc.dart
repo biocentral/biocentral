@@ -131,45 +131,37 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
       );
     } else {
       final String databaseHash = await biocentralDatabase.getHash();
-      final Map<String, dynamic> config = {
+      // 'feature': event.selectedFeature.toString(), //TODO: Set target value in the fasta file according to the feature
+
+      Map<String, dynamic> config = {
         'database_hash': databaseHash,
-        'discrete': event.selectedTask != TaskType.findOptimalValues,
-        // 'feature': event.selectedFeature.toString(), //TODO: Set target value in the fasta file according to the feature
         'model_type': event.selectedModel.toString(),
-        'coefficient': event.exploitationExplorationValue.toString(),
         // 'selectedEmbedder': event.selectedEmbedder?.name, //TODO: Tell Shuze to add
-        if (event.optimizationType != null) 'value_preference': event.optimizationType.toString(),
-        //TODO: If targetRange or value, provide neutral
-        // if (event.targetValue != null) 'targetValue': event.targetValue.toString(),
-        if (event.targetValue != null) 'target_interval_lb': event.targetValue.toString(),
-        if (event.targetValue != null) 'target_interval_ub': event.targetValue.toString(),
-        //TODO: If value, then lb/ub is the same number (Clarify with Shuze)
-        if (event.targetRangeMin != null) 'target_interval_lb': event.targetRangeMin.toString(),
-        if (event.targetRangeMax != null) 'target_interval_ub': event.targetRangeMax.toString(),
-        if (event.selectedTask == TaskType.findHighestProbability) 'discrete_labels': ["true", "false"],
-        if (event.desiredBooleanValue != null) 'discrete_targets': event.desiredBooleanValue.toString(),
+        'coefficient': event.exploitationExplorationValue.toString()
       };
 
-      //     Example for continuous target:
-      //     {
-      //       "database_hash": "hello",
-      //   "model_type": "gaussian_process",
-      //   "discrete": false,
-      //   "target_interval_lb": 100,
-      //   "target_interval_ub": 2000,
-      //   "value_preference": "neutral",
-      //   "coefficient": 0.7
-      // }
-      //
-      //   Example for discrete target:
-      //   {
-      //   "database_hash": "hello",
-      //   "model_type": "gaussian_process",
-      //   "discrete": true,
-      //   "discrete_labels": ["red", "green", "blue", "yellow"],
-      //   "discrete_targets": ["red", "yellow"],
-      //   "coefficient": 0.7
-      //   }
+      // Discrete:
+      if (event.selectedTask == TaskType.findHighestProbability) {
+        config = {
+          ...config,
+          'discrete': true,
+          'discrete_labels': ['true', 'false'],
+          'discrete_targets': event.desiredBooleanValue.toString(),
+        };
+        // Continuous:
+      } else {
+        config = {
+          ...config,
+          'discrete': false,
+          'target_interval_lb': event.targetRangeMin?.toString() ?? event.targetValue?.toString() ?? '',
+          'target_interval_ub': event.targetRangeMax?.toString() ?? event.targetValue?.toString() ?? '',
+          'value_preference': switch (event.optimizationType.toString()) {
+            'Maximize' => 'maximise',
+            'Minimize' => 'minimise',
+            _ => 'neutral',
+          },
+        };
+      }
 
       final command = TransferBOTrainingConfigCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
