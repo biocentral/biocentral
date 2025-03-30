@@ -17,9 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 abstract class BayesianOptimizationEvent {}
 
 class BayesianOptimizationInitial extends BayesianOptimizationEvent {
-  List<BayesianOptimizationTrainingResult>? previousTrainings;
-
-  BayesianOptimizationInitial({this.previousTrainings});
+  BayesianOptimizationInitial();
 }
 
 class BayesianOptimizationLoadPreviousTrainings extends BayesianOptimizationEvent {
