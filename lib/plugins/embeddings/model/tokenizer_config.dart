@@ -5,7 +5,7 @@ class TokenizerConfig {
   final BiocentralConfigOption padToken;
   final BiocentralConfigOption unkToken;
 
-  final List<BiocentralConfigOption> vocab;
+  final BiocentralConfigOption vocab;
 
   final BiocentralConfigOption charactersToReplace;
   final BiocentralConfigOption replacementCharacter;
@@ -23,7 +23,7 @@ class TokenizerConfig {
 
   factory TokenizerConfig.defaultConfig() {
     final defaultStringConstraints = BiocentralConfigConstraints(typeConstraint: String);
-    final defaultIntConstraints = BiocentralConfigConstraints(typeConstraint: int);
+    final defaultMapConstraints = BiocentralConfigConstraints(typeConstraint: Map, mapTypeConstraint: int);
     final defaultBoolConstraints = BiocentralConfigConstraints(typeConstraint: bool, allowedValues: {true, false});
 
     final eosToken = BiocentralConfigOption(
@@ -48,18 +48,20 @@ class TokenizerConfig {
       constraints: defaultStringConstraints,
     );
 
-    final vocab = [..._getStandardVocab(), eosToken.defaultValue, padToken.defaultValue, unkToken.defaultValue]
-        .indexed
-        .map(
-          (indexChar) => BiocentralConfigOption(
-            name: indexChar.$2,
-            required: false,
-            defaultValue: indexChar.$1,
-            category: 'vocab',
-            constraints: defaultIntConstraints,
-          ),
-        )
-        .toList();
+    final vocab = BiocentralConfigOption(
+      name: 'vocab',
+      category: 'vocabulary',
+      required: true,
+      constraints: defaultMapConstraints,
+      defaultValue: Map.fromEntries(
+        [
+          ..._getStandardVocab(),
+          eosToken.defaultValue,
+          padToken.defaultValue,
+          unkToken.defaultValue,
+        ].indexed.map((indexChar) => MapEntry(indexChar.$2, indexChar.$1)),
+      ),
+    );
 
     final charactersToReplace = BiocentralConfigOption(
       name: 'chars_to_replace',
@@ -125,5 +127,5 @@ class TokenizerConfig {
   }
 
   List<BiocentralConfigOption> get allOptions =>
-      [eosToken, padToken, unkToken, ...vocab, charactersToReplace, replacementCharacter, usesWhitespaces];
+      [eosToken, padToken, unkToken, vocab, charactersToReplace, replacementCharacter, usesWhitespaces];
 }
