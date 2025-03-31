@@ -62,21 +62,21 @@ class TokenizerConfig {
         .toList();
 
     final charactersToReplace = BiocentralConfigOption(
-      name: 'charactersToReplace',
+      name: 'chars_to_replace',
       required: false,
       defaultValue: 'UZOB',
       category: 'preprocessing',
       constraints: defaultStringConstraints,
     );
     final replacementCharacter = BiocentralConfigOption(
-      name: 'replacementCharacter',
+      name: 'replacement_char',
       required: false,
       defaultValue: 'X',
       category: 'preprocessing',
       constraints: defaultStringConstraints,
     );
     final usesWhitespaces = BiocentralConfigOption(
-      name: 'usesWhitespaces',
+      name: 'uses_whitespaces',
       required: true,
       defaultValue: false,
       category: 'preprocessing',

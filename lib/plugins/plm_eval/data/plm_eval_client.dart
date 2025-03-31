@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
@@ -34,8 +35,17 @@ class PLMEvalClient extends BiocentralClient {
     return responseEither.flatMap((map) => parseBenchmarkDatasetsFromMap(map));
   }
 
-  Future<Either<BiocentralException, String>> startAutoEval(String modelID, bool recommendedOnly) async {
+  Future<Either<BiocentralException, String>> startAutoEval(
+    String modelID,
+    Uint8List? onnxBytes,
+    Map<String, dynamic>? tokenizerConfig,
+    bool recommendedOnly,
+  ) async {
     final Map<String, String> body = {'modelID': modelID, 'recommended_only': recommendedOnly.toString()};
+    if(onnxBytes != null) {
+      body['onnxFile'] = base64Encode(onnxBytes);
+      body['tokenizerConfig'] = jsonEncode(tokenizerConfig);
+    }
     final responseEither = await doPostRequest(PLMEvalServiceEndpoints.autoeval, body);
     return responseEither.flatMap((map) {
       final taskID = map['task_id'];
@@ -93,10 +103,10 @@ class PLMEvalClient extends BiocentralClient {
       return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
     }
 
-    final List<PLMEvalPersistentResult>plmPersistentResults = [];
-    for(final entryMap in leaderboardEntries) {
+    final List<PLMEvalPersistentResult> plmPersistentResults = [];
+    for (final entryMap in leaderboardEntries) {
       final persistentResult = PLMEvalPersistentResult.fromMap(jsonDecode(entryMap));
-      if(persistentResult == null) {
+      if (persistentResult == null) {
         return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
       }
       plmPersistentResults.add(persistentResult);
