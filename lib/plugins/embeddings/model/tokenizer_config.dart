@@ -1,0 +1,129 @@
+import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+
+class TokenizerConfig {
+  final BiocentralConfigOption eosToken;
+  final BiocentralConfigOption padToken;
+  final BiocentralConfigOption unkToken;
+
+  final List<BiocentralConfigOption> vocab;
+
+  final BiocentralConfigOption charactersToReplace;
+  final BiocentralConfigOption replacementCharacter;
+
+  final BiocentralConfigOption usesWhitespaces;
+
+  TokenizerConfig._internal(
+      {required this.eosToken,
+      required this.padToken,
+      required this.unkToken,
+      required this.vocab,
+      required this.charactersToReplace,
+      required this.replacementCharacter,
+      required this.usesWhitespaces});
+
+  factory TokenizerConfig.defaultConfig() {
+    final defaultStringConstraints = BiocentralConfigConstraints(typeConstraint: String);
+    final defaultIntConstraints = BiocentralConfigConstraints(typeConstraint: int);
+    final defaultBoolConstraints = BiocentralConfigConstraints(typeConstraint: bool, allowedValues: {true, false});
+
+    final eosToken = BiocentralConfigOption(
+      name: 'eos_token',
+      required: true,
+      defaultValue: '</s>',
+      category: 'special_tokens',
+      constraints: defaultStringConstraints,
+    );
+    final padToken = BiocentralConfigOption(
+      name: 'pad_token',
+      required: true,
+      defaultValue: '<pad>',
+      category: 'special_tokens',
+      constraints: defaultStringConstraints,
+    );
+    final unkToken = BiocentralConfigOption(
+      name: 'unk_token',
+      required: true,
+      defaultValue: '<unk>',
+      category: 'special_tokens',
+      constraints: defaultStringConstraints,
+    );
+
+    final vocab = [..._getStandardVocab(), eosToken.defaultValue, padToken.defaultValue, unkToken.defaultValue]
+        .indexed
+        .map(
+          (indexChar) => BiocentralConfigOption(
+            name: indexChar.$2,
+            required: false,
+            defaultValue: indexChar.$1,
+            category: 'vocab',
+            constraints: defaultIntConstraints,
+          ),
+        )
+        .toList();
+
+    final charactersToReplace = BiocentralConfigOption(
+      name: 'charactersToReplace',
+      required: false,
+      defaultValue: 'UZOB',
+      category: 'preprocessing',
+      constraints: defaultStringConstraints,
+    );
+    final replacementCharacter = BiocentralConfigOption(
+      name: 'replacementCharacter',
+      required: false,
+      defaultValue: 'X',
+      category: 'preprocessing',
+      constraints: defaultStringConstraints,
+    );
+    final usesWhitespaces = BiocentralConfigOption(
+      name: 'usesWhitespaces',
+      required: true,
+      defaultValue: false,
+      category: 'preprocessing',
+      constraints: defaultBoolConstraints,
+    );
+
+    return TokenizerConfig._internal(
+      eosToken: eosToken,
+      padToken: padToken,
+      unkToken: unkToken,
+      vocab: vocab,
+      charactersToReplace: charactersToReplace,
+      replacementCharacter: replacementCharacter,
+      usesWhitespaces: usesWhitespaces,
+    );
+  }
+
+  static List<String> _getStandardVocab() {
+    return [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z'
+    ];
+  }
+
+  List<BiocentralConfigOption> get allOptions =>
+      [eosToken, padToken, unkToken, ...vocab, charactersToReplace, replacementCharacter, usesWhitespaces];
+}

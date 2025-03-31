@@ -1,17 +1,23 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
+  final Map<String, List<BiocentralConfigOption>> optionMap;
+  final void Function(String?, Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
+  final BiocentralGenericConfigHandler? configHandler;
   final String? label;
   final bool initiallyExpanded;
   final bool clusterByCategories;
-  final Map<String, List<BiocentralConfigOption>> optionMap;
-  final void Function(String?, Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
 
   const BiocentralConfigSelection({
     required this.optionMap,
     required this.onConfigChangedCallback,
+    this.configHandler,
     this.label,
     this.initiallyExpanded = true,
     this.clusterByCategories = false,
@@ -27,6 +33,8 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
 
   String? _selectedKey;
   final Map<String, Map<BiocentralConfigOption, dynamic>> _chosenOptions = {};
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -53,6 +61,35 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     setState(() {});
   }
 
+  Future<void> loadConfigFromFile(XFile configFile, BiocentralProjectRepository projectRepository) async {
+    if(widget.configHandler == null) {
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+
+    final loadEither = await projectRepository.handleLoad(xFile: configFile);
+    await loadEither.match(
+        (error) async => setState(() {
+              // TODO [Error Handling]
+              _isLoading = false;
+            }), (loadedFileData) async {
+      final configContent = loadedFileData?.content;
+      final Map<String, Map<BiocentralConfigOption, dynamic>> updatedOptions = {};
+      for (final (key, configMap) in _chosenOptions.entriesRecord) {
+        final updatedConfigMap = await widget.configHandler!.parse(configContent, configMap);
+        updatedOptions[key] = updatedConfigMap;
+      }
+      setState(() {
+        _chosenOptions.clear();
+        _chosenOptions.addAll(updatedOptions);
+        _isLoading = false;
+      });
+      updateConfig(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Widget discreteSelection = widget.optionMap.keys.length > 1
@@ -66,14 +103,30 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             },
           )
         : Container();
+    if(_isLoading) {
+      return const CircularProgressIndicator();
+    }
     return Column(
       children: [
+        buildConfigLoading(),
         discreteSelection,
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: buildConfigOptionsTable(),
         ),
       ],
+    );
+  }
+
+  Widget buildConfigLoading() {
+    if(widget.configHandler == null) {
+      return Container();
+    }
+    final projectRepository = RepositoryProvider.of<BiocentralProjectRepository>(context);
+    return BiocentralFilePathSelection(
+      defaultName: 'Select existing config file..',
+      fileSelectedCallback: (xFile) => loadConfigFromFile(xFile, projectRepository),
+      allowedExtensions: widget.configHandler?.supportedFileExtensions().toList(),
     );
   }
 
@@ -187,7 +240,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: TextFormField(
-          initialValue: defaultValue,
+          initialValue: _chosenOptions[_selectedKey]?[option].toString() ?? defaultValue,
           textAlign: TextAlign.center,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: option.constraints?.validator,
