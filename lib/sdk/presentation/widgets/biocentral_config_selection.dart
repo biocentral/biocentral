@@ -8,7 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
   final Map<String, List<BiocentralConfigOption>> optionMap;
-  final void Function(String? selectedKey, Map<String, Map<BiocentralConfigOption, dynamic>> config) onConfigChangedCallback;
+  final void Function(String? selectedKey, Map<String, Map<BiocentralConfigOption, dynamic>> config)
+      onConfigChangedCallback;
   final BiocentralGenericConfigHandler? configHandler;
   final String? label;
   final bool initiallyExpanded;
@@ -62,7 +63,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Future<void> loadConfigFromFile(XFile configFile, BiocentralProjectRepository projectRepository) async {
-    if(widget.configHandler == null) {
+    if (widget.configHandler == null) {
       return;
     }
     setState(() {
@@ -103,7 +104,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             },
           )
         : Container();
-    if(_isLoading) {
+    if (_isLoading) {
       return const CircularProgressIndicator();
     }
     return Column(
@@ -119,7 +120,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildConfigLoading() {
-    if(widget.configHandler == null) {
+    if (widget.configHandler == null) {
       return Container();
     }
     final projectRepository = RepositoryProvider.of<BiocentralProjectRepository>(context);
@@ -225,6 +226,9 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildOption(BiocentralConfigOption option) {
+    if (option.constraints?.typeConstraint == Map) {
+      return buildMapOption(option);
+    }
     final allowedValues = option.constraints?.allowedValues ?? {};
     if (allowedValues.isEmpty) {
       return buildTextOption(option);
@@ -287,6 +291,69 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
                 _chosenOptions[_selectedKey]?[option] = chosenOption;
               });
             }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildMapOption(BiocentralConfigOption option) {
+    final Map<dynamic, dynamic> value = _chosenOptions[_selectedKey]?[option] ?? option.defaultValue;
+    final int columnsPerRow = 4; // Adjust this number to change the number of columns
+
+    return _buildOptionDecoration(
+      option: option,
+      child: SingleChildScrollView(
+        child: Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          children: [
+            for (int i = 0; i < value.length; i += columnsPerRow)
+              TableRow(
+                children: [
+                  for (int j = 0; j < columnsPerRow; j++)
+                    if (i + j < value.length)
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: buildMapEntry(
+                          option,
+                          value.entries.elementAt(i + j),
+                          value,
+                        ),
+                      )
+                    else
+                      Container(), // Empty container for padding
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildMapEntry(
+      BiocentralConfigOption option,
+      MapEntry entry,
+      Map<dynamic, dynamic> value,
+      ) {
+    return SizedBox(
+      width: 120, // Adjust this value to change the width of each entry
+      child: InputDecorator(
+        decoration: InputDecoration(
+          label: Text(entry.key.toString()),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
+        child: TextFormField(
+          initialValue: entry.value.toString(),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: option.constraints?.validator,
+          textAlign: TextAlign.center,
+          onChanged: (newValue) {
+            updateConfig(() {
+              final newMap = Map.of(value);
+              newMap[entry.key] = int.tryParse(newValue) ?? entry.value;
+              _chosenOptions[_selectedKey]?[option] = newMap;
+            });
           },
         ),
       ),

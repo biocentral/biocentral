@@ -44,25 +44,36 @@ class BiocentralConfigOption {
 
 class BiocentralConfigConstraints {
   final Type? typeConstraint;
+  final Type? mapTypeConstraint;
   final Set<dynamic>? allowedValues;
   final num? gt; // Greater Than
   final num? gte; // Greater Than Equal
   final num? lt; // Lower Than
   final num? lte; // Lower Than Equal
 
-  BiocentralConfigConstraints({this.typeConstraint, this.gt, this.gte, this.lt, this.lte, this.allowedValues});
+  BiocentralConfigConstraints({
+    this.typeConstraint,
+    this.mapTypeConstraint,
+    this.gt,
+    this.gte,
+    this.lt,
+    this.lte,
+    this.allowedValues,
+  });
 
   static BiocentralConfigConstraints? fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) {
       return null;
     }
     final typeConstraint = parseTypeConstraint(map['type']);
+    final mapTypeConstraint = parseTypeConstraint(map['mapType']);
     var allowedValues = Set.from(map['allowed'] ?? map['allowed_values'] ?? []);
     if (allowedValues.isEmpty && typeConstraint == bool) {
       allowedValues = {true, false};
     }
     return BiocentralConfigConstraints(
       typeConstraint: typeConstraint,
+      mapTypeConstraint: mapTypeConstraint,
       gt: map['gt'],
       gte: map['gte'],
       lt: map['lt'],
@@ -96,16 +107,17 @@ class BiocentralConfigConstraints {
         }
       }
     }
+    final valueTypeConstraint = mapTypeConstraint ?? typeConstraint;
 
     // Check type constraint
-    if (typeConstraint != null && typeConstraint != String) {
-      if (value.runtimeType != typeConstraint) {
-        if (typeConstraint == int && int.tryParse(value.toString()) != null) {
+    if (valueTypeConstraint != null && valueTypeConstraint != String) {
+      if (value.runtimeType != valueTypeConstraint) {
+        if (valueTypeConstraint == int && int.tryParse(value.toString()) != null) {
           // Special case for double that is also an integer
-        } else if (typeConstraint == double && value.runtimeType == int) {
+        } else if (valueTypeConstraint == double && value.runtimeType == int) {
           // Special case for int that is also a double
         } else {
-          return (false, 'Invalid type. Expected: ${typeConstraint.toString()}. Got: ${value.runtimeType}', null);
+          return (false, 'Invalid type. Expected: ${valueTypeConstraint.toString()}. Got: ${value.runtimeType}', null);
         }
       }
     }
