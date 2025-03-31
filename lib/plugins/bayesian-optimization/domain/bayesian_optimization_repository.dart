@@ -1,10 +1,13 @@
 import 'dart:typed_data';
+
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:file_picker/file_picker.dart';
 
 class BayesianOptimizationRepository {
   BayesianOptimizationTrainingResult? currentResult;
   List<BayesianOptimizationTrainingResult>? previousTrainingResults;
+
+  // BiocentralProjectRepository biocentralProjectRepository;
 
   BayesianOptimizationRepository() {
     currentResult = dummyData;
@@ -41,6 +44,7 @@ class BayesianOptimizationRepository {
       type: FileType.custom,
       allowedExtensions: ['csv'],
     );
+    // biocentralProjectRepository.handleSave(fileName: 'bayesian_optimization_results.csv', content: buffer);
   }
 
   //TODO: Test if convertCSVtoTrainingResult works
