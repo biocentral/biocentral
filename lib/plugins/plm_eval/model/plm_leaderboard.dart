@@ -163,7 +163,7 @@ class PLMLeaderboardRankingCalculator {
     }
     List<(ModelName, BiocentralMLMetric)> sorted =
         modelNamesToMetrics.sorted((e1, e2) => e1.$2.uncertaintyEstimate!.compareTo(e2.$2.uncertaintyEstimate!));
-    if (BiocentralMLMetric.isAscending(sorted.first.$2.name)) {
+    if (!BiocentralMLMetric.isAscending(sorted.first.$2.name)) {
       sorted = sorted.reversed.toList();
     }
     final Map<String, int> result = {};
