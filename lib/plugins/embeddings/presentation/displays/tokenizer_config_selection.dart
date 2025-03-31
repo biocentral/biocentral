@@ -4,7 +4,9 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.
 import 'package:flutter/material.dart';
 
 class TokenizerConfigSelection extends StatefulWidget {
-  const TokenizerConfigSelection({super.key});
+  final void Function(Map<String, dynamic>? tokenizerConfig) onConfigUpdate;
+
+  const TokenizerConfigSelection({required this.onConfigUpdate, super.key});
 
   @override
   State<TokenizerConfigSelection> createState() => _TokenizerConfigSelectionState();
@@ -16,9 +18,11 @@ class _TokenizerConfigSelectionState extends State<TokenizerConfigSelection> {
   @override
   Widget build(BuildContext context) {
     return BiocentralConfigSelection(
-      optionMap: {'TokenizerConfig': _tokenizerConfig.allOptions},
+      optionMap: {'Tokenizer': _tokenizerConfig.allOptions},
       configHandler: BiocentralGenericConfigHandler(JSONConfigHandlingStrategy()),
-      onConfigChangedCallback: (_, __) {},
+      clusterByCategories: true,
+      onConfigChangedCallback: (_, config) =>
+          widget.onConfigUpdate(config['Tokenizer']?.map((k, v) => MapEntry(k.name, v))),
     );
   }
 }

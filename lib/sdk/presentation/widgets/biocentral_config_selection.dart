@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
   final Map<String, List<BiocentralConfigOption>> optionMap;
-  final void Function(String?, Map<String, Map<BiocentralConfigOption, dynamic>>) onConfigChangedCallback;
+  final void Function(String? selectedKey, Map<String, Map<BiocentralConfigOption, dynamic>> config) onConfigChangedCallback;
   final BiocentralGenericConfigHandler? configHandler;
   final String? label;
   final bool initiallyExpanded;
