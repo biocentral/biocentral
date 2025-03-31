@@ -1,4 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
@@ -51,7 +52,7 @@ class FeatureSelected extends BOTrainingDialogEvent {
 }
 
 class ModelSelected extends BOTrainingDialogEvent {
-  final String model;
+  final BayesianOptimizationModelTypes model;
 
   ModelSelected(this.model);
 }
@@ -108,11 +109,10 @@ class BOTrainingDialogState {
   final TaskType? selectedTask;
   final String? selectedFeature;
   final PredefinedEmbedder? selectedEmbedder;
-  final String? selectedModel;
+  final BayesianOptimizationModelTypes? selectedModel;
   final double exploitationExplorationValue;
   final List<String> availableFeatures;
   final List<TaskType> tasks;
-  final List<String> models;
   final List<PredefinedEmbedder> availableEmbedders;
   final String? optimizationType;
   final double? targetValue;
@@ -152,7 +152,6 @@ class BOTrainingDialogState {
       TaskType.findOptimalValues,
       TaskType.findHighestProbability,
     ],
-    this.models = const ['Gaussian Processes', 'Random Forest'],
     this.availableEmbedders = const [],
     this.optimizationType,
     this.targetValue,
@@ -167,11 +166,10 @@ class BOTrainingDialogState {
     TaskType? selectedTask,
     String? selectedFeature,
     PredefinedEmbedder? selectedEmbedder,
-    String? selectedModel,
+    BayesianOptimizationModelTypes? selectedModel,
     double? exploitationExplorationValue,
     List<String>? availableFeatures,
     List<TaskType>? tasks,
-    List<String>? models,
     List<PredefinedEmbedder>? availableEmbedders,
     String? optimizationType,
     double? targetValue,
@@ -187,7 +185,6 @@ class BOTrainingDialogState {
         selectedTask: selectedTask,
         availableFeatures: availableFeatures ?? this.availableFeatures,
         tasks: tasks ?? this.tasks,
-        models: models ?? this.models,
         availableEmbedders: availableEmbedders ?? this.availableEmbedders,
         exploitationExplorationValue: this.exploitationExplorationValue,
       );
@@ -203,7 +200,6 @@ class BOTrainingDialogState {
       exploitationExplorationValue: exploitationExplorationValue ?? this.exploitationExplorationValue,
       availableFeatures: availableFeatures ?? this.availableFeatures,
       tasks: tasks ?? this.tasks,
-      models: models ?? this.models,
       availableEmbedders: availableEmbedders ?? this.availableEmbedders,
       optimizationType: optimizationType ?? this.optimizationType,
       targetValue: targetValue ?? this.targetValue,

@@ -4,6 +4,8 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
+import 'bayesian_optimization_service_api.dart';
+
 final class BayesianOptimizationClientFactory extends BiocentralClientFactory<BayesianOptimizationClient> {
   @override
   BayesianOptimizationClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
@@ -18,7 +20,7 @@ class BayesianOptimizationClient extends BiocentralClient {
     Map<String, dynamic> trainingConfig,
     String databaseHash,
   ) async {
-    final responseEither = await doPostRequest(PredictionModelsServiceEndpoints.startTraining,
+    final responseEither = await doPostRequest(BayesianOptimizationServiceEndpoints.startTraining,
         trainingConfig.map((key, value) => MapEntry(key, value.toString())));
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }

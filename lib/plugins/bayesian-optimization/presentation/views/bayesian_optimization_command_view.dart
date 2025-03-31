@@ -1,11 +1,11 @@
-import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
+import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/start_bayesian_optimization_dialog.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BayesianOptimizationCommandView extends StatefulWidget {
   const BayesianOptimizationCommandView({super.key});
@@ -28,7 +28,7 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
           (
             TaskType? selectedTask,
             String? selectedFeature,
-            String? selectedModel,
+            BayesianOptimizationModelTypes? selectedModel,
             double exploitationExplorationValue,
             PredefinedEmbedder? selectedEmbedder, {
             String? optimizationType,

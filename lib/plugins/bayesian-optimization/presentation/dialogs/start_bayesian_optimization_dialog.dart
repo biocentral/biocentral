@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
 import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
@@ -13,7 +14,7 @@ class StartBOTrainingDialog extends StatelessWidget {
   final Function(
     TaskType? selectedTask,
     String? selectedFeature,
-    String? selectedModel,
+    BayesianOptimizationModelTypes? selectedModel,
     double exploitationExplorationValue,
     PredefinedEmbedder? selectedEmbedder, {
     String? optimizationType,
@@ -215,10 +216,12 @@ class StartBOTrainingDialog extends StatelessWidget {
                   children: [
                     const SizedBox(height: 16),
                     const Text('Select Model:', style: TextStyle(fontSize: 16)),
-                    DropdownButton<String>(
+                    DropdownButton<BayesianOptimizationModelTypes>(
                       value: state.selectedModel,
                       hint: const Text('Choose a model'),
-                      items: state.models.map((model) => DropdownMenuItem(value: model, child: Text(model))).toList(),
+                      items: BayesianOptimizationModelTypes.values
+                          .map((model) => DropdownMenuItem(value: model, child: Text(model.name)))
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) bloc.add(ModelSelected(value));
                       },

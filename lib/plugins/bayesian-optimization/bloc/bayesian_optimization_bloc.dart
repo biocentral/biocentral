@@ -2,6 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_commands.dart';
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
 import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
+import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
@@ -28,7 +29,7 @@ class BayesianOptimizationTrainingStarted extends BayesianOptimizationEvent {
   final BuildContext context;
   final TaskType? selectedTask;
   final String? selectedFeature;
-  final String? selectedModel;
+  final BayesianOptimizationModelTypes? selectedModel;
   final double exploitationExplorationValue;
   final PredefinedEmbedder? selectedEmbedder;
   final String? optimizationType;
@@ -131,14 +132,13 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
       );
     } else {
       final String databaseHash = await biocentralDatabase.getHash();
-      // 'feature': event.selectedFeature.toString(), //TODO: Set target value in the fasta file according to the feature
-
       Map<String, dynamic> config = {
         'database_hash': databaseHash,
-        'model_type': event.selectedModel.toString(),
+        'model_type': event.selectedModel?.name,
         // 'selectedEmbedder': event.selectedEmbedder?.name, //TODO: Tell Shuze to add
         'coefficient': event.exploitationExplorationValue.toString()
       };
+      // TODO: Tell Shuze to accept coefficient as string, and cast to flaot in backend
 
       // Discrete:
       if (event.selectedTask == TaskType.findHighestProbability) {
@@ -156,8 +156,8 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
           'target_interval_lb': event.targetRangeMin?.toString() ?? event.targetValue?.toString() ?? '',
           'target_interval_ub': event.targetRangeMax?.toString() ?? event.targetValue?.toString() ?? '',
           'value_preference': switch (event.optimizationType.toString()) {
-            'Maximize' => 'maximise',
-            'Minimize' => 'minimise',
+            'Maximize' => 'maximize',
+            'Minimize' => 'minimize',
             _ => 'neutral',
           },
         };
