@@ -3,6 +3,7 @@ import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_event
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -331,6 +332,7 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
             initiallyExpanded: false,
             clusterByCategories: true,
             optionMap: {state.selectedProtocol!: state.configOptionsByProtocol[state.selectedProtocol]!},
+            configHandler: BiocentralGenericConfigHandler(YAMLConfigHandlingStrategy()),
             onConfigChangedCallback: (_, __) {}, // TODO
           ),
         ],

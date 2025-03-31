@@ -21,6 +21,14 @@ class BiocentralConfigOption {
   final String? description;
   final BiocentralConfigConstraints? constraints;
 
+  BiocentralConfigOption(
+      {required this.name,
+      required this.required,
+      required this.defaultValue,
+      this.category,
+      this.description,
+      this.constraints});
+
   BiocentralConfigOption.fromMap(Map<String, dynamic> map)
       : name = map['name'],
         required = str2bool(map['required'].toString()) ?? false,
