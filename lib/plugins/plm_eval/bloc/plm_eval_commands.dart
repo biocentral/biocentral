@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
@@ -9,22 +11,32 @@ import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
 class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
+  final BiocentralProjectRepository _projectRepository;
+
   final PLMEvalClient _plmEvalClient;
   final PLMEvalRepository _plmEvalRepository;
 
   final String _modelID;
+  final XFile? _onnxFile;
+  final Map<String, dynamic>? _tokenizerConfig;
   final bool _recommendedOnly;
   final List<BenchmarkDataset> _benchmarkDatasets;
 
   AutoEvalPLMCommand(
-      {required PLMEvalClient plmEvalClient,
+      {required BiocentralProjectRepository projectRepository,
+      required PLMEvalClient plmEvalClient,
       required PLMEvalRepository plmEvalRepository,
       required String modelID,
       required bool recommendedOnly,
-      required List<BenchmarkDataset> benchmarkDatasets})
-      : _plmEvalClient = plmEvalClient,
+      required List<BenchmarkDataset> benchmarkDatasets,
+      XFile? onnxFile,
+      Map<String, dynamic>? tokenizerConfig})
+      : _projectRepository = projectRepository,
+        _plmEvalClient = plmEvalClient,
         _plmEvalRepository = plmEvalRepository,
         _modelID = modelID,
+        _onnxFile = onnxFile,
+        _tokenizerConfig = tokenizerConfig,
         _recommendedOnly = recommendedOnly,
         _benchmarkDatasets = benchmarkDatasets;
 
@@ -32,7 +44,18 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
   Stream<Either<T, AutoEvalProgress>> execute<T extends BiocentralCommandState<T>>(T state) async* {
     final AutoEvalProgress initialProgress = AutoEvalProgress.fromDatasets(_modelID, _benchmarkDatasets);
 
-    final startAutoEvalEither = await _plmEvalClient.startAutoEval(_modelID, _recommendedOnly);
+    Uint8List? onnxBytes;
+    if (_onnxFile != null) {
+      final loadEither = await _projectRepository.handleBytesLoad(xFile: _onnxFile);
+      if (loadEither.isLeft()) {
+        yield left(state.setErrored(information: 'Could not load provided onnx file!'));
+        return;
+      }
+      onnxBytes = loadEither.getRight().getOrElse(() => null);
+    }
+
+    final startAutoEvalEither =
+        await _plmEvalClient.startAutoEval(_modelID, onnxBytes, _tokenizerConfig, _recommendedOnly);
 
     yield* startAutoEvalEither.match((l) async* {
       yield left(
@@ -84,6 +107,8 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
   Map<String, dynamic> getConfigMap() {
     return {
       'modelID': _modelID,
+      if (_onnxFile != null) 'onnxFile': _onnxFile.path,
+      if (_tokenizerConfig != null) 'tokenizerConfig': _tokenizerConfig,
       'recommendedOnly': _recommendedOnly,
       'benchmarkDatasets': BenchmarkDataset.benchmarkDatasetsByDatasetName(_benchmarkDatasets),
     };
