@@ -28,7 +28,8 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
       context: context,
       builder: (BuildContext context) {
         return BlocProvider(
-          create: (context) => PLMSelectionDialogBloc(context.read<BiocentralClientRepository>()),
+          create: (context) => PLMSelectionDialogBloc(
+              context.read<BiocentralProjectRepository>(), context.read<BiocentralClientRepository>()),
           child: PLMSelectionDialog(
             onStartAutoeval: (
               Either<String, XFile> modelSelection,

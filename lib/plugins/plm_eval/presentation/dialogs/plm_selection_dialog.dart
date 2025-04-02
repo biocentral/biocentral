@@ -64,11 +64,31 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     final PLMSelectionDialogBloc plmSelectionDialogBloc = BlocProvider.of<PLMSelectionDialogBloc>(context);
     final List<Widget> dialogChildren = [];
 
-    dialogChildren.addAll([
+    dialogChildren.add(
       Text(
         'Create an evaluation for your protein language model',
         style: Theme.of(context).textTheme.headlineLarge,
       ),
+    );
+
+    // Helper Text for errors
+    String helperText = state.errorMessage ?? '';
+    Color helperStyleColor = Colors.red;
+
+    if (state.status == PLMSelectionDialogStatus.validated) {
+      helperText = 'Successfully validated, you are good to go!';
+      helperStyleColor = Colors.green;
+    }
+
+    if (helperText.isNotEmpty) {
+      dialogChildren.add(
+        Text(
+          helperText,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: helperStyleColor),
+        ),
+      );
+    }
+    dialogChildren.addAll([
       buildModelSelection(plmSelectionDialogBloc, state),
       buildDatasetSplitsDisplay(plmSelectionDialogBloc, state, state.availableDatasets, state.recommendedDatasets),
       buildCancelButton(),
@@ -114,15 +134,6 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   }
 
   Widget buildHuggingfaceSelection(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
-    // Helper Text for errors
-    String helperText = state.errorMessage ?? '';
-    Color helperStyleColor = Colors.red;
-
-    if (state.status == PLMSelectionDialogStatus.validated) {
-      helperText = 'Successfully validated, you are good to go!';
-      helperStyleColor = Colors.green;
-    }
-
     return Column(
       children: [
         const Flexible(
@@ -132,11 +143,9 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
         Flexible(
           child: TextFormField(
             initialValue: '',
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Enter a valid huggingface model ID here',
               hintText: 'e.g. Rostlab/prot_t5_xl_uniref50',
-              helperText: helperText,
-              helperStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color: helperStyleColor),
             ),
             onChanged: (String? value) {
               setState(() {
@@ -148,7 +157,8 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
         Flexible(
           child: BiocentralSmallButton(
             label: 'Validate huggingface ID',
-            onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogValidateEvent(plmSelection: _plmSelection)),
+            onTap: () =>
+                plmSelectionDialogBloc.add(PLMSelectionDialogValidateHuggingfaceEvent(plmSelection: _plmSelection)),
           ),
         ),
       ],
@@ -165,6 +175,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
         Flexible(
           child: BiocentralFilePathSelection(
             defaultName: _onnxFile?.name ?? 'path/to/onnx',
+            allowedExtensions: ['.onnx'],
             fileSelectedCallback: (file) => setState(() {
               _onnxFile = file;
             }),
@@ -179,8 +190,11 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
           ),
         ),
         BiocentralSmallButton(
-            label: 'Check ONNX Setup',
-            onTap: () => plmSelectionDialogBloc.add(PLMSelectionDialogValidateEvent(onnxSelection: _onnxFile)))
+          label: 'Check ONNX Setup',
+          onTap: () => plmSelectionDialogBloc.add(
+            PLMSelectionDialogValidateONNXEvent(onnxFile: _onnxFile),
+          ),
+        )
       ],
     );
   }
