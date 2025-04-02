@@ -14,7 +14,7 @@ class BiocentralFilePathSelection extends StatelessWidget {
 
   Future<void> pickFile() async {
     final FilePickerResult? result = await FilePicker.platform
-        .pickFiles(allowedExtensions: allowedExtensions, type: FileType.custom, withData: kIsWeb);
+        .pickFiles(allowedExtensions: allowedExtensions ?? [], type: FileType.custom, withData: kIsWeb);
     if (result != null) {
       fileSelectedCallback(result.xFiles.single);
     } else {
