@@ -33,6 +33,7 @@ dependencies:
   ml_linalg: '^13.12.6'
   mocktail: '^1.0.4'
   nested: any
+  onnxruntime: ^1.4.1
   package_info_plus: '^8.0.2'
   path_provider: '^2.1.1'
   pluto_grid: '^8.0.0'
