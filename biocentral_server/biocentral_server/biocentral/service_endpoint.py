@@ -27,7 +27,7 @@ def hashes(hash_id, file_type):
     return jsonify({hash_id: exists})
 
 
-# Endpoint to transfer a file
+# Endpoint to transfer a database file
 @biocentral_service_route.route('/biocentral_service/transfer_file', methods=['POST'])
 def transfer_file():
     user_id = UserManager.get_user_id_from_request(req=request)

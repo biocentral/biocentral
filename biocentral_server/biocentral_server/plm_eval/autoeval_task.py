@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from ruamel import yaml
 from importlib import resources
@@ -6,7 +7,7 @@ from collections import namedtuple
 from typing import Dict, Any, Optional, Callable
 
 from ..prediction_models import BiotrainerTask
-from ..server_management import TaskInterface, FileManager, StorageFileType, TaskDTO
+from ..server_management import TaskInterface, FileManager, StorageFileType, TaskDTO, EmbeddingDatabaseFactory
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +20,14 @@ def _task_name(dataset_tuple: _DatasetTuple):
 
 class AutoEvalTask(TaskInterface):
 
-    def __init__(self, flip_dict: dict, embedder_name: str, user_id: str):
+    def __init__(self, flip_dict: dict, embedder_name: str, user_id: str,
+                 onnx_path: Optional[str] = None,
+                 tokenizer_config_path: Optional[str] = None):
         self.flip_dict = flip_dict
         self.embedder_name = embedder_name
         self.file_manager = FileManager(user_id=user_id)
+        self.onnx_path = onnx_path
+        self.tokenizer_config_path = tokenizer_config_path
 
         self.task_queue = []
         self.completed_tasks = 0
@@ -36,6 +41,8 @@ class AutoEvalTask(TaskInterface):
 
         self.task_queue = sorted(self.task_queue, key=lambda x: x[0])
         self._process_queue(update_dto_callback)
+
+        self._post_task_cleanup()
 
         return TaskDTO.finished(
             result=self._create_dto_update(current_task_dto=TaskDTO.finished(result={}), task_config={}))
@@ -76,7 +83,11 @@ class AutoEvalTask(TaskInterface):
             config["protocol"] = "sequence_to_class"
             config["model_choice"] = "FNN"
 
-        config["embedder_name"] = self.embedder_name
+        if self.onnx_path and self.tokenizer_config_path:
+            config["embedder_name"] = self.onnx_path
+            config["custom_tokenizer_config"] = self.tokenizer_config_path
+        else:
+            config["embedder_name"] = self.embedder_name
 
         for file_name, file_path in split.items():
             if file_name == "name":
@@ -95,3 +106,9 @@ class AutoEvalTask(TaskInterface):
             'current_task_dto': current_task_dto.dict()
         }
         return update_dict
+
+    def _post_task_cleanup(self):
+        # Delete onnx embeddings because they should not be stored permanently
+        if ".onnx" in self.embedder_name:
+            embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+            embeddings_db.delete_embeddings_by_model(embedder_name=self.embedder_name)

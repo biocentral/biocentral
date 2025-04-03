@@ -39,14 +39,15 @@ class StorageBackend(ABC):
 
 
 class StorageFileReader:
-    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path]):
+    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path], suffix: str = None, ):
         self.storage_backend = storage_backend
         self.file_path = str(file_path)
+        self.suffix = suffix
         self.temp_file = None
 
     def __enter__(self) -> Path:
         # Create a temporary file
-        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=self.suffix)
         # Get content from SeaweedFS
         content = self.storage_backend.get_file(self.file_path)
         # Write content to temporary file

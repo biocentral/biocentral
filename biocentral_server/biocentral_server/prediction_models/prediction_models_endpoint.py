@@ -40,8 +40,9 @@ def _get_config_dict_from_string(config_string: str) -> dict:
 def config_options(protocol):
     options = Configurator.get_option_dicts_by_protocol(protocol=Protocol.from_string(protocol),
                                                         sub_configs_to_include=[])
-
-    return jsonify({"options": options})
+    presets = BiotrainerTask.get_config_presets()
+    filtered_options = [{k: v for k, v in option_dict.items() if k not in presets} for option_dict in options]
+    return jsonify({"options": filtered_options})
 
 
 # Endpoint to verify configuration options

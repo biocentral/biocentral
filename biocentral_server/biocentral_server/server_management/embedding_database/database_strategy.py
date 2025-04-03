@@ -25,6 +25,9 @@ class DatabaseStrategy:
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
         raise NotImplementedError
 
+    def delete_embeddings_by_model(self, embedder_name: str) -> bool:
+        raise NotImplementedError
+
     @staticmethod
     def _sanity_check_embedding_lookup(sequence: str, document):
         seq_len = len(sequence)

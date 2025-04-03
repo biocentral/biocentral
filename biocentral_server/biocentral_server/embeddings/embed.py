@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import tempfile
 from pathlib import Path
@@ -41,6 +42,7 @@ def compute_embeddings(embedder_name: str,
                        reduced: bool,
                        use_half_precision: bool,
                        device,
+                       custom_tokenizer_config: Optional[str] = None,
                        embeddings_db: EmbeddingsDatabase = None,
                        ):
     reduced_by_protocol = Protocol.using_per_sequence_embeddings()[0] if reduced \
@@ -55,6 +57,7 @@ def compute_embeddings(embedder_name: str,
         # Embeddings are not stored as h5, tmpdir is only necessary for compatibility with biotrainer
         with tempfile.TemporaryDirectory() as tmpdir:
             embedding_service = get_adapter_embedding_service(embedder_name=embedder_name,
+                                                              custom_tokenizer_config=custom_tokenizer_config,
                                                               embeddings_file_path=None,
                                                               use_half_precision=use_half_precision,
                                                               device=device,

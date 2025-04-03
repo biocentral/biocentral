@@ -6,6 +6,7 @@ from abc import abstractmethod, ABC
 from typing import Dict, Any, Union, Optional
 from biotrainer.embedders import EmbeddingService, EmbedderInterface, _get_embedder
 
+from .. import FileContextManager
 from ..embedding_database import EmbeddingsDatabase, EmbeddingsDatabaseTriple
 
 
@@ -80,7 +81,9 @@ class BiotrainerEmbeddingServiceAdapter(EmbeddingService):
         return self.storage_strategy.load_embeddings(embeddings_file_path)
 
 
-def get_adapter_embedding_service(embeddings_file_path: Union[str, None], embedder_name: Union[str, None],
+def get_adapter_embedding_service(embeddings_file_path: Optional[str],
+                                  embedder_name: Optional[str],
+                                  custom_tokenizer_config: Optional[str] = None,
                                   use_half_precision: Optional[bool] = False,
                                   device: Optional[Union[str, torch.device]] = None,
                                   embeddings_db: Optional[EmbeddingsDatabase] = None,
@@ -99,7 +102,20 @@ def get_adapter_embedding_service(embeddings_file_path: Union[str, None], embedd
         # Only for loading
         return BiotrainerEmbeddingServiceAdapter(storage_strategy=storage_strategy)
 
-    embedder: EmbedderInterface = _get_embedder(embedder_name=embedder_name, use_half_precision=use_half_precision,
+    if ".onnx" in embedder_name:
+        file_context_manager = FileContextManager()
+        with file_context_manager.storage_read(embedder_name, suffix=".onnx") as onnx_file_path:
+            with file_context_manager.storage_read(custom_tokenizer_config, suffix=".json") as custom_tokenizer_config_path:
+                embedder: EmbedderInterface = _get_embedder(embedder_name=str(onnx_file_path),
+                                                            custom_tokenizer_config=str(custom_tokenizer_config_path),
+                                                            use_half_precision=use_half_precision,
+                                                            device=device)
+                return BiotrainerEmbeddingServiceAdapter(embedder=embedder, use_half_precision=use_half_precision,
+                                                         storage_strategy=storage_strategy)
+
+    embedder: EmbedderInterface = _get_embedder(embedder_name=embedder_name,
+                                                custom_tokenizer_config=custom_tokenizer_config,
+                                                use_half_precision=use_half_precision,
                                                 device=device)
     return BiotrainerEmbeddingServiceAdapter(embedder=embedder, use_half_precision=use_half_precision,
                                              storage_strategy=storage_strategy)

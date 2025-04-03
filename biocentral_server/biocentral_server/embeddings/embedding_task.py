@@ -10,13 +10,15 @@ from ..server_management import TaskInterface, TaskDTO, EmbeddingDatabaseFactory
 
 class CalculateEmbeddingsTask(TaskInterface):
     """ Calculate embeddings via biotrainer embeddings service adapter using the embeddings database """
+
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
-                 use_half_precision: bool, device):
+                 use_half_precision: bool, device, custom_tokenizer_config: str = None):
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
         self.device = get_device(device)
+        self.custom_tokenizer_config = custom_tokenizer_config
 
     def _read_sequence_input(self) -> Dict[str, str]:
         if isinstance(self.sequence_input, Dict):
@@ -31,6 +33,7 @@ class CalculateEmbeddingsTask(TaskInterface):
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
         _ = compute_embeddings(embedder_name=self.embedder_name,
+                               custom_tokenizer_config=self.custom_tokenizer_config,
                                all_seqs=all_seqs,
                                reduced=self.reduced,
                                use_half_precision=self.use_half_precision,
@@ -51,7 +54,7 @@ class LoadEmbeddingsTask(TaskInterface):
     """ Load Embeddings as Triples """
 
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
-                 use_half_precision: bool, device):
+                 use_half_precision: bool, device, custom_tokenizer_config: str = None):
         if use_half_precision:
             embedder_name += "-half"
 
@@ -60,6 +63,7 @@ class LoadEmbeddingsTask(TaskInterface):
         self.reduced = reduced
         self.use_half_precision = use_half_precision
         self.device = get_device(device)
+        self.custom_tokenizer_config = custom_tokenizer_config
 
     def _handle_ohe(self):
         ohe_task = _OneHotEncodeTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
@@ -79,7 +83,8 @@ class LoadEmbeddingsTask(TaskInterface):
 
         calculate_task = CalculateEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
                                                  reduced=self.reduced, use_half_precision=self.use_half_precision,
-                                                 device=self.device)
+                                                 device=self.device,
+                                                 custom_tokenizer_config=self.custom_tokenizer_config)
         calculate_dto = None
         for dto in self.run_subtask(calculate_task):
             calculate_dto = dto
@@ -102,7 +107,7 @@ class ExportEmbeddingsTask(TaskInterface):
     """ Calculate Embeddings and Export to H5 """
 
     def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
-                 use_half_precision: bool, device, embeddings_out_path: Path):
+                 use_half_precision: bool, device, embeddings_out_path: Path, custom_tokenizer_config: str = None):
         # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
         if use_half_precision:
             embedder_name += "-half"
@@ -113,11 +118,13 @@ class ExportEmbeddingsTask(TaskInterface):
         self.use_half_precision = use_half_precision
         self.device = get_device(device)
         self.embeddings_out_path = embeddings_out_path
+        self.custom_tokenizer_config = custom_tokenizer_config
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         load_task = LoadEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
-                                                  reduced=self.reduced, use_half_precision=self.use_half_precision,
-                                                  device=self.device)
+                                       reduced=self.reduced, use_half_precision=self.use_half_precision,
+                                       device=self.device,
+                                       custom_tokenizer_config=self.custom_tokenizer_config)
 
         load_dto = None
         for dto in self.run_subtask(load_task):

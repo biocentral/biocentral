@@ -34,6 +34,7 @@ class BiotrainerDatabaseStorageTrainer(Trainer):
         # Use adapter embedding service
         embedding_service = get_adapter_embedding_service(
             embeddings_file_path=embeddings_file,
+            custom_tokenizer_config=self._custom_tokenizer_config,
             embedder_name=self._embedder_name,
             use_half_precision=self._use_half_precision,
             device=self._device,

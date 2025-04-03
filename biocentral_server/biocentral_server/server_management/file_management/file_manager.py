@@ -39,7 +39,8 @@ class FileManager:
         except StorageError:
             return False
 
-    def save_file(self, database_hash: str, file_type: StorageFileType, file_content: str,
+    def save_file(self, file_type: StorageFileType, database_hash: Optional[str] = "",
+                  file_content: Optional[Union[bytes, str]] = None,
                   embedder_name: Optional[str] = "",
                   model_hash: Optional[str] = "") -> Path:
         file_name, file_path = self.path_manager.get_file_name_and_path(
@@ -175,9 +176,9 @@ class FileContextManager:
             temp_file.write(file_content)
 
     @contextlib.contextmanager
-    def storage_read(self, file_path: Union[str, Path]) -> Generator[Path, None, None]:
+    def storage_read(self, file_path: Union[str, Path], suffix: str = None) -> Generator[Path, None, None]:
         """Convenience context manager for reading files from the storage backend"""
-        with StorageFileReader(self.storage_backend, file_path) as temp_path:
+        with StorageFileReader(self.storage_backend, file_path, suffix) as temp_path:
             yield temp_path
 
     @contextlib.contextmanager

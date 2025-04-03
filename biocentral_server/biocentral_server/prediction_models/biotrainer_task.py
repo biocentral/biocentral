@@ -20,10 +20,30 @@ class BiotrainerTask(TaskInterface):
     def __init__(self, model_path: Path, config_dict: dict):
         super().__init__()
         self.model_path = model_path
-        self.config_dict = config_dict
+        self.config_dict = self._config_with_presets(config_dict)
         self.stop_reading = False
         self._last_read_position_in_log_file = 0
         self.biotrainer_process: Optional[mp.Process] = None
+
+    @staticmethod
+    def _config_with_presets(config_dict: dict):
+        presets = BiotrainerTask.get_config_presets()
+        for k, v in presets.items():
+            config_dict[k] = v
+        return config_dict
+
+    @staticmethod
+    def get_config_presets():
+        return {
+            "device": "cuda",  # TODO Device Management
+            "cross_validation_config": {"method": "hold_out"},
+            "save_split_ids": False,
+            "sanity_check": True,
+            "ignore_file_inconsistencies": False,
+            "disable_pytorch_compile": False,
+            "auto_resume": False,
+            # "pretrained_model": None, TODO Improve biotrainer checking to set this (mutual exclusive)
+        }
 
     @staticmethod
     def _read_seqs(server_sequence_file_path):
@@ -63,8 +83,6 @@ class BiotrainerTask(TaskInterface):
             if embedder_name != "one_hot_encoding":  # Encode OHE during biotrainer process
                 self._pre_embed_with_db(all_seqs=all_seqs, reduced=reduced)
 
-            # TODO Device Management
-            self.config_dict["device"] = "cuda"
             config = deepcopy(self.config_dict)
 
             # Run biotrainer
@@ -98,9 +116,11 @@ class BiotrainerTask(TaskInterface):
 
     def _pre_embed_with_db(self, all_seqs: Dict[str, str], reduced: bool):
         embedder_name = self.config_dict['embedder_name']
+        custom_tokenizer_config = self.config_dict['custom_tokenizer_config']
         device = self.config_dict.get('device', None)
 
         calculate_embedding_task = CalculateEmbeddingsTask(embedder_name=embedder_name,
+                                                           custom_tokenizer_config=custom_tokenizer_config,
                                                            sequence_input=all_seqs,
                                                            reduced=reduced,
                                                            use_half_precision=False,
@@ -108,6 +128,12 @@ class BiotrainerTask(TaskInterface):
         embedding_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(calculate_embedding_task):
             embedding_dto = current_dto
+
+        if ".onnx" in embedder_name:
+            embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+            hashed_embedder_name = embeddings_db.get_onnx_model_hash(embedder_name)
+            self.config_dict["embedder_name"] = hashed_embedder_name
+            self.config_dict.pop("custom_tokenizer_config")
 
         if not embedding_dto:
             raise Exception("Could not compute embeddings!")

@@ -10,7 +10,11 @@ class PathManager:
     _fasta_files_path: Final[Path] = Path("fasta_files/")
     _embeddings_files_path: Final[Path] = Path("embeddings/")
     _models_files_path: Final[Path] = Path("models/")
-    _subdirectories_hash_dir: Final[List[Path]] = [_fasta_files_path, _embeddings_files_path, _models_files_path]
+    _external_models_path: Final[Path] = Path("external_models/")
+    _subdirectories_hash_dir: Final[List[Path]] = [_fasta_files_path,
+                                                   _embeddings_files_path,
+                                                   _models_files_path,
+                                                   _external_models_path]
 
     def __init__(self, user_id: str):
         self.user_id = user_id
@@ -30,6 +34,9 @@ class PathManager:
     def _get_models_files_path(self) -> Path:
         return self._base_user_path() / self._models_files_path
 
+    def _get_external_models_path(self) -> Path:
+        return self._base_user_path() / self._external_models_path
+
     def get_biotrainer_model_path(self, model_hash: str) -> Path:
         return self._get_models_files_path() / model_hash
 
@@ -42,7 +49,9 @@ class PathManager:
                 StorageFileType.EMBEDDINGS_PER_SEQUENCE: f"reduced_embeddings_file_{embedder_name}.h5",
                 StorageFileType.BIOTRAINER_CONFIG: "config_file.yaml",
                 StorageFileType.BIOTRAINER_LOGGING: "logger_out.log",
-                StorageFileType.BIOTRAINER_RESULT: "out.yml"
+                StorageFileType.BIOTRAINER_RESULT: "out.yml",
+                StorageFileType.ONNX_MODEL: f"{embedder_name}.onnx",
+                StorageFileType.TOKENIZER_CONFIG: f"{embedder_name}_tokenizer_config.json",
                 }[file_type]
 
     def _storage_file_type_to_path(self, file_type: StorageFileType,
@@ -56,8 +65,10 @@ class PathManager:
                 StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path() / Path(model_hash),
                 StorageFileType.BIOTRAINER_LOGGING: self._get_models_files_path() / Path(model_hash),
                 StorageFileType.BIOTRAINER_RESULT: self._get_models_files_path() / Path(model_hash),
-                StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path() / Path(model_hash)
+                StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path() / Path(model_hash),
                 # Gets searched for pt file(s)
+                StorageFileType.ONNX_MODEL: self._get_external_models_path(),
+                StorageFileType.TOKENIZER_CONFIG: self._get_external_models_path(),
                 }[file_type]
 
     def get_file_name_and_path(self, file_type: StorageFileType,

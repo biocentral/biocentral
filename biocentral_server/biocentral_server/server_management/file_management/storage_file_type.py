@@ -12,6 +12,8 @@ class StorageFileType(Enum):
     BIOTRAINER_LOGGING = 7,
     BIOTRAINER_RESULT = 8,
     BIOTRAINER_CHECKPOINT = 9
+    ONNX_MODEL = 10
+    TOKENIZER_CONFIG = 11
 
     @staticmethod
     def from_string(file_type: str) -> StorageFileType:

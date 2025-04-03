@@ -146,3 +146,19 @@ class PostgreSQLStrategy(DatabaseStrategy):
                         if seq_id not in existing}
 
         return existing, non_existing
+
+    def delete_embeddings_by_model(self, embedder_name: str) -> bool:
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        DELETE FROM embeddings 
+                        WHERE embedder_name = %s
+                    ''', [embedder_name])
+                    deleted_count = cur.rowcount
+                    conn.commit()
+                logger.info(f"Deleted {deleted_count} embeddings for model {embedder_name}")
+                return True
+        except Exception as e:
+            logger.error(f"Error deleting embeddings for model {embedder_name}: {e}")
+            return False
