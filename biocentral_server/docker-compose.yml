@@ -22,6 +22,8 @@ services:
         condition: service_healthy
       embeddings-db:
         condition: service_healthy
+      seaweedfs-filer:
+        condition: service_healthy
     networks:
       - biocentral-network
 
@@ -44,6 +46,8 @@ services:
       redis-jobs:
         condition: service_healthy
       embeddings-db:
+        condition: service_healthy
+      seaweedfs-filer:
         condition: service_healthy
     networks:
       - biocentral-network
@@ -84,7 +88,12 @@ services:
       - "9333:9333"
     command: "master -ip=seaweedfs-master"
     networks:
-      - biocentral-network
+      - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:9333/cluster/status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
@@ -96,17 +105,27 @@ services:
     depends_on:
       - seaweedfs-master
     networks:
-      - biocentral-network
+      - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8080/status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
     ports:
-      - "8888:8888"
+      - "${SEAWEEDFS_FILER_PORT}:8888"
     command: 'filer -master="seaweedfs-master:9333"'
     depends_on:
       - seaweedfs-master
     networks:
-      - biocentral-network
+      - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8888/" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 
 volumes:

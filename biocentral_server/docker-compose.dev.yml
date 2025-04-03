@@ -42,6 +42,11 @@ services:
     command: "master -ip=seaweedfs-master"
     networks:
       - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:9333/cluster/status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
@@ -54,6 +59,11 @@ services:
       - seaweedfs-master
     networks:
       - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8080/status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
@@ -64,6 +74,11 @@ services:
       - seaweedfs-master
     networks:
       - seaweedfs-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8888/" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
