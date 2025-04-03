@@ -108,7 +108,12 @@ class AutoEvalTask(TaskInterface):
         return update_dict
 
     def _post_task_cleanup(self):
-        # Delete onnx embeddings because they should not be stored permanently
-        if ".onnx" in self.embedder_name:
+        # Delete onnx embeddings and model because they should not be stored permanently
+        if self.onnx_path:
+            logger.info(f"Deleting {self.embedder_name} related embeddings and files..")
             embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-            embeddings_db.delete_embeddings_by_model(embedder_name=self.embedder_name)
+            embeddings_db.delete_embeddings_by_model(embedder_name=self.onnx_path)
+            self.file_manager.delete_file(file_type=StorageFileType.ONNX_MODEL,
+                                          embedder_name=self.embedder_name)
+            self.file_manager.delete_file(file_type=StorageFileType.TOKENIZER_CONFIG,
+                                          embedder_name=self.embedder_name)

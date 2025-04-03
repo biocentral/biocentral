@@ -75,6 +75,17 @@ class FileManager:
         )
         return file_path / file_name
 
+    def delete_file(self, file_type: StorageFileType, database_hash: Optional[str] = "",
+                    embedder_name: Optional[str] = "", model_hash: Optional[str] = ""):
+        file_name, file_path = self.path_manager.get_file_name_and_path(
+            database_hash=database_hash,
+            file_type=file_type,
+            embedder_name=embedder_name,
+            model_hash=model_hash
+        )
+        full_path = file_path / file_name
+        return self.storage_backend.delete_file(str(full_path))
+
     def get_embeddings_path(self, database_hash: str):
         return self.path_manager.get_embeddings_files_path(database_hash=database_hash)
 

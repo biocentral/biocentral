@@ -42,6 +42,7 @@ class BiotrainerTask(TaskInterface):
             "ignore_file_inconsistencies": False,
             "disable_pytorch_compile": False,
             "auto_resume": False,
+            "external_writer": "none",
             # "pretrained_model": None, TODO Improve biotrainer checking to set this (mutual exclusive)
         }
 

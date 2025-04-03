@@ -51,7 +51,7 @@ class EmbeddingsDatabase:
 
     def save_embeddings(self, ids_seqs_embds: List[EmbeddingsDatabaseTriple], embedder_name, reduced: bool):
         # TODO [Refactoring] Improve .onnx handling
-        if ".onnx" in embedder_name:
+        if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
         embedding_data = [self._prepare_embedding_data(sequence=embedding_triple.seq,
@@ -64,7 +64,7 @@ class EmbeddingsDatabase:
     def filter_existing_embeddings(self, sequences: Dict[str, str],
                                    embedder_name: str,
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
-        if ".onnx" in embedder_name:
+        if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
         max_batch_size_filtering = 50000
@@ -105,7 +105,7 @@ class EmbeddingsDatabase:
         return result
 
     def delete_embeddings_by_model(self, embedder_name: str) -> bool:
-        if ".onnx" in embedder_name:
+        if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
         return self.strategy.delete_embeddings_by_model(embedder_name)
 
@@ -157,5 +157,9 @@ class EmbeddingsDatabase:
             return h5_base64
 
     @staticmethod
+    def is_onnx_model(embedder_name: str) -> bool:
+        return ".onnx" in embedder_name or "onnx/" in embedder_name
+
+    @staticmethod
     def get_onnx_model_hash(onnx_path: str):
-        return hashlib.md5(onnx_path.encode('utf8')).hexdigest()
+        return "onnx/" + hashlib.md5(onnx_path.encode('utf8')).hexdigest()

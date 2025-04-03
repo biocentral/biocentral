@@ -81,6 +81,17 @@ class BiotrainerEmbeddingServiceAdapter(EmbeddingService):
         return self.storage_strategy.load_embeddings(embeddings_file_path)
 
 
+class ONNXEmbeddingAdapter(EmbedderInterface):
+    """ Small mock adapter only used to load the pre-calculated onnx embeddings from the database"""
+
+    def __init__(self, hashed_name, device):
+        self.name = hashed_name
+        self.device = device
+
+    def _embed_single(self, sequence: str) -> ndarray:
+        raise NotImplementedError
+
+
 def get_adapter_embedding_service(embeddings_file_path: Optional[str],
                                   embedder_name: Optional[str],
                                   custom_tokenizer_config: Optional[str] = None,
@@ -88,7 +99,8 @@ def get_adapter_embedding_service(embeddings_file_path: Optional[str],
                                   device: Optional[Union[str, torch.device]] = None,
                                   embeddings_db: Optional[EmbeddingsDatabase] = None,
                                   sequence_dict: Dict[str, str] = None,
-                                  reduced: bool = False) -> EmbeddingService:
+                                  reduced: bool = False,
+                                  only_loading: bool = False) -> EmbeddingService:
     storage_strategy: EmbeddingStorageStrategy
     if embedder_name == "one_hot_encoding":
         storage_strategy = OHEMemoryStorage()
@@ -102,10 +114,18 @@ def get_adapter_embedding_service(embeddings_file_path: Optional[str],
         # Only for loading
         return BiotrainerEmbeddingServiceAdapter(storage_strategy=storage_strategy)
 
-    if ".onnx" in embedder_name:
+    if ".onnx" in embedder_name or "onnx/" in embedder_name:
+        if only_loading:
+            embedder: EmbedderInterface = ONNXEmbeddingAdapter(hashed_name=embedder_name,
+                                                               device=device)
+            return BiotrainerEmbeddingServiceAdapter(embedder=embedder,
+                                                     use_half_precision=use_half_precision,
+                                                     storage_strategy=storage_strategy)
+
         file_context_manager = FileContextManager()
         with file_context_manager.storage_read(embedder_name, suffix=".onnx") as onnx_file_path:
-            with file_context_manager.storage_read(custom_tokenizer_config, suffix=".json") as custom_tokenizer_config_path:
+            with file_context_manager.storage_read(custom_tokenizer_config,
+                                                   suffix=".json") as custom_tokenizer_config_path:
                 embedder: EmbedderInterface = _get_embedder(embedder_name=str(onnx_file_path),
                                                             custom_tokenizer_config=str(custom_tokenizer_config_path),
                                                             use_half_precision=use_half_precision,

@@ -40,7 +40,8 @@ class BiotrainerDatabaseStorageTrainer(Trainer):
             device=self._device,
             embeddings_db=self.embeddings_db,
             sequence_dict=self.sequences,
-            reduced=reduced
+            reduced=reduced,
+            only_loading=True,
         )
 
         if self._embedder_name == "one_hot_encoding":
