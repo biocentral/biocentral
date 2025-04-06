@@ -117,7 +117,7 @@ class BiotrainerTask(TaskInterface):
 
     def _pre_embed_with_db(self, all_seqs: Dict[str, str], reduced: bool):
         embedder_name = self.config_dict['embedder_name']
-        custom_tokenizer_config = self.config_dict['custom_tokenizer_config']
+        custom_tokenizer_config = self.config_dict.get('custom_tokenizer_config', None)
         device = self.config_dict.get('device', None)
 
         calculate_embedding_task = CalculateEmbeddingsTask(embedder_name=embedder_name,
