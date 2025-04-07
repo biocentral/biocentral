@@ -52,7 +52,7 @@ class _PLMEvalLeaderboardSelectionViewState extends State<PLMEvalLeaderboardSele
         return PLMEvalLeaderboardView(
           leaderboard: state.mixedLeaderboard,
           recommendedMetrics: state.recommendedMetrics,
-          publishableModels: getPublishableModels(state),
+          publishableModels: state.getPublishableModels(),
         );
       case PLMLeaderboardKind.remote:
         return PLMEvalLeaderboardView(
@@ -64,15 +64,9 @@ class _PLMEvalLeaderboardSelectionViewState extends State<PLMEvalLeaderboardSele
         return PLMEvalLeaderboardView(
           leaderboard: state.localLeaderboard,
           recommendedMetrics: state.recommendedMetrics,
-          publishableModels: getPublishableModels(state),
+          publishableModels: state.getPublishableModels(),
         );
     }
-  }
-
-  Set<String> getPublishableModels(PLMEvalLeaderboardState state) {
-    final localModels = state.localLeaderboard.modelNameToEntries.keys.toSet();
-    final remoteModels = state.remoteLeaderboard.modelNameToEntries.keys.toSet();
-    return localModels.where((model) => !remoteModels.contains(model)).toSet();
   }
 }
 
@@ -124,7 +118,10 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
+    if (widget.leaderboard.isEmpty()) {
+      return const Text('No leaderboard entries yet!');
+    }
+      return Column(
       children: [
         BiocentralDropdownMenu(
           dropdownMenuEntries:
@@ -249,7 +246,9 @@ class _PLMEvalLeaderboardViewState extends State<PLMEvalLeaderboardView> with Au
         textButtonFunction = () {};
       }
       return Align(
-          alignment: Alignment.centerRight, child: TextButton(onPressed: textButtonFunction, child: textButtonChild));
+        alignment: Alignment.centerRight,
+        child: TextButton(onPressed: textButtonFunction, child: textButtonChild),
+      );
     }
     return Container();
   }
