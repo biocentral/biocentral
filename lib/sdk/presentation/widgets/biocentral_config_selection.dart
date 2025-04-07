@@ -336,7 +336,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       Map<dynamic, dynamic> value,
       ) {
     return SizedBox(
-      width: 120, // Adjust this value to change the width of each entry
+      width: 120,
       child: InputDecorator(
         decoration: InputDecoration(
           label: Text(entry.key.toString()),

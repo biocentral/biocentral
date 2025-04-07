@@ -9,8 +9,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 
 class PLMSelectionDialog extends StatefulWidget {
-  final void Function(Either<String, XFile> modelSelection, Map<String, dynamic>? tokenizerConfig,
-      List<BenchmarkDataset> datasets, bool recommendedOnly) onStartAutoeval;
+  final void Function(
+    Either<String, XFile> modelSelection,
+    Map<String, dynamic> tokenizerConfig,
+    List<BenchmarkDataset> datasets,
+    bool recommendedOnly,
+  ) onStartAutoeval;
 
   const PLMSelectionDialog({required this.onStartAutoeval, super.key});
 

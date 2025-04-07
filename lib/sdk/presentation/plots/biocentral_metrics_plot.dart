@@ -23,7 +23,7 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
     for (final setVal in widget.metrics.values) {
       _availableMetrics.addAll(setVal.map((metric) => metric.name));
     }
-    _selectedMetric = _availableMetrics.first;
+    _selectedMetric = _availableMetrics.firstOrNull;
   }
 
   List<(String, double, double?)> _getBarPlotData() {
