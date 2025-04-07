@@ -20,7 +20,7 @@ class FLIPDataHandler:
     DOWNLOAD_URL = f"http://data.bioembeddings.com/public/FLIP/fasta/{DOWNLOAD_FILE_NAME}.zip"
     IGNORE_SPLITS = ["mixed_vs_human_2"]
     MIN_SEQ_SIZE = 0
-    MAX_SEQ_SIZE = 10000
+    MAX_SEQ_SIZE = 2000
 
     @staticmethod
     def download_and_preprocess(flip_path: Path) -> None:
