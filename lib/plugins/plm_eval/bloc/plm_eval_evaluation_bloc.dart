@@ -21,12 +21,12 @@ final class PLMEvalHuggingfaceEvaluationStartEvent extends PLMEvalEvaluationEven
 
 final class PLMEvalONNXEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final XFile onnxFile;
+  final Map<String, dynamic> tokenizerConfig;
   final List<BenchmarkDataset> benchmarkDatasets;
   final bool recommendedOnly;
 
-  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.benchmarkDatasets, this.recommendedOnly);
+  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.tokenizerConfig, this.benchmarkDatasets, this.recommendedOnly);
 }
-
 
 final class PLMEvalEvaluationResumeEvent extends PLMEvalEvaluationEvent {
   final BiocentralCommandLog commandLog;
@@ -112,8 +112,9 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
         projectRepository: _projectRepository,
         plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
         plmEvalRepository: _plmEvalRepository,
-        modelID: event.onnxFile.name,
+        modelID: event.onnxFile.name.replaceAll('.onnx', ''),
         onnxFile: event.onnxFile,
+        tokenizerConfig: event.tokenizerConfig,
         recommendedOnly: event.recommendedOnly,
         benchmarkDatasets: event.benchmarkDatasets,
       );

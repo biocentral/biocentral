@@ -110,6 +110,8 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
 
       emit(PLMSelectionDialogState.checking(selectionEither));
 
+      // TODO Verify tokenizer config
+
       if (!onnxSelection.extension.contains('onnx')) {
         return emit(
           const PLMSelectionDialogState.errored('ONNX Model must be saved in an .onnx file!'),

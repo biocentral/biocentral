@@ -33,14 +33,15 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
           child: PLMSelectionDialog(
             onStartAutoeval: (
               Either<String, XFile> modelSelection,
-              Map<String, dynamic>? tokenizerConfig,
+              Map<String, dynamic> tokenizerConfig,
               List<BenchmarkDataset> datasets,
               bool recommendedOnly,
             ) {
               modelSelection.match(
                 (modelID) =>
                     plmCommandBloc.add(PLMEvalHuggingfaceEvaluationStartEvent(modelID, datasets, recommendedOnly)),
-                (onnxFile) => plmCommandBloc.add(PLMEvalONNXEvaluationStartEvent(onnxFile, datasets, recommendedOnly)),
+                (onnxFile) => plmCommandBloc
+                    .add(PLMEvalONNXEvaluationStartEvent(onnxFile, tokenizerConfig, datasets, recommendedOnly)),
               );
             },
           ),
