@@ -22,16 +22,16 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
   final bool _recommendedOnly;
   final List<BenchmarkDataset> _benchmarkDatasets;
 
-  AutoEvalPLMCommand(
-      {required BiocentralProjectRepository projectRepository,
-      required PLMEvalClient plmEvalClient,
-      required PLMEvalRepository plmEvalRepository,
-      required String modelID,
-      required bool recommendedOnly,
-      required List<BenchmarkDataset> benchmarkDatasets,
-      XFile? onnxFile,
-      Map<String, dynamic>? tokenizerConfig})
-      : _projectRepository = projectRepository,
+  AutoEvalPLMCommand({
+    required BiocentralProjectRepository projectRepository,
+    required PLMEvalClient plmEvalClient,
+    required PLMEvalRepository plmEvalRepository,
+    required String modelID,
+    required bool recommendedOnly,
+    required List<BenchmarkDataset> benchmarkDatasets,
+    XFile? onnxFile,
+    Map<String, dynamic>? tokenizerConfig,
+  })  : _projectRepository = projectRepository,
         _plmEvalClient = plmEvalClient,
         _plmEvalRepository = plmEvalRepository,
         _modelID = modelID,
