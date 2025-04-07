@@ -91,6 +91,8 @@ class PLMLeaderboard {
     }
     return (tableData, plotData);
   }
+
+  bool isEmpty() => modelNameToEntries.isEmpty;
 }
 
 class PLMLeaderboardRankingCalculator {

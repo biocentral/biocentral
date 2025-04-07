@@ -84,6 +84,15 @@ final class PLMEvalLeaderboardState extends Equatable {
     return PLMEvalLeaderboardState(remoteLeaderboard, localLeaderboard, mixedLeaderboard, changedMetrics, status);
   }
 
+  Set<String> getPublishableModels() {
+    // TODO Improve check for only huggingface models
+    final localModels = localLeaderboard.modelNameToEntries.keys
+        .where((modelName) => modelName.contains('/') && !modelName.contains('onnx') || modelName == 'one_hot_encoding')
+        .toSet();
+    final remoteModels = remoteLeaderboard.modelNameToEntries.keys.toSet();
+    return localModels.where((model) => !remoteModels.contains(model)).toSet();
+  }
+
   @override
   List<Object?> get props => [remoteLeaderboard, localLeaderboard, mixedLeaderboard, recommendedMetrics, status];
 }
@@ -137,7 +146,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
       // TODO [Error handling] Embedder Name must be unique here, make sure that redundant evaluations are not possible
       final resultForModelName = _plmEvalRepository
           .getAllResultsAsPersistent()
-          .where((sessionResult) => sessionResult.modelName == event.modelName)
+          .where((result) => result.modelName == event.modelName)
           .firstOrNull;
 
       if (resultForModelName == null) {
