@@ -323,8 +323,8 @@ class BiocentralHubServerClient with HTTPClient {
 class ClientManager {
   final Map<Type, BiocentralClientFactory> _factories = {};
   final Map<Type, BiocentralClient> _clients = {};
-  // TODO Config
-  final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('http://localhost:5000');
+
+  final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('https://hub.biocentral.cloud');
 
   BiocentralServerData? _server;
 
