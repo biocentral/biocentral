@@ -1,5 +1,9 @@
 # biocentral_server Changelog
 
+## v0.2.0
+* Greatly improving task handling by adding resume functionality
+* Switching to docker compose setup, hence removing pyinstaller and frontend
+* Improving AutoEval Task to plm leaderboard v2
 
 ## v0.1.2
 * Adding embeddings database (PostgreSQL/TinyDB)
