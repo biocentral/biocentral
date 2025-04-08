@@ -30,7 +30,7 @@ latest developments in bioinformatics and applications in molecular biology and 
 | Web            |     ✅      | 
 | Linux          |     ✅      | 
 | Windows        |     ✅      | 
-| MacOS          |     🔜     | 
+| MacOS          |     ✅      | 
 | Android Tablet |     ❌      |
 | Apple Tablet   |     ❌      |
 
@@ -54,7 +54,7 @@ for details.
 
 ## 📜 Citation
 
-A publication about biocentral is under construction. Until then, please cite this repository if you are using 
+A publication about biocentral is under construction. Until then, please cite this repository if you are using
 biocentral for your work:
 
 ```text
