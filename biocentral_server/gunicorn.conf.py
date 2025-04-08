@@ -4,7 +4,7 @@ import logging
 from biocentral_server.server_entrypoint import AppState
 
 # Number of worker processes
-workers = 3
+workers = 4
 worker_class = "gthread"
 threads = 2
 

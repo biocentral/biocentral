@@ -3,11 +3,14 @@ services:
     build: .
     ports:
       - "9540:9540"
+    volumes:
+      - huggingface_models_cache:/huggingface_models
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - HF_HOME=/huggingface_models
     deploy:
       resources:
         reservations:
@@ -30,11 +33,14 @@ services:
   biocentral-worker:
     build: .
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 3
+    volumes:
+      - huggingface_models_cache:/huggingface_models
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - HF_HOME=/huggingface_models
     deploy:
       resources:
         reservations:
@@ -54,8 +60,6 @@ services:
 
   redis-jobs:
     image: redis:alpine
-    ports:
-      - "${REDIS_JOBS_PORT}:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -88,12 +92,7 @@ services:
       - "9333:9333"
     command: "master -ip=seaweedfs-master"
     networks:
-      - seaweedfs-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:9333/cluster/status" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - biocentral-network
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
@@ -105,12 +104,7 @@ services:
     depends_on:
       - seaweedfs-master
     networks:
-      - seaweedfs-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8080/status" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - biocentral-network
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
@@ -120,12 +114,12 @@ services:
     depends_on:
       - seaweedfs-master
     networks:
-      - seaweedfs-network
+      - biocentral-network
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8888/" ]
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://seaweedfs-filer:8888/" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 
 volumes:
@@ -147,7 +141,12 @@ volumes:
       type: none
       o: bind
       device: ${SERVER_TEMP_DATA_DIR}
-
+  huggingface_models_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HUGGINGFACE_MODELS_DIR}
 networks:
   biocentral-network:
     driver: bridge

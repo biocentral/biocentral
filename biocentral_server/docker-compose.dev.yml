@@ -17,8 +17,6 @@ services:
 
   redis-jobs:
     image: redis:alpine
-    ports:
-      - "${REDIS_JOBS_PORT}:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -42,11 +40,6 @@ services:
     command: "master -ip=seaweedfs-master"
     networks:
       - seaweedfs-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:9333/cluster/status" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
@@ -59,11 +52,6 @@ services:
       - seaweedfs-master
     networks:
       - seaweedfs-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8080/status" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
@@ -75,10 +63,10 @@ services:
     networks:
       - seaweedfs-network
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:8888/" ]
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://seaweedfs-filer:8888/" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 volumes:
   postgres_data:
