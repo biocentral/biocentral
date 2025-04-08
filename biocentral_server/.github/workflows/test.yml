@@ -32,11 +32,10 @@ jobs:
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-tk libcairo2-dev libxt-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           pip install poetry
           poetry self update
           poetry cache clear --all pypi
-          poetry install --extras linux
+          poetry install
 
       - name: Run pytest
         uses: coactions/setup-xvfb@v1
