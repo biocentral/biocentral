@@ -2,23 +2,19 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class ProteinRepository extends BiocentralDatabase<Protein> {
-  final Map<String, Protein> _proteins = {};
-  final List<String> _proteinIDs = [];
 
-  ProteinRepository() {
+  final Map<String, Protein> _proteins = {};
+
+  ProteinRepository(super.biocentralProjectRepository) : super() {
     // EXAMPLE DATA
-    final Protein p1 =
-        Protein('P06213', sequence: AminoAcidSequence('MATGGRRGAA'));
-    final Protein p2 =
-        Protein('P11111', sequence: AminoAcidSequence('MAGGRGAA'));
-    final Protein p3 =
-        Protein('P22222', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
-    final Protein p4 = Protein('P33333',
-        sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
-    addEntity(p1);
-    addEntity(p2);
-    addEntity(p3);
-    addEntity(p4);
+    final Protein p1 = Protein('Example1', sequence: AminoAcidSequence('MATGGRRGAA'));
+    final Protein p2 = Protein('Example2', sequence: AminoAcidSequence('MAGGRGAA'));
+    final Protein p3 = Protein('Example3', sequence: AminoAcidSequence('MATGGRRGAATTTTTT'));
+    final Protein p4 = Protein('Example4', sequence: AminoAcidSequence('MAGGRGAAMMMMMMAAAAGGGG'));
+    _proteins[p1.id] = p1;
+    _proteins[p2.id] = p2;
+    _proteins[p3.id] = p3;
+    _proteins[p4.id] = p4;
   }
 
   @override
@@ -27,28 +23,26 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  Set<String> getSystemColumns() {
-    // Define system columns that should be excluded from training
-    return {"id", "sequence", "taxonomyID", "embeddings"};
-  }
-
-  @override
-  void addEntity(Protein entity) {
+  void addEntityImpl(Protein entity) {
     _proteins[entity.id] = entity;
-    _proteinIDs.add(entity.id);
   }
 
   @override
-  void removeEntity(Protein? entity) {
+  void addAllEntitiesImpl(Iterable<Protein> entities) {
+    final entityMap = Map.fromEntries(entities.map((entity) => MapEntry(entity.getID(), entity)));
+    _proteins.addAll(entityMap);
+  }
+
+  @override
+  void removeEntityImpl(Protein? entity) {
     if (entity != null) {
       final String interactionID = entity.getID();
       _proteins.remove(interactionID);
-      _proteinIDs.remove(interactionID);
     }
   }
 
   @override
-  void updateEntity(String id, Protein entityUpdated) {
+  void updateEntityImpl(String id, Protein entityUpdated) {
     if (containsEntity(id)) {
       _proteins[id] = entityUpdated;
     } else {
@@ -57,9 +51,15 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void clearDatabase() {
+  void clearDatabaseImpl() {
     _proteins.clear();
-    _proteinIDs.clear();
+  }
+
+
+  @override
+  Set<String> getSystemColumns() {
+    // Define system columns that should be excluded from training
+    return {'id', 'sequence', 'taxonomyID', 'embeddings'};
   }
 
   @override
@@ -74,10 +74,10 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   Protein? getEntityByRow(int rowIndex) {
-    if (rowIndex >= _proteinIDs.length) {
+    if (rowIndex >= _proteins.length) {
       return null;
     }
-    return _proteins[_proteinIDs[rowIndex]];
+    return _proteins.values.toList()[rowIndex];
   }
 
   @override
@@ -96,16 +96,17 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void syncFromDatabase(
-      Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
+  void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
+    if(entities.isEmpty) {
+      return;
+    }
+
     if (entities.entries.first.value is Protein) {
       importEntities(entities as Map<String, Protein>, importMode);
-    }
-    if (entities.entries.first.value is ProteinProteinInteraction) {
+    } else if (entities.entries.first.value is ProteinProteinInteraction) {
       clearDatabase();
       for (BioEntity entity in entities.values) {
-        final Protein interactor1 =
-            (entity as ProteinProteinInteraction).interactor1;
+        final Protein interactor1 = (entity as ProteinProteinInteraction).interactor1;
         final Protein interactor2 = entity.interactor2;
 
         updateEntity(interactor1.getID(), interactor1);
@@ -127,12 +128,11 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   // ** TAXONOMY ***
 
-  Future<Map<String, Protein>> addTaxonomyData(
-      Map<int, Taxonomy> taxonomyData) async {
+  Future<Map<String, Protein>> addTaxonomyData(Map<int, Taxonomy> taxonomyData) async {
     for (MapEntry<String, Protein> proteinEntry in _proteins.entries) {
       if (taxonomyData.keys.contains(proteinEntry.value.taxonomy.id)) {
-        _proteins[proteinEntry.key] = proteinEntry.value
-            .copyWith(taxonomy: taxonomyData[proteinEntry.value.taxonomy.id]);
+        final updatedEntry = proteinEntry.value.copyWith(taxonomy: taxonomyData[proteinEntry.value.taxonomy.id]);
+        updateEntity(proteinEntry.key, updatedEntry);
       }
     }
     return Map.from(_proteins);
@@ -155,27 +155,57 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     // TODO IMPORT MODE
     int numberUnknownProteins = 0;
 
-    for (MapEntry<String, Embedding> proteinIDToEmbedding
-        in newEmbeddings.entries) {
+    for (MapEntry<String, Embedding> proteinIDToEmbedding in newEmbeddings.entries) {
       final Protein? protein = _proteins[proteinIDToEmbedding.key];
       if (protein != null) {
-        _proteins[proteinIDToEmbedding.key] = protein.copyWith(
-            embeddings: protein.embeddings
-                .addEmbedding(embedding: proteinIDToEmbedding.value));
+        _proteins[proteinIDToEmbedding.key] =
+            protein.copyWith(embeddings: protein.embeddings.addEmbedding(embedding: proteinIDToEmbedding.value));
       } else {
         numberUnknownProteins++;
       }
     }
 
     if (numberUnknownProteins > 0) {
-      logger
-          .w('Number unknown proteins from embeddings: $numberUnknownProteins');
+      logger.w('Number unknown proteins from embeddings: $numberUnknownProteins');
     }
     return Map.from(_proteins);
   }
-
-  List<String> getColumnNames() {
-    if (_proteins.isEmpty) return [];
-    return _proteins.values.first.toMap().keys.toList();
-  }
 }
+/*
+  void handleGridChangedEvent(PlutoGridOnChangedEvent event) {
+    int columnIndex = event.columnIdx;
+    int rowIndex = event.rowIdx;
+    if (event.value != event.oldValue) {
+      if (isNewlyAddedRow(columnIndex, rowIndex)) {
+        addProtein(Protein(event.value));
+      } else {
+        _updateProteinFromPlutoGrid(columnIndex, rowIndex, event.value);
+      }
+    }
+  }
+    bool isNewlyAddedRow(int columnIndex, int rowIndex) {
+    return rowIndex > (_proteins.length - 1) && columnIndex == 0;
+  }
+    void _updateProteinFromPlutoGrid(int columnIndex, int rowIndex, String value) {
+    String proteinToChangeID = _proteinIDs[rowIndex];
+    Protein toChange = _proteins[proteinToChangeID]!;
+    _proteins[proteinToChangeID] = _copyProteinByColumnIndex(toChange, columnIndex, value);
+  }
+
+  Protein _copyProteinByColumnIndex(Protein toChange, int columnIndex, String value) {
+    Map<String, String> newAttributes = Map.from(toChange.attributes.toMap());
+    switch (columnIndex) {
+      case 0:
+        return toChange.copyWith(id: value);
+      case 1:
+        return toChange.copyWith(sequence: AminoAcidSequence(value));
+      case 2:
+        newAttributes["TARGET"] = value;
+        return toChange.copyWith(attributes: newAttributes);
+      case 3:
+        newAttributes["SET"] = value;
+        return toChange.copyWith(attributes: newAttributes);
+    }
+    return toChange;
+  }
+  */

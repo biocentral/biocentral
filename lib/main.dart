@@ -4,6 +4,7 @@ import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_load_project_view.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_start_page_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
@@ -15,6 +16,7 @@ import 'package:tutorial_system/tutorial_system.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
 
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager(projectRepository: projectRepository);
@@ -91,7 +93,7 @@ class _BiocentralAppState extends State<BiocentralApp> {
           create: (context) => BiocentralPluginBloc(widget.pluginManager),
         ),
         BlocProvider<ThemeBloc>(
-          create: (context) => ThemeBloc(prefs: prefs),
+          create: (context) => ThemeBloc()..add(InitializeThemeEvent()),
         ),
       ],
       child: BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(

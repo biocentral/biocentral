@@ -33,9 +33,7 @@ class BayesianOptimizationClient extends BiocentralClient {
       PredictionModel? currentModel,
       BiocentralDTO biocentralDTO,
     ) =>
-        currentModel?.updateTrainingResult(
-          BiotrainerTrainingResult.fromDTO(biocentralDTO).getOrElse((e) => null),
-        );
+        currentModel?.updateFromDTO(biocentralDTO);
     yield* taskUpdateStream<PredictionModel?>(
       taskID,
       initialModel,
