@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-push:
     name: Build and Push Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-large-disk
     permissions:
       contents: read
       packages: write  # Needed for GitHub Container Registry
