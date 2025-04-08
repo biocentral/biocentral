@@ -8,11 +8,13 @@ class BiocentralButton extends StatefulWidget {
   final void Function()? onTap;
   final IconData iconData;
   final List<String> requiredServices;
+  final String? label;
 
   const BiocentralButton({
     required this.onTap,
     required this.iconData,
     super.key,
+    this.label,
     this.requiredServices = const [],
   });
 
@@ -48,7 +50,7 @@ class _BiocentralButtonState extends State<BiocentralButton> {
                 color: Colors.red,
                 child: button,
               )
-            : button;
+            : BiocentralTooltip(message: widget.label ?? '', child: button);
       },
     );
   }

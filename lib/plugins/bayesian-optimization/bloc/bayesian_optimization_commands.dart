@@ -9,14 +9,14 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabase _biocentralDatabase;
   final BayesianOptimizationClient _boClient;
-  final Map<String, dynamic?> _trainingConfiguration;
+  final Map<String, dynamic> _trainingConfiguration;
   final String _targetFeature;
 
   TransferBOTrainingConfigCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required BiocentralDatabase biocentralDatabase,
     required BayesianOptimizationClient client,
-    required Map<String, dynamic?> trainingConfiguration,
+    required Map<String, dynamic> trainingConfiguration,
     required String targetFeature,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _biocentralDatabase = biocentralDatabase,
@@ -142,4 +142,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
     ],
   );
+
+  @override
+  String get typeName => 'TransferBOTrainingConfigCommand';
 }

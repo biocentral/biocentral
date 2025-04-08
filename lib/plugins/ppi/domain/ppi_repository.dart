@@ -54,6 +54,11 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   @override
+  Set<String> getSystemColumns() {
+    return {'id', 'sequence', 'taxonomyID', 'embeddings'};
+  }
+
+  @override
   bool containsEntity(String id) {
     final String flippedID = ProteinProteinInteraction.flipInteractionID(id);
     return _interactions.containsKey(id) || _interactions.containsKey(flippedID);
