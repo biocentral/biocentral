@@ -5,9 +5,10 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:onnxruntime/onnxruntime.dart';
+import 'package:biocentral/plugins/embeddings/model/onnx_runtime_wrapper.dart';
 
 sealed class PLMSelectionDialogEvent {}
 
@@ -122,15 +123,21 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
       await onnxLoadEither.match((l) async {
         emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: ${l.error}'));
       }, (onnxBytes) async {
-        final sessionOptions = OrtSessionOptions();
-        final OrtSession session = OrtSession.fromBuffer(onnxBytes!, sessionOptions);
-
-        final (isValid, error) = ONNXEmbedder.validateFromSession(session);
-        if (!isValid) {
-          emit(PLMSelectionDialogState.errored(error));
-        } else {
+        // TODO [Refactoring] Improve Web ONNX Handling
+        if(kIsWeb) {
           emit(PLMSelectionDialogState.validated(selectionEither, [], []));
           await _getDatasets(emit, selectionEither);
+        } else {
+          final sessionOptions = OrtSessionOptions();
+          final OrtSession session = OrtSession.fromBuffer(onnxBytes!, sessionOptions);
+
+          final (isValid, error) = ONNXEmbedder.validateFromSession(session);
+          if (!isValid) {
+            emit(PLMSelectionDialogState.errored(error));
+          } else {
+            emit(PLMSelectionDialogState.validated(selectionEither, [], []));
+            await _getDatasets(emit, selectionEither);
+          }
         }
       });
     });
