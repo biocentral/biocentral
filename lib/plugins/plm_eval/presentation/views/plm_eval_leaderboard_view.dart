@@ -20,6 +20,8 @@ class _PLMEvalLeaderboardSelectionViewState extends State<PLMEvalLeaderboardSele
 
   @override
   Widget build(BuildContext context) {
+    final plmEvalLeaderboardBloc = BlocProvider.of<PLMEvalLeaderboardBloc>(context);
+
     return BlocBuilder<PLMEvalLeaderboardBloc, PLMEvalLeaderboardState>(
       builder: (context, state) {
         return SingleChildScrollView(
@@ -38,6 +40,11 @@ class _PLMEvalLeaderboardSelectionViewState extends State<PLMEvalLeaderboardSele
                   });
                 },
               ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                onPressed: () => plmEvalLeaderboardBloc.add(PLMEvalLeaderboardDownloadEvent()),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Refresh Leaderboard'),),
               buildLeaderboardFromSelection(state),
             ].withPadding(const Padding(padding: EdgeInsets.all(10.0))),
           ),
