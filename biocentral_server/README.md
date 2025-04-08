@@ -27,30 +27,35 @@ These are the currently provided modules:
 
 ## Installing and running
 
-Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/docs/#installation) installed.
+Make sure that you have `Python 3.11`, `docker` and [poetry](https://python-poetry.org/docs/#installation) installed.
+
+### Production Setup
+
+```shell
+# Copy environment file and check that it matches your setup
+cp .env.example .env
+
+# Run via docker compose
+docker compose up -d
+```
+
+### Local Setup
 
 ```shell
 # [Ubuntu 24.04] 
-# Install additional dependencies 
-sudo apt-get install python3-tk
-sudo apt-get install libcairo2-dev libxt-dev libgirepository1.0-dev
-poetry install --extras linux
+poetry install
 
 # [Windows 10/11]
 poetry install
 # Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Run with visual control panel
+# Run additional dependencies via docker compose
+docker compose -f docker-compose.dev.yml up -d
+
+# Run
 poetry run run-biocentral_server.py
-
-# Run headless
-poetry run run-biocentral_server.py --headless
 ```
-
-### Installation
-
-
 
 # Citation
 
