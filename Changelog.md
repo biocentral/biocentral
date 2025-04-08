@@ -1,5 +1,10 @@
 # Biocentral Changelog
 
+## v0.2.0
+* Creating adaptions to refactored server, including a new resume task functionality
+* Adding a python companion to be able to perform python-specific operations locally, such as embeddings handling
+* Largely improving the plm_eval module
+
 ## v0.1.2
 * Improving column wizard plots
 * Adding prototype for plm evaluate plugin
