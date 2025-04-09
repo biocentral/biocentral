@@ -1,7 +1,6 @@
 import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -65,7 +64,6 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       return;
     }
 
-    // TODO aclaude; bis hierher. PyCharm debuggen statt poetry run um backend zu debuggen
     final taskIDEither = await _boClient.startTraining(_trainingConfiguration, databaseHash);
     yield* taskIDEither.match((error) async* {
       yield left(
@@ -83,28 +81,23 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      await for (PredictionModel? currentModel in _boClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
+      await for (String? currentModel in _boClient.biotrainerTrainingTaskStream(taskID, '')) {
         if (currentModel == null) {
           continue;
         }
-        final int? currentEpoch = currentModel.biotrainerTrainingResult?.getLastEpoch();
-        final commandProgress =
-            currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
-        trainingState = trainingState
-            .setOperating(
-          information: 'Training model..',
-          commandProgress: commandProgress,
-        )
-            .copyWith(
-          copyMap: {
-            'trainingModel': currentModel,
-          },
-        );
         yield left(trainingState);
       }
 
-      state.setFinished(information: 'Training finished');
-      yield right(dummyData);
+      // Receive files after training has finished
+      // TODO Handle case that training was interrupted/failed
+      final modelResultsEither = await _boClient.getModelResults(databaseHash, taskID);
+      yield* modelResultsEither.match((error) async* {
+        yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
+        return;
+      }, (modelResults) async* {
+        yield right(modelResults);
+        yield left(state.setFinished(information: 'Finished training model!'));
+      });
     });
   }
 
@@ -118,30 +111,6 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       'databaseType': _biocentralDatabase.getType(),
     }..addAll(_trainingConfiguration);
   }
-
-  // EXAMPLE DATA
-  final BayesianOptimizationTrainingResult dummyData = const BayesianOptimizationTrainingResult(
-    results: [
-      BayesianOptimizationTrainingResultData(proteinId: '1', prediction: 32, uncertainty: -1.4, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '2', prediction: 35, uncertainty: -1.0, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '3', prediction: 37, uncertainty: -0.8, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '4', prediction: 40, uncertainty: -0.5, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '5', prediction: 42, uncertainty: -0.2, utility: 0.0),
-      BayesianOptimizationTrainingResultData(proteinId: '6', prediction: 45, uncertainty: 0.0, utility: 0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '7', prediction: 47, uncertainty: 0.2, utility: 0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '8', prediction: 50, uncertainty: 0.5, utility: 0.8),
-      BayesianOptimizationTrainingResultData(proteinId: '9', prediction: 52, uncertainty: 0.8, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '10', prediction: 55, uncertainty: 1.0, utility: 1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '11', prediction: 32, uncertainty: -1.5, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '12', prediction: 35, uncertainty: -1.1, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '13', prediction: 37, uncertainty: -0.1, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '14', prediction: 40, uncertainty: -0.2, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '15', prediction: 42, uncertainty: -0.5, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '16', prediction: 45, uncertainty: 0.5, utility: 1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '17', prediction: 47, uncertainty: 0.6, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
-    ],
-  );
 
   @override
   String get typeName => 'TransferBOTrainingConfigCommand';

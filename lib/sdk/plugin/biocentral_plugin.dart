@@ -58,12 +58,8 @@ abstract class BiocentralPlugin with TypeNameMixin {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          flex: 4,
-          child: getCommandView(context),
-        ),
+        getCommandView(context),
         Expanded(
-          flex: 14,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75, vertical: 1),
             child: getScreenView(context),

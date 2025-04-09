@@ -1,9 +1,8 @@
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
+import '../model/bayesian_optimization_training_result.dart';
 import 'bayesian_optimization_service_api.dart';
 
 final class BayesianOptimizationClientFactory extends BiocentralClientFactory<BayesianOptimizationClient> {
@@ -25,20 +24,29 @@ class BayesianOptimizationClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
-  Stream<PredictionModel?> biotrainerTrainingTaskStream(
-    String taskID,
-    PredictionModel initialModel,
-  ) async* {
-    PredictionModel? updateFunction(
-      PredictionModel? currentModel,
-      BiocentralDTO biocentralDTO,
-    ) =>
-        currentModel?.updateFromDTO(biocentralDTO);
-    yield* taskUpdateStream<PredictionModel?>(
-      taskID,
-      initialModel,
-      updateFunction,
+  Future<Either<BiocentralException, BayesianOptimizationTrainingResult>> getModelResults(
+    String databaseHash,
+    String taskId,
+  ) async {
+    final responseEither = await doPostRequest(
+      BayesianOptimizationServiceEndpoints.modelResults,
+      {'database_hash': databaseHash, 'task_id': taskId},
     );
+    return responseEither.match((error) => left(error), (responseData) {
+      final resultsList = (responseData['result'] as List)
+          .map((item) => BayesianOptimizationTrainingResultData.fromMap(item as Map<String, dynamic>))
+          .toList();
+
+      return right(BayesianOptimizationTrainingResult(results: resultsList));
+    });
+  }
+
+  String? _updateFunction(String? currentModel, BiocentralDTO? dto) {
+    return null;
+  }
+
+  Stream<String?> biotrainerTrainingTaskStream(String taskID, String initialModel) async* {
+    yield* taskUpdateStream<String?>(taskID, initialModel, _updateFunction);
   }
 
   @override

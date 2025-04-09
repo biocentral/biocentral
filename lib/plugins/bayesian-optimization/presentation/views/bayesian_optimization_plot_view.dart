@@ -1,6 +1,6 @@
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 class BayesianOptimizationPlotView extends StatelessWidget {
   String yLabel;
@@ -12,9 +12,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     required this.xLabel,
     this.data,
     super.key,
-  }) {
-    data = data ?? dummyData;
-  }
+  });
 
   late MinMaxValues minMaxValues;
 
@@ -78,7 +76,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
                       touchTooltipData: ScatterTouchTooltipData(
                         getTooltipItems: (ScatterSpot touchedSpot) {
                           return ScatterTooltipItem(
-                            'x:${touchedSpot.x}, y:${touchedSpot.y}',
+                            'Sequence: ${touchedSpot.x.toStringAsFixed(2)}, Score: ${touchedSpot.y.toStringAsFixed(2)}',
                             textStyle: const TextStyle(color: Colors.white),
                           );
                         },
@@ -102,10 +100,11 @@ class BayesianOptimizationPlotView extends StatelessWidget {
                       border: Border.all(),
                       gradient: const LinearGradient(
                         colors: [
-                          Colors.blue, // Low utility
+                          Colors.blue, // Low score
                           Colors.purple,
                           Colors.red,
                           Colors.orange,
+                          Colors.yellow, // High score
                         ],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
@@ -139,41 +138,29 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     );
   }
 
-// Dummy list of PlotData
-  final BayesianOptimizationTrainingResult dummyData = const BayesianOptimizationTrainingResult(
-    results: [
-      BayesianOptimizationTrainingResultData(proteinId: '1', prediction: 32, uncertainty: -1.4, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '2', prediction: 35, uncertainty: -1.0, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '3', prediction: 37, uncertainty: -0.8, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '4', prediction: 40, uncertainty: -0.5, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '5', prediction: 42, uncertainty: -0.2, utility: 0.0),
-      BayesianOptimizationTrainingResultData(proteinId: '6', prediction: 45, uncertainty: 0.0, utility: 0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '7', prediction: 47, uncertainty: 0.2, utility: 0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '8', prediction: 50, uncertainty: 0.5, utility: 0.8),
-      BayesianOptimizationTrainingResultData(proteinId: '9', prediction: 52, uncertainty: 0.8, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '10', prediction: 55, uncertainty: 1.0, utility: 1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '11', prediction: 32, uncertainty: -1.5, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '12', prediction: 35, uncertainty: -1.1, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '13', prediction: 37, uncertainty: -0.1, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '14', prediction: 40, uncertainty: -0.2, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '15', prediction: 42, uncertainty: -0.5, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '16', prediction: 45, uncertainty: 0.5, utility: 1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '17', prediction: 47, uncertainty: 0.6, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
-    ],
-  );
-
   List<ScatterSpot> getData(BayesianOptimizationTrainingResult plotData) {
     final List<ScatterSpot> scatterSpots = [];
 
-    // Map the dummyData to ScatterSpot
+    // Calculate min and max score for color gradient
+    double minScore = double.infinity;
+    double maxScore = double.negativeInfinity;
+
     for (var data in plotData.results!) {
-      final Color pointColor = getColorBasedOnUtility(data.utility!);
+      if (data.score! < minScore) minScore = data.score!;
+      if (data.score! > maxScore) maxScore = data.score!;
+    }
+
+    // Map the data to ScatterSpot
+    for (var data in plotData.results!) {
+      // Calculate color based on the score's position in the range
+      final double scoreRatio = (data.score! - minScore) / (maxScore - minScore);
+      final Color pointColor = getColorBasedOnScore(scoreRatio);
 
       scatterSpots.add(
         ScatterSpot(
-          data.prediction!,
-          data.uncertainty!,
+          //TODO change the library
+          0.0,
+          data.score!,
           show: true,
           dotPainter: FlDotCirclePainter(
             radius: 8,
@@ -186,39 +173,39 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     return scatterSpots;
   }
 
-// Function to assign colors based on utility value
-  Color getColorBasedOnUtility(double utility) {
-    if (utility <= -1.0) {
-      return Colors.blue; // Low utility
-    } else if (utility <= 0.0) {
+  // Function to assign colors based on score ratio (0.0 - 1.0)
+  Color getColorBasedOnScore(double ratio) {
+    if (ratio <= 0.2) {
+      return Colors.blue; // Low score
+    } else if (ratio <= 0.4) {
       return Colors.purple;
-    } else if (utility <= 0.5) {
+    } else if (ratio <= 0.6) {
       return Colors.red;
-    } else if (utility <= 1.0) {
+    } else if (ratio <= 0.8) {
       return Colors.orange;
     } else {
-      return Colors.yellow; // High utility
+      return Colors.yellow; // High score
     }
   }
 
   MinMaxValues minMax(List<BayesianOptimizationTrainingResultData>? plotData) {
-    double minX = 99999;
-    double minY = 99999;
-    double maxX = -99999;
-    double maxY = -99999;
+    double minX = double.infinity;
+    double minY = double.infinity;
+    double maxX = double.negativeInfinity;
+    double maxY = double.negativeInfinity;
 
     for (var data in plotData!) {
-      if (data.prediction! < minX) {
-        minX = data.prediction!;
+      // if (data.sequence! < minX) {
+      //   minX = data.sequence!;
+      // }
+      if (data.score! < minY) {
+        minY = data.score!;
       }
-      if (data.uncertainty! < minY) {
-        minY = data.uncertainty!;
-      }
-      if (data.prediction! > maxX) {
-        maxX = data.prediction!;
-      }
-      if (data.uncertainty! > maxY) {
-        maxY = data.uncertainty!;
+      // if (data.sequence! > maxX) {
+      //   maxX = data.sequence!;
+      // }
+      if (data.score! > maxY) {
+        maxY = data.score!;
       }
     }
 
@@ -239,8 +226,11 @@ class MinMaxValues {
     required this.maxY,
   });
 
-  double get getMinX => minX - 1;
+  double get getMinX => minX - 0.1;
+
   double get getMinY => minY - 1;
-  double get getMaxX => maxX + 1;
+
+  double get getMaxX => maxX + 0.1;
+
   double get getMaxY => maxY + 1;
 }
