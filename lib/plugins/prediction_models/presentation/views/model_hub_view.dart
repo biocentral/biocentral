@@ -16,6 +16,7 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
   final List<PredictionModel> modelsToCompare = [];
 
   bool _animateComparisonTab = false;
+
   void onDragStarted() {
     setState(() {
       _animateComparisonTab = true;
@@ -39,6 +40,8 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
           children: [
             Flexible(
               child: TabBar(
+                labelColor: Theme.of(context).colorScheme.onSurface,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 tabs: [
                   const Tab(icon: Icon(Icons.list_alt), text: 'Model List'),
                   DragTarget<PredictionModel>(
@@ -78,7 +81,7 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
 
   Widget buildComparisonTab() {
     final modelComparisonTab = const Tab(icon: Icon(Icons.compare_arrows), text: 'Model Comparison');
-    if(_animateComparisonTab) {
+    if (_animateComparisonTab) {
       return BiocentralBlinkingAnimation(
         child: modelComparisonTab,
       );

@@ -115,7 +115,9 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
         children: [
           SizedBox(
             height: SizeConfig.screenHeight(context) * 0.1,
-            child: const TabBar(
+            child: TabBar(
+              labelColor: Theme.of(context).colorScheme.onSurface,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
               tabs: [
                 Tab(icon: Icon(Icons.hub), text: 'Huggingface'),
                 Tab(icon: Icon(Icons.folder_open_sharp), text: 'ONNX'),
