@@ -144,6 +144,8 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
           'proteinId': PlutoCell(value: data.proteinId),
           'score': PlutoCell(value: data.score),
           'sequence': PlutoCell(value: data.sequence),
+          'uncertainty': PlutoCell(value: data.uncertainty),
+          'prediction': PlutoCell(value: data.prediction)
         },
       );
 

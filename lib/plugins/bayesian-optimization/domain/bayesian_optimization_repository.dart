@@ -50,15 +50,16 @@ class BayesianOptimizationRepository {
       if (row.isEmpty) continue;
 
       final List<String> columns = row.split(',');
-      if (columns.length < 3) continue; // Only need 3 columns now: protein_id, sequence, score
+      if (columns.length < 5) continue; // Only need 5 columns now: protein_id, sequence, score, uncertainty, prediction
 
       try {
         results.add(
           BayesianOptimizationTrainingResultData(
-            proteinId: columns[0],
-            sequence: columns[1],
-            score: double.parse(columns[2]),
-          ),
+              proteinId: columns[0],
+              sequence: columns[1],
+              score: double.parse(columns[2]),
+              uncertainty: double.parse(columns[3]),
+              prediction: double.parse(columns[4])),
         );
       } catch (e) {
         // Skip invalid rows
