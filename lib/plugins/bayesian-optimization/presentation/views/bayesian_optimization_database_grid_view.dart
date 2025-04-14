@@ -12,37 +12,10 @@ class BayesianOptimizationDatabaseGridView extends StatefulWidget {
     required this.xLabel,
     this.data,
     super.key,
-  }) {
-    data = data ?? dummyData;
-  }
+  });
 
   @override
   State<BayesianOptimizationDatabaseGridView> createState() => _BayesianOptimizationDatabaseGridViewState();
-
-  // Dummy list of PlotData
-// Dummy list of PlotData
-  final BayesianOptimizationTrainingResult dummyData = const BayesianOptimizationTrainingResult(
-    results: [
-      BayesianOptimizationTrainingResultData(proteinId: '1', prediction: 32, uncertainty: -1.4, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '2', prediction: 35, uncertainty: -1.0, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '3', prediction: 37, uncertainty: -0.8, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '4', prediction: 40, uncertainty: -0.5, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '5', prediction: 42, uncertainty: -0.2, utility: 0.0),
-      BayesianOptimizationTrainingResultData(proteinId: '6', prediction: 45, uncertainty: 0.0, utility: 0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '7', prediction: 47, uncertainty: 0.2, utility: 0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '8', prediction: 50, uncertainty: 0.5, utility: 0.8),
-      BayesianOptimizationTrainingResultData(proteinId: '9', prediction: 52, uncertainty: 0.8, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '10', prediction: 55, uncertainty: 1.0, utility: 1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '11', prediction: 32, uncertainty: -1.5, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '12', prediction: 35, uncertainty: -1.1, utility: -1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '13', prediction: 37, uncertainty: -0.1, utility: -0.5),
-      BayesianOptimizationTrainingResultData(proteinId: '14', prediction: 40, uncertainty: -0.2, utility: -0.2),
-      BayesianOptimizationTrainingResultData(proteinId: '15', prediction: 42, uncertainty: -0.5, utility: 1.0),
-      BayesianOptimizationTrainingResultData(proteinId: '16', prediction: 45, uncertainty: 0.5, utility: 1.2),
-      BayesianOptimizationTrainingResultData(proteinId: '17', prediction: 47, uncertainty: 0.6, utility: -1.5),
-      BayesianOptimizationTrainingResultData(proteinId: '18', prediction: 50, uncertainty: 0.1, utility: 0.8),
-    ],
-  );
 }
 
 class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizationDatabaseGridView> {
@@ -71,8 +44,8 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
       },
     ),
     PlutoColumn(
-      title: 'Prediction',
-      field: 'prediction',
+      title: 'Score',
+      field: 'score',
       type: PlutoColumnType.number(defaultValue: -1),
       footerRenderer: (rendererContext) {
         return PlutoAggregateColumnFooter(
@@ -95,32 +68,8 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
       },
     ),
     PlutoColumn(
-      title: 'Uncertainty',
-      field: 'uncertainty',
-      type: PlutoColumnType.text(),
-      footerRenderer: (rendererContext) {
-        return PlutoAggregateColumnFooter(
-          rendererContext: rendererContext,
-          type: PlutoAggregateColumnType.count,
-          filter: (PlutoCell plutoCell) => plutoCell.value == '',
-          format: '#',
-          alignment: Alignment.center,
-          titleSpanBuilder: (text) {
-            return [
-              const TextSpan(
-                text: 'Missing',
-                style: TextStyle(color: Colors.red),
-              ),
-              const TextSpan(text: ': '),
-              TextSpan(text: text),
-            ];
-          },
-        );
-      },
-    ),
-    PlutoColumn(
-      title: 'Utility',
-      field: 'utility',
+      title: 'Sequence',
+      field: 'sequence',
       type: PlutoColumnType.text(),
       footerRenderer: (rendererContext) {
         return PlutoAggregateColumnFooter(
@@ -193,9 +142,8 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
       final PlutoRow row = PlutoRow(
         cells: {
           'proteinId': PlutoCell(value: data.proteinId),
-          'prediction': PlutoCell(value: data.prediction),
-          'uncertainty': PlutoCell(value: data.uncertainty),
-          'utility': PlutoCell(value: data.utility),
+          'score': PlutoCell(value: data.score),
+          'sequence': PlutoCell(value: data.sequence),
         },
       );
 

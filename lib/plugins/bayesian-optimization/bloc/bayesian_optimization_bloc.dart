@@ -136,6 +136,7 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
         'database_hash': databaseHash,
         'model_type': event.selectedModel?.name,
         // 'selectedEmbedder': event.selectedEmbedder?.name, //TODO: Tell Shuze to add
+        'feature': event.selectedFeature.toString(),
         'coefficient': event.exploitationExplorationValue.toString()
       };
       // TODO: Tell Shuze to accept coefficient as string, and cast to flaot in backend
@@ -153,8 +154,8 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
         config = {
           ...config,
           'discrete': false,
-          'target_interval_lb': event.targetRangeMin?.toString() ?? event.targetValue?.toString() ?? '',
-          'target_interval_ub': event.targetRangeMax?.toString() ?? event.targetValue?.toString() ?? '',
+          'target_interval_lb': event.targetRangeMin?.toString() ?? event.targetValue?.toString() ?? '-Infinity',
+          'target_interval_ub': event.targetRangeMax?.toString() ?? event.targetValue?.toString() ?? 'Infinity',
           'value_preference': switch (event.optimizationType.toString()) {
             'Maximize' => 'maximize',
             'Minimize' => 'minimize',
@@ -169,7 +170,6 @@ class BayesianOptimizationBloc extends BiocentralBloc<BayesianOptimizationEvent,
           client: _bioCentralClientRepository.getServiceClient<BayesianOptimizationClient>(),
           trainingConfiguration: config,
           targetFeature: event.selectedFeature.toString());
-
       await command
           .executeWithLogging<BayesianOptimizationState>(
         _biocentralProjectRepository,

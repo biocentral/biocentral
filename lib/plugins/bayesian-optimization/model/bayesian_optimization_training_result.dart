@@ -15,17 +15,23 @@ class BayesianOptimizationTrainingResult extends Equatable {
 
 class BayesianOptimizationTrainingResultData extends Equatable {
   final String? proteinId;
-  final double? utility;
-  final double? prediction;
-  final double? uncertainty;
+  final String? sequence;
+  final double? score;
 
   const BayesianOptimizationTrainingResultData({
     required this.proteinId,
-    required this.utility,
-    required this.prediction,
-    required this.uncertainty,
+    required this.sequence,
+    required this.score,
   });
 
+  static BayesianOptimizationTrainingResultData fromMap(Map<String, dynamic> map) {
+    return BayesianOptimizationTrainingResultData(
+      proteinId: map['id'],
+      sequence: map['sequence'],
+      score: map['score'] is double ? map['score'] : double.tryParse(map['score'].toString()),
+    );
+  }
+
   @override
-  List<Object?> get props => [proteinId, utility, prediction, uncertainty];
+  List<Object?> get props => [proteinId, sequence, score];
 }

@@ -37,6 +37,21 @@ class StartBOTrainingDialog extends StatelessWidget {
         builder: (context, state) {
           final bloc = context.read<BOTrainingDialogBloc>();
 
+          // Check if target range is valid (min < max)
+          bool isTargetRangeValid = state.optimizationType != 'Target Range' ||
+              (state.targetRangeMin != null &&
+                  state.targetRangeMax != null &&
+                  state.targetRangeMin! < state.targetRangeMax!);
+
+          // Check if all required fields are filled to enable the start button
+          bool canStartTraining = state.selectedTask != null &&
+              state.selectedFeature != null &&
+              state.selectedModel != null &&
+              state.selectedEmbedder != null &&
+              state.isFeatureConfigurationComplete &&
+              isTargetRangeValid &&
+              state.currentStep.index >= BOTrainingDialogStep.exploitationExplorationSelection.index;
+
           return BiocentralDialog(
             children: [
               const Text('Start Training', style: TextStyle(fontSize: 24)),
@@ -113,52 +128,56 @@ class StartBOTrainingDialog extends StatelessWidget {
                           DropdownButton<String>(
                             value: state.optimizationType,
                             hint: const Text('Choose optimization type'),
-                            items: ['Maximize', 'Minimize', 'Target Value', 'Target Range']
+                            items: ['Maximize', 'Minimize', 'Target Range']
                                 .map((type) => DropdownMenuItem(value: type, child: Text(type)))
                                 .toList(),
                             onChanged: (value) {
                               if (value != null) bloc.add(OptimizationTypeSelected(value));
                             },
                           ),
-                          if (state.optimizationType == 'Target Value')
-                            TextFormField(
-                              decoration: const InputDecoration(labelText: 'Target Value'),
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                final number = double.tryParse(value);
-                                if (number != null) {
-                                  bloc.add(TargetValueUpdated(number));
-                                }
-                              },
-                            ),
                           if (state.optimizationType == 'Target Range')
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(labelText: 'Min'),
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (value) {
-                                      final number = double.tryParse(value);
-                                      if (number != null) {
-                                        bloc.add(TargetRangeMinUpdated(number));
-                                      }
-                                    },
-                                  ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        decoration: const InputDecoration(labelText: 'Min'),
+                                        keyboardType: TextInputType.number,
+                                        onChanged: (value) {
+                                          final number = double.tryParse(value);
+                                          if (number != null) {
+                                            bloc.add(TargetRangeMinUpdated(number));
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: TextFormField(
+                                        decoration: const InputDecoration(labelText: 'Max'),
+                                        keyboardType: TextInputType.number,
+                                        onChanged: (value) {
+                                          final number = double.tryParse(value);
+                                          if (number != null) {
+                                            bloc.add(TargetRangeMaxUpdated(number));
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(labelText: 'Max'),
-                                    keyboardType: TextInputType.number,
-                                    onChanged: (value) {
-                                      final number = double.tryParse(value);
-                                      if (number != null) {
-                                        bloc.add(TargetRangeMaxUpdated(number));
-                                      }
-                                    },
+                                if (state.targetRangeMin != null &&
+                                    state.targetRangeMax != null &&
+                                    state.targetRangeMin! >= state.targetRangeMax!)
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      'Min value must be less than Max value',
+                                      style: TextStyle(color: Colors.red, fontSize: 12),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                         ],
@@ -259,7 +278,7 @@ class StartBOTrainingDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   TextButton(
-                    onPressed: state.currentStep == BOTrainingDialogStep.complete
+                    onPressed: canStartTraining
                         ? () {
                             _startTraining(
                               state.selectedTask,

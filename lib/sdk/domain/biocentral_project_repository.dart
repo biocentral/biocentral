@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:universal_io/io.dart';
 import 'package:archive/archive_io.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command.dart';
@@ -16,6 +15,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_io/io.dart';
 
 /// Stores data related to the project, like directory path
 class BiocentralProjectRepository {
@@ -87,21 +87,16 @@ class BiocentralProjectRepository {
     }
 
     Uint8List? fileBytes;
-    if (!kIsWeb) {
-      try {
-        fileBytes = await xFile.readAsBytes();
-      } catch (e, stackTrace) {
-        return left(
-          BiocentralIOException(
-            message: 'File ${xFile.name} could not be read!',
-            error: e,
-            stackTrace: stackTrace,
-          ),
-        );
-      }
-    }
-    if (fileBytes == null) {
-      return left(BiocentralIOException(message: 'File ${xFile.name} could not be read!'));
+    try {
+      fileBytes = await xFile.readAsBytes();
+    } catch (e, stackTrace) {
+      return left(
+        BiocentralIOException(
+          message: 'File ${xFile.name} could not be read!',
+          error: e,
+          stackTrace: stackTrace,
+        ),
+      );
     }
     return right(fileBytes);
   }
@@ -284,16 +279,16 @@ class BiocentralProjectRepository {
     }
 
     final indexExisting = _commandLog.indexWhere(
-            (log) =>
-        log.commandStatus == BiocentralCommandStatus.operating &&
-            log.metaData.startTime == newCommand.metaData.startTime,
+      (log) =>
+          log.commandStatus == BiocentralCommandStatus.operating &&
+          log.metaData.startTime == newCommand.metaData.startTime,
     );
 
     switch (newCommand.commandStatus) {
       case BiocentralCommandStatus.operating:
-        if(indexExisting != -1) {
+        if (indexExisting != -1) {
           final existingCommand = _commandLog[indexExisting];
-          if(existingCommand.metaData.serverTaskID == null && newCommand.metaData.serverTaskID != null) {
+          if (existingCommand.metaData.serverTaskID == null && newCommand.metaData.serverTaskID != null) {
             // Replace after retrieving serverTaskID
             _commandLog[indexExisting] = newCommand;
           }
@@ -304,7 +299,7 @@ class BiocentralProjectRepository {
 
       case BiocentralCommandStatus.finished:
       case BiocentralCommandStatus.errored:
-      // Try to find and replace existing operating command with result command
+        // Try to find and replace existing operating command with result command
 
         if (indexExisting != -1) {
           _commandLog[indexExisting] = newCommand;
@@ -318,12 +313,9 @@ class BiocentralProjectRepository {
         break;
     }
 
-    _handleSave(
-        fileName: 'command_log.json',
-        dirPath: _projectDir,
-        contentFunction: _saveCommandLog
-    );
+    _handleSave(fileName: 'command_log.json', dirPath: _projectDir, contentFunction: _saveCommandLog);
   }
+
   Future<String> _saveCommandLog() async {
     final commandLogMapped = _commandLog.map((loggedCommand) => loggedCommand.toMap()).toList();
     final result = jsonEncode(commandLogMapped);
