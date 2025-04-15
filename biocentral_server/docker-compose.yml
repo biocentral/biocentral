@@ -1,6 +1,6 @@
 services:
   biocentral-server:
-    build: .
+    image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
     ports:
       - "9540:9540"
     volumes:
@@ -31,7 +31,7 @@ services:
       - biocentral-network
 
   biocentral-worker:
-    build: .
+    image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 3
     volumes:
       - huggingface_models_cache:/huggingface_models
@@ -88,16 +88,12 @@ services:
 
   seaweedfs-master:
     image: chrislusf/seaweedfs
-    ports:
-      - "9333:9333"
     command: "master -ip=seaweedfs-master"
     networks:
       - biocentral-network
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
-    ports:
-      - "8080:8080"
     command: 'volume -dir="/data" -max=5 -mserver="seaweedfs-master:9333"'
     volumes:
       - seaweedfs_data:/data
@@ -108,8 +104,6 @@ services:
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
-    ports:
-      - "${SEAWEEDFS_FILER_PORT}:8888"
     command: 'filer -master="seaweedfs-master:9333"'
     depends_on:
       - seaweedfs-master
