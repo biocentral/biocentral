@@ -88,13 +88,13 @@ services:
 
   seaweedfs-master:
     image: chrislusf/seaweedfs
-    command: "master -ip=seaweedfs-master"
+    command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
     networks:
       - biocentral-network
 
   seaweedfs-volume:
     image: chrislusf/seaweedfs
-    command: 'volume -dir="/data" -max=5 -mserver="seaweedfs-master:9333"'
+    command: 'volume -dir="/data" -max=5 -mserver="seaweedfs-master:9333" -port=8080 -port.grpc=18080 -ip=seaweedfs-volume'
     volumes:
       - seaweedfs_data:/data
     depends_on:
@@ -104,7 +104,7 @@ services:
 
   seaweedfs-filer:
     image: chrislusf/seaweedfs
-    command: 'filer -master="seaweedfs-master:9333"'
+    command: 'filer -master="seaweedfs-master:9333" -port=8888 -port.grpc=18888 -ip=seaweedfs-filer'
     depends_on:
       - seaweedfs-master
       - seaweedfs-volume
