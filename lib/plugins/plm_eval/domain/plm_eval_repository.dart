@@ -26,17 +26,27 @@ class PLMEvalRepository {
     return getSessionResults();
   }
 
-  List<PLMEvalPersistentResult> addPersistentResultsFromFile(String plmEvalResultsFile) {
+  Future<List<PLMEvalPersistentResult>> addPersistentResultsFromFile(String plmEvalResultsFile) async {
     final decodedFile = jsonDecode(plmEvalResultsFile);
     if (decodedFile.runtimeType != List) {
       // TODO Error handling
       return getPersistentResults();
     }
+
+    bool newResultAdded = false;
     for (final value in decodedFile) {
       final PLMEvalPersistentResult? parsedResult = PLMEvalPersistentResult.fromMap(value);
       if (parsedResult != null) {
         _persistentResults.add(parsedResult);
+        newResultAdded = true;
       }
+    }
+    if(newResultAdded) {
+      await _projectRepository.handleProjectInternalSave(
+        fileName: 'plm_eval_results.json',
+        type: PLMEvalPersistentResult,
+        contentFunction: saveResults,
+      );
     }
     return getPersistentResults();
   }
