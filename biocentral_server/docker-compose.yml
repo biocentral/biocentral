@@ -111,11 +111,11 @@ services:
     networks:
       - biocentral-network
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "http://seaweedfs-filer:8888/" ]
+      test: [ "CMD", "wget", "--spider", "--quiet", "-Y", "off", "http://seaweedfs-filer:8888/" ]
       interval: 5s
       timeout: 5s
       retries: 20
-      start_period: 30s
+      start_period: 20s
 
 
 volumes:
