@@ -43,12 +43,14 @@ dependencies:
       url: https://github.com/biocentral/serious-python.git
       path: src/serious_python
       ref: feature/add-web-support
-  shared_preferences: ^2.5.2
-  shimmer: ^3.0.0
-  simple_icons: ^10.1.3
-  tutorial_system: ^0.0.4
-  url_launcher: ^6.3.0
-  yaml: ^3.1.2
+  shared_preferences: '^2.2.2'
+  shimmer: '^3.0.0'
+  simple_icons: '^10.1.3'
+  tutorial_system: '^0.0.4'
+  universal_io: ^2.2.2
+  url_launcher: '^6.3.0'
+  yaml: '^3.1.2'
+
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1

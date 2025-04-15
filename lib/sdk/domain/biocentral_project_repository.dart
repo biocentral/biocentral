@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:universal_io/io.dart';
 import 'package:archive/archive_io.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command.dart';
