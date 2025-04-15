@@ -107,13 +107,15 @@ services:
     command: 'filer -master="seaweedfs-master:9333"'
     depends_on:
       - seaweedfs-master
+      - seaweedfs-volume
     networks:
       - biocentral-network
     healthcheck:
       test: [ "CMD", "wget", "--spider", "--quiet", "http://seaweedfs-filer:8888/" ]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 30s
 
 
 volumes:
