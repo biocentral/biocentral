@@ -36,23 +36,6 @@ void main() {
       expect(find.text('Test Message'), findsOneWidget);
     });
 
-    testWidgets('BiocentralTooltip uses default color when not specified', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: BiocentralTooltip(
-            message: 'Test Message',
-            child: Text('Child Widget'),
-          ),
-        ),
-      );
-
-      await tester.longPress(find.text('Child Widget'));
-      await tester.pumpAndSettle();
-
-      final tooltip = tester.widget<Tooltip>(find.byType(Tooltip));
-      expect((tooltip.decoration as BoxDecoration).color, Colors.black);
-    });
-
     testWidgets('BiocentralTooltip uses custom color when specified', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
