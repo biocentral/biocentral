@@ -42,7 +42,7 @@ class PLMEvalClient extends BiocentralClient {
     bool recommendedOnly,
   ) async {
     final Map<String, String> body = {'modelID': modelID, 'recommended_only': recommendedOnly.toString()};
-    if(onnxBytes != null) {
+    if (onnxBytes != null) {
       body['onnxFile'] = base64Encode(onnxBytes);
       body['tokenizerConfig'] = jsonEncode(tokenizerConfig);
     }
@@ -99,15 +99,25 @@ class PLMEvalClient extends BiocentralClient {
       Map<dynamic, dynamic> leaderboardMap) {
     final leaderboardEntries = leaderboardMap['leaderboard'];
     final recommendedMetrics = convertToStringMap(leaderboardMap['recommended_metrics'] ?? {});
-    if (leaderboardEntries == null || leaderboardEntries.runtimeType != List) {
-      return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
+    if (leaderboardEntries == null || leaderboardEntries is! List) {
+      return left(
+        BiocentralParsingException(
+          message: 'Could not parse leaderboard from server response - '
+              'Expected a list but got type ${leaderboardEntries?.runtimeType}!',
+        ),
+      );
     }
 
     final List<PLMEvalPersistentResult> plmPersistentResults = [];
     for (final entryMap in leaderboardEntries) {
       final persistentResult = PLMEvalPersistentResult.fromMap(jsonDecode(entryMap));
       if (persistentResult == null) {
-        return left(BiocentralParsingException(message: 'Could not parse leaderboard from server response!'));
+        return left(
+          BiocentralParsingException(
+            message: 'Could not parse leaderboard from server response '
+                '- Could not parse any valid persistent results!',
+          ),
+        );
       }
       plmPersistentResults.add(persistentResult);
     }
