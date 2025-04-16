@@ -76,7 +76,14 @@ class PLMEvalHubBloc extends BiocentralBloc<PLMEvalHubEvent, PLMEvalHubState> wi
     on<PLMEvalHubLoadEvent>((event, emit) async {
       final sessionResults = _plmEvalRepository.getSessionResults();
       final persistentResults = _plmEvalRepository.getPersistentResults();
-      emit(state.copyWith(copyMap: {'sessionResults': sessionResults, 'persistentResults': persistentResults}));
+      emit(
+        state.copyWith(
+          copyMap: {
+            if (sessionResults.isNotEmpty) 'sessionResults': sessionResults,
+            'persistentResults': persistentResults,
+          },
+        ),
+      );
     });
     on<PLMEvalHubLoadPersistentResultsEvent>((event, emit) async {
       final PLMEvalLoadPersistentResultCommand loadPersistentResultCommand = PLMEvalLoadPersistentResultCommand(
