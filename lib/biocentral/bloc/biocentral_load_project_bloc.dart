@@ -47,41 +47,36 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
       if (lastProjectDir == event.projectDir) {
         return; // Nothing to do
       }
-      _projectRepository.enterProjectLoadingContext();
-      lastProjectDir = event.projectDir;
 
-      emit(state.setOperating(information: 'Scanning project directory..'));
-      final PathScanResult scanResult = PathScanner.scanDirectory(event.projectDir);
-
-      // Handle top-level files
-      final commandLogFile = scanResult.baseFiles
-          .where((file) => file.name.contains('command_log') && file.extension == 'json')
-          .firstOrNull;
-      if(commandLogFile != null) {
-        emit(state.setOperating(information: 'Loading command log..'));
-        await _projectRepository.loadCommandLog(commandLogFile);
-      }
-      final commandLogs = _projectRepository.getCommandLog();
-
-      final typedCommandBlocMap = convertListToTypeMap(_loadProjectBlocs);
-
-      StreamSubscription? currentSubscription;
       try {
+        _projectRepository.enterProjectLoadingContext();
+        lastProjectDir = event.projectDir;
+
+        emit(state.setOperating(information: 'Scanning project directory..'));
+        final PathScanResult scanResult = PathScanner.scanDirectory(event.projectDir);
+
+        // Handle top-level files
+        final commandLogFile = scanResult.baseFiles
+            .where((file) => file.name.contains('command_log') && file.extension == 'json')
+            .firstOrNull;
+        if (commandLogFile != null) {
+          emit(state.setOperating(information: 'Loading command log..'));
+          await _projectRepository.loadCommandLog(commandLogFile);
+        }
+        final commandLogs = _projectRepository.getCommandLog();
+
+        final typedCommandBlocMap = convertListToTypeMap(_loadProjectBlocs);
+
         for (final pluginDirectory in _pluginDirectories) {
-          final completer = Completer<void>();
-
           emit(state.setOperating(information: 'Loading ${pluginDirectory.path}..'));
-
           await Future.delayed(const Duration(milliseconds: 50)); // For visual purposes
 
           final pluginScanResult = scanResult.subdirectoryResults[pluginDirectory.path];
 
           final commandBloc = typedCommandBlocMap[pluginDirectory.commandBlocType];
           if (commandBloc == null) {
-            return emit(
-              state.setErrored(
-                information: 'Could not find correct way to handle loading for directory ${pluginDirectory.path}!',
-              ),
+            throw Exception(
+              'Could not find correct way to handle loading for directory ${pluginDirectory.path}!',
             );
           }
 
@@ -92,58 +87,61 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
               pluginDirectory.createDirectoryLoadingEvents(pluginFiles, pluginSubdirs, commandLogs, commandBloc);
 
           if (loadFunctions.isNotEmpty) {
-            final int totalLoads = loadFunctions.length;
             int completedLoads = 0;
-            currentSubscription = commandBloc.stream.listen(
-              (commandBlocState) {
-                if (commandBlocState.isErrored()) {
-                  if (!completer.isCompleted) {
-                    completer.completeError('Error in component: ${commandBlocState.stateInformation}');
-                  }
-                } else if (commandBlocState.isFinished()) {
-                  completedLoads++;
+            final totalLoads = loadFunctions.length;
 
-                  emit(state.setOperating(information: 'Loading progress: $completedLoads/$totalLoads')); // TODO
-
-                  if (completedLoads == totalLoads && !completer.isCompleted) {
-                    completer.complete();
-                  }
-                }
-              },
-              onError: (error) {
-                if (!completer.isCompleted) {
-                  completer.completeError(error);
-                }
-              },
-            ); // LISTEN
-
-            // TODO Might be problematic to call multiple events at once
             for (final function in loadFunctions) {
-              function();
+              try {
+                await _executeLoadingFunction(function, commandBloc);
+                completedLoads++;
+                emit(state.setOperating(
+                    information: 'Loading progress for ${pluginDirectory.path}: $completedLoads/$totalLoads'));
+              } catch (e) {
+                throw Exception('Error loading file in ${pluginDirectory.path}: ${e.toString()}');
+              }
             }
 
-            // Wait for loading to be done
-            try {
-              await completer.future;
-              currentSubscription.cancel();
-              emit(state.setOperating(information: 'Loaded all files in ${pluginDirectory.path}!'));
-            } catch (e) {
-              currentSubscription.cancel();
-              emit(state.setErrored(information: e.toString()));
-            }
+            emit(state.setOperating(information: 'Loaded all files in ${pluginDirectory.path}!'));
           }
         }
+
+        emit(state.setFinished(information: 'Project loading completed successfully!'));
       } catch (e) {
-        currentSubscription?.cancel();
         emit(state.setErrored(information: e.toString()));
       } finally {
-        currentSubscription?.cancel();
         _projectRepository.exitProjectLoadingContext();
       }
-
-      currentSubscription?.cancel();
-      _projectRepository.exitProjectLoadingContext();
-      emit(state.setFinished(information: 'Project loading completed successfully!'));
     });
+  }
+
+  Future<void> _executeLoadingFunction(Function() loadFunction, Bloc commandBloc) async {
+    final completer = Completer<void>();
+    late StreamSubscription subscription;
+
+    subscription = commandBloc.stream.listen(
+      (commandBlocState) {
+        if (commandBlocState.isFinished()) {
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        } else if (commandBlocState.isErrored()) {
+          if (!completer.isCompleted) {
+            completer.completeError(commandBlocState.stateInformation);
+          }
+        }
+      },
+      onError: (error) {
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
+      },
+    );
+
+    try {
+      loadFunction();
+      await completer.future;
+    } finally {
+      await subscription.cancel();
+    }
   }
 }
