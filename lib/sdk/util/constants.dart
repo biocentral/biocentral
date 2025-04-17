@@ -7,7 +7,6 @@ class Constants {
 
   static const int discreteSelectionThreshold = 5;
 
-  // static const String localHostServerURL = 'http://131.159.203.139:9540';
   static const String localHostServerURL = 'http://localhost:9540';
 
   static const Duration autoSaveDebounceTime = Duration(seconds: 2);
