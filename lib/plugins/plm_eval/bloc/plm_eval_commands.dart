@@ -151,7 +151,7 @@ class PLMEvalLoadPersistentResultCommand extends BiocentralCommand<PLMEvalPersis
     yield left(state.setOperating(information: 'Loading plm evaluation result from file..'));
     final contentEither = await _projectRepository.handleLoad(xFile: _persistentResultFile);
 
-    // TODO [Error handling] Improve loading file error, file is null, file is empty
+    // TODO [Error handling] Improve loading file error, file is null, file is empty, file contains no results
     yield* contentEither.match((error) async* {
       yield left(state.setErrored(information: 'Encountered error during loading of plm eval file: $error'));
     }, (persistentFileContent) async* {

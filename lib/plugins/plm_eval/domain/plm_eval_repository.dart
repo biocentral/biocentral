@@ -28,7 +28,7 @@ class PLMEvalRepository {
 
   Future<List<PLMEvalPersistentResult>> addPersistentResultsFromFile(String plmEvalResultsFile) async {
     final decodedFile = jsonDecode(plmEvalResultsFile);
-    if (decodedFile.runtimeType != List) {
+    if (decodedFile is! List) {
       // TODO Error handling
       return getPersistentResults();
     }
