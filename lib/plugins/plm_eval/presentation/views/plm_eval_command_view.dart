@@ -59,7 +59,7 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
     final FilePickerResult? result =
         await FilePicker.platform.pickFiles(allowedExtensions: ['json'], type: FileType.custom, withData: kIsWeb);
 
-    if (result != null) {
+    if (result != null && result.xFiles.isNotEmpty) {
       // TODO Import Mode
       hubBloc.add(PLMEvalHubLoadPersistentResultsEvent(result.xFiles.first));
     } else {
