@@ -4,13 +4,13 @@ services:
     ports:
       - "9540:9540"
     volumes:
-      - huggingface_models_cache:/huggingface_models
+      - huggingface_models_cache:/app/huggingface_models
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - HF_HOME=/huggingface_models
+      - HF_HOME=/app/huggingface_models
     deploy:
       resources:
         reservations:
