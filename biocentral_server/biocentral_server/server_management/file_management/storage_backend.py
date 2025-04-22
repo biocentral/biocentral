@@ -174,6 +174,8 @@ class SeaweedFSStorageBackend(StorageBackend):
             files = {
                 'file': (filename, data, 'application/octet-stream')
             }
+
+            path = path.replace("\\", "")  # Windows compatibility
             response = requests.post(
                 f"{self.filer_url}{path}",
                 files=files
