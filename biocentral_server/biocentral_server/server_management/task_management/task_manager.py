@@ -127,7 +127,7 @@ class TaskManager:
         additional_dto = None
         if job is None:
             additional_dto = TaskDTO.failed(error=f"task {task_id} not found on server!")
-        if job.is_failed:
+        elif job.is_failed:
             additional_dto = TaskDTO.failed(error=str(job.latest_result()))
         elif job.is_finished:
             additional_dto = job.latest_result().return_value
