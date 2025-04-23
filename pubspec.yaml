@@ -76,11 +76,9 @@ flutter:
     - "assets/example_datasets/interaction/"
     - "assets/example_datasets/protein/"
     - "assets/python_companion.zip" # TODO: Could be optimized not to be included on the web platform
-    - "docs/"
-
-web:
-  assets:
     - "assets/python_companion/"
     - "assets/python_companion/web/"
     - "assets/python_companion/desktop/"
     - "assets/python_companion/functionality/"
+    - "docs/"
+
