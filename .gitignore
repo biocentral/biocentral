@@ -57,3 +57,4 @@ app.*.map.json
 # Python assets
 /assets/python_companion.zip
 /assets/python_companion/
+/assets/python_companion.zip.hash
