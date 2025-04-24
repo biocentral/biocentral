@@ -61,6 +61,11 @@ class BiocentralSecurityException extends BiocentralException {
   BiocentralSecurityException({required super.message, super.error, super.stackTrace, super.log});
 }
 
+class BiocentralPythonCompanionException extends BiocentralException {
+  BiocentralPythonCompanionException({required super.message, super.error, super.stackTrace, super.log});
+}
+
+
 class BiocentralMissingServiceException extends BiocentralException {
   final String missingService;
 
