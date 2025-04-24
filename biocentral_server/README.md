@@ -50,6 +50,9 @@ poetry install
 # Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
+# Use environment variables for local setup
+cp .env.local .env
+
 # Run additional dependencies via docker compose
 docker compose -f docker-compose.dev.yml up -d
 

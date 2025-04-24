@@ -1,11 +1,12 @@
-import multiprocessing
 import os
-from rq import Worker, Queue
+import multiprocessing
+
+from rq import Worker
 from redis import Redis
 from dotenv import load_dotenv
 
 # Load local environment variables
-load_dotenv('.env.local')
+load_dotenv('.env')
 
 
 def run_server():
