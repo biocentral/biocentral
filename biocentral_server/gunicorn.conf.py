@@ -1,7 +1,7 @@
 # Gunicorn configuration file
 import logging
 
-from biocentral_server.server_entrypoint import AppState
+from biocentral_server.server_entrypoint import ServerAppState
 
 # Number of worker processes
 workers = 4
@@ -13,7 +13,7 @@ def on_starting(server):
     Hook that runs before master process is initialized.
     """
     logging.info("Initializing server...")
-    app_state = AppState.get_instance()
+    app_state = ServerAppState.get_instance()
     app_state.init_app_context()
 
 # Bind address

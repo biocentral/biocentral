@@ -10,9 +10,9 @@ load_dotenv('.env')
 
 
 def run_server():
-    from biocentral_server.server_entrypoint import AppState
+    from biocentral_server.server_entrypoint import ServerAppState
     print("Starting Biocentral Server")
-    app_state = AppState.get_instance()
+    app_state = ServerAppState.get_instance()
     app = app_state.init_app()
     app_state.init_app_context()
     app.run(debug=True, port=9540, use_reloader=False)

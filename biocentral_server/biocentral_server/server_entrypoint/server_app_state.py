@@ -2,15 +2,13 @@ import os
 import sys
 import logging
 
-from pathlib import Path
-from typing import Optional
 from flask import Flask, request
 
 from ..utils import Constants
 from ..ppi import ppi_service_route
-from ..server_management import UserManager
+from ..server_management import UserManager, ServerInitializationManager
 from ..proteins import protein_service_route
-from ..plm_eval import plm_eval_service_route, plm_eval_setup
+from ..plm_eval import plm_eval_service_route, FlipInitializer
 from ..protein_analysis import protein_analysis_route
 from ..embeddings import embeddings_service_route, projection_route
 from ..biocentral import biocentral_service_route
@@ -18,8 +16,6 @@ from ..prediction_models import prediction_models_service_route
 
 logger = logging.getLogger(__name__)
 
-# Global variable to store the initialized app
-flask_app: Optional[Flask] = None
 
 def _setup_directories():
     required_directories = ["logs", "storage"]
@@ -52,11 +48,12 @@ def _setup_logging():
     logging.captureWarnings(True)
 
 
-class AppState:
+class ServerAppState:
     """Singleton to manage Flask application state"""
     _instance = None
     app = None
     initialized = False
+    initialization_manager = ServerInitializationManager()
 
     @classmethod
     def get_instance(cls):
@@ -97,6 +94,9 @@ class AppState:
 
         self.app = app
 
+        # Register initializers
+        self.initialization_manager.register_initializer(FlipInitializer(app=self.app))
+
         return app
 
     def init_app_context(self):
@@ -107,8 +107,7 @@ class AppState:
         if self.app is None:
             self.init_app()
 
-        # PLM eval setup
-        plm_eval_setup(self.app)
+        self.initialization_manager.run_all()
         self.initialized = True
 
         logger.info("Application context initialized")

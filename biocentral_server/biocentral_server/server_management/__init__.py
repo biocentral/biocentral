@@ -3,6 +3,7 @@ from .file_management import FileManager, StorageFileType, FileContextManager
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase, EmbeddingsDatabaseTriple
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
 from .library_adapters import BiotrainerDatabaseStorageTrainer, get_adapter_embedding_service
+from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 
 __all__ = [
     'FileManager',
@@ -17,5 +18,7 @@ __all__ = [
     'EmbeddingsDatabase',
     'EmbeddingsDatabaseTriple',
     'BiotrainerDatabaseStorageTrainer',
-    'get_adapter_embedding_service'
+    'get_adapter_embedding_service',
+    'ServerInitializationManager',
+    'ServerModuleInitializer',
 ]

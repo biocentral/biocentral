@@ -1,5 +1,5 @@
-from .init_server import AppState
+from .server_app_state import ServerAppState
 
 __all__ = [
-    'AppState'
+    'ServerAppState',
 ]
