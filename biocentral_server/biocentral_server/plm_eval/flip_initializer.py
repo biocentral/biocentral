@@ -21,8 +21,10 @@ class FlipInitializer(ServerModuleInitializer):
 
     def one_time_setup(self) -> None:
         with self.file_context_manager.storage_write(self.flip_server_path) as flip_path:
-            logger.info("FLIP data not found. Downloading and preprocessing...")
-            FLIPDataHandler.download_and_preprocess(flip_path)
+            logger.info("FLIP data not found. Downloading...")
+            self._download_data(urls=FLIPDataHandler.DOWNLOAD_URLS, data_dir=flip_path)
+            logger.info("FLIP data downloaded. Preprocessing...")
+            FLIPDataHandler.preprocess(flip_path)
 
     def _check_file_exists(self, path) -> bool:
         return self.file_context_manager.storage_backend.check_file_exists(file_path=path)

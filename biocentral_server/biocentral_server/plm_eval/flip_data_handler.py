@@ -1,14 +1,13 @@
-import shutil
 import logging
-import requests
 
-from tqdm import tqdm
 from Bio import SeqIO
+from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, Any, Callable
 from biotrainer.protocols import Protocol
 from autoeval.utilities.FLIP import FLIP_DATASETS
 from biotrainer.utilities import read_FASTA, get_attributes_from_seqrecords
+
 
 logger = logging.getLogger(__name__)
 
@@ -16,18 +15,14 @@ logger = logging.getLogger(__name__)
 class FLIPDataHandler:
     """Handles FLIP dataset operations with clear separation between path management and data processing"""
 
-    DOWNLOAD_FILE_NAME = "all_fastas"
-    DOWNLOAD_URL = f"http://data.bioembeddings.com/public/FLIP/fasta/{DOWNLOAD_FILE_NAME}.zip"
+    DOWNLOAD_URLS = ["http://data.bioembeddings.com/public/FLIP/fasta/all_fastas.zip",
+                     "https://nextcloud.in.tum.de/index.php/s/2Xipt5WaAxnrCKH/download"]
     IGNORE_SPLITS = ["mixed_vs_human_2"]
     MIN_SEQ_SIZE = 0
     MAX_SEQ_SIZE = 2000
 
     @staticmethod
-    def download_and_preprocess(flip_path: Path) -> None:
-        """Download and preprocess FLIP data to the given path"""
-        FLIPDataHandler._download_flip_data(FLIPDataHandler.DOWNLOAD_URL, flip_path)
-        logger.info("FLIP data downloaded, preprocessing...")
-
+    def preprocess(flip_path: Path) -> None:
         # Preprocess all dataset files in one go
         for dataset, dataset_info in tqdm(FLIP_DATASETS.items(), desc="Preprocessing datasets"):
             dataset_dir = flip_path / dataset
@@ -113,47 +108,6 @@ class FLIPDataHandler:
 
         return result_dict
 
-    @staticmethod
-    def _download_flip_data(url: str, flip_data_dir: Path) -> None:
-        """Download and extract FLIP data archive"""
-        zip_file = flip_data_dir.with_suffix('.zip')
-
-        try:
-            logger.info(f"Downloading FLIP data from {url}..")
-            headers = {
-                'Accept': 'application/zip, application/octet-stream',
-                'User-Agent': 'biocentral_server/alpha'
-            }
-            response = requests.get(url, headers=headers, stream=True)
-            response.raise_for_status()
-
-            total_size = int(response.headers.get('content-length', 0))
-            block_size = 8192  # 8 KB
-
-            with open(zip_file, "wb") as f, tqdm(
-                    desc="Downloading FLIP data",
-                    total=total_size,
-                    unit='iB',
-                    unit_scale=True,
-                    unit_divisor=1024,
-            ) as progress_bar:
-                for data in response.iter_content(block_size):
-                    size = f.write(data)
-                    progress_bar.update(size)
-
-            logger.info("Unpacking FLIP data archive..")
-            shutil.unpack_archive(zip_file, flip_data_dir)
-
-            # Remove the zip file after successful extraction
-            zip_file.unlink()
-
-            logger.info("FLIP data downloaded and unpacked successfully!")
-
-        except Exception as e:
-            logger.error(f"Error during FLIP data download: {e}")
-            if zip_file.exists():
-                zip_file.unlink()
-            raise
 
     @staticmethod
     def _get_sequence_file_path(dataset_dir: Path, name: str,

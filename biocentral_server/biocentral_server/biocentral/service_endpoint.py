@@ -12,7 +12,7 @@ biocentral_service_route = Blueprint("biocentral_service", __name__)
 def services():
     return jsonify(
         {"services": ["biocentral_service", "embeddings_service", "ppi_service", "prediction_models_service",
-                      "protein_service", "plm_eval_service"]})
+                      "protein_service", "plm_eval_service", "prediction_service"]})
 
 
 # Endpoint to check if a file for the given database hash exists
