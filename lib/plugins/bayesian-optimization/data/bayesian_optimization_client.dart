@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart';
 import '../model/bayesian_optimization_training_result.dart';
 import 'bayesian_optimization_service_api.dart';
 
+/// Factory for creating [BayesianOptimizationClient] instances.
 final class BayesianOptimizationClientFactory extends BiocentralClientFactory<BayesianOptimizationClient> {
   @override
   BayesianOptimizationClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
@@ -12,9 +13,13 @@ final class BayesianOptimizationClientFactory extends BiocentralClientFactory<Ba
   }
 }
 
+/// Client for interacting with the Bayesian Optimization service API.
 class BayesianOptimizationClient extends BiocentralClient {
+  /// Creates a new [BayesianOptimizationClient].
   BayesianOptimizationClient(super._server, super._hubServerClient);
 
+  /// Starts a Bayesian Optimization training job on the server.
+  /// Returns task ID on success or exception on failure.
   Future<Either<BiocentralException, String>> startTraining(
     Map<String, dynamic> trainingConfig,
     String databaseHash,
@@ -24,6 +29,7 @@ class BayesianOptimizationClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
+  /// Retrieves results of a completed Bayesian Optimization training job.
   Future<Either<BiocentralException, BayesianOptimizationTrainingResult>> getModelResults(
     String databaseHash,
     String taskId,
@@ -41,12 +47,15 @@ class BayesianOptimizationClient extends BiocentralClient {
     });
   }
 
-  String? _updateFunction(String? currentModel, BiocentralDTO? dto) {
+  /// Updates the current model state from a DTO received during training.
+  String? updateFunction(String? currentModel, BiocentralDTO? dto) {
+    // TODO: Implement model updating from DTO
     return null;
   }
 
+  /// Creates a stream that monitors the Bayesian Optimization training task.
   Stream<String?> biotrainerTrainingTaskStream(String taskID, String initialModel) async* {
-    yield* taskUpdateStream<String?>(taskID, initialModel, _updateFunction);
+    yield* taskUpdateStream<String?>(taskID, initialModel, updateFunction);
   }
 
   @override
@@ -54,4 +63,3 @@ class BayesianOptimizationClient extends BiocentralClient {
     return 'bayesian_optimization_service';
   }
 }
-// BOTrainingResult? trainingResult; trainingResult.updateFromDTO(biocentralDTO)
