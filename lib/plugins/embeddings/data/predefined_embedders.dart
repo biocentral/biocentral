@@ -11,7 +11,7 @@ class PredefinedEmbedderContainer {
   static final PredefinedEmbedder customEmbedder = PredefinedEmbedder.customEmbedder();
 
   static List<PredefinedEmbedder> predefinedEmbedders() {
-    return [prott5, ankh, oneHotEncoding, customEmbedder];
+    return [oneHotEncoding, prott5, ankh, customEmbedder];
   }
 }
 

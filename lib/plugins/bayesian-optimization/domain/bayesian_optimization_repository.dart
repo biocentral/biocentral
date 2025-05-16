@@ -1,87 +1,75 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 
+/// Repository for managing Bayesian Optimization training results.
+///
+/// This repository handles the following:
+/// - Storing and retrieving current and previous training results.
+/// - Saving training results to JSON files.
+/// - Loading training results from JSON files.
 class BayesianOptimizationRepository {
+  final BiocentralProjectRepository _projectRepository;
+
+  /// Constructor for [BayesianOptimizationRepository].
+  ///
+  /// - [_projectRepository]: The project repository for handling external file operations.
+  BayesianOptimizationRepository(this._projectRepository);
+
   BayesianOptimizationTrainingResult? currentResult;
-  List<BayesianOptimizationTrainingResult>? previousTrainingResults;
-
-  void addPreviousTrainingResults(BayesianOptimizationTrainingResult r) {
-    previousTrainingResults ??= [];
-    previousTrainingResults?.add(r);
-  }
-
-  void setPreviousTrainingResults(List<BayesianOptimizationTrainingResult> results) {
-    previousTrainingResults = results;
-  }
 
   void setCurrentResult(BayesianOptimizationTrainingResult? r) {
     currentResult = r;
-    saveCurrentResultIntoCSV(currentResult);
+    saveCurrentResultIntoJson(currentResult);
   }
 
   void addPickedPreviousTrainingResults(Uint8List? bytes) {
-    final BayesianOptimizationTrainingResult result = convertCSVtoTrainingResult(bytes);
-    addPreviousTrainingResults(result);
+    final BayesianOptimizationTrainingResult result = convertJsonToTrainingResult(bytes);
+    setCurrentResult(result);
   }
 
-  void saveCurrentResultIntoCSV(BayesianOptimizationTrainingResult? currentResult) {
-    final String buffer = convertTrainingResultToCSV(currentResult!);
+  /// Saves the current training result to a JSON file.
+  ///
+  /// - [currentResult]: The training result to save.
+  ///
+  /// This method uses the project repository to handle the external save operation.
+  Future<void> saveCurrentResultIntoJson(BayesianOptimizationTrainingResult? currentResult) async {
+    if (currentResult == null) return;
 
-    // For desktop/mobile, use file_picker to save
-    FilePicker.platform.saveFile(
-      fileName: 'bayesian_optimization_results.csv',
-      bytes: Uint8List.fromList(buffer.toString().codeUnits),
-      type: FileType.custom,
-      allowedExtensions: ['csv'],
+    final String jsonString = convertTrainingResultToJson(currentResult);
+    await _projectRepository.handleExternalSave(
+      fileName: 'bo_result_${currentResult.taskID!}.json',
+      contentFunction: () async => jsonString,
     );
-    // biocentralProjectRepository.handleSave(fileName: 'bayesian_optimization_results.csv', content: buffer);
   }
 
-  BayesianOptimizationTrainingResult convertCSVtoTrainingResult(Uint8List? bytes) {
-    final String csvString = String.fromCharCodes(bytes!);
-    final List<String> rows = csvString.split('\n');
-
-    final List<BayesianOptimizationTrainingResultData> results = [];
-
-    for (int i = 1; i < rows.length; i++) {
-      final row = rows[i].trim();
-      if (row.isEmpty) continue;
-
-      final List<String> columns = row.split(',');
-      if (columns.length < 5) continue; // Only need 5 columns now: protein_id, sequence, score, uncertainty, prediction
-
-      try {
-        results.add(
-          BayesianOptimizationTrainingResultData(
-              proteinId: columns[0],
-              sequence: columns[1],
-              score: double.parse(columns[2]),
-              uncertainty: double.parse(columns[3]),
-              prediction: double.parse(columns[4])),
-        );
-      } catch (e) {
-        // Skip invalid rows
-        continue;
-      }
+  /// Converts a JSON file content to a [BayesianOptimizationTrainingResult].
+  ///
+  /// - [bytes]: The JSON file content as a byte array.
+  ///
+  /// Returns a [BayesianOptimizationTrainingResult] object. If the conversion fails, an empty result is returned.
+  BayesianOptimizationTrainingResult convertJsonToTrainingResult(Uint8List? bytes) {
+    if (bytes == null) {
+      return const BayesianOptimizationTrainingResult(results: []);
     }
 
-    return BayesianOptimizationTrainingResult(results: results);
+    try {
+      final String jsonString = String.fromCharCodes(bytes);
+      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+      return BayesianOptimizationTrainingResult.fromJson(jsonMap);
+    } catch (e) {
+      return const BayesianOptimizationTrainingResult(results: []);
+    }
   }
 
-  String convertTrainingResultToCSV(BayesianOptimizationTrainingResult result) {
-    final StringBuffer buffer = StringBuffer();
+  String convertTrainingResultToJson(BayesianOptimizationTrainingResult result) {
+    return jsonEncode(result.toJson());
+  }
 
-    // Updated header with new fields
-    buffer.writeln('protein_id,sequence,score');
-
-    if (result.results != null) {
-      for (final data in result.results!) {
-        buffer.writeln('${data.proteinId},${data.sequence},${data.score}');
-      }
-    }
-
-    return buffer.toString();
+  // Clear the current training result from the repository to start a new training.
+  void clearCurrentResult() {
+    currentResult = null;
   }
 }

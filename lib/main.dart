@@ -11,12 +11,10 @@ import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
 
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager(projectRepository: projectRepository);
