@@ -9,11 +9,13 @@ import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Plugin for integrating Bayesian Optimization functionality into the Biocentral platform.
 class BayesianOptimizationPlugin extends BiocentralPlugin
     with
         BiocentralClientPluginMixin<BayesianOptimizationClient>,
         BiocentralDatabasePluginMixin<BayesianOptimizationRepository>,
         BiocentralColumnWizardPluginMixin {
+  /// Creates a new [BayesianOptimizationPlugin] instance.
   BayesianOptimizationPlugin(super.eventBus);
 
   @override
@@ -31,7 +33,7 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
 
   @override
   BayesianOptimizationRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
-    final repository = BayesianOptimizationRepository();
+    final repository = BayesianOptimizationRepository(projectRepository);
     return repository;
   }
 
@@ -78,7 +80,7 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
 
   @override
   List<BiocentralPluginDirectory> getPluginDirectories() {
-    // TODO
+    // TODO: Implement directory structure
     return [];
   }
 }

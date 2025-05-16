@@ -5,7 +5,7 @@ import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../embeddings/data/predefined_embedders.dart';
+import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 
 // Define an enum for task types
 enum TaskType {
@@ -216,9 +216,31 @@ class BOTrainingDialogBloc extends Bloc<BOTrainingDialogEvent, BOTrainingDialogS
 
   BOTrainingDialogBloc(
     this._biocentralDatabaseRepository,
-    this.biocentralProjectRepository,
-  ) : super(BOTrainingDialogState(
+    this.biocentralProjectRepository, {
+    TaskType? initialTask,
+    String? initialFeature,
+    BayesianOptimizationModelTypes? initialModel,
+    double initialExploitationExploration = 0.5,
+    PredefinedEmbedder? initialEmbedder,
+    String? initialOptimizationType,
+    double? initialTargetValue,
+    double? initialTargetRangeMin,
+    double? initialTargetRangeMax,
+    bool? initialDesiredBooleanValue,
+  }) : super(BOTrainingDialogState(
           availableEmbedders: PredefinedEmbedderContainer.predefinedEmbedders(),
+          selectedDataset: Protein,
+          selectedTask: initialTask,
+          selectedFeature: initialFeature,
+          selectedModel: initialModel,
+          exploitationExplorationValue: initialExploitationExploration,
+          selectedEmbedder: initialEmbedder,
+          optimizationType: initialOptimizationType,
+          targetValue: initialTargetValue,
+          targetRangeMin: initialTargetRangeMin,
+          targetRangeMax: initialTargetRangeMax,
+          desiredBooleanValue: initialDesiredBooleanValue,
+          currentStep: initialTask != null ? BOTrainingDialogStep.featureSelection : BOTrainingDialogStep.taskSelection,
         )) {
     on<DatasetSelected>(_onDatasetSelected);
     on<TaskSelected>(_onTaskSelected);
@@ -231,6 +253,34 @@ class BOTrainingDialogBloc extends Bloc<BOTrainingDialogEvent, BOTrainingDialogS
     on<TargetRangeMinUpdated>(_onTargetRangeMinUpdated);
     on<TargetRangeMaxUpdated>(_onTargetRangeMaxUpdated);
     on<DesiredBooleanValueUpdated>(_onDesiredBooleanValueUpdated);
+
+    // If we have initial values, we should be at the feature configuration step
+    if (initialTask != null && initialFeature != null) {
+      add(TaskSelected(initialTask));
+      add(FeatureSelected(initialFeature));
+      if (initialEmbedder != null) {
+        add(EmbedderSelected(initialEmbedder));
+      }
+      if (initialModel != null) {
+        add(ModelSelected(initialModel));
+      }
+      if (initialOptimizationType != null) {
+        add(OptimizationTypeSelected(initialOptimizationType));
+      }
+      if (initialTargetValue != null) {
+        add(TargetValueUpdated(initialTargetValue));
+      }
+      if (initialTargetRangeMin != null) {
+        add(TargetRangeMinUpdated(initialTargetRangeMin));
+      }
+      if (initialTargetRangeMax != null) {
+        add(TargetRangeMaxUpdated(initialTargetRangeMax));
+      }
+      if (initialDesiredBooleanValue != null) {
+        add(DesiredBooleanValueUpdated(initialDesiredBooleanValue));
+      }
+      add(ExploitationExplorationUpdated(initialExploitationExploration));
+    }
   }
 
   void _onDatasetSelected(DatasetSelected event, Emitter<BOTrainingDialogState> emit) {
