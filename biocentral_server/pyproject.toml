@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biocentral-server"
-version = "0.2.0"
+version = "0.2.5"
 description = "Compute server for the biocentral frontend"
 authors = ["Sebastian Franz <sebastian.franz@tum.de>"]
 license = "GPLv3"
