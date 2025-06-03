@@ -3,9 +3,10 @@ import numpy as np
 
 from typing import List, Any, Dict
 from biotrainer.protocols import Protocol
-from vespag import ScoreNormalizer, SAV, compute_mutation_score, mask_non_mutations, generate_protein_mutations
+from vespag import ScoreNormalizer, compute_mutation_score, mask_non_mutations, generate_sav_landscape
 
 from ..base_model import BaseModel, ModelMetadata, Prediction, MutationPrediction, ModelOutput, OutputClass, OutputType
+
 
 class VespaG(BaseModel):
 
@@ -26,14 +27,14 @@ class VespaG(BaseModel):
             model_link='https://github.com/JSchlensok/VespaG',
             citation='https://doi.org/10.1093/bioinformatics/btae621',
             licence='GPL-3.0',
-            outputs=[ModelOutput(name="variant_effect", 
-                                description="Prediction of the effect of amino acid mutations on protein function",
-                                output_type=OutputType.MUTATION,
-                                value_type=float,
-                                # Scores are normalized between 0 and 1
-                                value_range=(0.0, 1.0),
-                                unit="score")
-                    ],
+            outputs=[ModelOutput(name="variant_effect",
+                                 description="Prediction of the effect of amino acid mutations on protein function",
+                                 output_type=OutputType.MUTATION,
+                                 value_type=float,
+                                 # Scores are normalized between 0 and 1
+                                 value_range=(0.0, 1.0),
+                                 unit="score")
+                     ],
             model_size='2.6 MB',
             testset_performance='',
             training_data_link='https://zenodo.org/records/11085958',
@@ -45,13 +46,12 @@ class VespaG(BaseModel):
         #                 for embedding in embeddings.values()]  # For testing with smaller esm2_t33_650M_UR50D model
         return [{'input': embedding.unsqueeze(0).numpy()} for embedding in embeddings.values()]
 
-
     def predict(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
-        self.mutations_per_protein = generate_protein_mutations(sequences=sequences,
-                                                                zero_based_mutations=self.zero_based_mutations,
-                                                                tqdm=False)
+        self.mutations_per_protein = generate_sav_landscape(sequences=sequences,
+                                                            zero_based_mutations=self.zero_based_mutations,
+                                                            tqdm=False)
         vespag_scores = {}
         for seq_idx, sequence_embedding in enumerate(inputs):
             seq_id = embedding_ids[seq_idx]
