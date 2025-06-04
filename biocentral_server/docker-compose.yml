@@ -34,13 +34,13 @@ services:
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 3
     volumes:
-      - huggingface_models_cache:/huggingface_models
+      - huggingface_models_cache:/app/huggingface_models
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - HF_HOME=/huggingface_models
+      - HF_HOME=/app/huggingface_models
     deploy:
       resources:
         reservations:
@@ -115,7 +115,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-      start_period: 20s
+      start_period: 30s
 
 
 volumes:
