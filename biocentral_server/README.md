@@ -43,6 +43,12 @@ cp .env.example .env
 
 # Run via docker compose
 docker compose up -d
+
+# Update
+docker compose down
+git pull
+docker compose pull
+docker compose up -d
 ```
 
 ### Local Setup
