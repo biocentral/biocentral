@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ 'main', 'develop' ]
 
+env:
+  SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/build/site-packages
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -39,7 +42,7 @@ jobs:
 
       - name: Build Windows Application
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows --requirements "-r,python_companion/requirements.txt"
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
           flutter build windows --release
         if: matrix.os == 'windows-latest'
       - name: Upload Windows build artifacts
@@ -51,15 +54,27 @@ jobs:
 
       - name: Build MacOS Application
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin --requirements "-r,python_companion/requirements.txt"
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
           flutter build macos --release
         if: matrix.os == 'macos-latest'
 
+      - name: Build Linux Application
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+          flutter build linux --release
+        if: matrix.os == 'ubuntu-latest'
+      - name: Upload Linux build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux/x64/release/bundle
+
       - name: Build Web Application
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
-          unzip assets/python_companion.zip -d assets/python_companion
-          flutter build web --base-href /app/
+          cp -r python_companion/ assets/
+          rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
+          flutter build web
         if: matrix.os == 'ubuntu-latest'
       - name: Upload Web build artifacts
         uses: actions/upload-artifact@v4
@@ -67,18 +82,6 @@ jobs:
         with:
           name: web-build
           path: build/web
-
-      - name: Build Linux Application
-        run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux --requirements "-r,python_companion/requirements.txt"
-          flutter build linux --release
-        if: matrix.os == 'ubuntu-latest'
-      - name: Upload build artifacts
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-build
-          path: build/linux/x64/release/bundle
 
   build_appimage:
     needs: build

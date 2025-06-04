@@ -21,10 +21,11 @@ dart run serious_python:main package --asset assets/python_companion.zip python_
 # macOS
 dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
 # Web
+dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide -r -r -r python_companion/requirements.txt
+
 cp -r python_companion/ assets/
 rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
 
-dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide -r -r -r python_companion/requirements.txt
 unzip assets/python_companion.zip -d assets/python_companion
 ```
 
@@ -74,7 +75,6 @@ cp assets/biocentral_logo/biocentral_logo.png releases/current/biocentral.AppDir
 ## Web
 
 ```shell
-# Building for biocentral.cloud, omit --base-href if building for local deployment
 flutter build web
 ```
 
