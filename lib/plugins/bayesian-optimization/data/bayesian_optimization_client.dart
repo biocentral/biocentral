@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/bayesian-optimization/data/bay_opt_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
@@ -29,33 +30,32 @@ class BayesianOptimizationClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
-  /// Retrieves results of a completed Bayesian Optimization training job.
-  Future<Either<BiocentralException, BayesianOptimizationTrainingResult>> getModelResults(
-    String databaseHash,
-    String taskId,
-  ) async {
-    final responseEither = await doPostRequest(
-      BayesianOptimizationServiceEndpoints.modelResults,
-      {'database_hash': databaseHash, 'task_id': taskId},
-    );
-    return responseEither.match((error) => left(error), (responseData) {
-      final resultsList = (responseData['result'] as List)
-          .map((item) => BayesianOptimizationTrainingResultData.fromMap(item as Map<String, dynamic>))
-          .toList();
-
-      return right(BayesianOptimizationTrainingResult(results: resultsList));
-    });
-  }
-
   /// Updates the current model state from a DTO received during training.
-  String? updateFunction(String? currentModel, BiocentralDTO? dto) {
-    // TODO: Implement model updating from DTO
-    return null;
+  BayesianOptimizationTrainingResult? updateFunction(
+    BayesianOptimizationTrainingResult? currentResult,
+    BiocentralDTO? dto,
+  ) {
+    if (dto == null) {
+      return currentResult;
+    }
+    final results = dto.bayOptResults;
+    if (results == null) {
+      return currentResult;
+    }
+
+    final resultData = <BayesianOptimizationTrainingResultData>[];
+    for(final resultMap in results) {
+      resultData.add(BayesianOptimizationTrainingResultData.fromMap(resultMap));
+    }
+    return currentResult?.copyWith(results: resultData);
   }
 
   /// Creates a stream that monitors the Bayesian Optimization training task.
-  Stream<String?> biotrainerTrainingTaskStream(String taskID, String initialModel) async* {
-    yield* taskUpdateStream<String?>(taskID, initialModel, updateFunction);
+  Stream<BayesianOptimizationTrainingResult?> biotrainerTrainingTaskStream(
+    String taskID,
+    BayesianOptimizationTrainingResult initialResult,
+  ) async* {
+    yield* taskUpdateStream<BayesianOptimizationTrainingResult?>(taskID, initialResult, updateFunction);
   }
 
   @override
