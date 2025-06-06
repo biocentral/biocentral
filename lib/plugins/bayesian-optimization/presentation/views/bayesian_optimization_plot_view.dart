@@ -171,7 +171,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
             return RotatedBox(
               quarterTurns: 3,
               child: Text(
-                index == 0 || index > data!.results!.length ? value.toString() : data!.results![index - 1].proteinId!,
+                index == 0 || index > data!.results!.length ? value.toString() : data!.results![index - 1].id!,
                 style: const TextStyle(fontSize: 12),
                 textAlign: TextAlign.center,
               ),
@@ -188,7 +188,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
       touchTooltipData: ScatterTouchTooltipData(
         getTooltipItems: (ScatterSpot touchedSpot) {
           return ScatterTooltipItem(
-            '${data!.results![touchedSpot.x.toInt() - 1].proteinId}\n Score: ${formatNumber(touchedSpot.y)}',
+            '${data!.results![touchedSpot.x.toInt() - 1].id}\n Score: ${formatNumber(touchedSpot.y)}',
             textStyle: const TextStyle(color: Colors.white, fontSize: 10),
           );
         },

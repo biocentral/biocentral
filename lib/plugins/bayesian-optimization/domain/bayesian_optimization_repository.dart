@@ -25,8 +25,8 @@ class BayesianOptimizationRepository {
     saveCurrentResultIntoJson(currentResult);
   }
 
-  void addPickedPreviousTrainingResults(Uint8List? bytes) {
-    final BayesianOptimizationTrainingResult result = convertJsonToTrainingResult(bytes);
+  void addPickedPreviousTrainingResults(String fileContent) {
+    final BayesianOptimizationTrainingResult result = convertJsonToTrainingResult(fileContent);
     setCurrentResult(result);
   }
 
@@ -50,15 +50,10 @@ class BayesianOptimizationRepository {
   /// - [bytes]: The JSON file content as a byte array.
   ///
   /// Returns a [BayesianOptimizationTrainingResult] object. If the conversion fails, an empty result is returned.
-  BayesianOptimizationTrainingResult convertJsonToTrainingResult(Uint8List? bytes) {
-    if (bytes == null) {
-      return const BayesianOptimizationTrainingResult(results: []);
-    }
-
+  BayesianOptimizationTrainingResult convertJsonToTrainingResult(String fileContent) {
     try {
-      final String jsonString = String.fromCharCodes(bytes);
-      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      return BayesianOptimizationTrainingResult.fromJson(jsonMap);
+      final Map<String, dynamic> jsonMap = jsonDecode(fileContent);
+      return BayesianOptimizationTrainingResult.fromMap(jsonMap);
     } catch (e) {
       return const BayesianOptimizationTrainingResult(results: []);
     }

@@ -87,28 +87,18 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      await for (String? currentModel in _boClient.biotrainerTrainingTaskStream(taskID, '')) {
-        if (currentModel == null) continue;
-        yield left(trainingState);
+      //         final actualValues = await _extractActualValues(modelResults);
+      var trainingResult =
+          BayesianOptimizationTrainingResult(results: [], trainingConfig: _trainingConfiguration, taskID: taskID);
+      await for (BayesianOptimizationTrainingResult? currentResult
+          in _boClient.biotrainerTrainingTaskStream(taskID, trainingResult)) {
+        if(currentResult != null) {
+          trainingResult = currentResult;
+        }
       }
 
-      final modelResultsEither = await _boClient.getModelResults(databaseHash, taskID);
-      yield* modelResultsEither.match((error) async* {
-        yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
-        return;
-      }, (modelResults) async* {
-        final actualValues = await _extractActualValues(modelResults);
-
-        yield right(
-          BayesianOptimizationTrainingResult(
-            results: modelResults.results,
-            actualValues: actualValues,
-            trainingConfig: _trainingConfiguration,
-            taskID: taskID,
-          ),
-        );
-        yield left(state.setFinished(information: 'Finished training model!'));
-      });
+      yield right(trainingResult);
+      yield left(state.setFinished(information: 'Finished training model!'));
     });
   }
 
@@ -140,14 +130,15 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   }
 
   /// Extracts actual values from model results.
+  /// TODO Delete or move to another place
   Future<List<double>> _extractActualValues(BayesianOptimizationTrainingResult modelResults) async {
     final List<double> actualValues = [];
     final featureName = _trainingConfiguration['feature_name'];
     final actualFeatureName = 'ACTUAL_$featureName';
 
     for (var result in modelResults.results!) {
-      if (result.proteinId != null) {
-        final protein = _biocentralDatabase.getEntityById(result.proteinId!) as Protein?;
+      if (result.id != null) {
+        final protein = _biocentralDatabase.getEntityById(result.id!) as Protein?;
         final actualValue = protein?.attributes[actualFeatureName];
         actualValues.add(actualValue != null && actualValue.isNotEmpty ? (double.tryParse(actualValue) ?? -99) : -99);
       } else {
@@ -160,7 +151,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'databaseType': _biocentralDatabase.getType(),
+      'databaseType': _biocentralDatabase.getEntityTypeName(),
     }..addAll(_trainingConfiguration);
   }
 
