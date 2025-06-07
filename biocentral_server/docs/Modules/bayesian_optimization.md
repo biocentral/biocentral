@@ -21,7 +21,7 @@ POST with JSON body containing:
 Optional Arguments:
 - `embedder_name` (str): name of embedder, default: `one_hot_encoding`
 - `device` (str): device, option: `cuda`, default: `cpu`
-- `feature_name` (str): case insensitive name of feature in description of `.fasta` file, default: `TARGET`
+- `feature_name` (str): case-insensitive name of feature in description of `.fasta` file, default: `TARGET`
 
 For discrete targets
 - `discrete_labels` (list): All possible labels
@@ -247,3 +247,4 @@ Which is called kernel function. When an algorithm solely rely on terms of inner
 This technique is particularly valuable in situations where it is more convenient to compute the kernel than the feature vectors themselves. 
 
 #### Bayesian Classification
+TODO
