@@ -1,6 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';

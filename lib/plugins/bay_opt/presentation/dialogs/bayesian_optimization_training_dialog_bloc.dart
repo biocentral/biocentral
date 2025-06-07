@@ -1,5 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_model_types.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
