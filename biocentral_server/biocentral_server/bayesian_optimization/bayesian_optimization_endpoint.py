@@ -1,14 +1,12 @@
-import hashlib
-import json
-import os
 import torch
-from flask import current_app
-import logging
+import json
+import hashlib
+
 from flask import request, jsonify, Blueprint
 
-from biocentral_server.utils import str2bool
 from biotrainer.protocols import Protocol
-import yaml
+from biocentral_server.utils import str2bool
+
 
 from biocentral_server.bayesian_optimization.bayesian_optimization_task import BayesTask
 
@@ -42,18 +40,11 @@ bayesian_optimization_service_route = Blueprint(
     "bayesian_optimization_service", __name__
 )
 
-def print_io(func):
-    def wrapped_func(*args):
-        ret = func(*args)
-        print(f'{func.__name__}({args}) = {ret}')
-        return ret
-    return wrapped_func
-        
-# @print_io
+
 def float_if_possible(num):
     mapping = {
-        "Infinity" : float('inf'),
-        "-Infinity" : float('-inf'),
+        "Infinity": float('inf'),
+        "-Infinity": float('-inf'),
     }
     if num in mapping:
         return mapping[num]
@@ -62,6 +53,7 @@ def float_if_possible(num):
     except:
         pass
     return num
+
 
 def verify_config(config_dict: dict):
     """
@@ -85,9 +77,9 @@ def verify_config(config_dict: dict):
     coefficient = float_if_possible(config_dict.get("coefficient"))
     config_dict['coefficient'] = coefficient
     if (
-        not isinstance(database_hash, str)
-        or not isinstance(model_type, str)
-        or not isinstance(coefficient, float)
+            not isinstance(database_hash, str)
+            or not isinstance(model_type, str)
+            or not isinstance(coefficient, float)
     ):
         raise TypeError(
             "[verify_config]: Config need to include: database_hash :: str, model_type :: str and coefficient :: float"
@@ -105,12 +97,13 @@ def verify_config(config_dict: dict):
         raise ValueError("[verify_config]: CUDA device is not available")
     return verify_optim_target(config_dict)
 
-@print_io
-def parse_str_to_list(s, delim = ','):
+
+def parse_str_to_list(s, delim=','):
     strlist: list[str] = s[1:-1].split(delim)
     strlist = [strr.strip() for strr in strlist]
     return strlist
-        
+
+
 def verify_optim_target(config_dict: dict):
     is_discrete: bool = config_dict.get("discrete")
     if is_discrete is None:
@@ -178,15 +171,6 @@ def verify_optim_target(config_dict: dict):
                     )
     return config_dict
 
-def get_next_log_file():
-    """Creates a log filename with the next available number."""
-    i = 1
-    while True:
-        log_file = f"application_{i}.log"
-        if not os.path.exists(log_file):
-            return log_file
-        i += 1
-
 @bayesian_optimization_service_route.route(
     "/bayesian_optimization_service/training", methods=["POST"]
 )
@@ -211,7 +195,7 @@ def train_and_inference():
     task_id = f"biocentral-bayesian_optimization-{task_hash}"
     # get output path
     output_dir = file_manager.get_biotrainer_model_path(
-        database_hash=database_hash, model_hash=task_id
+        model_hash=task_id
     )
     print(f"output_path:{output_dir}")
     # idempotence
@@ -229,7 +213,6 @@ def train_and_inference():
     # launch process
     bo_process = BayesTask(
         config_dict,
-        database_instance=current_app.config["EMBEDDINGS_DATABASE"],
     )
     task_manager.add_task(task=bo_process, task_id=task_id)
     return jsonify({"task_id": task_id})
@@ -239,55 +222,11 @@ def verify_request(req_body: dict):
     database_hash = req_body.get("database_hash")
     task_id = req_body.get("task_id")
     if (
-        database_hash is None
-        or task_id is None
-        or not isinstance(database_hash, str)
-        or not isinstance(task_id, str)
+            database_hash is None
+            or task_id is None
+            or not isinstance(database_hash, str)
+            or not isinstance(task_id, str)
     ):
         raise KeyError(
-            "model_results require database_hash :: str and tasl_id :: str in request"
+            "model_results require database_hash :: str and task_id :: str in request"
         )
-
-
-@bayesian_optimization_service_route.route(
-    "/bayesian_optimization_service/model_results", methods=["POST"]
-)
-def model_results():
-    req_body: dict = request.get_json()
-    try:
-        verify_request(req_body)
-    except Exception as e:
-        return jsonify({"error": str(e)})
-    database_hash = req_body.get("database_hash")
-    task_id = req_body.get("task_id")
-    task_manager = TaskManager()
-    # error could occur if is_task_finished executed before is_task_running
-    if not task_manager.is_task_running(task_id) and not task_manager.is_task_finished(
-        task_id
-    ):
-        return jsonify({"error": "Invalid task_id"})
-    task_status = task_manager.get_task_status(task_id)
-    # make distinction
-    if task_status != TaskStatus.FINISHED:
-        return jsonify(
-            {"error": "Trying to retrieve model files before task has finished!"}
-        )
-    user_id = UserManager.get_user_id_from_request(request)
-    file_manager = FileManager(user_id=user_id)
-    # read from storage/{user_id}/{database_hash}/models/{model_hash}/out.yml
-    out_file = (
-        file_manager.get_biotrainer_model_path(
-            database_hash=database_hash, model_hash=task_id
-        )
-        / "out.yml"
-    )
-    if not out_file.exists():
-        return jsonify(
-            {
-                "error": f"Server error: task finished but result file {out_file} not found"
-            }
-        )
-    with out_file.open("r") as f:
-        results_data = yaml.load(f, Loader=yaml.FullLoader)
-    resp = jsonify({"result": results_data})
-    return resp

@@ -1,8 +1,12 @@
-import gpytorch
 import torch
+import logging
+import gpytorch
+
 from gpytorch.means import ConstantMean, LinearMean
 from gpytorch.kernels import ScaleKernel, RBFKernel
 from gpytorch.likelihoods import DirichletClassificationLikelihood, GaussianLikelihood
+
+logger = logging.getLogger(__name__)
 
 
 class GPRegressionModel(gpytorch.models.ExactGP):
@@ -17,7 +21,7 @@ class GPRegressionModel(gpytorch.models.ExactGP):
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
-# will modules in torch autometically been set as parameter??? regieter buffer?
+
 class GPClassificationModel(gpytorch.models.ExactGP):
     def __init__(self, train_x: torch.Tensor, train_y, likelihood, num_classes):
         # initialize exactgp
@@ -36,17 +40,16 @@ class GPClassificationModel(gpytorch.models.ExactGP):
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
 
-def trainGPClsModel(
-    trainset: dict, lr: float = 0.3, epoch: int = 140, device: str = "cpu"
-):
+def train_gp_classification_model(train_set: dict, lr: float = 0.3, epoch: int = 140, device: str = "cpu"):
     device = torch.device(device)
-    print(f"training on device: {device}")
+    logger.info(f"Training on device: {device}")
     likelihood = DirichletClassificationLikelihood(
-        trainset["y"], learn_additional_noise=True
+        train_set["y"], learn_additional_noise=True
     ).to(device=device)
     # transform class into num_classes separate GPs
     # shape: (num_classes, num_sample)
-    model = GPClassificationModel(trainset["X"], likelihood.transformed_targets, likelihood, num_classes=likelihood.num_classes).to(device=device)
+    model = GPClassificationModel(train_set["X"], likelihood.transformed_targets, likelihood,
+                                  num_classes=likelihood.num_classes).to(device=device)
     model.train()
     likelihood.train()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -55,12 +58,12 @@ def trainGPClsModel(
         # Zero gradients from previous iteration
         optimizer.zero_grad()
         # Output from model
-        output = model(trainset["X"])
+        output = model(train_set["X"])
         # Calc loss and backprop gradients
         loss = -mll(output, likelihood.transformed_targets).sum()
         loss.backward()
         if i % (epoch // 10) == 0:
-            print('Iter %d/%d - Loss: %.3f   lengthscale: %.3f   noise: %.3f' % (
+            logger.info('Iter %d/%d - Loss: %.3f   lengthscale: %.3f   noise: %.3f' % (
                 i + 1, epoch, loss.item(),
                 model.covar_module.base_kernel.lengthscale.mean().item(),
                 model.likelihood.second_noise_covar.noise.mean().item()
@@ -70,13 +73,12 @@ def trainGPClsModel(
     likelihood.eval()
     return model, likelihood
 
-def trainGPRegModel(
-    trainset: dict, lr: float = 0.3, epoch: int = 400, device: str = "cpu"
-):
+
+def train_gp_regression_model(train_set: dict, lr: float = 0.3, epoch: int = 400, device: str = "cpu"):
     device = torch.device(device)
-    print(f"training on device: {device}")
+    logger.info(f"Training on device: {device}")
     likelihood = GaussianLikelihood().to(device=device)
-    model = GPRegressionModel(trainset["X"], trainset["y"], likelihood).to(
+    model = GPRegressionModel(train_set["X"], train_set["y"], likelihood).to(
         device=device
     )
     model.train()
@@ -88,8 +90,8 @@ def trainGPRegModel(
 
     for i in range(epoch):
         optimizer.zero_grad()
-        output = model(trainset["X"])
-        loss = -mll(output, trainset["y"])
+        output = model(train_set["X"])
+        loss = -mll(output, train_set["y"])
         loss.backward()
         optimizer.step()
 
@@ -100,10 +102,10 @@ def trainGPRegModel(
         if i % print_interval == 0 or i == epoch - 1:
             with torch.no_grad():
                 model.eval()
-                preds = model(trainset["X"]).mean
-                mse = torch.mean((preds - trainset["y"]) ** 2).item()
+                preds = model(train_set["X"]).mean
+                mse = torch.mean((preds - train_set["y"]) ** 2).item()
                 model.train()
-            print(
+            logger.info(
                 f"Iter {i + 1}/{epoch} - Loss: {current_loss:.4f}, MSE: {mse:.4f}, "
                 + f"lengthscale: {model.covar_module.base_kernel.lengthscale.item():.4f}, "
                 + f"noise: {likelihood.noise.item():.4f}"
@@ -119,7 +121,7 @@ def marginalization(mvn_dist):
     )
 
 
-def MC_sampling(mvn_dist, lb, ub, n_samples=100000):
+def mc_sampling(mvn_dist, lb, ub, n_samples=100000):
     """
     Calculate probability using Monte Carlo sampling.
     Args:

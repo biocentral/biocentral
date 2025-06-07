@@ -6,13 +6,14 @@ from flask import Flask, request
 
 from ..utils import Constants
 from ..ppi import ppi_service_route
-from ..server_management import UserManager, ServerInitializationManager
 from ..proteins import protein_service_route
-from ..plm_eval import plm_eval_service_route, FlipInitializer
-from ..protein_analysis import protein_analysis_route
-from ..embeddings import embeddings_service_route, projection_route
 from ..biocentral import biocentral_service_route
+from ..protein_analysis import protein_analysis_route
+from ..plm_eval import plm_eval_service_route, FlipInitializer
 from ..prediction_models import prediction_models_service_route
+from ..embeddings import embeddings_service_route, projection_route
+from ..bayesian_optimization import bayesian_optimization_service_route
+from ..server_management import UserManager, ServerInitializationManager
 from ..predict import prediction_metadata_route, prediction_service_route, PredictInitializer
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ class ServerAppState:
         app.register_blueprint(plm_eval_service_route)
         app.register_blueprint(prediction_metadata_route)
         app.register_blueprint(prediction_service_route)
+        app.register_blueprint(bayesian_optimization_service_route)
 
         @app.after_request
         def apply_caching(response):
