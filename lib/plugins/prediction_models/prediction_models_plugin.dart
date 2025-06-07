@@ -37,6 +37,8 @@ class PredictionModelsPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    cancelSubscriptions();
+
     final biotrainerTrainingBloc = BiotrainerTrainingBloc(
       getDatabase(context),
       getBiocentralClientRepository(context),
@@ -47,23 +49,23 @@ class PredictionModelsPlugin extends BiocentralPlugin
     final modelHubBloc = ModelHubBloc(getBiocentralProjectRepository(context), getDatabase(context));
 
     // TODO This should probably be directly injected into the bloc, not via event bus
-    eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
       biotrainerTrainingBloc.add(BiotrainerTrainingStartTrainingEvent(event.databaseType, event.trainingConfiguration));
-    });
+    }));
 
-    eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
       modelHubBloc.add(ModelHubRemoveResumableCommandEvent(event.finishedCommand));
-    });
+    }));
 
-    eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       modelHubBloc.add(ModelHubLoadEvent());
-    });
+    }));
 
-    eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         modelHubBloc.add(ModelHubLoadEvent());
       }
-    });
+    }));
 
     return {
       BlocProvider<BiotrainerTrainingBloc>.value(value: biotrainerTrainingBloc): biotrainerTrainingBloc,

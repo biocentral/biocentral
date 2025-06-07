@@ -44,6 +44,8 @@ class ProteinPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    cancelSubscriptions();
+
     final proteinCommandBloc = ProteinsCommandBloc(
       getDatabase(context),
       getBiocentralClientRepository(context),
@@ -54,16 +56,16 @@ class ProteinPlugin extends BiocentralPlugin
     final proteinColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
       ..add(ColumnWizardLoadEvent());
 
-    eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
       proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
-    });
+    }));
 
-    eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
       }
-    });
+    }));
 
     return {
       BlocProvider<ProteinsCommandBloc>.value(value: proteinCommandBloc): proteinCommandBloc,
