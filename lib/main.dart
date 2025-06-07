@@ -149,6 +149,7 @@ class BiocentralAppHome extends StatelessWidget {
   }
 
   Widget buildScreenAfterSplash(BiocentralPluginState pluginState, BuildContext context) {
+    // TODO [Refactoring] Handling the blocs here is dangerous, because rebuilding triggers side effects in event bus
     final Map<BlocProvider, Bloc> globalBlocProviders = getGlobalBlocProviders(context);
     final Map<BlocProvider, Bloc> pluginBlocProviders = pluginState.pluginManager.getPluginBlocs(context);
     final Map<BlocProvider, Bloc> allBlocProviders = {...globalBlocProviders, ...pluginBlocProviders};

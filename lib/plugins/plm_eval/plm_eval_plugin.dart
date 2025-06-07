@@ -30,6 +30,8 @@ class PLMEvalPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    cancelSubscriptions();
+
     final plmEvalCommandBloc = PLMEvalEvaluationBloc(
       getBiocentralProjectRepository(context),
       getBiocentralClientRepository(context),
@@ -43,14 +45,14 @@ class PLMEvalPlugin extends BiocentralPlugin
 
     final plmEvalHubBloc = PLMEvalHubBloc(getBiocentralProjectRepository(context), getDatabase(context), eventBus);
 
-    eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubRemoveResumableCommandEvent(event.finishedCommand));
-    });
+    }));
 
-    eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubLoadEvent());
       plmEvalLeaderboardBloc.add(PLMEvalLeaderboardLoadLocalEvent());
-    });
+    }));
 
     return {
       BlocProvider<PLMEvalEvaluationBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,

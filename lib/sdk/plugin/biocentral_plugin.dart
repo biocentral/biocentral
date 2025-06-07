@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
@@ -14,6 +16,9 @@ import 'package:tutorial_system/tutorial_system.dart';
 
 abstract class BiocentralPlugin with TypeNameMixin {
   final EventBus eventBus;
+
+  // TODO [Refactoring] Workaround to avoid duplication of events on the event bus
+  final Set<StreamSubscription> eventBusSubscriptions = {};
 
   BiocentralPlugin(this.eventBus);
 
@@ -67,6 +72,14 @@ abstract class BiocentralPlugin with TypeNameMixin {
         ),
       ],
     );
+  }
+
+  void cancelSubscriptions() {
+    // TODO [Refactoring] Workaround solution (see eventBusSubscriptions above)
+    for(final subscription in eventBusSubscriptions) {
+      subscription.cancel();
+    }
+    eventBusSubscriptions.clear();
   }
 }
 
