@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 class PathResolver {
   static String resolve(String projectDir, String? pluginDir, String? subDir, String? fileName) {
     String result = projectDir;
-    if(projectDir.characters.last != '/') {
-      projectDir += '/';
+    if(result.characters.last != '/') {
+      result += '/';
     }
     result += pluginDir ?? '';
     result += '/${subDir ?? ""}';
