@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
-import '../../plugins/bayesian-optimization/bayesian_optimization_plugin.dart';
+import '../../plugins/bay_opt/bayesian_optimization_plugin.dart';
 
 @immutable
 class BiocentralPluginManager extends Equatable {

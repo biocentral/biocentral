@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 
 /// Repository for managing Bayesian Optimization training results.

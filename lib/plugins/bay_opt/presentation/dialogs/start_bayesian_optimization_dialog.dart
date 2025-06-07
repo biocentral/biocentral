@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_model_types.dart';
-import 'package:biocentral/plugins/bayesian-optimization/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_model_types.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bayesian_optimization_training_dialog_bloc.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
