@@ -69,6 +69,8 @@ class PpiPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    cancelSubscriptions();
+
     final ppiCommandBloc = PPICommandBloc(
       getDatabase(context),
       getBiocentralClientRepository(context),
@@ -81,18 +83,18 @@ class PpiPlugin extends BiocentralPlugin
     final ppiColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
       ..add(ColumnWizardLoadEvent());
 
-    eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
       ppiPropertiesBloc.add(PPIPropertiesCalculateEvent());
       ppiDatabaseTestsBloc.add(PPIDatabaseTestsLoadTestsEvent());
       ppiColumnWizardBloc.add(ColumnWizardLoadEvent());
-    });
+    }));
 
-    eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
       }
-    });
+    }));
 
     return {
       BlocProvider<PPICommandBloc>.value(value: ppiCommandBloc): ppiCommandBloc,

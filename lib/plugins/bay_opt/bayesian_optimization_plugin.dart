@@ -44,6 +44,8 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
+    cancelSubscriptions();
+
     final bayesianOptimizationHubBloc = BayesianOptimizationBloc(
       getDatabase(context),
       getBiocentralProjectRepository(context),
