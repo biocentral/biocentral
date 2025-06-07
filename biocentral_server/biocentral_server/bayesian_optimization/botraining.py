@@ -1,13 +1,13 @@
 import torch
-import logging
 
 from typing import List, Dict, Any
 from biocentral_server.bayesian_optimization import gaussian_process_models as gp
 from biotrainer.utilities import read_FASTA
 
+from ..utils import get_logger
 from ..server_management import EmbeddingsDatabaseTriple, FileContextManager
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 SUPPORTED_MODELS = ["gaussian_process"]
 

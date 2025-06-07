@@ -1,5 +1,3 @@
-import logging
-
 from Bio import SeqIO
 from tqdm import tqdm
 from pathlib import Path
@@ -9,7 +7,10 @@ from autoeval.utilities.FLIP import FLIP_DATASETS
 from biotrainer.utilities import read_FASTA, get_attributes_from_seqrecords
 
 
-logger = logging.getLogger(__name__)
+from ..utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class FLIPDataHandler:

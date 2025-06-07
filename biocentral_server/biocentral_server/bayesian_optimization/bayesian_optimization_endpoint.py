@@ -2,15 +2,13 @@ import torch
 import json
 import hashlib
 
+from biotrainer.protocols import Protocol
 from flask import request, jsonify, Blueprint
 
-from biotrainer.protocols import Protocol
-from biocentral_server.utils import str2bool
+from .bayesian_optimization_task import BayesTask
 
-
-from biocentral_server.bayesian_optimization.bayesian_optimization_task import BayesTask
-
-from biocentral_server.server_management import (
+from ..utils import str2bool, get_logger
+from ..server_management import (
     TaskManager,
     UserManager,
     FileManager,
@@ -36,6 +34,9 @@ train & inference api:
     4. return a handle to query and fetch result for current inference run 
 fetch result api: fetch the result according to handle
 """
+
+logger = get_logger(__name__)
+
 bayesian_optimization_service_route = Blueprint(
     "bayesian_optimization_service", __name__
 )
@@ -176,9 +177,8 @@ def verify_optim_target(config_dict: dict):
 )
 def train_and_inference():
     # verify configuration dict
-    print("In endpoint")
     config_dict: dict = request.get_json()
-    print(f"Request train_and_inference: \n {config_dict}")
+    logger.info(f"Request train_and_inference: \n {config_dict}")
     try:
         verify_config(config_dict)
     except Exception as e:
@@ -197,7 +197,7 @@ def train_and_inference():
     output_dir = file_manager.get_biotrainer_model_path(
         model_hash=task_id
     )
-    print(f"output_path:{output_dir}")
+    logger.info(f"Output_path: {output_dir}")
     # idempotence
     # prepare more training configurations
     config_dict["output_dir"] = str(output_dir.absolute())

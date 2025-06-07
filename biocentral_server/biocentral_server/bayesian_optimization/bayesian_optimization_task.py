@@ -1,14 +1,13 @@
-import logging
-
 from biotrainer.utilities import get_device
 from typing import Dict, Callable, Tuple, List
 
 from .botraining import SUPPORTED_MODELS, pipeline
 
+from ..utils import get_logger
 from ..embeddings import LoadEmbeddingsTask
 from ..server_management import TaskInterface, EmbeddingsDatabaseTriple, TaskDTO
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class BayesTask(TaskInterface):

@@ -1,4 +1,3 @@
-import logging
 import shutil
 import requests
 
@@ -7,8 +6,9 @@ from typing import List
 from pathlib import Path
 from abc import ABC, abstractmethod
 
+from ...utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ServerModuleInitializer(ABC):

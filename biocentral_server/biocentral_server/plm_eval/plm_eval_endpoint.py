@@ -1,5 +1,4 @@
 import base64
-import logging
 from pathlib import Path
 from typing import Optional
 
@@ -11,10 +10,10 @@ from flask import request, jsonify, Blueprint, current_app
 
 from .autoeval_task import AutoEvalTask
 
-from ..utils import str2bool
+from ..utils import str2bool, get_logger
 from ..server_management import UserManager, TaskManager, FileManager, StorageFileType
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 plm_eval_service_route = Blueprint("plm_eval_service", __name__)
 

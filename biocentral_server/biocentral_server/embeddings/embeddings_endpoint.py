@@ -2,20 +2,19 @@ import io
 import h5py
 import json
 import base64
-import logging
 import numpy as np
 
-from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_device
 from flask import request, Blueprint, jsonify
 
 from .embedding_task import ExportEmbeddingsTask
 
-from ..utils import str2bool
+from ..utils import str2bool, get_logger
 from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingDatabaseFactory, \
     EmbeddingsDatabase, EmbeddingsDatabaseTriple
 
-logger = logging.getLogger(__name__)
+
+logger = get_logger(__name__)
 
 embeddings_service_route = Blueprint("embeddings_service", __name__)
 

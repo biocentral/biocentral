@@ -1,14 +1,13 @@
-import hashlib
-import logging
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from biotrainer.protocols import Protocol
 
+from ..utils import get_logger
 from ..server_management import EmbeddingsDatabaseTriple, EmbeddingsDatabase, get_adapter_embedding_service
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _load_embeddings(embedding_service, all_seqs: Dict[str, str], embeddings_file_path: Path) -> List[

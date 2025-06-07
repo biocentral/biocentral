@@ -1,15 +1,13 @@
-import logging
-from pathlib import Path
-
 from ruamel import yaml
 from importlib import resources
 from collections import namedtuple
 from typing import Dict, Any, Optional, Callable
 
+from ..utils import get_logger
 from ..prediction_models import BiotrainerTask
 from ..server_management import TaskInterface, FileManager, StorageFileType, TaskDTO, EmbeddingDatabaseFactory
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _DatasetTuple = namedtuple("_DatasetTuple", ["dataset_name", "split_name"])
 

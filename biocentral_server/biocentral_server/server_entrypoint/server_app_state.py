@@ -1,10 +1,8 @@
 import os
-import sys
-import logging
 
 from flask import Flask, request
 
-from ..utils import Constants
+from ..utils import get_logger
 from ..ppi import ppi_service_route
 from ..proteins import protein_service_route
 from ..biocentral import biocentral_service_route
@@ -16,7 +14,7 @@ from ..bayesian_optimization import bayesian_optimization_service_route
 from ..server_management import UserManager, ServerInitializationManager
 from ..predict import prediction_metadata_route, prediction_service_route, PredictInitializer
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _setup_directories():
@@ -24,30 +22,6 @@ def _setup_directories():
     for directory in required_directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
-
-
-def _setup_logging():
-    formatter = logging.Formatter(Constants.LOGGER_FORMAT)
-
-    # Create file handler for writing logs to file
-    file_handler = logging.FileHandler(Constants.LOGGER_FILE_PATH, encoding='utf8')
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-
-    # Create stream handler for console output
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(formatter)
-    stream_handler.setStream(sys.stdout)
-
-    # Get the root logger and add handlers
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
-
-    # Capture warnings with the logging system
-    logging.captureWarnings(True)
 
 
 class ServerAppState:
@@ -68,7 +42,6 @@ class ServerAppState:
         if self.app is not None:
             return self.app
 
-        _setup_logging()
         _setup_directories()
 
         app = Flask("Biocentral Server")

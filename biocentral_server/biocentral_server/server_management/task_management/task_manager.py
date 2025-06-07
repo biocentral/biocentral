@@ -1,6 +1,5 @@
 import os
 import uuid
-import logging
 
 from redis import Redis
 from rq import Queue, get_current_job
@@ -8,7 +7,9 @@ from typing import Type, List, Optional
 
 from .task_interface import TaskStatus, TaskInterface, TaskDTO
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def run_task_with_updates(task: TaskInterface) -> TaskDTO:

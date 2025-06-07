@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import logging
 import numpy as np
 import pandas as pd
 
 from typing import Callable, Dict
 from protspace.utils.prepare_json import DataProcessor
 
+from ..utils import get_logger
 from .embedding_task import LoadEmbeddingsTask
 from ..server_management import TaskInterface, TaskDTO
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ProtSpaceTask(TaskInterface):

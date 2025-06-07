@@ -1,15 +1,16 @@
 import os
 import shutil
-import logging
 import requests
 import tempfile
 
 from pathlib import Path
 from typing import Dict, List, Any
-from abc import ABC, abstractmethod
 from typing import Union, BinaryIO
+from abc import ABC, abstractmethod
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class StorageBackend(ABC):

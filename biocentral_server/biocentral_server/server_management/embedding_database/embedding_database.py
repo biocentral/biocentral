@@ -1,8 +1,7 @@
-import hashlib
 import io
+import hashlib
 import h5py
 import base64
-import logging
 
 from tqdm import tqdm
 from pathlib import Path
@@ -13,7 +12,9 @@ from typing import List, Dict, Tuple, Any, Optional, Generator
 from .database_strategy import DatabaseStrategy
 from .postgresql_strategy import PostgreSQLStrategy
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 EmbeddingsDatabaseTriple = namedtuple("EmbeddingsDatabaseTriple", ["id", "seq", "embd"])
 

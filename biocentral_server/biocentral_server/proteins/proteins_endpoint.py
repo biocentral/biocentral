@@ -1,11 +1,12 @@
 import json
-import logging
 
 from flask import request, jsonify, Blueprint
 
 from .taxonomy import Taxonomy
 
-logger = logging.getLogger(__name__)
+from ..utils import get_logger
+
+logger = get_logger(__name__)
 
 protein_service_route = Blueprint("protein_service", __name__)
 

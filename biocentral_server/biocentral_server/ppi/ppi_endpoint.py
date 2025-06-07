@@ -1,4 +1,3 @@
-import logging
 import tempfile
 from pathlib import Path
 from typing import List
@@ -9,9 +8,10 @@ from hvi_toolkit.evaluators import DatasetEvaluator
 from hvi_toolkit.importer import get_supported_dataset_formats_with_docs, import_dataset_by_format, auto_detect_format
 from hvi_toolkit.taxonomy import Taxonomy
 
+from ..utils import get_logger
 from ..server_management import FileManager, UserManager, StorageFileType
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 ppi_service_route = Blueprint("ppi_service", __name__)
 

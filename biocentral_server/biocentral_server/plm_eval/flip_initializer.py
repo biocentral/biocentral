@@ -1,12 +1,11 @@
-import logging
-
 from pathlib import Path
 
 from .flip_data_handler import FLIPDataHandler
 
+from ..utils import get_logger
 from ..server_management import FileManager, FileContextManager, ServerModuleInitializer
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class FlipInitializer(ServerModuleInitializer):

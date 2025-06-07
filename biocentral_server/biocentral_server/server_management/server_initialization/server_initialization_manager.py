@@ -1,9 +1,10 @@
-import logging
 from typing import List
 
 from .server_module_initialization import ServerModuleInitializer
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class ServerInitializationManager:

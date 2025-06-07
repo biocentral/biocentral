@@ -1,10 +1,9 @@
-import logging
-
-from ..server_management import ServerModuleInitializer, FileContextManager, FileManager
-
 from .model_utils import MODEL_BASE_PATH
 
-logger = logging.getLogger(__name__)
+from ..utils import get_logger
+from ..server_management import ServerModuleInitializer, FileContextManager, FileManager
+
+logger = get_logger(__name__)
 
 
 class PredictInitializer(ServerModuleInitializer):

@@ -1,6 +1,5 @@
 import torch
 import blosc2
-import logging
 import psycopg
 import numpy as np
 
@@ -10,8 +9,9 @@ from typing import Dict, Tuple, List, Any
 
 from .database_strategy import DatabaseStrategy
 
+from ...utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class PostgreSQLStrategy(DatabaseStrategy):

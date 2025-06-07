@@ -1,12 +1,13 @@
 import torch
-import logging
 import gpytorch
 
 from gpytorch.means import ConstantMean, LinearMean
 from gpytorch.kernels import ScaleKernel, RBFKernel
 from gpytorch.likelihoods import DirichletClassificationLikelihood, GaussianLikelihood
 
-logger = logging.getLogger(__name__)
+from ..utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class GPRegressionModel(gpytorch.models.ExactGP):
