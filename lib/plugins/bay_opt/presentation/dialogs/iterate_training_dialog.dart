@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/bayesian-optimization/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 

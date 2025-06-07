@@ -1,9 +1,9 @@
-import 'package:biocentral/plugins/bayesian-optimization/presentation/views/bayesian_optimization_database_grid_view.dart';
-import 'package:biocentral/plugins/bayesian-optimization/presentation/views/bayesian_optimization_plot_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_database_grid_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_plot_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_bloc.dart';
 
 class BayesianOptimizationHubView extends StatefulWidget {
   const BayesianOptimizationHubView({super.key});

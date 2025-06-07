@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/bayesian-optimization/data/bay_opt_dto.dart';
+import 'package:biocentral/plugins/bay_opt/data/bay_opt_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';

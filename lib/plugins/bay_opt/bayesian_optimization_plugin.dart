@@ -1,8 +1,8 @@
-import 'package:biocentral/plugins/bayesian-optimization/bloc/bayesian_optimization_bloc.dart';
-import 'package:biocentral/plugins/bayesian-optimization/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bayesian-optimization/domain/bayesian_optimization_repository.dart';
-import 'package:biocentral/plugins/bayesian-optimization/presentation/views/bayesian_optimization_command_view.dart';
-import 'package:biocentral/plugins/bayesian-optimization/presentation/views/bayesian_optimization_hub_view.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
+import 'package:biocentral/plugins/bay_opt/domain/bayesian_optimization_repository.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_command_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
