@@ -84,7 +84,7 @@ final class AutoEvalProgress {
     final BiocentralTaskStatus newStatus = dto.taskStatus ?? status;
 
     final String? currentProcessString = dto.currentTask;
-    final currentTask = BenchmarkDataset.fromServerString(currentProcessString);
+    final currentTask = BenchmarkDataset.fromCombinedString(currentProcessString);
 
     final newResults = Map.of(results);
     if (currentTask != null) {

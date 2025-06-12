@@ -44,16 +44,17 @@ class PredictionModel extends Equatable {
 
   static PredictionModel? fromMap(Map<String, dynamic> map) {
     final String? embedderName = map['embedder_name'] ?? map['embedderName'];
-    final String? architecture = map['model_choice'] ?? map['modelChoice'];
-    final String databaseType = map['databaseType'] ??
+    final String databaseType = map['databaseType'] ?? map ['database_type'] ??
         (map['interaction'] != null && map['interaction'] != ''
             ? const ProteinProteinInteraction.empty().typeName
             : const Protein.empty().typeName);
     final PredictionProtocol? predictionProtocol =
         enumFromString<PredictionProtocol>(map['protocol'], PredictionProtocol.values);
 
-    final trainingConfig = map['trainingConfig'];
-    final trainingResult = BiotrainerTrainingResult.fromMap(map['trainingResult'] ?? {});
+    final Map<String, dynamic>? trainingConfig = map['trainingConfig'] ?? map['training_config'];
+    final String? architecture = map['model_choice'] ?? map['modelChoice'] ?? trainingConfig?['model_choice'];
+
+    final trainingResult = BiotrainerTrainingResult.fromMap(map['trainingResult'] ?? map['training_result'] ?? {});
 
     return PredictionModel(
       embedderName: embedderName,
@@ -175,12 +176,12 @@ class PredictionModel extends Equatable {
   Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
     // Checkpoints are not included at the moment
     return {
-      'embedderName': embedderName,
+      'embedder_name': embedderName,
       'architecture': architecture,
-      'databaseType': databaseType,
+      'database_type': databaseType,
       'protocol': predictionProtocol?.name,
-      'trainingConfig': biotrainerTrainingConfig,
-      'trainingResult': biotrainerTrainingResult?.toMap(includeTrainingLogs: includeTrainingLogs),
+      'training_config': biotrainerTrainingConfig,
+      'training_result': biotrainerTrainingResult?.toMap(includeTrainingLogs: includeTrainingLogs),
     };
   }
 

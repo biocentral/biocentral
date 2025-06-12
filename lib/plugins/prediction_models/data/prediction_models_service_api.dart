@@ -1,10 +1,7 @@
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_log_file_handler.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:collection/collection.dart';
-import 'package:fpdart/fpdart.dart';
 
 class PredictionModelsServiceEndpoints {
   // TODO Remove redundant endpoint suffix [e.g. protocolsEndpoint] everywhere
@@ -47,7 +44,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
   final Map<int, double> validationLoss;
   final Set<BiocentralMLMetric> testSetMetrics;
   final Set<String> sanityCheckWarnings;
-  final Map<String, Set<BiocentralMLMetric>> sanityCheckBaselineMetrics;
+  final Map<String, Set<BiocentralMLMetric>> baselineMetrics;
   final List<String> trainingLogs;
   final BiocentralTaskStatus trainingStatus;
 
@@ -56,7 +53,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
     required this.validationLoss,
     required this.testSetMetrics,
     required this.sanityCheckWarnings,
-    required this.sanityCheckBaselineMetrics,
+    required this.baselineMetrics,
     required this.trainingLogs,
     required this.trainingStatus,
   });
@@ -66,20 +63,22 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
         validationLoss = const {},
         testSetMetrics = const {},
         sanityCheckWarnings = const {},
-        sanityCheckBaselineMetrics = const {},
+        baselineMetrics = const {},
         trainingLogs = const [],
         trainingStatus = BiocentralTaskStatus.running;
 
   static BiotrainerTrainingResult? fromMap(Map<String, dynamic> map) {
-    final Map<int, double> trainingLoss =
-        Map<int, double>.from((map['trainingLoss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)));
-    final Map<int, double> validationLoss =
-        Map<int, double>.from((map['validationLoss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)));
-    final List<dynamic> testSetMetrics = map['testSetMetrics'] ?? [];
+    final Map<int, double> trainingLoss = Map<int, double>.from(
+      (map['trainingLoss'] ?? map['training_loss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)),
+    );
+    final Map<int, double> validationLoss = Map<int, double>.from(
+      (map['validationLoss'] ?? map['validation_loss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)),
+    );
+    final List<dynamic> testSetMetrics = map['testSetMetrics'] ?? map['test_set_metrics'] ?? [];
     final Set<String> sanityCheckWarnings = Set<String>.from(map['sanityCheckWarnings'] ?? []);
-    final Map<String, dynamic> sanityCheckBaselineMetrics = map['sanityCheckBaselineMetrics'] ?? {};
-    final List<String> trainingLogs = List<String>.from(map['trainingLogs'] ?? []);
-    final trainingStatus = enumFromString(map['trainingStatus'], BiocentralTaskStatus.values);
+    final Map<String, dynamic> baselineMetrics = map['baselineMetrics'] ?? map['baseline_metrics'] ?? {};
+    final List<String> trainingLogs = List<String>.from(map['trainingLogs'] ?? map['training_logs'] ?? []);
+    final trainingStatus = enumFromString(map['trainingStatus'] ?? map['training_status'], BiocentralTaskStatus.values);
 
     if (trainingStatus == null) {
       return null;
@@ -87,7 +86,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
 
     final convertedTestSetMetrics =
         testSetMetrics.map((element) => BiocentralMLMetric.fromMap(element)).whereType<BiocentralMLMetric>().toSet();
-    final Map<String, Set<BiocentralMLMetric>> convertedSanityCheckBaselineMetrics = sanityCheckBaselineMetrics.map(
+    final Map<String, Set<BiocentralMLMetric>> convertedBaselineMetrics = baselineMetrics.map(
       (k, v) =>
           MapEntry(k, v.map((element) => BiocentralMLMetric.fromMap(element)).whereType<BiocentralMLMetric>().toSet()),
     );
@@ -96,7 +95,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       validationLoss: validationLoss,
       testSetMetrics: convertedTestSetMetrics,
       sanityCheckWarnings: sanityCheckWarnings,
-      sanityCheckBaselineMetrics: convertedSanityCheckBaselineMetrics,
+      baselineMetrics: convertedBaselineMetrics,
       trainingLogs: trainingLogs,
       trainingStatus: trainingStatus,
     );
@@ -116,9 +115,9 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       validationLoss: validationLoss ?? Map.from(this.validationLoss),
       testSetMetrics: testSetMetrics ?? Set.from(this.testSetMetrics),
       sanityCheckWarnings: sanityCheckWarnings ?? Set.from(this.sanityCheckWarnings),
-      sanityCheckBaselineMetrics: sanityCheckBaselineMetrics ??
+      baselineMetrics: sanityCheckBaselineMetrics ??
           Map.fromEntries(
-            this.sanityCheckBaselineMetrics.entries.map((entry) => MapEntry(entry.key, Set.from(entry.value))),
+            this.baselineMetrics.entries.map((entry) => MapEntry(entry.key, Set.from(entry.value))),
           ),
       trainingLogs: trainingLogs ?? List.from(this.trainingLogs),
       trainingStatus: trainingStatus ?? this.trainingStatus,
@@ -135,8 +134,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       'validationLoss': validationLoss.map((k, v) => MapEntry(k.toString(), v)),
       'testSetMetrics': testSetMetrics.map((metric) => metric.toMap()).toList(),
       'sanityCheckWarnings': sanityCheckWarnings.toList(),
-      'sanityCheckBaselineMetrics':
-          sanityCheckBaselineMetrics.map((k, v) => MapEntry(k, v.map((metric) => metric.toMap()).toList())),
+      'baselineMetrics': baselineMetrics.map((k, v) => MapEntry(k, v.map((metric) => metric.toMap()).toList())),
       'trainingStatus': trainingStatus.name,
     };
     if (includeTrainingLogs) {
@@ -159,8 +157,8 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
           validationLoss == other.validationLoss &&
           testSetMetrics == other.testSetMetrics &&
           sanityCheckWarnings == other.sanityCheckWarnings &&
-          sanityCheckBaselineMetrics == other.sanityCheckBaselineMetrics;
+          baselineMetrics == other.baselineMetrics;
 
   @override
-  int get hashCode => testSetMetrics.hashCode ^ sanityCheckWarnings.hashCode ^ sanityCheckBaselineMetrics.hashCode;
+  int get hashCode => testSetMetrics.hashCode ^ sanityCheckWarnings.hashCode ^ baselineMetrics.hashCode;
 }

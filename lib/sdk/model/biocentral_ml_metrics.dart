@@ -26,7 +26,8 @@ class BiocentralMLMetric {
   static BiocentralMLMetric? fromMap(Map<String, dynamic> map) {
     final name = map['metric'];
     final value = double.tryParse(map['value'].toString());
-    final uncertaintyEstimate = UncertaintyEstimate.fromMap(map['uncertaintyEstimate'] ?? {});
+    final uncertaintyEstimate =
+        UncertaintyEstimate.fromMap(map['uncertaintyEstimate'] ?? map['uncertainty_estimate'] ?? {});
     if (name == null || value == null) {
       return null;
     }
@@ -43,7 +44,7 @@ class BiocentralMLMetric {
   Map<String, dynamic> toMap() {
     final result = {'metric': name, 'value': value};
     if (uncertaintyEstimate != null) {
-      result.addAll({'uncertaintyEstimate': uncertaintyEstimate!.toMap()});
+      result.addAll({'uncertainty_estimate': uncertaintyEstimate!.toMap()});
     }
     return result;
   }
@@ -154,8 +155,8 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
       'mean': mean,
       'error': error,
       'iterations': iterations,
-      'sampleSize': sampleSize,
-      'confidenceLevel': confidenceLevel
+      'sample_size': sampleSize,
+      'confidence_level': confidenceLevel
     };
   }
 }

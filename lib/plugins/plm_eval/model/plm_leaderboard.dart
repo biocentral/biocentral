@@ -34,13 +34,13 @@ class PLMLeaderboard {
   factory PLMLeaderboard.fromPersistentResults(List<PLMEvalPersistentResult> persistentResults) {
     final Map<ModelName, List<PLMLeaderboardEntry>> entries = {};
     for (final result in persistentResults) {
-      entries[result.modelName] = [];
+      entries[result.embedderName] = [];
       for (final benchmarkResultEntry in result.results.entries) {
         if (benchmarkResultEntry.value == null) {
           // TODO [Error handling] This case should not happen, so throw an error here
           continue;
         }
-        entries[result.modelName]?.add(
+        entries[result.embedderName]?.add(
           PLMLeaderboardEntry(
             predictionModel: benchmarkResultEntry.value!,
             benchmarkDataset: benchmarkResultEntry.key,
