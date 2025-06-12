@@ -1,14 +1,16 @@
 class BenchmarkDataset implements Comparable<BenchmarkDataset> {
+  static const String _autoEvalSeparator = '-';
+
   final String datasetName;
   final String splitName;
 
   BenchmarkDataset({required this.datasetName, required this.splitName});
 
-  static BenchmarkDataset? fromServerString(String? serverString) {
+  static BenchmarkDataset? fromCombinedString(String? serverString) {
     if(serverString == null || serverString.isEmpty) {
       return null;
     }
-    final values = serverString.split('-');
+    final values = serverString.split(_autoEvalSeparator);
     if(values.length != 2) {
       return null;
     }
@@ -31,6 +33,10 @@ class BenchmarkDataset implements Comparable<BenchmarkDataset> {
       result[entry.key.datasetName]?.add((entry.key.splitName, entry.value));
     }
     return result;
+  }
+
+  String toCombinedString() {
+    return '$datasetName$_autoEvalSeparator$splitName';
   }
 
   @override

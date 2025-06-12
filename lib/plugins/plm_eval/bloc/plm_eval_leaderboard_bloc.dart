@@ -146,7 +146,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
       // TODO [Error handling] Embedder Name must be unique here, make sure that redundant evaluations are not possible
       final resultForModelName = _plmEvalRepository
           .getAllResultsAsPersistent()
-          .where((result) => result.modelName == event.modelName)
+          .where((result) => result.embedderName == event.modelName)
           .firstOrNull;
 
       if (resultForModelName == null) {

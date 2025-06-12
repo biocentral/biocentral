@@ -86,7 +86,7 @@ extension BiotrainerLogFileHandler on BiotrainerFileHandler {
       validationLoss: parser.validationLoss,
       testSetMetrics: parser.testSetMetrics,
       sanityCheckWarnings: parser.sanityCheckWarnings,
-      sanityCheckBaselineMetrics: parser.sanityCheckBaselineMetrics,
+      baselineMetrics: parser.sanityCheckBaselineMetrics,
       trainingLogs: parser.logs,
       trainingStatus: status,
     );

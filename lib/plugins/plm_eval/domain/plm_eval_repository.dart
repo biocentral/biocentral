@@ -28,20 +28,28 @@ class PLMEvalRepository {
 
   Future<List<PLMEvalPersistentResult>> addPersistentResultsFromFile(String plmEvalResultsFile) async {
     final decodedFile = jsonDecode(plmEvalResultsFile);
-    if (decodedFile is! List) {
-      // TODO Error handling
-      return getPersistentResults();
-    }
 
     bool newResultAdded = false;
-    for (final value in decodedFile) {
-      final PLMEvalPersistentResult? parsedResult = PLMEvalPersistentResult.fromMap(value);
+    if (decodedFile is List) {
+      for (final value in decodedFile) {
+        final PLMEvalPersistentResult? parsedResult = PLMEvalPersistentResult.fromMap(value);
+        if (parsedResult != null) {
+          _persistentResults.add(parsedResult);
+          newResultAdded = true;
+        }
+      }
+    } else if (decodedFile is Map) {
+      final PLMEvalPersistentResult? parsedResult =
+          PLMEvalPersistentResult.fromMap(decodedFile as Map<String, dynamic>);
       if (parsedResult != null) {
         _persistentResults.add(parsedResult);
         newResultAdded = true;
       }
+    } else {
+      // TODO Error handling
+      return getPersistentResults();
     }
-    if(newResultAdded) {
+    if (newResultAdded) {
       await _projectRepository.handleProjectInternalSave(
         fileName: 'plm_eval_results.json',
         type: PLMEvalPersistentResult,

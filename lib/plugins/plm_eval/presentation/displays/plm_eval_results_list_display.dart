@@ -43,7 +43,7 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
 
   Widget buildPLMEvalPersistentResultDisplay(PLMEvalPersistentResult persistentResult) {
     return BiocentralTaskDisplay(
-      title: 'Loaded evaluation results for: ${persistentResult.modelName}',
+      title: 'Loaded evaluation results for: ${persistentResult.embedderName}',
       leadingIcon: const Icon(Icons.check),
       children: [buildResultsView(persistentResult: persistentResult)],
     );
