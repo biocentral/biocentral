@@ -140,7 +140,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   Widget buildMetricsDisplay(BiotrainerTrainingResult? trainingResult) {
     if (trainingResult == null) return Container();
     final metrics = {'Test Set Metrics': trainingResult.testSetMetrics}
-      ..addAll(trainingResult.sanityCheckBaselineMetrics);
+      ..addAll(trainingResult.baselineMetrics);
     return BiocentralMetricsDisplay(metrics: metrics);
   }
 
