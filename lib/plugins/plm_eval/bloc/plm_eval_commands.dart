@@ -19,7 +19,6 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
   final String _modelID;
   final XFile? _onnxFile;
   final Map<String, dynamic>? _tokenizerConfig;
-  final bool _recommendedOnly;
   final List<BenchmarkDataset> _benchmarkDatasets;
 
   AutoEvalPLMCommand({
@@ -27,7 +26,6 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
     required PLMEvalClient plmEvalClient,
     required PLMEvalRepository plmEvalRepository,
     required String modelID,
-    required bool recommendedOnly,
     required List<BenchmarkDataset> benchmarkDatasets,
     XFile? onnxFile,
     Map<String, dynamic>? tokenizerConfig,
@@ -37,7 +35,6 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
         _modelID = modelID,
         _onnxFile = onnxFile,
         _tokenizerConfig = tokenizerConfig,
-        _recommendedOnly = recommendedOnly,
         _benchmarkDatasets = benchmarkDatasets;
 
   @override
@@ -55,7 +52,7 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
     }
 
     final startAutoEvalEither =
-        await _plmEvalClient.startAutoEval(_modelID, onnxBytes, _tokenizerConfig, _recommendedOnly);
+        await _plmEvalClient.startAutoEval(_modelID, onnxBytes, _tokenizerConfig);
 
     yield* startAutoEvalEither.match((l) async* {
       yield left(
@@ -77,7 +74,7 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
     yield left(state);
 
     AutoEvalProgress? progress;
-    await for (AutoEvalProgress? currentProgress in _plmEvalClient.autoEvalProgressStream(taskID, initialProgress)) {
+    await for (final (dto, currentProgress) in _plmEvalClient.autoEvalProgressStream(taskID, initialProgress)) {
       if (currentProgress == null) {
         continue;
       }
@@ -109,7 +106,6 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
       'modelID': _modelID,
       if (_onnxFile != null) 'onnxFile': _onnxFile.path,
       if (_tokenizerConfig != null) 'tokenizerConfig': _tokenizerConfig,
-      'recommendedOnly': _recommendedOnly,
       'benchmarkDatasets': BenchmarkDataset.benchmarkDatasetsByDatasetName(_benchmarkDatasets),
     };
   }

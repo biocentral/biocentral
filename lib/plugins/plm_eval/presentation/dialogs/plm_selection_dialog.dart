@@ -13,7 +13,6 @@ class PLMSelectionDialog extends StatefulWidget {
     Either<String, XFile> modelSelection,
     Map<String, dynamic> tokenizerConfig,
     List<BenchmarkDataset> datasets,
-    bool recommendedOnly,
   ) onStartAutoeval;
 
   const PLMSelectionDialog({required this.onStartAutoeval, super.key});
@@ -28,8 +27,6 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
 
   Map<String, dynamic> _tokenizerConfig = {};
 
-  bool _recommendedOnlySelection = true;
-
   @override
   void initState() {
     super.initState();
@@ -38,10 +35,9 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   void startAutoeval(PLMSelectionDialogState state) {
     if (state.status == PLMSelectionDialogStatus.validated &&
         state.modelSelection != null &&
-        state.availableDatasets.isNotEmpty) {
+        state.datasets.isNotEmpty) {
       closeDialog();
-      widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig,
-          _recommendedOnlySelection ? state.recommendedDatasets : state.availableDatasets, _recommendedOnlySelection);
+      widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig, state.datasets);
     }
   }
 
@@ -94,7 +90,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     }
     dialogChildren.addAll([
       buildModelSelection(plmSelectionDialogBloc, state),
-      buildDatasetSplitsDisplay(plmSelectionDialogBloc, state, state.availableDatasets, state.recommendedDatasets),
+      buildDatasetSplitsDisplay(plmSelectionDialogBloc, state, state.datasets),
       buildCancelButton(),
     ]);
 
@@ -119,8 +115,8 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
               labelColor: Theme.of(context).colorScheme.onSurface,
               unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
               tabs: [
-                Tab(icon: Icon(Icons.hub), text: 'Huggingface'),
-                Tab(icon: Icon(Icons.folder_open_sharp), text: 'ONNX'),
+                const Tab(icon: Icon(Icons.hub), text: 'Huggingface'),
+                const Tab(icon: Icon(Icons.folder_open_sharp), text: 'ONNX'),
               ],
             ),
           ),
@@ -205,22 +201,13 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     );
   }
 
-  TextStyle? _getTextStyleForSplits(String datasetName, String splitName, List<BenchmarkDataset> recommended) {
+  TextStyle? _getTextStyleForSplits(String datasetName, String splitName) {
     final standardTheme = Theme.of(context).textTheme.labelMedium;
-    if (_recommendedOnlySelection == false) {
-      return standardTheme?.copyWith(color: Colors.black);
-    }
-
-    final benchmarkDataset = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
-    final isRecommendedDataset = recommended.contains(benchmarkDataset);
-    if (isRecommendedDataset) {
-      return standardTheme?.copyWith(color: Colors.black);
-    }
-    return standardTheme?.copyWith(color: Colors.white);
+    return standardTheme?.copyWith(color: Colors.purple);
   }
 
   Widget buildDatasetSplitsDisplay(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state,
-      List<BenchmarkDataset> available, List<BenchmarkDataset> recommended) {
+      List<BenchmarkDataset> available) {
     if (available.isEmpty) {
       return Container();
     }
@@ -294,7 +281,6 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
                               style: _getTextStyleForSplits(
                                 datasetName,
                                 splitName,
-                                recommended,
                               ),
                             ),
                             backgroundColor: Colors.white,
@@ -308,21 +294,9 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
             ],
           ),
         ),
-        buildRecommendedOnlyCheckBox(),
         buildSequenceLengthHint(),
         buildEvaluateButton(plmSelectionDialogBloc, state),
       ],
-    );
-  }
-
-  Widget buildRecommendedOnlyCheckBox() {
-    return CheckboxListTile(
-      title: const Text('Only use recommended datasets'),
-      controlAffinity: ListTileControlAffinity.leading,
-      value: _recommendedOnlySelection,
-      onChanged: (bool? value) => setState(() {
-        _recommendedOnlySelection = value ?? false;
-      }),
     );
   }
 
@@ -334,7 +308,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
   }
 
   Widget buildEvaluateButton(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
-    if (state.status == PLMSelectionDialogStatus.validated && state.availableDatasets.isNotEmpty) {
+    if (state.status == PLMSelectionDialogStatus.validated && state.datasets.isNotEmpty) {
       return BiocentralSmallButton(onTap: () => startAutoeval(state), label: 'Start Evaluation');
     }
     return Container();

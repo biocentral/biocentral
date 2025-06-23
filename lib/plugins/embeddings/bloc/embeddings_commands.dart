@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
+import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
@@ -42,8 +44,8 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         yield left(state.setErrored(information: 'Embeddings file could not be parsed!'));
         return;
       }
-      final embeddingsData =
-          await _pythonCompanion.loadH5File(embeddingsFileBytes, _xFile.name.split('.').first ?? 'loaded_embeddings');
+      final embeddingsData = await _pythonCompanion.loadH5File(
+          embeddingsFileBytes, _xFile.name.split('.').firstOrNull ?? 'loaded_embeddings');
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -103,9 +105,10 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     yield left(state.setOperating(information: 'Calculating embeddings..'));
 
     final String databaseHash = await _biocentralDatabase.getHash();
+    final int totalToEmbed = _biocentralDatabase.databaseToList().length;
     final transferEither = await _embeddingClient.transferFile(
       databaseHash,
-      StorageFileType.sequences,
+      StorageFileType.input,
       () async => _biocentralDatabase.convertToString('fasta'),
     );
     yield* transferEither.match((error) async* {
@@ -122,16 +125,26 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
         return;
       }, (taskID) async* {
         String? embeddingsFile;
-        await for (String? embFileResponse in _embeddingClient.embeddingsTaskStream(taskID)) {
-          if (embFileResponse != null) {
-            embeddingsFile = embFileResponse;
+        await for (final (dto, receivedEmbeddingsFile) in _embeddingClient.embeddingsTaskStream(taskID)) {
+          final int? progress = dto.embeddingProgress;
+          if (progress != null) {
+            yield left(
+              state.setOperating(
+                information: 'Embedding..',
+                commandProgress: BiocentralCommandProgress(current: progress, total: totalToEmbed),
+              ),
+            );
+          }
+          embeddingsFile = receivedEmbeddingsFile;
+          if(embeddingsFile != null) {
             break;
           }
         }
         if (embeddingsFile == null) {
           yield left(state.setErrored(information: 'Embeddings could not be calculated, no embeddings file received!'));
+        } else {
+          yield* _handleEmbeddingsFile(state, embeddingsFile!, reduce);
         }
-        yield* _handleEmbeddingsFile(state, embeddingsFile!, reduce);
       });
     });
   }
@@ -269,9 +282,9 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
       yield left(state.setErrored(information: error.message));
     }, (taskID) async* {
       Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
-      await for (final projectionDataResponse in _embeddingsClient.projectionTaskStream(taskID)) {
-        if (projectionDataResponse != null) {
-          projectionData = projectionDataResponse;
+      await for (final (dto, projectionDataResponse) in _embeddingsClient.projectionTaskStream(taskID)) {
+        projectionData = projectionDataResponse;
+        if (projectionData != null) {
           break;
         }
       }

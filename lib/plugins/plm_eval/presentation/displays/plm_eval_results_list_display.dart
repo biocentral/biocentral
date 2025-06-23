@@ -60,10 +60,10 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
   Widget buildResultsView({AutoEvalProgress? sessionResult, PLMEvalPersistentResult? persistentResult}) {
     final results = sessionResult?.results ?? persistentResult?.results ?? {};
     final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
-    for (final entry in results.entries) {
-      metrics.putIfAbsent(entry.key.datasetName, () => {});
-      if (entry.value != null && entry.value?.biotrainerTrainingResult != null) {
-        metrics[entry.key.datasetName]?[entry.key.splitName] = entry.value!.biotrainerTrainingResult!.testSetMetrics;
+    for (final (benchmarkDataset, predictionModel) in results.entriesRecord) {
+      metrics.putIfAbsent(benchmarkDataset.datasetName, () => {});
+      if (predictionModel != null && predictionModel.defaultTestResult != null) {
+        metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName] = predictionModel.defaultTestResult!.metrics;
       }
     }
     return ExpansionTile(title: const Text('Results'), children: [PLMEvalResultsDisplay(metrics: metrics)]);

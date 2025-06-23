@@ -36,7 +36,7 @@ class EmbeddingsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
-  Stream<String?> embeddingsTaskStream(String taskID) async* {
+  Stream<(BiocentralDTO, String?)> embeddingsTaskStream(String taskID) async* {
     // TODO jsonEncode might cost performance here
     String? updateFunction(String? currentString, BiocentralDTO biocentralDTO) => biocentralDTO.embeddings;
     yield* taskUpdateStream<String?>(taskID, null, updateFunction);
@@ -88,7 +88,7 @@ class EmbeddingsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
-  Stream<Map<ProjectionData, List<Map<String, dynamic>>>?> projectionTaskStream(String taskID) async* {
+  Stream<(BiocentralDTO, Map<ProjectionData, List<Map<String, dynamic>>>?)> projectionTaskStream(String taskID) async* {
     Map<ProjectionData, List<Map<String, dynamic>>>? updateFunction(var currentMap, BiocentralDTO biocentralDTO) {
       final String? projections = biocentralDTO.projections;
       if (projections == null) {

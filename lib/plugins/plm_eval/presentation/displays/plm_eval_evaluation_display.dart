@@ -23,7 +23,8 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
       builder: (context, state) {
         if (state.modelID == null ||
             state.autoEvalProgress == null ||
-            state.status == BiocentralCommandStatus.finished) { // Finished gets replaced with other display
+            state.status == BiocentralCommandStatus.finished) {
+          // Finished gets replaced with other display
           return Container();
         }
         return BiocentralTaskDisplay(
@@ -39,10 +40,11 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
   Widget buildResultsView(PLMEvalEvaluationState state) {
     final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
     if (state.autoEvalProgress != null) {
-      for (final entry in state.autoEvalProgress!.results.entries) {
-        metrics.putIfAbsent(entry.key.datasetName, () => {});
-        if (entry.value != null && entry.value?.biotrainerTrainingResult != null) {
-          metrics[entry.key.datasetName]?[entry.key.splitName] = entry.value!.biotrainerTrainingResult!.testSetMetrics;
+      for (final (benchmarkDataset, predictionModel) in state.autoEvalProgress!.results.entriesRecord) {
+        metrics.putIfAbsent(benchmarkDataset.datasetName, () => {});
+        if (predictionModel != null && predictionModel.defaultTestResult != null) {
+          metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName] =
+              predictionModel.defaultTestResult!.metrics;
         }
       }
     }

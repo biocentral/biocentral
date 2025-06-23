@@ -14,18 +14,16 @@ sealed class PLMEvalEvaluationEvent {}
 final class PLMEvalHuggingfaceEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final String modelID;
   final List<BenchmarkDataset> benchmarkDatasets;
-  final bool recommendedOnly;
 
-  PLMEvalHuggingfaceEvaluationStartEvent(this.modelID, this.benchmarkDatasets, this.recommendedOnly);
+  PLMEvalHuggingfaceEvaluationStartEvent(this.modelID, this.benchmarkDatasets);
 }
 
 final class PLMEvalONNXEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final XFile onnxFile;
   final Map<String, dynamic> tokenizerConfig;
   final List<BenchmarkDataset> benchmarkDatasets;
-  final bool recommendedOnly;
 
-  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.tokenizerConfig, this.benchmarkDatasets, this.recommendedOnly);
+  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.tokenizerConfig, this.benchmarkDatasets);
 }
 
 final class PLMEvalEvaluationResumeEvent extends PLMEvalEvaluationEvent {
@@ -98,7 +96,6 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
         plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
         plmEvalRepository: _plmEvalRepository,
         modelID: event.modelID,
-        recommendedOnly: event.recommendedOnly,
         benchmarkDatasets: event.benchmarkDatasets,
       );
       await autoEvalCommand.executeWithLogging<PLMEvalEvaluationState>(_projectRepository, state).forEach((either) {
@@ -115,7 +112,6 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
         modelID: event.onnxFile.name.replaceAll('.onnx', ''),
         onnxFile: event.onnxFile,
         tokenizerConfig: event.tokenizerConfig,
-        recommendedOnly: event.recommendedOnly,
         benchmarkDatasets: event.benchmarkDatasets,
       );
       await autoEvalCommand.executeWithLogging<PLMEvalEvaluationState>(_projectRepository, state).forEach((either) {
@@ -152,7 +148,6 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
         plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
         plmEvalRepository: _plmEvalRepository,
         modelID: modelID,
-        recommendedOnly: recommendedOnly,
         benchmarkDatasets: convertedBenchmarkDatasets,
       );
       await autoEvalCommand

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_log_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:yaml/yaml.dart';
 
@@ -18,19 +17,20 @@ class BiotrainerFileHandler {
     }
     return result;
   }
-
-  static Future<(String, String, String)> getBiotrainerInputFiles(
+  
+  static Future<String> getBiotrainerInputFile(
     Type databaseType,
     Map<String, dynamic> entryMap,
     String targetColumn,
     String setColumn,
   ) async {
-    String sequenceFile = '';
+    String inputFile = '';
+    // TODO [Refactoring] Ad MASKS/per-residue TARGETS
     switch (databaseType) {
       case Protein:
         {
           final handler = BioFileHandler<Protein>().create('fasta');
-          sequenceFile = await handler.convertToString(
+          inputFile = await handler.convertToString(
                 entryMap.map(
                   (key, value) => MapEntry(
                     key,
@@ -49,7 +49,7 @@ class BiotrainerFileHandler {
       case ProteinProteinInteraction:
         {
           final handler = BioFileHandler<ProteinProteinInteraction>().create('fasta');
-          sequenceFile = await handler.convertToString(
+          inputFile = await handler.convertToString(
                 entryMap.map(
                   (key, value) => MapEntry(
                     key,
@@ -66,13 +66,11 @@ class BiotrainerFileHandler {
           break;
         }
     }
-    // TODO residue_to_ protocols
-    final String labelsFile = '';
-    final String maskFile = '';
-    return (sequenceFile, labelsFile, maskFile);
+    return inputFile;
   }
-
-  static String biotrainerConfigurationToConfigFile(Map<String, dynamic?> biotrainerConfiguration) {
+  
+  /// Convert [biotrainerConfiguration] to YAML file
+  static String biotrainerConfigurationToConfigFile(Map<String, dynamic> biotrainerConfiguration) {
     String result = '';
     for (String key in biotrainerConfiguration.keys) {
       if (biotrainerConfiguration[key] != '' && !key.contains('column')) {
@@ -83,7 +81,7 @@ class BiotrainerFileHandler {
     return result;
   }
 
-  static PredictionModel parsePredictionModelFromRawFiles({
+  static PredictionModel? parsePredictionModelFromRawFiles({
     required bool failOnConflict,
     String? biotrainerConfig,
     String? biotrainerOutput,
@@ -110,60 +108,39 @@ class BiotrainerFileHandler {
     }
     return parsePredictionModel(
       biotrainerConfig: parsedConfigFile,
-      biotrainerOutputMap: parsedOutputFile,
+      biotrainerOutput: parsedOutputFile,
       biotrainerTrainingLog: biotrainerTrainingLog,
       biotrainerCheckpoints: parsedBiotrainerCheckpoints,
       failOnConflict: failOnConflict,
     );
   }
 
-  static PredictionModel parsePredictionModel({
+  static PredictionModel? parsePredictionModel({
     required bool failOnConflict,
     Map<String, dynamic>? biotrainerConfig,
-    Map<String, dynamic>? biotrainerOutputMap,
+    Map<String, dynamic>? biotrainerOutput,
     String? biotrainerTrainingLog,
-    Map<String, dynamic>? biotrainerCheckpoints,
+    Map<String, Uint8List>? biotrainerCheckpoints,
   }) {
-    PredictionModel result = const PredictionModel.empty();
+    PredictionModel? result = const PredictionModel.empty();
     // Output file should have the highest authority => Loaded first
-    if (biotrainerOutputMap != null) {
-      result = result.merge(_predictionModelFromResultFile(biotrainerOutputMap), failOnConflict: failOnConflict);
+    if (biotrainerOutput != null) {
+      result = PredictionModel.fromMap(biotrainerOutput);
     }
     // Output file and config file should have no contradictions => failOnConflict always true
     if (biotrainerConfig != null) {
-      result = result.merge(_predictionModelFromBiotrainerConfig(biotrainerConfig), failOnConflict: true);
+      final configModel = PredictionModel.fromTrainingConfig(biotrainerConfig);
+      result = result?.merge(configModel, failOnConflict: true) ?? configModel;
     }
     // Training log
     if (biotrainerTrainingLog != null) {
       final logs = biotrainerTrainingLog.split('\n');
-      result = result.copyWith(
-        biotrainerTrainingResult: BiotrainerLogFileHandler.parseBiotrainerLog(trainingLog: biotrainerTrainingLog),
-        biotrainerTrainingLog: logs,
-      );
+      result = result?.addLogs(logs);
     }
     // Checkpoints
     if (biotrainerCheckpoints != null) {
-      result = result.copyWith(biotrainerCheckpoints: biotrainerCheckpoints);
+      result = result?.addCheckpoints(biotrainerCheckpoints);
     }
     return result;
-  }
-
-  static PredictionModel? predictionModelFromBiotrainerLog(Map<String, dynamic> configMap, String trainingLog) {
-    return PredictionModel.fromMap(configMap)?.copyWith(
-        biotrainerTrainingResult: BiotrainerLogFileHandler.parseBiotrainerLog(trainingLog: trainingLog),
-        biotrainerTrainingLog: trainingLog);
-  }
-
-  static PredictionModel? _predictionModelFromBiotrainerConfig(Map<String, dynamic> configMap) {
-    return PredictionModel.fromMap(configMap)?.copyWith(biotrainerTrainingConfig: configMap);
-  }
-
-  static PredictionModel? _predictionModelFromResultFile(Map<String, dynamic> parsedResultFile) {
-    return PredictionModel.fromMap({
-      'embedder_name': parsedResultFile['embedder_name'] ?? '',
-      'model_choice': parsedResultFile['model_choice'] ?? '',
-      'interaction': parsedResultFile['interaction'] ?? '',
-      'protocol': parsedResultFile['protocol'] ?? '',
-    });
   }
 }

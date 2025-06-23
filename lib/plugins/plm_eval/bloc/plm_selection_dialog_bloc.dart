@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/embeddings/model/onnx_embedder.dart';
+import 'package:biocentral/plugins/embeddings/model/onnx_runtime_wrapper.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -6,9 +7,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:biocentral/plugins/embeddings/model/onnx_runtime_wrapper.dart';
 
 sealed class PLMSelectionDialogEvent {}
 
@@ -28,44 +27,40 @@ final class PLMSelectionDialogValidateONNXEvent extends PLMSelectionDialogEvent 
 final class PLMSelectionDialogState extends Equatable {
   final Either<String, XFile>? modelSelection;
   final String? errorMessage;
-  final List<BenchmarkDataset> availableDatasets;
-  final List<BenchmarkDataset> recommendedDatasets;
+  final List<BenchmarkDataset> datasets;
 
   final PLMSelectionDialogStatus status;
 
-  const PLMSelectionDialogState(
-      this.status, this.modelSelection, this.errorMessage, this.availableDatasets, this.recommendedDatasets);
+  const PLMSelectionDialogState(this.status, this.modelSelection, this.errorMessage, this.datasets);
 
   const PLMSelectionDialogState.initial()
       : modelSelection = null,
         errorMessage = null,
-        availableDatasets = const [],
-        recommendedDatasets = const [],
+        datasets = const [],
         status = PLMSelectionDialogStatus.initial;
 
   const PLMSelectionDialogState.checking(this.modelSelection)
       : errorMessage = null,
-        availableDatasets = const [],
-        recommendedDatasets = const [],
+        datasets = const [],
         status = PLMSelectionDialogStatus.checking;
 
-  const PLMSelectionDialogState.validated(this.modelSelection, this.availableDatasets, this.recommendedDatasets)
+  const PLMSelectionDialogState.validated(this.modelSelection, this.datasets)
       : errorMessage = null,
         status = PLMSelectionDialogStatus.validated;
 
   const PLMSelectionDialogState.evaluationAlreadyAvailable(
-      this.modelSelection, this.availableDatasets, this.recommendedDatasets)
-      : errorMessage = null,
+    this.modelSelection,
+    this.datasets,
+  )   : errorMessage = null,
         status = PLMSelectionDialogStatus.evaluationAlreadyAvailable;
 
   const PLMSelectionDialogState.errored(this.errorMessage)
       : modelSelection = null,
-        availableDatasets = const [],
-        recommendedDatasets = const [],
+        datasets = const [],
         status = PLMSelectionDialogStatus.errored;
 
   @override
-  List<Object?> get props => [modelSelection, errorMessage, availableDatasets, status];
+  List<Object?> get props => [modelSelection, errorMessage, datasets, status];
 }
 
 enum PLMSelectionDialogStatus { initial, checking, validated, evaluationAlreadyAvailable, errored }
@@ -98,7 +93,7 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
       await validateEither.match((l) async {
         emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: ${l.error}'));
       }, (r) async {
-        emit(PLMSelectionDialogState.validated(selectionEither, [], []));
+        emit(PLMSelectionDialogState.validated(selectionEither, []));
         await _getDatasets(emit, selectionEither);
       });
     });
@@ -124,8 +119,8 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
         emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: ${l.error}'));
       }, (onnxBytes) async {
         // TODO [Refactoring] Improve Web ONNX Handling
-        if(kIsWeb) {
-          emit(PLMSelectionDialogState.validated(selectionEither, [], []));
+        if (kIsWeb) {
+          emit(PLMSelectionDialogState.validated(selectionEither, []));
           await _getDatasets(emit, selectionEither);
         } else {
           final sessionOptions = OrtSessionOptions();
@@ -135,7 +130,7 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
           if (!isValid) {
             emit(PLMSelectionDialogState.errored(error));
           } else {
-            emit(PLMSelectionDialogState.validated(selectionEither, [], []));
+            emit(PLMSelectionDialogState.validated(selectionEither, []));
             await _getDatasets(emit, selectionEither);
           }
         }
@@ -152,14 +147,7 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
         emit(PLMSelectionDialogState.errored('Could not retrieve available benchmark datasets! Error: ${l.error}'));
       },
       (List<BenchmarkDataset> available) async {
-        final recommendedBenchmarkDatasetEither = await plmEvalClient.getRecommendedBenchmarkDatasets();
-        recommendedBenchmarkDatasetEither.match(
-            (l) => emit(
-                  PLMSelectionDialogState.errored(
-                      'Could not retrieve recommended benchmark datasets! Error: ${l.error}'),
-                ), (List<BenchmarkDataset> recommended) {
-          emit(PLMSelectionDialogState.validated(selectionEither, available..sort(), recommended..sort()));
-        });
+        emit(PLMSelectionDialogState.validated(selectionEither, available..sort()));
       },
     );
   }

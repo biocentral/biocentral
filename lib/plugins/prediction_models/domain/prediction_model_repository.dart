@@ -22,7 +22,7 @@ class PredictionModelRepository {
     Map<String, Uint8List>? checkpointFiles,
     DatabaseImportMode databaseImportMode = DatabaseImportMode.overwrite,
   }) async {
-    final PredictionModel predictionModel = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
+    final PredictionModel? predictionModel = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
       biotrainerConfig: configFile,
       biotrainerOutput: outputFile,
       biotrainerTrainingLog: loggingFile,
@@ -30,21 +30,21 @@ class PredictionModelRepository {
       //TODO Manual setting of failOnConflict?
       failOnConflict: true,
     );
-    // TODO Get model id from prediction model directly
-    final String modelID = predictionModel.hashCode.toString().substring(0, 8);
 
-    if (predictionModel.isNotEmpty()) {
+    if (predictionModel != null) {
       _addModel(predictionModel);
-    }
-
-    await save(
+      final String modelID =
+          predictionModel.modelHash ?? 'UnknownModelHash-${predictionModel.hashCode.toString().substring(0, 4)}';
+      await save(
         modelID,
         {
           StorageFileType.biotrainer_config: configFile,
           StorageFileType.biotrainer_result: outputFile,
-          StorageFileType.biotrainer_logging: loggingFile
+          StorageFileType.biotrainer_logging: loggingFile,
         },
-        checkpointFiles);
+        checkpointFiles,
+      );
+    }
     return predictionModelsToList();
   }
 
