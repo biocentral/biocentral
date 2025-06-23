@@ -30,18 +30,12 @@ class PLMEvalClient extends BiocentralClient {
     return responseEither.flatMap((map) => parseBenchmarkDatasetsFromMap(map));
   }
 
-  Future<Either<BiocentralException, List<BenchmarkDataset>>> getRecommendedBenchmarkDatasets() async {
-    final responseEither = await doGetRequest(PLMEvalServiceEndpoints.getRecommendedBenchmarkDatasets);
-    return responseEither.flatMap((map) => parseBenchmarkDatasetsFromMap(map));
-  }
-
   Future<Either<BiocentralException, String>> startAutoEval(
     String modelID,
     Uint8List? onnxBytes,
     Map<String, dynamic>? tokenizerConfig,
-    bool recommendedOnly,
   ) async {
-    final Map<String, String> body = {'modelID': modelID, 'recommended_only': recommendedOnly.toString()};
+    final Map<String, String> body = {'modelID': modelID};
     if (onnxBytes != null) {
       body['onnxFile'] = base64Encode(onnxBytes);
       body['tokenizerConfig'] = jsonEncode(tokenizerConfig);
@@ -77,7 +71,7 @@ class PLMEvalClient extends BiocentralClient {
     return currentProgress?.updateFromDTO(biocentralDTO);
   }
 
-  Stream<AutoEvalProgress?> autoEvalProgressStream(String taskID, AutoEvalProgress initialProgress) async* {
+  Stream<(BiocentralDTO, AutoEvalProgress?)> autoEvalProgressStream(String taskID, AutoEvalProgress initialProgress) async* {
     yield* taskUpdateStream<AutoEvalProgress?>(taskID, initialProgress, _updateFunction);
   }
 

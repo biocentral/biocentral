@@ -11,7 +11,7 @@ class BiocentralServiceEndpoints {
 
 // TODO [Refactoring] Refactor to BiocentralFile and make available via some repository for generic enhance-ability
 enum StorageFileType {
-  sequences,
+  input,
   labels,
   masks,
   embeddings_per_residue,
@@ -24,7 +24,7 @@ enum StorageFileType {
   /// First one is default extension
   List<String> getPossibleExtensions() {
     switch(this) {
-      case StorageFileType.sequences: return ['fasta'];
+      case StorageFileType.input: return ['fasta'];
       case StorageFileType.labels: return ['fasta'];
       case StorageFileType.masks: return ['fasta'];
       case StorageFileType.embeddings_per_residue: return ['h5'];

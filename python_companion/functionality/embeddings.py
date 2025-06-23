@@ -13,9 +13,9 @@ def read_h5(json_data):
     h5_io = io.BytesIO(h5_bytes)
     embeddings_file = h5py.File(h5_io, 'r')
 
-    # "original_id" from embeddings file -> Embedding
+    # sequence hash -> Embedding
     id2emb = {
-        embeddings_file[idx].attrs["original_id"]: np.array(embedding).tolist()
+        idx: np.array(embedding).tolist()
         for (idx, embedding) in embeddings_file.items()
     }
 

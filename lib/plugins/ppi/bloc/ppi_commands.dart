@@ -176,7 +176,7 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
     final String datasetHash = await _ppiRepository.getHash();
     final transferEither = await _ppiClient.transferFile(
       datasetHash,
-      StorageFileType.sequences,
+      StorageFileType.input,
       () async => _ppiRepository.convertToString('fasta'),
     );
 

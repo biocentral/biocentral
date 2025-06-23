@@ -1,7 +1,4 @@
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 
 extension PlmEvalDTO on BiocentralDTO {
@@ -22,10 +19,7 @@ extension PlmEvalDTO on BiocentralDTO {
   BiocentralDTO get modelDTO => BiocentralDTO(get<Map>('current_task_dto') ?? {});
 
   PredictionModel parseCurrentTaskModel() {
-    final embedderName = this.embedderName;
-    final config = currentTaskConfig;
-    final predictionModel =
-        (PredictionModel.fromMap(config ?? {}) ?? const PredictionModel.empty()).copyWith(embedderName: embedderName);
+    final predictionModel = PredictionModel.fromTrainingConfig(currentTaskConfig ?? {});
     return predictionModel.updateFromDTO(modelDTO);
   }
 }

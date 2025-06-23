@@ -10,7 +10,6 @@ import 'package:fpdart/fpdart.dart';
 class PLMEvalServiceEndpoints {
   static const String validateModelID = '/plm_eval_service/validate';
   static const String getBenchmarkDatasets = '/plm_eval_service/get_benchmark_datasets';
-  static const String getRecommendedBenchmarkDatasets = '/plm_eval_service/get_recommended_benchmark_datasets';
   static const String autoeval = '/plm_eval_service/autoeval';
 }
 
@@ -100,10 +99,10 @@ final class AutoEvalProgress {
     }
     final currentModel = newResults[currentTask];
 
-    final currentModelFinished = currentModel?.biotrainerTrainingResult?.trainingStatus.isFinished() ?? false;
+    final currentModelFinished = currentModel?.trainingStatus?.isFinished() ?? false;
     BiotrainerTrainingState? newCurrentModelTrainingState;
     if (!currentModelFinished) {
-      final currentModelEpoch = currentModel?.biotrainerTrainingResult?.getLastEpoch();
+      final currentModelEpoch = currentModel?.holdOutResult?.getLastEpoch();
       final commandProgress =
           currentModelEpoch != null ? BiocentralCommandProgress(current: currentModelEpoch, hint: 'Epoch') : null;
       newCurrentModelTrainingState = BiotrainerTrainingState.fromModel(trainingModel: currentModel)

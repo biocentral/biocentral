@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<PredictionModel> {
@@ -36,6 +38,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
 
     final Map<String, dynamic> entryMap = _biocentralDatabase.databaseToMap();
     final String databaseHash = await _biocentralDatabase.getHash();
+    final int databaseLength = _biocentralDatabase.databaseToList().length;
 
     final String? modelArchitecture = _trainingConfiguration['model_choice'];
     final String? targetColumn = _trainingConfiguration['target_column'];
@@ -50,26 +53,20 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
       return;
     }
 
-    final fileRecord = await BiotrainerFileHandler.getBiotrainerInputFiles(
+    final inputFile = await BiotrainerFileHandler.getBiotrainerInputFile(
       _biocentralDatabase.getType(),
       entryMap,
       targetColumn,
       setColumn,
     );
 
-    // TODO Error handling
-
     final transferEitherSequences = await _predictionModelsClient.transferFile(
       databaseHash,
-      StorageFileType.sequences,
-      () async => fileRecord.$1,
+      StorageFileType.input,
+      () async => inputFile,
     );
-    final transferEitherLabels =
-        await _predictionModelsClient.transferFile(databaseHash, StorageFileType.labels, () async => fileRecord.$2);
-    final transferEitherMasks =
-        await _predictionModelsClient.transferFile(databaseHash, StorageFileType.masks, () async => fileRecord.$3);
 
-    if (transferEitherSequences.isLeft() || transferEitherLabels.isLeft() || transferEitherMasks.isLeft()) {
+    if (transferEitherSequences.isLeft()) {
       yield left(state.setErrored(information: 'Error transferring training files to server!'));
       return;
     }
@@ -83,7 +80,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
 
       final initialModel = _getInitialModel();
 
-      yield* doTraining(taskID, state, initialModel);
+      yield* doTraining(taskID, state, initialModel, databaseLength);
     });
   }
 
@@ -97,22 +94,32 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
       yield left(state.setErrored(information: 'Training could not be resumed! Error: ${error.message}'));
       return;
     }, (resumedModel) async* {
-      yield* doTraining(taskID, state, resumedModel);
+      yield* doTraining(taskID, state, resumedModel, null);
     });
   }
 
   Stream<Either<T, PredictionModel>> doTraining<T extends BiocentralCommandState<T>>(
-      String taskID, T state, PredictionModel initialModel) async* {
+      String taskID, T state, PredictionModel initialModel, int? databaseLength) async* {
     T trainingState =
-        state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
+        state.setOperating(information: 'Starting training..').copyWith(copyMap: {'trainingModel': initialModel});
     yield left(trainingState);
 
-    await for (PredictionModel? currentModel
+    await for (final (dto, currentModel)
         in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
+      if (dto.embeddingProgress != null) {
+        yield left(
+          trainingState.setOperating(
+            information: 'Embedding..',
+            commandProgress: BiocentralCommandProgress(current: dto.embeddingProgress!, total: databaseLength),
+          ),
+        );
+        continue;
+      }
       if (currentModel == null) {
         continue;
       }
-      final int? currentEpoch = currentModel.biotrainerTrainingResult?.getLastEpoch();
+      // TODO Support Cross Validation properly
+      final int? currentEpoch = currentModel.holdOutResult?.getLastEpoch();
       final commandProgress =
           currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
       trainingState =
@@ -151,10 +158,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
   }
 
   PredictionModel _getInitialModel() {
-    return BiotrainerFileHandler.parsePredictionModel(
-      biotrainerConfig: _trainingConfiguration,
-      failOnConflict: false,
-    )..setTraining();
+    return PredictionModel.fromTrainingConfig(_trainingConfiguration).updateStatus(BiocentralTaskStatus.running);
   }
 
   @override

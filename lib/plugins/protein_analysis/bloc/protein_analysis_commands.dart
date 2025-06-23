@@ -23,7 +23,7 @@ final class CalculateLevenshteinDistanceCommand
     final String databaseHash = await _proteinRepository.getHash();
 
     final transferResult = await _proteinAnalysisClient.transferFile(
-        databaseHash, StorageFileType.sequences, () async => _proteinRepository.convertToString('fasta'),);
+        databaseHash, StorageFileType.input, () async => _proteinRepository.convertToString('fasta'),);
 
     transferResult.match((error) async* {
       yield left(state.setErrored(information: 'Database file could not be transferred!'));

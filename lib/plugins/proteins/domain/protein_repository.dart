@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:crypto/crypto.dart';
 
 class ProteinRepository extends BiocentralDatabase<Protein> {
-
   final Map<String, Protein> _proteins = {};
+  final Map<String, Set<String>> _sequenceHashToIDs = {};
 
   ProteinRepository(super.biocentralProjectRepository) : super() {
     // EXAMPLE DATA
@@ -15,6 +18,20 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     _proteins[p2.id] = p2;
     _proteins[p3.id] = p3;
     _proteins[p4.id] = p4;
+    _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p1.sequence.seq), () => {p1.id});
+    _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p2.sequence.seq), () => {p2.id});
+    _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p3.sequence.seq), () => {p3.id});
+    _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p4.sequence.seq), () => {p4.id});
+  }
+
+  /// Matches biotrainer sequence hash calculation
+  /// TODO Move to bio_flutter
+  static String calculateSequenceHash(String sequence) {
+    final suffix = sequence.length;
+    final sequenceWithSuffix = '${sequence}_$suffix';
+    final bytes = utf8.encode(sequenceWithSuffix);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   @override
@@ -25,12 +42,20 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void addEntityImpl(Protein entity) {
     _proteins[entity.id] = entity;
+    final seqHash = calculateSequenceHash(entity.sequence.seq);
+    _sequenceHashToIDs.putIfAbsent(seqHash, () => {});
+    _sequenceHashToIDs[seqHash]?.add(entity.id);
   }
 
   @override
   void addAllEntitiesImpl(Iterable<Protein> entities) {
     final entityMap = Map.fromEntries(entities.map((entity) => MapEntry(entity.getID(), entity)));
     _proteins.addAll(entityMap);
+    for (final entity in entities) {
+      final seqHash = calculateSequenceHash(entity.sequence.seq);
+      _sequenceHashToIDs.putIfAbsent(seqHash, () => {});
+      _sequenceHashToIDs[seqHash]?.add(entity.id);
+    }
   }
 
   @override
@@ -44,7 +69,13 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void updateEntityImpl(String id, Protein entityUpdated) {
     if (containsEntity(id)) {
+      final oldEntity = getEntityById(id)!;
       _proteins[id] = entityUpdated;
+      final oldSeqHash = calculateSequenceHash(oldEntity.sequence.seq);
+      final seqHash = calculateSequenceHash(entityUpdated.sequence.seq);
+
+      _sequenceHashToIDs[oldSeqHash]?.remove(oldEntity.id);
+      _sequenceHashToIDs[seqHash]?.add(entityUpdated.id);
     } else {
       addEntity(entityUpdated);
     }
@@ -53,8 +84,8 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   @override
   void clearDatabaseImpl() {
     _proteins.clear();
+    _sequenceHashToIDs.clear();
   }
-
 
   @override
   Set<String> getSystemColumns() {
@@ -97,7 +128,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
-    if(entities.isEmpty) {
+    if (entities.isEmpty) {
       return;
     }
 
@@ -155,11 +186,13 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     // TODO IMPORT MODE
     int numberUnknownProteins = 0;
 
-    for (MapEntry<String, Embedding> proteinIDToEmbedding in newEmbeddings.entries) {
-      final Protein? protein = _proteins[proteinIDToEmbedding.key];
-      if (protein != null) {
-        _proteins[proteinIDToEmbedding.key] =
-            protein.copyWith(embeddings: protein.embeddings.addEmbedding(embedding: proteinIDToEmbedding.value));
+    for (final (seqHash, embedding) in newEmbeddings.entriesRecord) {
+      final proteinIDs = _sequenceHashToIDs[seqHash] ?? {};
+      if (proteinIDs.isNotEmpty) {
+        for (final proteinID in proteinIDs) {
+          final protein = getEntityById(proteinID);
+          _proteins[proteinID] = protein!.copyWith(embeddings: protein.embeddings.addEmbedding(embedding: embedding));
+        }
       } else {
         numberUnknownProteins++;
       }

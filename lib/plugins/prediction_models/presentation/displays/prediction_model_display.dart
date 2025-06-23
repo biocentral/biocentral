@@ -30,18 +30,19 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildTrainedModel() {
-    final BiotrainerTrainingResult? trainingResult = widget.predictionModel.biotrainerTrainingResult;
+    final TrainingResult? trainingResult = widget.predictionModel.holdOutResult;
+    final TestResult? testResult = widget.predictionModel.defaultTestResult;
     final String databaseType = widget.predictionModel.databaseType?.capitalize() ?? 'Unknown';
-    final String title = "$databaseType-Model: ${widget.predictionModel.architecture ?? "Unknown architecture"} - "
+    final String title = "$databaseType-Model: ${widget.predictionModel.modelChoice ?? "Unknown architecture"} - "
         "${widget.predictionModel.embedderName ?? "Unknown Embeddings"} - "
-        "${widget.predictionModel.predictionProtocol?.name ?? "Unknown protocol"}";
+        "${widget.predictionModel.protocol?.name ?? "Unknown protocol"}";
 
     return buildModelCard(
       title: title,
-      leadingIcon: buildSanityCheckIcon(trainingResult),
+      leadingIcon: buildSanityCheckIcon(testResult),
       childrenWithTitles: {
         'Model Information': buildModelInformation(),
-        'Metrics': buildMetricsDisplay(trainingResult),
+        'Metrics': buildMetricsDisplay(testResult),
         'Loss Curves': buildLossCurves(trainingResult),
         'Checkpoints': buildAvailableCheckpoints(),
         'Training Logs': buildLogResult(),
@@ -57,13 +58,13 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildTrainingModel() {
-    final String title = "Training ${widget.predictionModel.architecture ?? "unknown"} Model..";
+    final String title = "Training ${widget.predictionModel.modelChoice ?? "unknown"} Model..";
     return buildModelCard(
       title: title,
       leadingIcon: const CircularProgressIndicator(),
       trailing: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
       childrenWithTitles: {
-        'Loss Curves': buildLossCurves(widget.predictionModel.biotrainerTrainingResult),
+        'Loss Curves': buildLossCurves(widget.predictionModel.holdOutResult),
         'Training Logs': buildLogResult(),
       },
       childrenNeedIntrinsicHeight: {
@@ -117,8 +118,8 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     );
   }
 
-  Widget buildSanityCheckIcon(BiotrainerTrainingResult? trainingResult) {
-    final Set<String> sanityCheckWarnings = trainingResult?.sanityCheckWarnings ?? {};
+  Widget buildSanityCheckIcon(TestResult? testResult) {
+    final Set<String> sanityCheckWarnings = testResult?.sanityCheckWarnings ?? {};
     final String tooltipMessage = sanityCheckWarnings.isEmpty
         ? 'All sanity checks passed!'
         : 'Your model has the following sanity check warnings:\n${sanityCheckWarnings.join('\n')}';
@@ -137,14 +138,14 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     return Table(children: rows);
   }
 
-  Widget buildMetricsDisplay(BiotrainerTrainingResult? trainingResult) {
-    if (trainingResult == null) return Container();
-    final metrics = {'Test Set Metrics': trainingResult.testSetMetrics}
-      ..addAll(trainingResult.baselineMetrics);
+  Widget buildMetricsDisplay(TestResult? testResult) {
+    if (testResult == null) return Container();
+    final metrics = {'Test Set Metrics': testResult.metrics}
+      ..addAll(testResult.baselineMetrics);
     return BiocentralMetricsDisplay(metrics: metrics);
   }
 
-  Widget buildLossCurves(BiotrainerTrainingResult? trainingResult) {
+  Widget buildLossCurves(TrainingResult? trainingResult) {
     if (trainingResult == null || (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty)) {
       return Container();
     }
@@ -163,7 +164,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildAvailableCheckpoints() {
-    final List<String> checkpointNames = widget.predictionModel.biotrainerCheckpoints?.keys.toList() ?? [];
+    final List<String> checkpointNames = widget.predictionModel.checkpoints?.keys.toList() ?? [];
     if (checkpointNames.isEmpty) return Container();
     return Column(
       children: checkpointNames.map((name) => Text(name)).toList(),
@@ -171,7 +172,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildLogResult() {
-    final List<String> logs = widget.predictionModel.biotrainerTrainingResult?.trainingLogs ?? [];
+    final List<String> logs = widget.predictionModel.trainingLogs ?? [];
     if (logs.isEmpty) return Container();
     return LayoutBuilder(
       builder: (context, constraints) {
