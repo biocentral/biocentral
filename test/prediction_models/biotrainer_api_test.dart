@@ -11,15 +11,15 @@ void main() {
     final String outputPath = 'test/test_files/out.yml';
     test('Prediction Model can be loaded from result yaml file', () async {
       final File biotrainerOutput = File(outputPath);
-      final PredictionModel model = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
+      final PredictionModel? model = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
           biotrainerOutput: biotrainerOutput.readAsStringSync(), failOnConflict: true,);
-      if (model.isEmpty()) {
+      if (model == null) {
         fail('Model could not be loaded!');
       }
       expect(model.embedderName, equals('one_hot_encoding'));
-      expect(model.architecture, equals('CNN'));
+      expect(model.modelChoice, equals('CNN'));
       expect(model.databaseType, equals(const Protein.empty().typeName));
-      expect(model.predictionProtocol, equals(PredictionProtocol.residue_to_class));
+      expect(model.protocol, equals(PredictionProtocol.residue_to_class));
     });
   });
 }

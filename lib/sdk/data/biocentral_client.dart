@@ -268,7 +268,7 @@ abstract class BiocentralClient with HTTPClient {
     });
   }
 
-  Stream<T?> taskUpdateStream<T>(
+  Stream<(BiocentralDTO, T?)> taskUpdateStream<T>(
       String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
     const int maxRequests = 5400; // TODO Listening for only 180 Minutes
     bool finished = false;
@@ -290,7 +290,7 @@ abstract class BiocentralClient with HTTPClient {
           finished = true;
         }
         currentValue = updateFunction(currentValue, biocentralDTO) ?? currentValue;
-        yield currentValue;
+        yield (biocentralDTO, currentValue);
       }
     }
   }

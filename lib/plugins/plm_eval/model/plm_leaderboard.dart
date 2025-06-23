@@ -35,15 +35,11 @@ class PLMLeaderboard {
     final Map<ModelName, List<PLMLeaderboardEntry>> entries = {};
     for (final result in persistentResults) {
       entries[result.embedderName] = [];
-      for (final benchmarkResultEntry in result.results.entries) {
-        if (benchmarkResultEntry.value == null) {
-          // TODO [Error handling] This case should not happen, so throw an error here
-          continue;
-        }
+      for (final (benchmarkDataset, predictionModel) in result.results.entriesRecord) {
         entries[result.embedderName]?.add(
           PLMLeaderboardEntry(
-            predictionModel: benchmarkResultEntry.value!,
-            benchmarkDataset: benchmarkResultEntry.key,
+            predictionModel: predictionModel,
+            benchmarkDataset: benchmarkDataset,
             trainingDate: result.trainingDate,
           ),
         );
@@ -77,7 +73,7 @@ class PLMLeaderboard {
     final relevantEntries = PLMLeaderboardRankingCalculator.getEntriesForBenchmark(modelNameToEntries, benchmark);
 
     for (final (modelName, entry) in relevantEntries) {
-      final mlMetrics = entry.predictionModel.biotrainerTrainingResult?.testSetMetrics
+      final mlMetrics = entry.predictionModel.defaultTestResult?.metrics
           .where((testMetric) => testMetric.name == metricForDataset);
       if (mlMetrics == null || mlMetrics.isEmpty) {
         // TODO [Error handling]
@@ -150,7 +146,7 @@ class PLMLeaderboardRankingCalculator {
   Map<String, int> _getSplitRanking(String recommendedMetric, List<(ModelName, PLMLeaderboardEntry)> entriesForSplit) {
     final List<(ModelName, BiocentralMLMetric)> modelNamesToMetrics = [];
     for (final (modelName, entry) in entriesForSplit) {
-      final metric = entry.predictionModel.biotrainerTrainingResult?.testSetMetrics
+      final metric = entry.predictionModel.defaultTestResult?.metrics
           .where((e) => e.name == recommendedMetric)
           .firstOrNull;
       if (metric == null || metric.uncertaintyEstimate == null) {

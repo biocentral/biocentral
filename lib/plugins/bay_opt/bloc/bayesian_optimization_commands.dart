@@ -2,7 +2,9 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
 import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
+import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:fpdart/fpdart.dart';
 
 /// A command to transfer Bayesian Optimization training configuration and manage the training process.
@@ -51,7 +53,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
     final Map<String, dynamic> entryMap = _biocentralDatabase.databaseToMap();
     final String databaseHash = await _biocentralDatabase.getHash();
 
-    final fileRecord = await BiotrainerFileHandler.getBiotrainerInputFiles(
+    final inputFile = await BiotrainerFileHandler.getBiotrainerInputFile(
       _biocentralDatabase.getType(),
       entryMap,
       _targetFeature,
@@ -59,7 +61,7 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
     );
 
     // Transfer training files to the server
-    final transferResults = await _transferTrainingFiles(databaseHash, fileRecord);
+    final transferResults = await _transferTrainingFiles(databaseHash, inputFile);
     if (transferResults.isLeft()) {
       yield left(
         state.setErrored(
@@ -78,10 +80,8 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       );
       return;
     }, (taskID) async* {
-      final initialModel = BiotrainerFileHandler.parsePredictionModel(
-        biotrainerConfig: _trainingConfiguration,
-        failOnConflict: false,
-      )..setTraining();
+      final initialModel =
+          PredictionModel.fromTrainingConfig(_trainingConfiguration).updateStatus(BiocentralTaskStatus.running);
 
       final T trainingState =
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
@@ -90,9 +90,8 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       //         final actualValues = await _extractActualValues(modelResults);
       var trainingResult =
           BayesianOptimizationTrainingResult(results: [], trainingConfig: _trainingConfiguration, taskID: taskID);
-      await for (BayesianOptimizationTrainingResult? currentResult
-          in _boClient.biotrainerTrainingTaskStream(taskID, trainingResult)) {
-        if(currentResult != null) {
+      await for (final (dto, currentResult) in _boClient.boTrainingTaskStream(taskID, trainingResult)) {
+        if (currentResult != null) {
           trainingResult = currentResult;
         }
       }
@@ -103,30 +102,20 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
   }
 
   /// Transfers training files to the server.
-  Future<Either<BiocentralException, void>> _transferTrainingFiles(
+  Future<Either<BiocentralException, Unit>> _transferTrainingFiles(
     String databaseHash,
-    (String, String, String) fileRecord,
+    String inputFile,
   ) async {
-    final transferEitherSequences = await _boClient.transferFile(
+    final transferInputEither = await _boClient.transferFile(
       databaseHash,
-      StorageFileType.sequences,
-      () async => fileRecord.$1,
-    );
-    final transferEitherLabels = await _boClient.transferFile(
-      databaseHash,
-      StorageFileType.labels,
-      () async => fileRecord.$2,
-    );
-    final transferEitherMasks = await _boClient.transferFile(
-      databaseHash,
-      StorageFileType.masks,
-      () async => fileRecord.$3,
+      StorageFileType.input,
+      () async => inputFile,
     );
 
-    if (transferEitherSequences.isLeft() || transferEitherLabels.isLeft() || transferEitherMasks.isLeft()) {
+    if (transferInputEither.isLeft()) {
       return left(BiocentralNetworkException(message: 'Failed to transfer training files'));
     }
-    return right(null);
+    return right(unit);
   }
 
   /// Extracts actual values from model results.

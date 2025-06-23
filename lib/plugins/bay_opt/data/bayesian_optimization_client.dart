@@ -51,7 +51,7 @@ class BayesianOptimizationClient extends BiocentralClient {
   }
 
   /// Creates a stream that monitors the Bayesian Optimization training task.
-  Stream<BayesianOptimizationTrainingResult?> biotrainerTrainingTaskStream(
+  Stream<(BiocentralDTO, BayesianOptimizationTrainingResult?)> boTrainingTaskStream(
     String taskID,
     BayesianOptimizationTrainingResult initialResult,
   ) async* {

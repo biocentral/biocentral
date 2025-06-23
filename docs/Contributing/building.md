@@ -25,8 +25,6 @@ dart run serious_python:main package --asset assets/python_companion.zip python_
 
 cp -r python_companion/ assets/
 rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
-
-unzip assets/python_companion.zip -d assets/python_companion
 ```
 
 ## Linux

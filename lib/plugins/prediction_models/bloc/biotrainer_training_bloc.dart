@@ -39,7 +39,7 @@ final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTra
   const BiotrainerTrainingState.fromModel({this.trainingModel}) : super.idle();
 
   @override
-  List<Object?> get props => [trainingModel, status];
+  List<Object?> get props => [stateInformation, trainingModel, status];
 
   @override
   BiotrainerTrainingState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
