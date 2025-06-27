@@ -38,7 +38,6 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
 
     final Map<String, dynamic> entryMap = _biocentralDatabase.databaseToMap();
     final String databaseHash = await _biocentralDatabase.getHash();
-    final int databaseLength = _biocentralDatabase.databaseToList().length;
 
     final String? modelArchitecture = _trainingConfiguration['model_choice'];
     final String? targetColumn = _trainingConfiguration['target_column'];
@@ -80,7 +79,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
 
       final initialModel = _getInitialModel();
 
-      yield* doTraining(taskID, state, initialModel, databaseLength);
+      yield* doTraining(taskID, state, initialModel);
     });
   }
 
@@ -94,12 +93,12 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
       yield left(state.setErrored(information: 'Training could not be resumed! Error: ${error.message}'));
       return;
     }, (resumedModel) async* {
-      yield* doTraining(taskID, state, resumedModel, null);
+      yield* doTraining(taskID, state, resumedModel);
     });
   }
 
   Stream<Either<T, PredictionModel>> doTraining<T extends BiocentralCommandState<T>>(
-      String taskID, T state, PredictionModel initialModel, int? databaseLength) async* {
+      String taskID, T state, PredictionModel initialModel) async* {
     T trainingState =
         state.setOperating(information: 'Starting training..').copyWith(copyMap: {'trainingModel': initialModel});
     yield left(trainingState);
@@ -107,10 +106,11 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
     await for (final (dto, currentModel)
         in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
       if (dto.embeddingProgress != null) {
+        final (current, total) = dto.embeddingProgress!;
         yield left(
           trainingState.setOperating(
             information: 'Embedding..',
-            commandProgress: BiocentralCommandProgress(current: dto.embeddingProgress!, total: databaseLength),
+            commandProgress: BiocentralCommandProgress(current: current, total: total),
           ),
         );
         continue;
@@ -145,7 +145,6 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
       final updatedModels = await _predictionModelRepository.addModelFromBiotrainerFiles(
         configFile: modelFiles[StorageFileType.biotrainer_config],
         outputFile: modelFiles[StorageFileType.biotrainer_result],
-        // TODO [Optimization] Might be a good idea to optimize this not to transfer logs twice
         loggingFile: modelFiles[StorageFileType.biotrainer_logging],
         checkpointFiles: checkpoints,
       );
@@ -158,7 +157,8 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
   }
 
   PredictionModel _getInitialModel() {
-    return PredictionModel.fromTrainingConfig(_trainingConfiguration).updateStatus(BiocentralTaskStatus.running);
+    return PredictionModel.fromTrainingConfig(_trainingConfiguration)
+        .copyWith(trainingStatus: BiocentralTaskStatus.running);
   }
 
   @override

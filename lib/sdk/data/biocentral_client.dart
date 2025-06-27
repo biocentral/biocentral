@@ -6,9 +6,7 @@ import 'package:biocentral/sdk/data/biocentral_service_api.dart';
 import 'package:biocentral/sdk/util/biocentral_exception.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/logging.dart';
-import 'package:biocentral/sdk/util/type_util.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -182,7 +180,6 @@ final class _BiocentralClientSandbox {
 }
 
 mixin HTTPClient {
-
   Either<BiocentralException, String> getBaseURL();
 
   Future<Either<BiocentralException, Map>> doGetRequest(String endpoint) async {
@@ -199,7 +196,6 @@ mixin HTTPClient {
     final downloadEither = await _BiocentralClientSandbox.downloadFile(url);
     return downloadEither.flatMap((bytes) => right(String.fromCharCodes(bytes.toList())));
   }
-
 }
 
 abstract class BiocentralClient with HTTPClient {
@@ -269,7 +265,10 @@ abstract class BiocentralClient with HTTPClient {
   }
 
   Stream<(BiocentralDTO, T?)> taskUpdateStream<T>(
-      String taskID, T? initialValue, T? Function(T?, BiocentralDTO) updateFunction) async* {
+    String taskID,
+    T? initialValue,
+    T? Function(T?, BiocentralDTO) updateFunction,
+  ) async* {
     const int maxRequests = 5400; // TODO Listening for only 180 Minutes
     bool finished = false;
     T? currentValue = initialValue;
@@ -285,7 +284,7 @@ abstract class BiocentralClient with HTTPClient {
         continue;
       }
       final biocentralDTOs = biocentralDTOEither.getRight().getOrElse(() => []);
-      for(final biocentralDTO in biocentralDTOs) {
+      for (final biocentralDTO in biocentralDTOs) {
         if (biocentralDTO.taskStatus?.isFinished() ?? true) {
           finished = true;
         }
@@ -294,7 +293,6 @@ abstract class BiocentralClient with HTTPClient {
       }
     }
   }
-
 }
 
 abstract class BiocentralClientFactory<T extends BiocentralClient> {
@@ -317,7 +315,6 @@ class BiocentralHubServerClient with HTTPClient {
   Either<BiocentralException, String> getBaseURL() {
     return right(_baseUrl);
   }
-
 }
 
 class ClientManager {

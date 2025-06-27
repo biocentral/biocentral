@@ -50,7 +50,7 @@ final class PLMEvalEvaluationState extends BiocentralCommandState<PLMEvalEvaluat
         super.idle();
 
   @override
-  List<Object?> get props => [modelID, autoEvalProgress, status];
+  List<Object?> get props => [stateInformation, modelID, autoEvalProgress, status];
 
   @override
   PLMEvalEvaluationState newState(BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {

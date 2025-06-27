@@ -1,3 +1,5 @@
+import 'package:bio_flutter/bio_flutter.dart';
+
 Enum? enumFromString<Enum>(String? name, List<Enum> values) {
   if (name == null) {
     return null;
@@ -49,6 +51,20 @@ extension FilterNull on Map {
       }
     }
     return result;
+  }
+}
+
+extension MergeMap on Map {
+  Map merge<K, V>(Map<K, V> other, {bool failOnConflict = false}) {
+    final merged = Map<K, V>.from(this);
+    for(final (key, value) in other.entriesRecord) {
+      final newValue = merged[key];
+      final updatedValue = nullableMerge(value, newValue, 'Could not merge config key $key' , failOnConflict);
+      if(updatedValue != null) {
+        merged[key] = updatedValue;
+      }
+    }
+    return merged;
   }
 }
 
