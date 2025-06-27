@@ -110,7 +110,7 @@ def run_test():
 
     try:
         dataset_file_path = FileManager(user_id=UserManager.get_user_id_from_request(req=request)).get_file_path(
-            dataset_hash, file_type=StorageFileType.SEQUENCES)
+            dataset_hash, file_type=StorageFileType.INPUT)
     except FileNotFoundError as e:
         logger.error(e)
         return jsonify({"error": str(e)})

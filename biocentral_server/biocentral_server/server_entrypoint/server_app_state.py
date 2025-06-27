@@ -5,9 +5,9 @@ from flask import Flask, request
 from ..utils import get_logger
 from ..ppi import ppi_service_route
 from ..proteins import protein_service_route
+from ..plm_eval import plm_eval_service_route
 from ..biocentral import biocentral_service_route
 from ..protein_analysis import protein_analysis_route
-from ..plm_eval import plm_eval_service_route, FlipInitializer
 from ..prediction_models import prediction_models_service_route
 from ..embeddings import embeddings_service_route, projection_route
 from ..bayesian_optimization import bayesian_optimization_service_route
@@ -73,7 +73,6 @@ class ServerAppState:
         self.app = app
 
         # Register initializers
-        self.initialization_manager.register_initializer(FlipInitializer(app=self.app))
         self.initialization_manager.register_initializer(PredictInitializer())
 
         return app

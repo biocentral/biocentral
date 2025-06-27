@@ -6,7 +6,7 @@ import base64
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
-from collections import namedtuple
+from biotrainer.input_files import BiotrainerSequenceRecord
 from typing import List, Dict, Tuple, Any, Optional, Generator
 
 from .database_strategy import DatabaseStrategy
@@ -15,8 +15,6 @@ from .postgresql_strategy import PostgreSQLStrategy
 from ...utils import get_logger
 
 logger = get_logger(__name__)
-
-EmbeddingsDatabaseTriple = namedtuple("EmbeddingsDatabaseTriple", ["id", "seq", "embd"])
 
 
 def dict_chunks(dct: Dict[str, str], n) -> Generator[Dict[str, str], None, None]:
@@ -39,9 +37,9 @@ class EmbeddingsDatabase:
         return self.strategy.clear_embeddings(sequence, model_name)
 
     @staticmethod
-    def unify_seqs_with_embeddings(seqs: Dict[str, str], embds: Dict[str, Any]) -> List[EmbeddingsDatabaseTriple]:
-        return [EmbeddingsDatabaseTriple(seq_id, seq, embds.get(seq_id)) for seq_id, seq in seqs.items() if
-                embds.get(seq_id) is not None]
+    def unify_seqs_with_embeddings(seqs: Dict[str, str], embds: Dict[str, Any]) -> List[BiotrainerSequenceRecord]:
+        return [BiotrainerSequenceRecord(seq_id=seq_id, seq=seq, embedding=embds.get(seq_id))
+                for seq_id, seq in seqs.items() if embds.get(seq_id) is not None]
 
     def _prepare_embedding_data(self, sequence, embedder_name, per_sequence, per_residue):
         hash_key = self.strategy.generate_sequence_hash(sequence)
@@ -50,21 +48,29 @@ class EmbeddingsDatabase:
         return (hash_key, len(sequence), datetime.utcnow(), embedder_name,
                 compressed_per_sequence, compressed_per_residue)
 
-    def save_embeddings(self, ids_seqs_embds: List[EmbeddingsDatabaseTriple], embedder_name, reduced: bool):
+    def save_embeddings(self, embd_records: List[BiotrainerSequenceRecord], embedder_name, reduced: bool):
         # TODO [Refactoring] Improve .onnx handling
         if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
-        embedding_data = [self._prepare_embedding_data(sequence=embedding_triple.seq,
+        embedding_data = [self._prepare_embedding_data(sequence=embd_record.seq,
                                                        embedder_name=embedder_name,
-                                                       per_sequence=embedding_triple.embd if reduced else None,
-                                                       per_residue=embedding_triple.embd if not reduced else None)
-                          for embedding_triple in ids_seqs_embds]
+                                                       per_sequence=embd_record.embedding if reduced else None,
+                                                       per_residue=embd_record.embedding if not reduced else None)
+                          for embd_record in embd_records]
         self.strategy.save_embeddings(embedding_data)
 
     def filter_existing_embeddings(self, sequences: Dict[str, str],
                                    embedder_name: str,
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
+        """
+        Filter the database for existing embeddings.
+
+        :param sequences: Dictionary of sequences (seq_hash -> sequence).
+        :param embedder_name: Name of the embedder.
+        :param reduced: If per-sequence embeddings should be filtered.
+        :return: A tuple containing (existing, non_existing) embeddings
+        """
         if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
@@ -85,7 +91,7 @@ class EmbeddingsDatabase:
 
     def get_embeddings(self, sequences: Dict[str, str],
                        embedder_name: str,
-                       reduced: bool) -> List[EmbeddingsDatabaseTriple]:
+                       reduced: bool) -> List[BiotrainerSequenceRecord]:
         if ".onnx" in embedder_name:
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
@@ -93,16 +99,16 @@ class EmbeddingsDatabase:
 
         if len(sequences) < max_batch_size_reading:
             result = self.strategy.get_embeddings(sequences=sequences, embedder_name=embedder_name)
-            return [EmbeddingsDatabaseTriple(id=seq_id, seq=sequences[seq_id],
-                                             embd=embd.get("per_sequence" if reduced else "per_residue")) for
-                    seq_id, embd in result.items()]
+            return [BiotrainerSequenceRecord(seq_id=seq_id, seq=sequences[seq_id],
+                                             embedding=embd.get("per_sequence" if reduced else "per_residue"))
+                    for seq_id, embd in result.items()]
 
         result = []
         for chunk in tqdm(dict_chunks(sequences, max_batch_size_reading), desc="Reading embeddings from database"):
             get_result = self.strategy.get_embeddings(sequences=chunk, embedder_name=embedder_name)
-            result.extend([EmbeddingsDatabaseTriple(id=seq_id, seq=sequences[seq_id],
-                                                    embd=embd.get("per_sequence" if reduced else "per_residue")) for
-                           seq_id, embd in get_result.items()])
+            result.extend([BiotrainerSequenceRecord(seq_id=seq_id, seq=sequences[seq_id],
+                                                    embedding=embd.get("per_sequence" if reduced else "per_residue"))
+                           for seq_id, embd in get_result.items()])
         return result
 
     def delete_embeddings_by_model(self, embedder_name: str) -> bool:
@@ -111,51 +117,18 @@ class EmbeddingsDatabase:
         return self.strategy.delete_embeddings_by_model(embedder_name)
 
     @staticmethod
-    def append_to_hdf5(triples: List[EmbeddingsDatabaseTriple], existing_embeddings_path: Path) -> Path:
-        with h5py.File(existing_embeddings_path, "a") as existing_embeddings_file:
-            for idx, triple in enumerate(triples):
-                existing_embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
-                existing_embeddings_file[str(idx)].attrs[
-                    "original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
-        return existing_embeddings_path
-
-    @staticmethod
-    def export_embedding_triples_to_hdf5(triples: List[EmbeddingsDatabaseTriple], output_path: Path) -> Path:
-        with h5py.File(output_path, "w") as embeddings_file:
-            for idx, triple in enumerate(triples):
-                embeddings_file.create_dataset(str(idx), data=triple.embd, compression="gzip", chunks=True)
-                embeddings_file[str(idx)].attrs[
-                    "original_id"] = triple.id  # Follows biotrainer & bio_embeddings standard
-        return output_path
-
-    @staticmethod
-    def export_embeddings_task_result_to_hdf5(embeddings_task_result: Dict[str, Any], output_path: Path):
-        with h5py.File(output_path, "w") as embeddings_file:
-            for idx, seq_id in enumerate(embeddings_task_result.keys()):
-                embeddings = embeddings_task_result.get(seq_id)
-                embeddings_file.create_dataset(str(idx), data=embeddings, compression="gzip", chunks=True)
-                embeddings_file[str(idx)].attrs["original_id"] = seq_id
-
-    @staticmethod
-    def export_embeddings_task_result_to_hdf5_bytes_string(embeddings_task_result: Dict[str, Any]) -> str:
+    def export_embeddings_task_result_to_h5_bytes_string(embd_records: List[BiotrainerSequenceRecord]) -> str:
         h5_io = io.BytesIO()
         with h5py.File(h5_io, 'w') as embeddings_file:
-            for idx, seq_id in enumerate(embeddings_task_result.keys()):
-                embeddings = embeddings_task_result.get(seq_id)
-                embeddings_file.create_dataset(str(idx), data=embeddings, compression="gzip", chunks=True)
-                embeddings_file[str(idx)].attrs["original_id"] = seq_id
+            for embd_record in embd_records:
+                seq_hash = embd_record.get_hash()
+                embeddings_file.create_dataset(seq_hash, data=embd_record.embedding, compression="gzip", chunks=True)
+                embeddings_file[seq_hash].attrs["original_id"] = embd_record.seq_id
 
         h5_io.seek(0)
         h5_base64 = base64.b64encode(h5_io.getvalue()).decode('utf-8')
         h5_io.close()
         return h5_base64
-
-    @staticmethod
-    def h5_file_to_base64(h5_file_path: Path) -> str:
-        with open(h5_file_path, "rb") as h5_file:
-            h5_bytes = h5_file.read()
-            h5_base64 = base64.b64encode(h5_bytes).decode('utf-8')
-            return h5_base64
 
     @staticmethod
     def is_onnx_model(embedder_name: str) -> bool:

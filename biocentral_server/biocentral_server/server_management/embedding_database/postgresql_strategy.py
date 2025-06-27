@@ -85,13 +85,7 @@ class PostgreSQLStrategy(DatabaseStrategy):
 
     def get_embeddings(self, sequences: Dict[str, str], embedder_name: str) -> Dict[str, Dict[str, Any]]:
         try:
-            # Create a mapping from hash to a list of seq_ids
-            hash_to_seq_ids = defaultdict(list)
-            for seq_id, seq in sequences.items():
-                hash_key = self.generate_sequence_hash(seq)
-                hash_to_seq_ids[hash_key].append(seq_id)
-
-            hash_keys = list(hash_to_seq_ids.keys())
+            hash_keys = list(sequences.keys())
 
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
@@ -112,9 +106,7 @@ class PostgreSQLStrategy(DatabaseStrategy):
                     "per_sequence": self._decompress_embedding(result[1]),
                     "per_residue": self._decompress_embedding(result[2])
                 }
-                # Assign the same embedding data to all sequence IDs with this hash
-                for seq_id in hash_to_seq_ids[hash_key]:
-                    results[seq_id] = embedding_data
+                results[hash_key] = embedding_data
 
             return results
         except Exception as e:
@@ -124,8 +116,15 @@ class PostgreSQLStrategy(DatabaseStrategy):
     def filter_existing_embeddings(self, sequences: Dict[str, str],
                                    embedder_name: str,
                                    reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
-        hash_key_dict = {seq_id: self.generate_sequence_hash(seq) for seq_id, seq in sequences.items()}
-        hash_keys = list(hash_key_dict.values())
+        """
+        Filter the database for existing embeddings.
+
+        :param sequences: Dict of sequence hash to sequence
+        :param embedder_name: Name of embedder
+        :param reduced: If per-sequence should be filtered
+        :return: A tuple containing (existing, non_existing) embeddings
+        """
+        hash_keys = list(sequences.keys())
 
         with self._get_connection() as conn:
             with conn.cursor() as cur:
@@ -140,10 +139,10 @@ class PostgreSQLStrategy(DatabaseStrategy):
                 fetch_result = cur.fetchall()
                 existing_hashes = set(row[0] for row in fetch_result)
 
-        existing = {seq_id: seq for seq_id, seq in sequences.items()
-                    if hash_key_dict[seq_id] in existing_hashes}
-        non_existing = {seq_id: seq for seq_id, seq in sequences.items()
-                        if seq_id not in existing}
+        existing = {seq_hash: seq for seq_hash, seq in sequences.items()
+                    if seq_hash in existing_hashes}
+        non_existing = {seq_hash: seq for seq_hash, seq in sequences.items()
+                        if seq_hash not in existing}
 
         return existing, non_existing
 

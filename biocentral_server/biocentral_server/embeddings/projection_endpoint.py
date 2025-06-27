@@ -1,5 +1,6 @@
 import json
 
+from biotrainer.input_files import BiotrainerSequenceRecord
 from flask import request, Blueprint, jsonify
 
 from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
@@ -36,7 +37,8 @@ def projection_for_sequences():
         return jsonify({"error": f"Unsupported reduction method: {method}"})
 
     protspace_task = ProtSpaceTask(embedder_name=embedder_name,
-                                   sequences=sequences,
+                                   sequences=[BiotrainerSequenceRecord(seq_id=seq_id, seq=seq) for seq_id, seq in
+                                              sequences.items()],
                                    method=method,
                                    config=config)
     task_manager = TaskManager()

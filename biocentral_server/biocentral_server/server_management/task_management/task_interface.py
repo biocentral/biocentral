@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 from enum import Enum
-from pathlib import Path
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Callable, Generator, Optional
+from typing import Any, Dict, Callable, Generator
 
 from .task_utils import run_subtask_util
-
-from ..file_management import FileContextManager
-from ..embedding_database import EmbeddingsDatabase
 
 
 class TaskStatus(Enum):
@@ -52,22 +48,10 @@ class TaskDTO:
     def failed(cls, error: str):
         return TaskDTO(status=TaskStatus.FAILED, error=error, update={})
 
-    def add_update(self, update: Dict[str, Any]) -> 'TaskDTO':
+    def add_update(self, update: Dict[str, Any]) -> TaskDTO:
         return TaskDTO(status=self.status, error=self.error, update=update)
 
-    def finished_task_postprocessing(self):
-        # TODO This could be improved architecturally to be registered by the embedding module as a hook
-        if "embeddings_file" in self.update.keys() and self.update["embeddings_file"] is not None:
-            embeddings_path = Path(self.update["embeddings_file"])
-            file_context_manager = FileContextManager()
-            with file_context_manager.storage_read(embeddings_path) as embeddings_file:
-                h5_string = EmbeddingsDatabase.h5_file_to_base64(h5_file_path=embeddings_file)
-                self.update["embeddings_file"] = h5_string
-
     def dict(self):
-        if self.status == TaskStatus.FINISHED:
-            self.finished_task_postprocessing()
-
         return {"status": self.status.name, "error": self.error, **self.update}
 
     def __getstate__(self):

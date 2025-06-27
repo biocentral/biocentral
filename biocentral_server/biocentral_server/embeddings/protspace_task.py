@@ -3,8 +3,9 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 from protspace.utils.prepare_json import DataProcessor
+from biotrainer.input_files import BiotrainerSequenceRecord
 
 from ..utils import get_logger
 from .embedding_task import LoadEmbeddingsTask
@@ -15,7 +16,7 @@ logger = get_logger(__name__)
 
 class ProtSpaceTask(TaskInterface):
 
-    def __init__(self, embedder_name: str, sequences: Dict[str, str], method: str, config: Dict):
+    def __init__(self, embedder_name: str, sequences: List[BiotrainerSequenceRecord], method: str, config: Dict):
         self.embedder_name = embedder_name
         self.sequences = sequences
 
@@ -34,14 +35,14 @@ class ProtSpaceTask(TaskInterface):
             load_dto = dto
 
         if not load_dto:
-            return TaskDTO.failed(error="Loading of embeddings failed before export!")
+            return TaskDTO.failed(error="Loading of embeddings failed before projection!")
 
         missing = load_dto.update["missing"]
-        embeddings = load_dto.update["embeddings"]
+        embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
         if len(missing) > 0:
-            return TaskDTO.failed(error=f"Missing number of embeddings before export: {len(missing)}")
+            return TaskDTO.failed(error=f"Missing number of embeddings before projection: {len(missing)}")
 
-        embedding_dict = {triple.id: triple.embd for triple in embeddings}
+        embedding_dict = {embd_record.seq_id: embd_record.embedding for embd_record in embeddings}
         protspace_headers = list(embedding_dict.keys())
 
         dimensions = self.config.pop('n_components')

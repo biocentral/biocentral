@@ -6,13 +6,13 @@ import numpy as np
 
 from biotrainer.utilities import get_device
 from flask import request, Blueprint, jsonify
+from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .embedding_task import ExportEmbeddingsTask
 
 from ..utils import str2bool, get_logger
 from ..server_management import FileManager, UserManager, StorageFileType, TaskManager, EmbeddingDatabaseFactory, \
-    EmbeddingsDatabase, EmbeddingsDatabaseTriple
-
+    EmbeddingsDatabase
 
 logger = get_logger(__name__)
 
@@ -35,14 +35,14 @@ def embed():
 
     try:
         file_manager = FileManager(user_id=user_id)
-        sequence_file_path = file_manager.get_file_path(database_hash=database_hash,
-                                                        file_type=StorageFileType.SEQUENCES)
+        input_file_path = file_manager.get_file_path(database_hash=database_hash,
+                                                        file_type=StorageFileType.INPUT)
         embeddings_out_path = file_manager.get_embeddings_path(database_hash=database_hash)
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
     embedding_task = ExportEmbeddingsTask(embedder_name=embedder_name,
-                                          sequence_input=sequence_file_path,
+                                          sequence_input=input_file_path,
                                           embeddings_out_path=embeddings_out_path,
                                           reduced=reduced,
                                           use_half_precision=use_half_precision,
@@ -86,11 +86,11 @@ def add_embeddings():
     embeddings_file = h5py.File(h5_io, 'r')
 
     # "original_id" from embeddings file -> Embedding
-    triples = [EmbeddingsDatabaseTriple(id=embeddings_file[idx].attrs["original_id"],
-                                        seq=sequences[embeddings_file[idx].attrs["original_id"]],
-                                        embd=np.array(embedding)) for (idx, embedding) in
-               embeddings_file.items()]
+    embd_records = [BiotrainerSequenceRecord(seq_id=embeddings_file[idx].attrs["original_id"],
+                                             seq=sequences[embeddings_file[idx].attrs["original_id"]],
+                                             embedding=np.array(embedding)) for (idx, embedding) in
+                    embeddings_file.items()]
 
     embeddings_database: EmbeddingsDatabase = EmbeddingDatabaseFactory().get_embeddings_db()
-    embeddings_database.save_embeddings(ids_seqs_embds=triples, embedder_name=embedder_name, reduced=reduced)
+    embeddings_database.save_embeddings(embd_records=embd_records, embedder_name=embedder_name, reduced=reduced)
     return jsonify({"status": 200})

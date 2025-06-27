@@ -1,80 +1,48 @@
 import torch
 
 from typing import List, Dict, Any
+from biotrainer.input_files import read_FASTA, BiotrainerSequenceRecord
 from biocentral_server.bayesian_optimization import gaussian_process_models as gp
-from biotrainer.utilities import read_FASTA
 
 from ..utils import get_logger
-from ..server_management import EmbeddingsDatabaseTriple, FileContextManager
+from ..server_management import FileContextManager
 
 logger = get_logger(__name__)
 
 SUPPORTED_MODELS = ["gaussian_process"]
 
 
-def parse_description_to_label(description: str, discrete: bool, feature_name: str = 'TARGET'):
-    """
-    parse feature from descriptions
-    return value: none | [target_val, if this is training]
-    Note
-    - description is expected to be space separated list of strings
-    - feature_name and value should not contain space and '='
-    - first feature_name=feature_value will be considered
-      - as a result, classification target is expected to have only one label
-    - sequence with feature_name=Unknown (case-insensitive unknown)
-    or feature name doesn't appear will be considered as inference sample
-    """
-    feature_value = None
-    # if feature_name=XX appear in description, it will be training
-    for kvstr in description.split(' '):  # k=v
-        kv = kvstr.split('=')
-        if len(kv) != 2:
-            continue
-        if kv[0].lower() == feature_name.lower():
-            feature_value = kv[1] if kv[1].lower() != 'unknown' and len(kv[1]) != 0 else None
-            if not discrete and feature_value is not None:
-                try:
-                    feature_value = float(feature_value)
-                except:
-                    raise ValueError(f"not supported regression label: {feature_value}")
-            break
-    return feature_value
-
-
-def get_datasets(config_dict: dict, seqs: dict):
+def get_datasets(config_dict: dict, embd_records: List[BiotrainerSequenceRecord]):
     """
     train_data = {"ids": [], "X": [], "y": []}
     inference_data = {"ids": [], "X": []}
     if dataset is empty, the type of 'X' will be a list. 
     """
+    target_classes = {}
     if config_dict['discrete']:
         target_classes = {label: idx for idx, label in enumerate(config_dict['discrete_labels'])}
 
     train_data = {"ids": [], "X": [], "y": []}
     inference_data = {"ids": [], "X": []}
 
-    def is_training(val_1) -> bool:
-        if val_1 is None:
-            return False
-        return True
-
     device = torch.device(config_dict.get('device', 'cpu'))
 
-    for id, val in seqs.items():
-        if is_training(val[1]):
-            train_data["ids"].append(id)
-            train_data["X"].append(val[2])
+    for embd_record in embd_records:
+        if embd_record.get_set() == "train":
+            train_data["ids"].append(embd_record.seq_id)
+            train_data["X"].append(embd_record.embedding)
+            raw_target = embd_record.get_target()
             if config_dict['discrete']:
-                if val[1] in target_classes:
-                    target = target_classes[val[1]]
+                if raw_target in target_classes:
+                    target = target_classes[raw_target]
                 else:
-                    ValueError(f"get_datasets: illegal label {val[1]} in labels: {target_classes.keys()}")
+                    ValueError(f"get_datasets: illegal label {raw_target} in labels: {target_classes.keys()}")
             else:
-                target = val[1]
+                target = float(raw_target)
             train_data["y"].append(target)
         else:
-            inference_data["ids"].append(id)
-            inference_data["X"].append(val[2])
+            inference_data["ids"].append(embd_record.seq_id)
+            inference_data["X"].append(embd_record.embedding)
     if train_data["X"]:
         train_data["X"] = torch.stack(train_data["X"]).float()
         train_data["X"] = train_data["X"].to(device=device)
@@ -91,38 +59,27 @@ def get_datasets(config_dict: dict, seqs: dict):
     return train_data, inference_data
 
 
-def data_prep(config_dict: dict, embeddings: List[EmbeddingsDatabaseTriple]) -> tuple[
-    dict[str, list], dict[str, list], dict]:
+def data_prep(config_dict: dict, embeddings: List[BiotrainerSequenceRecord]) -> tuple[
+    dict[str, list], dict[str, list], List[BiotrainerSequenceRecord]]:
     """
     train_data = {"ids": [], "X": （n_sample, dim）, "y": (n_sample), (n_sample, n_class))}
     inference_data = {"ids": [], "X": []}
     dict[seq_id] = [seq, description, embedding]
     """
     # read labels and seqs
-    sequence_path = config_dict['sequence_file']
+    input_file_path = config_dict['input_file']
     file_context_manager = FileContextManager()
-    with file_context_manager.storage_read(file_path=sequence_path) as sequence_file:
-        fasta_list = read_FASTA(sequence_file)
+    with file_context_manager.storage_read(file_path=input_file_path) as input_file:
+        seq_records = read_FASTA(input_file)
 
-    fasta_seqs = {seq.id: [str(seq.seq), seq.description] for seq in fasta_list}
-    # Add embeddings
-    for embedding in embeddings:
-        if embedding.id not in fasta_seqs:
-            raise ValueError(f"{embedding.id} not in {fasta_seqs.keys()}")
-        fasta_seqs[embedding.id].append(embedding.embd)
+    id2record = {seq_record.seq_id: seq_record for seq_record in seq_records}
+    embd_records = [id2record[seq_record.seq_id].copy_with_embedding(seq_record.embedding) for seq_record in embeddings]
 
-    # parse labels
-    for key in fasta_seqs.keys():
-        fasta_seqs[key][1] = parse_description_to_label(
-            description=fasta_seqs[key][1],
-            discrete=config_dict["discrete"],
-            feature_name=config_dict.get('feature_name', 'TARGET')
-        )
     # train & test set split
-    train_data, inference_data = get_datasets(config_dict, fasta_seqs)
+    train_data, inference_data = get_datasets(config_dict, embd_records)
     if len(train_data['ids']) * len(inference_data) == 0:
         raise ValueError("data_prep: training set / inference set is empty. Have you set feature_name?")
-    return train_data, inference_data, fasta_seqs
+    return train_data, inference_data, embd_records
 
 
 def calculate_distance_penalty(means: torch.Tensor, config_dict):
@@ -210,8 +167,8 @@ def train_and_inference_classification(train_data, inference_data, config_dict):
     return scores, means, uncer
 
 
-def pipeline(config_dict: Dict[str, Any], embeddings: List[EmbeddingsDatabaseTriple]) -> List:
-    train_data, inference_data, seqs = data_prep(config_dict, embeddings=embeddings)
+def pipeline(config_dict: Dict[str, Any], embeddings: List[BiotrainerSequenceRecord]) -> List:
+    train_data, inference_data, embd_records = data_prep(config_dict, embeddings=embeddings)
     logger.info("BO Data preparation finished!")
 
     # train model, inference and add with acquisition function score
@@ -226,11 +183,9 @@ def pipeline(config_dict: Dict[str, Any], embeddings: List[EmbeddingsDatabaseTri
         score = scores[idx].item()
         mean = means[idx].item()
         uncertainty = uncertainties[idx].item()
-        seq = seqs[sid][0]
         results.append(
             {
                 "id": sid,
-                "sequence": seq,
                 "mean": mean,
                 "uncertainty": uncertainty,
                 "score": score,

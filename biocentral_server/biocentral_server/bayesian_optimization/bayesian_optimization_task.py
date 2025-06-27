@@ -1,11 +1,12 @@
 from biotrainer.utilities import get_device
 from typing import Dict, Callable, Tuple, List
+from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .botraining import SUPPORTED_MODELS, pipeline
 
 from ..utils import get_logger
 from ..embeddings import LoadEmbeddingsTask
-from ..server_management import TaskInterface, EmbeddingsDatabaseTriple, TaskDTO
+from ..server_management import TaskInterface, TaskDTO
 
 logger = get_logger(__name__)
 
@@ -29,13 +30,13 @@ class BayesTask(TaskInterface):
 
         return TaskDTO.finished(result={"bo_results": results})
 
-    def _pre_embed_with_db(self) -> Tuple[List[EmbeddingsDatabaseTriple], str]:
-        sequence_file_path = self.config_dict["sequence_file"]
+    def _pre_embed_with_db(self) -> Tuple[List[BiotrainerSequenceRecord], str]:
+        input_file_path = self.config_dict["input_file"]
         embedder_name = self.config_dict["embedder_name"]
 
         load_embeddings_task = LoadEmbeddingsTask(
             embedder_name=embedder_name,
-            sequence_input=sequence_file_path,
+            sequence_input=input_file_path,
             reduced=True,
             use_half_precision=False,
             device=get_device(),
@@ -49,7 +50,7 @@ class BayesTask(TaskInterface):
             return [], "Loading of embeddings failed before training!"
 
         missing = load_dto.update["missing"]
-        embeddings = load_dto.update["embeddings"]
+        embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
         if len(missing) > 0:
             return [], f"Missing number of embeddings before training: {len(missing)}"
 

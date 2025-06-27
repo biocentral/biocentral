@@ -2,6 +2,7 @@ import torch
 import hashlib
 
 from typing import Union, Dict, Tuple, List, Any
+from biotrainer.utilities import calculate_sequence_hash
 
 
 class DatabaseStrategy:
@@ -48,7 +49,5 @@ class DatabaseStrategy:
 
     @staticmethod
     def generate_sequence_hash(sequence):
-        """Generate a hash for the given sequence, with length suffix as additional hash collision safety."""
-        suffix = len(sequence)
-        sequence = f"{sequence}_{suffix}"
-        return hashlib.sha256(sequence.encode()).hexdigest()
+        """DelegateS to biotrainer sequence hashing """
+        return calculate_sequence_hash(sequence)

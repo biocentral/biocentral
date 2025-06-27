@@ -82,24 +82,12 @@ def start_training():
     user_id = UserManager.get_user_id_from_request(req=request)
     file_manager = FileManager(user_id=user_id)
     database_hash: str = task_data.get('database_hash')
-    embedder_name = config_dict["embedder_name"]
-    protocol = Protocol.from_string(config_dict["protocol"])
     try:
-        sequence_file, labels_file, mask_file, embeddings_file = file_manager.get_file_paths_for_biotrainer(
-            database_hash=database_hash, embedder_name=embedder_name, protocol=protocol)
+        input_file = file_manager.get_file_path_for_training(database_hash=database_hash)
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
 
-    for file_name, file_path in [("sequence_file", sequence_file), ("labels_file", labels_file),
-                                 ("mask_file", mask_file)]:
-        if file_path != "":
-            config_dict[file_name] = file_path
-
-    # Remove embedder_name from config if embeddings_file exists, because they are mutually exclusive
-    if str(embeddings_file) != "":
-        # TODO [Optimization] Might add an existing embeddings_file or remove embeddings_file from file_manager
-        # config_dict["embedder_name"] = ""
-        pass  # Ignore embeddings_file for now
+    config_dict['input_file'] = input_file
 
     task_manager = TaskManager()
     # TODO Replace this by a appropriate model hash in the future to avoid costly retraining

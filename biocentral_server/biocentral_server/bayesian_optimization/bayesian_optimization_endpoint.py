@@ -202,12 +202,10 @@ def train_and_inference():
     # prepare more training configurations
     config_dict["output_dir"] = str(output_dir.absolute())
     try:
-        files = file_manager.get_file_paths_for_biotrainer(
+        input_file = file_manager.get_file_path_for_training(
             database_hash=database_hash,
-            embedder_name=config_dict.get("embedder_name", "one_hot_encoding"),
-            protocol=Protocol.sequence_to_class,
         )
-        config_dict["sequence_file"] = files[0]
+        config_dict["input_file"] = input_file
     except FileNotFoundError as e:
         return jsonify({"error": str(e)})
     # launch process

@@ -1,17 +1,18 @@
 from pathlib import Path
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, Union, List
 
-from biotrainer.utilities import read_FASTA, get_device
+from biotrainer.utilities import get_device
+from biotrainer.input_files import BiotrainerSequenceRecord, read_FASTA
 
 from .embed import compute_embeddings, compute_one_hot_encodings
 
-from ..server_management import TaskInterface, TaskDTO, EmbeddingDatabaseFactory, FileContextManager
+from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase, EmbeddingDatabaseFactory, FileContextManager
 
 
 class CalculateEmbeddingsTask(TaskInterface):
     """ Calculate embeddings via biotrainer embeddings service adapter using the embeddings database """
 
-    def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
+    def __init__(self, embedder_name: str, sequence_input: Union[List[BiotrainerSequenceRecord], Path], reduced: bool,
                  use_half_precision: bool, device, custom_tokenizer_config: str = None):
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
@@ -21,24 +22,28 @@ class CalculateEmbeddingsTask(TaskInterface):
         self.custom_tokenizer_config = custom_tokenizer_config
 
     def _read_sequence_input(self) -> Dict[str, str]:
-        if isinstance(self.sequence_input, Dict):
-            return self.sequence_input
+        if isinstance(self.sequence_input, List):
+            return {seq_record.get_hash(): str(seq_record.seq) for seq_record in self.sequence_input}
         file_context_manager = FileContextManager()
         with file_context_manager.storage_read(self.sequence_input) as seq_file_path:
             all_seq_records = read_FASTA(str(seq_file_path))
-        return {seq.id: str(seq.seq) for seq in all_seq_records}
+
+        # This will make sure that only unique sequences are filtered
+        return {seq_record.get_hash(): str(seq_record.seq) for seq_record in all_seq_records}
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         all_seqs = self._read_sequence_input()
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        _ = compute_embeddings(embedder_name=self.embedder_name,
-                               custom_tokenizer_config=self.custom_tokenizer_config,
-                               all_seqs=all_seqs,
-                               reduced=self.reduced,
-                               use_half_precision=self.use_half_precision,
-                               device=self.device,
-                               embeddings_db=embeddings_db)
+        for current, total in compute_embeddings(embedder_name=self.embedder_name,
+                                                 custom_tokenizer_config=self.custom_tokenizer_config,
+                                                 all_seqs=all_seqs,
+                                                 reduced=self.reduced,
+                                                 use_half_precision=self.use_half_precision,
+                                                 device=self.device,
+                                                 embeddings_db=embeddings_db):
+            update_dto_callback(TaskDTO.running().add_update(update={"embedding_current": current,
+                                                                     "embedding_total": total}))
 
         return TaskDTO.finished(result={"all_seqs": all_seqs})
 
@@ -47,13 +52,17 @@ class _OneHotEncodeTask(CalculateEmbeddingsTask):
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         all_seqs = self._read_sequence_input()
         ohe = compute_one_hot_encodings(all_seqs=all_seqs, reduced=self.reduced)
+        len_ohe = len(ohe)
+        update_dto_callback(TaskDTO.running().add_update(update={"embedding_current": len_ohe,
+                                                                 "embedding_total": len_ohe}))
+
         return TaskDTO.finished(result={"ohe": ohe})
 
 
 class LoadEmbeddingsTask(TaskInterface):
-    """ Load Embeddings as Triples """
+    """ Load Embeddings as Triples to Memory """
 
-    def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
+    def __init__(self, embedder_name: str, sequence_input: Union[List[BiotrainerSequenceRecord], Path], reduced: bool,
                  use_half_precision: bool, device, custom_tokenizer_config: str = None):
         if use_half_precision:
             embedder_name += "-half"
@@ -88,25 +97,28 @@ class LoadEmbeddingsTask(TaskInterface):
         calculate_dto = None
         for dto in self.run_subtask(calculate_task):
             calculate_dto = dto
+            if "embedding_current" in calculate_dto.update:
+                update_dto_callback(calculate_dto)
 
-        if not calculate_dto:
-            return TaskDTO.failed(error="Calculating of embeddings failed before export!")
+        if not calculate_dto or "all_seqs" not in calculate_dto.update:
+            return TaskDTO.failed(error="Calculating of embeddings failed before loading!")
 
         all_seqs = calculate_dto.update["all_seqs"]
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        triples = embeddings_db.get_embeddings(sequences=all_seqs, embedder_name=self.embedder_name,
-                                               reduced=self.reduced)
-        triple_ids = {triple.id for triple in triples}
-        missing = [seq_id for seq_id in all_seqs.keys() if seq_id not in triple_ids]
+        embd_records = embeddings_db.get_embeddings(sequences=all_seqs,
+                                                    embedder_name=self.embedder_name,
+                                                    reduced=self.reduced)
+        record_ids = {embd_record.seq_id for embd_record in embd_records}
+        missing = [seq_id for seq_id in all_seqs.keys() if seq_id not in record_ids]
 
-        return TaskDTO.finished(result={"embeddings": triples, 'missing': missing})
+        return TaskDTO.finished(result={"embeddings": embd_records, 'missing': missing})
 
 
 class ExportEmbeddingsTask(TaskInterface):
     """ Calculate Embeddings and Export to H5 """
 
-    def __init__(self, embedder_name: str, sequence_input: Union[Dict[str, str], Path], reduced: bool,
+    def __init__(self, embedder_name: str, sequence_input: Union[List[BiotrainerSequenceRecord], Path], reduced: bool,
                  use_half_precision: bool, device, embeddings_out_path: Path, custom_tokenizer_config: str = None):
         # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
         if use_half_precision:
@@ -129,20 +141,16 @@ class ExportEmbeddingsTask(TaskInterface):
         load_dto = None
         for dto in self.run_subtask(load_task):
             load_dto = dto
+            if "embedding_current" in load_dto.update:
+                update_dto_callback(load_dto)
 
-        if not load_dto:
+        if not load_dto or "embeddings" not in load_dto.update:
             return TaskDTO.failed(error="Loading of embeddings failed before export!")
 
         missing = load_dto.update["missing"]
-        embeddings = load_dto.update["embeddings"]
+        embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
         if len(missing) > 0:
             return TaskDTO.failed(error=f"Missing number of embeddings before export: {len(missing)}")
 
-        embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        file_context_manager = FileContextManager()
-
-        with file_context_manager.storage_write(self.embeddings_out_path) as h5_out_path:
-            h5_file_name = self.embedder_name.replace("/", "_")
-            h5_file_name += f"_reduced.h5" if self.reduced else ".h5"
-            _ = embeddings_db.export_embedding_triples_to_hdf5(embeddings, Path(h5_out_path) / h5_file_name)
-        return TaskDTO.finished(result={"embeddings_file": self.embeddings_out_path / h5_file_name})
+        h5_string = EmbeddingsDatabase.export_embeddings_task_result_to_h5_bytes_string(embeddings)
+        return TaskDTO.finished(result={"embeddings_file": h5_string})
