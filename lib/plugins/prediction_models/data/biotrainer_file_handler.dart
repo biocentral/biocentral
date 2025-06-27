@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 
 class BiotrainerFileHandler {
@@ -129,8 +130,7 @@ class BiotrainerFileHandler {
     }
     // Output file and config file should have no contradictions => failOnConflict always true
     if (biotrainerConfig != null) {
-      final configModel = PredictionModel.fromTrainingConfig(biotrainerConfig);
-      result = result?.merge(configModel, failOnConflict: true) ?? configModel;
+      result = result?.copyWith(config: biotrainerConfig.merge<String, dynamic>(result.config ?? {}));
     }
     // Training log
     if (biotrainerTrainingLog != null) {

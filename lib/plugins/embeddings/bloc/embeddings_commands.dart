@@ -105,7 +105,6 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     yield left(state.setOperating(information: 'Calculating embeddings..'));
 
     final String databaseHash = await _biocentralDatabase.getHash();
-    final int totalToEmbed = _biocentralDatabase.databaseToList().length;
     final transferEither = await _embeddingClient.transferFile(
       databaseHash,
       StorageFileType.input,
@@ -126,12 +125,12 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       }, (taskID) async* {
         String? embeddingsFile;
         await for (final (dto, receivedEmbeddingsFile) in _embeddingClient.embeddingsTaskStream(taskID)) {
-          final int? progress = dto.embeddingProgress;
-          if (progress != null) {
+          if (dto.embeddingProgress != null) {
+            final (current, total) = dto.embeddingProgress!;
             yield left(
               state.setOperating(
                 information: 'Embedding..',
-                commandProgress: BiocentralCommandProgress(current: progress, total: totalToEmbed),
+                commandProgress: BiocentralCommandProgress(current: current, total: total),
               ),
             );
           }

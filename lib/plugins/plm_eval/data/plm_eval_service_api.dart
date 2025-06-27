@@ -2,6 +2,7 @@ import 'package:biocentral/plugins/plm_eval/data/plm_eval_dto.dart';
 import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
@@ -36,7 +37,7 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
 }
 
 final class AutoEvalProgress {
-  final String modelName;
+  final String embedderName;
   final int completedTasks;
   final int totalTasks;
   final BenchmarkDataset? currentTask;
@@ -45,7 +46,7 @@ final class AutoEvalProgress {
   final BiocentralTaskStatus status;
 
   AutoEvalProgress({
-    required this.modelName,
+    required this.embedderName,
     required this.completedTasks,
     required this.totalTasks,
     required this.currentTask,
@@ -54,7 +55,7 @@ final class AutoEvalProgress {
     required this.status,
   });
 
-  AutoEvalProgress.fromDatasets(this.modelName, List<BenchmarkDataset> datasets)
+  AutoEvalProgress.fromDatasets(this.embedderName, List<BenchmarkDataset> datasets)
       : completedTasks = 0,
         totalTasks = datasets.length,
         currentTask = null,
@@ -63,7 +64,7 @@ final class AutoEvalProgress {
         status = BiocentralTaskStatus.running;
 
   AutoEvalProgress.failed()
-      : modelName = '',
+      : embedderName = '',
         completedTasks = 0,
         totalTasks = 0,
         currentTask = null,
@@ -72,29 +73,21 @@ final class AutoEvalProgress {
         status = BiocentralTaskStatus.failed;
 
   AutoEvalProgress updateFromDTO(BiocentralDTO dto) {
-    if (dto.totalTasks == null || dto.completedTasks == null || dto.taskStatus == null) {
-      return this; // Not a valid update
-    }
-
-    // TODO [Error handling] modelName should never change!
-    final String modelName = dto.embedderName ?? this.modelName;
+    // TODO [Error handling] embedderName should never change!
+    final String embedderName = dto.embedderName ?? this.embedderName;
     final int newCompletedTasks = dto.completedTasks ?? completedTasks;
     final int newTotalTasks = dto.totalTasks ?? totalTasks;
     final BiocentralTaskStatus newStatus = dto.taskStatus ?? status;
 
-    final String? currentProcessString = dto.currentTask;
-    final currentTask = BenchmarkDataset.fromCombinedString(currentProcessString);
+    final String? currentTaskName = dto.currentTaskName;
+    final currentTask = BenchmarkDataset.fromCombinedString(currentTaskName) ?? this.currentTask;
 
     final newResults = Map.of(results);
-    if (currentTask != null) {
-      final PredictionModel? existingModel = results[currentTask];
-      PredictionModel mergedResult;
+    if (currentTask != null && dto.modelDTO.responseMap.isNotEmpty) {
+      PredictionModel? mergedResult = results[currentTask];
+      mergedResult ??= PredictionModel.fromTrainingConfig(dto.modelDTO.config ?? {});
+      mergedResult = mergedResult.updateFromDTO(dto.modelDTO);
 
-      if(existingModel == null) {
-        mergedResult = dto.parseCurrentTaskModel();
-      } else {
-        mergedResult = existingModel.updateFromDTO(dto.modelDTO);
-      }
       newResults[currentTask] = mergedResult;
     }
     final currentModel = newResults[currentTask];
@@ -109,7 +102,7 @@ final class AutoEvalProgress {
           .setOperating(information: 'Training model..', commandProgress: commandProgress);
     }
     return AutoEvalProgress(
-      modelName: modelName,
+      embedderName: embedderName,
       completedTasks: newCompletedTasks,
       totalTasks: newTotalTasks,
       currentTask: currentTask,
