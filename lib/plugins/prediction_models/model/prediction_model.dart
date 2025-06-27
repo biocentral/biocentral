@@ -1,6 +1,4 @@
-import 'dart:convert';
-
-import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
@@ -105,88 +103,78 @@ class PredictionModel extends Equatable {
   }
 
   PredictionModel addLogs(List<String> logs) {
-    return PredictionModel(
-      config: config,
-      databaseType: databaseType,
-      derivedValues: derivedValues,
-      trainingResults: trainingResults,
-      testResults: testResults,
-      trainingLogs: Set<String>.from((trainingLogs)..addAll(logs)).toList(),
-      checkpoints: checkpoints,
-      trainingStatus: trainingStatus,
-    );
+    return copyWith(trainingLogs: Set<String>.from((trainingLogs)..addAll(logs)).toList());
   }
 
   PredictionModel addCheckpoints(Map<String, Uint8List> checkpoints) {
-    return PredictionModel(
-      config: config,
-      databaseType: databaseType,
-      derivedValues: derivedValues,
-      trainingResults: trainingResults,
-      testResults: testResults,
-      trainingLogs: trainingLogs,
-      checkpoints: (this.checkpoints ?? {})..addAll(checkpoints),
-      trainingStatus: trainingStatus,
+    return copyWith(
+      checkpoints: Map<String, Uint8List>.from(this.checkpoints)..addAll(checkpoints),
     );
   }
 
-  PredictionModel updateStatus(BiocentralTaskStatus status) {
+  PredictionModel copyWith({
+    config,
+    databaseType,
+    derivedValues,
+    trainingResults,
+    testResults,
+    trainingLogs,
+    checkpoints,
+    trainingStatus,
+  }) {
     return PredictionModel(
-      config: config,
-      databaseType: databaseType,
-      derivedValues: derivedValues,
-      trainingResults: trainingResults,
-      testResults: testResults,
-      trainingLogs: trainingLogs,
-      checkpoints: checkpoints,
-      trainingStatus: status,
-    );
-  }
-
-  PredictionModel merge(PredictionModel? other, {required bool failOnConflict}) {
-    if (other == null) {
-      return this;
-    }
-
-    final String? databaseTypeMerged = nullableMerge(
-      databaseType,
-      other.databaseType,
-      'Could not merge prediction models due to a conflict in their database types!',
-      failOnConflict,
-    );
-
-    final String? configStringMerged = nullableMerge(
-      config != null ? jsonEncode(config) : null,
-      other.config != null ? jsonEncode(other.config) : null,
-      'Could not merge prediction models due to a conflict in their training configs!',
-      failOnConflict,
-    );
-
-    final Map<String, dynamic>? configMerged = configStringMerged != null ? jsonDecode(configStringMerged) : null;
-
-    // TODO Check for conflicts
-    final derivedValuesMerged = derivedValues ?? other.derivedValues;
-    final trainingResultsMerged = trainingResults ?? other.trainingResults;
-    final testResultsMerged = testResults ?? other.testResults;
-    final trainingStatusMerged = trainingStatus ?? other.trainingStatus;
-
-    final trainingLogsMerged = Set<String>.from(trainingLogs..addAll(other.trainingLogs)).toList();
-    final Map<String, Uint8List> checkpointsMerged = checkpoints..addAll(other.checkpoints);
-
-    return PredictionModel(
-      config: configMerged,
-      databaseType: databaseTypeMerged,
-      derivedValues: derivedValuesMerged,
-      trainingResults: trainingResultsMerged,
-      testResults: testResultsMerged,
-      trainingLogs: trainingLogsMerged,
-      checkpoints: checkpointsMerged,
-      trainingStatus: trainingStatusMerged,
-    );
+        config: config ?? this.config,
+        databaseType: databaseType ?? this.databaseType,
+        derivedValues: derivedValues ?? this.derivedValues,
+        trainingResults: trainingResults ?? this.trainingResults,
+        testResults: testResults ?? this.testResults,
+        trainingLogs: trainingLogs ?? this.trainingLogs,
+        checkpoints: checkpoints ?? this.checkpoints,
+        trainingStatus: trainingStatus ?? this.trainingStatus);
   }
 
   PredictionModel updateFromDTO(BiocentralDTO dto) {
-    return this; // TODO
+    PredictionModel updatedModel = this;
+    final config = dto.config;
+    if (config != null) {
+      updatedModel = updatedModel.copyWith(config: this.config?.merge<String, dynamic>(config) ?? config);
+    }
+    final derivedValues = dto.derivedValues;
+    if (derivedValues != null) {
+      updatedModel = updatedModel.copyWith(
+          derivedValues: this.derivedValues?.merge<String, dynamic>(derivedValues) ?? derivedValues);
+    }
+
+    // TODO Not included in DTO yet
+    final databaseType = dto.databaseType ?? 'Protein';
+    updatedModel = updatedModel.copyWith(databaseType: databaseType);
+
+    final trainingIteration = dto.trainingIteration;
+    if (trainingIteration != null) {
+      final splitName = trainingIteration['split_name'];
+      final existingTrainingResult = trainingResults?[splitName] ?? TrainingResult.empty();
+      final updatedTrainingResult = existingTrainingResult.update(trainingIteration['metrics'] ?? {});
+      if (updatedTrainingResult != null) {
+        // TODO Error handling
+        final newTrainingResults = Map<String, TrainingResult>.from(trainingResults ?? {});
+        newTrainingResults[splitName] = updatedTrainingResult;
+        updatedModel = updatedModel.copyWith(trainingResults: newTrainingResults);
+      }
+    }
+
+    final testResults = dto.testResults;
+    final updatedTestResults = Map<String, TestResult>.from(this.testResults ?? {});
+    if(testResults != null) {
+      for(final (testSetName, testSetResult) in testResults.entriesRecord) {
+        final parsedTestSetResult = TestResult.fromMap(testSetResult);
+        if(parsedTestSetResult != null) {
+          updatedTestResults[testSetName] = parsedTestSetResult;
+        }
+      }
+    }
+    updatedModel = updatedModel.copyWith(testResults: updatedTestResults);
+
+    return updatedModel;
   }
 
   // Getters for commonly used values
@@ -227,7 +215,7 @@ class PredictionModel extends Equatable {
       'config': config,
       'database_type': databaseType,
       'derived_values': derivedValues,
-      'training_results': trainingResults.toString(),  // TODO Convert to map properly
+      'training_results': trainingResults.toString(), // TODO Convert to map properly
       'test_results': testResults.toString(), // TODO Convert to map properly
       if (includeTrainingLogs) 'training_logs': trainingLogs,
       'training_status': trainingStatus?.name,
@@ -239,211 +227,14 @@ class PredictionModel extends Equatable {
       [config, databaseType, derivedValues, trainingResults, testResults, trainingLogs, trainingStatus];
 }
 
-/*
-@immutable
-class PredictionModel extends Equatable {
-  final String? embedderName;
-  final String? architecture;
-  final String? databaseType;
-  final PredictionProtocol? predictionProtocol;
-
-  final Map<String, dynamic>? biotrainerTrainingConfig;
-  final BiotrainerTrainingResult? biotrainerTrainingResult;
-
-  final Map<String, Uint8List>? biotrainerCheckpoints;
-
-  const PredictionModel({
-    required this.embedderName,
-    required this.architecture,
-    required this.databaseType,
-    required this.predictionProtocol,
-    required this.biotrainerTrainingConfig,
-    required this.biotrainerTrainingResult,
-    required this.biotrainerCheckpoints,
-  });
-
-  const PredictionModel.empty()
-      : embedderName = null,
-        architecture = null,
-        databaseType = null,
-        predictionProtocol = null,
-        biotrainerTrainingConfig = null,
-        biotrainerTrainingResult = null,
-        biotrainerCheckpoints = null;
-
-  static PredictionModel? fromMap(Map<String, dynamic> map) {
-    final String? embedderName = map['embedder_name'] ?? map['embedderName'];
-    final String databaseType = map['databaseType'] ?? map ['database_type'] ??
-        (map['interaction'] != null && map['interaction'] != ''
-            ? const ProteinProteinInteraction.empty().typeName
-            : const Protein.empty().typeName);
-    final PredictionProtocol? predictionProtocol =
-        enumFromString<PredictionProtocol>(map['protocol'], PredictionProtocol.values);
-
-    final Map<String, dynamic>? trainingConfig = map['trainingConfig'] ?? map['training_config'];
-    final String? architecture = map['model_choice'] ?? map['modelChoice'] ?? trainingConfig?['model_choice'];
-
-    final trainingResult = BiotrainerTrainingResult.fromMap(map['trainingResult'] ?? map['training_result'] ?? {});
-
-    return PredictionModel(
-      embedderName: embedderName,
-      architecture: architecture,
-      databaseType: databaseType,
-      predictionProtocol: predictionProtocol,
-      biotrainerTrainingConfig: trainingConfig,
-      biotrainerTrainingResult: trainingResult,
-      biotrainerCheckpoints: null,
-    );
-  }
-
-  PredictionModel updateFromDTO(BiocentralDTO dto) {
-    final trainingLog = dto.logFile;
-    final trainingStatus = dto.taskStatus;
-
-    final newLogs = (biotrainerTrainingResult?.trainingLogs ?? []).join('\n') + (trainingLog ?? '');
-    final newResult = BiotrainerLogFileHandler.parseBiotrainerLog(
-      trainingLog: newLogs,
-      trainingStatus: trainingStatus,
-    );
-    return copyWith(biotrainerTrainingResult: newResult);
-  }
-
-  PredictionModel copyWith({
-    embedderName,
-    architecture,
-    databaseType,
-    predictionProtocol,
-    biotrainerTrainingConfig,
-    biotrainerTrainingResult,
-    biotrainerTrainingLog,
-    biotrainerCheckpoints,
-  }) {
-    return PredictionModel(
-      embedderName: embedderName ?? this.embedderName,
-      architecture: architecture ?? this.architecture,
-      databaseType: databaseType ?? this.databaseType,
-      predictionProtocol: predictionProtocol ?? this.predictionProtocol,
-      biotrainerTrainingConfig: biotrainerTrainingConfig ?? this.biotrainerTrainingConfig,
-      biotrainerTrainingResult: biotrainerTrainingResult ?? this.biotrainerTrainingResult,
-      biotrainerCheckpoints: biotrainerCheckpoints ?? this.biotrainerCheckpoints,
-    );
-  }
-
-  PredictionModel merge(PredictionModel? other, {required bool failOnConflict}) {
-    if (other == null) {
-      return this;
-    }
-
-    final String? embedderNameMerged = nullableMerge(
-      embedderName,
-      other.embedderName,
-      'Could not merge prediction models due to a conflict in their embedderNames!',
-      failOnConflict,
-    );
-    final String? architectureMerged = nullableMerge(
-      architecture,
-      other.architecture,
-      'Could not merge prediction models due to a conflict in their architecture!',
-      failOnConflict,
-    );
-    final String? databaseTypeMerged = nullableMerge(
-      databaseType,
-      other.databaseType,
-      'Could not merge prediction models due to a conflict in their database types!',
-      failOnConflict,
-    );
-    final PredictionProtocol? predictionProtocolMerged = nullableMerge(
-      predictionProtocol,
-      other.predictionProtocol,
-      'Could not merge prediction models due to a conflict in their prediction protocols!',
-      failOnConflict,
-    );
-
-    final String? configStringMerged = nullableMerge(
-      biotrainerTrainingConfig != null ? jsonEncode(biotrainerTrainingConfig) : null,
-      other.biotrainerTrainingConfig != null ? jsonEncode(other.biotrainerTrainingConfig) : null,
-      'Could not merge prediction models due to a conflict in their training configs!',
-      failOnConflict,
-    );
-
-    final Map<String, dynamic>? biotrainerTrainingConfigMerged =
-        configStringMerged != null ? jsonDecode(configStringMerged) : null;
-
-    final BiotrainerTrainingResult? biotrainerTrainingResultMerged = nullableMerge(
-      biotrainerTrainingResult,
-      other.biotrainerTrainingResult,
-      'Could not merge prediction models due to a conflict in their training results!',
-      failOnConflict,
-    );
-
-    final Map<String, Uint8List> biotrainerCheckpointsMerged = biotrainerCheckpoints ?? {};
-    biotrainerCheckpointsMerged.addAll(other.biotrainerCheckpoints ?? {});
-    return PredictionModel(
-      embedderName: embedderNameMerged,
-      architecture: architectureMerged,
-      databaseType: databaseTypeMerged,
-      predictionProtocol: predictionProtocolMerged,
-      biotrainerTrainingConfig: biotrainerTrainingConfigMerged,
-      biotrainerTrainingResult: biotrainerTrainingResultMerged,
-      biotrainerCheckpoints: biotrainerCheckpointsMerged.isNotEmpty ? biotrainerCheckpointsMerged : null,
-    );
-  }
-
-  PredictionModel setTraining() {
-    final trainingResult = biotrainerTrainingResult ?? BiotrainerTrainingResult.empty();
-    return copyWith(biotrainerTrainingResult: trainingResult.copyWith(trainingStatus: BiocentralTaskStatus.running));
-  }
-
-  bool isEmpty() {
-    return !isNotEmpty();
-  }
-
-  bool isNotEmpty() {
-    return props.any((element) => element != null);
-  }
-
-  Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
-    // Checkpoints are not included at the moment
-    return {
-      'embedder_name': embedderName,
-      'architecture': architecture,
-      'database_type': databaseType,
-      'protocol': predictionProtocol?.name,
-      'training_config': biotrainerTrainingConfig,
-      'training_result': biotrainerTrainingResult?.toMap(includeTrainingLogs: includeTrainingLogs),
-    };
-  }
-
-  Map<String, String> getModelInformationMap() {
-    return {
-      'Embedder Name': embedderName ?? 'Unknown',
-      'Architecture': architecture ?? 'Unknown',
-      'Type': databaseType?.toString() ?? 'Unknown',
-      'Training Protocol': predictionProtocol?.name ?? 'Unknown',
-    };
-  }
-
-  @override
-  List<Object?> get props => [
-        embedderName,
-        architecture,
-        databaseType,
-        predictionProtocol,
-        biotrainerTrainingConfig,
-        biotrainerTrainingResult,
-        biotrainerCheckpoints,
-      ];
-}
-*/
-
 class TrainingResult {
   final Map<int, double> trainingLoss;
   final Map<int, double> validationLoss;
 
-  final int bestEpoch;
-  final Map<String, Set<BiocentralMLMetric>> bestEpochMetrics; // Training + Validation
+  final int? bestEpoch;
+  final Map<String, Set<BiocentralMLMetric>>? bestEpochMetrics; // Training + Validation
 
-  final Map<String, dynamic> metadata;
+  final Map<String, dynamic>? metadata;
 
   TrainingResult({
     required this.trainingLoss,
@@ -452,6 +243,13 @@ class TrainingResult {
     required this.bestEpochMetrics,
     required this.metadata,
   });
+
+  TrainingResult.empty()
+      : trainingLoss = {},
+        validationLoss = {},
+        bestEpoch = null,
+        bestEpochMetrics = null,
+        metadata = null;
 
   static TrainingResult? fromMap(Map<String, dynamic> map) {
     final trainingLoss = Map<int, double>.from(
@@ -497,6 +295,34 @@ class TrainingResult {
       bestEpochMetrics: bestEpochMetrics,
       metadata: metadata,
     );
+  }
+
+  TrainingResult? update(Map<String, dynamic> epochMetrics) {
+    final epoch = int.tryParse(epochMetrics['epoch'].toString());
+    final trainingLossUpdate = epochMetrics['training']?['loss'];
+    final validationLossUpdate = epochMetrics['validation']?['loss'];
+
+    if (epoch == null || trainingLossUpdate == null || validationLossUpdate == null) {
+      return null;
+    }
+    return copyWith(
+        trainingLoss: trainingLoss..addAll({epoch: trainingLossUpdate}),
+        validationLoss: validationLoss..addAll({epoch: validationLossUpdate}));
+  }
+
+  TrainingResult copyWith({
+    trainingLoss,
+    validationLoss,
+    bestEpoch,
+    bestEpochMetrics,
+    metadata,
+  }) {
+    return TrainingResult(
+        trainingLoss: trainingLoss ?? this.trainingLoss,
+        validationLoss: validationLoss ?? this.validationLoss,
+        bestEpoch: bestEpoch ?? this.bestEpoch,
+        bestEpochMetrics: bestEpochMetrics ?? this.bestEpochMetrics,
+        metadata: metadata ?? this.metadata);
   }
 
   int getLastEpoch() {
@@ -557,7 +383,7 @@ class TestResult {
     } else {
       final Map<String, dynamic> testSetMetrics = map['metrics'] ?? {};
       for (final (metricName, metricValue) in testSetMetrics.entriesRecord) {
-        final mlMetric = BiocentralMLMetric.tryParse(metricName, metricValue);
+        final mlMetric = BiocentralMLMetric.tryParse(metricName, metricValue.toString());
         if (mlMetric == null) {
           continue;
         }

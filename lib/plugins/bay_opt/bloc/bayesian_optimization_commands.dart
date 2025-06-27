@@ -80,8 +80,8 @@ class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimiza
       );
       return;
     }, (taskID) async* {
-      final initialModel =
-          PredictionModel.fromTrainingConfig(_trainingConfiguration).updateStatus(BiocentralTaskStatus.running);
+      final initialModel = PredictionModel.fromTrainingConfig(_trainingConfiguration)
+          .copyWith(trainingStatus: BiocentralTaskStatus.running);
 
       final T trainingState =
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});

@@ -51,7 +51,7 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
 
   Widget buildPLMEvalSessionResultDisplay(AutoEvalProgress sessionResult) {
     return BiocentralTaskDisplay(
-      title: 'Evaluation Results for ${sessionResult.modelName}',
+      title: 'Evaluation Results for ${sessionResult.embedderName}',
       leadingIcon: const Icon(Icons.check),
       children: [buildResultsView(sessionResult: sessionResult), buildTaskQueue(sessionResult)],
     );

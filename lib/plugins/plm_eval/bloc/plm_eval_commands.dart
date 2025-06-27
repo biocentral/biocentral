@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
@@ -75,6 +76,17 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
 
     AutoEvalProgress? progress;
     await for (final (dto, currentProgress) in _plmEvalClient.autoEvalProgressStream(taskID, initialProgress)) {
+      if (dto.embeddingProgress != null) {
+        // TODO [Refactoring] Duplicated code for yielding embedding progress (3x)
+        final (current, total) = dto.embeddingProgress!;
+        yield left(
+          state.setOperating(
+            information: 'Embedding..',
+            commandProgress: BiocentralCommandProgress(current: current, total: total),
+          ),
+        );
+        continue;
+      }
       if (currentProgress == null) {
         continue;
       }

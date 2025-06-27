@@ -11,7 +11,7 @@ class PLMEvalPersistentResult {
   PLMEvalPersistentResult._internal(this.embedderName, this.trainingDate, this.results);
 
   PLMEvalPersistentResult.fromAutoEvalProgress(AutoEvalProgress progress)
-      : embedderName = progress.modelName,
+      : embedderName = progress.embedderName,
         trainingDate = DateTime.now(),
         results = Map.from(progress.results);
 
