@@ -182,6 +182,13 @@ class BiocentralProjectRepository {
     );
   }
 
+  Future<Either<BiocentralException, String?>> handleImageSave({required Uint8List imageBytes}) async {
+    final subDir = 'images/';
+    final fileName = 'plot2D.png';
+    final path = PathResolver.resolve(_projectDir, null, subDir, null);  // TODO
+    return _handleSave(fileName: fileName, bytesFunction: () async => imageBytes, dirPath: path);
+  }
+
   Future<Either<BiocentralException, String?>> handleProjectInternalSave({
     required String fileName,
     required Type type,
