@@ -5,6 +5,7 @@ import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dar
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 sealed class EmbeddingsHubEvent {}
@@ -39,6 +40,12 @@ final class EmbeddingsHubVisualizeOnProtspaceEvent extends EmbeddingsHubEvent {
   final Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
 
   EmbeddingsHubVisualizeOnProtspaceEvent(this.projectionData);
+}
+
+final class EmbeddingsHubSaveProjectionPlotEvent extends EmbeddingsHubEvent {
+  final Uint8List? imageBytes;
+
+  EmbeddingsHubSaveProjectionPlotEvent(this.imageBytes);
 }
 
 @immutable
@@ -270,6 +277,14 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
           final url = 'file://$fullPath';
           emit(state.copyWith(protspaceURL: url));
         });
+      }
+    });
+
+    on<EmbeddingsHubSaveProjectionPlotEvent>((event, emit) async {
+      if (event.imageBytes != null) {
+        // TODO Error handling, State handling, Custom File name
+        final saveEither = await _biocentralProjectRepository.handleImageSave(imageBytes: event.imageBytes!);
+        saveEither.match((saveError) {}, (fullPath) {});
       }
     });
   }

@@ -4,6 +4,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 class EmbeddingsHubView extends StatefulWidget {
   const EmbeddingsHubView({super.key});
@@ -13,15 +14,23 @@ class EmbeddingsHubView extends StatefulWidget {
 }
 
 class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKeepAliveClientMixin {
+  final WidgetsToImageController projectionImageController = WidgetsToImageController();
 
   @override
   bool get wantKeepAlive => true;
 
   void handleProtspaceVisualization(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
-    if(state.protspaceURL != null) {
+    if (state.protspaceURL != null) {
       launchUrlString(state.protspaceURL!);
     } else {
       embeddingsHubBloc.add(EmbeddingsHubVisualizeOnProtspaceEvent(state.projectionData));
+    }
+  }
+
+  void handleProjectionImageSave(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) async {
+    if (state.projectionData != null && state.projectionData!.isNotEmpty) {
+      final imageBytes = await projectionImageController.capturePng(pixelRatio: 3.0);
+      embeddingsHubBloc.add(EmbeddingsHubSaveProjectionPlotEvent(imageBytes));
     }
   }
 
@@ -34,7 +43,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
       length: 2,
       child: BlocConsumer<EmbeddingsHubBloc, EmbeddingsHubState>(
         listener: (context, state) {
-          if(state.protspaceURL != null) {
+          if (state.protspaceURL != null) {
             handleProtspaceVisualization(embeddingsHubBloc, state);
           }
         },
@@ -102,11 +111,17 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 8,),
+          const SizedBox(
+            height: 8,
+          ),
           Flexible(child: buildEntityIDSelection(embeddingsHubBloc, state)),
-          const SizedBox(height: 8,),
+          const SizedBox(
+            height: 8,
+          ),
           Flexible(child: buildSingleEmbedding(embeddingsHubBloc, state)),
-          const SizedBox(height: 8,),
+          const SizedBox(
+            height: 8,
+          ),
           Flexible(child: buildBasicEmbeddingStats(embeddingsHubBloc, state)),
         ],
       ),
@@ -114,9 +129,11 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   }
 
   Widget buildEntityTypeSelection(EmbeddingsHubBloc embeddingsHubBloc) {
-    return BiocentralEntityTypeSelection(onChangedCallback: (selectedType) {
-      embeddingsHubBloc.add(EmbeddingsHubLoadEvent(selectedType));
-    },);
+    return BiocentralEntityTypeSelection(
+      onChangedCallback: (selectedType) {
+        embeddingsHubBloc.add(EmbeddingsHubLoadEvent(selectedType));
+      },
+    );
   }
 
   Widget buildEmbedderSelection(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
@@ -206,7 +223,8 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
     }
 
     return FutureBuilder(
-      future: state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!),
+      future:
+          state.embeddingsColumnWizard!.getEmbeddingStats(state.selectedEmbedderName!, state.selectedEmbeddingType!),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           final embeddingStats = snapshot.data!;
@@ -241,35 +259,40 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-            onPressed: () => handleProtspaceVisualization(embeddingsHubBloc, state),
-            icon: const Icon(Icons.launch),
-            label: const Text('View on ProtSpace'),),
-          const SizedBox(height: 20),
-          SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: state.projectionData!.entries
-                  .map(
-                    (MapEntry<ProjectionData, List<Map<String, dynamic>>> mapEntry) => SizedBox(
-                      width: SizeConfig.screenWidth(context) * 0.4,
-                      height: SizeConfig.screenHeight(context) * 0.4,
-                      child: ProjectionVisualizer2D(
-                        projectionData: mapEntry.key,
-                        pointData:
-                            mapEntry.value.map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString()))).toList(),
-                        pointIdentifierKey: 'id',
-                      ),
-                    ),
-                  )
-                  .toList(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              onPressed: () => handleProtspaceVisualization(embeddingsHubBloc, state),
+              icon: const Icon(Icons.launch),
+              label: const Text('View on ProtSpace'),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              ...state.projectionData!.entries.map(
+                (MapEntry<ProjectionData, List<Map<String, dynamic>>> mapEntry) => SizedBox(
+                  width: SizeConfig.screenWidth(context) * 0.4,
+                  height: SizeConfig.screenHeight(context) * 0.4,
+                  child: WidgetsToImage(
+                    controller: projectionImageController,
+                    child: ProjectionVisualizer2D(
+                      projectionData: mapEntry.key,
+                      pointData:
+                          mapEntry.value.map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString()))).toList(),
+                      pointIdentifierKey: 'id',
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.save),
+                onPressed: () => handleProjectionImageSave(embeddingsHubBloc, state),
+              )
+            ]),
+          ],
+        ),
       ),
     );
   }
