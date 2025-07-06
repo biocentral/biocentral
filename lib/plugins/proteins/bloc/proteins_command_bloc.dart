@@ -36,11 +36,12 @@ final class ProteinsCommandRetrieveTaxonomyEvent extends ProteinsCommandEvent {
   ProteinsCommandRetrieveTaxonomyEvent();
 }
 
-final class ProteinsCommandColumnWizardOperationEvent extends ProteinsCommandEvent {
-  final ColumnWizard columnWizard;
-  final ColumnWizardOperation columnWizardOperation;
+final class ProteinsCommandAddColumnEvent extends ProteinsCommandEvent {
+  final String newColumnName;
+  final String originalColumnName;
+  final List<ColumnWizardHistoryEntry> operationHistory;
 
-  ProteinsCommandColumnWizardOperationEvent(this.columnWizard, this.columnWizardOperation);
+  ProteinsCommandAddColumnEvent(this.newColumnName, this.originalColumnName, this.operationHistory);
 }
 
 @immutable
@@ -127,10 +128,12 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
       });
     });
 
-    on<ProteinsCommandColumnWizardOperationEvent>((event, emit) async {
+    on<ProteinsCommandAddColumnEvent>((event, emit) async {
       final ColumnWizardOperationCommand columnWizardOperationCommand = ColumnWizardOperationCommand(
-        columnWizard: event.columnWizard,
-        columnWizardOperation: event.columnWizardOperation,
+        database: _proteinRepository,
+        newColumnName: event.newColumnName,
+        originalColumnName: event.originalColumnName,
+        operationHistory: event.operationHistory,
       );
       await columnWizardOperationCommand
           .executeWithLogging(_biocentralProjectRepository, state)
@@ -138,8 +141,7 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
         await either.match((l) async {
           emit(l);
         }, (r) async {
-          final Map<String, BioEntity> entityMap = await _proteinRepository.handleColumnWizardOperationResult(r);
-          syncWithDatabases(entityMap);
+          syncWithDatabases(r);
         });
       });
     });

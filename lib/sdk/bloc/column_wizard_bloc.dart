@@ -38,9 +38,10 @@ final class ColumnWizardHistoryEntry {
 final class ColumnWizardBlocState extends Equatable {
   final Map<String, Map<String, dynamic>> columns;
 
-  // TODO Could merge columnWizards and temporaryOperationHistory
   final Map<String, List<ColumnWizardHistoryEntry>>? columnWizardHistory;
-  final Widget Function(ColumnWizard)? customBuildFunction;
+
+  // TODO Maybe refactor buildFunction directly into column wizard
+  final Map<Type, Widget Function(ColumnWizard)?>? customBuildFunctions;
   final String? selectedColumn;
   final ColumnOperationType? selectedOperationType;
 
@@ -49,7 +50,7 @@ final class ColumnWizardBlocState extends Equatable {
   const ColumnWizardBlocState(
     this.columns,
     this.columnWizardHistory,
-    this.customBuildFunction,
+    this.customBuildFunctions,
     this.selectedColumn,
     this.selectedOperationType,
     this.status,
@@ -57,7 +58,7 @@ final class ColumnWizardBlocState extends Equatable {
 
   const ColumnWizardBlocState.initial()
       : columns = const {},
-        customBuildFunction = null,
+        customBuildFunctions = null,
         columnWizardHistory = null,
         selectedColumn = null,
         selectedOperationType = null,
@@ -66,20 +67,14 @@ final class ColumnWizardBlocState extends Equatable {
   ColumnWizard? get columnWizard => columnWizardHistory?[selectedColumn]?.lastOrNull?.resultWizard;
 
   @override
-  List<Object?> get props => [
-        columns,
-        columnWizardHistory,
-        customBuildFunction,
-        selectedColumn,
-        selectedOperationType,
-        status
-      ];
+  List<Object?> get props =>
+      [columns, columnWizardHistory, customBuildFunctions, selectedColumn, selectedOperationType, status];
 
   ColumnWizardBlocState copyWith({Map<String, dynamic>? copyMap}) {
     return ColumnWizardBlocState(
       copyMapExtractor(copyMap, 'columns', columns),
       copyMapExtractor(copyMap, 'columnWizardHistory', columnWizardHistory),
-      copyMapExtractor(copyMap, 'customBuildFunction', customBuildFunction),
+      copyMapExtractor(copyMap, 'customBuildFunctions', customBuildFunctions),
       copyMapExtractor(copyMap, 'selectedColumn', selectedColumn),
       copyMapExtractor(copyMap, 'selectedOperationType', selectedOperationType),
       copyMapExtractor(copyMap, 'status', status),
@@ -101,8 +96,13 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
       emit(state.copyWith(copyMap: {'columns': columns, 'status': ColumnWizardBlocStatus.loaded}));
     });
     on<ColumnWizardSelectColumnEvent>((event, emit) async {
-      final columnWizardHistory = state.columnWizardHistory ?? {};
-      Widget Function(ColumnWizard)? customBuildFunction;  // TODO
+      emit(
+        state.copyWith(
+          copyMap: {
+            'selectedColumn': event.selectedColumn,
+          },
+        ),
+      );
 
       ColumnWizard? columnWizard = state.columnWizard;
       if (columnWizard == null) {
@@ -110,21 +110,17 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
           columnName: event.selectedColumn,
           valueMap: state.columns[event.selectedColumn] ?? {},
         );
-        columnWizardHistory.putIfAbsent(event.selectedColumn, () => []);
-        columnWizardHistory[event.selectedColumn]?.add(ColumnWizardHistoryEntry(columnWizard, null));
+        final (columnWizardHistory, customBuildFunctions) = _addNewColumnWizard(columnWizard, null);
+        emit(
+          state.copyWith(
+            copyMap: {
+              'columnWizardHistory': columnWizardHistory,
+              'customBuildFunctions': customBuildFunctions,
+              'status': ColumnWizardBlocStatus.selected,
+            },
+          ),
+        );
       }
-      customBuildFunction = _columnWizardRepository.getCustomBuildFunctionForColumnWizard(columnWizard);
-
-      emit(
-        state.copyWith(
-          copyMap: {
-            'selectedColumn': event.selectedColumn,
-            'columnWizardHistory': columnWizardHistory,
-            'customBuildFunction': customBuildFunction,
-            'status': ColumnWizardBlocStatus.selected,
-          },
-        ),
-      );
     });
     on<ColumnWizardSelectOperationEvent>((event, emit) async {
       emit(
@@ -155,18 +151,33 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
       final updatedColumnWizard = await _columnWizardRepository.getColumnWizardForColumn(
           columnName: state.selectedColumn ?? "", valueMap: result.newColumnValues);
 
-      final updatedHistory = Map<String, List<ColumnWizardHistoryEntry>>.from(state.columnWizardHistory ?? {});
-      updatedHistory.putIfAbsent(state.selectedColumn!, () => []);
-      updatedHistory[state.selectedColumn!]
-          ?.add(ColumnWizardHistoryEntry(updatedColumnWizard, event.columnWizardOperation));
+      final (columnWizardHistory, customBuildFunctions) =
+          _addNewColumnWizard(updatedColumnWizard, event.columnWizardOperation);
       emit(
         state.copyWith(
-          copyMap: {'columnWizardHistory': updatedHistory, 'status': ColumnWizardBlocStatus.calculated},
+          copyMap: {
+            'columnWizardHistory': columnWizardHistory,
+            'customBuildFunctions': customBuildFunctions,
+            'status': ColumnWizardBlocStatus.selected,
+          },
         ),
       );
       // Save queue of operations
       // DISPLAY => History => Undo
       // Only in the end apply to dataset and log
     });
+  }
+
+  (Map, Map) _addNewColumnWizard(ColumnWizard columnWizard, ColumnWizardOperation? operation) {
+    final columnWizardHistory = state.columnWizardHistory ?? {};
+    final Map<Type, Widget Function(ColumnWizard)?> customBuildFunctions = state.customBuildFunctions ?? {};
+    columnWizardHistory.putIfAbsent(columnWizard.columnName, () => []);
+    columnWizardHistory[columnWizard.columnName]?.add(ColumnWizardHistoryEntry(columnWizard, operation));
+
+    customBuildFunctions.putIfAbsent(columnWizard.type, () => null);
+    customBuildFunctions[columnWizard.type] =
+        _columnWizardRepository.getCustomBuildFunctionForColumnWizard(columnWizard);
+
+    return (columnWizardHistory, customBuildFunctions);
   }
 }

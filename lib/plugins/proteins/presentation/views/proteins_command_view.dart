@@ -76,8 +76,10 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
             context.read<BiocentralColumnWizardRepository>(),
           )..add(ColumnWizardLoadEvent()),
           child: ColumnWizardDialog(
-            onCalculateColumn: (columnWizard, columnWizardOperation) {
-              proteinCommandBloc.add(ProteinsCommandColumnWizardOperationEvent(columnWizard, columnWizardOperation));
+            onApplyColumn: (newColumnName, originalColumnName, operationHistory) {
+              proteinCommandBloc.add(
+                ProteinsCommandAddColumnEvent(newColumnName, originalColumnName, operationHistory),
+              );
             },
             initialSelectedColumn: initialSelectedColumn,
           ),

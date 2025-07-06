@@ -44,17 +44,10 @@ abstract class ColumnWizardOperationDisplay extends StatefulWidget {
 }
 
 abstract class ColumnWizardOperationDisplayState extends State<ColumnWizardOperationDisplay> {
-  String newColumnName = '';
-
   @override
   void initState() {
     super.initState();
-    if (defaultColumnName().isNotEmpty) {
-      newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
-    }
   }
-
-  String defaultColumnName();
 
   ColumnWizardOperation? collect();
 
@@ -74,23 +67,11 @@ abstract class ColumnWizardOperationDisplayState extends State<ColumnWizardOpera
           mainAxisSize: MainAxisSize.min,
           children: buildParameterSelections(),
         ),
-        buildNewColumnNameSelection(),
-        buildCalculateButton(),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: buildCalculateButton(),
+        ),
       ],
-    );
-  }
-
-  Widget buildNewColumnNameSelection() {
-    return Flexible(
-      child: TextFormField(
-        initialValue: newColumnName,
-        decoration: const InputDecoration(labelText: 'New Column Name'),
-        onChanged: (String? value) {
-          setState(() {
-            newColumnName = value ?? '';
-          });
-        },
-      ),
     );
   }
 
@@ -116,13 +97,8 @@ class _ColumnWizardShuffleOperationDisplayState extends ColumnWizardOperationDis
   int seed = ColumnWizardShuffleOperation.defaultSeed;
 
   @override
-  String defaultColumnName() {
-    return 'shuffled';
-  }
-
-  @override
   ColumnWizardOperation? collect() {
-    return ColumnWizardShuffleOperation(newColumnName, seed);
+    return ColumnWizardShuffleOperation(seed);
   }
 
   @override
@@ -160,17 +136,8 @@ class _ColumnWizardToBinaryOperationDisplayState extends ColumnWizardOperationDi
   String valueFalse = ColumnWizardToBinaryOperation.defaultValueFalse;
 
   @override
-  String defaultColumnName() {
-    return 'binary';
-  }
-
-  @override
   ColumnWizardOperation? collect() {
-    if (newColumnName.isNotEmpty) {
-      return ColumnWizardToBinaryOperation(newColumnName, compareToValue, valueTrue, valueFalse);
-    } else {
-      return null;
-    }
+    return ColumnWizardToBinaryOperation(compareToValue, valueTrue, valueFalse);
   }
 
   @override
@@ -226,13 +193,8 @@ class ColumnWizardRemoveMissingOperationDisplay extends ColumnWizardOperationDis
 
 class _ColumnWizardRemoveMissingOperationDisplayState extends ColumnWizardOperationDisplayState {
   @override
-  String defaultColumnName() {
-    return '';
-  }
-
-  @override
   ColumnWizardOperation? collect() {
-    return ColumnWizardRemoveMissingOperation(newColumnName);
+    return ColumnWizardRemoveMissingOperation();
   }
 
   @override
@@ -253,19 +215,11 @@ class ColumnWizardRemoveOutliersOperationDisplay extends ColumnWizardOperationDi
 }
 
 class _ColumnWizardRemoveOutliersOperationDisplayState extends ColumnWizardOperationDisplayState {
-  ColumnWizardOutlierRemovalMethod? _selectedMethod;
-
-  @override
-  String defaultColumnName() {
-    return '';
-  }
+  ColumnWizardOutlierRemovalMethod _selectedMethod = ColumnWizardOutlierRemovalMethod.values.first;
 
   @override
   ColumnWizardOperation? collect() {
-    if (_selectedMethod != null) {
-      return ColumnWizardRemoveOutliersOperation(newColumnName, _selectedMethod!);
-    }
-    return null;
+    return ColumnWizardRemoveOutliersOperation(_selectedMethod);
   }
 
   @override
@@ -277,10 +231,13 @@ class _ColumnWizardRemoveOutliersOperationDisplayState extends ColumnWizardOpera
               .map((method) => DropdownMenuEntry(value: method, label: method.name))
               .toList(),
           label: const Text('Select method'),
+          initialSelection: _selectedMethod,
           onSelected: (ColumnWizardOutlierRemovalMethod? method) {
-            setState(() {
-              _selectedMethod = method;
-            });
+            if (method != null && _selectedMethod != method) {
+              setState(() {
+                _selectedMethod = method;
+              });
+            }
           },
         ),
       ),
@@ -304,14 +261,9 @@ class _ColumnWizardClampOperationDisplayState extends ColumnWizardOperationDispl
   double? high;
 
   @override
-  String defaultColumnName() {
-    return '';
-  }
-
-  @override
   ColumnWizardOperation? collect() {
     if (low != null || high != null) {
-      return ColumnWizardClampOperation(newColumnName, low, high);
+      return ColumnWizardClampOperation(low, high);
     }
     return null;
   }
@@ -364,17 +316,8 @@ class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationD
 
 class _ColumnWizardCalculateLengthOperationDisplayState extends ColumnWizardOperationDisplayState {
   @override
-  String defaultColumnName() {
-    return 'length';
-  }
-
-  @override
   ColumnWizardOperation? collect() {
-    if (newColumnName.isNotEmpty) {
-      return ColumnWizardCalculateLengthOperation(newColumnName);
-    } else {
-      return null;
-    }
+    return ColumnWizardCalculateLengthOperation();
   }
 
   @override
