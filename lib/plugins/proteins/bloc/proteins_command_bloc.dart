@@ -3,7 +3,6 @@ import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
 import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:bloc_effects/bloc_effects.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
@@ -59,8 +58,7 @@ final class ProteinsCommandState extends BiocentralCommandState<ProteinsCommandS
   List<Object?> get props => [stateInformation, status];
 }
 
-class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsCommandState>
-    with BiocentralSyncBloc, Effects<ReOpenColumnWizardEffect> {
+class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsCommandState> with BiocentralSyncBloc {
   final ProteinRepository _proteinRepository;
   final BiocentralClientRepository _biocentralClientRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -144,10 +142,6 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
           syncWithDatabases(entityMap);
         });
       });
-      final reOpenColumn = event.columnWizardOperation.newColumnName.isEmpty
-          ? event.columnWizard.columnName
-          : event.columnWizardOperation.newColumnName;
-      emitEffect(ReOpenColumnWizardEffect(reOpenColumn));
     });
   }
 }

@@ -41,7 +41,7 @@ class _PPIInsightsViewState extends State<PPIInsightsView> {
   }
 
   Widget buildColumnWizardDisplay(ColumnWizardBlocState state) {
-    final ColumnWizard? columnWizard = state.columnWizards?[state.selectedColumn];
+    final ColumnWizard? columnWizard = state.columnWizard;
 
     if (columnWizard == null) {
       return Container();

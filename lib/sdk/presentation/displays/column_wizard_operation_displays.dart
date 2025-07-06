@@ -36,15 +36,14 @@ class ColumnWizardOperationDisplayFactory {
   }
 }
 
-abstract class ColumnWizardOperationDisplay<T extends ColumnWizardOperationResult> extends StatefulWidget {
+abstract class ColumnWizardOperationDisplay extends StatefulWidget {
   final String selectedColumnName;
   final void Function(ColumnWizardOperation) onCalculateCallback;
 
   const ColumnWizardOperationDisplay({required this.selectedColumnName, required this.onCalculateCallback, super.key});
 }
 
-abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperationResult>
-    extends State<ColumnWizardOperationDisplay> {
+abstract class ColumnWizardOperationDisplayState extends State<ColumnWizardOperationDisplay> {
   String newColumnName = '';
 
   @override
@@ -53,10 +52,6 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
     if (defaultColumnName().isNotEmpty) {
       newColumnName = '${widget.selectedColumnName}-${defaultColumnName()}';
     }
-  }
-
-  bool showNewColumnName() {
-    return T == ColumnWizardAddOperationResult;
   }
 
   String defaultColumnName();
@@ -86,18 +81,15 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
   }
 
   Widget buildNewColumnNameSelection() {
-    return Visibility(
-      visible: showNewColumnName(),
-      child: Flexible(
-        child: TextFormField(
-          initialValue: newColumnName,
-          decoration: const InputDecoration(labelText: 'New Column Name'),
-          onChanged: (String? value) {
-            setState(() {
-              newColumnName = value ?? '';
-            });
-          },
-        ),
+    return Flexible(
+      child: TextFormField(
+        initialValue: newColumnName,
+        decoration: const InputDecoration(labelText: 'New Column Name'),
+        onChanged: (String? value) {
+          setState(() {
+            newColumnName = value ?? '';
+          });
+        },
       ),
     );
   }
@@ -109,7 +101,7 @@ abstract class ColumnWizardOperationDisplayState<T extends ColumnWizardOperation
   List<Widget> buildParameterSelections();
 }
 
-class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
+class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardShuffleOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -120,8 +112,7 @@ class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay<C
   State<StatefulWidget> createState() => _ColumnWizardShuffleOperationDisplayState();
 }
 
-class _ColumnWizardShuffleOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardAddOperationResult> {
+class _ColumnWizardShuffleOperationDisplayState extends ColumnWizardOperationDisplayState {
   int seed = ColumnWizardShuffleOperation.defaultSeed;
 
   @override
@@ -152,7 +143,7 @@ class _ColumnWizardShuffleOperationDisplayState
   }
 }
 
-class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
+class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardToBinaryOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -163,8 +154,7 @@ class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay<
   State<StatefulWidget> createState() => _ColumnWizardToBinaryOperationDisplayState();
 }
 
-class _ColumnWizardToBinaryOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardAddOperationResult> {
+class _ColumnWizardToBinaryOperationDisplayState extends ColumnWizardOperationDisplayState {
   String compareToValue = '';
   String valueTrue = ColumnWizardToBinaryOperation.defaultValueTrue;
   String valueFalse = ColumnWizardToBinaryOperation.defaultValueFalse;
@@ -223,8 +213,7 @@ class _ColumnWizardToBinaryOperationDisplayState
   }
 }
 
-class ColumnWizardRemoveMissingOperationDisplay
-    extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
+class ColumnWizardRemoveMissingOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardRemoveMissingOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -235,8 +224,7 @@ class ColumnWizardRemoveMissingOperationDisplay
   State<StatefulWidget> createState() => _ColumnWizardRemoveMissingOperationDisplayState();
 }
 
-class _ColumnWizardRemoveMissingOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
+class _ColumnWizardRemoveMissingOperationDisplayState extends ColumnWizardOperationDisplayState {
   @override
   String defaultColumnName() {
     return '';
@@ -253,8 +241,7 @@ class _ColumnWizardRemoveMissingOperationDisplayState
   }
 }
 
-class ColumnWizardRemoveOutliersOperationDisplay
-    extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
+class ColumnWizardRemoveOutliersOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardRemoveOutliersOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -265,8 +252,7 @@ class ColumnWizardRemoveOutliersOperationDisplay
   State<StatefulWidget> createState() => _ColumnWizardRemoveOutliersOperationDisplayState();
 }
 
-class _ColumnWizardRemoveOutliersOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
+class _ColumnWizardRemoveOutliersOperationDisplayState extends ColumnWizardOperationDisplayState {
   ColumnWizardOutlierRemovalMethod? _selectedMethod;
 
   @override
@@ -302,7 +288,7 @@ class _ColumnWizardRemoveOutliersOperationDisplayState
   }
 }
 
-class ColumnWizardClampOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardRemoveOperationResult> {
+class ColumnWizardClampOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardClampOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -313,8 +299,7 @@ class ColumnWizardClampOperationDisplay extends ColumnWizardOperationDisplay<Col
   State<StatefulWidget> createState() => _ColumnWizardClampOperationDisplayState();
 }
 
-class _ColumnWizardClampOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardRemoveOperationResult> {
+class _ColumnWizardClampOperationDisplayState extends ColumnWizardOperationDisplayState {
   double? low;
   double? high;
 
@@ -366,7 +351,7 @@ class _ColumnWizardClampOperationDisplayState
   }
 }
 
-class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationDisplay<ColumnWizardAddOperationResult> {
+class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardCalculateLengthOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
@@ -377,8 +362,7 @@ class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationD
   State<StatefulWidget> createState() => _ColumnWizardCalculateLengthOperationDisplayState();
 }
 
-class _ColumnWizardCalculateLengthOperationDisplayState
-    extends ColumnWizardOperationDisplayState<ColumnWizardAddOperationResult> {
+class _ColumnWizardCalculateLengthOperationDisplayState extends ColumnWizardOperationDisplayState {
   @override
   String defaultColumnName() {
     return 'length';
