@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:collection/collection.dart';
 import 'package:ml_linalg/vector.dart';
@@ -48,27 +49,24 @@ abstract class ColumnWizard {
     return value == null || value.toString().isEmpty || double.tryParse(value.toString())?.isNaN == true;
   }
 
-  List<int>? _missingIndices;
+  Set<String>? _keysWithMissingValues;
 
-  Future<List<int>> getMissingIndices() async {
-    if (_missingIndices != null) {
-      return _missingIndices!;
+  Future<Set<String>> getMissingValues() async {
+    if (_keysWithMissingValues != null) {
+      return _keysWithMissingValues!;
     }
-    final List<int> missingIndices = [];
-    for ((int, dynamic) indexValue in valueMap.values.indexed) {
-      final int index = indexValue.$1;
-      final dynamic value = indexValue.$2;
-
+    final Set<String> keysWithMissingValues = {};
+    for(final (key, value) in valueMap.entriesRecord) {
       if (_valueIsInvalid(value)) {
-        missingIndices.add(index);
+        keysWithMissingValues.add(key);
       }
     }
-    _missingIndices = missingIndices;
-    return _missingIndices!;
+    _keysWithMissingValues = keysWithMissingValues;
+    return _keysWithMissingValues!;
   }
 
   Future<int> numberMissing() async {
-    return (await getMissingIndices()).length;
+    return (await getMissingValues()).length;
   }
 
   Map<String, int>? _counts;
@@ -220,9 +218,3 @@ mixin NumericStats on ColumnWizard {
 }
 
 mixin CounterStats on ColumnWizard {}
-
-class ReOpenColumnWizardEffect {
-  final String column;
-
-  ReOpenColumnWizardEffect(this.column);
-}

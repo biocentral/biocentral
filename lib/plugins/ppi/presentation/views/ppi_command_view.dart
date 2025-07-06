@@ -154,67 +154,62 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
     final PPICommandBloc ppiCommandBloc = BlocProvider.of<PPICommandBloc>(context);
 
     // TODO [Refactoring] Duplicated in every command view that uses column wizard dialogs
-    return BlocEffectListener<PPICommandBloc, ReOpenColumnWizardEffect>(
-      listener: (context, effect) {
-        openColumnWizardDialog(ppiCommandBloc, effect.column);
-      },
-      child: BlocBuilder<PPICommandBloc, PPICommandState>(
-        builder: (context, state) => BiocentralCommandBar(
-          commands: [
-            BiocentralTooltip(
-              message: 'Load interactions from file..',
-              child: BiocentralButton(
-                iconData: Icons.file_open_outlined,
-                onTap: () => loadInteractionFile(ppiCommandBloc),
-              ),
+    return BlocBuilder<PPICommandBloc, PPICommandState>(
+      builder: (context, state) => BiocentralCommandBar(
+        commands: [
+          BiocentralTooltip(
+            message: 'Load interactions from file..',
+            child: BiocentralButton(
+              iconData: Icons.file_open_outlined,
+              onTap: () => loadInteractionFile(ppiCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Save interactions to file..',
-              child: BiocentralButton(
-                iconData: Icons.save,
-                onTap: () => saveInteractions(ppiCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Save interactions to file..',
+            child: BiocentralButton(
+              iconData: Icons.save,
+              onTap: () => saveInteractions(ppiCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Analyze and modify the columns in your dataset',
-              child: BiocentralButton(
-                iconData: Icons.view_column_outlined,
-                onTap: () => openColumnWizardDialog(ppiCommandBloc, null),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Analyze and modify the columns in your dataset',
+            child: BiocentralButton(
+              iconData: Icons.view_column_outlined,
+              onTap: () => openColumnWizardDialog(ppiCommandBloc, null),
             ),
-            BiocentralTooltip(
-              message: 'Remove redundant interactions from the database',
-              child: BiocentralButton(
-                iconData: Icons.remove_circle,
-                onTap: () => removeDuplicates(ppiCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Remove redundant interactions from the database',
+            child: BiocentralButton(
+              iconData: Icons.remove_circle,
+              onTap: () => removeDuplicates(ppiCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Import a ppi dataset from various database formats',
-              child: BiocentralButton(
-                iconData: Icons.downloading,
-                requiredServices: const ['ppi_service'],
-                onTap: () => openInteractionsImportDialog(ppiCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Import a ppi dataset from various database formats',
+            child: BiocentralButton(
+              iconData: Icons.downloading,
+              requiredServices: const ['ppi_service'],
+              onTap: () => openInteractionsImportDialog(ppiCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Perform bias and descriptive analysis on your interactions',
-              child: BiocentralButton(
-                iconData: Icons.check_box_outlined,
-                requiredServices: const ['ppi_service'],
-                onTap: () => openRunInteractionDatabaseTestDialog(ppiCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Perform bias and descriptive analysis on your interactions',
+            child: BiocentralButton(
+              iconData: Icons.check_box_outlined,
+              requiredServices: const ['ppi_service'],
+              onTap: () => openRunInteractionDatabaseTestDialog(ppiCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Load a predefined dataset to learn and explore',
-              child: BiocentralButton(
-                key: loadExamplePPIDatasetButtonKey,
-                iconData: Icons.bubble_chart_sharp,
-                onTap: () => openLoadExampleInteractionDatasetDialog(ppiCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Load a predefined dataset to learn and explore',
+            child: BiocentralButton(
+              key: loadExamplePPIDatasetButtonKey,
+              iconData: Icons.bubble_chart_sharp,
+              onTap: () => openLoadExampleInteractionDatasetDialog(ppiCommandBloc),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

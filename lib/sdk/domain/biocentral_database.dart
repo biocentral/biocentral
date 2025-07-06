@@ -211,24 +211,12 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     }
   }
 
-  Future<Map<String, T>> handleColumnWizardOperationResult(ColumnWizardOperationResult? operationResult) async {
-    if (operationResult is ColumnWizardAddOperationResult) {
-      // TODO ERROR HANDLING
-      final String newColumnName = operationResult.newColumnName;
-      final Map<String, dynamic> newValues = operationResult.newColumnValues;
-      final Map<String, String> attributeMap =
-          Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
-      return addCustomAttribute(newColumnName, attributeMap);
-    }
-    if (operationResult is ColumnWizardRemoveOperationResult) {
-      final List<int> indicesToRemove = operationResult.indicesToRemove;
-      final List<T?> entitiesToRemove = indicesToRemove.map((index) => getEntityByRow(index)).toList();
-      for (T? entity in entitiesToRemove) {
-        removeEntity(entity);
-      }
-      return databaseToMap();
-    }
-    return databaseToMap(); // TODO
+  Future<Map<String, T>> handleColumnWizardOperationResult(ColumnWizardOperationResult operationResult) async {
+    final String newColumnName = operationResult.newColumnName;
+    final Map<String, dynamic> newValues = operationResult.newColumnValues;
+    final Map<String, String> attributeMap =
+    Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
+    return addCustomAttribute(newColumnName, attributeMap);
   }
 
   // *** HASHING ***

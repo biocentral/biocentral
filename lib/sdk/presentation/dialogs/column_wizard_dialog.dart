@@ -25,7 +25,15 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     Navigator.of(context).pop();
   }
 
-  void onCalculate(ColumnWizardBlocState state, ColumnWizardOperation operation) {
+  void onCalculate(
+      ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state, ColumnWizardOperation operation) {
+    if (state.columnWizard != null) {
+      columnWizardDialogBloc.add(ColumnWizardCalculateEvent(operation));
+    }
+  }
+
+  void onApply(ColumnWizardBlocState state, ColumnWizardOperation operation) {
+    // TODO
     if (state.columnWizard != null) {
       closeDialog();
       widget.onCalculateColumn(state.columnWizard!, operation);
@@ -50,9 +58,9 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         buildColumnSelection(columnWizardDialogBloc, state),
-        buildColumnWizardDisplay(state),
+        buildColumnWizardDisplays(state),
         buildColumnWizardOperationSelection(columnWizardDialogBloc, state),
-        buildColumnWizardOperationDisplay(state),
+        buildColumnWizardOperationDisplay(columnWizardDialogBloc, state),
         buildCancelButton(),
       ],
     );
@@ -67,15 +75,38 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     );
   }
 
-  Widget buildColumnWizardDisplay(ColumnWizardBlocState state) {
-    final ColumnWizard? columnWizard = state.columnWizards?[state.selectedColumn];
+  Widget buildColumnWizardDisplays(ColumnWizardBlocState state) {
+    final String? selectedColumn = state.selectedColumn;
+    final columnWizardHistory = state.columnWizardHistory?[selectedColumn] ?? [];
 
-    if (columnWizard == null) {
+    if (selectedColumn == null || columnWizardHistory.isEmpty) {
       return Container();
     }
-    return ColumnWizardDisplay(
-      columnWizard: columnWizard,
-      customBuildFunction: state.customBuildFunction,
+
+    // TODO Show diff between operations
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: columnWizardHistory.length,
+      itemBuilder: (context, index) {
+        final operationResult = columnWizardHistory[index];
+        return Column(
+          children: [
+            if (index != 0 && index < columnWizardHistory.length) Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(operationResult.operation?.runtimeType.toString() ?? 'Operation'),  // TODO Name from operation
+                  const Icon(Icons.arrow_downward, color: Colors.white),
+                ],
+              ),
+            ),
+            ColumnWizardDisplay(
+                columnWizard: operationResult.resultWizard, customBuildFunction: state.customBuildFunction),
+            // TODO CUSTOM BUILD FUNCTION
+          ],
+        );
+      },
     );
   }
 
@@ -99,14 +130,14 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     );
   }
 
-  Widget buildColumnWizardOperationDisplay(ColumnWizardBlocState state) {
+  Widget buildColumnWizardOperationDisplay(ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state) {
     if (state.selectedOperationType == null) {
       return Container();
     }
     return ColumnWizardOperationDisplayFactory.fromSelected(
       columnOperationType: state.selectedOperationType!,
       selectedColumnName: state.selectedColumn!,
-      onCalculateCallback: (ColumnWizardOperation operation) => onCalculate(state, operation),
+      onCalculateCallback: (ColumnWizardOperation operation) => onCalculate(columnWizardDialogBloc, state, operation),
     );
   }
 
