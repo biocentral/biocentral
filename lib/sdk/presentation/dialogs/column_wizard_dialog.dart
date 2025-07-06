@@ -1,5 +1,4 @@
 import 'package:biocentral/sdk/bloc/column_wizard_bloc.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 import 'package:biocentral/sdk/presentation/displays/column_wizard_display.dart';
@@ -10,17 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ColumnWizardDialog extends StatefulWidget {
-  final void Function(ColumnWizard columnWizard, ColumnWizardOperation columnWizardOperation) onCalculateColumn;
+  final void Function(String newColumnName, String originalColumnName, List<ColumnWizardHistoryEntry> operationHistory)
+      onApplyColumn;
 
   final String? initialSelectedColumn;
 
-  const ColumnWizardDialog({required this.onCalculateColumn, required this.initialSelectedColumn, super.key});
+  const ColumnWizardDialog({required this.onApplyColumn, required this.initialSelectedColumn, super.key});
 
   @override
   State<ColumnWizardDialog> createState() => _ColumnWizardDialogState();
 }
 
 class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticKeepAliveClientMixin {
+  String newColumnName = '';
+
   void closeDialog() {
     Navigator.of(context).pop();
   }
@@ -32,11 +34,12 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     }
   }
 
-  void onApply(ColumnWizardBlocState state, ColumnWizardOperation operation) {
+  void onApply(ColumnWizardBlocState state) {
     // TODO
-    if (state.columnWizard != null) {
+    final operationHistory = state.columnWizardHistory?[state.selectedColumn] ?? [];
+    if (state.selectedColumn != null && state.columnWizard != null && operationHistory.isNotEmpty) {
       closeDialog();
-      widget.onCalculateColumn(state.columnWizard!, operation);
+      widget.onApplyColumn(newColumnName, state.selectedColumn!, operationHistory);
     }
   }
 
@@ -61,7 +64,11 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
         buildColumnWizardDisplays(state),
         buildColumnWizardOperationSelection(columnWizardDialogBloc, state),
         buildColumnWizardOperationDisplay(columnWizardDialogBloc, state),
-        buildCancelButton(),
+        buildNewColumnNameSelection(state),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [buildApplyButton(state), const Spacer(), buildCancelButton()],
+        ),
       ],
     );
   }
@@ -91,19 +98,21 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
         final operationResult = columnWizardHistory[index];
         return Column(
           children: [
-            if (index != 0 && index < columnWizardHistory.length) Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(operationResult.operation?.runtimeType.toString() ?? 'Operation'),  // TODO Name from operation
-                  const Icon(Icons.arrow_downward, color: Colors.white),
-                ],
+            if (index != 0 && index < columnWizardHistory.length)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(operationResult.operation?.runtimeType.toString() ?? 'Operation'), // TODO Name from operation
+                    const Icon(Icons.arrow_downward, color: Colors.white),
+                  ],
+                ),
               ),
-            ),
             ColumnWizardDisplay(
-                columnWizard: operationResult.resultWizard, customBuildFunction: state.customBuildFunction),
-            // TODO CUSTOM BUILD FUNCTION
+              columnWizard: operationResult.resultWizard,
+              customBuildFunction: state.customBuildFunctions?[operationResult.resultWizard.type],
+            ),
           ],
         );
       },
@@ -139,6 +148,35 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
       selectedColumnName: state.selectedColumn!,
       onCalculateCallback: (ColumnWizardOperation operation) => onCalculate(columnWizardDialogBloc, state, operation),
     );
+  }
+
+  Widget buildNewColumnNameSelection(ColumnWizardBlocState state) {
+    final show = state.columnWizardHistory?[state.selectedColumn]?.lastOrNull?.operation != null;
+    if (show) {
+      if (newColumnName == '') {
+        newColumnName = "${state.selectedColumn ?? ''}-modified";
+      }
+      return Flexible(
+        child: TextFormField(
+          initialValue: newColumnName,
+          decoration: const InputDecoration(labelText: 'New Column Name'),
+          onChanged: (String? value) {
+            setState(() {
+              newColumnName = value ?? '';
+            });
+          },
+        ),
+      );
+    }
+    return Container();
+  }
+
+  Widget buildApplyButton(ColumnWizardBlocState state) {
+    final show = state.columnWizardHistory?[state.selectedColumn]?.lastOrNull?.operation != null;
+    if (show) {
+      return BiocentralSmallButton(onTap: () => onApply(state), label: 'Apply column modifications');
+    }
+    return Container();
   }
 
   Widget buildCancelButton() {

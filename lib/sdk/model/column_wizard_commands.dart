@@ -1,34 +1,43 @@
-import 'package:flutter/foundation.dart';
+import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-import 'package:biocentral/sdk/bloc/biocentral_command.dart';
-import 'package:biocentral/sdk/bloc/biocentral_state.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
-
-final class ColumnWizardOperationCommand extends BiocentralCommand<ColumnWizardOperationResult> {
-  final ColumnWizard _columnWizard;
-  final ColumnWizardOperation _columnWizardOperation;
+final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, BioEntity>> {
+  final BiocentralDatabase _database;
+  final String _originalColumnName;
+  final String _newColumnName;
+  final List<ColumnWizardHistoryEntry> _operationHistory;
 
   ColumnWizardOperationCommand(
-      {required ColumnWizard columnWizard, required ColumnWizardOperation columnWizardOperation,})
-      : _columnWizard = columnWizard,
-        _columnWizardOperation = columnWizardOperation;
+      {required BiocentralDatabase database,
+      required String originalColumnName,
+      required String newColumnName,
+      required List<ColumnWizardHistoryEntry> operationHistory})
+      : _database = database,
+        _originalColumnName = originalColumnName,
+        _newColumnName = newColumnName,
+        _operationHistory = operationHistory;
 
   @override
-  Stream<Either<T, ColumnWizardOperationResult>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: 'Calculating new column..'));
-    final ColumnWizardOperationResult result = await compute(_columnWizardOperation.operate, _columnWizard);
-    yield right(result);
-    yield left(state.setFinished(information: 'Finished calculating new column!'));
+  Stream<Either<T, Map<String, BioEntity>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+    yield left(state.setOperating(information: 'Applying new column..'));
+    final lastResult = _operationHistory.last.resultWizard;
+    final Map<String, BioEntity> databaseResult = await _database.addColumnFromColumnWizard(_newColumnName, lastResult);
+    yield right(databaseResult);
+    yield left(state.setFinished(information: 'Finished adding new column!'));
   }
 
   @override
   Map<String, dynamic> getConfigMap() {
-    return {'originalColumnName': _columnWizard.columnName, 'newColumnName': _columnWizardOperation.newColumnName};
+    return {
+      'originalColumnName': _originalColumnName,
+      'newColumnName': _newColumnName,
+      // Skip first because this is the original column
+      'operations': _operationHistory.skip(1).map((event) => event.operation.runtimeType.toString()).toList()
+      // TODO Add proper configuration of each operation
+    };
   }
 
   @override
   String get typeName => 'ColumnWizardOperationCommand';
-
 }

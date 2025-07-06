@@ -102,9 +102,9 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
               ColumnWizardBloc(context.read<PPIRepository>(), context.read<BiocentralColumnWizardRepository>())
                 ..add(ColumnWizardLoadEvent()),
           child: ColumnWizardDialog(
-            onCalculateColumn: (columnWizard, columnWizardOperation) {
+            onApplyColumn: (newColumnName, originalColumnName, operationHistory) {
               interactionsCommandBloc.add(
-                PPICommandColumnWizardOperationEvent(columnWizard, columnWizardOperation),
+                PPICommandAddColumnEvent(newColumnName, originalColumnName, operationHistory),
               );
             },
             initialSelectedColumn: initialSelectedColumn,

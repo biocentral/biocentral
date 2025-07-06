@@ -48,7 +48,7 @@ class _PPIInsightsViewState extends State<PPIInsightsView> {
     }
     return ColumnWizardDisplay(
       columnWizard: columnWizard,
-      customBuildFunction: state.customBuildFunction,
+      customBuildFunction: state.customBuildFunctions?[columnWizard.type],
     );
   }
 }
