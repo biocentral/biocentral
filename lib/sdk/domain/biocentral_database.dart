@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
+import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 import 'package:biocentral/sdk/util/logging.dart';
 import 'package:crypto/crypto.dart';
@@ -211,9 +212,8 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     }
   }
 
-  Future<Map<String, T>> handleColumnWizardOperationResult(ColumnWizardOperationResult operationResult) async {
-    final String newColumnName = operationResult.newColumnName;
-    final Map<String, dynamic> newValues = operationResult.newColumnValues;
+  Future<Map<String, T>> addColumnFromColumnWizard(String newColumnName, ColumnWizard columnWizard) async {
+    final Map<String, dynamic> newValues = columnWizard.valueMap;
     final Map<String, String> attributeMap =
     Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
     return addCustomAttribute(newColumnName, attributeMap);

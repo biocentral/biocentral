@@ -48,7 +48,7 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
     }
     return ColumnWizardDisplay(
       columnWizard: columnWizard,
-      customBuildFunction: state.customBuildFunction,
+      customBuildFunction: state.customBuildFunctions?[columnWizard.type],
     );
   }
 }

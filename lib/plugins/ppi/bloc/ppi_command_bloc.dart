@@ -47,11 +47,12 @@ final class PPICommandRunDatabaseTestEvent extends PPICommandEvent {
   PPICommandRunDatabaseTestEvent(this.testToRun);
 }
 
-final class PPICommandColumnWizardOperationEvent extends PPICommandEvent {
-  final ColumnWizard columnWizard;
-  final ColumnWizardOperation columnWizardOperation;
+final class PPICommandAddColumnEvent extends PPICommandEvent {
+  final String newColumnName;
+  final String originalColumnName;
+  final List<ColumnWizardHistoryEntry> operationHistory;
 
-  PPICommandColumnWizardOperationEvent(this.columnWizard, this.columnWizardOperation);
+  PPICommandAddColumnEvent(this.newColumnName, this.originalColumnName, this.operationHistory);
 }
 
 @immutable
@@ -143,10 +144,12 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
       });
     });
 
-    on<PPICommandColumnWizardOperationEvent>((event, emit) async {
+    on<PPICommandAddColumnEvent>((event, emit) async {
       final ColumnWizardOperationCommand columnWizardOperationCommand = ColumnWizardOperationCommand(
-        columnWizard: event.columnWizard,
-        columnWizardOperation: event.columnWizardOperation,
+        database: _ppiRepository,
+        originalColumnName: event.originalColumnName,
+        newColumnName: event.newColumnName,
+        operationHistory: event.operationHistory,
       );
       await columnWizardOperationCommand
           .executeWithLogging(_biocentralProjectRepository, state)
@@ -154,8 +157,7 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
         await either.match((l) async {
           emit(l);
         }, (r) async {
-          final Map<String, BioEntity> entityMap = await _ppiRepository.handleColumnWizardOperationResult(r);
-          syncWithDatabases(entityMap);
+          syncWithDatabases(r);
         });
       });
     });
