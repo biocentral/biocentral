@@ -164,10 +164,10 @@ class PredictionModel extends Equatable {
 
     final testResults = dto.testResults;
     final updatedTestResults = Map<String, TestResult>.from(this.testResults ?? {});
-    if(testResults != null) {
-      for(final (testSetName, testSetResult) in testResults.entriesRecord) {
+    if (testResults != null) {
+      for (final (testSetName, testSetResult) in testResults.entriesRecord) {
         final parsedTestSetResult = TestResult.fromMap(testSetResult);
-        if(parsedTestSetResult != null) {
+        if (parsedTestSetResult != null) {
           updatedTestResults[testSetName] = parsedTestSetResult;
         }
       }
@@ -210,13 +210,14 @@ class PredictionModel extends Equatable {
 
   Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
     // Checkpoints are not included at the moment
-    // TODO Make this to parse to biotrainer format exactly
     return {
       'config': config,
       'database_type': databaseType,
       'derived_values': derivedValues,
-      'training_results': trainingResults.toString(), // TODO Convert to map properly
-      'test_results': testResults.toString(), // TODO Convert to map properly
+      'training_results': Map<String, dynamic>.from(
+          trainingResults?.map((splitName, result) => MapEntry(splitName, result.toMap())) ?? {}),
+      'test_results': Map<String, dynamic>.from(
+          testResults?.map((testSetName, result) => MapEntry(testSetName, result.toMap())) ?? {}),
       if (includeTrainingLogs) 'training_logs': trainingLogs,
       'training_status': trainingStatus?.name,
     };
@@ -328,6 +329,15 @@ class TrainingResult {
   int getLastEpoch() {
     return trainingLoss.keys.max;
   }
+
+  Map<String, dynamic> toMap() {
+    final result = Map<String, dynamic>.of(metadata ?? {});
+    result.addAll({
+      'training_loss': trainingLoss.map((epoch, loss) => MapEntry(epoch.toString(), loss)),
+      'validation_loss': validationLoss.map((epoch, loss) => MapEntry(epoch.toString(), loss)),
+    });
+    return result;
+  }
 }
 
 class TestResult {
@@ -415,5 +425,36 @@ class TestResult {
       sanityCheckWarnings: sanityCheckWarnings,
       baselineMetrics: parsedBaselineMetrics,
     );
+  }
+
+  static Map<String, dynamic> _convertToBootstrapping(Set<BiocentralMLMetric> metrics) {
+    Map<String, dynamic> bootstrapping = {};
+    final uncertaintyEstimate =
+        metrics.firstWhereOrNull((metric) => metric.uncertaintyEstimate != null)?.uncertaintyEstimate;
+    if (uncertaintyEstimate != null) {
+      final bootstrappingParameters = {
+        'iterations': uncertaintyEstimate.iterations,
+        'sample_size': uncertaintyEstimate.sampleSize,
+        'confidence_level': uncertaintyEstimate.confidenceLevel,
+      };
+      bootstrapping['results'] = Map<String, dynamic>.fromEntries(
+        metrics.map(
+          (metric) => MapEntry(
+              metric.name, {'mean': metric.uncertaintyEstimate?.mean, 'error': metric.uncertaintyEstimate?.error}),
+        ),
+      );
+      bootstrapping.addAll(bootstrappingParameters);
+    }
+    return bootstrapping;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'metrics': Map<String, dynamic>.fromEntries(metrics.map((metric) => MapEntry(metric.name, metric.value))),
+      'bootstrapping': _convertToBootstrapping(metrics),
+      'test_baselines': Map<String, dynamic>.from(baselineMetrics.map(
+          (baselineName, baselineMetricSet) => MapEntry(baselineName, _convertToBootstrapping(baselineMetricSet)))),
+      'sanity_check_warnings': sanityCheckWarnings.toList(),
+    };
   }
 }
