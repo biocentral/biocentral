@@ -4,7 +4,6 @@ import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:bloc_effects/bloc_effects.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -70,8 +69,7 @@ final class PPICommandState extends BiocentralCommandState<PPICommandState> {
   List<Object?> get props => [stateInformation, status];
 }
 
-class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
-    with BiocentralSyncBloc, Effects<ReOpenColumnWizardEffect> {
+class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> with BiocentralSyncBloc {
   final PPIRepository _ppiRepository;
   final BiocentralClientRepository _biocentralClientRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
@@ -160,10 +158,6 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState>
           syncWithDatabases(entityMap);
         });
       });
-      final reOpenColumn = event.columnWizardOperation.newColumnName.isEmpty
-          ? event.columnWizard.columnName
-          : event.columnWizardOperation.newColumnName;
-      emitEffect(ReOpenColumnWizardEffect(reOpenColumn));
     });
   }
 }

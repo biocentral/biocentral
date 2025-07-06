@@ -3,30 +3,22 @@ import 'dart:math';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:flutter/material.dart';
 
-abstract class ColumnWizardOperation<T extends ColumnWizardOperationResult> {
+abstract class ColumnWizardOperation {
   final String newColumnName;
 
   ColumnWizardOperation(this.newColumnName);
 
-  Future<T> operate(ColumnWizard columnWizard);
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard);
 }
 
-abstract class ColumnWizardOperationResult {}
-
-class ColumnWizardAddOperationResult extends ColumnWizardOperationResult {
+final class ColumnWizardOperationResult {
   final String newColumnName;
   final Map<String, dynamic> newColumnValues;
 
-  ColumnWizardAddOperationResult(this.newColumnName, this.newColumnValues);
+  ColumnWizardOperationResult(this.newColumnName, this.newColumnValues);
 }
 
-class ColumnWizardRemoveOperationResult extends ColumnWizardOperationResult {
-  final List<int> indicesToRemove;
-
-  ColumnWizardRemoveOperationResult(this.indicesToRemove);
-}
-
-class ColumnWizardShuffleOperation extends ColumnWizardOperation<ColumnWizardAddOperationResult> {
+class ColumnWizardShuffleOperation extends ColumnWizardOperation {
   static const int defaultSeed = 42;
 
   final int seed;
@@ -34,17 +26,17 @@ class ColumnWizardShuffleOperation extends ColumnWizardOperation<ColumnWizardAdd
   ColumnWizardShuffleOperation(super.newColumnName, this.seed);
 
   @override
-  Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     final Map<String, String> result = {};
     for (final entry in columnWizard.valueMap.entries) {
       final List<String> shuffled = entry.value.toString().characters.toList()..shuffle(Random(seed));
       result[entry.key] = shuffled.join();
     }
-    return ColumnWizardAddOperationResult(newColumnName, result);
+    return ColumnWizardOperationResult(newColumnName, result);
   }
 }
 
-class ColumnWizardToBinaryOperation extends ColumnWizardOperation<ColumnWizardAddOperationResult> {
+class ColumnWizardToBinaryOperation extends ColumnWizardOperation {
   static const String defaultValueTrue = 'true';
   static const String defaultValueFalse = 'false';
 
@@ -55,23 +47,25 @@ class ColumnWizardToBinaryOperation extends ColumnWizardOperation<ColumnWizardAd
   ColumnWizardToBinaryOperation(super.newColumnName, this.compareToValue, this.valueTrue, this.valueFalse);
 
   @override
-  Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     final Map<String, String> result = {};
 
     for (final entry in columnWizard.valueMap.entries) {
       result[entry.key] = entry.value.toString() == compareToValue ? valueTrue : valueFalse;
     }
-    return ColumnWizardAddOperationResult(newColumnName, result);
+    return ColumnWizardOperationResult(newColumnName, result);
   }
 }
 
-class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation<ColumnWizardRemoveOperationResult> {
+class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation {
   ColumnWizardRemoveMissingOperation(super.newColumnName);
 
   @override
-  Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
-    final List<int> missingIndices = await columnWizard.getMissingIndices();
-    return ColumnWizardRemoveOperationResult(missingIndices);
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
+    final Set<String> keysWithMissingValues = await columnWizard.getMissingValues();
+    final filteredEntries = Map<String, dynamic>.fromEntries(
+        columnWizard.valueMap.entries.where((entry) => !keysWithMissingValues.contains(entry.key)));
+    return ColumnWizardOperationResult(newColumnName, filteredEntries);
   }
 }
 
@@ -79,13 +73,13 @@ enum ColumnWizardOutlierRemovalMethod {
   byStandardDeviation,
 }
 
-class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation<ColumnWizardRemoveOperationResult> {
+class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation {
   final ColumnWizardOutlierRemovalMethod method;
 
   ColumnWizardRemoveOutliersOperation(super.newColumnName, this.method);
 
   @override
-  Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     switch (method) {
       case ColumnWizardOutlierRemovalMethod.byStandardDeviation:
         {
@@ -95,19 +89,18 @@ class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation<ColumnWi
             final stdDev = await columnWizard.stdDev();
             final lowerBound = mean - 2 * stdDev;
             final upperBound = mean + 2 * stdDev;
-            final List<int> indicesToRemove = columnWizard.numericValues.indexed
-                .where((element) => element.$2 < lowerBound || element.$2 > upperBound)
-                .map((element) => element.$1)
-                .toList();
-            return ColumnWizardRemoveOperationResult(indicesToRemove);
+            final Map<String, dynamic> filteredValues = Map<String, dynamic>.fromEntries(
+                columnWizard.valueMap.entries.where((entry) => entry.value > lowerBound && entry.value < upperBound));
+            return ColumnWizardOperationResult(newColumnName, filteredValues);
           }
         }
     }
-    return ColumnWizardRemoveOperationResult([]);
+    // TODO This should not be reachable
+    return ColumnWizardOperationResult(newColumnName, {});
   }
 }
 
-class ColumnWizardClampOperation extends ColumnWizardOperation<ColumnWizardRemoveOperationResult> {
+class ColumnWizardClampOperation extends ColumnWizardOperation {
   final double? low;
   final double? high;
 
@@ -125,27 +118,25 @@ class ColumnWizardClampOperation extends ColumnWizardOperation<ColumnWizardRemov
   }
 
   @override
-  Future<ColumnWizardRemoveOperationResult> operate(ColumnWizard columnWizard) async {
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     if (columnWizard is NumericStats) {
-      final List<int> indicesToRemove = columnWizard.numericValues.indexed
-          .where((element) => !_isInRange(element.$2))
-          .map((element) => element.$1)
-          .toList();
-      return ColumnWizardRemoveOperationResult(indicesToRemove);
+      final filteredEntries = Map<String, dynamic>.fromEntries(columnWizard.valueMap.entries
+          .where((entry) => !_isInRange(entry.value)));
+      return ColumnWizardOperationResult(newColumnName, filteredEntries);
     }
-    return ColumnWizardRemoveOperationResult([]);
+    return ColumnWizardOperationResult(newColumnName, {});
   }
 }
 
-class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation<ColumnWizardAddOperationResult> {
+class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation {
   ColumnWizardCalculateLengthOperation(super.newColumnName);
 
   @override
-  Future<ColumnWizardAddOperationResult> operate(ColumnWizard columnWizard) async {
+  Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     final Map<String, int> result = Map.fromEntries(
         columnWizard.valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString().length)));
 
-    return ColumnWizardAddOperationResult(newColumnName, result);
+    return ColumnWizardOperationResult(newColumnName, result);
   }
 }
 

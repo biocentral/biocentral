@@ -110,58 +110,53 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
   Widget build(BuildContext context) {
     final ProteinsCommandBloc proteinCommandBloc = BlocProvider.of<ProteinsCommandBloc>(context);
 
-    return BlocEffectListener<ProteinsCommandBloc, ReOpenColumnWizardEffect>(
-      listener: (context, effect) {
-        openColumnWizardDialog(proteinCommandBloc, effect.column);
-      },
-      child: BlocBuilder<ProteinsCommandBloc, ProteinsCommandState>(
-        builder: (context, state) => BiocentralCommandBar(
-          commands: [
-            BiocentralTooltip(
-              message: 'Load proteins from file..',
-              child: BiocentralButton(
-                iconData: Icons.file_open,
-                onTap: () => loadProteinFile(proteinCommandBloc),
-              ),
+    return BlocBuilder<ProteinsCommandBloc, ProteinsCommandState>(
+      builder: (context, state) => BiocentralCommandBar(
+        commands: [
+          BiocentralTooltip(
+            message: 'Load proteins from file..',
+            child: BiocentralButton(
+              iconData: Icons.file_open,
+              onTap: () => loadProteinFile(proteinCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Load protein attributes from file..',
-              child: BiocentralButton(
-                iconData: Icons.file_present_rounded,
-                onTap: () => loadCustomAttributesFile(proteinCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Load protein attributes from file..',
+            child: BiocentralButton(
+              iconData: Icons.file_present_rounded,
+              onTap: () => loadCustomAttributesFile(proteinCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Save proteins to file..',
-              child: BiocentralButton(
-                iconData: Icons.save,
-                onTap: () => saveProteins(proteinCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Save proteins to file..',
+            child: BiocentralButton(
+              iconData: Icons.save,
+              onTap: () => saveProteins(proteinCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Analyze and modify the columns in your dataset',
-              child: BiocentralButton(
-                iconData: Icons.view_column_outlined,
-                onTap: () => openColumnWizardDialog(proteinCommandBloc, null),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Analyze and modify the columns in your dataset',
+            child: BiocentralButton(
+              iconData: Icons.view_column_outlined,
+              onTap: () => openColumnWizardDialog(proteinCommandBloc, null),
             ),
-            BiocentralTooltip(
-              message: 'Get missing taxonomy data from the server for your proteins',
-              child: BiocentralButton(
-                iconData: Icons.nature_people_rounded,
-                requiredServices: const ['protein_service'],
-                onTap: () => retrieveTaxonomy(proteinCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Get missing taxonomy data from the server for your proteins',
+            child: BiocentralButton(
+              iconData: Icons.nature_people_rounded,
+              requiredServices: const ['protein_service'],
+              onTap: () => retrieveTaxonomy(proteinCommandBloc),
             ),
-            BiocentralTooltip(
-              message: 'Load a predefined dataset to learn and explore',
-              child: BiocentralButton(
-                iconData: Icons.bubble_chart_sharp,
-                onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
-              ),
+          ),
+          BiocentralTooltip(
+            message: 'Load a predefined dataset to learn and explore',
+            child: BiocentralButton(
+              iconData: Icons.bubble_chart_sharp,
+              onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
