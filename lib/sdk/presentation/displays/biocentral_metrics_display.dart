@@ -21,30 +21,32 @@ class _BiocentralMetricsDisplayState extends State<BiocentralMetricsDisplay> {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return Column(
-            children: [
-              SizedBox(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight * 0.2,
-                child: BiocentralDiscreteSelection<String>(
-                  title: 'Display',
-                  initialValue: _showMetricsAsTable ? 'Table' : 'Plot',
-                  selectableValues: ['Table', 'Plot'],
-                  onChangedCallback: (String? value) {
-                    setState(() {
-                      _showMetricsAsTable = value == 'Table';
-                    });
-                  },
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight * 0.2,
+                  child: BiocentralDiscreteSelection<String>(
+                    title: 'Display',
+                    initialValue: _showMetricsAsTable ? 'Table' : 'Plot',
+                    selectableValues: ['Table', 'Plot'],
+                    onChangedCallback: (String? value) {
+                      setState(() {
+                        _showMetricsAsTable = value == 'Table';
+                      });
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: constraints.maxWidth * 0.95,
-                height: constraints.maxHeight * 0.9,
-                child: _showMetricsAsTable ? buildMetricsTable() : buildMetricsPlot(),
-              ),
-            ].withPadding(
-              const Padding(
-                padding: EdgeInsets.all(8.0),
+                SizedBox(
+                  width: constraints.maxWidth * 0.95,
+                  height: constraints.maxHeight * 0.9,
+                  child: _showMetricsAsTable ? buildMetricsTable() : buildMetricsPlot(),
+                ),
+              ].withPadding(
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                ),
               ),
             ),
           );
