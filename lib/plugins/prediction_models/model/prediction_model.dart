@@ -214,6 +214,7 @@ class PredictionModel extends Equatable {
       'Architecture': modelChoice ?? 'Unknown',
       'Type': databaseType?.toString() ?? 'Unknown',
       'Training Protocol': protocol?.name ?? 'Unknown',
+      'Model Hash': modelHash ?? 'Unknown',
     };
   }
 
