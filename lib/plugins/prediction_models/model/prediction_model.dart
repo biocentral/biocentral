@@ -191,6 +191,15 @@ class PredictionModel extends Equatable {
   PredictionProtocol? get protocol =>
       enumFromString<PredictionProtocol>(config?['protocol'], PredictionProtocol.values);
 
+  String getReadableModelID() {
+    String modelID = '';
+    modelID += '${modelHash?.substring(0, 4) ?? '????'}-';
+    modelID += '${modelChoice ?? '?'}-';
+    modelID += '${embedderName ?? '?'}-';
+    modelID += (protocol?.name ?? '?');
+    return modelID;
+  }
+
   bool isEmpty() {
     return !isNotEmpty();
   }

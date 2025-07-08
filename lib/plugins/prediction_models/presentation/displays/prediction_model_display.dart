@@ -40,6 +40,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     return buildModelCard(
       title: title,
       leadingIcon: buildSanityCheckIcon(testResult),
+      subtitle: Text('Model-ID: ${widget.predictionModel.getReadableModelID()}'),
       childrenWithTitles: {
         'Model Information': buildModelInformation(),
         'Metrics': buildMetricsDisplay(testResult),
@@ -63,6 +64,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       title: title,
       leadingIcon: const CircularProgressIndicator(),
       trailing: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
+      subtitle: Text("Task-ID: ${widget.trainingState?.stateInformation.serverTaskID ?? 'Pending..'}"),
       childrenWithTitles: {
         'Loss Curves': buildLossCurves(widget.predictionModel.holdOutResult),
         'Training Logs': buildLogResult(),
@@ -80,11 +82,13 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     required Map<String, Widget> childrenWithTitles,
     required Map<String, bool> childrenNeedIntrinsicHeight,
     Widget? trailing,
+    Widget? subtitle,
   }) {
     return BiocentralTaskDisplay(
       title: title,
       leadingIcon: leadingIcon,
       trailing: trailing,
+      subtitle: subtitle,
       children: childrenWithTitles.entries
           .map(
             (entry) =>
