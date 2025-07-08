@@ -53,6 +53,7 @@ class BiocentralBarPlot extends StatefulWidget {
   final String xAxisLabel;
   final String yAxisLabel;
   final int maxLabelLength;
+  final (double?, double?) bounds;
 
   BiocentralBarPlot({
     required BiocentralBarPlotData data,
@@ -60,6 +61,7 @@ class BiocentralBarPlot extends StatefulWidget {
     this.xAxisLabel = '',
     this.yAxisLabel = '',
     this.maxLabelLength = 6,
+    this.bounds = (null, null),
   }) : data = data.sorted();
 
   @override
@@ -99,6 +101,7 @@ class _BiocentralBarPlotState extends State<BiocentralBarPlot> {
                   widget.yAxisLabel,
                   widget.maxLabelLength,
                   tooltipData,
+                  widget.bounds,
                 ),
               ),
               if (tooltipData != null)
@@ -157,12 +160,14 @@ class _BarPlotPainter extends CustomPainter {
   final String xAxisLabel;
   final String yAxisLabel;
   final int maxLabelLength;
+  final (double?, double?) bounds;
+
 
   final _TooltipData? tooltipData;
 
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
-  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel, this.maxLabelLength, this.tooltipData);
+  _BarPlotPainter(this.data, this.xAxisLabel, this.yAxisLabel, this.maxLabelLength, this.tooltipData, this.bounds);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -176,7 +181,7 @@ class _BarPlotPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     // Calculate max Y value
-    final double maxY = data.maxY();
+    final double maxY = bounds.$2 ?? data.maxY();
 
     final double barWidth = plotSize.width / data.length;
 

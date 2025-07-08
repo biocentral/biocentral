@@ -41,6 +41,35 @@ class BiocentralMLMetric {
     return ['loss', 'rmse', 'mse', 'mae', 'mean_squared_error', 'mean_absolute_error'].contains(name.toLowerCase());
   }
 
+  /// Gets the bounds for the given metric
+  ///
+  /// E.g., accuracy must always be between 0.0 and 1.0
+  ///
+  /// Null value means no bound
+  static (double?, double?) getBounds(String metricName) {
+    final name = metricName.toLowerCase();
+    final bool percentageMetric = ["accuracy", "precision", "recall", "f1", "auc", "roc"]
+        .map((metric) => name.contains(metric))
+        .reduce((v1, v2) => v1 || v2);
+    if (percentageMetric) {
+      return (0.0, 1.0);
+    }
+    final bool limitedByOneMetric = ["mcc", "matthews-corr-coeff", "spearmans-corr-coeff"]
+        .map((metric) => name.contains(metric))
+        .reduce((v1, v2) => v1 || v2);
+    if(limitedByOneMetric) {
+      return (-1.0, 1.0);
+    }
+    final bool limitedByZeroMetric = ['loss', 'rmse', 'mse', 'mae', 'mean_squared_error', 'mean_absolute_error']
+        .map((metric) => name.contains(metric))
+        .reduce((v1, v2) => v1 || v2);
+    if(limitedByZeroMetric) {
+      return (0.0, null);
+    }
+    // Unbounded
+    return (null, null);
+  }
+
   Map<String, dynamic> toMap() {
     final result = {'metric': name, 'value': value};
     if (uncertaintyEstimate != null) {
