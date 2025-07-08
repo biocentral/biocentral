@@ -204,7 +204,7 @@ class _BarPlotPainter extends CustomPainter {
 
     for (final dataPoint in data.indexed()) {
       final int i = dataPoint.$1;
-      final double value = dataPoint.$2.$2;
+      final double value = dataPoint.$2.$2.abs();  // TODO All values are displayed as positive at the moment
       final double barHeight = (value / maxY) * plotSize.height;
       final double barLowerY = plotOffset.dy + plotSize.height - barHeight;
       final Rect rect = Rect.fromLTWH(
@@ -221,10 +221,11 @@ class _BarPlotPainter extends CustomPainter {
 
       final errorMargin = dataPoint.$2.$3;
       if (errorMargin != null) {
+        final limitedErrorMargin = value + errorMargin > maxY ? maxY - value : errorMargin;  // Limit error to axis max
         // Draw error bars
         final double barCenterX = plotOffset.dx + i * barWidth + (barWidth * 0.4);
         final double barTopY = plotOffset.dy + plotSize.height - barHeight;
-        final double errorBarHeight = (errorMargin / maxY) * plotSize.height;
+        final double errorBarHeight = (limitedErrorMargin / maxY) * plotSize.height;
         final bottomLimitedHeight = min(rect.bottom, barTopY + errorBarHeight);  // Limit to x-axis
 
         // Vertical line
