@@ -56,31 +56,34 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Flexible(
-          flex: 4,
-          child: BiocentralDiscreteSelection<String>(
-            title: 'Available metrics',
-            initialValue: _selectedMetric,
-            selectableValues: _availableMetrics.toList(),
-            onChangedCallback: (String? value) {
-              setState(() {
-                _selectedMetric = value;
-              });
-            },
-          ),
-        ),
-        if (_selectedMetric != null)
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Column(
+        children: [
           Flexible(
-            flex: 5,
-            child: BiocentralBarPlot(
-              data: BiocentralBarPlotData.withErrors(_getBarPlotData()),
-              bounds: BiocentralMLMetric.getBounds(_selectedMetric!),
-              maxLabelLength: 30,
+            flex: 4,
+            child: BiocentralDiscreteSelection<String>(
+              title: 'Available metrics',
+              initialValue: _selectedMetric,
+              selectableValues: _availableMetrics.toList(),
+              onChangedCallback: (String? value) {
+                setState(() {
+                  _selectedMetric = value;
+                });
+              },
             ),
           ),
-      ],
+          if (_selectedMetric != null)
+            Flexible(
+              flex: 5,
+              child: BiocentralBarPlot(
+                data: BiocentralBarPlotData.withErrors(_getBarPlotData()),
+                bounds: BiocentralMLMetric.getBounds(_selectedMetric!),
+                maxLabelLength: 30,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
