@@ -20,7 +20,8 @@ class BiocentralBarPlotData {
   }
 
   double maxY() {
-    return _data.map((item) => item.$2).reduce(math.max);
+    // Get maximum with error range
+    return _data.map((item) => item.$2 + (item.$3 ?? 0.0)).reduce(math.max);
   }
 
   int get length => _data.length;
@@ -162,7 +163,6 @@ class _BarPlotPainter extends CustomPainter {
   final int maxLabelLength;
   final (double?, double?) bounds;
 
-
   final _TooltipData? tooltipData;
 
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
@@ -206,9 +206,10 @@ class _BarPlotPainter extends CustomPainter {
       final int i = dataPoint.$1;
       final double value = dataPoint.$2.$2;
       final double barHeight = (value / maxY) * plotSize.height;
+      final double barLowerY = plotOffset.dy + plotSize.height - barHeight;
       final Rect rect = Rect.fromLTWH(
         plotOffset.dx + i * barWidth,
-        plotOffset.dy + plotSize.height - barHeight,
+        barLowerY,
         barWidth * 0.8, // Leave some space between bars
         barHeight,
       );
@@ -224,11 +225,12 @@ class _BarPlotPainter extends CustomPainter {
         final double barCenterX = plotOffset.dx + i * barWidth + (barWidth * 0.4);
         final double barTopY = plotOffset.dy + plotSize.height - barHeight;
         final double errorBarHeight = (errorMargin / maxY) * plotSize.height;
+        final bottomLimitedHeight = min(rect.bottom, barTopY + errorBarHeight);  // Limit to x-axis
 
         // Vertical line
         canvas.drawLine(
-          Offset(barCenterX, barTopY - errorBarHeight),
-          Offset(barCenterX, barTopY + errorBarHeight),
+          Offset(barCenterX, bottomLimitedHeight),  // BOTTOM
+          Offset(barCenterX, barTopY - errorBarHeight),  // TOP
           errorBarPaint,
         );
 
@@ -241,8 +243,8 @@ class _BarPlotPainter extends CustomPainter {
 
         // Bottom horizontal line
         canvas.drawLine(
-          Offset(barCenterX - 5, barTopY + errorBarHeight),
-          Offset(barCenterX + 5, barTopY + errorBarHeight),
+          Offset(barCenterX - 5, bottomLimitedHeight),
+          Offset(barCenterX + 5, bottomLimitedHeight),
           errorBarPaint,
         );
       }
