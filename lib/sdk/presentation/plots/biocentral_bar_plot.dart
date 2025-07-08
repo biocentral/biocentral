@@ -128,7 +128,7 @@ class _BiocentralBarPlotState extends State<BiocentralBarPlot> {
   }
 
   _TooltipData? _getTooltipData(Offset localPosition, double width, double height) {
-    const double padding = 60;
+    const double padding = 30;
     final plotWidth = width - padding * 2;
     final barWidth = plotWidth / widget.data.length;
 
