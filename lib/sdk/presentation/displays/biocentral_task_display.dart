@@ -6,6 +6,7 @@ class BiocentralTaskDisplay extends StatefulWidget {
   final Widget leadingIcon;
   final List<Widget> children;
   final Widget? trailing;
+  final Widget? subtitle;
 
   const BiocentralTaskDisplay({
     required this.title,
@@ -13,6 +14,7 @@ class BiocentralTaskDisplay extends StatefulWidget {
     required this.children,
     super.key,
     this.trailing,
+    this.subtitle,
   });
 
   factory BiocentralTaskDisplay.resumable(BiocentralCommandLog commandLog, void Function() onResume) {
@@ -23,10 +25,12 @@ class BiocentralTaskDisplay extends StatefulWidget {
       icon: const Icon(Icons.restart_alt_sharp),
       onPressed: () => onResume(),
     );
+    final subtitle = Text('Task-ID:${commandLog.metaData.serverTaskID ?? 'Unknown'}');
     return BiocentralTaskDisplay(
       title: title,
       leadingIcon: leadingIcon,
       trailing: trailing,
+      subtitle: subtitle,
       children: children,
     );
   }
@@ -81,6 +85,7 @@ class _BiocentralTaskDisplayState extends State<BiocentralTaskDisplay> {
             child: ExpansionTile(
               leading: widget.leadingIcon,
               title: Text(widget.title),
+              subtitle: widget.subtitle,
               trailing: SizedBox(
                 width: SizeConfig.screenWidth(context) * 0.35,
                 height: 44.0,
