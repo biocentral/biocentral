@@ -20,6 +20,23 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
   @override
   void initState() {
     super.initState();
+    initMetrics();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    initMetrics();
+  }
+
+  @override
+  void didUpdateWidget(covariant BiocentralMetricsPlot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    initMetrics();
+  }
+
+  void initMetrics() {
+    _availableMetrics.clear();
     for (final setVal in widget.metrics.values) {
       _availableMetrics.addAll(setVal.map((metric) => metric.name));
     }
@@ -59,6 +76,7 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
             flex: 5,
             child: BiocentralBarPlot(
               data: BiocentralBarPlotData.withErrors(_getBarPlotData()),
+              bounds: BiocentralMLMetric.getBounds(_selectedMetric!),
               maxLabelLength: 30,
             ),
           ),
