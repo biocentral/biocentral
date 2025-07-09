@@ -1,8 +1,8 @@
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_histogram_kde_plot.dart';
@@ -111,28 +111,6 @@ class _ColumnWizardGenericDisplayState extends State<ColumnWizardGenericDisplay>
           textFuture('Number missing values:', columnWizard.numberMissing()),
           ...classCounts,
         ],);
-      },);
-  }
-
-  Widget textFuture(String text, Future<num> future) {
-    return FutureBuilder<num>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          String valueString = '';
-          if (snapshot.data.runtimeType == int) {
-            valueString = snapshot.data.toString();
-          } else {
-            valueString = snapshot.data?.toStringAsPrecision(Constants.maxDoublePrecision) ?? '';
-          }
-          return Row(
-            children: [
-              Text('$text '),
-              Text(valueString),
-            ],
-          );
-        }
-        return Row(children: [Text('$text '), const CircularProgressIndicator()]);
       },);
   }
 

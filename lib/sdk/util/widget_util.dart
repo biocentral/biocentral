@@ -1,3 +1,4 @@
+import 'package:biocentral/sdk/util/constants.dart';
 import 'package:flutter/material.dart';
 
 extension PaddedWigets on List<Widget> {
@@ -11,4 +12,29 @@ extension PaddedWigets on List<Widget> {
     result.add(padding);
     return result;
   }
+}
+
+Widget textFuture(String text, Future<dynamic> future) {
+  return FutureBuilder<dynamic>(
+    future: future,
+    builder: (context, snapshot) {
+      if (snapshot.hasData && snapshot.data != null) {
+        String? valueString = '';
+        if (snapshot.data is int) {
+          valueString = snapshot.data?.toStringAsFixed(0);
+        } else if(snapshot.data is double) {
+          valueString = snapshot.data?.toStringAsPrecision(Constants.maxDoublePrecision);
+        } else {
+          valueString = snapshot.data?.toString();
+        }
+        valueString ??= 'N/A';
+        return Row(
+          children: [
+            Text('$text '),
+            Text(valueString),
+          ],
+        );
+      }
+      return Row(children: [Text('$text '), const CircularProgressIndicator()]);
+    },);
 }
