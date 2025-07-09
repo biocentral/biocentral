@@ -44,4 +44,24 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
 
     return _composition!;
   }
+
+  Map<int, int>? _lengthCount;
+
+  /// Returns number of sequences for each found sequence length in the dataset
+  Future<Map<int, int>> lengthCount() async {
+    if(_lengthCount != null) {
+      return _lengthCount!;
+    }
+
+    final Map<int, int> lengthCount = {};
+    for(final sequence in valueMap.values) {
+      final length = sequence.seq.length;
+      lengthCount.putIfAbsent(length, () => 0);
+      final updatedCount = lengthCount[length]! + 1;
+      lengthCount[length] = updatedCount;
+    }
+    _lengthCount = lengthCount;
+
+    return _lengthCount!;
+  }
 }
