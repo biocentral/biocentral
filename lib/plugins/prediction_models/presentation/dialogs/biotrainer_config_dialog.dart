@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
@@ -237,11 +238,12 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
           ),
           Flexible(child: missingSequencesIcon),
           Flexible(
-            // TODO Available embedders should come from server
+            // TODO Available embedders should come from server / Dependency between plugins should be removed
             child: BiocentralDropdownMenu<String>(
               label: const Text('Choose embeddings..'),
-              dropdownMenuEntries: ['one_hot_encoding', 'Rostlab/prot_t5_xl_uniref50']
-                  .map((String embedder) => DropdownMenuEntry<String>(value: embedder, label: embedder))
+              dropdownMenuEntries: PredefinedEmbedderContainer.predefinedEmbedders()
+                  .map((PredefinedEmbedder embedder) =>
+                      DropdownMenuEntry<String>(value: embedder.biotrainerName ?? embedder.name, label: embedder.name))
                   .toList(),
               onSelected: (String? value) => biotrainerConfigBloc.add(BiotrainerConfigSelectEmbedderEvent(value ?? '')),
             ),
@@ -310,8 +312,7 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
         Flexible(
           child: BiocentralDropdownMenu<String>(
             label: const Text('Choose model..'),
-            dropdownMenuEntries: state
-                .availableModels
+            dropdownMenuEntries: state.availableModels
                 .map((String target) => DropdownMenuEntry<String>(value: target, label: target))
                 .toList(),
             onSelected: (String? value) => biotrainerConfigBloc.add(BiotrainerConfigSelectModelEvent(value ?? '')),
