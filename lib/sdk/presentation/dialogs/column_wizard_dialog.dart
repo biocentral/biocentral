@@ -1,10 +1,5 @@
-import 'package:biocentral/sdk/bloc/column_wizard_bloc.dart';
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
-import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/column_wizard_display.dart';
-import 'package:biocentral/sdk/presentation/displays/column_wizard_operation_displays.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_drop_down_menu.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -96,22 +91,37 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
       itemCount: columnWizardHistory.length,
       itemBuilder: (context, index) {
         final operationResult = columnWizardHistory[index];
+        final resultWizard = operationResult.resultWizard;
+        final operation = operationResult.operation;
         return Column(
           children: [
             if (index != 0 && index < columnWizardHistory.length)
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(operationResult.operation?.runtimeType.toString() ?? 'Operation'), // TODO Name from operation
-                    const Icon(Icons.arrow_downward, color: Colors.white),
-                  ],
+                child: Container(
+                  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(operation?.getDisplayName() ?? 'Operation'),
+                        ...(operation?.getConfigMap() ?? {}).entries.map((entry) => Text(
+                              '${entry.key.capitalize()}: ${entry.value}',
+                              style: Theme.of(context).textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
+                            )),
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_downward, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ColumnWizardDisplay(
-              columnWizard: operationResult.resultWizard,
-              customBuildFunction: state.customBuildFunctions?[operationResult.resultWizard.type],
+              columnWizard: resultWizard,
+              customBuildFunction: state.customBuildFunctions?[resultWizard.type],
             ),
           ],
         );
