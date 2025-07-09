@@ -2,13 +2,14 @@ from collections import namedtuple
 from biotrainer.trainers import Pipeline
 from biotrainer.utilities import get_device
 from typing import Dict, Any, Optional, Callable
+from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.autoeval import autoeval_pipeline, get_unique_framework_sequences
 
 from ..utils import get_logger
 from ..embeddings import CalculateEmbeddingsTask
 from ..server_management import (TaskInterface, FileManager, StorageFileType, TaskDTO, EmbeddingDatabaseFactory,
                                  FileContextManager, get_custom_training_pipeline_loading,
-                                 get_custom_training_pipeline_ohe, TrainingDTOObserver)
+                                 get_custom_training_pipeline_memory, TrainingDTOObserver)
 
 logger = get_logger(__name__)
 
@@ -66,8 +67,8 @@ class AutoEvalTask(TaskInterface):
         return TaskDTO.finished(result=progress.final_report)
 
     def _get_pipeline(self, update_dto_callback: Callable) -> Pipeline:
-        if self.embedder_name == "one_hot_encoding":
-            return get_custom_training_pipeline_ohe()
+        if self.embedder_name in get_predefined_embedder_names():
+            return get_custom_training_pipeline_memory(embedder_name=self.embedder_name)
         else:
             self._embed_all(update_dto_callback)
             embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()

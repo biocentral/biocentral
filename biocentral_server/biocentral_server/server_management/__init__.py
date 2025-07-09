@@ -4,7 +4,7 @@ from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
 from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 from .library_adapters import get_custom_training_pipeline_injection, get_custom_training_pipeline_loading, \
-    get_custom_training_pipeline_ohe, TrainingDTOObserver
+    get_custom_training_pipeline_memory, TrainingDTOObserver
 
 __all__ = [
     'FileManager',
@@ -19,7 +19,7 @@ __all__ = [
     'EmbeddingsDatabase',
     'get_custom_training_pipeline_injection',
     'get_custom_training_pipeline_loading',
-    'get_custom_training_pipeline_ohe',
+    'get_custom_training_pipeline_memory',
     'TrainingDTOObserver',
     'ServerInitializationManager',
     'ServerModuleInitializer',

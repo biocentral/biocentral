@@ -2,9 +2,10 @@ from pathlib import Path
 from typing import Callable, Dict, Union, List
 
 from biotrainer.utilities import get_device
+from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.input_files import BiotrainerSequenceRecord, read_FASTA
 
-from .embed import compute_embeddings, compute_one_hot_encodings
+from .embed import compute_embeddings, compute_memory_encodings
 
 from ..server_management import TaskInterface, TaskDTO, EmbeddingsDatabase, EmbeddingDatabaseFactory, FileContextManager
 
@@ -48,15 +49,20 @@ class CalculateEmbeddingsTask(TaskInterface):
         return TaskDTO.finished(result={"all_seqs": all_seqs})
 
 
-class _OneHotEncodeTask(CalculateEmbeddingsTask):
-    def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        all_seqs = self._read_sequence_input()
-        ohe = compute_one_hot_encodings(all_seqs=all_seqs, reduced=self.reduced)
-        len_ohe = len(ohe)
-        update_dto_callback(TaskDTO.running().add_update(update={"embedding_current": len_ohe,
-                                                                 "embedding_total": len_ohe}))
+class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
+    """ Calculate embeddings, but store them in RAM, not in the database (OHE, Random, etc.) """
 
-        return TaskDTO.finished(result={"ohe": ohe})
+    def run_task(self, update_dto_callback: Callable) -> TaskDTO:
+        assert self.embedder_name in get_predefined_embedder_names()
+
+        all_seqs = self._read_sequence_input()
+        memory_embeddings = compute_memory_encodings(embedder_name=self.embedder_name, all_seqs=all_seqs,
+                                                     reduced=self.reduced)
+        len_memory_embeddings = len(memory_embeddings)
+        update_dto_callback(TaskDTO.running().add_update(update={"embedding_current": len_memory_embeddings,
+                                                                 "embedding_total": len_memory_embeddings}))
+
+        return TaskDTO.finished(result={"embeddings": memory_embeddings})
 
 
 class LoadEmbeddingsTask(TaskInterface):
@@ -74,21 +80,21 @@ class LoadEmbeddingsTask(TaskInterface):
         self.device = get_device(device)
         self.custom_tokenizer_config = custom_tokenizer_config
 
-    def _handle_ohe(self):
-        ohe_task = _OneHotEncodeTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
-                                     reduced=self.reduced, use_half_precision=False, device=self.device)
-        ohe_dto = None
-        for dto in self.run_subtask(ohe_task):
-            ohe_dto = dto
+    def _handle_memory_embedding(self):
+        memory_task = _MemoryEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
+                                            reduced=self.reduced, use_half_precision=False, device=self.device)
+        memory_dto = None
+        for dto in self.run_subtask(memory_task):
+            memory_dto = dto
 
-        if not ohe_dto:
-            return TaskDTO.failed(error="Could not compute one-hot encoding!")
+        if not memory_dto:
+            return TaskDTO.failed(error="Could not compute memory embeddings!")
 
-        return TaskDTO.finished(result={"embeddings": ohe_dto.update["ohe"], "missing": []})
+        return TaskDTO.finished(result={"embeddings": memory_dto.update["embeddings"], "missing": []})
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        if self.embedder_name == "one_hot_encoding":
-            return self._handle_ohe()
+        if self.embedder_name in get_predefined_embedder_names():
+            return self._handle_memory_embedding()
 
         calculate_task = CalculateEmbeddingsTask(embedder_name=self.embedder_name, sequence_input=self.sequence_input,
                                                  reduced=self.reduced, use_half_precision=self.use_half_precision,

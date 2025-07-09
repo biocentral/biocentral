@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 from functools import lru_cache
 from flask import request, jsonify, Blueprint
+from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.autoeval.flip.flip_datasets import FLIP_DATASETS
 
 from .autoeval_task import AutoEvalTask
@@ -20,7 +21,7 @@ plm_eval_service_route = Blueprint("plm_eval_service", __name__)
 # TODO Improve caching such that results that are older than one hour are omitted for new huggingface models
 @lru_cache(maxsize=12)
 def _validate_model_id(model_id: str):
-    if model_id == "one_hot_encoding":
+    if model_id in get_predefined_embedder_names():
         return ""
 
     url = f"https://huggingface.co/api/models/{model_id}"
