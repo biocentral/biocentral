@@ -35,8 +35,12 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
         const Text('Descriptive Statistics:\n'),
         textFuture('Number values:', widget.columnWizard.length()),
         textFuture(
-            'Sequence Type:', Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),),
+          'Sequence Type:',
+          Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),
+        ),
         textFuture('Number missing values:', widget.columnWizard.numberMissing()),
+        textFuture('Number different sequence lengths: ',
+            widget.columnWizard.lengthCount().then((counts) => counts.keys.length),),
       ],
     );
   }
@@ -45,7 +49,7 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
     return FutureBuilder<Map<String, double>>(
       future: widget.columnWizard.composition(),
       builder: (context, snapshot) {
-        if(snapshot.hasData && snapshot.data != null) {
+        if (snapshot.hasData && snapshot.data != null) {
           return SizedBox(
             width: SizeConfig.screenWidth(context) * 0.4,
             height: SizeConfig.screenHeight(context) * 0.3,
