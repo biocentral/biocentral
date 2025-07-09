@@ -7,6 +7,10 @@ abstract class ColumnWizardOperation {
   ColumnWizardOperation();
 
   Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard);
+
+  String getDisplayName();
+
+  Map<String, dynamic> getConfigMap();
 }
 
 final class ColumnWizardOperationResult {
@@ -31,6 +35,16 @@ class ColumnWizardShuffleOperation extends ColumnWizardOperation {
     }
     return ColumnWizardOperationResult(result);
   }
+
+  @override
+  String getDisplayName() {
+    return 'Random Shuffle Values in Column';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {'seed': seed};
+  }
 }
 
 class ColumnWizardToBinaryOperation extends ColumnWizardOperation {
@@ -52,6 +66,16 @@ class ColumnWizardToBinaryOperation extends ColumnWizardOperation {
     }
     return ColumnWizardOperationResult(result);
   }
+
+  @override
+  String getDisplayName() {
+    return 'Convert To Binary Column';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {'compareToValue': compareToValue, 'valueTrue': valueTrue, 'valueFalse': valueFalse};
+  }
 }
 
 class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation {
@@ -63,6 +87,16 @@ class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation {
     final filteredEntries = Map<String, dynamic>.fromEntries(
         columnWizard.valueMap.entries.where((entry) => !keysWithMissingValues.contains(entry.key)));
     return ColumnWizardOperationResult(filteredEntries);
+  }
+
+  @override
+  String getDisplayName() {
+    return 'Remove Missing Values in Column from Dataset';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {};
   }
 }
 
@@ -95,6 +129,16 @@ class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation {
     // TODO This should not be reachable
     return ColumnWizardOperationResult({});
   }
+
+  @override
+  String getDisplayName() {
+    return 'Remove Outliers in Column from Dataset';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {'method': method.name};
+  }
 }
 
 class ColumnWizardClampOperation extends ColumnWizardOperation {
@@ -117,11 +161,24 @@ class ColumnWizardClampOperation extends ColumnWizardOperation {
   @override
   Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     if (columnWizard is NumericStats) {
-      final filteredEntries = Map<String, dynamic>.fromEntries(columnWizard.valueMap.entries
-          .where((entry) => _isInRange(entry.value)));
+      final filteredEntries =
+          Map<String, dynamic>.fromEntries(columnWizard.valueMap.entries.where((entry) => _isInRange(entry.value)));
       return ColumnWizardOperationResult(filteredEntries);
     }
     return ColumnWizardOperationResult({});
+  }
+
+  @override
+  String getDisplayName() {
+    return 'Clamp Values in Column To Range';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {
+      if (low != null) 'low': low,
+      if (high != null) 'high': high,
+    };
   }
 }
 
@@ -134,6 +191,16 @@ class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation {
         columnWizard.valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString().length)));
 
     return ColumnWizardOperationResult(result);
+  }
+
+  @override
+  String getDisplayName() {
+    return 'Calculate Length of Values';
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {};
   }
 }
 
