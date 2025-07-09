@@ -8,10 +8,13 @@ class PredefinedEmbedderContainer {
   static final PredefinedEmbedder oneHotEncoding =
       PredefinedEmbedder('One Hot Encoding', 'one_hot_encoding', 'One Hot Encodings');
 
+  static final PredefinedEmbedder randomEmbedder =
+      PredefinedEmbedder('Random Embedder', 'random_embedder', 'Embedder that generates random embedding vectors');
+
   static final PredefinedEmbedder customEmbedder = PredefinedEmbedder.customEmbedder();
 
   static List<PredefinedEmbedder> predefinedEmbedders() {
-    return [oneHotEncoding, prott5, ankh, customEmbedder];
+    return [oneHotEncoding, prott5, ankh, randomEmbedder, customEmbedder];
   }
 }
 
