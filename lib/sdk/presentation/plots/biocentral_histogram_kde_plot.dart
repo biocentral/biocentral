@@ -32,6 +32,9 @@ class _HistogramKDEPainter extends CustomPainter {
   final double bandwidth;
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
+  final colorKDE = Colors.orange;
+  final colorNormalDist = Colors.white;
+
   _HistogramKDEPainter(this.data, this.bins, this.bandwidth);
 
   @override
@@ -93,7 +96,7 @@ class _HistogramKDEPainter extends CustomPainter {
 
     // Draw KDE
     final Paint kdePaint = Paint()
-      ..color = Colors.red
+      ..color = colorKDE
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -193,7 +196,7 @@ class _HistogramKDEPainter extends CustomPainter {
 
     // Draw the normal distribution curve
     final Paint normalPaint = Paint()
-      ..color = Colors.green
+      ..color = colorNormalDist
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -236,7 +239,7 @@ class _HistogramKDEPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     meanPainter.layout();
-    meanPainter.paint(canvas, Offset(meanX - meanPainter.width / 2, plotOffset.dy - 15));
+    meanPainter.paint(canvas, Offset(meanX - meanPainter.width / 2, plotOffset.dy - 17.5));
 
     final TextPainter stdDevPainter = TextPainter(
       text: TextSpan(text: '±1 StdDev', style: plotTextStyle.copyWith(color: Colors.purple)),
@@ -256,7 +259,7 @@ class _HistogramKDEPainter extends CustomPainter {
     canvas.drawLine(
         Offset(legendX, legendY),
         Offset(legendX + 30, legendY),
-        Paint()..color = Colors.red..strokeWidth = 2,
+        Paint()..color = colorKDE..strokeWidth = 2,
     );
     final kdePainter = TextPainter(
       text: TextSpan(text: 'KDE of your data', style: plotTextStyle),
@@ -269,7 +272,7 @@ class _HistogramKDEPainter extends CustomPainter {
     canvas.drawLine(
         Offset(legendX, legendY + itemHeight),
         Offset(legendX + 30, legendY + itemHeight),
-        Paint()..color = Colors.green..strokeWidth = 2,
+        Paint()..color = colorNormalDist..strokeWidth = 2,
     );
     final normalPainter = TextPainter(
       text: TextSpan(text: 'Theoretical Normal Distribution', style: plotTextStyle),
