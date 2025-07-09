@@ -4,7 +4,6 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 import 'package:biocentral/sdk/util/logging.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -214,9 +213,35 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
   Future<Map<String, T>> addColumnFromColumnWizard(String newColumnName, ColumnWizard columnWizard) async {
     final Map<String, dynamic> newValues = columnWizard.valueMap;
-    final Map<String, String> attributeMap =
-    Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
-    return addCustomAttribute(newColumnName, attributeMap);
+    final existingColumns = getColumns().keys;
+
+    // Update existing column
+    // TODO Check and make this work for non-custom columns as well
+    if (existingColumns.contains(newColumnName)) {
+      final Map<String, T> currentDatabase = databaseToMap();
+      final Set<T?> entitiesToRemove = {};
+      for (var entity in currentDatabase.values) {
+        final entityID = entity.getID();
+        if (newValues.containsKey(entityID)) {
+          final updatedEntity = entity.updateFromCustomAttributes(
+            CustomAttributes({newColumnName: newValues[entityID].toString()}),
+          ) as T;
+          updateEntityImpl(entityID, updatedEntity);
+        } else {
+          entitiesToRemove.add(currentDatabase[entityID]);
+        }
+      }
+      for(final entity in entitiesToRemove) {
+        removeEntityImpl(entity);
+      }
+      autoSaver.scheduleSave();
+      return databaseToMap();
+    } else {
+      // Add new column
+      final Map<String, String> attributeMap =
+          Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
+      return addCustomAttribute(newColumnName, attributeMap);
+    }
   }
 
   // *** HASHING ***
