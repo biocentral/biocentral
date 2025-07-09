@@ -1,6 +1,7 @@
 import 'package:biocentral/plugins/proteins/model/sequence_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 
 class SequenceColumnWizardDisplay extends StatefulWidget {
@@ -34,32 +35,9 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
         const Text('Descriptive Statistics:\n'),
         textFuture('Number values:', widget.columnWizard.length()),
         textFuture(
-            'Sequence Type:', Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown')),
+            'Sequence Type:', Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),),
         textFuture('Number missing values:', widget.columnWizard.numberMissing()),
       ],
-    );
-  }
-
-  // TODO Merge with other column wizard function
-  Widget textFuture(String text, Future future) {
-    return FutureBuilder(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          String valueString = snapshot.data.toString();
-          final double? parsedDouble = double.tryParse(valueString);
-          if (parsedDouble != null) {
-            valueString = parsedDouble.toStringAsPrecision(Constants.maxDoublePrecision);
-          }
-          return Row(
-            children: [
-              Text('$text '),
-              Text(valueString),
-            ],
-          );
-        }
-        return Row(children: [Text('$text '), const CircularProgressIndicator()]);
-      },
     );
   }
 
