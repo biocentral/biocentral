@@ -5,12 +5,14 @@ services:
       - "9540:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
+      - autoeval_storage:/app/autoeval
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
+      - AUTOEVAL_DATA_DIR=/app/autoeval
     deploy:
       resources:
         reservations:
@@ -35,12 +37,14 @@ services:
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 3
     volumes:
       - huggingface_models_cache:/app/huggingface_models
+      - autoeval_storage:/app/autoeval
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
+      - AUTOEVAL_DATA_DIR=/app/autoeval
     deploy:
       resources:
         reservations:
@@ -143,6 +147,12 @@ volumes:
       type: none
       o: bind
       device: ${HUGGINGFACE_MODELS_DIR}
+  autoeval_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${AUTOEVAL_DATA_DIR}
 networks:
   biocentral-network:
     driver: bridge

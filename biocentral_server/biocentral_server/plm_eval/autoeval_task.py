@@ -1,3 +1,5 @@
+import os
+
 from collections import namedtuple
 from biotrainer.trainers import Pipeline
 from biotrainer.utilities import get_device
@@ -36,6 +38,7 @@ class AutoEvalTask(TaskInterface):
     def _wrap_dto_callback(update_dto_callback):
         def dto_wrapper(dto):
             update_dto_callback(TaskDTO.running().add_update(update={"prediction_model": dto.update}))
+
         return lambda dto: dto_wrapper(dto)
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
@@ -44,6 +47,7 @@ class AutoEvalTask(TaskInterface):
         autoeval_path = self.file_manager.get_autoeval_path(embedder_name=self.embedder_name)
         custom_pipeline = self._get_pipeline(update_dto_callback)
         custom_observer = TrainingDTOObserver(self._wrap_dto_callback(update_dto_callback))
+        custom_storage_path = os.environ.get("AUTOEVAL_DATA_DIR", None)
         file_context_manager = FileContextManager()
         with file_context_manager.storage_write(autoeval_path) as output_dir:
             for progress in autoeval_pipeline(
@@ -55,6 +59,7 @@ class AutoEvalTask(TaskInterface):
                     max_seq_length=self.MAX_SEQ_LENGTH,
                     custom_pipeline=custom_pipeline,
                     custom_output_observers=[custom_observer],
+                    custom_storage_path=custom_storage_path,
             ):
                 update_dto_callback(TaskDTO.running().add_update({"completed_tasks": progress.completed_tasks,
                                                                   "total_tasks": progress.total_tasks,
@@ -76,7 +81,6 @@ class AutoEvalTask(TaskInterface):
                                                         embeddings_db=embeddings_db)
 
     def _embed_all(self, update_dto_callback: Callable):
-        custom_framework_path = None  # TODO Storage path on mounted container for flip
         _, unique_per_residue, unique_per_sequence = get_unique_framework_sequences(framework=self.FRAMEWORK,
                                                                                     min_seq_length=self.MIN_SEQ_LENGTH,
                                                                                     max_seq_length=self.MAX_SEQ_LENGTH)
