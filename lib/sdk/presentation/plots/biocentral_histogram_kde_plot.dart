@@ -84,7 +84,7 @@ class _HistogramKDEPainter extends CustomPainter {
 
     // Draw histogram
     final Paint histogramPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.5)
+      ..color = Colors.blue
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < bins; i++) {
@@ -262,7 +262,7 @@ class _HistogramKDEPainter extends CustomPainter {
         Paint()..color = colorKDE..strokeWidth = 2,
     );
     final kdePainter = TextPainter(
-      text: TextSpan(text: 'KDE of your data', style: plotTextStyle),
+      text: TextSpan(text: 'Distribution (KDE) of your data', style: plotTextStyle),
       textDirection: TextDirection.ltr,
     );
     kdePainter.layout();

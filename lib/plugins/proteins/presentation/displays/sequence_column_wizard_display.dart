@@ -39,7 +39,7 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
           Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),
         ),
         textFuture('Number missing values:', widget.columnWizard.numberMissing()),
-        textFuture('Number different sequence lengths: ',
+        textFuture('Unique sequence lengths found: ',
             widget.columnWizard.lengthCount().then((counts) => counts.keys.length),),
       ],
     );
