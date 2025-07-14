@@ -1,4 +1,4 @@
-FROM python:3.11.11-bookworm AS builder
+FROM python:3.12.11-bookworm AS builder
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
@@ -23,7 +23,7 @@ COPY pyproject.toml ./
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 RUN pip install -r requirements.txt --timeout 100 --retries 10
 
-FROM python:3.11.11-slim-bookworm AS runner
+FROM python:3.12.11-slim-bookworm AS runner
 
 RUN adduser --disabled-password biocentral-server-user
 

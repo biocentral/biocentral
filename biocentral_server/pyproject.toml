@@ -7,7 +7,7 @@ license = "GPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11.9, <3.12"
+python = ">=3.12, <3.13"
 
 # Backend
 Flask = "^3.0.2"
