@@ -1,13 +1,13 @@
-import 'package:bloc_effects/bloc_effects.dart';
+import 'package:biocentral/plugins/proteins/bloc/protein_predict_dialog_bloc.dart';
+import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
+import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_predict_dialog.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
-import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
-import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class ProteinsCommandView extends StatefulWidget {
   const ProteinsCommandView({super.key});
@@ -88,6 +88,22 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
     );
   }
 
+  void openProteinPredictDialog(ProteinsCommandBloc proteinCommandBloc) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BlocProvider(
+          create: (context) => ProteinPredictDialogBloc(
+            context.read<BiocentralClientRepository>(),
+          )..add(ProteinPredictDialogStartEvent()),
+          child: ProteinPredictDialog(
+            onPredict: (selectedModels) => proteinCommandBloc.add(ProteinsCommandPredictEvent(selectedModels)),
+          ),
+        );
+      },
+    );
+  }
+
   void retrieveTaxonomy(ProteinsCommandBloc proteinCommandBloc) {
     proteinCommandBloc.add(ProteinsCommandRetrieveTaxonomyEvent());
   }
@@ -149,6 +165,14 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
               iconData: Icons.nature_people_rounded,
               requiredServices: const ['protein_service'],
               onTap: () => retrieveTaxonomy(proteinCommandBloc),
+            ),
+          ),
+          BiocentralTooltip(
+            message: 'Predict missing protein features',
+            child: BiocentralButton(
+              iconData: Icons.batch_prediction_outlined,
+              requiredServices: const ['protein_service', 'prediction_service'],
+              onTap: () => openProteinPredictDialog(proteinCommandBloc),
             ),
           ),
           BiocentralTooltip(

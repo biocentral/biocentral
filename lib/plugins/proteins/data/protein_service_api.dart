@@ -17,4 +17,6 @@ Either<BiocentralException, Map<int, Taxonomy>> parseTaxonomy(Map<String, dynami
 
 class ProteinServiceEndpoints {
   static const String retrieveTaxonomy = '/protein_service/taxonomy';
+  static const String predictProtein = '/prediction_service/predict';
+  static const String modelMetadata = '/prediction_service/model_metadata';
 }
