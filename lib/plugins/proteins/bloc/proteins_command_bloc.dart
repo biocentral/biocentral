@@ -1,4 +1,3 @@
-import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
 import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
@@ -42,6 +41,12 @@ final class ProteinsCommandAddColumnEvent extends ProteinsCommandEvent {
   final List<ColumnWizardHistoryEntry> operationHistory;
 
   ProteinsCommandAddColumnEvent(this.newColumnName, this.originalColumnName, this.operationHistory);
+}
+
+final class ProteinsCommandPredictEvent extends ProteinsCommandEvent {
+  final Set<String> selectedModels;
+
+  ProteinsCommandPredictEvent(this.selectedModels);
 }
 
 @immutable
@@ -119,7 +124,7 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
         biocentralProjectRepository: _biocentralProjectRepository,
         proteinRepository: _proteinRepository,
         proteinClient: _biocentralClientRepository.getServiceClient<ProteinClient>(),
-        importMode: DatabaseImportMode.overwrite,
+        importMode: DatabaseImportMode.defaultMode,
       );
       await retrieveTaxonomyCommand
           .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
@@ -143,6 +148,20 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
         }, (r) async {
           syncWithDatabases(r);
         });
+      });
+    });
+
+    on<ProteinsCommandPredictEvent>((event, emit) async {
+      final ProteinPredictCommand proteinPredictCommand = ProteinPredictCommand(
+          biocentralProjectRepository: _biocentralProjectRepository,
+          proteinRepository: _proteinRepository,
+          proteinClient: _biocentralClientRepository.getServiceClient<ProteinClient>(),
+          selectedModels: event.selectedModels,
+          importMode: DatabaseImportMode.defaultMode);
+      await proteinPredictCommand
+          .executeWithLogging<ProteinsCommandState>(_biocentralProjectRepository, state)
+          .forEach((either) {
+        either.match((l) => emit(l), (r) => syncWithDatabases(r));
       });
     });
   }
