@@ -210,7 +210,7 @@ class BaseModel(ABC):
                 formatted_predictions[embedding_id].append(Prediction(
                     model_name=model_name,
                     prediction_name=prediction_name,
-                    protocol=protocol,
+                    protocol=protocol.name,
                     prediction=formatted_value
                 ))
 

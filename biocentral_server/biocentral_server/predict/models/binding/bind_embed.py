@@ -101,7 +101,7 @@ class BindEmbed(BaseModel):
                 prediction = ''.join([bind_short if j == 1 else "-" for pred_idx, j in enumerate(pred[:, binding_id])
                                       if pred_idx < self.non_padded_embedding_lengths[embedding_id]])
                 formatted_predictions[embedding_id].append(
-                    Prediction(model_name=model_name, prediction_name=binding_type, protocol=protocol,
+                    Prediction(model_name=model_name, prediction_name=binding_type, protocol=protocol.name,
                                prediction=prediction))
 
         return formatted_predictions

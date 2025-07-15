@@ -72,7 +72,7 @@ class VespaG(BaseModel):
         for seq_id, y in model_output[self.prediction_name].items():
             scores_per_protein[seq_id] = [MutationPrediction(model_name=model_name,
                                                              prediction_name=self.prediction_name,
-                                                             protocol=protocol,
+                                                             protocol=protocol.name,
                                                              prediction=compute_mutation_score(
                                                                  y,
                                                                  mutation,

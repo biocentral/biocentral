@@ -9,7 +9,7 @@ class Prediction:
     """Base class for all model predictions."""
     model_name: str
     prediction_name: str
-    protocol: Protocol
+    protocol: str
     prediction: Union[str, float]
 
 
