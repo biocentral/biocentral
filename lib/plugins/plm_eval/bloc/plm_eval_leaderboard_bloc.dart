@@ -87,7 +87,12 @@ final class PLMEvalLeaderboardState extends Equatable {
   Set<String> getPublishableModels() {
     // TODO Improve check for only huggingface models
     final localModels = localLeaderboard.modelNameToEntries.keys
-        .where((modelName) => modelName.contains('/') && !modelName.contains('onnx') || modelName == 'one_hot_encoding')
+        .where(
+          (embedderName) =>
+              embedderName.contains('/') && !embedderName.contains('onnx') ||
+              embedderName == 'one_hot_encoding' ||
+              embedderName == 'random_embedder',
+        )
         .toSet();
     final remoteModels = remoteLeaderboard.modelNameToEntries.keys.toSet();
     return localModels.where((model) => !remoteModels.contains(model)).toSet();
