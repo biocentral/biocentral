@@ -4,8 +4,11 @@ from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .models.base_model import BaseModel
 
+from ..utils import get_logger
 from ..embeddings import LoadEmbeddingsTask
 from ..server_management import TaskInterface, TaskDTO
+
+logger = get_logger(__name__)
 
 
 class SinglePredictionTask(TaskInterface):
@@ -15,11 +18,33 @@ class SinglePredictionTask(TaskInterface):
         self.sequence_input = sequence_input
         self.device = device
 
+    @staticmethod
+    def _remap_predictions(sequence_input: List[BiotrainerSequenceRecord], predictions: Dict[str, List]):
+        """ Embeddings have seq_hash -> embedding, we need seq_id -> prediction """
+        seq_hash_to_ids = {}
+        for sequence in sequence_input:
+            seq_hash = sequence.get_hash()
+            if seq_hash not in seq_hash_to_ids:
+                seq_hash_to_ids[seq_hash] = []
+            seq_hash_to_ids[seq_hash].append(sequence.seq_id)
+
+        result = {}
+        for seq_hash, seq_ids in seq_hash_to_ids.items():
+            for seq_id in seq_ids:
+                result[seq_id] = predictions[seq_hash]
+
+        if len(sequence_input) != len(result):
+            logger.warn(f"Encountered different number of input and result predictions: "
+                        f"{len(sequence_input)}, {len(result)}")
+        return result
+
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # TODO CHECK SEQUENCE RECORDS
         embeddings = self._embed_sequences()
         predictions = self.model.predict(
-            sequences={seq_record.seq_id: seq_record.seq for seq_record in self.sequence_input}, embeddings=embeddings)
+            sequences={seq_record.get_hash(): seq_record.seq for seq_record in self.sequence_input},
+            embeddings=embeddings)
+        predictions = self._remap_predictions(sequence_input=self.sequence_input, predictions=predictions)
         return TaskDTO.finished(result={"predictions": predictions})
 
     def _embed_sequences(self):

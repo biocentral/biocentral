@@ -150,8 +150,8 @@ class BaseModel(ABC):
         Run model prediction.
 
         Args:
-            sequences: Dictionary mapping sequence IDs to amino acid sequences
-            embeddings: Dictionary mapping sequence IDs to embeddings
+            sequences: Dictionary mapping sequence hashes to amino acid sequences
+            embeddings: Dictionary mapping sequence hashes to embeddings
 
         Returns:
             Model predictions
