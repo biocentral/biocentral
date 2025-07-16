@@ -28,21 +28,24 @@ def get_datasets(config_dict: dict, embd_records: List[BiotrainerSequenceRecord]
     device = torch.device(config_dict.get('device', 'cpu'))
 
     for embd_record in embd_records:
-        if embd_record.get_set() == "train":
+        target = embd_record.get_target()
+        target = None if target is None  or target == "None" else target
+        if target is not None:  # Train Set
             train_data["ids"].append(embd_record.seq_id)
-            train_data["X"].append(embd_record.embedding)
-            raw_target = embd_record.get_target()
+            train_data["X"].append(torch.tensor(embd_record.embedding))
+            # Convert target
             if config_dict['discrete']:
-                if raw_target in target_classes:
-                    target = target_classes[raw_target]
+                if target in target_classes:
+                    target = target_classes[target]
                 else:
-                    ValueError(f"get_datasets: illegal label {raw_target} in labels: {target_classes.keys()}")
+                    ValueError(f"get_datasets: illegal label {target} in labels: {target_classes.keys()}")
             else:
-                target = float(raw_target)
+                target = float(target)
             train_data["y"].append(target)
-        else:
+        else:  # Inference Set
             inference_data["ids"].append(embd_record.seq_id)
-            inference_data["X"].append(embd_record.embedding)
+            inference_data["X"].append(torch.tensor(embd_record.embedding))
+
     if train_data["X"]:
         train_data["X"] = torch.stack(train_data["X"]).float()
         train_data["X"] = train_data["X"].to(device=device)
@@ -72,13 +75,13 @@ def data_prep(config_dict: dict, embeddings: List[BiotrainerSequenceRecord]) -> 
     with file_context_manager.storage_read(file_path=input_file_path) as input_file:
         seq_records = read_FASTA(input_file)
 
-    id2record = {seq_record.seq_id: seq_record for seq_record in seq_records}
-    embd_records = [id2record[seq_record.seq_id].copy_with_embedding(seq_record.embedding) for seq_record in embeddings]
+    id2record = {seq_record.get_hash(): seq_record for seq_record in seq_records}
+    embd_records = [id2record[seq_record.get_hash()].copy_with_embedding(seq_record.embedding) for seq_record in embeddings]
 
     # train & test set split
     train_data, inference_data = get_datasets(config_dict, embd_records)
     if len(train_data['ids']) * len(inference_data) == 0:
-        raise ValueError("data_prep: training set / inference set is empty. Have you set feature_name?")
+        raise ValueError("data_prep: training set or inference set is empty. Have you set feature_name?")
     return train_data, inference_data, embd_records
 
 
