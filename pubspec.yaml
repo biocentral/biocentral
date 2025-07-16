@@ -49,6 +49,7 @@ dependencies:
   tutorial_system: '^0.0.4'
   universal_io: ^2.2.2
   url_launcher: '^6.3.0'
+  widgets_to_image: ^2.0.1
   yaml: '^3.1.2'
 
 
