@@ -6,11 +6,11 @@ Flask-based python server using REST API that provides functionality for the bio
 
 These are the currently provided modules:
 
-| Module            |                    Features                     | External Dependencies | 
+| Module            |                    Features                     | External Dependencies |
 |-------------------|:-----------------------------------------------:|:---------------------:|
-| protein_analysis  |                       wip                       |                       | 
-| embeddings        |             Embed protein sequences             |     [biotrainer]      | 
-| ppi               |     Work with protein-protein interactions      |     [hvi_toolkit]     | 
+| protein_analysis  |                       wip                       |                       |
+| embeddings        |             Embed protein sequences             |     [biotrainer]      |
+| ppi               |     Work with protein-protein interactions      |     [hvi_toolkit]     |
 | predict           |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
 | prediction_models | Train and evaluate models trained on embeddings |     [biotrainer]      |
 | proteins          |             Work with protein data              |       [taxoniq]       |
@@ -33,7 +33,7 @@ These are the currently provided modules:
 
 ## Installing and running
 
-Make sure that you have `Python 3.11`, `docker` and [poetry](https://python-poetry.org/docs/#installation) installed.
+Make sure that you have `Python 3.11`, `docker` and [UV](https://docs.astral.sh/uv/getting-started/installation/) installed.
 
 ### Production Setup
 
@@ -54,13 +54,8 @@ docker compose up -d
 ### Local Setup
 
 ```shell
-# [Ubuntu 24.04] 
-poetry install
-
-# [Windows 10/11]
-poetry install
-# Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Install dependencies with UV
+uv sync --group dev
 
 # Use environment variables for local setup
 cp .env.local .env
@@ -68,13 +63,25 @@ cp .env.local .env
 # Run additional dependencies via docker compose
 docker compose -f docker-compose.dev.yml up -d
 
-# Run
-poetry run run-biocentral_server.py
+# Run the server
+uv run python run-biocentral_server.py
+
+# Or run with workers for development
+uv run python run-local.py
 ```
+
+### Package Manager Migration
+
+This project migrated from Poetry to UV for better performance and reliability:
+- Use `uv sync --group dev` instead of `poetry install`
+- Use `uv run` instead of `poetry run`
+- Use `uv add package` to add dependencies
+
+For full migration details, see the changeset documentation.
 
 # Citation
 
-Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using 
+Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using
 biocentral_server in your scientific publication:
 
 ```text

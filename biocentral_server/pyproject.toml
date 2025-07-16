@@ -1,36 +1,48 @@
-[tool.poetry]
+[project]
 name = "biocentral-server"
 version = "0.2.5"
 description = "Compute server for the biocentral frontend"
-authors = ["Sebastian Franz <sebastian.franz@tum.de>"]
-license = "GPLv3"
+authors = [
+    {name = "Sebastian Franz", email = "sebastian.franz@tum.de"},
+    {name = "Tobias Olenyi", email = "tobias.olenyi@tum.de"},
+]
+license = {text = "GPL-3.0"}
 readme = "README.md"
+requires-python = ">=3.11.9,<3.14"
 
-[tool.poetry.dependencies]
-python = ">=3.12, <3.13"
+dependencies = [
+    # Backend
+    "flask>=3.0.2,<4.0.0",
+    "levenshtein>=0.26.1,<1.0.0",
+    "taxoniq>=1.0.1,<2.0.0",
+    "blosc2>=2.7.1,<3.0.0",
+    "psycopg[binary]>=3.2.3,<4.0.0",
+    "gunicorn>=23.0.0,<24.0.0",
+    "rq>=2.1.0,<3.0.0",
+    "python-dotenv>=1.0.1,<2.0.0",
+    "gpytorch>=1.14,<2.0",
+    "onnxruntime>=1.16.0,<2.0.0",
 
-# Backend
-Flask = "^3.0.2"
-levenshtein = "^0.26.1"
-taxoniq = "^1.0.1"
-blosc2 = "^2.7.1"
-psycopg = "^3.2.3"
-gunicorn = "^23.0.0"
-rq = "^2.1.0"
-python-dotenv = "^1.0.1"
-gpytorch = "^1.14"
+    # Git Dependencies
+    "autoeval @ git+https://github.com/J-SNACKKB/autoeval.git@master",
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@breaking/v-1-0-0",
+    "protspace @ git+https://github.com/tsenoner/protspace.git@main",
+    "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
+    "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
+    "tmbed @ git+https://github.com/biocentral/TMbed.git@onnx-deployment",
+]
 
-# Git-Dependencies
-biotrainer = { git = "https://github.com/sacdallago/biotrainer.git", extras = ["onnx-gpu"], branch = "develop"} # Change to onnx-mac on MacOS
-protspace = { git = "https://github.com/tsenoner/protspace.git", branch = "v2.0.0"}
-hvi_toolkit = { git = "https://github.com/SebieF/hvi_toolkit.git", branch = "maintenance/update-biotrainer"}
-vespag = { git = "https://github.com/biocentral/VespaG.git", branch = "onnx-deployment"}
-tmbed = { git = "https://github.com/biocentral/TMbed.git", branch = "onnx-deployment"}
-
-[tool.poetry.group.dev.dependencies]
-pytest = "8.3.1"
-pip-audit = "^2.7.3"
+[dependency-groups]
+dev = [
+    "pytest==8.3.1",
+    "pip-audit>=2.7.3,<3.0.0",
+    "ruff>=0.12.1",
+    "pre-commit>=4.2.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
