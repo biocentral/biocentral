@@ -21,12 +21,11 @@ dependencies = [
     "rq>=2.1.0,<3.0.0",
     "python-dotenv>=1.0.1,<2.0.0",
     "gpytorch>=1.14,<2.0",
-    "onnxruntime>=1.16.0,<2.0.0",
+    "onnxruntime-gpu>=1.16.0,<2.0.0",  # Replace with onnxruntime for cpu / onnxruntime-coreml for Darwin
 
     # Git Dependencies
-    "autoeval @ git+https://github.com/J-SNACKKB/autoeval.git@master",
-    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@breaking/v-1-0-0",
-    "protspace @ git+https://github.com/tsenoner/protspace.git@main",
+    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@develop",
+    "protspace @ git+https://github.com/tsenoner/protspace.git@v2.0.0",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
     "tmbed @ git+https://github.com/biocentral/TMbed.git@onnx-deployment",
