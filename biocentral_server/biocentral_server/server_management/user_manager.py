@@ -6,7 +6,6 @@ _user_dict: Dict = {"n_total_requests": 0}
 
 
 class UserManager:
-
     @staticmethod
     def check_request(req: Request):
         _user_dict["n_total_requests"] += 1

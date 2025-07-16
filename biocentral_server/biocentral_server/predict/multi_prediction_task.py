@@ -21,14 +21,16 @@ class MultiPredictionTask(TaskInterface):
         predictions = {}
         for model_name, model_class in self.models.items():
             model: BaseModel = model_class(batch_size=self.batch_size)
-            single_pred_task = SinglePredictionTask(model=model,
-                                                    sequence_input=self.sequence_input,
-                                                    device=self.device)
+            single_pred_task = SinglePredictionTask(
+                model=model, sequence_input=self.sequence_input, device=self.device
+            )
             predict_dto = None
             for dto in self.run_subtask(single_pred_task):
                 predict_dto = dto
             if not predict_dto:
-                return TaskDTO.failed(error=f"Model prediction with the {model_name} model failed.")
+                return TaskDTO.failed(
+                    error=f"Model prediction with the {model_name} model failed."
+                )
             single_prediction = predict_dto.update["predictions"]
             logger.info(f"{model_name} model prediction: {single_prediction}")
             predictions[model_name] = single_prediction

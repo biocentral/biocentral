@@ -6,6 +6,6 @@ app_state = ServerAppState.get_instance()
 app = app_state.init_app()
 app_state.init_app_context()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # For development environments
     app.run(port=Constants.SERVER_DEFAULT_PORT)

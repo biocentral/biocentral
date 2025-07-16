@@ -27,7 +27,7 @@ def verify_sequences(sequence_input: dict[str, str]) -> str:
 
 
 # Endpoint for ProtSpace dimensionality reduction methods for sequences
-@prediction_service_route.route('/prediction_service/predict', methods=['POST'])
+@prediction_service_route.route("/prediction_service/predict", methods=["POST"])
 def predict():
     request_data = PredictionRequestData(**request.get_json())
     model_names = request_data.model_names
@@ -41,12 +41,14 @@ def predict():
     if sequence_verification_error != "":
         return jsonify({"error": sequence_verification_error})
 
-    sequence_input = [BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
-                      for seq_id, seq in sequence_input.items()]
+    sequence_input = [
+        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        for seq_id, seq in sequence_input.items()
+    ]
     models = filter_models(model_names=model_names)
-    prediction_task = MultiPredictionTask(models=models,
-                                          sequence_input=sequence_input,
-                                          batch_size=request_data.batch_size)
+    prediction_task = MultiPredictionTask(
+        models=models, sequence_input=sequence_input, batch_size=request_data.batch_size
+    )
     task_id = TaskManager().add_task(prediction_task)
     return jsonify({"task_id": task_id})
 
@@ -58,6 +60,12 @@ class PredictionRequestData:
     batch_size: int
 
     def __init__(self, model_names, sequence_input, batch_size=1):
-        self.model_names = json.loads(model_names) if isinstance(model_names, str) else model_names
-        self.sequence_input = json.loads(sequence_input) if isinstance(sequence_input, str) else sequence_input
+        self.model_names = (
+            json.loads(model_names) if isinstance(model_names, str) else model_names
+        )
+        self.sequence_input = (
+            json.loads(sequence_input)
+            if isinstance(sequence_input, str)
+            else sequence_input
+        )
         self.batch_size = int(batch_size) if isinstance(batch_size, str) else batch_size

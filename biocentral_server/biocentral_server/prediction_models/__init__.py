@@ -8,6 +8,6 @@ from .prediction_models_endpoint import prediction_models_service_route
 torch_mp.set_start_method("spawn", force=True)
 
 __all__ = [
-    'BiotrainerTask',
-    'prediction_models_service_route',
+    "BiotrainerTask",
+    "prediction_models_service_route",
 ]

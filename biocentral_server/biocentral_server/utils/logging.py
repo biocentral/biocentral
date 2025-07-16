@@ -5,6 +5,7 @@ from .constants import Constants
 
 logging_setup = False
 
+
 def get_logger(name):
     global logging_setup
     if not logging_setup:
@@ -17,7 +18,7 @@ def _setup_logging():
     formatter = logging.Formatter(Constants.LOGGER_FORMAT)
 
     # Create file handler for writing logs to file
-    file_handler = logging.FileHandler(Constants.LOGGER_FILE_PATH, encoding='utf8')
+    file_handler = logging.FileHandler(Constants.LOGGER_FILE_PATH, encoding="utf8")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
 

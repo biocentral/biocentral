@@ -16,7 +16,7 @@ storage/
         |   +- model_hash_1/ (Model 1)
             |   +- CNN/ (model_choice in biotrainer)
                 |   +- one_hot_encoding/ (embedder_name in biotrainer, all checkpoints are found here.)
-                    |   +- hold_out_checkpoint.pt (Name depends on cross_validation method)            
+                    |   +- hold_out_checkpoint.pt (Name depends on cross_validation method)
             |   +- logger_out.log (Logging output from biotrainer)
             |   +- out.yml (Result file from biotrainer)
             |   +- config_file.yml (Config file for biotrainer)
@@ -26,17 +26,17 @@ storage/
 
 ## List of required files and types for functions and output files
 
-* HVI-Toolkit - Dataset Tests: 
+* HVI-Toolkit - Dataset Tests:
   * Input: Interaction database as fasta file
   * Output: Server: /, Client: Text data
 * Embedding calculation
   * Input: Protein database as fasta file
-  * Output: Server: .h5 file, Client: .json 
-* Umap calculation - Proteins: 
+  * Output: Server: .h5 file, Client: .json
+* Umap calculation - Proteins:
   * Input: Per-sequence embeddings of proteins as json (via client) or h5 (on server)
   * Output: Server: /, Client: UMAP-coordinates
 * Umap calculation - Interactions (TODO, wip):
-  * Input: Concatenated/Multiplied embeddings of interacting proteins 
+  * Input: Concatenated/Multiplied embeddings of interacting proteins
   * Output: Server: /, Client: UMAP-coordinates
 * Biotrainer - Model Training:
   * Input: Sequence file, Label file, Mask file (fasta files), Config file (.yaml/dict)

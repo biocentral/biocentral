@@ -1,7 +1,7 @@
 import torch
 import gpytorch
 
-from gpytorch.means import ConstantMean, LinearMean
+from gpytorch.means import LinearMean
 from gpytorch.kernels import ScaleKernel, RBFKernel
 from gpytorch.likelihoods import DirichletClassificationLikelihood, GaussianLikelihood
 
@@ -28,7 +28,9 @@ class GPClassificationModel(gpytorch.models.ExactGP):
         # initialize exactgp
         super(GPClassificationModel, self).__init__(train_x, train_y, likelihood)
         # self.mean_module = ConstantMean(batch_shape=torch.Size((num_classes,)))
-        self.mean_module = LinearMean(train_x.shape[-1], batch_shape=torch.Size((num_classes,)))
+        self.mean_module = LinearMean(
+            train_x.shape[-1], batch_shape=torch.Size((num_classes,))
+        )
         self.covar_module = ScaleKernel(
             RBFKernel(batch_shape=torch.Size((num_classes,))),
             batch_shape=torch.Size((num_classes,)),
@@ -41,7 +43,9 @@ class GPClassificationModel(gpytorch.models.ExactGP):
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
 
-def train_gp_classification_model(train_set: dict, lr: float = 0.3, epoch: int = 140, device: str = "cpu"):
+def train_gp_classification_model(
+    train_set: dict, lr: float = 0.3, epoch: int = 140, device: str = "cpu"
+):
     device = torch.device(device)
     logger.info(f"Training on device: {device}")
     likelihood = DirichletClassificationLikelihood(
@@ -49,8 +53,12 @@ def train_gp_classification_model(train_set: dict, lr: float = 0.3, epoch: int =
     ).to(device=device)
     # transform class into num_classes separate GPs
     # shape: (num_classes, num_sample)
-    model = GPClassificationModel(train_set["X"], likelihood.transformed_targets, likelihood,
-                                  num_classes=likelihood.num_classes).to(device=device)
+    model = GPClassificationModel(
+        train_set["X"],
+        likelihood.transformed_targets,
+        likelihood,
+        num_classes=likelihood.num_classes,
+    ).to(device=device)
     model.train()
     likelihood.train()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -64,18 +72,25 @@ def train_gp_classification_model(train_set: dict, lr: float = 0.3, epoch: int =
         loss = -mll(output, likelihood.transformed_targets).sum()
         loss.backward()
         if i % (epoch // 10) == 0:
-            logger.info('Iter %d/%d - Loss: %.3f   lengthscale: %.3f   noise: %.3f' % (
-                i + 1, epoch, loss.item(),
-                model.covar_module.base_kernel.lengthscale.mean().item(),
-                model.likelihood.second_noise_covar.noise.mean().item()
-            ))
+            logger.info(
+                "Iter %d/%d - Loss: %.3f   lengthscale: %.3f   noise: %.3f"
+                % (
+                    i + 1,
+                    epoch,
+                    loss.item(),
+                    model.covar_module.base_kernel.lengthscale.mean().item(),
+                    model.likelihood.second_noise_covar.noise.mean().item(),
+                )
+            )
         optimizer.step()
     model.eval()
     likelihood.eval()
     return model, likelihood
 
 
-def train_gp_regression_model(train_set: dict, lr: float = 0.3, epoch: int = 400, device: str = "cpu"):
+def train_gp_regression_model(
+    train_set: dict, lr: float = 0.3, epoch: int = 400, device: str = "cpu"
+):
     device = torch.device(device)
     logger.info(f"Training on device: {device}")
     likelihood = GaussianLikelihood().to(device=device)

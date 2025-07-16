@@ -2,7 +2,6 @@ import torch
 import json
 import hashlib
 
-from biotrainer.protocols import Protocol
 from flask import request, jsonify, Blueprint
 
 from .bayesian_optimization_task import BayesTask
@@ -12,7 +11,6 @@ from ..server_management import (
     TaskManager,
     UserManager,
     FileManager,
-    TaskStatus,
 )
 
 """
@@ -29,9 +27,9 @@ break into APIs:
 train & inference api:
     1. take uploaded dataset from the file manager
     2. embed the sequences
-    3. launch BO model training process, that run training, inference and 
+    3. launch BO model training process, that run training, inference and
         save the output to somewhere in file manager when finished
-    4. return a handle to query and fetch result for current inference run 
+    4. return a handle to query and fetch result for current inference run
 fetch result api: fetch the result according to handle
 """
 
@@ -44,14 +42,14 @@ bayesian_optimization_service_route = Blueprint(
 
 def float_if_possible(num):
     mapping = {
-        "Infinity": float('inf'),
-        "-Infinity": float('-inf'),
+        "Infinity": float("inf"),
+        "-Infinity": float("-inf"),
     }
     if num in mapping:
         return mapping[num]
     try:
         num = float(num)
-    except:
+    except ValueError:
         pass
     return num
 
@@ -71,16 +69,16 @@ def verify_config(config_dict: dict):
         - `discrete_targets :: list`
         - targets should only contain single target label
     - When `discrete` = false
-        - `optimization_mode` (str): mode selection 
+        - `optimization_mode` (str): mode selection
     """
     database_hash: str = config_dict.get("database_hash")
     model_type: str = config_dict.get("model_type").lower()
     coefficient = float_if_possible(config_dict.get("coefficient"))
-    config_dict['coefficient'] = coefficient
+    config_dict["coefficient"] = coefficient
     if (
-            not isinstance(database_hash, str)
-            or not isinstance(model_type, str)
-            or not isinstance(coefficient, float)
+        not isinstance(database_hash, str)
+        or not isinstance(model_type, str)
+        or not isinstance(coefficient, float)
     ):
         raise TypeError(
             "[verify_config]: Config need to include: database_hash :: str, model_type :: str and coefficient :: float"
@@ -91,15 +89,15 @@ def verify_config(config_dict: dict):
         )
     if coefficient < 0:
         raise ValueError("[verify_config]: Coefficient should be non-negative")
-    device: str = config_dict.get('device', '')
-    if device and device.lower() not in ['cuda', 'cpu']:
+    device: str = config_dict.get("device", "")
+    if device and device.lower() not in ["cuda", "cpu"]:
         raise ValueError("[verify_config]: Device should be either 'cuda' or 'cpu'")
-    if device == 'cuda' and not torch.cuda.is_available():
+    if device == "cuda" and not torch.cuda.is_available():
         raise ValueError("[verify_config]: CUDA device is not available")
     return verify_optim_target(config_dict)
 
 
-def parse_str_to_list(s, delim=','):
+def parse_str_to_list(s, delim=","):
     strlist: list[str] = s[1:-1].split(delim)
     strlist = [strr.strip() for strr in strlist]
     return strlist
@@ -111,7 +109,7 @@ def verify_optim_target(config_dict: dict):
         raise KeyError("[verify_config]: Config need to include: is_discrete :: bool")
     if isinstance(is_discrete, str):
         is_discrete = str2bool(is_discrete)
-        config_dict['discrete'] = is_discrete
+        config_dict["discrete"] = is_discrete
     if is_discrete:
         labels = config_dict.get("discrete_labels")
         targets = config_dict.get("discrete_targets")
@@ -121,19 +119,21 @@ def verify_optim_target(config_dict: dict):
             )
         if isinstance(labels, str):
             labels = parse_str_to_list(labels)
-            config_dict['discrete_labels'] = labels
+            config_dict["discrete_labels"] = labels
         if isinstance(targets, str):
             targets = parse_str_to_list(targets)
-            config_dict['discrete_targets'] = targets
+            config_dict["discrete_targets"] = targets
 
         sl, st = set(labels), set(targets)
         if not (sl.issuperset(st) and len(sl) > len(st)):
             raise ValueError("[verify_config]: targets should be true subset of labels")
         # limit to binary classification
         if len(st) != 1:
-            raise ValueError("[verify_config]: discrete_targets should have exactly 1 element")
+            raise ValueError(
+                "[verify_config]: discrete_targets should have exactly 1 element"
+            )
     else:
-        optimization_mode = config_dict.get('optimization_mode')
+        optimization_mode = config_dict.get("optimization_mode")
         if not optimization_mode or optimization_mode.lower() not in [
             "interval",
             "value",
@@ -154,9 +154,9 @@ def verify_optim_target(config_dict: dict):
                         + "target_lb :: float or target_ub :: float"
                     )
                 if lb is None:
-                    lb = float('-inf')
+                    lb = float("-inf")
                 if ub is None:
-                    ub = float('inf')
+                    ub = float("inf")
                 if lb >= ub:
                     raise ValueError(
                         "[verify_config]: target_interval_lb should < target_interval_ub"
@@ -165,12 +165,13 @@ def verify_optim_target(config_dict: dict):
                 config_dict["target_ub"] = ub
             case "value":
                 val = float_if_possible(config_dict.get("target_value"))
-                config_dict['target_value'] = val
+                config_dict["target_value"] = val
                 if not val:
                     raise KeyError(
                         "[verify_config]: Config for value target needs to include target_value :: float"
                     )
     return config_dict
+
 
 @bayesian_optimization_service_route.route(
     "/bayesian_optimization_service/training", methods=["POST"]
@@ -194,9 +195,7 @@ def train_and_inference():
     ).hexdigest()
     task_id = f"biocentral-bayesian_optimization-{task_hash}"
     # get output path
-    output_dir = file_manager.get_biotrainer_model_path(
-        model_hash=task_id
-    )
+    output_dir = file_manager.get_biotrainer_model_path(model_hash=task_id)
     logger.info(f"Output_path: {output_dir}")
     # idempotence
     # prepare more training configurations
@@ -220,10 +219,10 @@ def verify_request(req_body: dict):
     database_hash = req_body.get("database_hash")
     task_id = req_body.get("task_id")
     if (
-            database_hash is None
-            or task_id is None
-            or not isinstance(database_hash, str)
-            or not isinstance(task_id, str)
+        database_hash is None
+        or task_id is None
+        or not isinstance(database_hash, str)
+        or not isinstance(task_id, str)
     ):
         raise KeyError(
             "model_results require database_hash :: str and task_id :: str in request"

@@ -8,6 +8,7 @@ workers = 4
 worker_class = "gthread"
 threads = 2
 
+
 def on_starting(server):
     """
     Hook that runs before master process is initialized.
@@ -15,6 +16,7 @@ def on_starting(server):
     logging.info("Initializing server...")
     app_state = ServerAppState.get_instance()
     app_state.init_app_context()
+
 
 # Bind address
 bind = "0.0.0.0:9540"

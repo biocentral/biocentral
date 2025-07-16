@@ -1,3 +1,3 @@
 from .seth import SETH
 
-__all__ = ['SETH']
+__all__ = ["SETH"]

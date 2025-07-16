@@ -13,6 +13,7 @@ logger = get_logger(__name__)
 
 class BayesTask(TaskInterface):
     SUPPORTED_MODELS = SUPPORTED_MODELS
+
     def __init__(self, config_dict: Dict):
         super().__init__()
         self.config_dict = config_dict
@@ -22,7 +23,9 @@ class BayesTask(TaskInterface):
         if error and len(error) > 0:
             return TaskDTO.failed(error=error)
         if len(embeddings) == 0:
-            return TaskDTO.failed(error="Failed to calculate embeddings for BO training!")
+            return TaskDTO.failed(
+                error="Failed to calculate embeddings for BO training!"
+            )
 
         results = pipeline(config_dict=self.config_dict, embeddings=embeddings)
 

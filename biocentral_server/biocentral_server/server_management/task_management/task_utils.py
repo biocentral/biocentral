@@ -7,6 +7,7 @@ from typing import Generator
 def _run_subtask_util_task_manager(subtask) -> Generator:
     # Separated to task_utils because of circular import
     from .task_manager import TaskManager
+
     task_manager = TaskManager()
     subtask_id = task_manager.add_subtask(subtask)
     while not task_manager.is_task_finished(subtask_id):
@@ -20,6 +21,7 @@ def _run_subtask_util_task_manager(subtask) -> Generator:
     for task_dto in remaining_task_dtos:
         yield task_dto
 
+
 def run_subtask_util(subtask) -> Generator:
     updates = []
     task_result = []
@@ -32,10 +34,7 @@ def run_subtask_util(subtask) -> Generator:
         task_result.append(result)
 
     # Run in thread to avoid blocking
-    thread = threading.Thread(
-        target=lambda: _run_task(),
-        daemon=True
-    )
+    thread = threading.Thread(target=lambda: _run_task(), daemon=True)
     thread.start()
 
     # TODO Add TTL for thread

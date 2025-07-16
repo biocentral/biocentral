@@ -1,20 +1,22 @@
-import os
-import time
-
 from pathlib import Path
 from copy import deepcopy
 from biotrainer.protocols import Protocol
-from typing import Callable, Optional, Dict, List
+from typing import Callable, Optional, List
 from biotrainer.input_files import read_FASTA, BiotrainerSequenceRecord
 from biotrainer.utilities.executer import parse_config_file_and_execute_run
 
 from ..embeddings import LoadEmbeddingsTask
-from ..server_management import TaskInterface, TaskDTO, FileContextManager, EmbeddingDatabaseFactory, \
-    TrainingDTOObserver, get_custom_training_pipeline_injection
+from ..server_management import (
+    TaskInterface,
+    TaskDTO,
+    FileContextManager,
+    EmbeddingDatabaseFactory,
+    TrainingDTOObserver,
+    get_custom_training_pipeline_injection,
+)
 
 
 class BiotrainerTask(TaskInterface):
-
     def __init__(self, model_path: Path, config_dict: dict):
         super().__init__()
         self.model_path = model_path
@@ -54,7 +56,7 @@ class BiotrainerTask(TaskInterface):
         server_input_file_path = self.config_dict["input_file"]
         all_seqs = self._read_seqs(server_input_file_path)
 
-        protocol = Protocol.from_string(self.config_dict['protocol'])
+        protocol = Protocol.from_string(self.config_dict["protocol"])
         reduced = protocol in Protocol.using_per_sequence_embeddings()
 
         file_context_manager = FileContextManager()
@@ -67,35 +69,48 @@ class BiotrainerTask(TaskInterface):
             file_context_manager.save_file_temporarily(tmp_path, server_input_file_path)
             self.config_dict["input_file"] = str(tmp_path)
 
-            embeddings = self._pre_embed_with_db(all_seqs=all_seqs, reduced=reduced,
-                                                 update_dto_callback=update_dto_callback)
+            embeddings = self._pre_embed_with_db(
+                all_seqs=all_seqs,
+                reduced=reduced,
+                update_dto_callback=update_dto_callback,
+            )
 
             config = deepcopy(self.config_dict)
 
             # Run biotrainer with custom pipeline to inject embeddings directly
-            custom_pipeline = get_custom_training_pipeline_injection(embeddings=embeddings)
-            custom_observer = TrainingDTOObserver(update_dto_callback=update_dto_callback)
+            custom_pipeline = get_custom_training_pipeline_injection(
+                embeddings=embeddings
+            )
+            custom_observer = TrainingDTOObserver(
+                update_dto_callback=update_dto_callback
+            )
 
-            results = parse_config_file_and_execute_run(config=config, custom_pipeline=custom_pipeline,
-                                                        custom_output_observers=[custom_observer]
-                                                        )
-
+            _ = parse_config_file_and_execute_run(
+                config=config,
+                custom_pipeline=custom_pipeline,
+                custom_output_observers=[custom_observer],
+            )
 
         return TaskDTO.finished(result={})
 
-    def _pre_embed_with_db(self, all_seqs: List[BiotrainerSequenceRecord], reduced: bool,
-                           update_dto_callback: Callable) -> List[
-        BiotrainerSequenceRecord]:
-        embedder_name = self.config_dict['embedder_name']
-        custom_tokenizer_config = self.config_dict.get('custom_tokenizer_config', None)
-        device = self.config_dict.get('device', None)
+    def _pre_embed_with_db(
+        self,
+        all_seqs: List[BiotrainerSequenceRecord],
+        reduced: bool,
+        update_dto_callback: Callable,
+    ) -> List[BiotrainerSequenceRecord]:
+        embedder_name = self.config_dict["embedder_name"]
+        custom_tokenizer_config = self.config_dict.get("custom_tokenizer_config", None)
+        device = self.config_dict.get("device", None)
 
-        load_embedding_task = LoadEmbeddingsTask(embedder_name=embedder_name,
-                                                 custom_tokenizer_config=custom_tokenizer_config,
-                                                 sequence_input=all_seqs,
-                                                 reduced=reduced,
-                                                 use_half_precision=False,
-                                                 device=device)
+        load_embedding_task = LoadEmbeddingsTask(
+            embedder_name=embedder_name,
+            custom_tokenizer_config=custom_tokenizer_config,
+            sequence_input=all_seqs,
+            reduced=reduced,
+            use_half_precision=False,
+            device=device,
+        )
         load_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(load_embedding_task):
             load_dto = current_dto
@@ -115,6 +130,8 @@ class BiotrainerTask(TaskInterface):
         missing = load_dto.update["missing"]
         embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
         if len(missing) > 0:
-            return TaskDTO.failed(error=f"Missing number of embeddings before training: {len(missing)}")
+            return TaskDTO.failed(
+                error=f"Missing number of embeddings before training: {len(missing)}"
+            )
 
         return embeddings

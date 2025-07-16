@@ -7,7 +7,6 @@ logger = get_logger(__name__)
 
 
 class PredictInitializer(ServerModuleInitializer):
-
     DOWNLOAD_URLS = ["https://nextcloud.in.tum.de/index.php/s/kxJ64RcRi7g6p6r/download"]
 
     def __init__(self):
@@ -19,7 +18,9 @@ class PredictInitializer(ServerModuleInitializer):
         return self.file_manager.check_base_dir_exists()
 
     def one_time_setup(self) -> None:
-        with self.file_context_manager.storage_write(self.predict_server_path) as predict_path:
+        with self.file_context_manager.storage_write(
+            self.predict_server_path
+        ) as predict_path:
             logger.info("PREDICTion models not found. Downloading...")
             self._download_data(urls=self.DOWNLOAD_URLS, data_dir=predict_path)
             logger.info("PREDICTion models downloaded!")

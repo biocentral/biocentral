@@ -3,15 +3,23 @@ import os
 from collections import namedtuple
 from biotrainer.trainers import Pipeline
 from biotrainer.utilities import get_device
-from typing import Dict, Any, Optional, Callable
+from typing import Optional, Callable
 from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.autoeval import autoeval_pipeline, get_unique_framework_sequences
 
 from ..utils import get_logger
 from ..embeddings import CalculateEmbeddingsTask
-from ..server_management import (TaskInterface, FileManager, StorageFileType, TaskDTO, EmbeddingDatabaseFactory,
-                                 FileContextManager, get_custom_training_pipeline_loading,
-                                 get_custom_training_pipeline_memory, TrainingDTOObserver)
+from ..server_management import (
+    TaskInterface,
+    FileManager,
+    StorageFileType,
+    TaskDTO,
+    EmbeddingDatabaseFactory,
+    FileContextManager,
+    get_custom_training_pipeline_loading,
+    get_custom_training_pipeline_memory,
+    TrainingDTOObserver,
+)
 
 logger = get_logger(__name__)
 
@@ -27,8 +35,13 @@ class AutoEvalTask(TaskInterface):
     MAX_SEQ_LENGTH = 2000
     FRAMEWORK = "flip"
 
-    def __init__(self, embedder_name: str, user_id: str, onnx_path: Optional[str] = None,
-                 tokenizer_config_path: Optional[str] = None):
+    def __init__(
+        self,
+        embedder_name: str,
+        user_id: str,
+        onnx_path: Optional[str] = None,
+        tokenizer_config_path: Optional[str] = None,
+    ):
         self.embedder_name = embedder_name
         self.file_manager = FileManager(user_id=user_id)
         self.onnx_path = onnx_path
@@ -37,35 +50,48 @@ class AutoEvalTask(TaskInterface):
     @staticmethod
     def _wrap_dto_callback(update_dto_callback):
         def dto_wrapper(dto):
-            update_dto_callback(TaskDTO.running().add_update(update={"prediction_model": dto.update}))
+            update_dto_callback(
+                TaskDTO.running().add_update(update={"prediction_model": dto.update})
+            )
 
         return lambda dto: dto_wrapper(dto)
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        update_dto_callback(TaskDTO.running().add_update(update={"embedder_name": self.embedder_name}))
+        update_dto_callback(
+            TaskDTO.running().add_update(update={"embedder_name": self.embedder_name})
+        )
 
-        autoeval_path = self.file_manager.get_autoeval_path(embedder_name=self.embedder_name)
+        autoeval_path = self.file_manager.get_autoeval_path(
+            embedder_name=self.embedder_name
+        )
         custom_pipeline = self._get_pipeline(update_dto_callback)
-        custom_observer = TrainingDTOObserver(self._wrap_dto_callback(update_dto_callback))
+        custom_observer = TrainingDTOObserver(
+            self._wrap_dto_callback(update_dto_callback)
+        )
         custom_storage_path = os.environ.get("AUTOEVAL_DATA_DIR", None)
         file_context_manager = FileContextManager()
         with file_context_manager.storage_write(autoeval_path) as output_dir:
             for progress in autoeval_pipeline(
-                    embedder_name=self.embedder_name,
-                    framework=self.FRAMEWORK,
-                    output_dir=output_dir,
-                    use_half_precision=False,
-                    min_seq_length=self.MIN_SEQ_LENGTH,
-                    max_seq_length=self.MAX_SEQ_LENGTH,
-                    custom_pipeline=custom_pipeline,
-                    custom_output_observers=[custom_observer],
-                    custom_storage_path=custom_storage_path,
+                embedder_name=self.embedder_name,
+                framework=self.FRAMEWORK,
+                output_dir=output_dir,
+                use_half_precision=False,
+                min_seq_length=self.MIN_SEQ_LENGTH,
+                max_seq_length=self.MAX_SEQ_LENGTH,
+                custom_pipeline=custom_pipeline,
+                custom_output_observers=[custom_observer],
+                custom_storage_path=custom_storage_path,
             ):
-                update_dto_callback(TaskDTO.running().add_update({"completed_tasks": progress.completed_tasks,
-                                                                  "total_tasks": progress.total_tasks,
-                                                                  "current_task_name": progress.current_task_name,
-                                                                  "current_framework_name": progress.current_framework_name,
-                                                                  }))
+                update_dto_callback(
+                    TaskDTO.running().add_update(
+                        {
+                            "completed_tasks": progress.completed_tasks,
+                            "total_tasks": progress.total_tasks,
+                            "current_task_name": progress.current_task_name,
+                            "current_framework_name": progress.current_framework_name,
+                        }
+                    )
+                )
 
         self._post_task_cleanup()
 
@@ -77,22 +103,28 @@ class AutoEvalTask(TaskInterface):
         else:
             self._embed_all(update_dto_callback)
             embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-            return get_custom_training_pipeline_loading(embedder_name=self.embedder_name,
-                                                        embeddings_db=embeddings_db)
+            return get_custom_training_pipeline_loading(
+                embedder_name=self.embedder_name, embeddings_db=embeddings_db
+            )
 
     def _embed_all(self, update_dto_callback: Callable):
-        _, unique_per_residue, unique_per_sequence = get_unique_framework_sequences(framework=self.FRAMEWORK,
-                                                                                    min_seq_length=self.MIN_SEQ_LENGTH,
-                                                                                    max_seq_length=self.MAX_SEQ_LENGTH)
-        for name, reduced, seq_dict in [("per_residue", False, unique_per_residue),
-                                        ("per_sequence", True, unique_per_sequence)]:
-
-            calculate_task = CalculateEmbeddingsTask(embedder_name=self.embedder_name,
-                                                     sequence_input=list(seq_dict.values()),
-                                                     reduced=reduced,
-                                                     use_half_precision=False,
-                                                     device=get_device(),
-                                                     custom_tokenizer_config=self.tokenizer_config)
+        _, unique_per_residue, unique_per_sequence = get_unique_framework_sequences(
+            framework=self.FRAMEWORK,
+            min_seq_length=self.MIN_SEQ_LENGTH,
+            max_seq_length=self.MAX_SEQ_LENGTH,
+        )
+        for name, reduced, seq_dict in [
+            ("per_residue", False, unique_per_residue),
+            ("per_sequence", True, unique_per_sequence),
+        ]:
+            calculate_task = CalculateEmbeddingsTask(
+                embedder_name=self.embedder_name,
+                sequence_input=list(seq_dict.values()),
+                reduced=reduced,
+                use_half_precision=False,
+                device=get_device(),
+                custom_tokenizer_config=self.tokenizer_config,
+            )
             calculate_dto = None
             for dto in self.run_subtask(calculate_task):
                 calculate_dto = dto
@@ -110,10 +142,13 @@ class AutoEvalTask(TaskInterface):
             logger.info(f"Deleting {self.embedder_name} related embeddings and files..")
             embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
             embeddings_db.delete_embeddings_by_model(embedder_name=self.onnx_path)
-            self.file_manager.delete_file(file_type=StorageFileType.ONNX_MODEL,
-                                          embedder_name=self.embedder_name)
-            self.file_manager.delete_file(file_type=StorageFileType.TOKENIZER_CONFIG,
-                                          embedder_name=self.embedder_name)
+            self.file_manager.delete_file(
+                file_type=StorageFileType.ONNX_MODEL, embedder_name=self.embedder_name
+            )
+            self.file_manager.delete_file(
+                file_type=StorageFileType.TOKENIZER_CONFIG,
+                embedder_name=self.embedder_name,
+            )
 
 
 """

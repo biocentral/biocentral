@@ -19,5 +19,7 @@ class ServerInitializationManager:
             try:
                 initializer.run()
             except Exception as e:
-                logger.error(f"Initialization failed for {initializer.__class__.__name__}: {str(e)}")
+                logger.error(
+                    f"Initialization failed for {initializer.__class__.__name__}: {str(e)}"
+                )
                 raise

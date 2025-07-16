@@ -15,7 +15,7 @@ This endpoint takes a configuration dictionary, validates it, and starts
 POST with JSON body containing:
 - `database_hash` (str): Identifier for the sequence database
 - `model_type` (str): Type of model (currently only `gaussian_process`)
-- `coefficient` (float): Non-negative factor controlling exploration vs. exploitation. Larger => more exploration. 
+- `coefficient` (float): Non-negative factor controlling exploration vs. exploitation. Larger => more exploration.
 - `discrete` (bool): Whether target is discrete or continuous
 
 Optional Arguments:
@@ -28,13 +28,13 @@ For discrete targets
 - `discrete_targets` (list): Subset of labels that are targets
 
 For continuous targets
-- `optimization_mode` (str): mode selection 
+- `optimization_mode` (str): mode selection
     - options: `interval`, `value`, `maximize` and `minimize`
-- when optimization_mode is `interval`: 
+- when optimization_mode is `interval`:
     - at least one of `target_lb :: float`, `target_ub :: float` should be in request
     - `target_lb < target_lb` when both provided
     - For unbounded interval, either set them to `+Infinity` and `-Infinity`, or not set
-- when optimization_mode is `value`: 
+- when optimization_mode is `value`:
     - `target_value :: float`
 
 
@@ -167,11 +167,11 @@ Example response
 
 #### Bayesian Regression
 ##### Modeling
-Suppose we have observation $\mathcal{D}=\{(x_i,y_i)\}_N$, and model the Y as 
+Suppose we have observation $\mathcal{D}=\{(x_i,y_i)\}_N$, and model the Y as
 
 $y=x^Tw+\epsilon$, where $\epsilon \sim \mathcal{N}(0,\delta)$
 
-Bayesian approach is about obtaining the weight distribution $p(w|X, Y)$. 
+Bayesian approach is about obtaining the weight distribution $p(w|X, Y)$.
 
 We know from independence of w and X, and bayseian theorem, posterior distribution is propotional to <u>likelihood</u> (observation distribution given weight), and <u>prior</u> belief,
 
@@ -204,7 +204,7 @@ p(Y|X,w)
 $$
 
 
-We assume $\mathbf{w}$ also follows multivariate normal distribution $\mathbf{w}\sim \mathcal{N}(0,\Sigma_w)$, and we know production of two gaussian is another gaussian. So posterior distribution is 
+We assume $\mathbf{w}$ also follows multivariate normal distribution $\mathbf{w}\sim \mathcal{N}(0,\Sigma_w)$, and we know production of two gaussian is another gaussian. So posterior distribution is
 
 
 $$
@@ -221,16 +221,16 @@ $$
 ##### Inference
 
 We have taken the bayesian approach to model weight as a distribution, so the inference based on weight is also a distribution
-p() 
+p()
 #### More expressiveness: Bayesian regression in feature space
-Linear models are unable to fit non-linear target function. Inspired by Taylor's theorem that each continuous function can be approximated by a infinite series of polynomial, non-linear function can be approximated by linear regression on feature space constructed by n-order polynomials. 
+Linear models are unable to fit non-linear target function. Inspired by Taylor's theorem that each continuous function can be approximated by a infinite series of polynomial, non-linear function can be approximated by linear regression on feature space constructed by n-order polynomials.
 
 As feature mapping depends only on X, all the derivations we made above still hold, except input X is replaced by features $\Phi$.
 
 
 $$
 \begin{aligned}
-p(f_x|x_*,X,y) 
+p(f_x|x_*,X,y)
 \sim \mathcal{N}(
     &\phi^{T}_*\Sigma_p(K+\sigma_n^2I)^ {-1}y, \\
     &\phi_*^T \Sigma_p \phi_* - \phi_*^T \Sigma_p{\phi} (K+\sigma_n^2I)^ {-1} \phi^T \Sigma_p \phi_*)
@@ -238,13 +238,13 @@ p(f_x|x_*,X,y)
 $$
 
 
-Where $K=\Phi^T\Sigma_p\Phi$. 
-Noticed feature space always enter in form of $\phi^T\Sigma_p\phi$, $\phi_*^T\Sigma_p\phi$, or $\phi_*^T\Sigma_p\phi_*$. 
-To simplify computation, mapping and dot product can be unified into 
+Where $K=\Phi^T\Sigma_p\Phi$.
+Noticed feature space always enter in form of $\phi^T\Sigma_p\phi$, $\phi_*^T\Sigma_p\phi$, or $\phi_*^T\Sigma_p\phi_*$.
+To simplify computation, mapping and dot product can be unified into
 $$k(x,x')=\phi(x)^T\Sigma_p\phi(x')$$
 Which is called kernel function. When an algorithm solely rely on terms of inner product in feature space, it can be lifted into feature space by replacing inner products with kernel function call. This is a common approach called kernel trick.
 
-This technique is particularly valuable in situations where it is more convenient to compute the kernel than the feature vectors themselves. 
+This technique is particularly valuable in situations where it is more convenient to compute the kernel than the feature vectors themselves.
 
 #### Bayesian Classification
 TODO

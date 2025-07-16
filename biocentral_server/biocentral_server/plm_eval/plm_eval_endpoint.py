@@ -10,7 +10,7 @@ from biotrainer.autoeval.flip.flip_datasets import FLIP_DATASETS
 
 from .autoeval_task import AutoEvalTask
 
-from ..utils import str2bool, get_logger
+from ..utils import get_logger
 from ..server_management import UserManager, TaskManager, FileManager, StorageFileType
 
 logger = get_logger(__name__)
@@ -33,7 +33,7 @@ def _validate_model_id(model_id: str):
             return ""
         elif response.status_code == 401:
             # Model not found
-            return f"Model not found on huggingface!"
+            return "Model not found on huggingface!"
         else:
             # Handle other status codes
             return f"Unexpected huggingface status code: {response.status_code}"
@@ -42,10 +42,13 @@ def _validate_model_id(model_id: str):
 
 
 def _convert_flip_dict_to_dataset_split_dict(flip_dict: dict) -> dict:
-    return {dataset: [split_dict for split_dict in values["splits"]] for dataset, values in flip_dict.items()}
+    return {
+        dataset: [split_dict for split_dict in values["splits"]]
+        for dataset, values in flip_dict.items()
+    }
 
 
-@plm_eval_service_route.route('/plm_eval_service/validate', methods=['POST'])
+@plm_eval_service_route.route("/plm_eval_service/validate", methods=["POST"])
 def validate():
     plm_eval_data = request.get_json()
     model_id: str = str(plm_eval_data["modelID"])
@@ -56,11 +59,14 @@ def validate():
     return jsonify({})
 
 
-@plm_eval_service_route.route('/plm_eval_service/get_benchmark_datasets', methods=['GET'])
+@plm_eval_service_route.route(
+    "/plm_eval_service/get_benchmark_datasets", methods=["GET"]
+)
 def get_benchmark_datasets():
     flip_dict = FLIP_DATASETS
 
     return jsonify(_convert_flip_dict_to_dataset_split_dict(flip_dict))
+
 
 """
 # TODO REMOVE
@@ -72,7 +78,8 @@ def get_recommended_benchmark_datasets():
     return jsonify(_convert_flip_dict_to_dataset_split_dict(recommended_only))
 """
 
-@plm_eval_service_route.route('/plm_eval_service/autoeval', methods=['POST'])
+
+@plm_eval_service_route.route("/plm_eval_service/autoeval", methods=["POST"])
 def autoeval():
     plm_eval_data = request.get_json()
     model_id: str = str(plm_eval_data["modelID"])
@@ -88,21 +95,29 @@ def autoeval():
     if onnx_file and tokenizer_config:
         onnx_bytes = base64.b64decode(onnx_file)
         file_manager = FileManager(user_id=user_id)
-        onnx_path = file_manager.save_file(file_type=StorageFileType.ONNX_MODEL,
-                                           file_content=onnx_bytes,
-                                           embedder_name=model_id)
-        tokenizer_config_path = file_manager.save_file(file_type=StorageFileType.TOKENIZER_CONFIG,
-                                                       file_content=tokenizer_config,
-                                                       embedder_name=model_id)
+        onnx_path = file_manager.save_file(
+            file_type=StorageFileType.ONNX_MODEL,
+            file_content=onnx_bytes,
+            embedder_name=model_id,
+        )
+        tokenizer_config_path = file_manager.save_file(
+            file_type=StorageFileType.TOKENIZER_CONFIG,
+            file_content=tokenizer_config,
+            embedder_name=model_id,
+        )
     else:
         error = _validate_model_id(model_id)
         if error != "":
             return jsonify({"error": error})
 
-    task = AutoEvalTask(embedder_name=model_id, user_id=user_id,
-                        onnx_path=str(onnx_path) if onnx_path else None,
-                        tokenizer_config_path=str(tokenizer_config_path) if tokenizer_config_path else None
-                        )
+    task = AutoEvalTask(
+        embedder_name=model_id,
+        user_id=user_id,
+        onnx_path=str(onnx_path) if onnx_path else None,
+        tokenizer_config_path=str(tokenizer_config_path)
+        if tokenizer_config_path
+        else None,
+    )
 
     task_id = TaskManager().add_task(task=task)
 

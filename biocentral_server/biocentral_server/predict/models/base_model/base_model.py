@@ -18,11 +18,14 @@ from ...model_utils import get_batched_data, MODEL_BASE_PATH
 class BaseModel(ABC):
     """Base class for all prediction models."""
 
-    def __init__(self, batch_size: int,
-                 uses_ensemble: bool = False,
-                 requires_mask: bool = False,
-                 requires_transpose: bool = False,
-                 model_dir_name: str = None, ):
+    def __init__(
+        self,
+        batch_size: int,
+        uses_ensemble: bool = False,
+        requires_mask: bool = False,
+        requires_transpose: bool = False,
+        model_dir_name: str = None,
+    ):
         """
         Initialize the model.
 
@@ -87,8 +90,9 @@ class BaseModel(ABC):
         """Return model metadata."""
         raise NotImplementedError
 
-    def _prepare_inputs(self, embeddings: Dict[str, torch.Tensor]) -> Union[
-        List[Dict[str, np.ndarray]], List[Dict[str, torch.Tensor]]]:
+    def _prepare_inputs(
+        self, embeddings: Dict[str, torch.Tensor]
+    ) -> Union[List[Dict[str, np.ndarray]], List[Dict[str, torch.Tensor]]]:
         """
         Prepare inputs for the model.
 
@@ -99,10 +103,16 @@ class BaseModel(ABC):
             Batched inputs ready for model prediction
         """
         # Store original sequence lengths
-        self.non_padded_embedding_lengths = {idx: embedding.shape[0] for idx, embedding in embeddings.items()}
+        self.non_padded_embedding_lengths = {
+            idx: embedding.shape[0] for idx, embedding in embeddings.items()
+        }
 
         # Get batched data with attention masks if required
-        return get_batched_data(batch_size=self.batch_size, data=embeddings.values(), mask=self.requires_mask)
+        return get_batched_data(
+            batch_size=self.batch_size,
+            data=embeddings.values(),
+            mask=self.requires_mask,
+        )
 
     def _transpose_batch(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -116,7 +126,9 @@ class BaseModel(ABC):
         """
         if not self.requires_transpose:
             return batch
-        return {k: v.transpose(0, 2, 1) if k == "input" else v for k, v in batch.items()}
+        return {
+            k: v.transpose(0, 2, 1) if k == "input" else v for k, v in batch.items()
+        }
 
     @staticmethod
     def _finalize_raw_prediction(tensor: torch.tensor, dtype=None) -> List:
@@ -145,7 +157,9 @@ class BaseModel(ABC):
         return list(result)
 
     @abstractmethod
-    def predict(self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]) -> Dict[str, List[Prediction]]:
+    def predict(
+        self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]
+    ) -> Dict[str, List[Prediction]]:
         """
         Run model prediction.
 
@@ -158,9 +172,13 @@ class BaseModel(ABC):
         """
         raise NotImplementedError
 
-    def _post_process(self, model_output: Dict[str, Any], embedding_ids: List[str],
-                      label_maps: Dict[str, Dict[int, str]] = None,
-                      delimiter: str = "") -> Dict[str, List[Prediction]]:
+    def _post_process(
+        self,
+        model_output: Dict[str, Any],
+        embedding_ids: List[str],
+        label_maps: Dict[str, Dict[int, str]] = None,
+        delimiter: str = "",
+    ) -> Dict[str, List[Prediction]]:
         """
         Unified implementation for post-processing model output for both per-residue and per-sequence predictions.
 
@@ -180,8 +198,12 @@ class BaseModel(ABC):
 
         # Check delimiter
         if delimiter and len(delimiter) > 0:
-            assert 0 <= len(delimiter) <= 1, "Delimiter must be exactly one or no character!"
-            assert per_residue, "Per-sequence prediction is not compatible with a delimiter!"
+            assert 0 <= len(delimiter) <= 1, (
+                "Delimiter must be exactly one or no character!"
+            )
+            assert per_residue, (
+                "Per-sequence prediction is not compatible with a delimiter!"
+            )
 
         for prediction_name, outputs in model_output.items():
             label_map = label_maps.get(prediction_name, {}) if label_maps else None
@@ -193,25 +215,33 @@ class BaseModel(ABC):
                     formatted_predictions[embedding_id] = []
 
                 if per_residue:
-                    # Process per-residue prediction (array of values)
-                    transform_fn = lambda p: label_map[p] if label_map else str(p)
-
                     # Undo padding and join with delimiter
-                    formatted_value = delimiter.join([
-                        transform_fn(y_hat)
-                        for pred_idx, y_hat in enumerate(prediction)
-                        if pred_idx < self.non_padded_embedding_lengths[embedding_id]
-                    ])
+                    formatted_value = delimiter.join(
+                        [
+                            lambda p: label_map[p]
+                            if label_map
+                            else str(
+                                p
+                            )  # Process per-residue prediction (array of values)
+                            for pred_idx, y_hat in enumerate(prediction)
+                            if pred_idx
+                            < self.non_padded_embedding_lengths[embedding_id]
+                        ]
+                    )
                 else:
                     # Process per-sequence prediction (single value)
-                    formatted_value = label_map[prediction] if label_map else str(prediction)
+                    formatted_value = (
+                        label_map[prediction] if label_map else str(prediction)
+                    )
 
                 # Create and add the prediction
-                formatted_predictions[embedding_id].append(Prediction(
-                    model_name=model_name,
-                    prediction_name=prediction_name,
-                    protocol=protocol.name,
-                    prediction=formatted_value
-                ))
+                formatted_predictions[embedding_id].append(
+                    Prediction(
+                        model_name=model_name,
+                        prediction_name=prediction_name,
+                        protocol=protocol.name,
+                        prediction=formatted_value,
+                    )
+                )
 
         return formatted_predictions

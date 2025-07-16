@@ -39,8 +39,8 @@ class TaskManager:
         self.redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
 
         # TODO [Feature] Add priority queues not only for subtasks
-        self.default_queue = Queue('default', connection=self.redis_conn)
-        self.subtask_queue = Queue('high', connection=self.redis_conn)
+        self.default_queue = Queue("default", connection=self.redis_conn)
+        self.subtask_queue = Queue("high", connection=self.redis_conn)
 
     def _get_job(self, task_id: str):
         queues = [self.default_queue, self.subtask_queue]
@@ -55,7 +55,7 @@ class TaskManager:
         self.redis_conn.delete(redis_task_counter_key)
 
     def _enqueue(self, task: TaskInterface, task_id: str, queue):
-        job = queue.enqueue(
+        _ = queue.enqueue(
             run_task_with_updates,
             args=(task,),
             job_id=task_id,
@@ -63,10 +63,10 @@ class TaskManager:
             failure_ttl=3600 * 24,  # Keep failed jobs for 24 hours
             job_timeout=3600 * 24,
             # TODO Callbacks
-            #on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
-            #on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
-            #on_stopped=lambda jb, connection: self._cleanup_task(task_id=task_id),
-            meta={'task_class': task.__class__.__name__}
+            # on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
+            # on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
+            # on_stopped=lambda jb, connection: self._cleanup_task(task_id=task_id),
+            meta={"task_class": task.__class__.__name__},
         )
 
     def add_task(self, task: TaskInterface, task_id: Optional[str] = "") -> str:
@@ -114,7 +114,9 @@ class TaskManager:
     def _generate_task_id(task):
         return f"biocentral-{task.__name__}-{str(uuid.uuid4())}"
 
-    def _read_task_updates_from_job(self, task_id: str, read_counter: int = 0) -> (List[TaskDTO], int):
+    def _read_task_updates_from_job(
+        self, task_id: str, read_counter: int = 0
+    ) -> (List[TaskDTO], int):
         job = self._get_job(task_id)
 
         dtos = []
@@ -127,7 +129,9 @@ class TaskManager:
 
         additional_dto = None
         if job is None:
-            additional_dto = TaskDTO.failed(error=f"task {task_id} not found on server!")
+            additional_dto = TaskDTO.failed(
+                error=f"task {task_id} not found on server!"
+            )
         elif job.is_failed:
             additional_dto = TaskDTO.failed(error=str(job.latest_result()))
         elif job.is_finished:
@@ -144,7 +148,9 @@ class TaskManager:
             counter = 0
         counter = int(counter)
 
-        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        dtos, length_read = self._read_task_updates_from_job(
+            task_id=task_id, read_counter=counter
+        )
         self.redis_conn.set(redis_task_counter_key, length_read)
 
         return dtos
@@ -152,11 +158,12 @@ class TaskManager:
     def get_all_task_updates_from_start(self, task_id: str):
         redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
         counter = 0
-        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        dtos, length_read = self._read_task_updates_from_job(
+            task_id=task_id, read_counter=counter
+        )
         self.redis_conn.set(redis_task_counter_key, length_read)
 
         return dtos
-
 
     def is_task_finished(self, task_id: str) -> bool:
         job = self._get_job(task_id)

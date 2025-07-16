@@ -12,10 +12,10 @@ protein_service_route = Blueprint("protein_service", __name__)
 
 
 # Endpoint to get taxonomy data (taxon name and family name from taxonomy id)
-@protein_service_route.route('/protein_service/taxonomy', methods=['POST'])
+@protein_service_route.route("/protein_service/taxonomy", methods=["POST"])
 def taxonomy():
     taxonomy_data = request.get_json()
-    taxonomy_ids: list = json.loads(taxonomy_data.get('taxonomy'))
+    taxonomy_ids: list = json.loads(taxonomy_data.get("taxonomy"))
 
     taxonomy_map = {}
     taxonomy_object = Taxonomy()
@@ -30,6 +30,7 @@ def taxonomy():
             import ncbi_refseq_accession_lengths
             import ncbi_refseq_accession_offsets
             from taxoniq import Taxon
+
             print(ncbi_refseq_accession_db.db)
             print(ncbi_refseq_accession_lengths.db)
             print(ncbi_refseq_accession_offsets.db)

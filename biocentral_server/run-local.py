@@ -6,11 +6,12 @@ from redis import Redis
 from dotenv import load_dotenv
 
 # Load local environment variables
-load_dotenv('.env')
+load_dotenv(".env")
 
 
 def run_server():
     from biocentral_server.server_entrypoint import ServerAppState
+
     print("Starting Biocentral Server")
     app_state = ServerAppState.get_instance()
     app = app_state.init_app()
@@ -29,7 +30,7 @@ def run_worker(worker_id):
 
     # Configure worker with appropriate timeouts for long-running tasks
     worker = Worker(
-        queues=['high', 'default', 'low'],  # Process high priority queue first
+        queues=["high", "default", "low"],  # Process high priority queue first
         connection=redis_conn,
         name=worker_name,
         worker_ttl=600,  # 10 minutes heartbeat
@@ -47,16 +48,14 @@ def start_workers(num_workers=4):
     worker_processes = []
     for i in range(num_workers):
         process = multiprocessing.Process(
-            target=run_worker,
-            args=(i,),
-            name=f"rq-worker-process-{i}"
+            target=run_worker, args=(i,), name=f"rq-worker-process-{i}"
         )
         process.start()
         worker_processes.append(process)
     return worker_processes
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Determine number of workers based on CPU count
     cpu_count = multiprocessing.cpu_count()
 

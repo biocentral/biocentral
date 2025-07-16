@@ -5,8 +5,8 @@
 Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/docs/#installation) installed.
 
 ```shell
-# [Ubuntu 24.04] 
-# Install additional dependencies 
+# [Ubuntu 24.04]
+# Install additional dependencies
 sudo apt-get install python3-tk
 sudo apt-get install libcairo2-dev libxt-dev libgirepository1.0-dev
 poetry install --extras linux

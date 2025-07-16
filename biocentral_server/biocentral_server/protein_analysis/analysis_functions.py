@@ -7,13 +7,32 @@ from collections import defaultdict, namedtuple
 SequenceTuple = namedtuple("SequenceTuple", ["id", "seq"])
 
 
-def _get_all_possible_sequence_pairs(sequences: Dict[str, str]) -> Set[Tuple[SequenceTuple, SequenceTuple]]:
-    return set(sorted(list(itertools.chain.from_iterable(
-        [[(SequenceTuple(id=id1, seq=s1), SequenceTuple(id=id2, seq=s2)) for (id1, s1) in sequences.items()]
-         for (id2, s2) in sequences.items()]))))
+def _get_all_possible_sequence_pairs(
+    sequences: Dict[str, str],
+) -> Set[Tuple[SequenceTuple, SequenceTuple]]:
+    return set(
+        sorted(
+            list(
+                itertools.chain.from_iterable(
+                    [
+                        [
+                            (
+                                SequenceTuple(id=id1, seq=s1),
+                                SequenceTuple(id=id2, seq=s2),
+                            )
+                            for (id1, s1) in sequences.items()
+                        ]
+                        for (id2, s2) in sequences.items()
+                    ]
+                )
+            )
+        )
+    )
 
 
-def _lev_distance_matrix(sequences: Tuple[SequenceTuple, SequenceTuple]) -> Dict[str, Dict[str, Dict[str, Any]]]:
+def _lev_distance_matrix(
+    sequences: Tuple[SequenceTuple, SequenceTuple],
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
     Calculate Levenshtein distance and ratio metrics on an input pair of strings.
     :param seqs: Pair of sequence tuples (id, seq)

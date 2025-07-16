@@ -12,7 +12,11 @@ from ..prediction_models import prediction_models_service_route
 from ..embeddings import embeddings_service_route, projection_route
 from ..bayesian_optimization import bayesian_optimization_service_route
 from ..server_management import UserManager, ServerInitializationManager
-from ..predict import prediction_metadata_route, prediction_service_route, PredictInitializer
+from ..predict import (
+    prediction_metadata_route,
+    prediction_service_route,
+    PredictInitializer,
+)
 
 logger = get_logger(__name__)
 
@@ -26,6 +30,7 @@ def _setup_directories():
 
 class ServerAppState:
     """Singleton to manage Flask application state"""
+
     _instance = None
     app = None
     initialized = False
@@ -61,9 +66,10 @@ class ServerAppState:
         def apply_caching(response):
             # Necessary for flutter in the web
             response.headers["Access-Control-Allow-Origin"] = "*"
-            response.headers[
-                "Access-Control-Allow-Headers"] = ("Content-Type, "
-                                                   "Access-Control-Allow-Headers, Authorization, X-Requested-With")
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Content-Type, "
+                "Access-Control-Allow-Headers, Authorization, X-Requested-With"
+            )
             return response
 
         @app.before_request

@@ -40,7 +40,12 @@ class StorageBackend(ABC):
 
 
 class StorageFileReader:
-    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path], suffix: str = None, ):
+    def __init__(
+        self,
+        storage_backend: StorageBackend,
+        file_path: Union[str, Path],
+        suffix: str = None,
+    ):
         self.storage_backend = storage_backend
         self.file_path = str(file_path)
         self.suffix = suffix
@@ -65,7 +70,9 @@ class StorageFileReader:
 class StorageDirectoryReader:
     """Context manager for downloading entire directories from storage backend to local temp directory"""
 
-    def __init__(self, storage_backend: StorageBackend, directory_path: Union[str, Path]):
+    def __init__(
+        self, storage_backend: StorageBackend, directory_path: Union[str, Path]
+    ):
         self.storage_backend = storage_backend
         self.directory_path = str(directory_path)
         self.temp_dir = None
@@ -96,13 +103,13 @@ class StorageDirectoryReader:
             local_dir: Local directory to save files to
         """
         # Ensure trailing slash for directory listing
-        remote_dir = remote_path if remote_path.endswith('/') else f"{remote_path}/"
+        remote_dir = remote_path if remote_path.endswith("/") else f"{remote_path}/"
 
         # Get directory listing
         entries = self.storage_backend.list_files(remote_dir)
 
         for entry in entries:
-            entry_name = entry.get('FullPath', '').split('/')[-1]
+            entry_name = entry.get("FullPath", "").split("/")[-1]
             if not entry_name:
                 continue
 
@@ -110,19 +117,16 @@ class StorageDirectoryReader:
             local_entry_path = local_dir / entry_name
 
             # Check if this is a directory
-            if entry.get('FileSize', 0) == 0:
+            if entry.get("FileSize", 0) == 0:
                 # Create local directory
                 local_entry_path.mkdir(exist_ok=True)
                 # Recursively download contents
-                self._download_directory(
-                    remote_entry_path,
-                    local_entry_path
-                )
+                self._download_directory(remote_entry_path, local_entry_path)
             else:
                 # Download file
                 try:
                     content = self.storage_backend.get_file(remote_entry_path)
-                    with open(local_entry_path, 'wb') as f:
+                    with open(local_entry_path, "wb") as f:
                         f.write(content)
                 except Exception as e:
                     logger.warning(f"Error downloading {remote_entry_path}: {e}")
@@ -142,11 +146,11 @@ class StorageFileWriter:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:  # Only sync if no exception occurred and saving is enabled
             # Sync all files in temp directory to SeaweedFS
-            for file_path in self.temp_dir.rglob('*'):
+            for file_path in self.temp_dir.rglob("*"):
                 if file_path.is_file():
                     relative_path = file_path.relative_to(self.temp_dir)
                     target_path = Path(self.file_path) / relative_path
-                    with open(file_path, 'rb') as f:
+                    with open(file_path, "rb") as f:
                         self.storage_backend.save_file(str(target_path), f)
 
         # Clean up temporary directory
@@ -167,20 +171,15 @@ class SeaweedFSStorageBackend(StorageBackend):
         try:
             # Prepare data
             if isinstance(data, str):
-                data = data.encode('utf-8')
+                data = data.encode("utf-8")
             elif isinstance(data, BinaryIO):
                 data = data.read()
 
             filename = Path(path).name
-            files = {
-                'file': (filename, data, 'application/octet-stream')
-            }
+            files = {"file": (filename, data, "application/octet-stream")}
 
             path = path.replace("\\", "")  # Windows compatibility
-            response = requests.post(
-                f"{self.filer_url}{path}",
-                files=files
-            )
+            response = requests.post(f"{self.filer_url}{path}", files=files)
             logger.info(f"Saved file to SeaweedFS: {response.content}")
             response.raise_for_status()
 
@@ -226,15 +225,11 @@ class SeaweedFSStorageBackend(StorageBackend):
         """
         try:
             # Request JSON explicitly with correct headers
-            headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
+            headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
             # Use the correct API endpoint for JSON responses
             response = requests.get(
-                f"{self.filer_url}{directory}?listing=true",
-                headers=headers
+                f"{self.filer_url}{directory}?listing=true", headers=headers
             )
 
             if response.status_code == 404:
@@ -243,8 +238,8 @@ class SeaweedFSStorageBackend(StorageBackend):
             response.raise_for_status()
 
             # Check if we actually received JSON
-            if 'application/json' in response.headers.get('Content-Type', ''):
-                return response.json().get('Entries', [])
+            if "application/json" in response.headers.get("Content-Type", ""):
+                return response.json().get("Entries", [])
 
             raise StorageError(f"Did not receive file listing as JSON: {response.url}")
         except Exception as e:
@@ -255,11 +250,12 @@ class SeaweedFSStorageBackend(StorageBackend):
         try:
             response = requests.get(f"{self.filer_url}/dir/status")
             stats = response.json()
-            return '{0:.2f}'.format(stats.get('TotalSize', 0) / 1e6)
+            return "{0:.2f}".format(stats.get("TotalSize", 0) / 1e6)
         except Exception:
-            return '0.00'
+            return "0.00"
 
 
 class StorageError(Exception):
     """Custom exception for storage-related errors"""
+
     pass
