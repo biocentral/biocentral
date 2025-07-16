@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 
 from .disorder import SETH
 from .binding import BindEmbed
+from .base_model import BaseModel
 from .variant_effect import VespaG
 from .conservation import ProtT5Conservation
 from .membrane import TMbed, LightAttentionMembrane
@@ -35,3 +36,5 @@ def filter_models(model_names: List[str]) -> Dict[str, Any]:
 
 def get_metadata_for_all_models() -> Dict[str, Any]:
     return {name: model.get_metadata() for name, model in MODEL_REGISTRY.items()}
+
+__all__ = ["filter_models", "get_metadata_for_all_models", "BaseModel"]
