@@ -224,7 +224,9 @@ final class ProteinPredictCommand extends BiocentralCommand<Map<String, Protein>
               '$modelName-predicted',
               // TODO Adapt Prediction API
               Map.from(
-                predictions.map((entityID, modelPredictions) => MapEntry(entityID, modelPredictions[0]["prediction"])),
+                predictions.map(
+                  (entityID, modelPredictions) => MapEntry(entityID, modelPredictions[0]["prediction"].toString()),
+                ),
               ),
             );
           }
