@@ -33,7 +33,7 @@ These are the currently provided modules:
 
 ## Installing and running
 
-Make sure that you have `Python 3.11`, `docker` and [UV](https://docs.astral.sh/uv/getting-started/installation/) installed.
+Make sure that you have `Python 3.12`, `docker` and [UV](https://docs.astral.sh/uv/getting-started/installation/) installed.
 
 ### Production Setup
 
