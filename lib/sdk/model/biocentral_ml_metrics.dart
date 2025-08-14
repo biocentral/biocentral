@@ -1,6 +1,6 @@
 import 'package:biocentral/sdk/util/constants.dart';
 
-class BiocentralMLMetric {
+class BiocentralMLMetric implements Comparable<BiocentralMLMetric> {
   final String name;
   final double value;
 
@@ -48,22 +48,22 @@ class BiocentralMLMetric {
   /// Null value means no bound
   static (double?, double?) getBounds(String metricName) {
     final name = metricName.toLowerCase();
-    final bool percentageMetric = ["accuracy", "precision", "recall", "f1", "auc", "roc"]
+    final bool percentageMetric = ['accuracy', 'precision', 'recall', 'f1', 'auc', 'roc']
         .map((metric) => name.contains(metric))
         .reduce((v1, v2) => v1 || v2);
     if (percentageMetric) {
       return (0.0, 1.0);
     }
-    final bool limitedByOneMetric = ["mcc", "matthews-corr-coeff", "spearmans-corr-coeff"]
+    final bool limitedByOneMetric = ['mcc', 'matthews-corr-coeff', 'spearmans-corr-coeff']
         .map((metric) => name.contains(metric))
         .reduce((v1, v2) => v1 || v2);
-    if(limitedByOneMetric) {
+    if (limitedByOneMetric) {
       return (-1.0, 1.0);
     }
     final bool limitedByZeroMetric = ['loss', 'rmse', 'mse', 'mae', 'mean_squared_error', 'mean_absolute_error']
         .map((metric) => name.contains(metric))
         .reduce((v1, v2) => v1 || v2);
-    if(limitedByZeroMetric) {
+    if (limitedByZeroMetric) {
       return (0.0, null);
     }
     // Unbounded
@@ -80,7 +80,21 @@ class BiocentralMLMetric {
 
   @override
   String toString() {
-    return '$name: ${value.toStringAsPrecision(Constants.maxDoublePrecision)}';
+    if(uncertaintyEstimate != null) {
+      return '$name - $uncertaintyEstimate';
+    }
+    return '$name - ${value.toStringAsPrecision(Constants.maxDoublePrecision)}';
+  }
+
+  @override
+  int compareTo(BiocentralMLMetric other) {
+    if(name != other.name) {
+      throw Exception('Can only compare metrics with the same name!');
+    }
+    if(uncertaintyEstimate != null && other.uncertaintyEstimate != null) {
+      return uncertaintyEstimate!.compareTo(other.uncertaintyEstimate!);
+    }
+    return value.compareTo(other.value);
   }
 }
 
@@ -185,7 +199,13 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
       'error': error,
       'iterations': iterations,
       'sample_size': sampleSize,
-      'confidence_level': confidenceLevel
+      'confidence_level': confidenceLevel,
     };
+  }
+
+  @override
+  String toString() {
+    return '${mean.toStringAsFixed(Constants.maxDoublePrecision)} '
+        '±${error.toStringAsFixed(Constants.maxDoublePrecision)}';
   }
 }
