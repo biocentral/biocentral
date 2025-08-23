@@ -24,7 +24,7 @@ dependencies = [
     "onnxruntime-gpu>=1.16.0,<2.0.0",  # Replace with onnxruntime for cpu / onnxruntime-coreml for Darwin
 
     # Git Dependencies
-    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@develop",
+    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@main",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v2.0.0",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
