@@ -6,6 +6,9 @@ For serious_python, you need to add this environment variable to your run config
 ```shell
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 flutter run -d linux
+
+# For IDE config
+SERIOUS_PYTHON_SITE_PACKAGES=/absolute/path/to/biocentral/build/site-packages
 ```
 
 ## Python Companion
