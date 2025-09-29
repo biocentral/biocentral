@@ -363,32 +363,26 @@ class TestResult {
 
   static Set<BiocentralMLMetric> _parseBootstrapping(Map<String, dynamic> bootstrappingMap) {
     final Set<BiocentralMLMetric> result = {};
-    final iterations = bootstrappingMap['iterations'];
-    final sampleSize = bootstrappingMap['sample_size'];
-    final confidenceLevel = bootstrappingMap['confidence_level'];
-    if (iterations != null && sampleSize != null && confidenceLevel != null) {
-      final resultMap = Map<String, dynamic>.from(bootstrappingMap['results'] ?? {});
-      for (final (metricName, metricMap) in resultMap.entriesRecord) {
-        final meanValue = metricMap?['mean'];
-        final error = metricMap?['error'];
-        if (meanValue == null || error == null) {
-          continue;
-        }
-        final mlMetric = BiocentralMLMetric(
-          name: metricName,
-          value: meanValue,
-          uncertaintyEstimate: UncertaintyEstimate(
-            method: 'bootstrapping',
-            mean: meanValue,
-            error: error,
-            iterations: iterations,
-            sampleSize: sampleSize,
-            confidenceLevel: confidenceLevel,
-          ),
-        );
-        result.add(mlMetric);
+    final resultMap = Map<String, dynamic>.from(bootstrappingMap['results'] ?? {});
+
+    for (final (metricName, metricMap) in resultMap.entriesRecord) {
+      final mean = metricMap?['mean'];
+      if (mean == null) {
+        continue;
       }
+
+      final mlMetric = BiocentralMLMetric(
+        name: metricName,
+        value: mean,
+        uncertaintyEstimate: UncertaintyEstimate.fromMap(
+          Map.from(bootstrappingMap)
+            ..addAll(Map.from(metricMap))
+            ..addAll({'method': 'bootstrapping'}),
+        ),
+      );
+      result.add(mlMetric);
     }
+
     return result;
   }
 
@@ -438,7 +432,8 @@ class TestResult {
   }
 
   static Map<String, dynamic> _convertToBootstrapping(Set<BiocentralMLMetric> metrics) {
-    Map<String, dynamic> bootstrapping = {};
+    // TODO Simplify with uncertaintyEstimate toMap()
+    final Map<String, dynamic> bootstrapping = {};
     final uncertaintyEstimate =
         metrics.firstWhereOrNull((metric) => metric.uncertaintyEstimate != null)?.uncertaintyEstimate;
     if (uncertaintyEstimate != null) {
@@ -449,8 +444,11 @@ class TestResult {
       };
       bootstrapping['results'] = Map<String, dynamic>.fromEntries(
         metrics.map(
-          (metric) => MapEntry(
-              metric.name, {'mean': metric.uncertaintyEstimate?.mean, 'error': metric.uncertaintyEstimate?.error}),
+          (metric) => MapEntry(metric.name, {
+            'mean': metric.uncertaintyEstimate?.mean,
+            'lower': metric.uncertaintyEstimate?.lower,
+            'upper': metric.uncertaintyEstimate?.upper
+          }),
         ),
       );
       bootstrapping.addAll(bootstrappingParameters);
