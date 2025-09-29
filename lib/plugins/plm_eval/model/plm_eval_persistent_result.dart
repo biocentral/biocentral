@@ -43,7 +43,7 @@ class PLMEvalPersistentResult {
     final Map<String, Map<String, dynamic>> resultsMap = {};
 
     for (final (benchmarkDataset, predictionModel) in results.entriesRecord) {
-      final benchmarkName = benchmarkDataset.toCombinedString();
+      final benchmarkName = benchmarkDataset.taskName;
       resultsMap[benchmarkName] = predictionModel.toMap(includeTrainingLogs: false);
     }
     return {'embedder_name': embedderName, 'training_date': trainingDate.toIso8601String(), 'results': resultsMap};

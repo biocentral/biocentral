@@ -52,12 +52,13 @@ extension PlmLeaderboardDTO on BiocentralDTO {
   String? get _splitName => metadata.get<String>('split_name');
 
   BenchmarkDataset? get benchmarkDataset {
+    // TODO ADD FRAMEWORK NAME / REPLACE WITH TASK NAME
     final datasetName = _datasetName;
     final splitName = _splitName;
 
     if (datasetName == null || splitName == null) {
       return null;
     }
-    return BenchmarkDataset(datasetName: datasetName, splitName: splitName);
+    return BenchmarkDataset(taskName: 'FLIP-$datasetName-$splitName');
   }
 }

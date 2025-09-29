@@ -115,7 +115,7 @@ class PLMEvalClient extends BiocentralClient {
       }
       plmPersistentResults.add(persistentResult);
     }
-    return right((PLMLeaderboard.fromPersistentResults(plmPersistentResults), recommendedMetrics));
+    return right((PLMLeaderboard.fromResults(plmPersistentResults, recommendedMetrics), recommendedMetrics));
   }
 
   @override
