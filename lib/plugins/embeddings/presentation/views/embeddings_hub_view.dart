@@ -273,7 +273,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
             Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               ...state.projectionData!.entries.map(
                 (MapEntry<ProjectionData, List<Map<String, dynamic>>> mapEntry) => SizedBox(
-                  width: SizeConfig.screenWidth(context) * 0.4,
+                  width: SizeConfig.screenWidth(context) * 0.75,
                   height: SizeConfig.screenHeight(context) * 0.4,
                   child: WidgetsToImage(
                     controller: projectionImageController,
