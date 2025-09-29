@@ -15,19 +15,19 @@ import 'package:fpdart/fpdart.dart';
 /// - Monitors the training process and retrieves the results.
 ///
 /// Returns a [BayesianOptimizationTrainingResult] upon successful completion.
-class TransferBOTrainingConfigCommand extends BiocentralCommand<BayesianOptimizationTrainingResult> {
+class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOptimizationTrainingResult> {
   final BiocentralDatabase _biocentralDatabase;
   final BayesianOptimizationClient _boClient;
   final Map<String, dynamic> _trainingConfiguration;
   final String _targetFeature;
 
-  /// Constructor for [TransferBOTrainingConfigCommand].
+  /// Constructor for [BayesianOptimizationIterationCommand].
   ///
   /// - [biocentralDatabase]: The database containing the training data.
   /// - [client]: The Bayesian Optimization client for server communication.
   /// - [trainingConfiguration]: The configuration for the training process.
   /// - [targetFeature]: The feature to optimize during training.
-  TransferBOTrainingConfigCommand({
+  BayesianOptimizationIterationCommand({
     required BiocentralDatabase biocentralDatabase,
     required BayesianOptimizationClient client,
     required Map<String, dynamic> trainingConfiguration,
