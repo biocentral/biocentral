@@ -135,11 +135,12 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
       }
 
       // TODO [Error handling] Check splitNames
+      // TODO Improve conversion
       final List<BenchmarkDataset> convertedBenchmarkDatasets = [];
       for (final entry in benchmarkDatasets.entries) {
         final datasetName = entry.key;
         for (final splitName in entry.value) {
-          convertedBenchmarkDatasets.add(BenchmarkDataset(datasetName: datasetName, splitName: splitName));
+          convertedBenchmarkDatasets.add(BenchmarkDataset(taskName: '$datasetName-' + splitName));
         }
       }
 

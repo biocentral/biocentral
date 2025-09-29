@@ -27,8 +27,7 @@ Either<BiocentralParsingException, List<BenchmarkDataset>> parseBenchmarkDataset
     for (final splitName in splits) {
       result.add(
         BenchmarkDataset(
-          datasetName: datasetName,
-          splitName: splitName.toString(),
+          taskName: 'FLIP-$datasetName-' + splitName,
         ),
       );
     }

@@ -18,17 +18,10 @@ final class PLMEvalLeaderboardPublishEvent extends PLMEvalLeaderboardEvent {
   PLMEvalLeaderboardPublishEvent(this.modelName);
 }
 
-final class PLMEvalLeaderboardChangeMetricEvent extends PLMEvalLeaderboardEvent {
-  final String datasetName;
-  final String metric;
-
-  PLMEvalLeaderboardChangeMetricEvent(this.datasetName, this.metric);
-}
-
 @immutable
 final class PLMEvalLeaderboardState extends Equatable {
   final PLMLeaderboard remoteLeaderboard;
-  final PLMLeaderboard localLeaderboard;
+  final PLMLeaderboard localLeaderboard; // TODO
   final PLMLeaderboard mixedLeaderboard;
 
   final Map<String, String> recommendedMetrics;
@@ -36,7 +29,12 @@ final class PLMEvalLeaderboardState extends Equatable {
   final PLMEvalLeaderBoardStatus status;
 
   const PLMEvalLeaderboardState(
-      this.remoteLeaderboard, this.localLeaderboard, this.mixedLeaderboard, this.recommendedMetrics, this.status);
+    this.remoteLeaderboard,
+    this.localLeaderboard,
+    this.mixedLeaderboard,
+    this.recommendedMetrics,
+    this.status,
+  );
 
   const PLMEvalLeaderboardState.initial()
       : remoteLeaderboard = const PLMLeaderboard.empty(),
@@ -64,26 +62,7 @@ final class PLMEvalLeaderboardState extends Equatable {
     this.recommendedMetrics,
   ) : status = PLMEvalLeaderBoardStatus.loaded;
 
-  const PLMEvalLeaderboardState.publishing(
-    this.remoteLeaderboard,
-    this.localLeaderboard,
-    this.mixedLeaderboard,
-    this.recommendedMetrics,
-  ) : status = PLMEvalLeaderBoardStatus.publishing;
-
-  const PLMEvalLeaderboardState.publishingErrored(
-    this.remoteLeaderboard,
-    this.localLeaderboard,
-    this.mixedLeaderboard,
-    this.recommendedMetrics,
-  ) : status = PLMEvalLeaderBoardStatus.publishingErrored;
-
-  PLMEvalLeaderboardState changeMetric(String datasetName, String metric) {
-    final changedMetrics = Map.of(recommendedMetrics);
-    changedMetrics[datasetName] = metric;
-    return PLMEvalLeaderboardState(remoteLeaderboard, localLeaderboard, mixedLeaderboard, changedMetrics, status);
-  }
-
+  /* TODO Re-enable publishing
   Set<String> getPublishableModels() {
     // TODO Improve check for only huggingface models
     final localModels = localLeaderboard.modelNameToEntries.keys
@@ -97,6 +76,7 @@ final class PLMEvalLeaderboardState extends Equatable {
     final remoteModels = remoteLeaderboard.modelNameToEntries.keys.toSet();
     return localModels.where((model) => !remoteModels.contains(model)).toSet();
   }
+   */
 
   @override
   List<Object?> get props => [remoteLeaderboard, localLeaderboard, mixedLeaderboard, recommendedMetrics, status];
@@ -111,13 +91,14 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
   PLMEvalLeaderboardBloc(this._clientRepository, this._plmEvalRepository)
       : super(const PLMEvalLeaderboardState.initial()) {
     on<PLMEvalLeaderboardLoadLocalEvent>((event, emit) async {
-      final allAvailableResults = _plmEvalRepository.getAllResultsAsPersistent();
-      final localLeaderboard = PLMLeaderboard.fromPersistentResults(allAvailableResults);
+      final localResults = _plmEvalRepository.getAllResultsAsPersistent();
+      final localLeaderboard = PLMLeaderboard.fromResults(localResults, state.recommendedMetrics);
       emit(
         PLMEvalLeaderboardState.loaded(
           state.remoteLeaderboard,
           localLeaderboard,
-          PLMLeaderboard.mixed(state.remoteLeaderboard, localLeaderboard),
+          PLMLeaderboard.mixed(
+              remote: state.remoteLeaderboard, local: localLeaderboard, recommendedMetrics: state.recommendedMetrics),
           state.recommendedMetrics,
         ),
       );
@@ -132,16 +113,19 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
           PLMEvalLeaderboardState.loaded(
             remoteLeaderboard.$1,
             state.localLeaderboard,
-            PLMLeaderboard.mixed(remoteLeaderboard.$1, state.localLeaderboard),
+            PLMLeaderboard.mixed(
+                remote: remoteLeaderboard.$1, local: state.localLeaderboard, recommendedMetrics: remoteLeaderboard.$2),
             remoteLeaderboard.$2,
           ),
         ),
       );
     });
+    /* TODO: Re-enable publishing (Involves change to add publish button)
     on<PLMEvalLeaderboardPublishEvent>((event, emit) async {
       emit(
         PLMEvalLeaderboardState.publishing(
           state.remoteLeaderboard,
+          state.localLeaderboard,
           state.localLeaderboard,
           state.mixedLeaderboard,
           state.recommendedMetrics,
@@ -159,6 +143,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
           PLMEvalLeaderboardState.publishingErrored(
             state.remoteLeaderboard,
             state.localLeaderboard,
+            state.localLeaderboard,
             state.mixedLeaderboard,
             state.recommendedMetrics,
           ),
@@ -173,6 +158,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
           PLMEvalLeaderboardState.publishingErrored(
             state.remoteLeaderboard,
             state.localLeaderboard,
+            state.localLeaderboard,
             state.mixedLeaderboard,
             state.recommendedMetrics,
           ),
@@ -181,14 +167,13 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
           PLMEvalLeaderboardState.loaded(
             newLeaderboard.$1,
             state.localLeaderboard,
+            state.localLeaderboard,
             PLMLeaderboard.mixed(newLeaderboard.$1, state.localLeaderboard),
             newLeaderboard.$2,
           ),
         ),
       );
     });
-    on<PLMEvalLeaderboardChangeMetricEvent>((event, emit) async {
-      emit(state.changeMetric(event.datasetName, event.metric));
-    });
+     */
   }
 }

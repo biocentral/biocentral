@@ -28,7 +28,8 @@ class PLMEvalQueueDisplay extends StatelessWidget {
       final groupTasks = <Widget>[];
 
       for (final splitName in entry.value) {
-        final BenchmarkDataset datasetToBuild = BenchmarkDataset(datasetName: datasetName, splitName: splitName);
+        // TODO Improve unnecessary conversion
+        final BenchmarkDataset datasetToBuild = BenchmarkDataset(taskName: '$datasetName-$splitName');
         final PredictionModel? model = progress.results[datasetToBuild];
         final bool isCurrentProcess = progress.currentTask == datasetToBuild;
 
@@ -47,7 +48,7 @@ class PLMEvalQueueDisplay extends StatelessWidget {
           groupTasks.add(
             ListTile(
               leading: leadingWidget,
-              title: Text(datasetToBuild.splitName),
+              title: Text(datasetToBuild.splitName ?? 'Unknown'),
             ),
           );
         }

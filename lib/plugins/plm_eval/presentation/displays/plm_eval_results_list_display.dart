@@ -61,9 +61,12 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
     final results = sessionResult?.results ?? persistentResult?.results ?? {};
     final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
     for (final (benchmarkDataset, predictionModel) in results.entriesRecord) {
-      metrics.putIfAbsent(benchmarkDataset.datasetName, () => {});
-      if (predictionModel != null && predictionModel.defaultTestResult != null) {
-        metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName] = predictionModel.defaultTestResult!.metrics;
+      if(benchmarkDataset.datasetName != null && benchmarkDataset.splitName != null) {
+        metrics.putIfAbsent(benchmarkDataset.datasetName!, () => {});
+        if (predictionModel != null && predictionModel.defaultTestResult != null) {
+          metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName!] =
+              predictionModel.defaultTestResult!.metrics;
+        }
       }
     }
     return ExpansionTile(title: const Text('Results'), children: [PLMEvalResultsDisplay(metrics: metrics)]);
