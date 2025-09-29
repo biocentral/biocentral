@@ -1,11 +1,14 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_iteration_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
 import 'package:biocentral/plugins/bay_opt/domain/bayesian_optimization_repository.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_command_view.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,17 +49,32 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     cancelSubscriptions();
 
-    final bayesianOptimizationHubBloc = BayesianOptimizationBloc(
+    final bayesianOptimizationHubBloc = BayesianOptimizationHubBloc(
       getDatabase(context),
       getBiocentralProjectRepository(context),
       getBiocentralClientRepository(context),
       eventBus,
       getBiocentralDatabaseRepository(context),
     );
+    final bayesianOptimizationIterationBloc = BayesianOptimizationIterationBloc(
+      getBiocentralProjectRepository(context),
+      getDatabase(context),
+      getBiocentralDatabaseRepository(context),
+      getBiocentralClientRepository(context),
+      eventBus,
+    );
+
+    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
+      bayesianOptimizationHubBloc.add(BayesianOptimizationHubLoadEvent());
+    }));
+
     return {
-      BlocProvider<BayesianOptimizationBloc>.value(
+      BlocProvider<BayesianOptimizationHubBloc>.value(
         value: bayesianOptimizationHubBloc,
       ): bayesianOptimizationHubBloc,
+      BlocProvider<BayesianOptimizationIterationBloc>.value(
+        value: bayesianOptimizationIterationBloc,
+      ): bayesianOptimizationIterationBloc,
     };
   }
 
@@ -82,7 +100,31 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
 
   @override
   List<BiocentralPluginDirectory> getPluginDirectories() {
-    // TODO: Implement directory structure
-    return [];
+    return [
+      BiocentralPluginDirectory(
+        path: 'bay_opt',
+        saveType: BayesianOptimizationTrainingResult,
+        commandBlocType: BayesianOptimizationHubBloc,
+        createDirectoryLoadingEvents: (
+          List<XFile> scannedFiles,
+          Map<String, List<XFile>> scannedSubDirectories,
+          List<BiocentralCommandLog> commandLogs,
+          dynamic commandBloc,
+        ) {
+          final List<void Function()> loadingFunctions = [];
+          for (final scannedFile in scannedFiles) {
+            if (scannedFile.name.contains('bo_results.') && scannedFile.extension == 'json') {
+              void loadingFunction() => commandBloc?.add(
+                    BayesianOptimizationHubLoadTrainingsFromFileEvent(
+                      xFile: scannedFile,
+                    ),
+                  );
+              loadingFunctions.add(loadingFunction);
+            }
+          }
+          return loadingFunctions;
+        },
+      )
+    ];
   }
 }

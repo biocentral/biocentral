@@ -45,7 +45,7 @@ class BayesianOptimizationTrainingResult extends Equatable {
   }
 
   /// Converts this object to a JSON map
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'results': results?.map((data) => data.toJson()).toList() ?? [],
       'actualValues': actualValues,
