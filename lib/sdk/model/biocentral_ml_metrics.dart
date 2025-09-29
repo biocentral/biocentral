@@ -101,7 +101,8 @@ class BiocentralMLMetric implements Comparable<BiocentralMLMetric> {
 final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   final String method;
   final double mean;
-  final double error;
+  final double lower;
+  final double upper;
 
   final int? iterations;
   final int? sampleSize;
@@ -110,7 +111,8 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   const UncertaintyEstimate({
     required this.method,
     required this.mean,
-    required this.error,
+    required this.lower,
+    required this.upper,
     required this.iterations,
     required this.sampleSize,
     required this.confidenceLevel,
@@ -120,7 +122,8 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
     return UncertaintyEstimate(
       method: method,
       mean: mean.abs(),
-      error: error.abs(),
+      lower: lower.abs(),
+      upper: upper.abs(),
       iterations: iterations,
       sampleSize: sampleSize,
       confidenceLevel: confidenceLevel,
@@ -130,23 +133,44 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   static UncertaintyEstimate? fromMap(Map<String, dynamic> map) {
     final method = map['method'];
     final mean = map['mean'];
-    final error = map['error'];
+    if (method == null || mean == null) {
+      return null;
+    }
+
+    var lower = map['lower'];
+    var upper = map['upper'];
+
+    if (lower == null || upper == null) {
+      if((lower == null) ^ (upper == null)) {
+        // Only one of the values is missing => Error
+        return null;
+      }
+      // Symmetrical error range around mean
+      final error = map['error'];
+      if(error == null) {
+        return null;
+      }
+      lower = mean - error;
+      upper = mean + error;
+    }
+
     final iterations = map['iterations'];
     final sampleSize = map['sampleSize'] ?? map['sample_size'];
     final confidenceLevel = map['confidenceLevel'] ?? map['confidence_level'];
 
-    if (method == null || mean == null || error == null) {
-      return null;
-    }
     return UncertaintyEstimate(
       method: method,
       mean: mean,
-      error: error,
+      lower: lower,
+      upper: upper,
       iterations: iterations,
       sampleSize: sampleSize,
       confidenceLevel: confidenceLevel,
     );
   }
+
+  /// Calculate approximate symmetrical error range from lower and upper bounds
+  double get errorRange => (upper - lower) / 2;
 
   /// Checks if two uncertainty estimates are comparable, i.e. the parameters of the uncertainty estimate are the same
   bool isComparableTo(UncertaintyEstimate other) {
@@ -155,12 +179,6 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
         sampleSize == other.sampleSize &&
         confidenceLevel == other.confidenceLevel;
   }
-
-  /// Returns the lower bound of the confidence interval
-  double get lowerBound => mean - error;
-
-  /// Returns the upper bound of the confidence interval
-  double get upperBound => mean + error;
 
   /// Implements the Comparable interface
   @override
@@ -176,15 +194,15 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
     final comp2 = other.absolute();
 
     // Check for exact equality
-    if (comp1.mean == comp2.mean && comp1.error == comp2.error) {
+    if (comp1.mean == comp2.mean && comp1.lower == comp2.lower && comp1.upper == comp2.upper) {
       return 0;
     }
 
     // Compare non-overlapping ranges
-    if (comp1.lowerBound > comp2.upperBound) {
+    if (comp1.lower > comp2.upper) {
       return 1;
     }
-    if (comp1.upperBound < comp2.lowerBound) {
+    if (comp1.upper < comp2.lower) {
       return -1;
     }
 
@@ -196,7 +214,8 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
     return {
       'method': method,
       'mean': mean,
-      'error': error,
+      'lower': lower,
+      'upper': upper,
       'iterations': iterations,
       'sample_size': sampleSize,
       'confidence_level': confidenceLevel,
@@ -206,6 +225,6 @@ final class UncertaintyEstimate implements Comparable<UncertaintyEstimate> {
   @override
   String toString() {
     return '${mean.toStringAsFixed(Constants.maxDoublePrecision)} '
-        '±${error.toStringAsFixed(Constants.maxDoublePrecision)}';
+        '±${errorRange.toStringAsFixed(Constants.maxDoublePrecision)}';
   }
 }

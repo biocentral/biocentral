@@ -38,7 +38,7 @@ class BiotrainerFileHandler {
                     (value as Protein).copyWith(
                       attributes: _addOrUpdateCustomAttribute(
                         value.attributes,
-                        {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},
+                        {'TARGET': value.toMap()[targetColumn] ?? 'None', 'SET': value.toMap()[setColumn] ?? 'None'},
                       ),
                     ),
                   ),

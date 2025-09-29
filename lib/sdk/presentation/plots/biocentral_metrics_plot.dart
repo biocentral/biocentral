@@ -43,12 +43,12 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
     _selectedMetric = _availableMetrics.firstOrNull;
   }
 
-  List<(String, double, double?)> _getBarPlotData() {
-    final result = <(String, double, double?)>[];
+  List<(String, double, double?, double?)> _getBarPlotData() {
+    final result = <(String, double, double?, double?)>[];
     for (final entry in widget.metrics.entries) {
       final metric = entry.value.firstWhereOrNull((m) => m.name == _selectedMetric);
       if(metric != null) {
-        result.add((entry.key, metric.value, metric.uncertaintyEstimate?.error));
+        result.add((entry.key, metric.value, metric.uncertaintyEstimate?.lower, metric.uncertaintyEstimate?.upper));
       }
     }
     return result;
