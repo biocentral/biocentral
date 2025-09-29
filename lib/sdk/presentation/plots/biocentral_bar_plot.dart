@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 
 class BiocentralBarPlotData {
   // (Name, Mean, Error)
-  final List<(String, double, double?)> _data;
+  final List<(String, double, double?, double?)> _data;
 
   BiocentralBarPlotData.withoutErrors(Map<String, double> data)
-      : _data = data.entries.map((entry) => (entry.key, entry.value, null)).toList();
+      : _data = data.entries.map((entry) => (entry.key, entry.value, null, null)).toList();
 
   BiocentralBarPlotData.withErrors(this._data);
 
@@ -26,24 +26,26 @@ class BiocentralBarPlotData {
 
   int get length => _data.length;
 
-  (String, double, double?) operator [](int index) => _data[index];
+  (String, double, double?, double?) operator [](int index) => _data[index];
 
-  Iterable<(int, (String, double, double?))> indexed() => _data.indexed;
+  Iterable<(int, (String, double, double?, double?))> indexed() => _data.indexed;
 }
 
 class _TooltipData {
   final Offset position;
   final String label;
   final double value;
-  final double? errorMargin;
+  final double? lower;
+  final double? upper;
 
-  _TooltipData(this.position, this.label, this.value, this.errorMargin);
+  _TooltipData(this.position, this.label, this.value, this.lower, this.upper);
 
   String getTooltipText() {
     String text = '$label\n'
         'Value: ${value.toStringAsFixed(Constants.maxDoublePrecision)}';
-    if (errorMargin != null) {
-      text += '\nError: ±${errorMargin?.toStringAsFixed(Constants.maxDoublePrecision)}';
+    if (lower != null && upper != null) {
+      text += '\n\nUpper: ${upper?.toStringAsFixed(Constants.maxDoublePrecision)}';
+      text += '\nLower: ${lower?.toStringAsFixed(Constants.maxDoublePrecision)}';
     }
     return text;
   }
@@ -150,6 +152,7 @@ class _BiocentralBarPlotState extends State<BiocentralBarPlot> {
         data.$1,
         data.$2,
         data.$3,
+        data.$4
       );
     }
     return null;
@@ -219,33 +222,41 @@ class _BarPlotPainter extends CustomPainter {
       final color = isHovered ? Colors.blue.shade300 : Colors.blue;
       canvas.drawRect(rect, Paint()..color = color);
 
-      final errorMargin = dataPoint.$2.$3;
-      if (errorMargin != null) {
-        final limitedErrorMargin = value + errorMargin > maxY ? maxY - value : errorMargin;  // Limit error to axis max
-        // Draw error bars
+      final lowerBound = dataPoint.$2.$3;
+      final upperBound = dataPoint.$2.$4;
+
+      if (lowerBound != null && upperBound != null) {
+        // Convert bound values to canvas coordinates
+        final double lowerBoundHeight = (lowerBound.abs() / maxY) * plotSize.height;
+        final double upperBoundHeight = (upperBound.abs() / maxY) * plotSize.height;
+
+        // Calculate Y positions (remember: Y decreases going up)
         final double barCenterX = plotOffset.dx + i * barWidth + (barWidth * 0.4);
-        final double barTopY = plotOffset.dy + plotSize.height - barHeight;
-        final double errorBarHeight = (limitedErrorMargin / maxY) * plotSize.height;
-        final bottomLimitedHeight = min(rect.bottom, barTopY + errorBarHeight);  // Limit to x-axis
+        final double lowerBoundY = plotOffset.dy + plotSize.height - lowerBoundHeight;
+        final double upperBoundY = plotOffset.dy + plotSize.height - upperBoundHeight;
 
-        // Vertical line
+        // Clamp bounds to plot area
+        final double clampedLowerY = max(lowerBoundY, plotOffset.dy); // Don't go above plot top
+        final double clampedUpperY = min(upperBoundY, plotOffset.dy + plotSize.height); // Don't go below x-axis
+
+        // Vertical line (from lower bound to upper bound)
         canvas.drawLine(
-          Offset(barCenterX, bottomLimitedHeight),  // BOTTOM
-          Offset(barCenterX, barTopY - errorBarHeight),  // TOP
+          Offset(barCenterX, clampedUpperY),    // TOP (upper bound)
+          Offset(barCenterX, clampedLowerY),    // BOTTOM (lower bound)
           errorBarPaint,
         );
 
-        // Top horizontal line
+        // Upper bound horizontal line
         canvas.drawLine(
-          Offset(barCenterX - 5, barTopY - errorBarHeight),
-          Offset(barCenterX + 5, barTopY - errorBarHeight),
+          Offset(barCenterX - 5, clampedUpperY),
+          Offset(barCenterX + 5, clampedUpperY),
           errorBarPaint,
         );
 
-        // Bottom horizontal line
+        // Lower bound horizontal line
         canvas.drawLine(
-          Offset(barCenterX - 5, bottomLimitedHeight),
-          Offset(barCenterX + 5, bottomLimitedHeight),
+          Offset(barCenterX - 5, clampedLowerY),
+          Offset(barCenterX + 5, clampedLowerY),
           errorBarPaint,
         );
       }

@@ -298,7 +298,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
       ),
     );
     if(estimate != null) {
-      return BiocentralTooltip(message: 'mean: ${estimate.mean}\nerror: ${estimate.error}', child: cell);
+      return BiocentralTooltip(message: estimate.toString(), child: cell);
     }
     return cell;
   }
