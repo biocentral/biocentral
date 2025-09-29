@@ -41,9 +41,9 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
     final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
     if (state.autoEvalProgress != null) {
       for (final (benchmarkDataset, predictionModel) in state.autoEvalProgress!.results.entriesRecord) {
-        metrics.putIfAbsent(benchmarkDataset.datasetName, () => {});
+        metrics.putIfAbsent(benchmarkDataset.datasetName!, () => {});
         if (predictionModel != null && predictionModel.defaultTestResult != null) {
-          metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName] =
+          metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName!] =
               predictionModel.defaultTestResult!.metrics;
         }
       }
