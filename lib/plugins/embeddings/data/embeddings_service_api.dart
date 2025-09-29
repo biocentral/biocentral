@@ -100,13 +100,13 @@ class ProtspaceFileHandler {
 
     // Reconstruct protein_data
     final Map<String, dynamic> proteinData = {};
-    for (final entry in projectionData.entries) {
-      for (final protein in entry.value) {
-        final String proteinID = protein['id'] ?? '';
+    for (final pointValues in projectionData.values) {
+      for (final proteinMap in pointValues) {
+        final String proteinID = proteinMap['id'] ?? '';
         if (proteinID.isNotEmpty) {
-          final Map<String, dynamic> features = Map.from(protein)..remove('id');
+          final Map<String, dynamic> features = Map.from(proteinMap)..remove('id');
           proteinData[proteinID] = {
-            'features': {}, // TODO [Feature] Add actual features from entity repository
+            'features': features, // TODO [Feature] Add actual features from entity repository
           };
         }
       }
@@ -115,8 +115,7 @@ class ProtspaceFileHandler {
 
     // Reconstruct projections
     final List<Map<String, dynamic>> projections = [];
-    for (final entry in projectionData.entries) {
-      final ProjectionData projection = entry.key;
+    for (final (projection, pointValues) in projectionData.entriesRecord) {
       final List<Map<String, dynamic>> data = [];
 
       for (int i = 0; i < (projection.pointIDs?.length ?? 0); i++) {
@@ -132,7 +131,7 @@ class ProtspaceFileHandler {
         }
 
         data.add({
-          'identifier': projection.pointIDs?[i],
+          'identifier': pointValues[i]["id"] ?? projection.pointIDs?[i],
           'coordinates': coordMap,
         });
       }
