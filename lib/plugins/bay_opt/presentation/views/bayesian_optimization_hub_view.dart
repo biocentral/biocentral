@@ -1,9 +1,9 @@
+import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_database_grid_view.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_plot_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_bloc.dart';
 
 class BayesianOptimizationHubView extends StatefulWidget {
   const BayesianOptimizationHubView({super.key});
@@ -35,10 +35,10 @@ class _BayesianOptimizationHubViewState extends State<BayesianOptimizationHubVie
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Flexible(
               flex: 5,
-              child: BlocBuilder<BayesianOptimizationBloc, BayesianOptimizationState>(
+              child: BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
                 builder: (context, state) {
-                  final BayesianOptimizationBloc bloc = context.read<BayesianOptimizationBloc>();
-                  if (bloc.isOperationRunning || state.isOperating()) {
+                  final BayesianOptimizationHubBloc bloc = context.read<BayesianOptimizationHubBloc>();
+                  if (state.isOperating()) {
                     return const TabBarView(
                       children: [
                         Center(
@@ -49,26 +49,26 @@ class _BayesianOptimizationHubViewState extends State<BayesianOptimizationHubVie
                         ),
                       ],
                     );
-                  } else if (bloc.currentResult == null) {
+                  } else if (state.trainingResults.isEmpty) {
                     return const TabBarView(
                       children: [
                         Center(
-                          child: Text('No training started'),
+                          child: Text('No results yet'),
                         ),
                         Center(
-                          child: Text('No training started'),
+                          child: Text('No results yet'),
                         ),
                       ],
                     );
-                  } else if (bloc.currentResult != null) {
+                  } else if (state.latestResult != null) {
                     return TabBarView(
                       children: [
                         BayesianOptimizationPlotView(
                           yLabel: 'Score',
-                          data: bloc.currentResult,
+                          data: state.latestResult,
                         ),
                         BayesianOptimizationDatabaseGridView(
-                          data: bloc.currentResult,
+                          data: state.latestResult,
                         ),
                       ],
                     );
