@@ -47,8 +47,7 @@ class BayOptDialogBuilder {
     ),
   ];
 
-  static Widget buildDatasetSelection(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildDatasetSelection(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -63,8 +62,7 @@ class BayOptDialogBuilder {
     );
   }
 
-  static Widget buildTaskSelection(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildTaskSelection(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -102,8 +100,7 @@ class BayOptDialogBuilder {
     );
   }
 
-  static Widget buildFeatureSelection(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildFeatureSelection(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     if (state.config.selectedTask != null && state.availableFeatures.isEmpty) {
       return const Text('Could not find any features to optimize, please check your dataset!');
     }
@@ -133,8 +130,7 @@ class BayOptDialogBuilder {
     );
   }
 
-  static Widget buildFeatureConfiguration(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildFeatureConfiguration(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,8 +216,7 @@ class BayOptDialogBuilder {
     );
   }
 
-  static Widget buildOptimizationTypeSelection(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildOptimizationTypeSelection(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -241,8 +236,7 @@ class BayOptDialogBuilder {
     );
   }
 
-  static Widget buildEmbedderAndModelSelection(
-      BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
+  static Widget buildEmbedderAndModelSelection(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -286,18 +280,12 @@ class BayOptDialogBuilder {
                     value: state.config.selectedModel,
                     hint: const Text('Choose model'),
                     isExpanded: true,
-                    items: state.currentStep.index >= BayOptConfigConfigDialogStep.modelSelection.index &&
-                            state.config.selectedEmbedder != null
-                        ? BayOptModelTypes.values
-                            .map((model) => DropdownMenuItem(value: model, child: Text(model.name)))
-                            .toList()
-                        : [],
-                    onChanged: state.currentStep.index >= BayOptConfigConfigDialogStep.modelSelection.index &&
-                            state.config.selectedEmbedder != null
-                        ? (value) {
-                            if (value != null) bloc.add(ModelSelected(value));
-                          }
-                        : null,
+                    items: BayOptModelTypes.values
+                        .map((model) => DropdownMenuItem(value: model, child: Text(model.name)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) bloc.add(ModelSelected(value));
+                    },
                   ),
                 ],
               ),
