@@ -1,9 +1,8 @@
+import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
+import 'package:biocentral/plugins/prediction_models/model/set_generator.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
-
-import 'package:biocentral/plugins/prediction_models/model/set_generator.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 
 sealed class SetGenerationDialogEvent {}
 
@@ -31,8 +30,14 @@ final class SetGenerationDialogState extends BiocentralCommandState<SetGeneratio
 
   final SetGenerationDialogStep currentStep;
 
-  const SetGenerationDialogState(super.stateInformation, super.status, this.availableMethods, this.selectedDatabaseType,
-      this.selectedMethod, this.currentStep,);
+  const SetGenerationDialogState(
+    super.stateInformation,
+    super.status,
+    this.availableMethods,
+    this.selectedDatabaseType,
+    this.selectedMethod,
+    this.currentStep,
+  );
 
   const SetGenerationDialogState.idle()
       : availableMethods = const {},
@@ -43,20 +48,29 @@ final class SetGenerationDialogState extends BiocentralCommandState<SetGeneratio
 
   @override
   SetGenerationDialogState newState(
-      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status,) {
+    BiocentralCommandStateInformation stateInformation,
+    BiocentralCommandStatus status,
+  ) {
     return SetGenerationDialogState(
-        stateInformation, status, availableMethods, selectedDatabaseType, selectedMethod, currentStep,);
+      stateInformation,
+      status,
+      availableMethods,
+      selectedDatabaseType,
+      selectedMethod,
+      currentStep,
+    );
   }
 
   @override
   SetGenerationDialogState copyWith({required Map<String, dynamic> copyMap}) {
     return SetGenerationDialogState(
-        stateInformation,
-        status,
-        copyMap['availableMethods'] ?? availableMethods,
-        copyMap['selectedDatabaseType'] ?? selectedDatabaseType,
-        copyMap['selectedMethod'] ?? selectedMethod,
-        copyMap['currentStep'] ?? currentStep,);
+      stateInformation,
+      status,
+      copyMap['availableMethods'] ?? availableMethods,
+      copyMap['selectedDatabaseType'] ?? selectedDatabaseType,
+      copyMap['selectedMethod'] ?? selectedMethod,
+      copyMap['currentStep'] ?? currentStep,
+    );
   }
 
   @override
@@ -78,43 +92,52 @@ class SetGenerationDialogBloc extends BiocentralBloc<SetGenerationDialogEvent, S
   SetGenerationDialogBloc(this._biocentralDatabaseRepository, this._eventBus)
       : super(const SetGenerationDialogState.idle(), _eventBus) {
     on<SetGenerationDialogSelectDatabaseTypeEvent>((event, emit) async {
-      emit(state.setOperating(information: 'Loading available methods..').copyWith(copyMap: {
-        'selectedDatabaseType': event.selectedDatabaseType,
-        'currentStep': SetGenerationDialogStep.selectedDatabaseType,
-      },),);
+      emit(
+        state.setOperating(information: 'Loading available methods..').copyWith(
+          copyMap: {
+            'selectedDatabaseType': event.selectedDatabaseType,
+            'currentStep': SetGenerationDialogStep.selectedDatabaseType,
+          },
+        ),
+      );
 
       // TODO Load from server
       final Set<SplitSetGenerationMethod> availableMethods = {SplitSetGenerationMethod.random};
-      emit(state.setIdle(information: 'Finished loading available methods!').copyWith(
-          copyMap: {'availableMethods': availableMethods, 'currentStep': SetGenerationDialogStep.loadedMethods},),);
+      emit(
+        state.setIdle(information: 'Finished loading available methods!').copyWith(
+          copyMap: {'availableMethods': availableMethods, 'currentStep': SetGenerationDialogStep.loadedMethods},
+        ),
+      );
     });
     on<SetGenerationDialogSelectMethodEvent>((event, emit) async {
-      emit(state.copyWith(
-          copyMap: {'selectedMethod': event.selectedMethod, 'currentStep': SetGenerationDialogStep.selectedMethod},),);
+      emit(
+        state.copyWith(
+          copyMap: {'selectedMethod': event.selectedMethod, 'currentStep': SetGenerationDialogStep.selectedMethod},
+        ),
+      );
     });
     on<SetGenerationDialogCalculateEvent>((event, emit) async {
       if (state.selectedMethod == null) {
-        emit(state.setErrored(information: 'No selected method to calculate sets!'));
-      } else {
-        // TODO SET NAMES
-        final SplitSetGenerationMethod method = state.selectedMethod!;
-
-        emit(state.setOperating(information: 'Calculating sets with method $method..'));
-
-        final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(state.selectedDatabaseType);
-
-        if (database == null) {
-          emit(state.setErrored(information: 'Could not find database to calculate sets!'));
-        } else {
-          final Map<String, SplitSet> ids = SetGenerator.holdOut(train: 0.8, validation: 0.1, test: 0.1)
-              .splitByMethod(method, database.databaseToMap().keys.toList());
-          final String columnName = 'SET_${method.name.toUpperCase()}';
-          await database.addCustomAttribute(columnName, ids.map((key, value) => MapEntry(key, value.name)));
-          _eventBus.fire(SetGeneratedEvent(columnName: columnName));
-          _eventBus.fire(BiocentralDatabaseUpdatedEvent());
-          emit(state.setFinished(information: 'Finished calculating sets!'));
-        }
+        return emit(state.setErrored(information: 'No selected method to calculate sets!'));
       }
+      // TODO SET NAMES
+      final SplitSetGenerationMethod method = state.selectedMethod!;
+
+      emit(state.setOperating(information: 'Calculating sets with method $method..'));
+
+      final BiocentralDatabase? database = _biocentralDatabaseRepository.getFromType(state.selectedDatabaseType);
+
+      if (database == null) {
+        return emit(state.setErrored(information: 'Could not find database to calculate sets!'));
+      }
+
+      final Map<String, SplitSet> ids = SetGenerator.holdOut(train: 0.8, validation: 0.1, test: 0.1)
+          .splitByMethod(method, database.databaseToMap().keys.toList());
+      final String columnName = 'SET_${method.name.toUpperCase()}';
+      await database.addCustomAttribute(columnName, ids.map((key, value) => MapEntry(key, value.name)));
+      _eventBus.fire(SetGeneratedEvent(columnName: columnName));
+      _eventBus.fire(BiocentralDatabaseUpdatedEvent());
+      emit(state.setFinished(information: 'Finished calculating sets!'));
     });
   }
 }

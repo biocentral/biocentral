@@ -105,10 +105,9 @@ class BiocentralClientBloc extends Bloc<BiocentralClientEvent, BiocentralClientS
       emit(state.setOperating(information: 'Searching for available servers..'));
       final availableServers = await _biocentralClientRepository.getAvailableServers();
       if (availableServers.isEmpty) {
-        emit(state.setErrored(information: 'Could not find any available servers!'));
-      } else {
-        emit(state.copyWith(copyMap: {'availableServersToConnect': availableServers}));
+        return emit(state.setErrored(information: 'Could not find any available servers!'));
       }
+      emit(state.copyWith(copyMap: {'availableServersToConnect': availableServers}));
       emit(state.setIdle());
     });
 
