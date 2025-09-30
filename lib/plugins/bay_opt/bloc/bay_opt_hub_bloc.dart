@@ -1,37 +1,37 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bayesian_optimization_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class BayesianOptimizationHubEvent {}
+abstract class BayOptHubEvent {}
 
-class BayesianOptimizationHubLoadEvent extends BayesianOptimizationHubEvent {}
+class BayOptHubLoadEvent extends BayOptHubEvent {}
 
-class BayesianOptimizationHubSelectEvent extends BayesianOptimizationHubEvent {
+class BayOptHubSelectEvent extends BayOptHubEvent {
   final int selectedIndex;
 
-  BayesianOptimizationHubSelectEvent({required this.selectedIndex});
+  BayOptHubSelectEvent({required this.selectedIndex});
 }
 
-class BayesianOptimizationHubAddExperimentalDataEvent extends BayesianOptimizationHubEvent {
+class BayOptHubAddExperimentalDataEvent extends BayOptHubEvent {
   final Map<String, dynamic> experimentalData;
 
-  BayesianOptimizationHubAddExperimentalDataEvent({required this.experimentalData});
+  BayOptHubAddExperimentalDataEvent({required this.experimentalData});
 }
 
-class BayesianOptimizationHubLoadTrainingsFromFileEvent extends BayesianOptimizationHubEvent {
+class BayOptHubLoadTrainingsFromFileEvent extends BayOptHubEvent {
   final XFile? xFile;
 
-  BayesianOptimizationHubLoadTrainingsFromFileEvent({required this.xFile});
+  BayOptHubLoadTrainingsFromFileEvent({required this.xFile});
 }
 
-class BayesianOptimizationIterateTrainingEvent extends BayesianOptimizationHubEvent {
+class BayOptIterateTrainingEvent extends BayOptHubEvent {
   final BuildContext context;
-  final BayesianOptimizationTrainingResult trainingResult;
+  final BayOptTrainingResult trainingResult;
   final List<double?> updateList;
 
   /// Constructor for iterating Bayesian Optimization training.
@@ -39,12 +39,12 @@ class BayesianOptimizationIterateTrainingEvent extends BayesianOptimizationHubEv
   /// - [context]: The build context.
   /// - [trainingResult]: The training result to iterate from.
   /// - [updateList]: The list of values to update.
-  BayesianOptimizationIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
+  BayOptIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
 }
 
-class BayesianOptimizationDirectIterateTrainingEvent extends BayesianOptimizationHubEvent {
+class BayOptDirectIterateTrainingEvent extends BayOptHubEvent {
   final BuildContext context;
-  final BayesianOptimizationTrainingResult trainingResult;
+  final BayOptTrainingResult trainingResult;
   final List<double?> updateList;
 
   /// Constructor for iterating Bayesian Optimization training.
@@ -52,41 +52,41 @@ class BayesianOptimizationDirectIterateTrainingEvent extends BayesianOptimizatio
   /// - [context]: The build context.
   /// - [trainingResult]: The training result to iterate from.
   /// - [updateList]: The list of values to update.
-  BayesianOptimizationDirectIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
+  BayOptDirectIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
 }
 
 @immutable
-final class BayesianOptimizationHubState extends BiocentralCommandState<BayesianOptimizationHubState> {
-  final List<BayesianOptimizationTrainingResult> trainingResults;
+final class BayOptHubState extends BiocentralCommandState<BayOptHubState> {
+  final List<BayOptTrainingResult> trainingResults;
   final int selectedResultIndex;
 
-  const BayesianOptimizationHubState(
+  const BayOptHubState(
     super.stateInformation,
     super.status,
     this.trainingResults,
     this.selectedResultIndex,
   );
 
-  const BayesianOptimizationHubState.idle()
+  const BayOptHubState.idle()
       : trainingResults = const [],
         selectedResultIndex = 0,
         super.idle();
 
-  BayesianOptimizationTrainingResult? get latestResult => trainingResults.lastOrNull;
+  BayOptTrainingResult? get latestResult => trainingResults.lastOrNull;
 
-  BayesianOptimizationTrainingResult? get selectedResult => latestResult; // TODO Implement selection
+  BayOptTrainingResult? get selectedResult => latestResult; // TODO Implement selection
 
   @override
-  BayesianOptimizationHubState newState(
+  BayOptHubState newState(
     BiocentralCommandStateInformation stateInformation,
     BiocentralCommandStatus status,
   ) {
-    return BayesianOptimizationHubState(stateInformation, status, trainingResults, selectedResultIndex);
+    return BayOptHubState(stateInformation, status, trainingResults, selectedResultIndex);
   }
 
   @override
-  BayesianOptimizationHubState copyWith({required Map<String, dynamic> copyMap}) {
-    return BayesianOptimizationHubState(
+  BayOptHubState copyWith({required Map<String, dynamic> copyMap}) {
+    return BayOptHubState(
       stateInformation,
       status,
       copyMap['trainingResults'] ?? trainingResults,
@@ -99,9 +99,9 @@ final class BayesianOptimizationHubState extends BiocentralCommandState<Bayesian
       [stateInformation, status, trainingResults, selectedResultIndex, latestResult, latestResult?.experimentalData];
 }
 
-class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHubEvent, BayesianOptimizationHubState>
+class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
     with BiocentralSyncBloc {
-  final BayesianOptimizationRepository _bayesianOptimizationRepository;
+  final BayOptRepository _bayOptRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _databaseRepository;
   final BiocentralClientRepository _clientRepository;
@@ -109,44 +109,44 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
 
   /// Constructor for Bayesian Optimization Bloc.
   ///
-  /// - [_bayesianOptimizationRepository]: Repository for managing Bayesian Optimization data.
+  /// - [_bayOptRepository]: Repository for managing Bayesian Optimization data.
   /// - [_biocentralProjectRepository]: Repository for managing project data.
   /// - [_bioCentralClientRepository]: Repository for managing client data.
   /// - [eventBus]: Event bus for handling events.
   /// - [_biocentralDatabaseRepository]: Repository for managing database data.
-  BayesianOptimizationHubBloc(
-    this._bayesianOptimizationRepository,
+  BayOptHubBloc(
+    this._bayOptRepository,
     this._biocentralProjectRepository,
     this._clientRepository,
     this._eventBus,
     this._databaseRepository,
-  ) : super(const BayesianOptimizationHubState.idle(), _eventBus) {
-    on<BayesianOptimizationHubLoadEvent>(_onLoadTrainings);
-    on<BayesianOptimizationHubSelectEvent>(_onSelectTraining);
-    on<BayesianOptimizationHubAddExperimentalDataEvent>(_onAddExperimentalData);
-    on<BayesianOptimizationHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
+  ) : super(const BayOptHubState.idle(), _eventBus) {
+    on<BayOptHubLoadEvent>(_onLoadTrainings);
+    on<BayOptHubSelectEvent>(_onSelectTraining);
+    on<BayOptHubAddExperimentalDataEvent>(_onAddExperimentalData);
+    on<BayOptHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
   }
 
   Future<void> _onLoadTrainings(
-    BayesianOptimizationHubLoadEvent event,
-    Emitter<BayesianOptimizationHubState> emit,
+    BayOptHubLoadEvent event,
+    Emitter<BayOptHubState> emit,
   ) async {
-    final loadedTrainings = _bayesianOptimizationRepository.trainingResultsToList();
+    final loadedTrainings = _bayOptRepository.trainingResultsToList();
     emit(
       state.copyWith(copyMap: {'trainingResults': loadedTrainings}),
     );
   }
 
   Future<void> _onSelectTraining(
-    BayesianOptimizationHubSelectEvent event,
-    Emitter<BayesianOptimizationHubState> emit,
+    BayOptHubSelectEvent event,
+    Emitter<BayOptHubState> emit,
   ) async {
     emit(state.copyWith(copyMap: {'selectedResultIndex': event.selectedIndex}));
   }
 
   Future<void> _onAddExperimentalData(
-    BayesianOptimizationHubAddExperimentalDataEvent event,
-    Emitter<BayesianOptimizationHubState> emit,
+    BayOptHubAddExperimentalDataEvent event,
+    Emitter<BayOptHubState> emit,
   ) async {
     // Always add to latest result
     if (state.latestResult == null) {
@@ -160,7 +160,7 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
       mergedData[key] = value; // Overwrite if data was updated via dialog
     }
     final updatedResult = state.latestResult!.copyWith(experimentalData: mergedData);
-    final updatedResults = _bayesianOptimizationRepository.updateLatestResult(updatedResult);
+    final updatedResults = _bayOptRepository.updateLatestResult(updatedResult);
     // Sync back to database
     // TODO [Refactor] Get database type from campaign
     final database = _databaseRepository.getFromType(Protein);
@@ -184,8 +184,8 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
   /// - [event]: The event to load previous trainings.
   /// - [emit]: Emits the new state.
   Future<void> _onLoadPreviousTrainingsFromFile(
-    BayesianOptimizationHubLoadTrainingsFromFileEvent event,
-    Emitter<BayesianOptimizationHubState> emit,
+    BayOptHubLoadTrainingsFromFileEvent event,
+    Emitter<BayOptHubState> emit,
   ) async {
     // TODO Refactor to command
     emit(state.setOperating(information: 'Loading previous trainings...'));
@@ -196,7 +196,7 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
       if (loadedFile == null) {
         emit(state.setErrored(information: 'Loading previous trainings failed!'));
       } else {
-        final loadedTrainings = _bayesianOptimizationRepository.loadTrainingResults(loadedFile.content);
+        final loadedTrainings = _bayOptRepository.loadTrainingResults(loadedFile.content);
         emit(
           state
               .setFinished(information: 'Loading previous trainings finished!')

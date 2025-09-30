@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/data/bay_opt_client.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -15,22 +15,22 @@ import 'package:fpdart/fpdart.dart';
 /// - Starts the training process on the server.
 /// - Monitors the training process and retrieves the results.
 ///
-/// Returns a [BayesianOptimizationTrainingResult] upon successful completion.
-class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOptimizationTrainingResult> {
+/// Returns a [BayOptTrainingResult] upon successful completion.
+class BayOptIterationCommand extends BiocentralCommand<BayOptTrainingResult> {
   final BiocentralDatabase _biocentralDatabase;
-  final BayesianOptimizationClient _boClient;
+  final BayOptClient _boClient;
   final Map<String, dynamic> _trainingConfiguration;
   final String _targetFeature;
 
-  /// Constructor for [BayesianOptimizationIterationCommand].
+  /// Constructor for [BayOptIterationCommand].
   ///
   /// - [biocentralDatabase]: The database containing the training data.
   /// - [client]: The Bayesian Optimization client for server communication.
   /// - [trainingConfiguration]: The configuration for the training process.
   /// - [targetFeature]: The feature to optimize during training.
-  BayesianOptimizationIterationCommand({
+  BayOptIterationCommand({
     required BiocentralDatabase biocentralDatabase,
-    required BayesianOptimizationClient client,
+    required BayOptClient client,
     required Map<String, dynamic> trainingConfiguration,
     required String targetFeature,
   })  : _biocentralDatabase = biocentralDatabase,
@@ -44,9 +44,9 @@ class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOpt
   ///
   /// Returns a stream of [Either] objects:
   /// - [Left]: Indicates an error or intermediate state.
-  /// - [Right]: Contains the [BayesianOptimizationTrainingResult] upon successful completion.
+  /// - [Right]: Contains the [BayOptTrainingResult] upon successful completion.
   @override
-  Stream<Either<T, BayesianOptimizationTrainingResult>> execute<T extends BiocentralCommandState<T>>(
+  Stream<Either<T, BayOptTrainingResult>> execute<T extends BiocentralCommandState<T>>(
     T state,
   ) async* {
     yield left(state.setOperating(information: 'Training new model!'));
@@ -88,8 +88,8 @@ class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOpt
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      var trainingResult = BayesianOptimizationTrainingResult(
-          results: [], trainingConfig: BayesianOptimizationConfig.fromMap(_trainingConfiguration), taskID: taskID);
+      var trainingResult = BayOptTrainingResult(
+          results: [], trainingConfig: BayOptConfig.fromMap(_trainingConfiguration), taskID: taskID);
       await for (final (dto, currentResult) in _boClient.boTrainingTaskStream(taskID, trainingResult)) {
         if (currentResult != null) {
           trainingResult = currentResult;

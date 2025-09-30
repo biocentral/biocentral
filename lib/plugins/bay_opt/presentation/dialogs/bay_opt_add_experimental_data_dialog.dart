@@ -1,23 +1,23 @@
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-class BayesianOptimizationAddExperimentalDataDialog extends StatefulWidget {
-  final BayesianOptimizationTrainingResult currentResult;
+class BayOptAddExperimentalDataDialog extends StatefulWidget {
+  final BayOptTrainingResult currentResult;
   final void Function(Map<String, dynamic>? experimentalData) onFinishedAddingData;
 
-  const BayesianOptimizationAddExperimentalDataDialog({
+  const BayOptAddExperimentalDataDialog({
     required this.currentResult,
     required this.onFinishedAddingData,
     super.key,
   });
 
   @override
-  State<BayesianOptimizationAddExperimentalDataDialog> createState() =>
-      _BayesianOptimizationAddExperimentalDataDialogState();
+  State<BayOptAddExperimentalDataDialog> createState() =>
+      _BayOptAddExperimentalDataDialogState();
 }
 
-class _BayesianOptimizationAddExperimentalDataDialogState extends State<BayesianOptimizationAddExperimentalDataDialog> {
+class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalDataDialog> {
   late PlutoGridStateManager stateManager;
 
   @override

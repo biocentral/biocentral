@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 /// A widget that displays a scatter plot visualization of Bayesian optimization results.
 /// The plot shows protein sequences on the x-axis and their corresponding scores on the y-axis.
 /// Points are color-coded based on their score values, with a gradient legend showing the score range.
-class BayesianOptimizationPlotView extends StatelessWidget {
+class BayOptPlotView extends StatelessWidget {
   /// Label for the y-axis (typically representing the score metric)
   final String yLabel;
 
   /// The training results data to be displayed
-  final BayesianOptimizationTrainingResult? data;
+  final BayOptTrainingResult? data;
 
   /// Cached min/max values for the y-axis range
   final MinMaxValues minMaxValues;
 
-  BayesianOptimizationPlotView({
+  BayOptPlotView({
     required this.yLabel,
     this.data,
     super.key,
@@ -31,7 +31,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
 
   /// Calculates the minimum and maximum values for the y-axis
   /// Adds a 10% padding to both ends of the range
-  static MinMaxValues _calculateMinMax(List<BayesianOptimizationTrainingResultData>? plotData) {
+  static MinMaxValues _calculateMinMax(List<BayOptTrainingResultData>? plotData) {
     if (plotData == null || plotData.isEmpty) {
       return MinMaxValues(minY: 0, maxY: 0);
     }
@@ -196,7 +196,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
   }
 
   /// Converts the training results into scatter plot data points
-  List<ScatterSpot> getData(BayesianOptimizationTrainingResult plotData) {
+  List<ScatterSpot> getData(BayOptTrainingResult plotData) {
     final List<ScatterSpot> scatterSpots = [];
     final (minScore, maxScore) = _calculateScoreRange(plotData);
 
@@ -222,7 +222,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
   }
 
   /// Calculates the minimum and maximum score values from the training results
-  (double, double) _calculateScoreRange(BayesianOptimizationTrainingResult plotData) {
+  (double, double) _calculateScoreRange(BayOptTrainingResult plotData) {
     double minScore = double.infinity;
     double maxScore = double.negativeInfinity;
 

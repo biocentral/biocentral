@@ -1,26 +1,26 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_database_grid_view.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_plot_view.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_database_grid_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_plot_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayesianOptimizationIterationResultView extends StatefulWidget {
-  const BayesianOptimizationIterationResultView({super.key});
+class BayOptIterationResultView extends StatefulWidget {
+  const BayOptIterationResultView({super.key});
 
   @override
-  State<BayesianOptimizationIterationResultView> createState() => _BayesianOptimizationIterationResultViewState();
+  State<BayOptIterationResultView> createState() => _BayOptIterationResultViewState();
 }
 
-class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimizationIterationResultView>
+class _BayOptIterationResultViewState extends State<BayOptIterationResultView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
+    return BlocBuilder<BayOptHubBloc, BayOptHubState>(
       builder: (context, hubState) {
         return Scaffold(
           body: SingleChildScrollView(
@@ -31,7 +31,7 @@ class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimi
     );
   }
 
-  Widget buildResult(BayesianOptimizationHubState hubState) {
+  Widget buildResult(BayOptHubState hubState) {
     if (hubState.selectedResult == null) {
       return const Text('No results yet!');
     }
@@ -47,7 +47,7 @@ class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimi
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
-              child: BayesianOptimizationPlotView(
+              child: BayOptPlotView(
                 yLabel: 'Score',
                 data: hubState.selectedResult,
               ),
@@ -55,7 +55,7 @@ class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimi
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
-              child: const BayesianOptimizationDatabaseGridView(),
+              child: const BayOptDatabaseGridView(),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -67,7 +67,7 @@ class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimi
     );
   }
 
-  Widget buildPredictionErrorDisplay(BayesianOptimizationHubState hubState) {
+  Widget buildPredictionErrorDisplay(BayOptHubState hubState) {
     final predictionError = hubState.selectedResult?.getAveragePredictionError();
     if (predictionError == null) {
       return Container();
