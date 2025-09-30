@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/sdk/util/constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -23,8 +24,8 @@ class BayesianOptimizationPlotView extends StatelessWidget {
 
   /// Gets the x-axis label from the training config
   String get xLabel {
-    final feature = data?.trainingConfig?['feature_name'] as String? ?? 'Feature';
-    final embedder = data?.trainingConfig?['embedder_name'] as String? ?? 'Embedder';
+    final feature = data?.trainingConfig.selectedFeature ?? 'Feature';
+    final embedder = data?.trainingConfig.selectedEmbedder?.name ?? 'Embedder';
     return '$feature - $embedder';
   }
 
@@ -39,16 +40,11 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     double maxY = double.negativeInfinity;
 
     for (var data in plotData) {
-      if (data.score! < minY) minY = data.score!;
-      if (data.score! > maxY) maxY = data.score!;
+      if (data.score < minY) minY = data.score;
+      if (data.score > maxY) maxY = data.score;
     }
 
     return MinMaxValues(minY: minY, maxY: maxY);
-  }
-
-  /// Formats a number to a maximum of 5 decimal places, removing trailing zeros.
-  String formatNumber(double value) {
-    return double.parse(value.toStringAsFixed(5)).toString();
   }
 
   @override
@@ -77,7 +73,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
             gridData: const FlGridData(),
             scatterSpots: getData(data!),
             minX: 0,
-            maxX: data!.results!.length.toDouble() + 1,
+            maxX: data!.results.length.toDouble() + 1,
             minY: minMaxValues.getMinY,
             maxY: minMaxValues.getMaxY,
             borderData: FlBorderData(show: true),
@@ -117,15 +113,16 @@ class BayesianOptimizationPlotView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                formatNumber(minMaxValues.maxY),
+                minMaxValues.maxY.toStringAsFixed(Constants.maxDoublePrecision),
                 style: const TextStyle(fontSize: 14),
               ),
               Text(
-                formatNumber(minMaxValues.maxY - (minMaxValues.maxY - minMaxValues.minY) / 2),
+                (minMaxValues.maxY - (minMaxValues.maxY - minMaxValues.minY) / 2)
+                    .toStringAsFixed(Constants.maxDoublePrecision),
                 style: const TextStyle(fontSize: 14),
               ),
               Text(
-                formatNumber(minMaxValues.minY),
+                minMaxValues.minY.toStringAsFixed(Constants.maxDoublePrecision),
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -156,7 +153,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
           reservedSize: 50,
           getTitlesWidget: (value, meta) {
             return Text(
-              formatNumber(value),
+              value.toStringAsFixed(Constants.maxDoublePrecision),
               style: const TextStyle(fontSize: 12),
             );
           },
@@ -171,7 +168,7 @@ class BayesianOptimizationPlotView extends StatelessWidget {
             return RotatedBox(
               quarterTurns: 3,
               child: Text(
-                index == 0 || index > data!.results!.length ? value.toString() : data!.results![index - 1].id!,
+                index == 0 || index > data!.results.length ? value.toString() : data!.results[index - 1].id,
                 style: const TextStyle(fontSize: 12),
                 textAlign: TextAlign.center,
               ),
@@ -188,7 +185,8 @@ class BayesianOptimizationPlotView extends StatelessWidget {
       touchTooltipData: ScatterTouchTooltipData(
         getTooltipItems: (ScatterSpot touchedSpot) {
           return ScatterTooltipItem(
-            '${data!.results![touchedSpot.x.toInt() - 1].id}\n Score: ${formatNumber(touchedSpot.y)}',
+            '${data!.results[touchedSpot.x.toInt() - 1].id}\n '
+            'Score: ${touchedSpot.y.toStringAsFixed(Constants.maxDoublePrecision)}',
             textStyle: const TextStyle(color: Colors.white, fontSize: 10),
           );
         },
@@ -203,14 +201,14 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     final (minScore, maxScore) = _calculateScoreRange(plotData);
 
     double counterX = 1;
-    for (var data in plotData.results!) {
-      final double scoreRatio = (data.score! - minScore) / (maxScore - minScore);
+    for (var data in plotData.results) {
+      final double scoreRatio = (data.score - minScore) / (maxScore - minScore);
       final Color pointColor = getColorBasedOnScore(scoreRatio);
 
       scatterSpots.add(
         ScatterSpot(
           counterX++,
-          data.score!,
+          data.score,
           show: true,
           dotPainter: FlDotCirclePainter(
             radius: 8,
@@ -228,9 +226,9 @@ class BayesianOptimizationPlotView extends StatelessWidget {
     double minScore = double.infinity;
     double maxScore = double.negativeInfinity;
 
-    for (var data in plotData.results!) {
-      if (data.score! < minScore) minScore = data.score!;
-      if (data.score! > maxScore) maxScore = data.score!;
+    for (var data in plotData.results) {
+      if (data.score < minScore) minScore = data.score;
+      if (data.score > maxScore) maxScore = data.score;
     }
 
     return (minScore, maxScore);

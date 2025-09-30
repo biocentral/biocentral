@@ -26,6 +26,7 @@ class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimiz
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    buildRunningIterationView(iterationState),
                     buildFinishedIterationsView(hubState),
                   ],
                 ),
@@ -43,7 +44,7 @@ class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimiz
     }
     // TODO [Refactor] Unify running task display widget with prediction models
     return BiocentralTaskDisplay(
-      title: 'Running bo iteration..',
+      title: 'Running iteration..',
       leadingIcon: const CircularProgressIndicator(),
       trailing: BiocentralStatusIndicator(state: iterationState),
       children: [],
@@ -55,7 +56,7 @@ class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimiz
       return const Text('No results yet!');
     }
     final taskDisplays = <Widget>[];
-    for (final (index, iterationResult) in hubState.trainingResults.indexed) {
+    for (final (index, iterationResult) in hubState.trainingResults.indexed.toList().reversed) {
       taskDisplays.add(
         BiocentralTaskDisplay(title: 'Iteration ${index + 1}', leadingIcon: const Icon(Icons.check), children: []),
       );
