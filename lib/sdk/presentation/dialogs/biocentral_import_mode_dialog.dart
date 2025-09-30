@@ -7,25 +7,20 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 
 class BiocentralImportModeDialog extends StatefulWidget {
-  final void Function(DatabaseImportMode?) selectedImportModeCallback;
+  final void Function(DatabaseImportMode?) onSelectedImportMode;
 
-  const BiocentralImportModeDialog({required this.selectedImportModeCallback, super.key});
+  const BiocentralImportModeDialog({required this.onSelectedImportMode, super.key});
 
   @override
   State<BiocentralImportModeDialog> createState() => _BiocentralImportModeDialogState();
 }
 
-class _BiocentralImportModeDialogState extends State<BiocentralImportModeDialog> {
+class _BiocentralImportModeDialogState extends State<BiocentralImportModeDialog> with BiocentralDialogCloseMixin {
   DatabaseImportMode? selectedImportMode;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  void closeDialog() {
-    widget.selectedImportModeCallback(selectedImportMode);
-    Navigator.of(context).pop();
   }
 
   @override
@@ -47,7 +42,7 @@ class _BiocentralImportModeDialogState extends State<BiocentralImportModeDialog>
                   },),
                   BiocentralSmallButton(
                     label: 'OK',
-                    onTap: closeDialog,
+                    onTap: () => closeDialog(callback: () => widget.onSelectedImportMode(selectedImportMode)),
                   ),
                 ],
               ),
@@ -72,7 +67,7 @@ Future<DatabaseImportMode> getImportModeFromDialog<T>({required BuildContext con
   await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BiocentralImportModeDialog(selectedImportModeCallback: (DatabaseImportMode? importMode) {
+        return BiocentralImportModeDialog(onSelectedImportMode: (DatabaseImportMode? importMode) {
           selectedMode = importMode ?? selectedMode;
         },);
       },);

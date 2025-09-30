@@ -342,7 +342,7 @@ class BayOptConfigDialog extends StatefulWidget {
   State<BayOptConfigDialog> createState() => _BayOptConfigDialogState();
 }
 
-class _BayOptConfigDialogState extends State<BayOptConfigDialog> {
+class _BayOptConfigDialogState extends State<BayOptConfigDialog> with BiocentralDialogCloseMixin {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -388,18 +388,13 @@ class _BayOptConfigDialogState extends State<BayOptConfigDialog> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: closeDialog,
           child: const Text('Cancel'),
         ),
         const SizedBox(width: 8),
         TextButton(
           onPressed: state.config.canStartTraining
-              ? () {
-                  widget.onStartTraining(
-                    state.config,
-                  );
-                  Navigator.of(context).pop();
-                }
+              ? () => closeDialog(callback: () => widget.onStartTraining(state.config))
               : null,
           child: const Text('Start'),
         ),

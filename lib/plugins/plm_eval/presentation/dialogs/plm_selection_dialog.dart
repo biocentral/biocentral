@@ -21,7 +21,7 @@ class PLMSelectionDialog extends StatefulWidget {
   State<PLMSelectionDialog> createState() => _PLMSelectionDialogState();
 }
 
-class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
+class _PLMSelectionDialogState extends State<PLMSelectionDialog> with BiocentralDialogCloseMixin {
   String? _plmSelection;
   XFile? _onnxFile;
 
@@ -36,8 +36,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     if (state.status == PLMSelectionDialogStatus.validated &&
         state.modelSelection != null &&
         state.datasets.isNotEmpty) {
-      closeDialog();
-      widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig, state.datasets);
+      closeDialog(callback: () => widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig, state.datasets));
     }
   }
 
@@ -47,10 +46,6 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
         _tokenizerConfig = updatedConfig;
       });
     }
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -206,8 +201,8 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> {
     return standardTheme?.copyWith(color: Colors.purple);
   }
 
-  Widget buildDatasetSplitsDisplay(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state,
-      List<BenchmarkDataset> available) {
+  Widget buildDatasetSplitsDisplay(
+      PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state, List<BenchmarkDataset> available) {
     if (available.isEmpty) {
       return Container();
     }

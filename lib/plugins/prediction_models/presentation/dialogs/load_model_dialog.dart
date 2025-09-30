@@ -15,7 +15,7 @@ class LoadModelDialog extends StatefulWidget {
   State<LoadModelDialog> createState() => _LoadModelDialogState();
 }
 
-class _LoadModelDialogState extends State<LoadModelDialog> {
+class _LoadModelDialogState extends State<LoadModelDialog> with BiocentralDialogCloseMixin {
   DatabaseImportMode _selectedImportMode = DatabaseImportMode.overwrite;
 
   String? _selectedDirectory;
@@ -26,20 +26,17 @@ class _LoadModelDialogState extends State<LoadModelDialog> {
   }
 
   void doLoading(LoadModelDialogState state) {
-    widget.modelHubBloc.add(
-      ModelHubLoadModelEvent(
-        configFile: state.selectedConfigFile,
-        outputFile: state.selectedOutputFile,
-        loggingFile: state.selectedLoggingFile,
-        checkpointFile: state.selectedCheckpointFile,
-        importMode: _selectedImportMode,
+    closeDialog(
+      callback: () => widget.modelHubBloc.add(
+        ModelHubLoadModelEvent(
+          configFile: state.selectedConfigFile,
+          outputFile: state.selectedOutputFile,
+          loggingFile: state.selectedLoggingFile,
+          checkpointFile: state.selectedCheckpointFile,
+          importMode: _selectedImportMode,
+        ),
       ),
     );
-    closeDialog();
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override

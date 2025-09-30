@@ -10,15 +10,11 @@ class ServerConnectionDialog extends StatefulWidget {
   State<ServerConnectionDialog> createState() => _ServerConnectionDialogState();
 }
 
-class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
+class _ServerConnectionDialogState extends State<ServerConnectionDialog> with BiocentralDialogCloseMixin {
   @override
   void initState() {
     super.initState();
     BlocProvider.of<BiocentralClientBloc>(context).add(BiocentralClientLoadDataEvent());
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override

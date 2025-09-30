@@ -1,10 +1,9 @@
+import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_dialog_bloc.dart';
+import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_dialog_bloc.dart';
-import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 
 class PPIDatabaseTestsDialog extends StatefulWidget {
   final void Function(PPIDatabaseTest) onRunInteractionDatabaseTest;
@@ -15,7 +14,7 @@ class PPIDatabaseTestsDialog extends StatefulWidget {
   State<PPIDatabaseTestsDialog> createState() => _PPIDatabaseTestsDialogState();
 }
 
-class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
+class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> with BiocentralDialogCloseMixin {
   @override
   void initState() {
     super.initState();
@@ -23,8 +22,7 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
 
   void doTestRunning(PPIDatabaseTestsDialogState state) async {
     if (state.selectedTest != null && state.missingRequirement == null) {
-      closeDialog();
-      widget.onRunInteractionDatabaseTest(state.selectedTest!);
+      closeDialog(callback: () => widget.onRunInteractionDatabaseTest(state.selectedTest!));
     }
   }
 
@@ -34,38 +32,36 @@ class _PPIDatabaseTestsDialogState extends State<PPIDatabaseTestsDialog> {
     return String.fromCharCodes(bytes);
   }
 
-  void closeDialog() {
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final PPIDatabaseTestsDialogBloc ppiDatabaseTestBloc = BlocProvider.of<PPIDatabaseTestsDialogBloc>(context);
-    return BlocBuilder<PPIDatabaseTestsDialogBloc, PPIDatabaseTestsDialogState>(builder: (context, state) {
-      return BiocentralDialog(
-        children: [
-          Text(
-            'Run test on interaction database',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          buildTestSelection(ppiDatabaseTestBloc, state),
-          buildMissingRequirementWidget(state),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              BiocentralSmallButton(
-                label: 'Run',
-                onTap: () => doTestRunning(state),
-              ),
-              BiocentralSmallButton(
-                label: 'Close',
-                onTap: closeDialog,
-              ),
-            ],
-          ),
-        ],
-      );
-    },);
+    return BlocBuilder<PPIDatabaseTestsDialogBloc, PPIDatabaseTestsDialogState>(
+      builder: (context, state) {
+        return BiocentralDialog(
+          children: [
+            Text(
+              'Run test on interaction database',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            buildTestSelection(ppiDatabaseTestBloc, state),
+            buildMissingRequirementWidget(state),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                BiocentralSmallButton(
+                  label: 'Run',
+                  onTap: () => doTestRunning(state),
+                ),
+                BiocentralSmallButton(
+                  label: 'Close',
+                  onTap: closeDialog,
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget buildTestSelection(PPIDatabaseTestsDialogBloc ppiDatabaseTestBloc, PPIDatabaseTestsDialogState state) {

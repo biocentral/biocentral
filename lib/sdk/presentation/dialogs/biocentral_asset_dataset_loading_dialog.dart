@@ -1,26 +1,29 @@
-import 'package:biocentral/sdk/util/size_config.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:biocentral/sdk/domain/biocentral_database.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/model/biocentral_asset_dataset.dart';
+import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_tooltip.dart';
-import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BiocentralAssetDatasetLoadingDialog extends StatefulWidget {
   final void Function(LoadedFileData fileData, DatabaseImportMode importMode) loadDatasetCallback;
   final List<BiocentralAssetDataset> assetDatasets;
 
-  const BiocentralAssetDatasetLoadingDialog(
-      {required this.loadDatasetCallback, required this.assetDatasets, super.key,});
+  const BiocentralAssetDatasetLoadingDialog({
+    required this.loadDatasetCallback,
+    required this.assetDatasets,
+    super.key,
+  });
 
   @override
   State<BiocentralAssetDatasetLoadingDialog> createState() => BiocentralAssetDatasetLoadingDialogState();
 }
 
-class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetDatasetLoadingDialog> {
+class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetDatasetLoadingDialog>
+    with BiocentralDialogCloseMixin {
   final Map<BiocentralAssetDataset, GlobalKey> assetDatasetKeys = {};
   final GlobalKey importButtonKey = GlobalKey();
 
@@ -38,9 +41,10 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
 
       final String fileContent = getFileContentFromAssetDataset(dataset);
 
-      closeDialog();
-
-      widget.loadDatasetCallback(LoadedFileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite);
+      closeDialog(
+        callback: () => widget.loadDatasetCallback(
+            LoadedFileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite),
+      );
     }
   }
 
@@ -48,10 +52,6 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
     final buffer = dataset.buffer;
     final Uint8List bytes = buffer.asUint8List(dataset.offsetInBytes, dataset.lengthInBytes);
     return String.fromCharCodes(bytes);
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -87,18 +87,21 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
 
   Widget buildDocStringBox(String docString) {
     return SizedBox(
-        height: SizeConfig.screenHeight(context) * 0.15,
-        width: SizeConfig.screenWidth(context) * 0.8,
-        child: SingleChildScrollView(
-            child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.grey,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(docString),
-                ),),),);
+      height: SizeConfig.screenHeight(context) * 0.15,
+      width: SizeConfig.screenWidth(context) * 0.8,
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            color: Colors.grey,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(docString),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget buildExampleDatasetDocs() {
@@ -113,16 +116,17 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
     final List<Widget> exampleDatasetRadioTiles = [];
     for (BiocentralAssetDataset assetDataset in widget.assetDatasets) {
       final Widget exampleDatasetRadioTile = RadioListTile<BiocentralAssetDataset>(
-          key: assetDatasetKeys[assetDataset],
-          title: Text(assetDataset.name, style: Theme.of(context).textTheme.bodyMedium),
-          value: assetDataset,
-          groupValue: selectedAssetDataset,
-          activeColor: Theme.of(context).primaryColor,
-          onChanged: (BiocentralAssetDataset? value) {
-            setState(() {
-              selectedAssetDataset = value;
-            });
-          },);
+        key: assetDatasetKeys[assetDataset],
+        title: Text(assetDataset.name, style: Theme.of(context).textTheme.bodyMedium),
+        value: assetDataset,
+        groupValue: selectedAssetDataset,
+        activeColor: Theme.of(context).primaryColor,
+        onChanged: (BiocentralAssetDataset? value) {
+          setState(() {
+            selectedAssetDataset = value;
+          });
+        },
+      );
       exampleDatasetRadioTiles.add(exampleDatasetRadioTile);
     }
     return Padding(

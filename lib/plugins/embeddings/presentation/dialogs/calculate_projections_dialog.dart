@@ -16,7 +16,7 @@ class CalculateProjectionsDialog extends StatefulWidget {
   State<CalculateProjectionsDialog> createState() => _CalculateProjectionsDialogState();
 }
 
-class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog> {
+class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog> with BiocentralDialogCloseMixin {
   String? _selectedMethod;
   dynamic _currentProjectionConfig;
 
@@ -32,20 +32,17 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
       final Map<String, PerSequenceEmbedding>? embeddings =
           state.embeddingsColumnWizard!.perSequenceByEmbedderName(state.selectedEmbedderName);
       if (embeddings != null && _selectedMethod != null && _currentProjectionConfig != null) {
-        closeDialog();
-        widget.calculateUMAPCallback(
-          state.selectedEmbedderName!,
-          embeddings,
-          _selectedMethod!,
-          _currentProjectionConfig!,
-          state.selectedImportMode ?? DatabaseImportMode.defaultMode,
+        closeDialog(
+          callback: () => widget.calculateUMAPCallback(
+            state.selectedEmbedderName!,
+            embeddings,
+            _selectedMethod!,
+            _currentProjectionConfig!,
+            state.selectedImportMode ?? DatabaseImportMode.defaultMode,
+          ),
         );
       }
     }
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
