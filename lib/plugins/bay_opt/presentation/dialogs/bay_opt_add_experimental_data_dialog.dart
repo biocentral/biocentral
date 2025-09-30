@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -13,11 +14,11 @@ class BayOptAddExperimentalDataDialog extends StatefulWidget {
   });
 
   @override
-  State<BayOptAddExperimentalDataDialog> createState() =>
-      _BayOptAddExperimentalDataDialogState();
+  State<BayOptAddExperimentalDataDialog> createState() => _BayOptAddExperimentalDataDialogState();
 }
 
-class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalDataDialog> {
+class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalDataDialog>
+    with BiocentralDialogCloseMixin {
   late PlutoGridStateManager stateManager;
 
   @override
@@ -120,10 +121,6 @@ class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalD
     return inputMap;
   }
 
-  void closeDialog() {
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -158,8 +155,9 @@ class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalD
                 TextButton(
                   onPressed: () async {
                     stateManager.setEditing(false);
-                    widget.onFinishedAddingData(collectInputValues());
-                    closeDialog();
+                    closeDialog(
+                      callback: () => widget.onFinishedAddingData(collectInputValues()),
+                    );
                   },
                   child: const Text('Add new data to database'),
                 ),

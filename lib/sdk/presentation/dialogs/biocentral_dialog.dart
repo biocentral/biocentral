@@ -70,3 +70,12 @@ class _BiocentralDialogState extends State<BiocentralDialog> with SingleTickerPr
     super.dispose();
   }
 }
+
+mixin BiocentralDialogCloseMixin<T extends StatefulWidget> on State<T> {
+
+  /// Close the current dialog and optionally execute fallback directly after closing
+  void closeDialog({dynamic Function()? callback}) {
+    Navigator.of(context).pop();
+    callback?.call();
+  }
+}

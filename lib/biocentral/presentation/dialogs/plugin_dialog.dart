@@ -10,7 +10,7 @@ class PluginDialog extends StatefulWidget {
   State<PluginDialog> createState() => _PluginDialogState();
 }
 
-class _PluginDialogState extends State<PluginDialog> {
+class _PluginDialogState extends State<PluginDialog> with BiocentralDialogCloseMixin {
   final Set<BiocentralPlugin> _selectedPlugins = {};
 
   final Map<Type, String> _pluginTypeNames = {};
@@ -22,10 +22,6 @@ class _PluginDialogState extends State<PluginDialog> {
     _selectedPlugins.addAll(biocentralPluginBloc.state.pluginManager.activePlugins);
     _pluginTypeNames.addEntries(biocentralPluginBloc.state.pluginManager.allAvailablePlugins
         .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)),);
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   Set<BiocentralPlugin> getPluginsNecessaryForSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {

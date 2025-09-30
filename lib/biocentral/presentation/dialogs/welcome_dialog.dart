@@ -11,14 +11,10 @@ class WelcomeDialog extends StatefulWidget {
   State<WelcomeDialog> createState() => _WelcomeDialogState();
 }
 
-class _WelcomeDialogState extends State<WelcomeDialog> {
+class _WelcomeDialogState extends State<WelcomeDialog> with BiocentralDialogCloseMixin {
   @override
   void initState() {
     super.initState();
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override

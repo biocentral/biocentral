@@ -15,12 +15,9 @@ class ColumnWizardDialog extends StatefulWidget {
   State<ColumnWizardDialog> createState() => _ColumnWizardDialogState();
 }
 
-class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticKeepAliveClientMixin {
+class _ColumnWizardDialogState extends State<ColumnWizardDialog>
+    with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
   String newColumnName = '';
-
-  void closeDialog() {
-    Navigator.of(context).pop();
-  }
 
   void onCalculate(
       ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state, ColumnWizardOperation operation) {
@@ -33,8 +30,9 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog> with AutomaticK
     // TODO
     final operationHistory = state.columnWizardHistory?[state.selectedColumn] ?? [];
     if (state.selectedColumn != null && state.columnWizard != null && operationHistory.isNotEmpty) {
-      closeDialog();
-      widget.onApplyColumn(newColumnName, state.selectedColumn!, operationHistory);
+      closeDialog(
+        callback: () => widget.onApplyColumn(newColumnName, state.selectedColumn!, operationHistory),
+      );
     }
   }
 

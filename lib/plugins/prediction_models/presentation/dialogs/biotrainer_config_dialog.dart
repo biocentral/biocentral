@@ -20,7 +20,8 @@ class BiotrainerConfigDialog extends StatefulWidget {
   State<BiotrainerConfigDialog> createState() => _BiotrainerConfigDialogState();
 }
 
-class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with AutomaticKeepAliveClientMixin {
+class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
+    with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
   bool _showOptionalOptions = false;
 
   final TextEditingController _protocolFromController = TextEditingController();
@@ -57,17 +58,14 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog> with Au
   }
 
   void startTraining(BiotrainerConfigState state) {
-    closeDialog();
-    widget.eventBus.fire(
-      BiotrainerStartTrainingEvent(
-        databaseType: state.selectedDatabaseType!,
-        trainingConfiguration: state.currentConfiguration,
+    closeDialog(
+      callback: () => widget.eventBus.fire(
+        BiotrainerStartTrainingEvent(
+          databaseType: state.selectedDatabaseType!,
+          trainingConfiguration: state.currentConfiguration,
+        ),
       ),
     );
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
