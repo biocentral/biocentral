@@ -1,24 +1,13 @@
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_model_types.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_task.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 
-enum BOConfigStep {
-  datasetSelection,
-  taskSelection,
-  featureSelection,
-  featureConfiguration,
-  embedderSelection,
-  modelSelection,
-  exploitationExplorationSelection,
-  complete
-}
-
-class BayesianOptimizationConfig {
+class BayOptConfig {
   final String? selectedDatasetType;
-  final TaskType? selectedTask;
+  final BayOptTaskType? selectedTask;
   final String? selectedFeature;
   final PredefinedEmbedder? selectedEmbedder;
-  final BayesianOptimizationModelTypes? selectedModel;
+  final BayOptModelTypes? selectedModel;
   final double? exploitationExplorationValue;
   final String? optimizationType;
   final double? targetValue;
@@ -26,7 +15,7 @@ class BayesianOptimizationConfig {
   final double? targetRangeMax;
   final bool? desiredBooleanValue;
 
-  BayesianOptimizationConfig({
+  BayOptConfig({
     this.selectedDatasetType,
     this.selectedTask,
     this.selectedFeature,
@@ -40,17 +29,17 @@ class BayesianOptimizationConfig {
     this.desiredBooleanValue,
   });
 
-  factory BayesianOptimizationConfig.empty() => BayesianOptimizationConfig();
+  factory BayOptConfig.empty() => BayOptConfig();
 
-  BayesianOptimizationConfig copyWith({
+  BayOptConfig copyWith({
     String? selectedDatasetType,
-    TaskType? selectedTask,
+    BayOptTaskType? selectedTask,
     String? selectedFeature,
     PredefinedEmbedder? selectedEmbedder,
-    BayesianOptimizationModelTypes? selectedModel,
+    BayOptModelTypes? selectedModel,
     double? exploitationExplorationValue,
     List<String>? availableFeatures,
-    List<TaskType>? tasks,
+    List<BayOptTaskType>? tasks,
     List<PredefinedEmbedder>? availableEmbedders,
     String? optimizationType,
     double? targetValue,
@@ -60,13 +49,13 @@ class BayesianOptimizationConfig {
   }) {
     // Reset feature-related fields when task changes
     if (selectedTask != null && selectedTask != this.selectedTask) {
-      return BayesianOptimizationConfig(
+      return BayOptConfig(
         selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
         selectedTask: selectedTask,
       );
     }
 
-    return BayesianOptimizationConfig(
+    return BayOptConfig(
       selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
       selectedTask: selectedTask ?? this.selectedTask,
       selectedFeature: selectedFeature ?? this.selectedFeature,
@@ -82,7 +71,7 @@ class BayesianOptimizationConfig {
   }
 
   bool get isFeatureConfigurationComplete {
-    if (selectedTask == TaskType.findOptimalValues) {
+    if (selectedTask == BayOptTaskType.findOptimalValues) {
       switch (optimizationType) {
         case 'Maximize':
           return true;
@@ -95,7 +84,7 @@ class BayesianOptimizationConfig {
         default:
           return false;
       }
-    } else if (selectedTask == TaskType.findHighestProbability) {
+    } else if (selectedTask == BayOptTaskType.findHighestProbability) {
       return desiredBooleanValue != null;
     }
     return false;
@@ -129,13 +118,13 @@ class BayesianOptimizationConfig {
     };
   }
 
-  factory BayesianOptimizationConfig.fromMap(Map<String, dynamic> map) {
-    return BayesianOptimizationConfig(
+  factory BayOptConfig.fromMap(Map<String, dynamic> map) {
+    return BayOptConfig(
       selectedDatasetType: map['selectedDatasetType'],
       selectedTask: map['selectedTask'] != null
-          ? TaskType.values.firstWhere(
+          ? BayOptTaskType.values.firstWhere(
             (e) => e.name == map['selectedTask'],
-        orElse: () => TaskType.values.first,
+        orElse: () => BayOptTaskType.values.first,
       )
           : null,
       selectedFeature: map['feature_name'],
@@ -146,9 +135,9 @@ class BayesianOptimizationConfig {
       )
           : null,
       selectedModel: map['model_type'] != null
-          ? BayesianOptimizationModelTypes.values.firstWhere(
+          ? BayOptModelTypes.values.firstWhere(
             (e) => e.name == map['model_type'],
-        orElse: () => BayesianOptimizationModelTypes.values.first,
+        orElse: () => BayOptModelTypes.values.first,
       )
           : null,
       exploitationExplorationValue: double.tryParse(map['coefficient'].toString()),

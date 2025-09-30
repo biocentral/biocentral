@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,16 +6,16 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 /// A widget that displays Bayesian optimization results in a grid format.
 /// Shows protein sequences, scores, uncertainties, and other metrics in a sortable and filterable table.
-class BayesianOptimizationDatabaseGridView extends StatefulWidget {
-  const BayesianOptimizationDatabaseGridView({
+class BayOptDatabaseGridView extends StatefulWidget {
+  const BayOptDatabaseGridView({
     super.key,
   });
 
   @override
-  State<BayesianOptimizationDatabaseGridView> createState() => _BayesianOptimizationDatabaseGridViewState();
+  State<BayOptDatabaseGridView> createState() => _BayOptDatabaseGridViewState();
 }
 
-class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizationDatabaseGridView> {
+class _BayOptDatabaseGridViewState extends State<BayOptDatabaseGridView> {
   /// Default columns configuration for the grid
   final List<PlutoColumn> _boColumns = <PlutoColumn>[
     PlutoColumn(
@@ -68,7 +68,7 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
+      body: BlocBuilder<BayOptHubBloc, BayOptHubState>(
         builder: (context, hubState) {
           return LayoutBuilder(
             builder: (context, constraints) {
@@ -82,7 +82,7 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
   }
 
   /// Builds the main grid widget with configured columns and rows
-  Widget _buildGrid(BayesianOptimizationHubState hubState, double columnWidth) {
+  Widget _buildGrid(BayOptHubState hubState, double columnWidth) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: PlutoGrid(
@@ -111,7 +111,7 @@ class _BayesianOptimizationDatabaseGridViewState extends State<BayesianOptimizat
   }
 
   /// Builds rows from the training results data
-  List<PlutoRow> buildRows(BayesianOptimizationHubState hubState) {
+  List<PlutoRow> buildRows(BayOptHubState hubState) {
     final selectedResult = hubState.selectedResult;
     if (selectedResult == null || selectedResult.results.isEmpty) {
       return [];

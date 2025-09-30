@@ -1,28 +1,28 @@
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class BayesianOptimizationTrainingResult extends Equatable {
-  final List<BayesianOptimizationTrainingResultData> results;
+class BayOptTrainingResult extends Equatable {
+  final List<BayOptTrainingResultData> results;
   final Map<String, dynamic> experimentalData;
-  final BayesianOptimizationConfig trainingConfig;
+  final BayOptConfig trainingConfig;
   final String taskID;
 
-  const BayesianOptimizationTrainingResult({
+  const BayOptTrainingResult({
     required this.results,
     required this.trainingConfig,
     required this.taskID,
     Map<String, dynamic>? experimentalData,
   }) : experimentalData = experimentalData ?? const {};
 
-  BayesianOptimizationTrainingResult copyWith({
-    List<BayesianOptimizationTrainingResultData>? results,
+  BayOptTrainingResult copyWith({
+    List<BayOptTrainingResultData>? results,
     Map<String, dynamic>? experimentalData,
-    BayesianOptimizationConfig? trainingConfig,
+    BayOptConfig? trainingConfig,
     String? taskID,
   }) {
-    return BayesianOptimizationTrainingResult(
+    return BayOptTrainingResult(
       results: results ?? this.results,
       experimentalData: experimentalData ?? this.experimentalData,
       trainingConfig: trainingConfig ?? this.trainingConfig,
@@ -30,14 +30,14 @@ class BayesianOptimizationTrainingResult extends Equatable {
     );
   }
 
-  /// Creates a [BayesianOptimizationTrainingResult] from a JSON map
-  factory BayesianOptimizationTrainingResult.fromMap(Map<String, dynamic> map) {
-    return BayesianOptimizationTrainingResult(
+  /// Creates a [BayOptTrainingResult] from a JSON map
+  factory BayOptTrainingResult.fromMap(Map<String, dynamic> map) {
+    return BayOptTrainingResult(
       results: (map['results'] as List<dynamic>?)
-              ?.map((data) => BayesianOptimizationTrainingResultData.fromMap(data))
+              ?.map((data) => BayOptTrainingResultData.fromMap(data))
               .toList() ??
           [], // TODO [Error Handling] No results should throw an error
-      trainingConfig: BayesianOptimizationConfig.fromMap(map['trainingConfig'] ?? {}),
+      trainingConfig: BayOptConfig.fromMap(map['trainingConfig'] ?? {}),
       taskID: map['taskID'] as String,
       experimentalData: map['experimentalData'],
     );
@@ -75,23 +75,23 @@ class BayesianOptimizationTrainingResult extends Equatable {
   List<Object?> get props => [results, experimentalData, trainingConfig, taskID];
 }
 
-class BayesianOptimizationTrainingResultData extends Equatable {
+class BayOptTrainingResultData extends Equatable {
   final String id;
   final double score;
   final double uncertainty;
   final double prediction;
 
-  const BayesianOptimizationTrainingResultData({
+  const BayOptTrainingResultData({
     required this.id,
     required this.score,
     required this.uncertainty,
     required this.prediction,
   });
 
-  /// Creates a [BayesianOptimizationTrainingResultData] from a JSON map
-  factory BayesianOptimizationTrainingResultData.fromMap(Map<String, dynamic> map) {
+  /// Creates a [BayOptTrainingResultData] from a JSON map
+  factory BayOptTrainingResultData.fromMap(Map<String, dynamic> map) {
     // TODO [Error Handling] Handle parsing errors
-    return BayesianOptimizationTrainingResultData(
+    return BayOptTrainingResultData(
       id: map['id'],
       score: map['score'] is double ? map['score'] : double.tryParse(map['score'].toString()),
       uncertainty: map['uncertainty'] is double ? map['uncertainty'] : double.tryParse(map['uncertainty'].toString()),

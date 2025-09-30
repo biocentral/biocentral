@@ -1,10 +1,10 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bayesian_optimization_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_command_view.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_hub_view.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/data/bay_opt_client.dart';
+import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_command_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
@@ -13,16 +13,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Plugin for integrating Bayesian Optimization functionality into the Biocentral platform.
-class BayesianOptimizationPlugin extends BiocentralPlugin
+class BayOptPlugin extends BiocentralPlugin
     with
-        BiocentralClientPluginMixin<BayesianOptimizationClient>,
-        BiocentralDatabasePluginMixin<BayesianOptimizationRepository>,
+        BiocentralClientPluginMixin<BayOptClient>,
+        BiocentralDatabasePluginMixin<BayOptRepository>,
         BiocentralColumnWizardPluginMixin {
-  /// Creates a new [BayesianOptimizationPlugin] instance.
-  BayesianOptimizationPlugin(super.eventBus);
+  /// Creates a new [BayOptPlugin] instance.
+  BayOptPlugin(super.eventBus);
 
   @override
-  String get typeName => 'BayesianOptimizationPlugin';
+  String get typeName => 'BayOptPlugin';
 
   @override
   String getShortDescription() {
@@ -30,33 +30,33 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
   }
 
   @override
-  BiocentralClientFactory<BayesianOptimizationClient> createClientFactory() {
-    return BayesianOptimizationClientFactory();
+  BiocentralClientFactory<BayOptClient> createClientFactory() {
+    return BayOptClientFactory();
   }
 
   @override
-  BayesianOptimizationRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
-    final repository = BayesianOptimizationRepository(projectRepository);
+  BayOptRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+    final repository = BayOptRepository(projectRepository);
     return repository;
   }
 
   @override
   Widget getCommandView(BuildContext context) {
-    return const BayesianOptimizationCommandView();
+    return const BayOptCommandView();
   }
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     cancelSubscriptions();
 
-    final bayesianOptimizationHubBloc = BayesianOptimizationHubBloc(
+    final bayOptHubBloc = BayOptHubBloc(
       getDatabase(context),
       getBiocentralProjectRepository(context),
       getBiocentralClientRepository(context),
       eventBus,
       getBiocentralDatabaseRepository(context),
     );
-    final bayesianOptimizationIterationBloc = BayesianOptimizationIterationBloc(
+    final bayOptIterationBloc = BayOptIterationBloc(
       getBiocentralProjectRepository(context),
       getDatabase(context),
       getBiocentralDatabaseRepository(context),
@@ -65,22 +65,22 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
     );
 
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      bayesianOptimizationHubBloc.add(BayesianOptimizationHubLoadEvent());
+      bayOptHubBloc.add(BayOptHubLoadEvent());
     }));
 
     return {
-      BlocProvider<BayesianOptimizationHubBloc>.value(
-        value: bayesianOptimizationHubBloc,
-      ): bayesianOptimizationHubBloc,
-      BlocProvider<BayesianOptimizationIterationBloc>.value(
-        value: bayesianOptimizationIterationBloc,
-      ): bayesianOptimizationIterationBloc,
+      BlocProvider<BayOptHubBloc>.value(
+        value: bayOptHubBloc,
+      ): bayOptHubBloc,
+      BlocProvider<BayOptIterationBloc>.value(
+        value: bayOptIterationBloc,
+      ): bayOptIterationBloc,
     };
   }
 
   @override
   Widget getScreenView(BuildContext context) {
-    return const BayesianOptimizationHubView();
+    return const BayOptHubView();
   }
 
   @override
@@ -103,8 +103,8 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
     return [
       BiocentralPluginDirectory(
         path: 'bay_opt',
-        saveType: BayesianOptimizationTrainingResult,
-        commandBlocType: BayesianOptimizationHubBloc,
+        saveType: BayOptTrainingResult,
+        commandBlocType: BayOptHubBloc,
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
@@ -115,7 +115,7 @@ class BayesianOptimizationPlugin extends BiocentralPlugin
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('bo_results.') && scannedFile.extension == 'json') {
               void loadingFunction() => commandBloc?.add(
-                    BayesianOptimizationHubLoadTrainingsFromFileEvent(
+                    BayOptHubLoadTrainingsFromFileEvent(
                       xFile: scannedFile,
                     ),
                   );

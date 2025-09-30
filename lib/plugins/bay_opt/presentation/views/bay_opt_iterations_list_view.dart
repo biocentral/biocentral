@@ -1,25 +1,25 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_iteration_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayesianOptimizationIterationsListView extends StatefulWidget {
-  const BayesianOptimizationIterationsListView({super.key});
+class BayOptIterationsListView extends StatefulWidget {
+  const BayOptIterationsListView({super.key});
 
   @override
-  State<BayesianOptimizationIterationsListView> createState() => _BayesianOptimizationIterationsListViewState();
+  State<BayOptIterationsListView> createState() => _BayOptIterationsListViewState();
 }
 
-class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimizationIterationsListView>
+class _BayOptIterationsListViewState extends State<BayOptIterationsListView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
+    return BlocBuilder<BayOptHubBloc, BayOptHubState>(
       builder: (context, hubState) {
-        return BlocBuilder<BayesianOptimizationIterationBloc, BayesianOptimizationIterationState>(
+        return BlocBuilder<BayOptIterationBloc, BayOptIterationState>(
           builder: (context, iterationState) {
             return Scaffold(
               body: SingleChildScrollView(
@@ -38,7 +38,7 @@ class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimiz
     );
   }
 
-  Widget buildRunningIterationView(BayesianOptimizationIterationState iterationState) {
+  Widget buildRunningIterationView(BayOptIterationState iterationState) {
     if (!iterationState.isOperating()) {
       return Container();
     }
@@ -51,7 +51,7 @@ class _BayesianOptimizationIterationsListViewState extends State<BayesianOptimiz
     );
   }
 
-  Widget buildFinishedIterationsView(BayesianOptimizationHubState hubState) {
+  Widget buildFinishedIterationsView(BayOptHubState hubState) {
     if (hubState.trainingResults.isEmpty) {
       return const Text('No results yet!');
     }
