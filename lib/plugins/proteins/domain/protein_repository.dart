@@ -133,7 +133,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     }
 
     if (entities.entries.first.value is Protein) {
-      importEntities(entities as Map<String, Protein>, importMode);
+      importEntities(entities.map((id, entity) => MapEntry(id, entity as Protein)), importMode);
     } else if (entities.entries.first.value is ProteinProteinInteraction) {
       clearDatabase();
       for (BioEntity entity in entities.values) {
