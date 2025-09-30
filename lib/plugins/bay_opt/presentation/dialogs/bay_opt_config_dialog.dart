@@ -55,7 +55,7 @@ class BayOptDialogBuilder {
         const SizedBox(height: 8),
         BiocentralEntityTypeSelection(
           onChangedCallback: (Type? value) {
-            if (value != null) bloc.add(DatasetTypeSelected(value.toString()));
+            if (value != null) bloc.add(BayOptTrainingDialogDatasetTypeSelectedEvent(value.toString()));
           },
         ),
       ],
@@ -85,7 +85,7 @@ class BayOptDialogBuilder {
                         .map((task) => DropdownMenuItem(value: task, child: Text(task.displayName)))
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) bloc.add(TaskSelected(value));
+                      if (value != null) bloc.add(BayOptTrainingDialogTaskSelectedEvent(value));
                     },
                   ),
                 ],
@@ -121,7 +121,9 @@ class BayOptDialogBuilder {
                 : [],
             onChanged: state.config.selectedTask != null
                 ? (value) {
-                    if (value != null) bloc.add(FeatureSelected(value));
+                    if (value != null) {
+                      bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedFeature: value)));
+                    }
                   }
                 : null,
           ),
@@ -149,7 +151,9 @@ class BayOptDialogBuilder {
                   const DropdownMenuItem(value: false, child: Text('False')),
                 ],
                 onChanged: (value) {
-                  if (value != null) bloc.add(DesiredBooleanValueUpdated(value));
+                  if (value != null) {
+                    bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(desiredBooleanValue: value)));
+                  }
                 },
               ),
             ],
@@ -175,7 +179,8 @@ class BayOptDialogBuilder {
                         onChanged: (value) {
                           final number = double.tryParse(value);
                           if (number != null) {
-                            bloc.add(TargetRangeMinUpdated(number));
+                            bloc.add(
+                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMin: number)));
                           }
                         },
                       ),
@@ -189,7 +194,8 @@ class BayOptDialogBuilder {
                         onChanged: (value) {
                           final number = double.tryParse(value);
                           if (number != null) {
-                            bloc.add(TargetRangeMaxUpdated(number));
+                            bloc.add(
+                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMax: number)));
                           }
                         },
                       ),
@@ -229,7 +235,9 @@ class BayOptDialogBuilder {
               .map((type) => DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
           onChanged: (value) {
-            if (value != null) bloc.add(OptimizationTypeSelected(value));
+            if (value != null) {
+              bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(optimizationType: value)));
+            }
           },
         ),
       ],
@@ -263,7 +271,10 @@ class BayOptDialogBuilder {
                         )
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) bloc.add(EmbedderSelected(value));
+                      if (value != null) {
+                        bloc.add(
+                            BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedEmbedder: value)));
+                      }
                     },
                   ),
                 ],
@@ -284,7 +295,9 @@ class BayOptDialogBuilder {
                         .map((model) => DropdownMenuItem(value: model, child: Text(model.name)))
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) bloc.add(ModelSelected(value));
+                      if (value != null) {
+                        bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedModel: value)));
+                      }
                     },
                   ),
                 ],
@@ -309,7 +322,8 @@ class BayOptDialogBuilder {
           value: state.config.exploitationExplorationValue ?? 0.5,
           divisions: 10,
           label: (state.config.exploitationExplorationValue ?? 0.5).toStringAsFixed(1),
-          onChanged: (value) => bloc.add(ExploitationExplorationUpdated(value)),
+          onChanged: (value) => bloc
+              .add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(exploitationExplorationValue: value))),
         ),
       ],
     );
