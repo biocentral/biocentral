@@ -79,34 +79,20 @@ class DesiredBooleanValueUpdated extends BayOptTrainingDialogEvent {
 
 @immutable
 final class BayOptConfigDialogState extends Equatable {
-  final BayOptConfigConfigDialogStep currentStep;
   final List<String> availableFeatures;
   final BayOptConfig config;
 
   BayOptConfigDialogState.initial()
-      : currentStep = BayOptConfigConfigDialogStep.datasetSelection,
-        availableFeatures = const [],
+      : availableFeatures = const [],
         config = BayOptConfig.empty();
 
   const BayOptConfigDialogState.updateConfig({
     required this.availableFeatures,
     required this.config,
-    required this.currentStep,
   });
 
   @override
-  List<Object?> get props => [currentStep, availableFeatures, config];
-}
-
-enum BayOptConfigConfigDialogStep {
-  datasetSelection,
-  taskSelection,
-  featureSelection,
-  featureConfiguration,
-  embedderSelection,
-  modelSelection,
-  exploitationExplorationSelection,
-  complete
+  List<Object?> get props => [availableFeatures, config];
 }
 
 class BayOptConfigDialogBloc extends Bloc<BayOptTrainingDialogEvent, BayOptConfigDialogState> {
@@ -144,7 +130,6 @@ void _onDatasetSelected(DatasetTypeSelected event, Emitter<BayOptConfigDialogSta
       config: state.config.copyWith(
         selectedDatasetType: event.datasetType,
       ),
-      currentStep: BayOptConfigConfigDialogStep.taskSelection,
     ),
   );
 }
@@ -169,7 +154,6 @@ void _onTaskSelected(TaskSelected event, Emitter<BayOptConfigDialogState> emit) 
     BayOptConfigDialogState.updateConfig(
       availableFeatures: filteredFeatures,
       config: config,
-      currentStep: BayOptConfigConfigDialogStep.featureSelection,
     ),
   );
 }
@@ -179,7 +163,6 @@ void _onFeatureSelected(FeatureSelected event, Emitter<BayOptConfigDialogState> 
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedFeature: event.feature),
-      currentStep: BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -191,9 +174,6 @@ void _onOptimizationTypeSelected(OptimizationTypeSelected event,
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
-      currentStep: config.isFeatureConfigurationComplete
-          ? BayOptConfigConfigDialogStep.embedderSelection
-          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -204,9 +184,6 @@ void _onTargetValueUpdated(TargetValueUpdated event, Emitter<BayOptConfigDialogS
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
-      currentStep: config.isFeatureConfigurationComplete
-          ? BayOptConfigConfigDialogStep.embedderSelection
-          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -217,9 +194,6 @@ void _onTargetRangeMinUpdated(TargetRangeMinUpdated event, Emitter<BayOptConfigD
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
-      currentStep: config.isFeatureConfigurationComplete
-          ? BayOptConfigConfigDialogStep.embedderSelection
-          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -230,9 +204,6 @@ void _onTargetRangeMaxUpdated(TargetRangeMaxUpdated event, Emitter<BayOptConfigD
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
-      currentStep: config.isFeatureConfigurationComplete
-          ? BayOptConfigConfigDialogStep.embedderSelection
-          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -244,9 +215,6 @@ void _onDesiredBooleanValueUpdated(DesiredBooleanValueUpdated event,
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
-      currentStep: config.isFeatureConfigurationComplete
-          ? BayOptConfigConfigDialogStep.embedderSelection
-          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
@@ -256,7 +224,6 @@ void _onEmbedderSelected(EmbedderSelected event, Emitter<BayOptConfigDialogState
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedEmbedder: event.embedder),
-      currentStep: BayOptConfigConfigDialogStep.modelSelection,
     ),
   );
 }
@@ -266,7 +233,6 @@ void _onModelSelected(ModelSelected event, Emitter<BayOptConfigDialogState> emit
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedModel: event.model),
-      currentStep: BayOptConfigConfigDialogStep.exploitationExplorationSelection,
     ),
   );
 }
@@ -277,7 +243,6 @@ void _onExploitationExplorationUpdated(ExploitationExplorationUpdated event,
     BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(exploitationExplorationValue: event.value),
-      currentStep: BayOptConfigConfigDialogStep.complete,
     ),
   );
 }}
