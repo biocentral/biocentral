@@ -1,6 +1,6 @@
 import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_database_grid_view.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_plot_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_iteration_result_view.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/views/bayesian_optimization_iterations_list_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,8 +27,8 @@ class _BayesianOptimizationHubViewState extends State<BayesianOptimizationHubVie
                 labelColor: Theme.of(context).colorScheme.onSurface,
                 unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 tabs: [
-                  const Tab(icon: Icon(Icons.graphic_eq), text: 'Plot'),
-                  const Tab(icon: Icon(Icons.list_alt), text: 'Database'),
+                  const Tab(icon: Icon(Icons.list_alt), text: 'Iterations'),
+                  const Tab(icon: Icon(Icons.graphic_eq), text: 'Iteration Results'),
                 ],
               ),
             ),
@@ -37,53 +37,12 @@ class _BayesianOptimizationHubViewState extends State<BayesianOptimizationHubVie
               flex: 5,
               child: BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
                 builder: (context, state) {
-                  final BayesianOptimizationHubBloc bloc = context.read<BayesianOptimizationHubBloc>();
-                  if (state.isOperating()) {
-                    return const TabBarView(
-                      children: [
-                        Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      ],
-                    );
-                  } else if (state.trainingResults.isEmpty) {
-                    return const TabBarView(
-                      children: [
-                        Center(
-                          child: Text('No results yet'),
-                        ),
-                        Center(
-                          child: Text('No results yet'),
-                        ),
-                      ],
-                    );
-                  } else if (state.latestResult != null) {
-                    return TabBarView(
-                      children: [
-                        BayesianOptimizationPlotView(
-                          yLabel: 'Score',
-                          data: state.latestResult,
-                        ),
-                        BayesianOptimizationDatabaseGridView(
-                          data: state.latestResult,
-                        ),
-                      ],
-                    );
-                  } else {
-                    return const TabBarView(
-                      children: [
-                        Center(
-                          child: Text('Error occurred'),
-                        ),
-                        Center(
-                          child: Text('Error occurred'),
-                        ),
-                      ],
-                    );
-                  }
+                  return TabBarView(
+                    children: [
+                      const BayesianOptimizationIterationsListView(),
+                      BayesianOptimizationIterationResultView(),
+                    ],
+                  );
                 },
               ),
             ),
