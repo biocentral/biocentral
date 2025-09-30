@@ -30,10 +30,20 @@ class BayesianOptimizationRepository with AutoSaving {
     );
   }
 
-  void addTrainingResult(BayesianOptimizationTrainingResult? result) => withAutoSave(() {
+  List<BayesianOptimizationTrainingResult> addTrainingResult(BayesianOptimizationTrainingResult? result) =>
+      withAutoSave(() {
         if (result != null) {
           _trainingResults.add(result);
         }
+        return trainingResultsToList();
+      });
+
+  List<BayesianOptimizationTrainingResult> updateLatestResult(BayesianOptimizationTrainingResult updatedResult) =>
+      withAutoSave(() {
+        final updatedResults = [updatedResult, ..._trainingResults.sublist(1)];
+        _trainingResults.clear();
+        _trainingResults.addAll(updatedResults);
+        return trainingResultsToList();
       });
 
   List<BayesianOptimizationTrainingResult> loadTrainingResults(String fileContent) {

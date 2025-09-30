@@ -17,6 +17,11 @@ class BayesianOptimizationHubSelectEvent extends BayesianOptimizationHubEvent {
   BayesianOptimizationHubSelectEvent({required this.selectedIndex});
 }
 
+class BayesianOptimizationHubAddExperimentalDataEvent extends BayesianOptimizationHubEvent {
+  final Map<String, dynamic> experimentalData;
+
+  BayesianOptimizationHubAddExperimentalDataEvent({required this.experimentalData});
+}
 
 class BayesianOptimizationHubLoadTrainingsFromFileEvent extends BayesianOptimizationHubEvent {
   final XFile? xFile;
@@ -55,7 +60,12 @@ final class BayesianOptimizationHubState extends BiocentralCommandState<Bayesian
   final List<BayesianOptimizationTrainingResult> trainingResults;
   final int selectedResultIndex;
 
-  const BayesianOptimizationHubState(super.stateInformation, super.status, this.trainingResults, this.selectedResultIndex);
+  const BayesianOptimizationHubState(
+    super.stateInformation,
+    super.status,
+    this.trainingResults,
+    this.selectedResultIndex,
+  );
 
   const BayesianOptimizationHubState.idle()
       : trainingResults = const [],
@@ -63,7 +73,8 @@ final class BayesianOptimizationHubState extends BiocentralCommandState<Bayesian
         super.idle();
 
   BayesianOptimizationTrainingResult? get latestResult => trainingResults.lastOrNull;
-  BayesianOptimizationTrainingResult? get selectedResult => trainingResults[selectedResultIndex];
+
+  BayesianOptimizationTrainingResult? get selectedResult => latestResult; // TODO Implement selection
 
   @override
   BayesianOptimizationHubState newState(
@@ -84,10 +95,12 @@ final class BayesianOptimizationHubState extends BiocentralCommandState<Bayesian
   }
 
   @override
-  List<Object?> get props => [stateInformation, status, trainingResults, selectedResultIndex];
+  List<Object?> get props =>
+      [stateInformation, status, trainingResults, selectedResultIndex, latestResult, latestResult?.experimentalData];
 }
 
-class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHubEvent, BayesianOptimizationHubState> {
+class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHubEvent, BayesianOptimizationHubState>
+    with BiocentralSyncBloc {
   final BayesianOptimizationRepository _bayesianOptimizationRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _databaseRepository;
@@ -110,6 +123,7 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
   ) : super(const BayesianOptimizationHubState.idle(), _eventBus) {
     on<BayesianOptimizationHubLoadEvent>(_onLoadTrainings);
     on<BayesianOptimizationHubSelectEvent>(_onSelectTraining);
+    on<BayesianOptimizationHubAddExperimentalDataEvent>(_onAddExperimentalData);
     on<BayesianOptimizationHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
   }
 
@@ -118,40 +132,51 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
     Emitter<BayesianOptimizationHubState> emit,
   ) async {
     final loadedTrainings = _bayesianOptimizationRepository.trainingResultsToList();
-    emit(state.copyWith(copyMap: {'trainingResults': loadedTrainings}));
+    emit(
+      state.copyWith(copyMap: {'trainingResults': loadedTrainings}),
+    );
   }
 
   Future<void> _onSelectTraining(
-      BayesianOptimizationHubSelectEvent event,
-      Emitter<BayesianOptimizationHubState> emit,
-      ) async {
+    BayesianOptimizationHubSelectEvent event,
+    Emitter<BayesianOptimizationHubState> emit,
+  ) async {
     emit(state.copyWith(copyMap: {'selectedResultIndex': event.selectedIndex}));
   }
 
-  /// Updates protein lab values in the database based on training results
-  Future<void> _updateProteinLabValues(
-    BiocentralDatabase proteinDatabase,
-    Map<String, dynamic> config,
-    BayesianOptimizationTrainingResult trainingResult,
-    List<double?> updateList,
+  Future<void> _onAddExperimentalData(
+    BayesianOptimizationHubAddExperimentalDataEvent event,
+    Emitter<BayesianOptimizationHubState> emit,
   ) async {
-    // TODO Replace with database abstraction
-    for (int i = 0; i < updateList.length; i++) {
-      if (updateList[i] != null) {
-        final String proteinId = trainingResult.results![i].id!;
-        final double? newvalue = updateList[i];
-        if (newvalue != null) {
-          final BioEntity? entity = proteinDatabase.getEntityById(proteinId);
-          if (entity != null && entity is Protein) {
-            final Map<String, String> newAttributes = Map.from(entity.attributes.toMap());
-            newAttributes[config['feature_name']] = newvalue.toString();
-            final Protein updatedProtein = entity.copyWith(attributes: CustomAttributes(newAttributes));
-            proteinDatabase.updateEntity(proteinId, updatedProtein);
-          }
-        }
+    // Always add to latest result
+    if (state.latestResult == null) {
+      // TODO This should not happen
+      return;
+    }
+    final newExperimentalData = event.experimentalData;
+    final existingExperimentalData = state.latestResult!.experimentalData;
+    final mergedData = Map.of(existingExperimentalData);
+    for (final (key, value) in newExperimentalData.entriesRecord) {
+      mergedData[key] = value; // Overwrite if data was updated via dialog
+    }
+    final updatedResult = state.latestResult!.copyWith(experimentalData: mergedData);
+    final updatedResults = _bayesianOptimizationRepository.updateLatestResult(updatedResult);
+    // Sync back to database
+    // TODO [Refactor] Get database type from campaign
+    final database = _databaseRepository.getFromType(Protein);
+    if (database == null) {
+      // TODO Error Handling
+    }
+    final entitiesToUpdate = <String, BioEntity>{};
+    for (final (id, value) in mergedData.entriesRecord) {
+      final entityToUpdate = database!.getEntityById(id);
+      final updatedEntity = entityToUpdate?.updateFromMap<Protein>({state.latestResult!.trainingConfig.selectedFeature!: value.toString()});
+      if (updatedEntity != null) {
+        entitiesToUpdate[id] = updatedEntity;
       }
     }
-    _eventBus.fire(BiocentralDatabaseUpdatedEvent());
+    syncWithDatabases(entitiesToUpdate, importMode: DatabaseImportMode.merge);
+    emit(state.copyWith(copyMap: {'trainingResults': updatedResults}));
   }
 
   /// Handles the loading of previous training results.

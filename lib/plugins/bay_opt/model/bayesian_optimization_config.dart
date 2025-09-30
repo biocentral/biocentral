@@ -14,7 +14,7 @@ enum BOConfigStep {
 }
 
 class BayesianOptimizationConfig {
-  final Type? selectedDataset;
+  final String? selectedDatasetType;
   final TaskType? selectedTask;
   final String? selectedFeature;
   final PredefinedEmbedder? selectedEmbedder;
@@ -27,7 +27,7 @@ class BayesianOptimizationConfig {
   final bool? desiredBooleanValue;
 
   BayesianOptimizationConfig({
-    this.selectedDataset,
+    this.selectedDatasetType,
     this.selectedTask,
     this.selectedFeature,
     this.selectedEmbedder,
@@ -43,8 +43,7 @@ class BayesianOptimizationConfig {
   factory BayesianOptimizationConfig.empty() => BayesianOptimizationConfig();
 
   BayesianOptimizationConfig copyWith({
-    BOConfigStep? currentStep,
-    Type? selectedDataset,
+    String? selectedDatasetType,
     TaskType? selectedTask,
     String? selectedFeature,
     PredefinedEmbedder? selectedEmbedder,
@@ -62,13 +61,13 @@ class BayesianOptimizationConfig {
     // Reset feature-related fields when task changes
     if (selectedTask != null && selectedTask != this.selectedTask) {
       return BayesianOptimizationConfig(
-        selectedDataset: selectedDataset ?? this.selectedDataset,
+        selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
         selectedTask: selectedTask,
       );
     }
 
     return BayesianOptimizationConfig(
-      selectedDataset: selectedDataset ?? this.selectedDataset,
+      selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
       selectedTask: selectedTask ?? this.selectedTask,
       selectedFeature: selectedFeature ?? this.selectedFeature,
       selectedEmbedder: selectedEmbedder ?? this.selectedEmbedder,
@@ -113,4 +112,52 @@ class BayesianOptimizationConfig {
       selectedEmbedder != null &&
       isFeatureConfigurationComplete &&
       isTargetRangeValid;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'selectedDataset': selectedDatasetType?.toString(),
+      'selectedTask': selectedTask?.name,
+      'feature_name': selectedFeature,
+      'embedder_name': selectedEmbedder?.name,
+      'model_type': selectedModel?.name,
+      'coefficient': exploitationExplorationValue,
+      'optimization_mode': optimizationType,
+      'targetValue': targetValue,
+      'targetRangeMin': targetRangeMin,
+      'targetRangeMax': targetRangeMax,
+      'desiredBooleanValue': desiredBooleanValue,
+    };
+  }
+
+  factory BayesianOptimizationConfig.fromMap(Map<String, dynamic> map) {
+    return BayesianOptimizationConfig(
+      selectedDatasetType: map['selectedDatasetType'],
+      selectedTask: map['selectedTask'] != null
+          ? TaskType.values.firstWhere(
+            (e) => e.name == map['selectedTask'],
+        orElse: () => TaskType.values.first,
+      )
+          : null,
+      selectedFeature: map['feature_name'],
+      selectedEmbedder: map['embedder_name'] != null
+          ? PredefinedEmbedderContainer.predefinedEmbedders().firstWhere(
+            (e) => e.name == map['embedder_name'],
+        orElse: () => PredefinedEmbedderContainer.predefinedEmbedders().first,
+      )
+          : null,
+      selectedModel: map['model_type'] != null
+          ? BayesianOptimizationModelTypes.values.firstWhere(
+            (e) => e.name == map['model_type'],
+        orElse: () => BayesianOptimizationModelTypes.values.first,
+      )
+          : null,
+      exploitationExplorationValue: double.tryParse(map['coefficient'].toString()),
+      optimizationType: map['optimization_mode'],
+      targetValue: double.tryParse(map['targetValue'].toString()),
+      targetRangeMin: double.tryParse(map['targetRangeMin'].toString()),
+      targetRangeMax: double.tryParse(map['targetRangeMax'].toString()),
+      desiredBooleanValue: map['desiredBooleanValue'],
+    );
+  }
+
 }

@@ -32,38 +32,47 @@ class _BayesianOptimizationIterationResultViewState extends State<BayesianOptimi
   }
 
   Widget buildResult(BayesianOptimizationHubState hubState) {
-    final selectedResult = hubState.selectedResult;
-    if (selectedResult == null) {
+    if (hubState.selectedResult == null) {
       return const Text('No results yet!');
     }
     return LayoutBuilder(
       builder: (context, constraints) {
         final widgetWidth = (constraints.maxWidth * 0.8); // 90% of available width
         final widgetHeight = widgetWidth * 0.4; // Maintain aspect ratio
-
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Center(child: Text('Results for iteration: ${hubState.selectedResultIndex + 1}')),
+            // TODO Use index Center(child: Text('Results for iteration: ${hubState.selectedResultIndex + 1}')),
+            Center(child: Text('Results for iteration: ${hubState.trainingResults.length}')),
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
               child: BayesianOptimizationPlotView(
                 yLabel: 'Score',
-                data: selectedResult,
+                data: hubState.selectedResult,
               ),
             ),
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
-              child: BayesianOptimizationDatabaseGridView(
-                data: selectedResult,
-              ),
+              child: const BayesianOptimizationDatabaseGridView(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: buildPredictionErrorDisplay(hubState),
             ),
           ],
         );
       },
     );
+  }
+
+  Widget buildPredictionErrorDisplay(BayesianOptimizationHubState hubState) {
+    final predictionError = hubState.selectedResult?.getAveragePredictionError();
+    if (predictionError == null) {
+      return Container();
+    }
+    return Text('Average prediction error: ${predictionError.toStringAsFixed(Constants.maxDoublePrecision)}');
   }
 
   @override
