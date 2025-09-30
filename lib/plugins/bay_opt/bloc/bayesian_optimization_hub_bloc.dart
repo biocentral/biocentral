@@ -11,6 +11,13 @@ abstract class BayesianOptimizationHubEvent {}
 
 class BayesianOptimizationHubLoadEvent extends BayesianOptimizationHubEvent {}
 
+class BayesianOptimizationHubSelectEvent extends BayesianOptimizationHubEvent {
+  final int selectedIndex;
+
+  BayesianOptimizationHubSelectEvent({required this.selectedIndex});
+}
+
+
 class BayesianOptimizationHubLoadTrainingsFromFileEvent extends BayesianOptimizationHubEvent {
   final XFile? xFile;
 
@@ -46,21 +53,24 @@ class BayesianOptimizationDirectIterateTrainingEvent extends BayesianOptimizatio
 @immutable
 final class BayesianOptimizationHubState extends BiocentralCommandState<BayesianOptimizationHubState> {
   final List<BayesianOptimizationTrainingResult> trainingResults;
+  final int selectedResultIndex;
 
-  const BayesianOptimizationHubState(super.stateInformation, super.status, this.trainingResults);
+  const BayesianOptimizationHubState(super.stateInformation, super.status, this.trainingResults, this.selectedResultIndex);
 
   const BayesianOptimizationHubState.idle()
       : trainingResults = const [],
+        selectedResultIndex = 0,
         super.idle();
 
   BayesianOptimizationTrainingResult? get latestResult => trainingResults.lastOrNull;
+  BayesianOptimizationTrainingResult? get selectedResult => trainingResults[selectedResultIndex];
 
   @override
   BayesianOptimizationHubState newState(
     BiocentralCommandStateInformation stateInformation,
     BiocentralCommandStatus status,
   ) {
-    return BayesianOptimizationHubState(stateInformation, status, trainingResults);
+    return BayesianOptimizationHubState(stateInformation, status, trainingResults, selectedResultIndex);
   }
 
   @override
@@ -69,11 +79,12 @@ final class BayesianOptimizationHubState extends BiocentralCommandState<Bayesian
       stateInformation,
       status,
       copyMap['trainingResults'] ?? trainingResults,
+      copyMap['selectedResultIndex'] ?? selectedResultIndex,
     );
   }
 
   @override
-  List<Object?> get props => [stateInformation, status, trainingResults];
+  List<Object?> get props => [stateInformation, status, trainingResults, selectedResultIndex];
 }
 
 class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHubEvent, BayesianOptimizationHubState> {
@@ -98,6 +109,7 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
     this._databaseRepository,
   ) : super(const BayesianOptimizationHubState.idle(), _eventBus) {
     on<BayesianOptimizationHubLoadEvent>(_onLoadTrainings);
+    on<BayesianOptimizationHubSelectEvent>(_onSelectTraining);
     on<BayesianOptimizationHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
   }
 
@@ -107,6 +119,13 @@ class BayesianOptimizationHubBloc extends BiocentralBloc<BayesianOptimizationHub
   ) async {
     final loadedTrainings = _bayesianOptimizationRepository.trainingResultsToList();
     emit(state.copyWith(copyMap: {'trainingResults': loadedTrainings}));
+  }
+
+  Future<void> _onSelectTraining(
+      BayesianOptimizationHubSelectEvent event,
+      Emitter<BayesianOptimizationHubState> emit,
+      ) async {
+    emit(state.copyWith(copyMap: {'selectedResultIndex': event.selectedIndex}));
   }
 
   /// Updates protein lab values in the database based on training results
