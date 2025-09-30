@@ -1,42 +1,38 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bayesian_optimization_add_experimental_data_dialog.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bayesian_optimization_config_dialog.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_add_experimental_data_dialog.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_config_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayesianOptimizationCommandView extends StatefulWidget {
-  const BayesianOptimizationCommandView({super.key});
+class BayOptCommandView extends StatefulWidget {
+  const BayOptCommandView({super.key});
 
   @override
-  State<BayesianOptimizationCommandView> createState() => _BayesianOptimizationCommandViewState();
+  State<BayOptCommandView> createState() => _BayOptCommandViewState();
 }
 
-class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCommandView> {
+class _BayOptCommandViewState extends State<BayOptCommandView> {
   @override
   void initState() {
     super.initState();
   }
 
-  void openStartTrainingDialog(BayesianOptimizationHubState hubState, BayesianOptimizationIterationBloc iterationBloc) {
+  void openStartTrainingDialog(BayOptHubState hubState, BayOptIterationBloc iterationBloc) {
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BayesianOptimizationConfigDialog(
-          onStartTraining: (config) => iterationBloc.add(BayesianOptimizationIterationStartEvent(config)),
+        return BayOptConfigDialog(
+          onStartTraining: (config) => iterationBloc.add(BayOptIterationStartEvent(config)),
           initialConfig: hubState.latestResult?.trainingConfig,
         );
       },
     );
   }
 
-  //void openPreviousTrainingsDialog(BuildContext context) async {
-  //  BlocProvider.of<BayesianOptimizationBloc>(context).add(BayesianOptimizationLoadPreviousTrainings());
-  //}
-
-  void openAddExperimentalDataDialog(BayesianOptimizationHubBloc hubBloc, BayesianOptimizationHubState hubState) {
+  void openAddExperimentalDataDialog(BayOptHubBloc hubBloc, BayOptHubState hubState) {
     if (hubState.trainingResults.isEmpty || hubState.latestResult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No current training result available')),
@@ -47,11 +43,11 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BayesianOptimizationAddExperimentalDataDialog(
+        return BayOptAddExperimentalDataDialog(
           currentResult: hubState.latestResult!,
           onFinishedAddingData: (experimentalData) {
             if (experimentalData != null && experimentalData.isNotEmpty) {
-              hubBloc.add(BayesianOptimizationHubAddExperimentalDataEvent(experimentalData: experimentalData));
+              hubBloc.add(BayOptHubAddExperimentalDataEvent(experimentalData: experimentalData));
             }
           },
         );
@@ -61,10 +57,10 @@ class _BayesianOptimizationCommandViewState extends State<BayesianOptimizationCo
 
   @override
   Widget build(BuildContext context) {
-    final BayesianOptimizationHubBloc hubBloc = BlocProvider.of<BayesianOptimizationHubBloc>(context);
-    final BayesianOptimizationIterationBloc iterationBloc = context.read<BayesianOptimizationIterationBloc>();
+    final BayOptHubBloc hubBloc = BlocProvider.of<BayOptHubBloc>(context);
+    final BayOptIterationBloc iterationBloc = context.read<BayOptIterationBloc>();
 
-    return BlocBuilder<BayesianOptimizationHubBloc, BayesianOptimizationHubState>(
+    return BlocBuilder<BayOptHubBloc, BayOptHubState>(
       builder: (context, hubState) {
         return BiocentralCommandBar(
           commands: [

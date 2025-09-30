@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_model_types.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_task.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
@@ -10,85 +10,85 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class BOTrainingDialogEvent {}
+abstract class BayOptTrainingDialogEvent {}
 
-class DatasetTypeSelected extends BOTrainingDialogEvent {
+class DatasetTypeSelected extends BayOptTrainingDialogEvent {
   final String datasetType;
 
   DatasetTypeSelected(this.datasetType);
 }
 
-class TaskSelected extends BOTrainingDialogEvent {
-  final TaskType task;
+class TaskSelected extends BayOptTrainingDialogEvent {
+  final BayOptTaskType task;
 
   TaskSelected(this.task);
 }
 
-class EmbedderSelected extends BOTrainingDialogEvent {
+class EmbedderSelected extends BayOptTrainingDialogEvent {
   final PredefinedEmbedder embedder;
 
   EmbedderSelected(this.embedder);
 }
 
-class FeatureSelected extends BOTrainingDialogEvent {
+class FeatureSelected extends BayOptTrainingDialogEvent {
   final String feature;
 
   FeatureSelected(this.feature);
 }
 
-class ModelSelected extends BOTrainingDialogEvent {
-  final BayesianOptimizationModelTypes model;
+class ModelSelected extends BayOptTrainingDialogEvent {
+  final BayOptModelTypes model;
 
   ModelSelected(this.model);
 }
 
-class ExploitationExplorationUpdated extends BOTrainingDialogEvent {
+class ExploitationExplorationUpdated extends BayOptTrainingDialogEvent {
   final double value;
 
   ExploitationExplorationUpdated(this.value);
 }
 
-class OptimizationTypeSelected extends BOTrainingDialogEvent {
+class OptimizationTypeSelected extends BayOptTrainingDialogEvent {
   final String type; // 'Maximize', 'Minimize', 'Target Value', 'Target Range'
   OptimizationTypeSelected(this.type);
 }
 
-class TargetValueUpdated extends BOTrainingDialogEvent {
+class TargetValueUpdated extends BayOptTrainingDialogEvent {
   final double value;
 
   TargetValueUpdated(this.value);
 }
 
-class TargetRangeMinUpdated extends BOTrainingDialogEvent {
+class TargetRangeMinUpdated extends BayOptTrainingDialogEvent {
   final double min;
 
   TargetRangeMinUpdated(this.min);
 }
 
-class TargetRangeMaxUpdated extends BOTrainingDialogEvent {
+class TargetRangeMaxUpdated extends BayOptTrainingDialogEvent {
   final double max;
 
   TargetRangeMaxUpdated(this.max);
 }
 
-class DesiredBooleanValueUpdated extends BOTrainingDialogEvent {
+class DesiredBooleanValueUpdated extends BayOptTrainingDialogEvent {
   final bool value;
 
   DesiredBooleanValueUpdated(this.value);
 }
 
 @immutable
-final class BayesianOptimizationConfigDialogState extends Equatable {
-  final BayesianOptimizationConfigDialogStep currentStep;
+final class BayOptConfigDialogState extends Equatable {
+  final BayOptConfigConfigDialogStep currentStep;
   final List<String> availableFeatures;
-  final BayesianOptimizationConfig config;
+  final BayOptConfig config;
 
-  BayesianOptimizationConfigDialogState.initial()
-      : currentStep = BayesianOptimizationConfigDialogStep.datasetSelection,
+  BayOptConfigDialogState.initial()
+      : currentStep = BayOptConfigConfigDialogStep.datasetSelection,
         availableFeatures = const [],
-        config = BayesianOptimizationConfig.empty();
+        config = BayOptConfig.empty();
 
-  const BayesianOptimizationConfigDialogState.updateConfig({
+  const BayOptConfigDialogState.updateConfig({
     required this.availableFeatures,
     required this.config,
     required this.currentStep,
@@ -98,7 +98,7 @@ final class BayesianOptimizationConfigDialogState extends Equatable {
   List<Object?> get props => [currentStep, availableFeatures, config];
 }
 
-enum BayesianOptimizationConfigDialogStep {
+enum BayOptConfigConfigDialogStep {
   datasetSelection,
   taskSelection,
   featureSelection,
@@ -109,14 +109,14 @@ enum BayesianOptimizationConfigDialogStep {
   complete
 }
 
-class BayesianOptimizationConfigDialogBloc extends Bloc<BOTrainingDialogEvent, BayesianOptimizationConfigDialogState> {
+class BayOptConfigDialogBloc extends Bloc<BayOptTrainingDialogEvent, BayOptConfigDialogState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository biocentralProjectRepository;
 
-  BayesianOptimizationConfigDialogBloc(this._biocentralDatabaseRepository,
+  BayOptConfigDialogBloc(this._biocentralDatabaseRepository,
       this.biocentralProjectRepository, {
-        BayesianOptimizationConfig? initialConfig,
-      }) : super(BayesianOptimizationConfigDialogState.initial()) {
+        BayOptConfig? initialConfig,
+      }) : super(BayOptConfigDialogState.initial()) {
     on<DatasetTypeSelected>(_onDatasetSelected);
     on<TaskSelected>(_onTaskSelected);
     on<FeatureSelected>(_onFeatureSelected);
@@ -130,7 +130,7 @@ class BayesianOptimizationConfigDialogBloc extends Bloc<BOTrainingDialogEvent, B
     on<DesiredBooleanValueUpdated>(_onDesiredBooleanValueUpdated);
   }
 
-void _onDatasetSelected(DatasetTypeSelected event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onDatasetSelected(DatasetTypeSelected event, Emitter<BayOptConfigDialogState> emit) {
   final availableFeatures = <String>[];
   if (event.datasetType.toString() == 'Protein') {
     final ProteinRepository? biocentralDatabase =
@@ -139,145 +139,145 @@ void _onDatasetSelected(DatasetTypeSelected event, Emitter<BayesianOptimizationC
   }
 
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: availableFeatures,
       config: state.config.copyWith(
         selectedDatasetType: event.datasetType,
       ),
-      currentStep: BayesianOptimizationConfigDialogStep.taskSelection,
+      currentStep: BayOptConfigConfigDialogStep.taskSelection,
     ),
   );
 }
 
-void _onTaskSelected(TaskSelected event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onTaskSelected(TaskSelected event, Emitter<BayOptConfigDialogState> emit) {
   final ProteinRepository? biocentralDatabase =
   _biocentralDatabaseRepository.getFromType(Protein) as ProteinRepository?;
 
   List<String> filteredFeatures = [];
 
   switch (event.task) {
-    case TaskType.findHighestProbability:
+    case BayOptTaskType.findHighestProbability:
       filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: true, numericTypes: false);
       break;
-    case TaskType.findOptimalValues:
+    case BayOptTaskType.findOptimalValues:
       filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: false, numericTypes: true);
       break;
   }
 
   final config = state.config.copyWith(selectedTask: event.task);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: filteredFeatures,
       config: config,
-      currentStep: BayesianOptimizationConfigDialogStep.featureSelection,
+      currentStep: BayOptConfigConfigDialogStep.featureSelection,
     ),
   );
 }
 
-void _onFeatureSelected(FeatureSelected event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onFeatureSelected(FeatureSelected event, Emitter<BayOptConfigDialogState> emit) {
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedFeature: event.feature),
-      currentStep: BayesianOptimizationConfigDialogStep.featureConfiguration,
+      currentStep: BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
 void _onOptimizationTypeSelected(OptimizationTypeSelected event,
-    Emitter<BayesianOptimizationConfigDialogState> emit,) {
+    Emitter<BayOptConfigDialogState> emit,) {
   final config = state.config.copyWith(optimizationType: event.type);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
       currentStep: config.isFeatureConfigurationComplete
-          ? BayesianOptimizationConfigDialogStep.embedderSelection
-          : BayesianOptimizationConfigDialogStep.featureConfiguration,
+          ? BayOptConfigConfigDialogStep.embedderSelection
+          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
-void _onTargetValueUpdated(TargetValueUpdated event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onTargetValueUpdated(TargetValueUpdated event, Emitter<BayOptConfigDialogState> emit) {
   final config = state.config.copyWith(targetValue: event.value);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
       currentStep: config.isFeatureConfigurationComplete
-          ? BayesianOptimizationConfigDialogStep.embedderSelection
-          : BayesianOptimizationConfigDialogStep.featureConfiguration,
+          ? BayOptConfigConfigDialogStep.embedderSelection
+          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
-void _onTargetRangeMinUpdated(TargetRangeMinUpdated event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onTargetRangeMinUpdated(TargetRangeMinUpdated event, Emitter<BayOptConfigDialogState> emit) {
   final config = state.config.copyWith(targetRangeMin: event.min);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
       currentStep: config.isFeatureConfigurationComplete
-          ? BayesianOptimizationConfigDialogStep.embedderSelection
-          : BayesianOptimizationConfigDialogStep.featureConfiguration,
+          ? BayOptConfigConfigDialogStep.embedderSelection
+          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
-void _onTargetRangeMaxUpdated(TargetRangeMaxUpdated event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onTargetRangeMaxUpdated(TargetRangeMaxUpdated event, Emitter<BayOptConfigDialogState> emit) {
   final config = state.config.copyWith(targetRangeMax: event.max);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
       currentStep: config.isFeatureConfigurationComplete
-          ? BayesianOptimizationConfigDialogStep.embedderSelection
-          : BayesianOptimizationConfigDialogStep.featureConfiguration,
+          ? BayOptConfigConfigDialogStep.embedderSelection
+          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
 void _onDesiredBooleanValueUpdated(DesiredBooleanValueUpdated event,
-    Emitter<BayesianOptimizationConfigDialogState> emit,) {
+    Emitter<BayOptConfigDialogState> emit,) {
   final config = state.config.copyWith(desiredBooleanValue: event.value);
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: config,
       currentStep: config.isFeatureConfigurationComplete
-          ? BayesianOptimizationConfigDialogStep.embedderSelection
-          : BayesianOptimizationConfigDialogStep.featureConfiguration,
+          ? BayOptConfigConfigDialogStep.embedderSelection
+          : BayOptConfigConfigDialogStep.featureConfiguration,
     ),
   );
 }
 
-void _onEmbedderSelected(EmbedderSelected event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onEmbedderSelected(EmbedderSelected event, Emitter<BayOptConfigDialogState> emit) {
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedEmbedder: event.embedder),
-      currentStep: BayesianOptimizationConfigDialogStep.modelSelection,
+      currentStep: BayOptConfigConfigDialogStep.modelSelection,
     ),
   );
 }
 
-void _onModelSelected(ModelSelected event, Emitter<BayesianOptimizationConfigDialogState> emit) {
+void _onModelSelected(ModelSelected event, Emitter<BayOptConfigDialogState> emit) {
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(selectedModel: event.model),
-      currentStep: BayesianOptimizationConfigDialogStep.exploitationExplorationSelection,
+      currentStep: BayOptConfigConfigDialogStep.exploitationExplorationSelection,
     ),
   );
 }
 
 void _onExploitationExplorationUpdated(ExploitationExplorationUpdated event,
-    Emitter<BayesianOptimizationConfigDialogState> emit,) {
+    Emitter<BayOptConfigDialogState> emit,) {
   emit(
-    BayesianOptimizationConfigDialogState.updateConfig(
+    BayOptConfigDialogState.updateConfig(
       availableFeatures: state.availableFeatures,
       config: state.config.copyWith(exploitationExplorationValue: event.value),
-      currentStep: BayesianOptimizationConfigDialogStep.complete,
+      currentStep: BayOptConfigConfigDialogStep.complete,
     ),
   );
 }}

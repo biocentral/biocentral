@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
-import '../../plugins/bay_opt/bayesian_optimization_plugin.dart';
+import '../../plugins/bay_opt/bay_opt_plugin.dart';
 
 @immutable
 class BiocentralPluginManager extends Equatable {
@@ -53,10 +53,10 @@ class BiocentralPluginManager extends Equatable {
     final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
     final PredictionModelsPlugin predictionModelsPlugin = PredictionModelsPlugin(eventBus);
     final PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
-    final BayesianOptimizationPlugin bayesianOptimizationPlugin = BayesianOptimizationPlugin(eventBus);
+    final BayOptPlugin bayOptPlugin = BayOptPlugin(eventBus);
     return (
-      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin, bayesianOptimizationPlugin},
-      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin, bayesianOptimizationPlugin},
+      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin, bayOptPlugin},
+      {proteinPlugin, ppiPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin, bayOptPlugin},
     );
   }
 

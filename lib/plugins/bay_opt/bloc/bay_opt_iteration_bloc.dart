@@ -1,53 +1,53 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_commands.dart';
-import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bayesian_optimization_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_task.dart';
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_commands.dart';
+import 'package:biocentral/plugins/bay_opt/data/bay_opt_client.dart';
+import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 
-sealed class BayesianOptimizationIterationEvent {}
+sealed class BayOptIterationEvent {}
 
-final class BayesianOptimizationIterationStartEvent extends BayesianOptimizationIterationEvent {
-  final BayesianOptimizationConfig config;
+final class BayOptIterationStartEvent extends BayOptIterationEvent {
+  final BayOptConfig config;
 
-  BayesianOptimizationIterationStartEvent(this.config);
+  BayOptIterationStartEvent(this.config);
 }
 
 @immutable
-final class BayesianOptimizationIterationState extends BiocentralCommandState<BayesianOptimizationIterationState> {
-  const BayesianOptimizationIterationState(super.stateInformation, super.status);
+final class BayOptIterationState extends BiocentralCommandState<BayOptIterationState> {
+  const BayOptIterationState(super.stateInformation, super.status);
 
-  const BayesianOptimizationIterationState.idle() : super.idle();
+  const BayOptIterationState.idle() : super.idle();
 
   @override
   List<Object?> get props => [stateInformation, status];
 
   @override
-  BayesianOptimizationIterationState newState(
+  BayOptIterationState newState(
       BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
-    return BayesianOptimizationIterationState(stateInformation, status);
+    return BayOptIterationState(stateInformation, status);
   }
 }
 
-class BayesianOptimizationIterationBloc
-    extends BiocentralBloc<BayesianOptimizationIterationEvent, BayesianOptimizationIterationState>
+class BayOptIterationBloc
+    extends BiocentralBloc<BayOptIterationEvent, BayOptIterationState>
     with BiocentralUpdateBloc {
   final BiocentralProjectRepository _projectRepository;
-  final BayesianOptimizationRepository _bayesianOptimizationRepository;
+  final BayOptRepository _bayOptRepository;
   final BiocentralDatabaseRepository _databaseRepository;
   final BiocentralClientRepository _clientRepository;
 
-  BayesianOptimizationIterationBloc(
+  BayOptIterationBloc(
     this._projectRepository,
-    this._bayesianOptimizationRepository,
+    this._bayOptRepository,
     this._databaseRepository,
     this._clientRepository,
     EventBus eventBus,
-  ) : super(const BayesianOptimizationIterationState.idle(), eventBus) {
-    on<BayesianOptimizationIterationStartEvent>((event, emit) async {
+  ) : super(const BayOptIterationState.idle(), eventBus) {
+    on<BayOptIterationStartEvent>((event, emit) async {
       final BiocentralDatabase? biocentralDatabase = _databaseRepository.getFromType(Protein);
       if (biocentralDatabase == null) {
         emit(
@@ -75,7 +75,7 @@ class BayesianOptimizationIterationBloc
         };
 
         // Discrete:
-        if (boConfig.selectedTask == TaskType.findHighestProbability) {
+        if (boConfig.selectedTask == BayOptTaskType.findHighestProbability) {
           config = {
             ...config,
             'discrete': true,
@@ -96,22 +96,22 @@ class BayesianOptimizationIterationBloc
           };
         }
 
-        final command = BayesianOptimizationIterationCommand(
+        final command = BayOptIterationCommand(
           biocentralDatabase: biocentralDatabase,
-          client: _clientRepository.getServiceClient<BayesianOptimizationClient>(),
+          client: _clientRepository.getServiceClient<BayOptClient>(),
           trainingConfiguration: config,
           targetFeature: boConfig.selectedFeature.toString(),
         );
 
         await command
-            .executeWithLogging<BayesianOptimizationIterationState>(
+            .executeWithLogging<BayOptIterationState>(
           _projectRepository,
           state,
         )
             .forEach(
           (either) {
             either.match((l) => emit(l), (r) {
-              final updatedResults = _bayesianOptimizationRepository.addTrainingResult(r);
+              final updatedResults = _bayOptRepository.addTrainingResult(r);
               emit(
                 state.setFinished(
                   information: 'Training completed',

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
+import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
 
@@ -10,27 +10,27 @@ import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
 /// - Storing and retrieving current and previous training results.
 /// - Saving training results to JSON files.
 /// - Loading training results from JSON files.
-class BayesianOptimizationRepository with AutoSaving {
+class BayOptRepository with AutoSaving {
   final BiocentralProjectRepository _projectRepository;
 
   @override
   late final BiocentralRepositoryAutoSaver autoSaver;
 
-  final List<BayesianOptimizationTrainingResult> _trainingResults = [];
+  final List<BayOptTrainingResult> _trainingResults = [];
 
-  /// Constructor for [BayesianOptimizationRepository].
+  /// Constructor for [BayOptRepository].
   ///
   /// - [_projectRepository]: The project repository for handling external file operations.
-  BayesianOptimizationRepository(this._projectRepository) {
+  BayOptRepository(this._projectRepository) {
     autoSaver = BiocentralRepositoryAutoSaver(
       biocentralProjectRepository: _projectRepository,
       fileName: 'bo_results.json',
-      fileType: BayesianOptimizationTrainingResult,
+      fileType: BayOptTrainingResult,
       saveFunctionString: saveTrainingResults,
     );
   }
 
-  List<BayesianOptimizationTrainingResult> addTrainingResult(BayesianOptimizationTrainingResult? result) =>
+  List<BayOptTrainingResult> addTrainingResult(BayOptTrainingResult? result) =>
       withAutoSave(() {
         if (result != null) {
           _trainingResults.add(result);
@@ -38,7 +38,7 @@ class BayesianOptimizationRepository with AutoSaving {
         return trainingResultsToList();
       });
 
-  List<BayesianOptimizationTrainingResult> updateLatestResult(BayesianOptimizationTrainingResult updatedResult) =>
+  List<BayOptTrainingResult> updateLatestResult(BayOptTrainingResult updatedResult) =>
       withAutoSave(() {
         final updatedResults = [updatedResult, ..._trainingResults.sublist(1)];
         _trainingResults.clear();
@@ -46,14 +46,14 @@ class BayesianOptimizationRepository with AutoSaving {
         return trainingResultsToList();
       });
 
-  List<BayesianOptimizationTrainingResult> loadTrainingResults(String fileContent) {
+  List<BayOptTrainingResult> loadTrainingResults(String fileContent) {
     // TODO CHECK THIS FUNCTION
     final resultMaps = jsonDecode(fileContent);
 
     _trainingResults.clear();
 
     for (final map in resultMaps) {
-      final BayesianOptimizationTrainingResult result = BayesianOptimizationTrainingResult.fromMap(map);
+      final BayOptTrainingResult result = BayOptTrainingResult.fromMap(map);
       _trainingResults.add(result);
     }
 
@@ -70,5 +70,5 @@ class BayesianOptimizationRepository with AutoSaving {
     return jsonEncode(trainingResultMaps);
   }
 
-  List<BayesianOptimizationTrainingResult> trainingResultsToList() => List.from(_trainingResults);
+  List<BayOptTrainingResult> trainingResultsToList() => List.from(_trainingResults);
 }
