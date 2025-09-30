@@ -1,9 +1,8 @@
+import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/model/set_generator.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/model/set_generator.dart';
 
 class SetGenerationDialog extends StatefulWidget {
   final Type? initialSelectedType;
@@ -14,7 +13,8 @@ class SetGenerationDialog extends StatefulWidget {
   State<SetGenerationDialog> createState() => _SetGenerationDialogState();
 }
 
-class _SetGenerationDialogState extends State<SetGenerationDialog> with AutomaticKeepAliveClientMixin {
+class _SetGenerationDialogState extends State<SetGenerationDialog>
+    with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
@@ -22,10 +22,6 @@ class _SetGenerationDialogState extends State<SetGenerationDialog> with Automati
       final SetGenerationDialogBloc setGenerationDialogBloc = BlocProvider.of<SetGenerationDialogBloc>(context);
       setGenerationDialogBloc.add(SetGenerationDialogSelectDatabaseTypeEvent(widget.initialSelectedType!));
     }
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -59,7 +55,9 @@ class _SetGenerationDialogState extends State<SetGenerationDialog> with Automati
   }
 
   List<Widget> buildConfigSelectionByState(
-      SetGenerationDialogBloc setGenerationDialogBloc, SetGenerationDialogState state,) {
+    SetGenerationDialogBloc setGenerationDialogBloc,
+    SetGenerationDialogState state,
+  ) {
     final List<Widget> widgetsForCurrentState = [];
     final List<Widget> bottomRowButtons = [];
     final SetGenerationDialogStep step = state.currentStep;
@@ -91,12 +89,13 @@ class _SetGenerationDialogState extends State<SetGenerationDialog> with Automati
         children: [
           const Text('1. Do you want to generate a set for proteins or protein-protein interactions?'),
           BiocentralEntityTypeSelection(
-              initialValue: state.selectedDatabaseType,
-              onChangedCallback: (Type? selected) {
-                if (selected != null) {
-                  setGenerationDialogBloc.add(SetGenerationDialogSelectDatabaseTypeEvent(selected));
-                }
-              },),
+            initialValue: state.selectedDatabaseType,
+            onChangedCallback: (Type? selected) {
+              if (selected != null) {
+                setGenerationDialogBloc.add(SetGenerationDialogSelectDatabaseTypeEvent(selected));
+              }
+            },
+          ),
         ],
       ),
     );
@@ -115,8 +114,10 @@ class _SetGenerationDialogState extends State<SetGenerationDialog> with Automati
                 child: BiocentralDropdownMenu<SplitSetGenerationMethod>(
                   label: const Text('Method..'),
                   dropdownMenuEntries: state.availableMethods
-                      .map((SplitSetGenerationMethod method) =>
-                          DropdownMenuEntry<SplitSetGenerationMethod>(value: method, label: method.name),)
+                      .map(
+                        (SplitSetGenerationMethod method) =>
+                            DropdownMenuEntry<SplitSetGenerationMethod>(value: method, label: method.name),
+                      )
                       .toList(),
                   onSelected: (SplitSetGenerationMethod? value) =>
                       setGenerationDialogBloc.add(SetGenerationDialogSelectMethodEvent(value)),
@@ -131,7 +132,9 @@ class _SetGenerationDialogState extends State<SetGenerationDialog> with Automati
 
   Widget buildCalculateButton(SetGenerationDialogBloc setGenerationDialogBloc) {
     return BiocentralSmallButton(
-        onTap: () => setGenerationDialogBloc.add(SetGenerationDialogCalculateEvent()), label: 'Calculate',);
+      onTap: () => setGenerationDialogBloc.add(SetGenerationDialogCalculateEvent()),
+      label: 'Calculate',
+    );
   }
 
   Widget buildCancelButton() {

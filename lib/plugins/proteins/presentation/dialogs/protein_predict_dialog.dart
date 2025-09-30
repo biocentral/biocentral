@@ -12,7 +12,8 @@ class ProteinPredictDialog extends StatefulWidget {
   State<ProteinPredictDialog> createState() => _ProteinPredictDialogState();
 }
 
-class _ProteinPredictDialogState extends State<ProteinPredictDialog> with AutomaticKeepAliveClientMixin {
+class _ProteinPredictDialogState extends State<ProteinPredictDialog>
+    with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
   final Set<String> _selectedModels = {};
 
   @override
@@ -22,13 +23,10 @@ class _ProteinPredictDialogState extends State<ProteinPredictDialog> with Automa
 
   void onPredict() {
     if (_selectedModels.isNotEmpty) {
-      closeDialog();
-      widget.onPredict(_selectedModels);
+      closeDialog(
+        callback: () => widget.onPredict(_selectedModels),
+      );
     }
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override

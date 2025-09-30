@@ -12,7 +12,7 @@ class WikiDialog extends StatefulWidget {
   State<WikiDialog> createState() => _WikiDialogState();
 }
 
-class _WikiDialogState extends State<WikiDialog> {
+class _WikiDialogState extends State<WikiDialog> with BiocentralDialogCloseMixin {
   List<Tutorial> _availableTutorials = [];
 
   String? _selectedDoc;
@@ -29,12 +29,7 @@ class _WikiDialogState extends State<WikiDialog> {
     final TutorialRepository tutorialRepository = context.read<TutorialRepository>();
     final TutorialRunner tutorialRunner = TutorialRunner(tutorialContainer, tutorialRepository);
     final TutorialHandler tutorialHandler = TutorialHandler(tutorialRunner, tutorialRepository);
-    closeDialog();
-    tutorialHandler.startTutorial();
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
+    closeDialog(callback: tutorialHandler.startTutorial);
   }
 
   @override

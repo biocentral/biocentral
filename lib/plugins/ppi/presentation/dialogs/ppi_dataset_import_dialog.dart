@@ -1,12 +1,11 @@
 import 'dart:async';
 
+import 'package:biocentral/plugins/ppi/bloc/ppi_import_dialog_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc_effects/bloc_effects.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/plugins/ppi/bloc/ppi_import_dialog_bloc.dart';
 
 class PPIDatasetImportDialog extends StatefulWidget {
   final Function(LoadedFileData fileData, String format, DatabaseImportMode importMode) onImportInteractions;
@@ -17,7 +16,7 @@ class PPIDatasetImportDialog extends StatefulWidget {
   State<PPIDatasetImportDialog> createState() => _PPIDatasetImportDialogState();
 }
 
-class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
+class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> with BiocentralDialogCloseMixin {
   bool _autoDetectedFormat = false;
 
   @override
@@ -38,14 +37,14 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
 
   Future<void> doImport(PPIImportDialogState state) async {
     if (state.selectedFile != null && state.selectedFormat != null) {
-      closeDialog();
-      widget.onImportInteractions(
-          state.selectedFile!, state.selectedFormat!, await getImportModeFromDialog(context: context),);
+      closeDialog(
+        callback: () async => widget.onImportInteractions(
+          state.selectedFile!,
+          state.selectedFormat!,
+          await getImportModeFromDialog(context: context),
+        ),
+      );
     }
-  }
-
-  void closeDialog() {
-    Navigator.of(context).pop();
   }
 
   @override
@@ -59,12 +58,13 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
         });
       },
       child: BlocConsumer<PPIImportDialogBloc, PPIImportDialogState>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            if (state.status == PPIImportDialogStatus.initial || state.status == PPIImportDialogStatus.loading) {
-              return const CircularProgressIndicator();
-            }
-            return BiocentralDialog(children: [
+        listener: (context, state) {},
+        builder: (context, state) {
+          if (state.status == PPIImportDialogStatus.initial || state.status == PPIImportDialogStatus.loading) {
+            return const CircularProgressIndicator();
+          }
+          return BiocentralDialog(
+            children: [
               Text(
                 'Import a dataset',
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -73,8 +73,9 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
               SizedBox(height: SizeConfig.safeBlockVertical(context) * 3),
               // Format selection
               Padding(
-                  padding: EdgeInsets.all(SizeConfig.safeBlockHorizontal(context) * 2),
-                  child: buildDatasetFormatDocs(state),),
+                padding: EdgeInsets.all(SizeConfig.safeBlockHorizontal(context) * 2),
+                child: buildDatasetFormatDocs(state),
+              ),
               buildFormatSelection(ppiImportDialogBloc, state),
               SizedBox(height: SizeConfig.safeBlockVertical(context) * 3),
               Row(
@@ -90,25 +91,30 @@ class _PPIDatasetImportDialogState extends State<PPIDatasetImportDialog> {
                   ),
                 ],
               ),
-            ],);
-          },),
+            ],
+          );
+        },
+      ),
     );
   }
 
   Widget buildDocStringBox(String docString) {
     return SizedBox(
-        height: SizeConfig.screenHeight(context) * 0.15,
-        width: SizeConfig.screenWidth(context) * 0.8,
-        child: SingleChildScrollView(
-            child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.grey,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(docString),
-                ),),),);
+      height: SizeConfig.screenHeight(context) * 0.15,
+      width: SizeConfig.screenWidth(context) * 0.8,
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            color: Colors.grey,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(docString),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget buildDatasetSelection(PPIImportDialogBloc ppiImportDialogBloc, PPIImportDialogState state) {
