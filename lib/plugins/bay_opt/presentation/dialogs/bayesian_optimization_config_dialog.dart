@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/bay_opt/bloc/bayesian_optimization_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
 import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_model_types.dart';
 import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
@@ -9,119 +10,45 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_entity_type_selec
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// Dialog Widget
-class BayesianOptimizationConfigDialog extends StatefulWidget {
-  final Function(
-    TaskType? selectedTask,
-    String? selectedFeature,
-    BayesianOptimizationModelTypes? selectedModel,
-    double exploitationExplorationValue,
-    PredefinedEmbedder? selectedEmbedder, {
-    String? optimizationType,
-    double? targetValue,
-    double? targetRangeMin,
-    double? targetRangeMax,
-    bool? desiredBooleanValue,
-  }) _startTraining;
+class BayesianOptimizationDialogStep {
+  final bool Function(BayesianOptimizationConfig config) shouldShow;
+  final Widget Function(BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) builder;
 
-  final TaskType? initialTask;
-  final String? initialFeature;
-  final BayesianOptimizationModelTypes? initialModel;
-  final double initialExploitationExploration;
-  final PredefinedEmbedder? initialEmbedder;
-  final String? initialOptimizationType;
-  final double? initialTargetValue;
-  final double? initialTargetRangeMin;
-  final double? initialTargetRangeMax;
-  final bool? initialDesiredBooleanValue;
-
-  const BayesianOptimizationConfigDialog(
-    this._startTraining, {
-    this.initialTask,
-    this.initialFeature,
-    this.initialModel,
-    this.initialExploitationExploration = 0.5,
-    this.initialEmbedder,
-    this.initialOptimizationType,
-    this.initialTargetValue,
-    this.initialTargetRangeMin,
-    this.initialTargetRangeMax,
-    this.initialDesiredBooleanValue,
-    super.key,
+  const BayesianOptimizationDialogStep({
+    required this.shouldShow,
+    required this.builder,
   });
-
-  @override
-  State<BayesianOptimizationConfigDialog> createState() => _BayesianOptimizationConfigDialogState();
 }
 
-class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationConfigDialog> {
-  final List<PredefinedEmbedder> _availableEmbedders = PredefinedEmbedderContainer.predefinedEmbedders();
-  final List<TaskType> _availableTasks = TaskType.values;
+class BayesianOptimizationDialogBuilder {
+  static final List<PredefinedEmbedder> _availableEmbedders = PredefinedEmbedderContainer.predefinedEmbedders();
+  static final List<TaskType> _availableTasks = TaskType.values;
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => BayesianOptimizationConfigDialogBloc(
-        context.read<BiocentralDatabaseRepository>(),
-        context.read<BiocentralProjectRepository>(),
-        initialTask: widget.initialTask,
-        initialFeature: widget.initialFeature,
-        initialModel: widget.initialModel,
-        initialExploitationExploration: widget.initialExploitationExploration,
-        initialEmbedder: widget.initialEmbedder,
-        initialOptimizationType: widget.initialOptimizationType,
-        initialTargetValue: widget.initialTargetValue,
-        initialTargetRangeMin: widget.initialTargetRangeMin,
-        initialTargetRangeMax: widget.initialTargetRangeMax,
-        initialDesiredBooleanValue: widget.initialDesiredBooleanValue,
-      ),
-      child: BlocBuilder<BayesianOptimizationConfigDialogBloc, BayesianOptimizationConfigDialogState>(
-        builder: (context, state) {
-          final bloc = context.read<BayesianOptimizationConfigDialogBloc>();
+  static final List<BayesianOptimizationDialogStep> steps = [
+    BayesianOptimizationDialogStep(
+      shouldShow: (config) => true, // Always show first step
+      builder: (state, bloc) => buildDatasetSelection(state, bloc),
+    ),
+    BayesianOptimizationDialogStep(
+      shouldShow: (config) => config.selectedDatasetType != null,
+      builder: (state, bloc) => buildTaskSelection(state, bloc),
+    ),
+    BayesianOptimizationDialogStep(
+      shouldShow: (config) => config.selectedFeature != null,
+      builder: (state, bloc) => buildFeatureConfiguration(state, bloc),
+    ),
+    BayesianOptimizationDialogStep(
+      shouldShow: (config) => config.isFeatureConfigurationComplete,
+      builder: (state, bloc) => buildEmbedderAndModelSelection(state, bloc),
+    ),
+    BayesianOptimizationDialogStep(
+      shouldShow: (config) => config.selectedModel != null,
+      builder: (state, bloc) => buildExploitationVsExplorationSelection(state, bloc),
+    ),
+  ];
 
-          return BiocentralDialog(
-            children: [
-              const Text('Start Training', style: TextStyle(fontSize: 24)),
-              const SizedBox(height: 16),
-
-              // Dataset Selection
-              if (state.currentStep.index >= BayesianOptimizationConfigDialogStep.datasetSelection.index)
-                buildDatasetSelection(state, bloc),
-
-              // Task and Feature Selection (in the same row)
-              if (state.currentStep.index >= BayesianOptimizationConfigDialogStep.taskSelection.index &&
-                  state.config.selectedDataset != null)
-                buildTaskSelection(state, bloc),
-
-              // Feature Configuration and Optimization Type (full row or split with target range)
-              if (state.currentStep.index >= BayesianOptimizationConfigDialogStep.featureConfiguration.index &&
-                  state.config.selectedFeature != null)
-                buildFeatureConfiguration(state, bloc),
-
-              // Embedder and Model Selection (50/50 split row)
-              if (state.currentStep.index >= BayesianOptimizationConfigDialogStep.embedderSelection.index &&
-                  state.config.isFeatureConfigurationComplete)
-                buildEmbedderAndModelSelection(state, bloc),
-
-              // Exploitation vs. Exploration Selection
-              if (state.currentStep.index >=
-                      BayesianOptimizationConfigDialogStep.exploitationExplorationSelection.index &&
-                  state.config.selectedModel != null)
-                buildExploitationVsExplorationSelection(state, bloc),
-
-              // Action Buttons
-              const SizedBox(
-                height: 16,
-              ),
-              buildActionButtons(state, bloc),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget buildDatasetSelection(BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
+  static Widget buildDatasetSelection(
+      BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -129,15 +56,15 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
         const SizedBox(height: 8),
         BiocentralEntityTypeSelection(
           onChangedCallback: (Type? value) {
-            if (value != null) bloc.add(DatasetSelected(value));
+            if (value != null) bloc.add(DatasetTypeSelected(value.toString()));
           },
-          initialValue: state.config.selectedDataset,
         ),
       ],
     );
   }
 
-  Widget buildTaskSelection(BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
+  static Widget buildTaskSelection(
+      BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -175,7 +102,8 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
     );
   }
 
-  Widget buildFeatureSelection(BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
+  static Widget buildFeatureSelection(
+      BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     if (state.config.selectedTask != null && state.availableFeatures.isEmpty) {
       return const Text('Could not find any features to optimize, please check your dataset!');
     }
@@ -205,7 +133,7 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
     );
   }
 
-  Widget buildFeatureConfiguration(
+  static Widget buildFeatureConfiguration(
       BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +220,7 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
     );
   }
 
-  Widget buildOptimizationTypeSelection(
+  static Widget buildOptimizationTypeSelection(
       BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +241,7 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
     );
   }
 
-  Widget buildEmbedderAndModelSelection(
+  static Widget buildEmbedderAndModelSelection(
       BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,7 +308,7 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
     );
   }
 
-  Widget buildExploitationVsExplorationSelection(
+  static Widget buildExploitationVsExplorationSelection(
     BayesianOptimizationConfigDialogState state,
     BayesianOptimizationConfigDialogBloc bloc,
   ) {
@@ -398,6 +326,57 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
       ],
     );
   }
+}
+
+// Dialog Widget
+class BayesianOptimizationConfigDialog extends StatefulWidget {
+  final void Function(BayesianOptimizationConfig config) onStartTraining;
+
+  final BayesianOptimizationConfig? initialConfig;
+
+  const BayesianOptimizationConfigDialog({required this.onStartTraining, super.key, this.initialConfig});
+
+  @override
+  State<BayesianOptimizationConfigDialog> createState() => _BayesianOptimizationConfigDialogState();
+}
+
+class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationConfigDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => BayesianOptimizationConfigDialogBloc(
+        context.read<BiocentralDatabaseRepository>(),
+        context.read<BiocentralProjectRepository>(),
+      ),
+      child: BlocBuilder<BayesianOptimizationConfigDialogBloc, BayesianOptimizationConfigDialogState>(
+        builder: (context, state) {
+          final bloc = context.read<BayesianOptimizationConfigDialogBloc>();
+
+          return BiocentralDialog(
+            children: [
+              const Text('Start New Iteration', style: TextStyle(fontSize: 24)),
+              const SizedBox(height: 16),
+              ...buildSteps(state, bloc),
+              // Action Buttons
+              const SizedBox(
+                height: 16,
+              ),
+              buildActionButtons(state, bloc),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> buildSteps(BayesianOptimizationConfigDialogState state, BayesianOptimizationConfigDialogBloc bloc) {
+    return BayesianOptimizationDialogBuilder.steps
+        .where(
+          (step) => step.shouldShow(state.config),
+        )
+        .map((step) => step.builder(state, bloc))
+        .toList();
+  }
 
   Widget buildActionButtons(
     BayesianOptimizationConfigDialogState state,
@@ -414,17 +393,8 @@ class _BayesianOptimizationConfigDialogState extends State<BayesianOptimizationC
         TextButton(
           onPressed: state.config.canStartTraining
               ? () {
-                  widget._startTraining(
-                    state.config.selectedTask,
-                    state.config.selectedFeature,
-                    state.config.selectedModel,
-                    state.config.exploitationExplorationValue!,
-                    state.config.selectedEmbedder,
-                    optimizationType: state.config.optimizationType,
-                    targetValue: state.config.targetValue,
-                    targetRangeMin: state.config.targetRangeMin,
-                    targetRangeMax: state.config.targetRangeMax,
-                    desiredBooleanValue: state.config.desiredBooleanValue,
+                  widget.onStartTraining(
+                    state.config,
                   );
                   Navigator.of(context).pop();
                 }

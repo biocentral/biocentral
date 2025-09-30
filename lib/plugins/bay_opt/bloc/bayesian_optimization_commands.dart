@@ -1,5 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/data/bayesian_optimization_client.dart';
+import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_config.dart';
 import 'package:biocentral/plugins/bay_opt/model/bayesian_optimization_training_result.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -87,9 +88,8 @@ class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOpt
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      //         final actualValues = await _extractActualValues(modelResults);
-      var trainingResult =
-          BayesianOptimizationTrainingResult(results: [], trainingConfig: _trainingConfiguration, taskID: taskID);
+      var trainingResult = BayesianOptimizationTrainingResult(
+          results: [], trainingConfig: BayesianOptimizationConfig.fromMap(_trainingConfiguration), taskID: taskID);
       await for (final (dto, currentResult) in _boClient.boTrainingTaskStream(taskID, trainingResult)) {
         if (currentResult != null) {
           trainingResult = currentResult;
@@ -116,25 +116,6 @@ class BayesianOptimizationIterationCommand extends BiocentralCommand<BayesianOpt
       return left(BiocentralNetworkException(message: 'Failed to transfer training files'));
     }
     return right(unit);
-  }
-
-  /// Extracts actual values from model results.
-  /// TODO Delete or move to another place
-  Future<List<double>> _extractActualValues(BayesianOptimizationTrainingResult modelResults) async {
-    final List<double> actualValues = [];
-    final featureName = _trainingConfiguration['feature_name'];
-    final actualFeatureName = 'ACTUAL_$featureName';
-
-    for (var result in modelResults.results!) {
-      if (result.id != null) {
-        final protein = _biocentralDatabase.getEntityById(result.id!) as Protein?;
-        final actualValue = protein?.attributes[actualFeatureName];
-        actualValues.add(actualValue != null && actualValue.isNotEmpty ? (double.tryParse(actualValue) ?? -99) : -99);
-      } else {
-        actualValues.add(-99);
-      }
-    }
-    return actualValues;
   }
 
   @override
