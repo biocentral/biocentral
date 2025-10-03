@@ -272,18 +272,20 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
             const SizedBox(height: 20),
             Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               ...state.projectionData!.entries.map(
-                (MapEntry<ProjectionData, List<Map<String, dynamic>>> mapEntry) => SizedBox(
-                  width: SizeConfig.screenWidth(context) * 0.75,
-                  height: SizeConfig.screenHeight(context) * 0.4,
-                  child: WidgetsToImage(
-                    controller: projectionImageController,
-                    child: ProjectionVisualizer2D(
-                      projectionData: mapEntry.key,
-                      pointData:
-                          mapEntry.value.map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString()))).toList(),
-                      pointIdentifierKey: 'id',
+                (MapEntry<ProjectionData, List<Map<String, dynamic>>> mapEntry) => Column(
+                  children: [
+                    Text(mapEntry.key.identifier), // TODO [bio_flutter] Add projection name to projection visualizer
+                    SizedBox(
+                      width: SizeConfig.screenWidth(context) * 0.75,
+                      height: SizeConfig.screenHeight(context) * 0.4,
+                      child: ProjectionVisualizer2D(
+                        projectionData: mapEntry.key,
+                        pointData:
+                            mapEntry.value.map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString()))).toList(),
+                        pointIdentifierKey: 'id',
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               IconButton(
