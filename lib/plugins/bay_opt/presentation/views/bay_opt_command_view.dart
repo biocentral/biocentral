@@ -1,8 +1,10 @@
+import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_config_dialog_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_add_experimental_data_dialog.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_config_dialog.dart';
+import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_config_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,13 +22,22 @@ class _BayOptCommandViewState extends State<BayOptCommandView> {
   }
 
   void openStartTrainingDialog(BayOptHubState hubState, BayOptIterationBloc iterationBloc) {
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BayOptConfigDialog(
-          onStartTraining: (config) => iterationBloc.add(BayOptIterationStartEvent(config)),
-          initialConfig: hubState.latestResult?.trainingConfig,
+        return BlocProvider(
+          create: (context) => BayOptConfigDialogBloc(
+            context.read<BiocentralDatabaseRepository>(),
+            context.read<BiocentralProjectRepository>(),
+          ),
+          child: BlocBuilder<BayOptConfigDialogBloc, BayOptConfigDialogState>(
+            builder: (context, state) => BiocentralConfigDialog(
+              configDialogBuilder:
+                  BayOptConfigDialogBuilder((config) => iterationBloc.add(BayOptIterationStartEvent(config))),
+              bloc: BlocProvider.of<BayOptConfigDialogBloc>(context),
+              state: state,
+            ),
+          ),
         );
       },
     );
