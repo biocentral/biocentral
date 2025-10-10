@@ -225,10 +225,12 @@ class SetGenerationDialogBloc extends BiocentralBloc<SetGenerationDialogEvent, S
 
         existingSetColumns ??= {};
 
-        // Get available sets from the selected column
-        availableSourceSets = Map.fromEntries(existingSetColumns
-            .map((column) => MapEntry(column, column.detectSplitSets()))
-            .where((entry) => entry.value.isNotEmpty));
+        // Get available sets from the selected column for subsplitting
+        availableSourceSets = Map.fromEntries(
+          existingSetColumns
+              .map((column) => MapEntry(column, column.detectSplitSets()))
+              .where((entry) => entry.value.length <= 2),
+        );
       }
 
       emit(

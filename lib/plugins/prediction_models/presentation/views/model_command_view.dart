@@ -6,8 +6,9 @@ import 'package:biocentral/plugins/prediction_models/data/prediction_models_clie
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/biotrainer_config_dialog.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/load_model_dialog.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,7 +68,15 @@ class _ModelCommandViewState extends State<ModelCommandView> {
       builder: (BuildContext context) {
         return BlocProvider(
           create: (context) => SetGenerationDialogBloc(context.read<BiocentralDatabaseRepository>(), widget.eventBus),
-          child: const SetGenerationDialog(),
+          child: BlocBuilder<SetGenerationDialogBloc, SetGenerationDialogState>(
+            builder: (context, state) {
+              return BiocentralConfigDialog<SetGenerationDialogBloc, SetGenerationDialogState>(
+                configDialogBuilder: SetGenerationDialogBuilder(),
+                bloc: BlocProvider.of<SetGenerationDialogBloc>(context),
+                state: state,
+              );
+            },
+          ),
         );
       },
     );

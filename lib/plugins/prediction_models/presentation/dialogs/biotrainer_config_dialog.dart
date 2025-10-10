@@ -2,9 +2,10 @@ import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
+import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +49,16 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
       context: context,
       builder: (BuildContext context) {
         return BlocProvider(
-          create: (context) => SetGenerationDialogBloc(context.read<BiocentralDatabaseRepository>(), widget.eventBus),
-          child: SetGenerationDialog(
-            initialSelectedType: state.selectedDatabaseType,
+          create: (context) => SetGenerationDialogBloc(context.read<BiocentralDatabaseRepository>(), widget.eventBus)
+            ..add(SetGenerationDialogUpdateEvent(SetGenerationSTO(selectedDatabaseType: state.selectedDatabaseType))),
+          child: BlocBuilder<SetGenerationDialogBloc, SetGenerationDialogState>(
+            builder: (context, state) {
+              return BiocentralConfigDialog(
+                configDialogBuilder: SetGenerationDialogBuilder(),
+                bloc: BlocProvider.of<SetGenerationDialogBloc>(context),
+                state: state,
+              );
+            },
           ),
         );
       },
@@ -240,8 +248,12 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
             child: BiocentralDropdownMenu<String>(
               label: const Text('Choose embeddings..'),
               dropdownMenuEntries: PredefinedEmbedderContainer.predefinedEmbedders()
-                  .map((PredefinedEmbedder embedder) =>
-                      DropdownMenuEntry<String>(value: embedder.biotrainerName ?? embedder.name, label: embedder.name))
+                  .map(
+                    (PredefinedEmbedder embedder) => DropdownMenuEntry<String>(
+                      value: embedder.biotrainerName ?? embedder.name,
+                      label: embedder.name,
+                    ),
+                  )
                   .toList(),
               onSelected: (String? value) => biotrainerConfigBloc.add(BiotrainerConfigSelectEmbedderEvent(value ?? '')),
             ),
