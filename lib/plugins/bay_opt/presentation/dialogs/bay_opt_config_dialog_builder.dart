@@ -12,16 +12,6 @@ import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayOptDialogStep {
-  final bool Function(BayOptConfig config) shouldShow;
-  final Widget Function(BayOptConfigDialogState state, BayOptConfigDialogBloc bloc) builder;
-
-  const BayOptDialogStep({
-    required this.shouldShow,
-    required this.builder,
-  });
-}
-
 class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConfigDialogBloc, BayOptConfigDialogState> {
   static final List<PredefinedEmbedder> _availableEmbedders = PredefinedEmbedderContainer.predefinedEmbedders();
   static final List<BayOptTaskType> _availableTasks = BayOptTaskType.values;
