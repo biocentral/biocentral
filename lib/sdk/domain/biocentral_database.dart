@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
@@ -231,7 +232,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
           entitiesToRemove.add(currentDatabase[entityID]);
         }
       }
-      for(final entity in entitiesToRemove) {
+      for (final entity in entitiesToRemove) {
         removeEntityImpl(entity);
       }
       autoSaver.scheduleSave();
@@ -320,13 +321,15 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     );
   }
 
-  Set<String> getAvailableSetColumnsForAllEntities() {
-    return _getKeysWhereDataIsAvailableForAllEntries(
+  Set<BiocentralDatabaseColumn> getAvailableSetColumnsForAllEntities() {
+    final availableKeys = _getKeysWhereDataIsAvailableForAllEntries(
       entitiesAsMaps()
           .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains('set')))
           .toList(),
       databaseToList().length,
     );
+    final columns = getColumns();
+    return availableKeys.map((key) => BiocentralDatabaseColumn(name: key, values: columns[key] ?? {})).toSet();
   }
 
   static Set<String> _getKeysWhereDataIsAvailableForAllEntries(
