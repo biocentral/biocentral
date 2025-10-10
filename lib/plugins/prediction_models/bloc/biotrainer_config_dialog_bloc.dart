@@ -572,7 +572,9 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
     // TODO ERROR HANDLING
     return _biocentralDatabaseRepository
             .getFromType(state.selectedDatabaseType)
-            ?.getAvailableSetColumnsForAllEntities() ??
+            ?.getAvailableSetColumnsForAllEntities()
+            .map((column) => column.name)
+            .toSet() ??
         {};
   }
 }
