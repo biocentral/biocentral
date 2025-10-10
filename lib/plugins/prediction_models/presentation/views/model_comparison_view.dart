@@ -20,12 +20,18 @@ class ModelComparisonView extends StatelessWidget {
     final metrics = <String, Set<BiocentralMLMetric>>{};
     //    final metrics = {'Test Set Metrics': testResult.metrics}
     //       ..addAll(testResult.baselineMetrics);
-    for(final predictionModel in modelsToCompare) {
+    for (final predictionModel in modelsToCompare) {
       // TODO Support multiple test sets
       final testResult = predictionModel.defaultTestResult;
-      if(testResult != null) {
+      if (testResult != null) {
         metrics.addAll({predictionModel.getReadableModelID(): testResult.metrics});
-        metrics.addAll(testResult.baselineMetrics);
+        metrics.addAll(
+          testResult.baselineMetrics.map(
+            (name, metrics) =>
+                // Prefix random model with model ID because it can be different for the compared models
+                MapEntry(name.contains('random') ? '${predictionModel.getReadableModelID()}-random' : name, metrics),
+          ),
+        );
       }
     }
     return BiocentralMetricsDisplay(metrics: metrics);
