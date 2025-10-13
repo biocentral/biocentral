@@ -1,0 +1,48 @@
+name: "seth_pipeline"
+platform: "ensemble"
+max_batch_size: 16
+
+input [
+  {
+    name: "embeddings"
+    data_type: TYPE_FP32
+    dims: [ -1, 1024 ]  # ProtT5 embeddings
+  }
+]
+
+output [
+  {
+    name: "disorder_predictions"
+    data_type: TYPE_STRING
+    dims: [ -1 ]  # Per-residue disorder predictions
+  }
+]
+
+ensemble_scheduling {
+  step [
+    {
+      model_name: "seth"
+      model_version: 1
+      input_map {
+        key: "embeddings"
+        value: "embeddings"
+      }
+      output_map {
+        key: "raw_scores"
+        value: "raw_scores"
+      }
+    },
+    {
+      model_name: "seth_postprocess"
+      model_version: 1
+      input_map {
+        key: "raw_scores"
+        value: "raw_scores"
+      }
+      output_map {
+        key: "disorder_predictions"
+        value: "disorder_predictions"
+      }
+    }
+  ]
+}

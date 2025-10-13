@@ -1,0 +1,37 @@
+name: "tmbed"
+platform: "onnxruntime_onnx"
+max_batch_size: 16
+default_model_filename: "cv_0.onnx"
+
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [ -1, 1024 ]  # ProtT5 embeddings (will be pooled)
+  },
+  {
+    name: "input_1"
+    data_type: TYPE_INT64
+    dims: [ -1 ]  # Sequence lengths or additional input
+  }
+]
+
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [ 4 ]  # 4 localization classes
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [ 4, 8, 16 ]
+  max_queue_delay_microseconds: 5000
+}
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_AUTO
+  }
+]

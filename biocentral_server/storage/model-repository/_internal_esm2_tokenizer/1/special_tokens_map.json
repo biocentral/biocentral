@@ -1,0 +1,10 @@
+// Copyright 2025 Tobias Olenyi.
+// SPDX-License-Identifier: GPL-3.0-only
+
+{
+  "cls_token": "<cls>",
+  "eos_token": "<eos>",
+  "mask_token": "<mask>",
+  "pad_token": "<pad>",
+  "unk_token": "<unk>"
+}
