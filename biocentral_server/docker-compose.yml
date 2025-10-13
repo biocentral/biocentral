@@ -131,10 +131,20 @@ services:
       retries: 20
       start_period: 30s
 
-  triton:
+  triton-model-init:
     build:
-      context: .
-      dockerfile: Dockerfile.triton
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
+    volumes:
+      - triton_models:/models
+    environment:
+      - SKIP_MODEL_VALIDATION=true
+      - MODELS_TO_INITIALIZE=${MODELS_TO_INITIALIZE:-}
+    networks:
+      - biocentral-network
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:25.06-py3
     command: >
       tritonserver
       --model-repository=/models
@@ -144,7 +154,7 @@ services:
       --allow-http=true
       --allow-metrics=true
     volumes:
-      - ./storage/model-repository:/models:ro
+      - triton_models:/models
     expose:
       - "8000"  # HTTP
       - "8001"  # gRPC
@@ -156,6 +166,9 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
     networks:
       - biocentral-network
     healthcheck:
@@ -197,6 +210,12 @@ volumes:
       type: none
       o: bind
       device: ${AUTOEVAL_DATA_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
 networks:
   biocentral-network:
     driver: bridge
