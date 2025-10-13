@@ -1,8 +1,9 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 from biotrainer.utilities import get_device
 
 from .models import BaseModel
 from .single_prediction_task import SinglePredictionTask
+from .model_factory import PredictionModelFactory
 
 from ..utils import get_logger
 from ..server_management import TaskInterface, TaskDTO
@@ -11,16 +12,48 @@ logger = get_logger(__name__)
 
 
 class MultiPredictionTask(TaskInterface):
-    def __init__(self, models: dict[str, Any], sequence_input, batch_size):
+    def __init__(
+        self,
+        models: dict[str, Any],
+        sequence_input,
+        batch_size,
+        use_triton: Optional[bool] = None,
+    ):
         self.models = models
         self.sequence_input = sequence_input
         self.device = get_device()
         self.batch_size = batch_size
+        self.use_triton = use_triton
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         predictions = {}
+
+        # Model name mapping for factory
+        model_name_map = {
+            "ProtT5SecondaryStructure": "secondary_structure",
+            "ProtT5Conservation": "conservation",
+            "BindEmbed": "binding_sites",
+            "Seth": "disorder",
+            "TMbed": "membrane_localization",
+            "LightAttentionSubcell": "subcellular_localization",
+        }
+
         for model_name, model_class in self.models.items():
-            model: BaseModel = model_class(batch_size=self.batch_size)
+            # Try to create model via factory (supports Triton)
+            factory_model_name = model_name_map.get(model_name, model_name)
+
+            try:
+                logger.info(f"Creating model {model_name} via factory")
+                model: BaseModel = PredictionModelFactory.create_model(
+                    model_name=factory_model_name,
+                    batch_size=self.batch_size,
+                    use_triton=self.use_triton,
+                )
+            except (ValueError, KeyError):
+                # Fall back to legacy model creation
+                logger.info(f"Creating model {model_name} via legacy class")
+                model: BaseModel = model_class(batch_size=self.batch_size)
+
             single_pred_task = SinglePredictionTask(
                 model=model, sequence_input=self.sequence_input, device=self.device
             )
