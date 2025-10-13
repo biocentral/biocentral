@@ -35,6 +35,15 @@ services:
       - redis-jobs
     restart: unless-stopped
 
+  triton:
+    build:
+      context: .
+      dockerfile: Dockerfile.triton
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+
   seaweedfs-master:
     image: chrislusf/seaweedfs
     command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"

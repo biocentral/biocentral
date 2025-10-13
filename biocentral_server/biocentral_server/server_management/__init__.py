@@ -9,6 +9,12 @@ from .library_adapters import (
     get_custom_training_pipeline_memory,
     TrainingDTOObserver,
 )
+from .triton_client import (
+    TritonClientConfig,
+    TritonInferenceRepository,
+    TritonModelRouter,
+    create_triton_repository,
+)
 
 __all__ = [
     "FileManager",
@@ -27,4 +33,8 @@ __all__ = [
     "TrainingDTOObserver",
     "ServerInitializationManager",
     "ServerModuleInitializer",
+    "TritonClientConfig",
+    "TritonInferenceRepository",
+    "TritonModelRouter",
+    "create_triton_repository",
 ]

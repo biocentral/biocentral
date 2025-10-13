@@ -9,3 +9,6 @@ __pycache__/
 *ipynb
 
 .DS_Store
+storage/model-repository/
+!storage/model-repository/*/*/*.pbtxt
+!storage/model-repository/*/*/**/*.py

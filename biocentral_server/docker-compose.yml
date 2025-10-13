@@ -13,6 +13,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
       - AUTOEVAL_DATA_DIR=/app/autoeval
+      - TRITON_GRPC_URL=http://triton:8001
+      - TRITON_HTTP_URL=http://triton:8000
+      - USE_TRITON=true
     deploy:
       resources:
         reservations:
@@ -28,6 +31,8 @@ services:
       embeddings-db:
         condition: service_healthy
       seaweedfs-filer:
+        condition: service_healthy
+      triton:
         condition: service_healthy
     networks:
       - biocentral-network
@@ -45,6 +50,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
       - AUTOEVAL_DATA_DIR=/app/autoeval
+      - TRITON_GRPC_URL=http://triton:8001
+      - TRITON_HTTP_URL=http://triton:8000
+      - USE_TRITON=true
     deploy:
       resources:
         reservations:
@@ -58,6 +66,8 @@ services:
       embeddings-db:
         condition: service_healthy
       seaweedfs-filer:
+        condition: service_healthy
+      triton:
         condition: service_healthy
     networks:
       - biocentral-network
@@ -120,6 +130,40 @@ services:
       timeout: 5s
       retries: 20
       start_period: 30s
+
+  triton:
+    build:
+      context: .
+      dockerfile: Dockerfile.triton
+    command: >
+      tritonserver
+      --model-repository=/models
+      --strict-model-config=false
+      --log-verbose=1
+      --allow-grpc=true
+      --allow-http=true
+      --allow-metrics=true
+    volumes:
+      - ./storage/model-repository:/models:ro
+    expose:
+      - "8000"  # HTTP
+      - "8001"  # gRPC
+      - "8002"  # Metrics
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - biocentral-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
 
 volumes:
