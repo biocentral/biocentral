@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  triton-model-init:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
+    volumes:
+      - triton_test_models:/models
+    environment:
+      - MODEL_REPOSITORY_PATH=/models
+      # Optional: specify which models to initialize for testing
+      # - MODELS_TO_INITIALIZE=prot_t5_pipeline,esm2_t33_pipeline,prott5_sec
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:25.06-py3
+    command: >
+      tritonserver
+      --model-repository=/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth_pipeline
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --strict-model-config=true
+      --log-verbose=1
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+    volumes:
+      - triton_test_models:/models:ro
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  triton_test_models:
