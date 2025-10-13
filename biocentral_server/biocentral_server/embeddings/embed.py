@@ -76,14 +76,15 @@ async def compute_embeddings_triton(
                 f"falling back to biotrainer"
             )
             # Fall back to regular compute_embeddings
-            yield from compute_embeddings(
+            for result in compute_embeddings(
                 embedder_name=embedder_name,
                 all_seqs=non_existing_embds_seqs,
                 reduced=reduced,
                 use_half_precision=False,
                 device="cuda" if embeddings_db else "cpu",
                 embeddings_db=embeddings_db,
-            )
+            ):
+                yield result
             return
 
         # Create Triton repository
@@ -138,7 +139,7 @@ async def compute_embeddings_triton(
                     except Exception as e:
                         logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
                         # Fall back to biotrainer for this batch
-                        yield from _compute_embeddings_biotrainer_batch(
+                        _compute_embeddings_biotrainer_batch(
                             embedder_name=embedder_name,
                             sequences={h: s for h, s in zip(batch_hashes, batch)},
                             reduced=reduced,
@@ -180,7 +181,7 @@ async def compute_embeddings_triton(
 
                 except Exception as e:
                     logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
-                    yield from _compute_embeddings_biotrainer_batch(
+                    _compute_embeddings_biotrainer_batch(
                         embedder_name=embedder_name,
                         sequences={h: s for h, s in zip(batch_hashes, batch)},
                         reduced=reduced,
@@ -202,7 +203,7 @@ def _compute_embeddings_biotrainer_batch(
     sequences: Dict[str, str],
     reduced: bool,
     embeddings_db: EmbeddingsDatabase,
-) -> Generator[Tuple[int, int], None, None]:
+) -> None:
     """
     Helper function to compute embeddings using biotrainer for a batch of sequences.
 
@@ -210,7 +211,6 @@ def _compute_embeddings_biotrainer_batch(
     :param sequences: Dictionary of sequences (seq_hash -> sequence)
     :param reduced: If per-sequence embeddings should be computed
     :param embeddings_db: Embeddings database
-    :return: Yields progress
     """
     embedding_service: EmbeddingService = get_embedding_service(
         embedder_name=embedder_name,

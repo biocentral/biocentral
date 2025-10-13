@@ -18,7 +18,7 @@ from biocentral_server.server_management import (
     TritonClientConfig,
     TritonModelRouter,
 )
-from biocentral_server.predict.models import ModelMetadata
+from biocentral_server.predict.models.base_model import ModelMetadata
 
 
 @pytest.fixture

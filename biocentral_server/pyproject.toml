@@ -39,6 +39,7 @@ dev = [
     "pip-audit>=2.7.3,<3.0.0",
     "ruff>=0.12.1",
     "pre-commit>=4.2.0",
+    "pytest-asyncio>=1.2.0",
 ]
 
 [build-system]
