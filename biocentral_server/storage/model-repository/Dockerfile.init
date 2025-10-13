@@ -1,0 +1,17 @@
+FROM python:3.12-slim
+
+# Install dependencies for model initialization
+RUN pip install --no-cache-dir \
+    huggingface-hub \
+    requests \
+    tqdm
+
+# Copy initialization script
+COPY init_models.py /usr/local/bin/init_models.py
+RUN chmod +x /usr/local/bin/init_models.py
+
+# Set working directory
+WORKDIR /models
+
+# Run initialization script
+ENTRYPOINT ["python", "/usr/local/bin/init_models.py"]

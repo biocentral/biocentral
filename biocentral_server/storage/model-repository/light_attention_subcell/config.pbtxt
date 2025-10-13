@@ -6,7 +6,12 @@ input [
   {
     name: "input"
     data_type: TYPE_FP32
-    dims: [ -1, 1024 ]  # ProtT5 embeddings (will be pooled)
+    dims: [ -1, -1 ]  # Variable length embeddings
+  },
+  {
+    name: "mask"
+    data_type: TYPE_FP32
+    dims: [ -1 ]  # Attention mask
   }
 ]
 

@@ -95,6 +95,13 @@ MODEL_DOWNLOADS = {
         "filename": "model.onnx",
         "description": "Light attention membrane model",
     },
+    "vespag": {
+        "version": 1,
+        "source_type": "placeholder",
+        "source": None,
+        "filename": "model.onnx",
+        "description": "VespaG variant effect prediction model",
+    },
 }
 
 

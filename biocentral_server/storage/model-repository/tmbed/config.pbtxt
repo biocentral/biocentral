@@ -7,12 +7,12 @@ input [
   {
     name: "input"
     data_type: TYPE_FP32
-    dims: [ -1, 1024 ]  # ProtT5 embeddings (will be pooled)
+    dims: [ -1, 1024 ]  # ProtT5 embeddings sequence
   },
   {
-    name: "input_1"
-    data_type: TYPE_INT64
-    dims: [ -1 ]  # Sequence lengths or additional input
+    name: "mask"
+    data_type: TYPE_FP32
+    dims: [ -1 ]  # Attention mask
   }
 ]
 
@@ -20,7 +20,7 @@ output [
   {
     name: "output"
     data_type: TYPE_FP32
-    dims: [ 4 ]  # 4 localization classes
+    dims: [ -1, -1 ]  # Variable output dimensions
   }
 ]
 
