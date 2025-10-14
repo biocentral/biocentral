@@ -7,9 +7,13 @@ services:
       tritonserver
       --model-repository=/models
       --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
       --load-model=prott5_sec
       --load-model=prott5_cons
-      --load-model=seth
+      --load-model=bind_embed
+      --load-model=seth_pipeline
       --load-model=tmbed
       --load-model=light_attention_subcell
       --load-model=light_attention_membrane
