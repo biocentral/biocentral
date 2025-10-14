@@ -24,11 +24,11 @@ ensemble_scheduling {
       model_name: "seth"
       model_version: 1
       input_map {
-        key: "embeddings"
+        key: "input"
         value: "embeddings"
       }
       output_map {
-        key: "raw_scores"
+        key: "output"
         value: "raw_scores"
       }
     },

@@ -1,6 +1,3 @@
-// Copyright 2025 Tobias Olenyi.
-// SPDX-License-Identifier: GPL-3.0-only
-
 {
   "additional_special_tokens": [
     "<extra_id_0>",
