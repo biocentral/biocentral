@@ -14,7 +14,7 @@ output [
   {
     name: "output"
     data_type: TYPE_FP32
-    dims: [ -1, 1 ]  # Per-residue disorder predictions (batch dim added automatically)
+    dims: [ -1, 1 ]  # Per-residue disorder score
   }
 ]
 

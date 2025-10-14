@@ -6,7 +6,7 @@ input [
   {
     name: "raw_scores"
     data_type: TYPE_FP32
-    dims: [ -1, 2 ]  # Raw ONNX model output
+    dims: [ -1, 1 ]  # Raw disorder scores from seth model
   }
 ]
 

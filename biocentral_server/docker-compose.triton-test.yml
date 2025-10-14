@@ -17,7 +17,8 @@ services:
       --load-model=tmbed
       --load-model=light_attention_subcell
       --load-model=light_attention_membrane
-      --strict-model-config=false
+      --load-model=vespag
+      --disable-auto-complete-config
       --log-verbose=1
     ports:
       - "8000:8000"  # HTTP
