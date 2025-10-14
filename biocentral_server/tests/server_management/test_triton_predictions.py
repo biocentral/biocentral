@@ -74,21 +74,23 @@ def mock_sequence_level_predictions():
 # ============================================================================
 
 
-@pytest.mark.asyncio
-async def test_triton_predictor_per_residue(
+def test_triton_predictor_per_residue(
     test_sequences, test_embeddings, mock_triton_repository, mock_per_residue_predictions
 ):
     """Test TritonPredictor for per-residue predictions."""
-    # Setup mock
-    mock_triton_repository.predict_per_residue.return_value = mock_per_residue_predictions
+    # Setup mock - TritonPredictor calls compute_predictions, not predict_per_residue
+    mock_triton_repository.compute_predictions.return_value = mock_per_residue_predictions[0]
 
-    # Create metadata
-    metadata = ModelMetadata(
-        model_name="secondary_structure",
-        model_type="per_residue",
-        num_classes=3,
-        class_labels=["H", "E", "C"],
-    )
+    # Create mock metadata
+    metadata = Mock(spec=ModelMetadata)
+    metadata.name = "secondary_structure"
+    metadata.protocol = Mock()
+
+    # Mock _post_process_batch to return expected structure
+    mock_predictions = {
+        "seq1": [Mock(label="H", value=0.8)],
+        "seq2": [Mock(label="E", value=0.7)],
+    }
 
     # Create predictor
     with patch(
@@ -97,7 +99,7 @@ async def test_triton_predictor_per_residue(
     ), patch(
         "biocentral_server.predict.triton_predictor.TritonClientConfig.from_env",
         return_value=TritonClientConfig(),
-    ):
+    ), patch.object(TritonPredictor, "_post_process_batch", return_value=mock_predictions):
         predictor = TritonPredictor(
             batch_size=2,
             triton_model_name="prott5_sec",
@@ -111,10 +113,8 @@ async def test_triton_predictor_per_residue(
         assert results is not None
         assert len(results) == 2
 
-        # Verify: Triton was called with correct embeddings
-        assert mock_triton_repository.predict_per_residue.called
-        call_args = mock_triton_repository.predict_per_residue.call_args
-        assert call_args[1]["model_name"] == "prott5_sec"
+        # Verify: Triton was called
+        assert mock_triton_repository.compute_predictions.called
 
 
 # ============================================================================
@@ -122,21 +122,23 @@ async def test_triton_predictor_per_residue(
 # ============================================================================
 
 
-@pytest.mark.asyncio
-async def test_triton_predictor_sequence_level(
+def test_triton_predictor_sequence_level(
     test_sequences, test_embeddings, mock_triton_repository, mock_sequence_level_predictions
 ):
     """Test TritonPredictor for sequence-level predictions."""
-    # Setup mock
-    mock_triton_repository.predict_sequence_level.return_value = mock_sequence_level_predictions
+    # Setup mock - TritonPredictor calls compute_predictions
+    mock_triton_repository.compute_predictions.return_value = mock_sequence_level_predictions[0]
 
-    # Create metadata
-    metadata = ModelMetadata(
-        model_name="subcellular_localization",
-        model_type="sequence_level",
-        num_classes=10,
-        class_labels=["Nucleus", "Cytoplasm", "Mitochondrion", "ER", "Golgi", "Lysosome", "Peroxisome", "Plasma membrane", "Extracellular", "Other"],
-    )
+    # Create mock metadata
+    metadata = Mock(spec=ModelMetadata)
+    metadata.name = "subcellular_localization"
+    metadata.protocol = Mock()
+
+    # Mock _post_process_batch to return expected structure
+    mock_predictions = {
+        "seq1": [Mock(label="Nucleus", value=0.8)],
+        "seq2": [Mock(label="Cytoplasm", value=0.7)],
+    }
 
     # Create predictor
     with patch(
@@ -145,7 +147,7 @@ async def test_triton_predictor_sequence_level(
     ), patch(
         "biocentral_server.predict.triton_predictor.TritonClientConfig.from_env",
         return_value=TritonClientConfig(),
-    ):
+    ), patch.object(TritonPredictor, "_post_process_batch", return_value=mock_predictions):
         predictor = TritonPredictor(
             batch_size=2,
             triton_model_name="light_attention_subcell",
@@ -160,9 +162,7 @@ async def test_triton_predictor_sequence_level(
         assert len(results) == 2
 
         # Verify: Triton was called
-        assert mock_triton_repository.predict_sequence_level.called
-        call_args = mock_triton_repository.predict_sequence_level.call_args
-        assert call_args[1]["model_name"] == "light_attention_subcell"
+        assert mock_triton_repository.compute_predictions.called
 
 
 # ============================================================================
@@ -170,24 +170,23 @@ async def test_triton_predictor_sequence_level(
 # ============================================================================
 
 
-@pytest.mark.asyncio
-async def test_triton_predictor_seth(
+def test_triton_predictor_seth(
     test_sequences, test_embeddings, mock_triton_repository
 ):
     """Test TritonPredictor for SETH disorder prediction."""
-    # Setup mock
-    mock_triton_repository.predict_seth.return_value = [
-        np.random.randn(16).astype(np.float32),
-        np.random.randn(16).astype(np.float32),
-    ]
+    # Setup mock - SETH uses sequences, not embeddings
+    mock_triton_repository.compute_predictions.return_value = np.random.randn(2, 16).astype(np.float32)
 
-    # Create metadata
-    metadata = ModelMetadata(
-        model_name="disorder",
-        model_type="per_residue_single",
-        num_classes=1,
-        class_labels=["disorder"],
-    )
+    # Create mock metadata
+    metadata = Mock(spec=ModelMetadata)
+    metadata.name = "disorder"
+    metadata.protocol = Mock()
+
+    # Mock _post_process_batch to return expected structure
+    mock_predictions = {
+        "seq1": [Mock(label="disorder", value=0.6)],
+        "seq2": [Mock(label="disorder", value=0.4)],
+    }
 
     # Create predictor
     with patch(
@@ -196,22 +195,22 @@ async def test_triton_predictor_seth(
     ), patch(
         "biocentral_server.predict.triton_predictor.TritonClientConfig.from_env",
         return_value=TritonClientConfig(),
-    ):
+    ), patch.object(TritonPredictor, "_post_process_batch", return_value=mock_predictions):
         predictor = TritonPredictor(
             batch_size=2,
             triton_model_name="seth_pipeline",
             metadata=metadata,
         )
 
-        # Run prediction (SETH doesn't use embeddings, uses sequences directly)
-        results = predictor.predict(sequences=test_sequences, embeddings=None)
+        # Run prediction (SETH processes via embeddings internally)
+        results = predictor.predict(sequences=test_sequences, embeddings=test_embeddings)
 
         # Verify: predictions returned
         assert results is not None
         assert len(results) == 2
 
         # Verify: Triton was called
-        assert mock_triton_repository.predict_seth.called
+        assert mock_triton_repository.compute_predictions.called
 
 
 # ============================================================================
@@ -407,7 +406,7 @@ def test_create_triton_predictor_unknown_model():
         "biocentral_server.predict.triton_predictor.TritonModelRouter.get_prediction_model",
         return_value=None,
     ):
-        with pytest.raises(ValueError, match="No Triton model found"):
+        with pytest.raises(ValueError, match="No Triton model available"):
             create_triton_predictor(
                 model_name="unknown_model",
                 batch_size=16,

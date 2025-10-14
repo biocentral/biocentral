@@ -358,14 +358,12 @@ def test_compute_embeddings_biotrainer_batch(mock_embeddings_db, test_sequences)
         "biocentral_server.embeddings.embed.get_embedding_service",
         return_value=mock_embedding_service,
     ):
-        # Run function
-        results = list(
-            _compute_embeddings_biotrainer_batch(
-                embedder_name="prot_t5",
-                sequences=test_sequences,
-                reduced=True,
-                embeddings_db=mock_embeddings_db,
-            )
+        # Run function (doesn't return anything, just processes)
+        _compute_embeddings_biotrainer_batch(
+            embedder_name="prot_t5",
+            sequences=test_sequences,
+            reduced=True,
+            embeddings_db=mock_embeddings_db,
         )
 
         # Verify: embeddings were generated

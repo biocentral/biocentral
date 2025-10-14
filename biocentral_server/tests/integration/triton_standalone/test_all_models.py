@@ -4,23 +4,33 @@ Standalone integration test for all Triton models.
 This test validates that all models in the Triton model repository work correctly
 with hardcoded test sequences (1 sequence and 5 sequences).
 
+Requirements:
+    - Triton server must be running with all required models
+    - Tests will skip gracefully if Triton is not available
+
 Usage:
     # Start Triton test environment
     docker compose -f docker-compose.triton-test.yml up -d
 
-    # Wait for Triton to be ready
+    # Wait for Triton to be ready (may take 30-60s for models to load)
     docker compose -f docker-compose.triton-test.yml exec triton curl -f http://localhost:8000/v2/health/ready
 
     # Run tests
-    TRITON_GRPC_URL=localhost:8001 pytest tests/triton_standalone/test_all_models.py -v
+    TRITON_GRPC_URL=localhost:8001 pytest tests/integration/triton_standalone/test_all_models.py -v
 
     # Clean up
     docker compose -f docker-compose.triton-test.yml down -v
+
+Models loaded by docker-compose.triton-test.yml:
+    - Embedding: prot_t5_pipeline, esm2_t33_pipeline, esm2_t36_pipeline
+    - Prediction: prott5_sec, prott5_cons, bind_embed, seth_pipeline, tmbed,
+                  light_attention_subcell, light_attention_membrane
 """
 
 import os
 import asyncio
 import pytest
+import pytest_asyncio
 import numpy as np
 from typing import List
 
@@ -46,7 +56,7 @@ FIVE_SEQUENCES = [
 ]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def triton_config():
     """Create Triton client configuration from environment."""
     # Override with test-specific settings
@@ -60,11 +70,14 @@ def triton_config():
     return config
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def triton_repo(triton_config):
     """Create and connect to Triton repository."""
     repo = create_triton_repository(triton_config)
-    await repo.connect()
+    try:
+        await repo.connect()
+    except Exception as e:
+        pytest.skip(f"Triton server not available: {e}")
     yield repo
     await repo.disconnect()
 
@@ -146,7 +159,7 @@ class TestEmbeddingModels:
 # ============================================================================
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def prot_t5_embeddings_single(triton_repo):
     """Generate ProtT5 embeddings for single sequence (required for predictions)."""
     embeddings = await triton_repo.compute_embeddings(
@@ -157,7 +170,7 @@ async def prot_t5_embeddings_single(triton_repo):
     return embeddings
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def prot_t5_embeddings_batch(triton_repo):
     """Generate ProtT5 embeddings for 5 sequences (required for predictions)."""
     embeddings = await triton_repo.compute_embeddings(
