@@ -6,7 +6,7 @@ input [
   {
     name: "input"
     data_type: TYPE_FP32
-    dims: [ -1 ]  # Variable input size for variant features
+    dims: [ -1, -1 ]  # Variable input size for variant features
   }
 ]
 
@@ -14,7 +14,7 @@ output [
   {
     name: "output"
     data_type: TYPE_FP32
-    dims: [ 1 ]  # Single variant effect score
+    dims: [ -1, 20 ]  # Single variant effect score
   }
 ]
 
