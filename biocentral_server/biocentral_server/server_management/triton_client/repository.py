@@ -48,6 +48,51 @@ class InferenceRepository(ABC):
         pass
 
     @abstractmethod
+    async def predict_per_residue(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Compute per-residue predictions from embeddings.
+
+        Args:
+            embeddings: List of per-residue embeddings, one per sequence
+            model_name: Name of the prediction model
+
+        Returns:
+            List of per-residue predictions, one array per sequence
+        """
+        pass
+
+    @abstractmethod
+    async def predict_sequence_level(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Compute sequence-level predictions from embeddings.
+
+        Args:
+            embeddings: List of per-residue embeddings, one per sequence
+            model_name: Name of the prediction model
+
+        Returns:
+            List of sequence-level predictions, one array per sequence
+        """
+        pass
+
+    @abstractmethod
+    async def predict_seth(
+        self, sequences: List[str], model_name: str = "seth"
+    ) -> List[np.ndarray]:
+        """Predict disorder from sequences using SETH model.
+
+        Args:
+            sequences: List of protein sequences
+            model_name: Name of the SETH model (default: "seth")
+
+        Returns:
+            List of per-residue disorder scores, one array per sequence
+        """
+        pass
+
+    @abstractmethod
     async def health_check(self, model_name: str) -> Dict[str, bool]:
         """Check inference server health for specific model."""
         pass
@@ -267,9 +312,22 @@ class TritonInferenceRepository(InferenceRepository):
             )
 
         # Process embeddings based on pooling preference
+        # Note: Different tokenizers add different special tokens:
+        # - ProtT5: adds 1 EOS token at end
+        # - ESM2: adds BOS at start + EOS at end (2 tokens total)
         embeddings = []
         for i in range(len(sequences)):
             seq_embeddings = embeddings_tensor[i]
+            seq_len = len(sequences[i])  # Actual sequence length without special tokens
+
+            # Strip special tokens based on model
+            if "prot_t5" in model_name.lower():
+                # ProtT5 adds EOS at end: keep [:seq_len]
+                seq_embeddings = seq_embeddings[:seq_len, :]
+            elif "esm2" in model_name.lower():
+                # ESM2 adds BOS at start + EOS at end: keep [1:seq_len+1]
+                seq_embeddings = seq_embeddings[1:seq_len+1, :]
+            # else: keep as is for other models
 
             if pooled:
                 pooled_embedding = np.mean(seq_embeddings, axis=0)
@@ -347,6 +405,350 @@ class TritonInferenceRepository(InferenceRepository):
             )
 
             return predictions
+
+        finally:
+            await self._clients.put(client)
+
+    async def predict_per_residue(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Compute per-residue predictions from embeddings.
+
+        Special handling for bind_embed ensemble model which outputs
+        5 separate predictions that need sigmoid and averaging.
+
+        Args:
+            embeddings: List of per-residue embeddings, one per sequence
+            model_name: Name of the prediction model
+
+        Returns:
+            List of per-residue predictions, one array per sequence
+        """
+        return await self._circuit_breaker(self._predict_per_residue_impl)(
+            embeddings, model_name
+        )
+
+    async def _predict_per_residue_impl(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Direct implementation of predict_per_residue."""
+        start_time = asyncio.get_event_loop().time()
+
+        # Get client from pool
+        try:
+            client = await asyncio.wait_for(
+                self._clients.get(),
+                timeout=self.config.triton_pool_acquisition_timeout,
+            )
+        except asyncio.TimeoutError:
+            raise TritonResourceExhaustionError("Client pool exhausted")
+
+        try:
+            # Pad embeddings to same length for batching
+            max_len = max(emb.shape[0] for emb in embeddings)
+            embed_dim = embeddings[0].shape[1]
+            batch_size = len(embeddings)
+
+            padded_batch = np.zeros(
+                (batch_size, max_len, embed_dim), dtype=np.float32
+            )
+            for i, emb in enumerate(embeddings):
+                padded_batch[i, : emb.shape[0], :] = emb
+
+            # Prepare input tensor - transpose to (batch, embed_dim, seq_len) for bind_embed
+            if model_name == "bind_embed":
+                # bind_embed expects (batch, 1024, seq_len)
+                input_tensor = np.transpose(padded_batch, (0, 2, 1))
+                input_name = "ensemble_input"
+            else:
+                # Other models expect (batch, seq_len, embed_dim)
+                input_tensor = padded_batch
+                input_name = "input"
+
+            inputs = [triton_grpc.InferInput(input_name, input_tensor.shape, "FP32")]
+            inputs[0].set_data_from_numpy(input_tensor)
+
+            # Handle different output names per model
+            if model_name == "bind_embed":
+                # Request all 5 CV model outputs
+                outputs = [
+                    triton_grpc.InferRequestedOutput(f"output_{i}")
+                    for i in range(5)
+                ]
+            elif model_name == "prott5_sec":
+                # Secondary structure has two outputs: 3-state and 8-state
+                # We'll use the 3-state output (d3_Yhat)
+                outputs = [triton_grpc.InferRequestedOutput("d3_Yhat")]
+            elif model_name == "prott5_cons":
+                # Conservation has "output" as output name
+                outputs = [triton_grpc.InferRequestedOutput("output")]
+            else:
+                # Default output name
+                outputs = [triton_grpc.InferRequestedOutput("predictions")]
+
+            # Make inference request with timeout
+            try:
+                response = await asyncio.wait_for(
+                    client.infer(
+                        model_name=model_name,
+                        inputs=inputs,
+                        outputs=outputs,
+                        timeout=int(self.config.triton_timeout),
+                    ),
+                    timeout=self.config.triton_timeout,
+                )
+            except asyncio.TimeoutError:
+                raise TritonTimeoutError(
+                    f"Inference timeout after {self.config.triton_timeout}s"
+                )
+
+            # Post-process predictions
+            if model_name == "bind_embed":
+                # Apply sigmoid and average the 5 ensemble outputs
+                sigmoid_outputs = []
+                for i in range(5):
+                    logits = response.as_numpy(f"output_{i}")  # Shape: (batch, seq_len, 3)
+                    # Apply sigmoid: 1 / (1 + exp(-logits))
+                    sigmoid = 1.0 / (1.0 + np.exp(-logits.astype(np.float32)))
+                    sigmoid_outputs.append(sigmoid)
+
+                # Average ensemble predictions
+                predictions_batch = np.mean(sigmoid_outputs, axis=0)  # Shape: (batch, seq_len, 3)
+            elif model_name == "prott5_sec":
+                # Get 3-state predictions
+                predictions_batch = response.as_numpy("d3_Yhat")
+            elif model_name == "prott5_cons":
+                # Get conservation predictions
+                predictions_batch = response.as_numpy("output")
+            else:
+                predictions_batch = response.as_numpy("predictions")
+
+            # Unpack batch into list, removing padding
+            predictions_list = []
+            for i, emb in enumerate(embeddings):
+                seq_len = emb.shape[0]
+                # Get predictions for this sequence, removing padding
+                pred = predictions_batch[i, :seq_len, :]
+                predictions_list.append(pred)
+
+            inference_time = asyncio.get_event_loop().time() - start_time
+            logger.info(
+                f"Triton per-residue prediction completed: {len(embeddings)} sequences "
+                f"in {inference_time * 1000:.1f}ms (model: {model_name})"
+            )
+
+            return predictions_list
+
+        finally:
+            await self._clients.put(client)
+
+    async def predict_sequence_level(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Compute sequence-level predictions from embeddings.
+
+        Applies mean pooling to per-residue embeddings before prediction.
+
+        Args:
+            embeddings: List of per-residue embeddings, one per sequence
+            model_name: Name of the prediction model
+
+        Returns:
+            List of sequence-level predictions, one array per sequence
+        """
+        return await self._circuit_breaker(self._predict_sequence_level_impl)(
+            embeddings, model_name
+        )
+
+    async def _predict_sequence_level_impl(
+        self, embeddings: List[np.ndarray], model_name: str
+    ) -> List[np.ndarray]:
+        """Direct implementation of predict_sequence_level."""
+        start_time = asyncio.get_event_loop().time()
+
+        # Get client from pool
+        try:
+            client = await asyncio.wait_for(
+                self._clients.get(),
+                timeout=self.config.triton_pool_acquisition_timeout,
+            )
+        except asyncio.TimeoutError:
+            raise TritonResourceExhaustionError("Client pool exhausted")
+
+        try:
+            # Pad embeddings to same length for batching
+            max_len = max(emb.shape[0] for emb in embeddings)
+            embed_dim = embeddings[0].shape[1]
+            batch_size = len(embeddings)
+
+            padded_batch = np.zeros(
+                (batch_size, max_len, embed_dim), dtype=np.float32
+            )
+            masks = np.zeros((batch_size, max_len), dtype=np.float32)
+
+            for i, emb in enumerate(embeddings):
+                seq_len = emb.shape[0]
+                padded_batch[i, :seq_len, :] = emb
+                masks[i, :seq_len] = 1.0  # Mask: 1 for real positions, 0 for padding
+
+            # Prepare input tensors
+            # Different models expect different input shapes:
+            # - TMbed: (batch, seq_len, embed_dim)
+            # - light_attention: (batch, embed_dim, seq_len) - needs transpose
+            if "light_attention" in model_name:
+                # Transpose to (batch, embed_dim, seq_len) for light_attention
+                input_tensor = np.transpose(padded_batch, (0, 2, 1))
+            else:
+                # Keep (batch, seq_len, embed_dim) for TMbed
+                input_tensor = padded_batch
+
+            inputs = [
+                triton_grpc.InferInput("input", input_tensor.shape, "FP32"),
+                triton_grpc.InferInput("mask", masks.shape, "FP32"),
+            ]
+            inputs[0].set_data_from_numpy(input_tensor)
+            inputs[1].set_data_from_numpy(masks)
+
+            outputs = [triton_grpc.InferRequestedOutput("output")]
+
+            # Make inference request with timeout
+            try:
+                response = await asyncio.wait_for(
+                    client.infer(
+                        model_name=model_name,
+                        inputs=inputs,
+                        outputs=outputs,
+                        timeout=int(self.config.triton_timeout),
+                    ),
+                    timeout=self.config.triton_timeout,
+                )
+            except asyncio.TimeoutError:
+                raise TritonTimeoutError(
+                    f"Inference timeout after {self.config.triton_timeout}s"
+                )
+
+            # Get predictions
+            predictions_batch = response.as_numpy("output")  # Shape varies by model
+
+            # TMbed can return variable shapes - let numpy handle squeezing automatically
+            # light_attention returns (batch, num_classes) - correct shape
+            if predictions_batch.ndim == 3:
+                # Squeeze any singleton dimensions
+                predictions_batch = np.squeeze(predictions_batch)
+                # If squeeze removed batch dimension, add it back
+                if predictions_batch.ndim == 1:
+                    predictions_batch = predictions_batch[np.newaxis, :]
+
+            # Unpack batch into list - each should be 1D array
+            predictions_list = [predictions_batch[i] for i in range(len(embeddings))]
+
+            inference_time = asyncio.get_event_loop().time() - start_time
+            logger.info(
+                f"Triton sequence-level prediction completed: {len(embeddings)} sequences "
+                f"in {inference_time * 1000:.1f}ms (model: {model_name})"
+            )
+
+            return predictions_list
+
+        finally:
+            await self._clients.put(client)
+
+    async def predict_seth(
+        self, sequences: List[str], model_name: str = "seth"
+    ) -> List[np.ndarray]:
+        """Predict disorder from sequences using SETH model.
+
+        First computes embeddings, then runs SETH prediction.
+
+        Args:
+            sequences: List of protein sequences
+            model_name: Name of the SETH model (default: "seth")
+
+        Returns:
+            List of per-residue disorder scores, one array per sequence
+        """
+        return await self._circuit_breaker(self._predict_seth_impl)(
+            sequences, model_name
+        )
+
+    async def _predict_seth_impl(
+        self, sequences: List[str], model_name: str = "seth"
+    ) -> List[np.ndarray]:
+        """Direct implementation of predict_seth."""
+        # First, compute ProtT5 embeddings (per-residue)
+        embeddings = await self.compute_embeddings(
+            sequences=sequences,
+            model_name="prot_t5_pipeline",
+            pooled=False,
+        )
+
+        # Now run SETH model on embeddings
+        start_time = asyncio.get_event_loop().time()
+
+        # Get client from pool
+        try:
+            client = await asyncio.wait_for(
+                self._clients.get(),
+                timeout=self.config.triton_pool_acquisition_timeout,
+            )
+        except asyncio.TimeoutError:
+            raise TritonResourceExhaustionError("Client pool exhausted")
+
+        try:
+            # Pad embeddings to same length for batching
+            max_len = max(emb.shape[0] for emb in embeddings)
+            embed_dim = embeddings[0].shape[1]
+            batch_size = len(embeddings)
+
+            padded_batch = np.zeros(
+                (batch_size, max_len, embed_dim), dtype=np.float32
+            )
+            for i, emb in enumerate(embeddings):
+                padded_batch[i, : emb.shape[0], :] = emb
+
+            # Prepare input tensor (batch, seq_len, embed_dim)
+            inputs = [triton_grpc.InferInput("input", padded_batch.shape, "FP32")]
+            inputs[0].set_data_from_numpy(padded_batch)
+
+            outputs = [triton_grpc.InferRequestedOutput("output")]
+
+            # Make inference request with timeout
+            try:
+                response = await asyncio.wait_for(
+                    client.infer(
+                        model_name=model_name,
+                        inputs=inputs,
+                        outputs=outputs,
+                        timeout=int(self.config.triton_timeout),
+                    ),
+                    timeout=self.config.triton_timeout,
+                )
+            except asyncio.TimeoutError:
+                raise TritonTimeoutError(
+                    f"Inference timeout after {self.config.triton_timeout}s"
+                )
+
+            # Get predictions - shape should be (batch, seq_len, 1) or (batch, seq_len)
+            predictions_batch = response.as_numpy("output")
+
+            # Squeeze last dimension if needed and unpack batch
+            predictions_list = []
+            for i, seq in enumerate(sequences):
+                seq_len = len(seq)
+                # Get predictions for this sequence, removing padding
+                pred = predictions_batch[i, :seq_len]
+                # Squeeze to 1D if needed
+                if pred.ndim > 1:
+                    pred = np.squeeze(pred, axis=-1)
+                predictions_list.append(pred)
+
+            inference_time = asyncio.get_event_loop().time() - start_time
+            logger.info(
+                f"Triton SETH prediction completed: {len(sequences)} sequences "
+                f"in {inference_time * 1000:.1f}ms (model: {model_name})"
+            )
+
+            return predictions_list
 
         finally:
             await self._clients.put(client)

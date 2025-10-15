@@ -33,7 +33,7 @@ class TritonModelRouter:
         "prott5_cons": "prott5_cons",
         "binding_sites": "bind_embed",
         "bind_embed": "bind_embed",
-        "disorder": "seth_pipeline",
+        "disorder": "seth",
         "seth": "seth",
         "seth_pipeline": "seth_pipeline",
         # Sequence-level predictions

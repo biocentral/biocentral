@@ -23,7 +23,7 @@ Usage:
 
 Models loaded by docker-compose.triton-test.yml:
     - Embedding: prot_t5_pipeline, esm2_t33_pipeline, esm2_t36_pipeline
-    - Prediction: prott5_sec, prott5_cons, bind_embed, seth_pipeline, tmbed,
+    - Prediction: prott5_sec, prott5_cons, bind_embed, seth, tmbed,
                   light_attention_subcell, light_attention_membrane
 """
 
@@ -239,17 +239,17 @@ class TestPerResiduePredictionModels:
 
 @pytest.mark.asyncio
 class TestSethPipeline:
-    """Test SETH disorder prediction pipeline (special case with tokenizer)."""
+    """Test SETH disorder prediction (raw model returning float scores)."""
 
     async def test_seth_pipeline_single(self, triton_repo):
-        """Test SETH pipeline with single sequence."""
+        """Test SETH model with single sequence."""
         predictions = await triton_repo.predict_seth(
             sequences=SINGLE_SEQUENCE,
-            model_name="seth_pipeline",
+            model_name="seth",
         )
 
         # Validate output
-        assert predictions is not None, "No predictions returned for seth_pipeline"
+        assert predictions is not None, "No predictions returned for seth"
         assert len(predictions) == 1, f"Expected 1 prediction, got {len(predictions)}"
 
         for i, (pred, seq) in enumerate(zip(predictions, SINGLE_SEQUENCE)):
@@ -260,14 +260,14 @@ class TestSethPipeline:
             assert not np.any(np.isnan(pred)), f"Prediction {i} contains NaN values"
 
     async def test_seth_pipeline_batch(self, triton_repo):
-        """Test SETH pipeline with 5 sequences."""
+        """Test SETH model with 5 sequences."""
         predictions = await triton_repo.predict_seth(
             sequences=FIVE_SEQUENCES,
-            model_name="seth_pipeline",
+            model_name="seth",
         )
 
         # Validate output
-        assert predictions is not None, "No predictions returned for seth_pipeline"
+        assert predictions is not None, "No predictions returned for seth"
         assert len(predictions) == 5, f"Expected 5 predictions, got {len(predictions)}"
 
         for i, (pred, seq) in enumerate(zip(predictions, FIVE_SEQUENCES)):
@@ -342,9 +342,9 @@ class TestModelAvailability:
         for model_name in expected_models:
             try:
                 # Try to get model metadata (will raise if model not available)
-                await triton_repo._get_client_from_pool()
+                metadata = await triton_repo.get_model_metadata(model_name)
                 # If we get here, model is available
-                assert True, f"Model {model_name} is available"
+                assert metadata is not None, f"Model {model_name} metadata is None"
             except Exception as e:
                 pytest.fail(f"Model {model_name} is not available: {e}")
 
@@ -354,7 +354,7 @@ class TestModelAvailability:
             "prott5_sec",
             "prott5_cons",
             "bind_embed",
-            "seth_pipeline",
+            "seth",
             "tmbed",
             "light_attention_subcell",
             "light_attention_membrane",
@@ -362,8 +362,9 @@ class TestModelAvailability:
 
         for model_name in expected_models:
             try:
-                await triton_repo._get_client_from_pool()
-                assert True, f"Model {model_name} is available"
+                # Try to get model metadata (will raise if model not available)
+                metadata = await triton_repo.get_model_metadata(model_name)
+                assert metadata is not None, f"Model {model_name} metadata is None"
             except Exception as e:
                 pytest.fail(f"Model {model_name} is not available: {e}")
 
