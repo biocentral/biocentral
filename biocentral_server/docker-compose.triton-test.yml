@@ -13,7 +13,7 @@ services:
       --load-model=prott5_sec
       --load-model=prott5_cons
       --load-model=bind_embed
-      --load-model=seth_pipeline
+      --load-model=seth
       --load-model=tmbed
       --load-model=light_attention_subcell
       --load-model=light_attention_membrane
