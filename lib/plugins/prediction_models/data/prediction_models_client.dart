@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -48,6 +51,14 @@ class PredictionModelsClient extends BiocentralClient {
     return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
   }
 
+  Future<Either<BiocentralException, String>> startInference(String modelHash, Map<String, String> sequences) async {
+    final responseEither = await doPostRequest(
+      PredictionModelsServiceEndpoints.startInference,
+      {'model_hash': modelHash, 'sequence_input': jsonEncode(sequences)},
+    );
+    return responseEither.flatMap((responseMap) => right(responseMap['task_id']));
+  }
+
   Future<Either<BiocentralException, PredictionModel>> resumeTraining(
       String taskID, PredictionModel initialModel) async {
     final responseEither = await resumeTask(taskID);
@@ -70,6 +81,16 @@ class PredictionModelsClient extends BiocentralClient {
   Stream<(BiocentralDTO, PredictionModel?)> biotrainerTrainingTaskStream(
       String taskID, PredictionModel initialModel) async* {
     yield* taskUpdateStream<PredictionModel?>(taskID, initialModel, _updateFunction);
+  }
+
+  Stream<(BiocentralDTO, Map<String, dynamic>?)> biotrainerInferenceTaskStream(
+    String taskID,
+  ) async* {
+    yield* taskUpdateStream<Map<String, dynamic>?>(
+      taskID,
+      {},
+      (map, dto) => (map ?? {})..addAll(dto.predictions ?? {}),
+    );
   }
 
   Future<Either<BiocentralException, Map<StorageFileType, dynamic>>> getModelFiles(

@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_inference_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
@@ -46,29 +47,47 @@ class PredictionModelsPlugin extends BiocentralPlugin
       getBiocentralProjectRepository(context),
       eventBus,
     );
+
+    final biotrainerInferenceBloc = BiotrainerInferenceBloc(
+      getBiocentralProjectRepository(context),
+      getBiocentralDatabaseRepository(context),
+      getBiocentralClientRepository(context),
+      eventBus,
+    );
+
     final modelHubBloc = ModelHubBloc(getBiocentralProjectRepository(context), getDatabase(context));
 
     // TODO This should probably be directly injected into the bloc, not via event bus
-    eventBusSubscriptions.add(eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
-      biotrainerTrainingBloc.add(BiotrainerTrainingStartTrainingEvent(event.databaseType, event.trainingConfiguration));
-    }));
+    eventBusSubscriptions.add(
+      eventBus.on<BiotrainerStartTrainingEvent>().listen((event) {
+        biotrainerTrainingBloc
+            .add(BiotrainerTrainingStartTrainingEvent(event.databaseType, event.trainingConfiguration));
+      }),
+    );
 
-    eventBusSubscriptions.add(eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
-      modelHubBloc.add(ModelHubRemoveResumableCommandEvent(event.finishedCommand));
-    }));
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
+        modelHubBloc.add(ModelHubRemoveResumableCommandEvent(event.finishedCommand));
+      }),
+    );
 
-    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      modelHubBloc.add(ModelHubLoadEvent());
-    }));
-
-    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
-      if (event.switchedTab == getTab()) {
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
         modelHubBloc.add(ModelHubLoadEvent());
-      }
-    }));
+      }),
+    );
+
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+        if (event.switchedTab == getTab()) {
+          modelHubBloc.add(ModelHubLoadEvent());
+        }
+      }),
+    );
 
     return {
       BlocProvider<BiotrainerTrainingBloc>.value(value: biotrainerTrainingBloc): biotrainerTrainingBloc,
+      BlocProvider<BiotrainerInferenceBloc>.value(value: biotrainerInferenceBloc): biotrainerInferenceBloc,
       BlocProvider<ModelHubBloc>.value(value: modelHubBloc): modelHubBloc,
     };
   }

@@ -4,11 +4,11 @@ import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:collection/collection.dart';
 
 class PredictionModelsServiceEndpoints {
-  // TODO Remove redundant endpoint suffix [e.g. protocolsEndpoint] everywhere
   static const String protocols = '/prediction_models_service/protocols';
   static const String configOptions = '/prediction_models_service/config_options/';
   static const String verifyConfig = '/prediction_models_service/verify_config/';
   static const String startTraining = '/prediction_models_service/start_training';
+  static const String startInference = '/prediction_models_service/start_inference';
   static const String trainingStatus = '/prediction_models_service/training_status';
   static const String modelFiles = '/prediction_models_service/model_files';
 }
