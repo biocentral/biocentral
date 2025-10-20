@@ -1,10 +1,13 @@
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_inference_bloc.dart';
+import 'package:biocentral/plugins/prediction_models/bloc/inference_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/load_model_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/biotrainer_config_dialog.dart';
+import 'package:biocentral/plugins/prediction_models/presentation/dialogs/inference_dialog_builder.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/load_model_dialog.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -62,6 +65,34 @@ class _ModelCommandViewState extends State<ModelCommandView> {
     );
   }
 
+  void openInferenceDialog() {
+    final biotrainerInferenceBloc = BlocProvider.of<BiotrainerInferenceBloc>(context);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BlocProvider(
+          create: (context) => InferenceDialogBloc(
+            context.read<BiocentralDatabaseRepository>(),
+            context.read<PredictionModelRepository>(),
+          )..add(InferenceDialogLoadEvent()),
+          child: BlocBuilder<InferenceDialogBloc, InferenceDialogState>(
+            builder: (context, state) {
+              return BiocentralConfigDialog<InferenceDialogBloc, InferenceDialogState>(
+                configDialogBuilder: InferenceDialogBuilder(
+                  onStartInference: (predictionModel, selectedEntityIDs) => biotrainerInferenceBloc
+                      .add(BiotrainerInferenceStartInferenceEvent(predictionModel, selectedEntityIDs)),
+                ),
+                bloc: BlocProvider.of<InferenceDialogBloc>(context),
+                state: state,
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void openGenerateSetsDialog() {
     showDialog(
       context: context,
@@ -101,6 +132,15 @@ class _ModelCommandViewState extends State<ModelCommandView> {
             iconData: Icons.model_training,
             requiredServices: const ['prediction_models_service'],
             onTap: openBiotrainerConfigDialog,
+          ),
+        ),
+        BiocentralTooltip(
+          message: 'Create predictions from your trained models',
+          child: BiocentralButton(
+            label: 'Inference predictions..',
+            iconData: Icons.online_prediction,
+            requiredServices: const ['prediction_models_service'],
+            onTap: openInferenceDialog,
           ),
         ),
         BiocentralTooltip(
