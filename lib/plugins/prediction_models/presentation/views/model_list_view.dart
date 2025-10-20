@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_inference_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
@@ -18,7 +19,6 @@ class ModelListView extends StatefulWidget {
 }
 
 class _ModelListViewState extends State<ModelListView> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -31,6 +31,7 @@ class _ModelListViewState extends State<ModelListView> with AutomaticKeepAliveCl
               mainAxisSize: MainAxisSize.min,
               children: [
                 buildTrainingModel(predictionModelsBloc),
+                buildInferenceView(predictionModelsBloc),
                 ...buildResumablePredictionModels(state),
                 ...buildPredictionModels(state),
               ],
@@ -48,6 +49,32 @@ class _ModelListViewState extends State<ModelListView> with AutomaticKeepAliveCl
           return PredictionModelDisplay(
             predictionModel: state.trainingModel!,
             trainingState: state,
+          );
+        } else {
+          return Container();
+        }
+      },
+    );
+  }
+
+  Widget buildInferenceView(ModelHubBloc predictionModelsBloc) {
+    return BlocBuilder<BiotrainerInferenceBloc, BiotrainerInferenceState>(
+      builder: (context, state) {
+        if (state.isOperating() && state.predictingModel != null) {
+          final predictions = state.predictions ?? {};
+          return BiocentralTaskDisplay(
+            title: state.stateInformation.information,
+            subtitle: Text('Model ID:${state.predictingModel!.getReadableModelID()}'),
+            leadingIcon: const CircularProgressIndicator(),
+            trailing: BiocentralStatusIndicator(state: state),
+            children: [
+              ExpansionTile(
+                title: const Text('Predictions'),
+                children: [
+                  ...predictions.entries.map((entry) => Text(entry.key + (entry.value ?? 'Predicting...').toString())),
+                ],
+              ),
+            ],
           );
         } else {
           return Container();

@@ -15,4 +15,6 @@ extension PredictionModelsDTO on BiocentralDTO {
   Map<String, dynamic>? get trainingIteration => get<Map<String, dynamic>>('training_iteration');
 
   Map<String, dynamic>? get testResults => get<Map<String, dynamic>>('test_results');
+
+  Map<String, dynamic>? get predictions => get<Map<String, dynamic>>('predictions');
 }
