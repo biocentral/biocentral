@@ -198,7 +198,7 @@ def test_triton_predictor_seth(
     ), patch.object(TritonPredictor, "_post_process_batch", return_value=mock_predictions):
         predictor = TritonPredictor(
             batch_size=2,
-            triton_model_name="seth_pipeline",
+            triton_model_name="seth",
             metadata=metadata,
         )
 
@@ -333,7 +333,7 @@ def test_triton_model_router_prediction_mapping():
     assert TritonModelRouter.get_prediction_model("secondary_structure") == "prott5_sec"
     assert TritonModelRouter.get_prediction_model("conservation") == "prott5_cons"
     assert TritonModelRouter.get_prediction_model("binding_sites") == "bind_embed"
-    assert TritonModelRouter.get_prediction_model("disorder") == "seth_pipeline"
+    assert TritonModelRouter.get_prediction_model("disorder") == "seth"
     assert TritonModelRouter.get_prediction_model("membrane_localization") == "tmbed"
 
     # Test unknown model
