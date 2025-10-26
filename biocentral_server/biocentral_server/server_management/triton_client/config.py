@@ -18,6 +18,7 @@ class TritonClientConfig:
         triton_circuit_breaker_failure_threshold: int = 5,
         triton_circuit_breaker_timeout: int = 60,
         triton_max_batch_size: int = 32,
+        triton_max_message_size: int = 256 * 1024 * 1024,  # 256 MB
         use_triton: bool = True,
     ):
         """Initialize Triton client configuration.
@@ -32,6 +33,7 @@ class TritonClientConfig:
             triton_circuit_breaker_failure_threshold: Failures before opening circuit (default: 5)
             triton_circuit_breaker_timeout: Seconds before retrying after circuit opens (default: 60)
             triton_max_batch_size: Maximum sequences per request (default: 32)
+            triton_max_message_size: Max gRPC message size in bytes (default: 256 MB)
             use_triton: Whether to use Triton for inference (default: True)
         """
         self.triton_grpc_url = triton_grpc_url or os.getenv(
@@ -63,6 +65,9 @@ class TritonClientConfig:
         )
         self.triton_max_batch_size = int(
             os.getenv("TRITON_MAX_BATCH_SIZE", str(triton_max_batch_size))
+        )
+        self.triton_max_message_size = int(
+            os.getenv("TRITON_MAX_MESSAGE_SIZE", str(triton_max_message_size))
         )
         self.use_triton = os.getenv("USE_TRITON", str(use_triton)).lower() in (
             "true",

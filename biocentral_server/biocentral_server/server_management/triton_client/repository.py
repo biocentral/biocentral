@@ -162,10 +162,19 @@ class TritonInferenceRepository(InferenceRepository):
         # Create connection pool
         self._clients = asyncio.Queue(maxsize=self.config.triton_pool_size)
 
+        # Configure gRPC channel options for large messages (e.g., ESM2-T36 embeddings)
+        channel_args = [
+            ("grpc.max_send_message_length", self.config.triton_max_message_size),
+            ("grpc.max_receive_message_length", self.config.triton_max_message_size),
+            ("grpc.max_message_length", self.config.triton_max_message_size),
+        ]
+
         # Create client pool
         grpc_url = self.config.get_grpc_url_without_protocol()
         for i in range(self.config.triton_pool_size):
-            client = triton_grpc.InferenceServerClient(url=grpc_url, verbose=False)
+            client = triton_grpc.InferenceServerClient(
+                url=grpc_url, verbose=False, channel_args=channel_args
+            )
             await self._clients.put(client)
 
         # Test connection
