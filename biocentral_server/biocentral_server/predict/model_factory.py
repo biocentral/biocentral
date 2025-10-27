@@ -72,7 +72,7 @@ class PredictionModelFactory:
         from .models.binding.bind_embed import BindEmbed
         from .models.disorder.seth import Seth
         from .models.membrane.tmbed import TMbed
-        from .models.localization.light_attention_subcell import LightAttentionSubcell
+        from .models.localization.light_attention_subcell import LightAttentionSubcellularLocalization
 
         # Model mapping
         model_map = {
@@ -81,7 +81,7 @@ class PredictionModelFactory:
             "binding_sites": BindEmbed,
             "disorder": Seth,
             "membrane_localization": TMbed,
-            "subcellular_localization": LightAttentionSubcell,
+            "subcellular_localization": LightAttentionSubcellularLocalization,
         }
 
         model_class = model_map.get(model_name)

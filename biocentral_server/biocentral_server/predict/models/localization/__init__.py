@@ -1,3 +1,6 @@
 from .light_attention_subcell import LightAttentionSubcellularLocalization
 
-__all__ = ["LightAttentionSubcellularLocalization"]
+# Backward compatibility alias
+LightAttentionSubcell = LightAttentionSubcellularLocalization
+
+__all__ = ["LightAttentionSubcellularLocalization", "LightAttentionSubcell"]
