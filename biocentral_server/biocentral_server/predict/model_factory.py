@@ -3,26 +3,37 @@
 The factory uses the MODEL_REGISTRY which maps model metadata names.
 """
 
-import asyncio
 from typing import Optional
 
 from ..utils import get_logger
-from ..server_management import TritonClientConfig, create_triton_repository, get_shared_repository
+from ..server_management import TritonClientConfig, get_shared_repository
 from .models.base_model import BaseModel
 from .models import MODEL_REGISTRY
 
 logger = get_logger(__name__)
 
 
-def _is_triton_prediction_available_sync(model_name: str) -> bool:
-    """Synchronous wrapper for checking Triton prediction availability."""
+def _is_triton_prediction_available(model_name: str) -> bool:
+    """Check if Triton prediction is available for model."""
     try:
         config = TritonClientConfig.from_env()
         if not config.is_enabled():
             return False
         
+        # Get model class from registry
+        model_class = MODEL_REGISTRY.get(model_name)
+        if not model_class:
+            return False
+        
+        # Check if model has TRITON_MODEL_NAME attribute
+        if not hasattr(model_class, 'TRITON_MODEL_NAME'):
+            return False
+        
+        triton_model_name = model_class.TRITON_MODEL_NAME
+        
+        # Check if model is available in Triton
         repository = get_shared_repository(config)
-        return asyncio.run(repository.is_triton_prediction_available(model_name))
+        return repository.is_model_available(triton_model_name)
     except Exception as e:
         logger.warning(f"Failed to check Triton availability for {model_name}: {e}")
         return False
@@ -60,7 +71,7 @@ class PredictionModelFactory:
             use_triton = config.is_enabled()
 
         # Determine backend string
-        backend = "triton" if (use_triton and _is_triton_prediction_available_sync(model_name)) else "onnx"
+        backend = "triton" if (use_triton and _is_triton_prediction_available(model_name)) else "onnx"
 
         logger.info(f"Creating {backend} model for {model_name}")
 
@@ -105,7 +116,7 @@ class PredictionModelFactory:
         Returns:
             True if Triton model is available and enabled
         """
-        return _is_triton_prediction_available_sync(model_name)
+        return _is_triton_prediction_available(model_name)
 
     @staticmethod
     def get_available_models() -> dict:
@@ -121,7 +132,7 @@ class PredictionModelFactory:
             model_name: {
                 "local_onnx": True,
                 "triton": triton_enabled
-                and _is_triton_prediction_available_sync(model_name),
+                and _is_triton_prediction_available(model_name),
             }
             for model_name in MODEL_REGISTRY.keys()
         }
