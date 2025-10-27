@@ -28,31 +28,14 @@ class MultiPredictionTask(TaskInterface):
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         predictions = {}
 
-        # Model name mapping for factory
-        model_name_map = {
-            "ProtT5SecondaryStructure": "secondary_structure",
-            "ProtT5Conservation": "conservation",
-            "BindEmbed": "binding_sites",
-            "Seth": "disorder",
-            "TMbed": "membrane_localization",
-            "LightAttentionSubcell": "subcellular_localization",
-        }
-
         for model_name, model_class in self.models.items():
-            # Try to create model via factory (supports Triton)
-            factory_model_name = model_name_map.get(model_name, model_name)
-
-            try:
-                logger.info(f"Creating model {model_name} via factory")
-                model: BaseModel = PredictionModelFactory.create_model(
-                    model_name=factory_model_name,
-                    batch_size=self.batch_size,
-                    use_triton=self.use_triton,
-                )
-            except (ValueError, KeyError):
-                # Fall back to legacy model creation
-                logger.info(f"Creating model {model_name} via legacy class")
-                model: BaseModel = model_class(batch_size=self.batch_size)
+            # Create model via factory (supports both Triton and ONNX backends)
+            logger.info(f"Creating model {model_name} via factory")
+            model: BaseModel = PredictionModelFactory.create_model(
+                model_name=model_name,
+                batch_size=self.batch_size,
+                use_triton=self.use_triton,
+            )
 
             single_pred_task = SinglePredictionTask(
                 model=model, sequence_input=self.sequence_input, device=self.device

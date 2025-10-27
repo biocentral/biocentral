@@ -1,17 +1,24 @@
-"""Factory for creating prediction models with optional Triton backend."""
+"""Factory for creating prediction models with optional Triton backend.
+
+The factory uses the MODEL_REGISTRY which maps model metadata names.
+"""
 
 from typing import Optional
-import os
 
 from ..utils import get_logger
 from ..server_management import TritonClientConfig, TritonModelRouter
 from .models.base_model import BaseModel
+from .models import MODEL_REGISTRY
 
 logger = get_logger(__name__)
 
 
 class PredictionModelFactory:
-    """Factory for creating prediction models with backend selection."""
+    """Factory for creating prediction models with backend selection.
+
+    Uses MODEL_REGISTRY to dynamically discover and instantiate models
+    based on their metadata names, supporting both ONNX and Triton backends.
+    """
 
     @staticmethod
     def create_model(
@@ -22,7 +29,7 @@ class PredictionModelFactory:
         """Create a prediction model with automatic backend selection.
 
         Args:
-            model_name: Model identifier (e.g., "secondary_structure", "conservation")
+            model_name: Model metadata name (e.g., "BindEmbed", "TMbed", "ProtT5SecondaryStructure")
             batch_size: Batch size for predictions
             use_triton: Whether to use Triton backend. If None, uses USE_TRITON env var
 
@@ -54,7 +61,7 @@ class PredictionModelFactory:
         """Create a prediction model with specified backend.
 
         Args:
-            model_name: Model identifier
+            model_name: Model metadata name (e.g., "BindEmbed", "TMbed")
             batch_size: Batch size for predictions
             backend: Backend to use ("onnx" or "triton")
 
@@ -64,30 +71,11 @@ class PredictionModelFactory:
         Raises:
             ValueError: If model_name is unknown
         """
-        # Import model classes
-        from .models.secondary_structure.prott5_secstruct import (
-            ProtT5SecondaryStructure,
-        )
-        from .models.conservation.prott5_conservation import ProtT5Conservation
-        from .models.binding.bind_embed import BindEmbed
-        from .models.disorder.seth import Seth
-        from .models.membrane.tmbed import TMbed
-        from .models.localization.light_attention_subcell import LightAttentionSubcellularLocalization
-
-        # Model mapping
-        model_map = {
-            "secondary_structure": ProtT5SecondaryStructure,
-            "conservation": ProtT5Conservation,
-            "binding_sites": BindEmbed,
-            "disorder": Seth,
-            "membrane_localization": TMbed,
-            "subcellular_localization": LightAttentionSubcellularLocalization,
-        }
-
-        model_class = model_map.get(model_name)
+        # Look up model class in registry
+        model_class = MODEL_REGISTRY.get(model_name)
         if not model_class:
             raise ValueError(
-                f"Unknown model: {model_name}. Available models: {list(model_map.keys())}"
+                f"Unknown model: {model_name}. Available models: {list(MODEL_REGISTRY.keys())}"
             )
 
         return model_class(batch_size=batch_size, backend=backend)
@@ -115,25 +103,16 @@ class PredictionModelFactory:
         Returns:
             Dictionary mapping model names to backend availability
         """
-        models = [
-            "secondary_structure",
-            "conservation",
-            "binding_sites",
-            "disorder",
-            "membrane_localization",
-            "subcellular_localization",
-        ]
-
         config = TritonClientConfig.from_env()
         triton_enabled = config.is_enabled()
 
         return {
-            model: {
+            model_name: {
                 "local_onnx": True,
                 "triton": triton_enabled
-                and TritonModelRouter.is_triton_prediction_available(model),
+                and TritonModelRouter.is_triton_prediction_available(model_name),
             }
-            for model in models
+            for model_name in MODEL_REGISTRY.keys()
         }
 
 
