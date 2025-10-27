@@ -11,13 +11,27 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
+    OnnxInferenceMixin,
+    TritonInferenceMixin,
 )
 
 
-class ProtT5Conservation(BaseModel):
-    def __init__(self, batch_size):
+class ProtT5Conservation(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+    """ProtT5Conservation model for residue conservation prediction.
+
+    Supports both ONNX (local) and Triton (remote) backends.
+    Simple per-residue prediction model.
+    """
+
+    # Triton configuration
+    TRITON_MODEL_NAME = "prott5_cons"
+    TRITON_INPUT_NAMES = ["input"]
+    TRITON_OUTPUT_NAMES = ["output"]
+
+    def __init__(self, batch_size, backend: str = "onnx"):
         super().__init__(
             batch_size=batch_size,
+            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -93,12 +107,27 @@ class ProtT5Conservation(BaseModel):
         embedding_ids = list(embeddings.keys())
         results = []
         for batch in inputs:
-            cons_Yhat = self.model.run(None, batch)
-            cons_Yhat = torch.from_numpy(np.float32(np.stack(cons_Yhat[0])))
-            cons_Yhat = self._finalize_raw_prediction(
-                torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-            )
+            if self.backend == "onnx":
+                # ONNX returns list of outputs
+                cons_Yhat = self.model.run(None, batch)
+                cons_Yhat = torch.from_numpy(np.float32(np.stack(cons_Yhat[0])))
+                cons_Yhat = self._finalize_raw_prediction(
+                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+                )
+
+            elif self.backend == "triton":
+                # Triton returns numpy array directly
+                raw_output = self._run_inference(batch)
+                # raw_output is (batch, seq_len, num_classes)
+                cons_Yhat = torch.from_numpy(raw_output)
+                cons_Yhat = self._finalize_raw_prediction(
+                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+                )
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+
             results.extend(cons_Yhat)
+
         model_output = {"conservation": results}
         return self._post_process(
             model_output=model_output, embedding_ids=embedding_ids
