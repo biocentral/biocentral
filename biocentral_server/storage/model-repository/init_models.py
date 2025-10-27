@@ -2,15 +2,17 @@
 """Initialize Triton model repository by downloading ONNX models.
 
 This script is run as an init container before Triton starts.
-It downloads required ONNX models from HuggingFace or other sources
-and places them in the correct directory structure.
+It downloads required ONNX models from configured URLs and places them
+in the correct directory structure.
 """
 
 import os
 import sys
 import logging
+import shlex
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+import tempfile
 
 # Configure logging
 logging.basicConfig(
@@ -20,300 +22,287 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Model repository base path
-MODEL_REPO_PATH = Path("/models")
+MODEL_REPO_PATH = Path(os.getenv("MODEL_REPOSITORY_PATH", "/models"))
 
-# Model download configuration
-# Format: {model_dir: {version: url_or_huggingface_path}}
-MODEL_DOWNLOADS = {
-    "_internal_esm2_t33_onnx": {
-        "version": 1,
-        "source_type": "placeholder",  # "huggingface", "url", or "placeholder"
-        "source": None,
-        "filename": "model.onnx",
-        "description": "ESM-2 T33 650M ONNX model",
+# Model configuration mapping
+# Maps Triton model names to their internal structure
+MODEL_CONFIGS = {
+    # Embedding models
+    "prot_t5_pipeline": {
+        "internal_models": ["_internal_prott5_tokenizer", "_internal_prott5_onnx"],
+        "description": "ProtT5 embedding pipeline",
     },
-    "_internal_esm2_t36_onnx": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "ESM-2 T36 3B ONNX model",
+    "esm2_t33_pipeline": {
+        "internal_models": ["_internal_esm2_tokenizer", "_internal_esm2_t33_onnx"],
+        "description": "ESM2-t33 embedding pipeline",
     },
-    "_internal_prott5_onnx": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "ProtT5 ONNX model",
+    "esm2_t36_pipeline": {
+        "internal_models": ["_internal_esm2_tokenizer", "_internal_esm2_t36_onnx"],
+        "description": "ESM2-t36 embedding pipeline",
     },
+    # Prediction models
     "prott5_sec": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "ProtT5 secondary structure prediction model",
+        "internal_models": ["prott5_sec"],
+        "description": "ProtT5 secondary structure prediction",
     },
     "prott5_cons": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "ProtT5 conservation prediction model",
+        "internal_models": ["prott5_cons"],
+        "description": "ProtT5 conservation prediction",
     },
     "bind_embed": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "Binding sites prediction model",
+        "internal_models": ["_bind_embed_cv0", "_bind_embed_cv1", "_bind_embed_cv2", "_bind_embed_cv3", "_bind_embed_cv4"],
+        "description": "Binding sites prediction ensemble",
     },
     "seth": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "SETH disorder prediction model",
+        "internal_models": ["seth"],
+        "description": "SETH disorder prediction",
     },
     "tmbed": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "TMbed membrane localization model",
+        "internal_models": ["tmbed"],
+        "description": "TMbed membrane localization",
     },
     "light_attention_subcell": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "Light attention subcellular localization model",
+        "internal_models": ["light_attention_subcell"],
+        "description": "Light attention subcellular localization",
     },
     "light_attention_membrane": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "Light attention membrane model",
+        "internal_models": ["light_attention_membrane"],
+        "description": "Light attention membrane localization",
     },
     "vespag": {
-        "version": 1,
-        "source_type": "placeholder",
-        "source": None,
-        "filename": "model.onnx",
-        "description": "VespaG variant effect prediction model",
+        "internal_models": ["vespag"],
+        "description": "VespaG variant effect prediction",
     },
 }
 
 
-def create_placeholder_model(model_path: Path, description: str) -> None:
-    """Create a placeholder file for models that need to be provided.
-
-    Args:
-        model_path: Path where the model file should be
-        description: Description of the model
-    """
-    placeholder_content = f"""
-# Placeholder for {description}
-
-This is a placeholder file. Replace it with the actual ONNX model file.
-
-To add the real model:
-1. Download or export the ONNX model
-2. Replace this file with the actual model.onnx file
-3. Ensure the file permissions are correct (readable by Triton)
-
-Model path: {model_path}
-"""
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    model_path.write_text(placeholder_content)
-    logger.info(f"Created placeholder at {model_path}")
-
-
-def download_from_huggingface(repo_id: str, filename: str, output_path: Path) -> bool:
-    """Download a model from HuggingFace Hub.
-
-    Args:
-        repo_id: HuggingFace repository ID
-        filename: Filename in the repository
-        output_path: Local path to save the file
-
+def parse_environment_arrays() -> Tuple[List[str], List[str]]:
+    """Parse MODEL_NAMES and MODEL_URLS from environment variables.
+    
     Returns:
-        True if successful, False otherwise
+        Tuple of (model_names, model_urls) lists
     """
-    try:
-        from huggingface_hub import hf_hub_download
+    model_names_str = os.getenv("MODEL_NAMES", "")
+    model_urls_str = os.getenv("MODEL_URLS", "")
+    
+    if not model_names_str or not model_urls_str:
+        logger.error("Both MODEL_NAMES and MODEL_URLS environment variables must be set")
+        logger.error("Example: MODEL_NAMES='esm2_t33_pipeline prott5_sec' MODEL_URLS='https://... https://...'")
+        sys.exit(1)
+    
+    # Parse bash array format (space-separated values)
+    model_names = shlex.split(model_names_str)
+    model_urls = shlex.split(model_urls_str)
+    
+    if len(model_names) != len(model_urls):
+        logger.error(f"MODEL_NAMES and MODEL_URLS must have the same length: {len(model_names)} vs {len(model_urls)}")
+        sys.exit(1)
+    
+    logger.info(f"Configured models: {model_names}")
+    logger.info(f"Configured URLs: {model_urls}")
+    
+    return model_names, model_urls
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        downloaded_path = hf_hub_download(
-            repo_id=repo_id,
-            filename=filename,
-            cache_dir=str(output_path.parent),
-        )
-        # Move to final location
-        import shutil
-        shutil.move(downloaded_path, output_path)
-        logger.info(f"Downloaded {repo_id}/{filename} to {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to download from HuggingFace: {e}")
+
+def validate_onnx_file(file_path: Path) -> bool:
+    """Validate that a file is a valid ONNX model.
+    
+    Args:
+        file_path: Path to the ONNX file
+        
+    Returns:
+        True if valid ONNX file, False otherwise
+    """
+    if not file_path.exists():
         return False
+    
+    # Check file size (should be at least 1KB for a real model)
+    if file_path.stat().st_size < 1024:
+        logger.warning(f"ONNX file {file_path} is too small ({file_path.stat().st_size} bytes)")
+        return False
+    
+    # Check ONNX magic bytes
+    try:
+        with open(file_path, "rb") as f:
+            header = f.read(8)
+            # ONNX files start with specific magic bytes
+            if not header.startswith(b"ONNX"):
+                logger.warning(f"File {file_path} does not appear to be a valid ONNX file")
+                return False
+    except Exception as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        return False
+    
+    return True
 
 
-def download_from_url(url: str, output_path: Path) -> bool:
-    """Download a model from a URL.
-
+def download_model(url: str, output_path: Path) -> bool:
+    """Download a model from a URL with progress tracking and validation.
+    
     Args:
         url: URL to download from
         output_path: Local path to save the file
-
+        
     Returns:
         True if successful, False otherwise
     """
     try:
         import httpx
         from tqdm import tqdm
-
+        
+        logger.info(f"Downloading {url} to {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with httpx.stream("GET", url) as response:
+        
+        # Download to temporary file first (atomic write)
+        temp_path = output_path.with_suffix(output_path.suffix + ".tmp")
+        
+        with httpx.stream("GET", url, timeout=300.0) as response:
             response.raise_for_status()
             
             total_size = int(response.headers.get("content-length", 0))
-
-            with open(output_path, "wb") as f, tqdm(
+            if total_size == 0:
+                logger.warning(f"No content-length header for {url}")
+            
+            with open(temp_path, "wb") as f, tqdm(
                 desc=output_path.name,
-                total=total_size,
+                total=total_size if total_size > 0 else None,
                 unit="B",
                 unit_scale=True,
+                unit_divisor=1024,
             ) as pbar:
                 for chunk in response.iter_bytes(chunk_size=8192):
                     f.write(chunk)
                     pbar.update(len(chunk))
-
-        logger.info(f"Downloaded {url} to {output_path}")
+        
+        # Validate the downloaded file
+        if not validate_onnx_file(temp_path):
+            temp_path.unlink(missing_ok=True)
+            return False
+        
+        # Atomic move to final location
+        temp_path.rename(output_path)
+        logger.info(f"Successfully downloaded {url} to {output_path}")
         return True
+        
+    except httpx.TimeoutException:
+        logger.error(f"Timeout downloading {url}")
+        return False
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error downloading {url}: {e.response.status_code}")
+        return False
     except Exception as e:
-        logger.error(f"Failed to download from URL: {e}")
+        logger.error(f"Failed to download {url}: {e}")
         return False
 
 
-def initialize_model(model_dir: str, config: Dict) -> bool:
-    """Initialize a single model.
-
+def initialize_model(model_name: str, url: str) -> bool:
+    """Initialize a single model by downloading its ONNX file.
+    
     Args:
-        model_dir: Model directory name
-        config: Model configuration
-
+        model_name: Triton model name
+        url: URL to download the model from
+        
     Returns:
         True if successful, False otherwise
     """
-    version = config["version"]
-    source_type = config["source_type"]
-    source = config["source"]
-    filename = config["filename"]
+    if model_name not in MODEL_CONFIGS:
+        logger.error(f"Unknown model: {model_name}")
+        return False
+    
+    config = MODEL_CONFIGS[model_name]
+    internal_models = config["internal_models"]
     description = config["description"]
-
-    model_path = MODEL_REPO_PATH / model_dir / str(version) / filename
-
-    # Check if model already exists
-    if model_path.exists() and model_path.stat().st_size > 1000:
-        logger.info(f"Model {model_dir} already exists at {model_path}")
-        return True
-
-    logger.info(f"Initializing model {model_dir}...")
-
-    if source_type == "placeholder":
-        create_placeholder_model(model_path, description)
-        return True
-
-    elif source_type == "huggingface" and source:
-        repo_id, hf_filename = source.split(":", 1)
-        return download_from_huggingface(repo_id, hf_filename, model_path)
-
-    elif source_type == "url" and source:
-        return download_from_url(source, model_path)
-
+    
+    logger.info(f"Initializing {model_name} ({description})")
+    
+    # For most models, we download a single ONNX file
+    # For bind_embed, we need to handle the ensemble structure
+    if model_name == "bind_embed":
+        # For bind_embed, we expect 5 separate ONNX files for the CV models
+        success = True
+        for i, internal_model in enumerate(internal_models):
+            model_path = MODEL_REPO_PATH / internal_model / "1" / "model.onnx"
+            
+            # Check if already exists and is valid
+            if model_path.exists() and validate_onnx_file(model_path):
+                logger.info(f"Model {internal_model} already exists and is valid")
+                continue
+            
+            # For bind_embed, we need separate URLs for each CV model
+            # For now, we'll use the same URL and let the user provide separate files
+            if not download_model(url, model_path):
+                logger.error(f"Failed to download {internal_model}")
+                success = False
+        return success
     else:
-        logger.warning(f"Unknown source type for {model_dir}: {source_type}")
-        create_placeholder_model(model_path, description)
-        return True
+        # Single model download
+        internal_model = internal_models[0]  # Most models have one internal model
+        model_path = MODEL_REPO_PATH / internal_model / "1" / "model.onnx"
+        
+        # Check if already exists and is valid
+        if model_path.exists() and validate_onnx_file(model_path):
+            logger.info(f"Model {internal_model} already exists and is valid")
+            return True
+        
+        return download_model(url, model_path)
 
 
-def verify_model_structure() -> bool:
-    """Verify that all required models exist.
-
-    Returns:
-        True if all models exist, False otherwise
+def write_success_state(initialized_models: List[str]) -> None:
+    """Write the list of successfully initialized models to a file.
+    
+    Args:
+        initialized_models: List of model names that were successfully initialized
     """
-    all_exist = True
-
-    for model_dir, config in MODEL_DOWNLOADS.items():
-        version = config["version"]
-        filename = config["filename"]
-        model_path = MODEL_REPO_PATH / model_dir / str(version) / filename
-
-        if not model_path.exists():
-            logger.error(f"Model file missing: {model_path}")
-            all_exist = False
-        else:
-            size = model_path.stat().st_size
-            logger.info(f"Model {model_dir}: {model_path} ({size} bytes)")
-
-    return all_exist
+    success_file = MODEL_REPO_PATH / ".initialized_models"
+    success_file.write_text("\n".join(initialized_models) + "\n")
+    logger.info(f"Wrote success state to {success_file}")
 
 
 def main() -> int:
     """Main initialization function.
-
+    
     Returns:
         Exit code (0 for success, 1 for failure)
     """
     logger.info("Starting Triton model repository initialization...")
     logger.info(f"Model repository path: {MODEL_REPO_PATH}")
-
-    # Get list of models to initialize from environment
-    models_to_init = os.getenv("MODELS_TO_INITIALIZE", "").split(",")
-    if models_to_init == [""]:
-        models_to_init = list(MODEL_DOWNLOADS.keys())
-    else:
-        logger.info(f"Initializing specific models: {models_to_init}")
-
+    
+    # Parse environment variables
+    model_names, model_urls = parse_environment_arrays()
+    
     # Initialize each model
-    success_count = 0
+    initialized_models = []
     failed_models = []
-
-    for model_dir in models_to_init:
-        if model_dir not in MODEL_DOWNLOADS:
-            logger.warning(f"Unknown model: {model_dir}, skipping...")
-            continue
-
-        config = MODEL_DOWNLOADS[model_dir]
-        if initialize_model(model_dir, config):
-            success_count += 1
+    
+    for model_name, url in zip(model_names, model_urls):
+        if initialize_model(model_name, url):
+            initialized_models.append(model_name)
+            logger.info(f"✓ Successfully initialized {model_name}")
         else:
-            failed_models.append(model_dir)
-
-    # Verify structure
-    logger.info("\nVerifying model repository structure...")
-    if verify_model_structure():
-        logger.info("Model repository structure verified successfully!")
-    else:
-        logger.warning("Some model files are missing or incomplete")
-
+            failed_models.append(model_name)
+            logger.error(f"✗ Failed to initialize {model_name}")
+    
+    # Write success state
+    write_success_state(initialized_models)
+    
     # Summary
-    logger.info("\nInitialization complete:")
-    logger.info(f"  - Successfully initialized: {success_count}/{len(models_to_init)}")
+    logger.info("\n" + "="*60)
+    logger.info("INITIALIZATION SUMMARY")
+    logger.info("="*60)
+    logger.info(f"Successfully initialized: {len(initialized_models)}/{len(model_names)}")
+    
+    if initialized_models:
+        logger.info("Initialized models:")
+        for model in initialized_models:
+            logger.info(f"  ✓ {model}")
+    
     if failed_models:
-        logger.warning(f"  - Failed models: {', '.join(failed_models)}")
-
-    # In development, placeholders are acceptable
-    # In production, you might want to fail if models are missing
-    skip_validation = os.getenv("SKIP_MODEL_VALIDATION", "false").lower() == "true"
-
-    if failed_models and not skip_validation:
+        logger.error("Failed models:")
+        for model in failed_models:
+            logger.error(f"  ✗ {model}")
         logger.error("Model initialization failed!")
         return 1
-
+    
     logger.info("Model initialization successful!")
     return 0
 

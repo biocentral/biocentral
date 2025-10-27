@@ -1,6 +1,6 @@
 # Triton Model Repository Setup
 
-This directory contains the Triton model repository structure for serving ONNX models.
+This directory contains the Triton model repository structure for serving ONNX models with dynamic initialization.
 
 ## Directory Structure
 
@@ -14,7 +14,7 @@ model_name/
 
 ## Required Models
 
-The following models need ONNX files:
+The following models can be initialized:
 
 ### Embedding Models (3)
 1. `prot_t5_pipeline` - ProtT5 tokenizer + ONNX ensemble
@@ -24,94 +24,96 @@ The following models need ONNX files:
 ### Prediction Models (9)
 4. `prott5_sec` - Secondary structure prediction
 5. `prott5_cons` - Conservation prediction
-6. `bind_embed` - Binding site prediction
+6. `bind_embed` - Binding site prediction ensemble
 7. `seth` - Disorder prediction (standalone)
-8. `seth_pipeline` - Disorder prediction (with tokenizer)
-9. `tmbed` - Transmembrane prediction
-10. `light_attention_subcell` - Subcellular localization
-11. `light_attention_membrane` - Membrane localization
-12. `vespag` - Variant effect prediction
+8. `tmbed` - Transmembrane prediction
+9. `light_attention_subcell` - Subcellular localization
+10. `light_attention_membrane` - Membrane localization
+11. `vespag` - Variant effect prediction
 
 ### Internal Models (6)
-13. `_internal_prott5_tokenizer` - ProtT5 tokenizer only
-14. `_internal_prott5_onnx` - ProtT5 ONNX only
-15. `_internal_esm2_tokenizer` - ESM2 tokenizer only
-16. `_internal_esm2_t33_onnx` - ESM2-t33 ONNX only
-17. `_internal_esm2_t36_onnx` - ESM2-t36 ONNX only
+12. `_internal_prott5_tokenizer` - ProtT5 tokenizer only
+13. `_internal_prott5_onnx` - ProtT5 ONNX only
+14. `_internal_esm2_tokenizer` - ESM2 tokenizer only
+15. `_internal_esm2_t33_onnx` - ESM2-t33 ONNX only
+16. `_internal_esm2_t36_onnx` - ESM2-t36 ONNX only
 
-## Setup Options
+## Dynamic Model Initialization
 
-### Option 1: Use Existing ONNX Files (Recommended)
+The system uses an initialization container pattern to download models from URLs and configure Triton to load only successfully initialized models.
 
-If you have ONNX model files:
+### Environment Configuration
+
+Set these environment variables to configure model downloads:
 
 ```bash
-# Copy your ONNX files to the correct locations
-cp /path/to/prott5.onnx storage/model-repository/_internal_prott5_onnx/1/model.onnx
-cp /path/to/esm2_t33.onnx storage/model-repository/_internal_esm2_t33_onnx/1/model.onnx
-# ... etc for all models
+# Model names (space-separated)
+MODEL_NAMES="esm2_t33_pipeline prott5_sec bind_embed"
 
-# Verify files exist
-find storage/model-repository -name "model.onnx"
+# Corresponding download URLs (space-separated, same order)
+MODEL_URLS="https://example.com/models/esm2_t33.onnx https://example.com/models/prott5_sec.onnx https://example.com/models/bind_embed.onnx"
 ```
 
-### Option 2: Create Placeholder Files (Testing Only)
-
-For testing infrastructure without real predictions:
+### Docker Compose Usage
 
 ```bash
-# The init container will create 1KB placeholder files
-docker compose -f docker-compose.triton-test.yml up triton-model-init
+# Set environment variables
+export MODEL_NAMES="esm2_t33_pipeline prott5_sec"
+export MODEL_URLS="https://example.com/models/esm2_t33.onnx https://example.com/models/prott5_sec.onnx"
 
-# This creates dummy ONNX files that pass Triton validation
-# but won't produce meaningful predictions
+# Start services (init container runs first, then Triton)
+docker compose up triton
 ```
 
-### Option 3: Download from Source (If Configured)
-
-If model download URLs are configured in `init_models.py`:
+### Manual Initialization
 
 ```bash
-# Edit init_models.py to add download URLs
-# Then run init container
-docker compose -f docker-compose.triton-test.yml up triton-model-init
+# Run init container manually
+docker compose run triton-model-init
+
+# Check what was initialized
+cat storage/model-repository/.initialized_models
 ```
 
 ## Initialization Container
 
 The `init_models.py` script runs in an init container to:
-1. Check if ONNX files exist
-2. Create placeholders for missing files (testing only)
-3. Validate model directory structure
-4. Log model status
+1. Parse MODEL_NAMES and MODEL_URLS environment variables
+2. Download ONNX models from URLs with progress tracking
+3. Validate downloaded files (size, ONNX format)
+4. Write success state file for Triton startup
+5. Fail container if any download fails
 
 **Environment Variables**:
 - `MODEL_REPOSITORY_PATH`: Path to model repository (default: `/models`)
-- `MODELS_TO_INITIALIZE`: Comma-separated list of models to initialize (default: all)
-- `CREATE_PLACEHOLDERS`: Whether to create placeholder files (default: `true`)
+- `MODEL_NAMES`: Space-separated list of model names to initialize
+- `MODEL_URLS`: Space-separated list of download URLs (parallel to MODEL_NAMES)
 
 ## Testing the Repository
 
-### Verify Structure
+### Verify Initialization
 
 ```bash
-# Check all models have config.pbtxt
-find storage/model-repository -name "config.pbtxt" | wc -l
-# Should show 18
+# Check which models were initialized
+cat storage/model-repository/.initialized_models
 
-# Check which models have ONNX files
-find storage/model-repository -name "model.onnx"
+# Check ONNX files exist
+find storage/model-repository -name "model.onnx" -exec ls -lh {} \;
 ```
 
 ### Start Triton
 
 ```bash
+# Set environment variables for testing
+export MODEL_NAMES="esm2_t33_pipeline prott5_sec"
+export MODEL_URLS="https://example.com/models/esm2_t33.onnx https://example.com/models/prott5_sec.onnx"
+
 # Start Triton with init container
-docker compose -f docker-compose.triton-test.yml up -d
+docker compose up triton
 
 # Check logs
-docker compose -f docker-compose.triton-test.yml logs triton-model-init
-docker compose -f docker-compose.triton-test.yml logs triton
+docker compose logs triton-model-init
+docker compose logs triton
 
 # Verify models loaded
 curl http://localhost:8000/v2/models | jq '.[] | .name'
@@ -121,7 +123,7 @@ curl http://localhost:8000/v2/models | jq '.[] | .name'
 
 ```bash
 # Check specific model
-curl http://localhost:8000/v2/models/prot_t5_pipeline
+curl http://localhost:8000/v2/models/esm2_t33_pipeline
 
 # Run test predictions
 TRITON_GRPC_URL=localhost:8001 uv run pytest tests/integration/triton_standalone/ -v
@@ -129,34 +131,66 @@ TRITON_GRPC_URL=localhost:8001 uv run pytest tests/integration/triton_standalone
 
 ## Troubleshooting
 
-### "Model file not found" errors
-
-```bash
-# Check if ONNX files exist
-ls -lh storage/model-repository/*/1/model.onnx
-
-# If missing, run init container to create placeholders
-docker compose -f docker-compose.triton-test.yml up triton-model-init
-```
-
-### Triton fails to load models
-
-```bash
-# Check Triton logs for errors
-docker compose -f docker-compose.triton-test.yml logs triton | grep -i error
-
-# Verify config.pbtxt syntax
-cat storage/model-repository/prot_t5_pipeline/config.pbtxt
-```
-
 ### Init container fails
 
 ```bash
 # Check init container logs
-docker compose -f docker-compose.triton-test.yml logs triton-model-init
+docker compose logs triton-model-init
 
-# Run init container manually for debugging
-docker compose -f docker-compose.triton-test.yml run triton-model-init
+# Common issues:
+# - Invalid URLs (404, timeout)
+# - Invalid ONNX files (wrong format)
+# - Missing environment variables
+```
+
+### Triton fails to start
+
+```bash
+# Check Triton logs
+docker compose logs triton
+
+# Check if success file exists
+docker compose exec triton cat /models/.initialized_models
+
+# Verify entrypoint script
+docker compose exec triton ls -la /usr/local/bin/triton_entrypoint.sh
+```
+
+### No models loaded
+
+```bash
+# Check if any models were initialized
+docker compose exec triton cat /models/.initialized_models
+
+# If empty, check init container logs for download failures
+docker compose logs triton-model-init
+```
+
+### Model download issues
+
+```bash
+# Test URL accessibility
+curl -I https://example.com/models/esm2_t33.onnx
+
+# Check file size and format
+curl -s https://example.com/models/esm2_t33.onnx | head -c 8 | xxd
+# Should show ONNX magic bytes: 4f 4e 4e 58 (ONNX)
+```
+
+## Runtime Model Availability
+
+The system includes runtime checking to verify which models are actually available in Triton:
+
+```python
+from biocentral_server.server_management.triton_client.model_router import TritonModelRouter
+
+# Check if a model is available at runtime
+is_available = await TritonModelRouter.is_triton_embedding_available_runtime("esm2_t33")
+print(f"ESM2-t33 available: {is_available}")
+
+# Get all available models
+available_embeddings = await TritonModelRouter.get_available_embedding_models()
+print(f"Available embeddings: {available_embeddings}")
 ```
 
 ## Model Files Not Included
@@ -171,21 +205,10 @@ The `.gitignore` file excludes:
 
 Only configuration files (`config.pbtxt`) and scripts (`*.py`) are tracked.
 
-## Getting ONNX Models
-
-To obtain real ONNX models:
-
-1. **Export from PyTorch**: Convert trained models to ONNX format
-2. **Download**: Get pre-converted models from model repository (if available)
-3. **Generate**: Use biotrainer to export models to ONNX
-
-Contact the biocentral team for access to pre-trained ONNX models.
-
 ## Next Steps
 
 After setting up models:
-1. Start Triton: `docker compose -f docker-compose.triton-test.yml up -d`
-2. Verify health: `curl http://localhost:8000/v2/health/ready`
-3. Run tests: `TRITON_GRPC_URL=localhost:8001 uv run pytest tests/integration/triton_standalone/ -v`
-
-See [TESTING_TRITON.md](../../TESTING_TRITON.md) for complete testing guide.
+1. Configure environment variables: `MODEL_NAMES` and `MODEL_URLS`
+2. Start Triton: `docker compose up triton`
+3. Verify health: `curl http://localhost:8000/v2/health/ready`
+4. Run tests: `TRITON_GRPC_URL=localhost:8001 uv run pytest tests/integration/triton_standalone/ -v`
