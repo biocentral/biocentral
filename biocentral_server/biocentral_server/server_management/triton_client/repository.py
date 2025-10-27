@@ -39,60 +39,6 @@ class InferenceRepository(ABC):
         pass
 
     @abstractmethod
-    async def compute_predictions(
-        self,
-        embeddings: np.ndarray,
-        model_name: str,
-    ) -> np.ndarray:
-        """Compute predictions from embeddings."""
-        pass
-
-    @abstractmethod
-    async def predict_per_residue(
-        self, embeddings: List[np.ndarray], model_name: str
-    ) -> List[np.ndarray]:
-        """Compute per-residue predictions from embeddings.
-
-        Args:
-            embeddings: List of per-residue embeddings, one per sequence
-            model_name: Name of the prediction model
-
-        Returns:
-            List of per-residue predictions, one array per sequence
-        """
-        pass
-
-    @abstractmethod
-    async def predict_sequence_level(
-        self, embeddings: List[np.ndarray], model_name: str
-    ) -> List[np.ndarray]:
-        """Compute sequence-level predictions from embeddings.
-
-        Args:
-            embeddings: List of per-residue embeddings, one per sequence
-            model_name: Name of the prediction model
-
-        Returns:
-            List of sequence-level predictions, one array per sequence
-        """
-        pass
-
-    @abstractmethod
-    async def predict_seth(
-        self, sequences: List[str], model_name: str = "seth"
-    ) -> List[np.ndarray]:
-        """Predict disorder from sequences using SETH model.
-
-        Args:
-            sequences: List of protein sequences
-            model_name: Name of the SETH model (default: "seth")
-
-        Returns:
-            List of per-residue disorder scores, one array per sequence
-        """
-        pass
-
-    @abstractmethod
     async def health_check(self, model_name: str) -> Dict[str, bool]:
         """Check inference server health for specific model."""
         pass
