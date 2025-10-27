@@ -24,9 +24,21 @@ class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixi
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "prott5_cons"
-    TRITON_INPUT_NAMES = ["input"]
-    TRITON_OUTPUT_NAMES = ["output"]
+    
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "prott5_cons"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["input"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return ["output"]
 
     def __init__(self, batch_size, backend: str = "onnx"):
         super().__init__(

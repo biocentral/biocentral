@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from typing import Dict
+from typing import Dict, List
 from biotrainer.protocols import Protocol
 
 from ..base_model import (
@@ -21,9 +21,20 @@ class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "seth"
-    TRITON_INPUT_NAMES = ["input"]  # Triton expects "input" tensor
-    TRITON_OUTPUT_NAMES = ["output"]  # Triton returns "output" tensor
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "seth"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["input"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return ["output"]
 
     def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(

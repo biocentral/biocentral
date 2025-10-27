@@ -30,9 +30,20 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "vespag"
-    TRITON_INPUT_NAMES = ["input"]
-    TRITON_OUTPUT_NAMES = ["output"]
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "vespag"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["input"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return ["output"]
 
     def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(

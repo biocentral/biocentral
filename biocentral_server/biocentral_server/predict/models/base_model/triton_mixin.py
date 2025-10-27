@@ -3,11 +3,13 @@
 from typing import Dict, List, Any
 import numpy as np
 
+from abc import ABC, abstractmethod
+
 try:
     import tritonclient.grpc as triton_grpc
-
     TRITON_AVAILABLE = True
-except ImportError:
+    
+except ImportError: # allows to use the mixin without Triton installed
     TRITON_AVAILABLE = False
     triton_grpc = None
 
@@ -20,19 +22,47 @@ from biocentral_server.utils import get_logger
 logger = get_logger(__name__)
 
 
-class TritonInferenceMixin:
+class TritonInferenceMixin(ABC):
     """Mixin providing Triton-based inference capabilities.
 
     This mixin provides methods for running inference via Triton Inference Server.
     It should be used with BaseModel through multiple inheritance.
-
-    Expected class attributes (defined in concrete model):
+    
+    Needs to implement the following abstract properties:
         - TRITON_MODEL_NAME: str - Name of model in Triton repository
         - TRITON_INPUT_NAMES: List[str] - Names of input tensors
         - TRITON_OUTPUT_NAMES: List[str] - Names of output tensors
-        - TRITON_INPUT_TRANSFORMER: Optional[callable] - Function to transform inputs
-        - TRITON_OUTPUT_TRANSFORMER: Optional[callable] - Function to transform outputs
+
+    Can optionally implement the following methods:
+        - triton_input_transformer: callable - Function to transform inputs
+        - triton_output_transformer: callable - Function to transform outputs
     """
+    
+    @property
+    @abstractmethod
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        raise NotImplementedError
+    
+    @property
+    @abstractmethod
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        raise NotImplementedError
+    
+    def triton_input_transformer(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform input for Triton inference."""
+        return batch
+    
+    def triton_output_transformer(self, outputs: List[Any]) -> List[Any]:
+        """Transform output for Triton inference."""
+        return outputs
 
     def _init_triton_backend(self):
         """Initialize Triton backend connection."""
@@ -40,20 +70,6 @@ class TritonInferenceMixin:
             raise ImportError(
                 "Triton client dependencies not available. "
                 "Install with: pip install tritonclient[grpc]"
-            )
-
-        # Validate required attributes
-        if not hasattr(self, "TRITON_MODEL_NAME"):
-            raise AttributeError(
-                f"{self.__class__.__name__} must define TRITON_MODEL_NAME class attribute"
-            )
-        if not hasattr(self, "TRITON_INPUT_NAMES"):
-            raise AttributeError(
-                f"{self.__class__.__name__} must define TRITON_INPUT_NAMES class attribute"
-            )
-        if not hasattr(self, "TRITON_OUTPUT_NAMES"):
-            raise AttributeError(
-                f"{self.__class__.__name__} must define TRITON_OUTPUT_NAMES class attribute"
             )
 
         # Initialize Triton connection

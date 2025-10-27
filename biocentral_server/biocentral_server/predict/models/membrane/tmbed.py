@@ -24,20 +24,29 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "tmbed"
-    TRITON_INPUT_NAMES = ["ensemble_input", "mask"]
-    TRITON_OUTPUT_NAMES = [f"output_{i}" for i in range(5)]  # 5 CV folds
-
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "tmbed"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["ensemble_input", "mask"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return [f"output_{i}" for i in range(5)]  # 5 CV folds
+    
     # Custom transformers for Triton
-    @staticmethod
-    def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
+    def triton_input_transformer(self, batch: Dict) -> Dict:
         """Transform batch for Triton: rename 'input' to 'ensemble_input'."""
         if "input" in batch:
             batch["ensemble_input"] = batch.pop("input")
         return batch
 
-    @staticmethod
-    def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
+    def triton_output_transformer(self, outputs: List[np.ndarray]) -> np.ndarray:
         """Apply softmax to each CV fold and average.
 
         TMbed uses 5-fold CV ensemble. Each fold returns raw logits (batch, 7, seq_len).

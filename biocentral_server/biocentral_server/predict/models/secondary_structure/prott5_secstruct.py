@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from typing import Dict
+from typing import Dict, List
 from biotrainer.protocols import Protocol
 
 from ..base_model import (
@@ -23,9 +23,20 @@ class ProtT5SecondaryStructure(BaseModel, LocalOnnxInferenceMixin, TritonInferen
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "prott5_sec"
-    TRITON_INPUT_NAMES = ["input"]
-    TRITON_OUTPUT_NAMES = ["d3_Yhat"]  # Only use 3-state for Triton
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "prott5_sec"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["input"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return ["d3_Yhat"]  # Only use 3-state for Triton
 
     def __init__(self, batch_size, backend: str = "onnx"):
         super().__init__(

@@ -25,13 +25,23 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """
 
     # Triton configuration
-    TRITON_MODEL_NAME = "bind_embed"
-    TRITON_INPUT_NAMES = ["ensemble_input"]  # Transposed input for Triton
-    TRITON_OUTPUT_NAMES = [f"output_{i}" for i in range(5)]  # 5 ensemble models
+    @property
+    def TRITON_MODEL_NAME(self) -> str:
+        """Name of model in Triton repository."""
+        return "bind_embed"
+    
+    @property
+    def TRITON_INPUT_NAMES(self) -> List[str]:
+        """Names of input tensors."""
+        return ["ensemble_input"]
+    
+    @property
+    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+        """Names of output tensors."""
+        return [f"output_{i}" for i in range(5)]
 
     # Custom transformers for Triton
-    @staticmethod
-    def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
+    def triton_input_transformer(self, batch: Dict) -> Dict:
         """Transform batch for Triton: transpose and rename 'input' to 'ensemble_input'."""
         # BindEmbed requires transposed input (B, L, E) -> (B, E, L)
         batch = self._transpose_batch(batch)
@@ -41,8 +51,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             batch["ensemble_input"] = batch.pop("input")
         return batch
 
-    @staticmethod
-    def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
+    def triton_output_transformer(self, outputs: List[np.ndarray]) -> np.ndarray:
         """Apply sigmoid and average the 5 ensemble outputs."""
         # Apply sigmoid to each model output and average
         sigmoid_outputs = []
