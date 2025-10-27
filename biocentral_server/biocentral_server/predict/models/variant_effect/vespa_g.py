@@ -17,13 +17,27 @@ from ..base_model import (
     MutationPrediction,
     ModelOutput,
     OutputType,
+    OnnxInferenceMixin,
+    TritonInferenceMixin,
 )
 
 
-class VespaG(BaseModel):
-    def __init__(self, batch_size):
+class VespaG(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+    """VespaG model for variant effect prediction.
+
+    Supports both ONNX (local) and Triton (remote) backends.
+    Predicts effects of single amino acid variants on protein function.
+    """
+
+    # Triton configuration
+    TRITON_MODEL_NAME = "vespag"
+    TRITON_INPUT_NAMES = ["input"]
+    TRITON_OUTPUT_NAMES = ["output"]
+
+    def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(
             batch_size=batch_size,
+            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -69,6 +83,7 @@ class VespaG(BaseModel):
         ]
 
     def predict(self, sequences: Dict[str, str], embeddings):
+        self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         self.mutations_per_protein = generate_sav_landscape(
@@ -79,10 +94,20 @@ class VespaG(BaseModel):
         vespag_scores = {}
         for seq_idx, sequence_embedding in enumerate(inputs):
             seq_id = embedding_ids[seq_idx]
-            y = self.model.run(None, sequence_embedding)
-            y = torch.from_numpy(np.float32(np.stack(y[0]))).squeeze(0)
+
+            # Backend-agnostic inference
+            if self.backend == "onnx":
+                raw_output = self.model.run(None, sequence_embedding)
+                y = torch.from_numpy(np.float32(np.stack(raw_output[0]))).squeeze(0)
+            elif self.backend == "triton":
+                raw_output = self._run_inference(sequence_embedding)
+                y = torch.from_numpy(raw_output.astype(np.float32)).squeeze(0)
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+
             y = mask_non_mutations(y, sequences[seq_id])
             vespag_scores[seq_id] = y.detach().numpy()
+
         self.normalizer.fit(
             np.concatenate([y.flatten() for y in vespag_scores.values()])
         )
