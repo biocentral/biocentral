@@ -1,26 +1,32 @@
 import torch
 import numpy as np
-import onnxruntime as ort
 
 from abc import ABC, abstractmethod
-from onnxruntime import InferenceSession
 from biotrainer.protocols import Protocol
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union, Any, Literal
 from biotrainer.utilities import get_device
 
-from biocentral_server.server_management import FileContextManager
 from .prediction import Prediction
 from .model_metadata import ModelMetadata
 
-from ...model_utils import get_batched_data, MODEL_BASE_PATH
+from ...model_utils import get_batched_data
+
+# Backend type
+BackendType = Literal["onnx", "triton"]
 
 
 class BaseModel(ABC):
-    """Base class for all prediction models."""
+    """Base class for all prediction models.
+
+    This class provides shared functionality for all prediction models,
+    including preprocessing, postprocessing, and batching logic.
+    Specific inference backends (ONNX, Triton) are provided via mixins.
+    """
 
     def __init__(
         self,
         batch_size: int,
+        backend: BackendType = "onnx",
         uses_ensemble: bool = False,
         requires_mask: bool = False,
         requires_transpose: bool = False,
@@ -31,58 +37,60 @@ class BaseModel(ABC):
 
         Args:
             batch_size: Batch size for predictions
+            backend: Inference backend to use ("onnx" or "triton")
             uses_ensemble: Whether the model uses multiple models (ensemble)
             requires_mask: Whether inputs need masking
             requires_transpose: Whether inputs need transposition
             model_dir_name: Optional directory name, defaults to meta_data.name if not provided
         """
         self.batch_size = batch_size
+        self.backend = backend
+        self.uses_ensemble = uses_ensemble
         self.requires_mask = requires_mask
         self.requires_transpose = requires_transpose
         self.non_padded_embedding_lengths = {}  # Undo padding after predictions
         self.device = get_device()
+        self.model_dir_name = model_dir_name
 
-        # Load model(s)
-        model_name = model_dir_name if model_dir_name else self.get_metadata().name
-        if uses_ensemble:
-            self.models = self._load_multiple_onnx_models(model_name=model_name)
+        # Initialize backend-specific components
+        self._init_backend()
+
+    def _init_backend(self):
+        """Initialize the selected inference backend."""
+        if self.backend == "onnx":
+            if not hasattr(self, '_init_onnx_backend'):
+                raise RuntimeError(
+                    f"{self.__class__.__name__} must inherit from OnnxInferenceMixin "
+                    "to use ONNX backend"
+                )
+            self._init_onnx_backend(model_dir_name=self.model_dir_name)
+
+        elif self.backend == "triton":
+            if not hasattr(self, '_init_triton_backend'):
+                raise RuntimeError(
+                    f"{self.__class__.__name__} must inherit from TritonInferenceMixin "
+                    "to use Triton backend"
+                )
+            self._init_triton_backend()
+
         else:
-            self.model = self._load_onnx_model(model_name=model_name)
+            raise ValueError(f"Unknown backend: {self.backend}. Must be 'onnx' or 'triton'")
 
-    @staticmethod
-    def _load_onnx_model(model_name: str) -> InferenceSession:
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
+    def _run_inference(self, batch: Dict[str, Any]) -> Any:
+        """Run inference on a batch using the selected backend.
 
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    return onnx_model
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
+        Args:
+            batch: Dictionary containing input tensors
 
-        raise Exception(f"Model could not be found in model directory {model_dir}!")
-
-    @staticmethod
-    def _load_multiple_onnx_models(model_name: str) -> List[InferenceSession]:
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
-        models = []
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    models.append((onnx_file.name, onnx_model))
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
-
-        if len(models) == 0:
-            raise Exception(f"Model {model_name} could not be loaded!")
-
-        # TODO [Refactoring] Sorting for cv_index does not work with temp files
-        models = [model[1] for model in sorted(models, key=lambda x: x[0])]
-        return models
+        Returns:
+            Raw model output
+        """
+        if self.backend == "onnx":
+            return self._run_onnx_inference(batch)
+        elif self.backend == "triton":
+            return self._run_triton_inference(batch)
+        else:
+            raise ValueError(f"Unknown backend: {self.backend}")
 
     @staticmethod
     @abstractmethod
