@@ -3,6 +3,12 @@ services:
     build:
       context: ./storage/model-repository
       dockerfile: Dockerfile.triton
+    deploy:
+      resources:
+        limits:
+          memory: 24G  # ESM2-T36 (3B params) requires ~14-22GB for inference
+        reservations:
+          memory: 16G
     command: >
       tritonserver
       --model-repository=/models
