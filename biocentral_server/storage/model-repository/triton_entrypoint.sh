@@ -5,21 +5,21 @@
 set -euo pipefail
 
 MODEL_REPO_PATH="${MODEL_REPOSITORY_PATH:-/models}"
-TRITON_MODELS_TO_LOAD="${TRITON_MODELS_TO_LOAD:-}"
+TRITON_MODELS="${TRITON_MODELS:-}"
 
 echo "Starting Triton Inference Server..."
 echo "Model repository path: ${MODEL_REPO_PATH}"
 
 # Check if models to load are specified
-if [[ -z "${TRITON_MODELS_TO_LOAD}" ]]; then
-    echo "ERROR: TRITON_MODELS_TO_LOAD environment variable must be set"
-    echo "Example: TRITON_MODELS_TO_LOAD='esm2_t33_pipeline,bind_embed,prott5_sec'"
+if [[ -z "${TRITON_MODELS}" ]]; then
+    echo "ERROR: TRITON_MODELS environment variable must be set"
+    echo "Example: TRITON_MODELS='esm2_t33_pipeline,bind_embed,prott5_sec'"
     exit 1
 fi
 
 # Parse comma-separated model list
-echo "Parsing models to load: ${TRITON_MODELS_TO_LOAD}"
-IFS=',' read -ra MODELS_TO_LOAD <<< "${TRITON_MODELS_TO_LOAD}"
+echo "Parsing models to load: ${TRITON_MODELS}"
+IFS=',' read -ra MODELS_TO_LOAD <<< "${TRITON_MODELS}"
 
 # Trim whitespace from each model name
 MODELS_TO_LOAD=()
@@ -31,7 +31,7 @@ for model in "${MODELS_TO_LOAD[@]}"; do
 done
 
 if [[ ${#MODELS_TO_LOAD[@]} -eq 0 ]]; then
-    echo "ERROR: No valid models specified in TRITON_MODELS_TO_LOAD"
+    echo "ERROR: No valid models specified in TRITON_MODELS"
     exit 1
 fi
 

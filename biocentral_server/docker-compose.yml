@@ -150,7 +150,7 @@ services:
       - ./storage/model-repository/triton_entrypoint.sh:/usr/local/bin/triton_entrypoint.sh:ro
     environment:
       - MODEL_REPOSITORY_PATH=/models
-      - TRITON_MODELS_TO_LOAD=${TRITON_MODELS_TO_LOAD:-}
+      - TRITON_MODELS=${TRITON_MODELS:-}
     command: ["/bin/bash", "/usr/local/bin/triton_entrypoint.sh"]
     expose:
       - "8000"  # HTTP
