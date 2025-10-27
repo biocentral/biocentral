@@ -118,6 +118,7 @@ class LightAttentionSubcellularLocalization(
         )
 
     def predict(self, sequences: Dict[str, str], embeddings):
+        self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []

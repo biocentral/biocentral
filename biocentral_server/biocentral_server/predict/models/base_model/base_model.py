@@ -52,8 +52,18 @@ class BaseModel(ABC):
         self.device = get_device()
         self.model_dir_name = model_dir_name
 
-        # Initialize backend-specific components
-        self._init_backend()
+        # Lazy initialization flag - backend initialized on first use
+        self._backend_initialized = False
+
+    def _ensure_backend_initialized(self):
+        """Lazy initialization - load backend only when first needed.
+
+        This method should be called at the start of predict() to ensure
+        the backend is initialized before inference.
+        """
+        if not self._backend_initialized:
+            self._init_backend()
+            self._backend_initialized = True
 
     def _init_backend(self):
         """Initialize the selected inference backend."""
