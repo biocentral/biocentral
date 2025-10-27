@@ -1,5 +1,4 @@
 from typing import Dict, List, Optional, Generator, Tuple
-import asyncio
 import numpy as np
 
 from biotrainer.input_files import BiotrainerSequenceRecord
@@ -9,37 +8,31 @@ from ..utils import get_logger
 from ..server_management import (
     EmbeddingsDatabase,
     TritonClientConfig,
-    create_triton_repository,
     get_shared_repository,
-    get_shared_repository_async,
 )
+from .embedder_config import get_triton_model_name
 
 logger = get_logger(__name__)
 
 
-def _is_triton_embedding_available_sync(embedder_name: str) -> bool:
-    """Synchronous wrapper for checking Triton embedding availability."""
+def _is_triton_embedding_available(embedder_name: str) -> bool:
+    """Check if Triton embedding is available for embedder."""
     try:
         config = TritonClientConfig.from_env()
         if not config.is_enabled():
             return False
         
+        # Check if embedder has a Triton model mapping
+        triton_model = get_triton_model_name(embedder_name)
+        if not triton_model:
+            return False
+        
+        # Check if model is available in Triton
         repository = get_shared_repository(config)
-        return asyncio.run(repository.is_triton_embedding_available(embedder_name))
+        return repository.is_model_available(triton_model)
     except Exception as e:
         logger.warning(f"Failed to check Triton availability for {embedder_name}: {e}")
         return False
-
-
-def _get_embedding_model_sync(embedder_name: str) -> Optional[str]:
-    """Synchronous wrapper for getting embedding model name."""
-    try:
-        config = TritonClientConfig.from_env()
-        repository = get_shared_repository(config)
-        return repository.get_embedding_model(embedder_name)
-    except Exception as e:
-        logger.warning(f"Failed to get embedding model for {embedder_name}: {e}")
-        return None
 
 
 def compute_memory_encodings(
@@ -61,7 +54,7 @@ def compute_memory_encodings(
     ]
 
 
-async def compute_embeddings_triton(
+def compute_embeddings_triton(
     embedder_name: str,
     all_seqs: Dict[str, str],
     reduced: bool,
@@ -95,7 +88,7 @@ async def compute_embeddings_triton(
 
     if n_non_existing > 0:
         # Get Triton model name
-        triton_model = _get_embedding_model_sync(embedder_name)
+        triton_model = get_triton_model_name(embedder_name)
         if not triton_model:
             logger.warning(
                 f"No Triton model found for embedder {embedder_name}, "
@@ -109,13 +102,14 @@ async def compute_embeddings_triton(
                 use_half_precision=False,
                 device="cuda" if embeddings_db else "cpu",
                 embeddings_db=embeddings_db,
+                use_triton=False,
             ):
                 yield result
             return
 
         # Get shared Triton repository
         config = TritonClientConfig.from_env()
-        triton_repo = await get_shared_repository_async(config)
+        triton_repo = get_shared_repository(config)
 
         # Process sequences in batches
         batch = []
@@ -131,7 +125,7 @@ async def compute_embeddings_triton(
             if len(batch) >= max_batch_size:
                 # Compute embeddings via Triton
                 try:
-                    embeddings = await triton_repo.compute_embeddings(
+                    embeddings = triton_repo.compute_embeddings(
                         sequences=batch,
                         model_name=triton_model,
                         pooled=reduced,
@@ -176,7 +170,7 @@ async def compute_embeddings_triton(
         # Process remaining sequences
         if batch:
             try:
-                embeddings = await triton_repo.compute_embeddings(
+                embeddings = triton_repo.compute_embeddings(
                     sequences=batch,
                     model_name=triton_model,
                     pooled=reduced,
@@ -283,28 +277,17 @@ def compute_embeddings(
         use_triton = config.is_enabled()
 
     # Try Triton first if enabled and model is available
-    if use_triton and _is_triton_embedding_available_sync(embedder_name):
+    if use_triton and _is_triton_embedding_available(embedder_name):
         logger.info(f"Using Triton for embeddings: {embedder_name}")
         try:
-            # Run async function in event loop
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                generator = compute_embeddings_triton(
-                    embedder_name=embedder_name,
-                    all_seqs=all_seqs,
-                    reduced=reduced,
-                    embeddings_db=embeddings_db,
-                )
-                # Convert async generator to sync generator
-                while True:
-                    try:
-                        result = loop.run_until_complete(generator.__anext__())
-                        yield result
-                    except StopAsyncIteration:
-                        break
-            finally:
-                loop.close()
+            # Call synchronous Triton embedding generator
+            for result in compute_embeddings_triton(
+                embedder_name=embedder_name,
+                all_seqs=all_seqs,
+                reduced=reduced,
+                embeddings_db=embeddings_db,
+            ):
+                yield result
             return
         except Exception as e:
             logger.warning(
