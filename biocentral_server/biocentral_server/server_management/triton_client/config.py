@@ -1,7 +1,11 @@
 """Configuration for Triton Inference Server client."""
 
 import os
+import struct
 from typing import Optional
+
+# Calculate INT32_MAX for gRPC message size limits (matches official Triton client)
+INT32_MAX = 2 ** (struct.Struct("i").size * 8 - 1) - 1
 
 
 class TritonClientConfig:
@@ -18,7 +22,10 @@ class TritonClientConfig:
         triton_circuit_breaker_failure_threshold: int = 5,
         triton_circuit_breaker_timeout: int = 60,
         triton_max_batch_size: int = 32,
-        triton_max_message_size: int = 256 * 1024 * 1024,  # 256 MB
+        triton_max_message_size: int = INT32_MAX,  # ~2GB (matches official Triton client)
+        triton_grpc_keepalive_time_ms: int = INT32_MAX,
+        triton_grpc_keepalive_timeout_ms: int = 20000,  # 20 seconds
+        triton_http2_max_pings_without_data: int = 2,
         use_triton: bool = True,
     ):
         """Initialize Triton client configuration.
@@ -33,7 +40,10 @@ class TritonClientConfig:
             triton_circuit_breaker_failure_threshold: Failures before opening circuit (default: 5)
             triton_circuit_breaker_timeout: Seconds before retrying after circuit opens (default: 60)
             triton_max_batch_size: Maximum sequences per request (default: 32)
-            triton_max_message_size: Max gRPC message size in bytes (default: 256 MB)
+            triton_max_message_size: Max gRPC message size in bytes (default: INT32_MAX ~2GB)
+            triton_grpc_keepalive_time_ms: gRPC keepalive time in ms (default: INT32_MAX)
+            triton_grpc_keepalive_timeout_ms: gRPC keepalive timeout in ms (default: 20000)
+            triton_http2_max_pings_without_data: HTTP/2 max pings without data (default: 2)
             use_triton: Whether to use Triton for inference (default: True)
         """
         self.triton_grpc_url = triton_grpc_url or os.getenv(
@@ -68,6 +78,23 @@ class TritonClientConfig:
         )
         self.triton_max_message_size = int(
             os.getenv("TRITON_MAX_MESSAGE_SIZE", str(triton_max_message_size))
+        )
+        self.triton_grpc_keepalive_time_ms = int(
+            os.getenv(
+                "TRITON_GRPC_KEEPALIVE_TIME_MS", str(triton_grpc_keepalive_time_ms)
+            )
+        )
+        self.triton_grpc_keepalive_timeout_ms = int(
+            os.getenv(
+                "TRITON_GRPC_KEEPALIVE_TIMEOUT_MS",
+                str(triton_grpc_keepalive_timeout_ms),
+            )
+        )
+        self.triton_http2_max_pings_without_data = int(
+            os.getenv(
+                "TRITON_HTTP2_MAX_PINGS_WITHOUT_DATA",
+                str(triton_http2_max_pings_without_data),
+            )
         )
         self.use_triton = os.getenv("USE_TRITON", str(use_triton)).lower() in (
             "true",

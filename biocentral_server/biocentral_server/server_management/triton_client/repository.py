@@ -162,11 +162,17 @@ class TritonInferenceRepository(InferenceRepository):
         # Create connection pool
         self._clients = asyncio.Queue(maxsize=self.config.triton_pool_size)
 
-        # Configure gRPC channel options for large messages (e.g., ESM2-T36 embeddings)
+        # Configure gRPC channel options to match official Triton client
+        # This prevents "Socket closed" errors during long-running inference (e.g., ESM2-T36)
         channel_args = [
+            # Message size limits (INT32_MAX ~2GB)
             ("grpc.max_send_message_length", self.config.triton_max_message_size),
             ("grpc.max_receive_message_length", self.config.triton_max_message_size),
-            ("grpc.max_message_length", self.config.triton_max_message_size),
+            # Keepalive settings to prevent connection drops
+            ("grpc.keepalive_time_ms", self.config.triton_grpc_keepalive_time_ms),
+            ("grpc.keepalive_timeout_ms", self.config.triton_grpc_keepalive_timeout_ms),
+            ("grpc.keepalive_permit_without_calls", False),
+            ("grpc.http2.max_pings_without_data", self.config.triton_http2_max_pings_without_data),
         ]
 
         # Create client pool
@@ -474,8 +480,23 @@ class TritonInferenceRepository(InferenceRepository):
                 input_tensor = padded_batch
                 input_name = "input"
 
-            inputs = [triton_grpc.InferInput(input_name, input_tensor.shape, "FP32")]
-            inputs[0].set_data_from_numpy(input_tensor)
+            # Prepare inputs - tmbed requires both input and mask
+            if model_name == "tmbed":
+                # Create attention mask for tmbed
+                masks = np.zeros((batch_size, max_len), dtype=np.float32)
+                for i, emb in enumerate(embeddings):
+                    seq_len = emb.shape[0]
+                    masks[i, :seq_len] = 1.0  # Mask: 1 for real positions, 0 for padding
+                
+                inputs = [
+                    triton_grpc.InferInput("input", input_tensor.shape, "FP32"),
+                    triton_grpc.InferInput("mask", masks.shape, "FP32"),
+                ]
+                inputs[0].set_data_from_numpy(input_tensor)
+                inputs[1].set_data_from_numpy(masks)
+            else:
+                inputs = [triton_grpc.InferInput(input_name, input_tensor.shape, "FP32")]
+                inputs[0].set_data_from_numpy(input_tensor)
 
             # Handle different output names per model
             if model_name == "bind_embed":
@@ -490,6 +511,9 @@ class TritonInferenceRepository(InferenceRepository):
                 outputs = [triton_grpc.InferRequestedOutput("d3_Yhat")]
             elif model_name == "prott5_cons":
                 # Conservation has "output" as output name
+                outputs = [triton_grpc.InferRequestedOutput("output")]
+            elif model_name == "tmbed":
+                # TMbed has "output" as output name
                 outputs = [triton_grpc.InferRequestedOutput("output")]
             else:
                 # Default output name
@@ -529,6 +553,11 @@ class TritonInferenceRepository(InferenceRepository):
             elif model_name == "prott5_cons":
                 # Get conservation predictions
                 predictions_batch = response.as_numpy("output")
+            elif model_name == "tmbed":
+                # Get TMbed predictions - shape is (batch, num_classes, seq_len)
+                # Need to transpose to (batch, seq_len, num_classes)
+                predictions_batch = response.as_numpy("output")
+                predictions_batch = np.transpose(predictions_batch, (0, 2, 1))  # (batch, seq_len, num_classes)
             else:
                 predictions_batch = response.as_numpy("predictions")
 
