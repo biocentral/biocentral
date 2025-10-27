@@ -14,6 +14,9 @@ import tarfile
 from pathlib import Path
 from typing import List, Tuple
 
+import httpx
+from tqdm import tqdm
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -152,12 +155,27 @@ def parse_model_downloads() -> List[Tuple[str, str]]:
     # Parse space-separated "folder:url" pairs
     downloads = []
     for pair in shlex.split(downloads_str):
+        # Split on the first colon only, allowing URLs to contain colons
         if ":" not in pair:
             logger.error(f"Invalid download pair format: {pair}. Expected 'folder:url'")
             sys.exit(1)
         
-        folder, url = pair.split(":", 1)
-        downloads.append((folder.strip(), url.strip()))
+        # Split only on the first colon to handle URLs with colons in path/query
+        parts = pair.split(":", 1)
+        if len(parts) != 2:
+            logger.error(f"Invalid download pair format: {pair}. Expected 'folder:url'")
+            sys.exit(1)
+        
+        folder, url = parts
+        folder = folder.strip()
+        url = url.strip()
+        
+        # Basic validation that we have a valid folder name and URL
+        if not folder or not url:
+            logger.error(f"Invalid download pair format: {pair}. Both folder and URL must be non-empty")
+            sys.exit(1)
+        
+        downloads.append((folder, url))
     
     logger.info(f"Configured downloads: {len(downloads)} pairs")
     for folder, url in downloads:
@@ -209,9 +227,6 @@ def download_model(url: str, output_path: Path) -> bool:
         True if successful, False otherwise
     """
     try:
-        import httpx
-        from tqdm import tqdm
-        
         logger.info(f"Downloading {url} to {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
