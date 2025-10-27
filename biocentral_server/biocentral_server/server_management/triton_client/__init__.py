@@ -28,8 +28,6 @@ from .repository_manager import (
     get_shared_repository,
     cleanup_repositories,
 )
-# Kept for backward compatibility but does nothing
-from .repository_initializer import TritonRepositoryInitializer
 
 __all__ = [
     "TritonClientConfig",
@@ -45,5 +43,4 @@ __all__ = [
     "RepositoryManager",
     "get_shared_repository",
     "cleanup_repositories",
-    "TritonRepositoryInitializer",  # DEPRECATED: No-op, kept for backward compatibility
 ]
