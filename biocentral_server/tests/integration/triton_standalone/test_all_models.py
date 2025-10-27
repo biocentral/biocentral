@@ -39,7 +39,7 @@ Usage:
 Models loaded by docker-compose.triton-test.yml:
     - Embedding: prot_t5_pipeline, esm2_t33_pipeline, esm2_t36_pipeline
     - Prediction: prott5_sec, prott5_cons, bind_embed, seth, tmbed,
-                  light_attention_subcell, light_attention_membrane
+                  light_attention_subcell, light_attention_membrane, vespag
 """
 
 import os
@@ -232,6 +232,28 @@ async def prot_t5_embeddings_batch(triton_repo):
     return embeddings
 
 
+@pytest_asyncio.fixture(scope="function")
+async def esm2_t33_embeddings_single(triton_repo):
+    """Generate ESM2-T33 embeddings for single sequence (required for VespaG)."""
+    embeddings = await triton_repo.compute_embeddings(
+        sequences=SINGLE_SEQUENCE,
+        model_name="esm2_t33_pipeline",
+        pooled=False,
+    )
+    return embeddings
+
+
+@pytest_asyncio.fixture(scope="function")
+async def esm2_t33_embeddings_batch(triton_repo):
+    """Generate ESM2-T33 embeddings for 5 sequences (required for VespaG)."""
+    embeddings = await triton_repo.compute_embeddings(
+        sequences=FIVE_SEQUENCES,
+        model_name="esm2_t33_pipeline",
+        pooled=False,
+    )
+    return embeddings
+
+
 @pytest.mark.asyncio
 class TestPerResiduePredictionModels:
     """Test per-residue prediction models (secondary structure, conservation, binding, disorder, transmembrane)."""
@@ -376,6 +398,71 @@ class TestSequenceLevelPredictionModels:
             assert not np.any(np.isnan(pred)), f"Prediction {i} contains NaN values"
 
 
+@pytest.mark.asyncio
+class TestVariantEffectPredictionModels:
+    """Test variant effect prediction models (VespaG)."""
+
+    async def test_vespag_prediction_single(self, triton_repo, esm2_t33_embeddings_single):
+        """Test VespaG variant effect prediction with single sequence."""
+        embeddings = esm2_t33_embeddings_single
+        sequences = SINGLE_SEQUENCE
+
+        # Compute predictions
+        predictions = await triton_repo.predict_per_residue(
+            embeddings=embeddings,
+            model_name="vespag",
+        )
+
+        # Validate output
+        assert predictions is not None, "No predictions returned for vespag"
+        assert len(predictions) == 1, f"Expected 1 prediction, got {len(predictions)}"
+
+        for i, (pred, seq) in enumerate(zip(predictions, sequences)):
+            assert isinstance(pred, np.ndarray), f"Prediction {i} is not numpy array"
+            seq_len = len(seq)
+
+            # VespaG outputs mutation effect scores: (seq_len, 20) for 20 amino acids
+            assert pred.ndim == 2, f"Expected 2D output, got {pred.ndim}D"
+            assert pred.shape[0] == seq_len, f"Expected {seq_len} residues, got {pred.shape[0]}"
+            assert pred.shape[1] == 20, f"Expected 20 amino acid scores, got {pred.shape[1]}"
+            assert pred.dtype in [np.float32, np.float64], f"Unexpected dtype: {pred.dtype}"
+            assert not np.any(np.isnan(pred)), f"Prediction {i} contains NaN values"
+            
+            # Check that scores are in expected range [0.0, 1.0] (normalized)
+            assert np.all(pred >= 0.0), f"Prediction {i} contains negative values"
+            assert np.all(pred <= 1.0), f"Prediction {i} contains values > 1.0"
+
+    async def test_vespag_prediction_batch(self, triton_repo, esm2_t33_embeddings_batch):
+        """Test VespaG variant effect prediction with 5 sequences."""
+        embeddings = esm2_t33_embeddings_batch
+        sequences = FIVE_SEQUENCES
+
+        # Compute predictions
+        predictions = await triton_repo.predict_per_residue(
+            embeddings=embeddings,
+            model_name="vespag",
+        )
+
+        # Validate output
+        assert predictions is not None, "No predictions returned for vespag"
+        assert len(predictions) == 5, f"Expected 5 predictions, got {len(predictions)}"
+
+        for i, (pred, seq) in enumerate(zip(predictions, sequences)):
+            assert isinstance(pred, np.ndarray), f"Prediction {i} is not numpy array"
+            seq_len = len(seq)
+
+            # VespaG outputs mutation effect scores: (seq_len, 20) for 20 amino acids
+            assert pred.ndim == 2, f"Expected 2D output, got {pred.ndim}D"
+            assert pred.shape[0] == seq_len, f"Expected {seq_len} residues, got {pred.shape[0]}"
+            assert pred.shape[1] == 20, f"Expected 20 amino acid scores, got {pred.shape[1]}"
+            assert pred.dtype in [np.float32, np.float64], f"Unexpected dtype: {pred.dtype}"
+            assert not np.any(np.isnan(pred)), f"Prediction {i} contains NaN values"
+            
+            # Check that scores are in expected range [0.0, 1.0] (normalized)
+            assert np.all(pred >= 0.0), f"Prediction {i} contains negative values"
+            assert np.all(pred <= 1.0), f"Prediction {i} contains values > 1.0"
+
+
 # ============================================================================
 # MODEL AVAILABILITY TESTS
 # ============================================================================
@@ -409,6 +496,7 @@ class TestModelAvailability:
             "tmbed",
             "light_attention_subcell",
             "light_attention_membrane",
+            "vespag",
         ]
 
         for model_name in expected_models:
