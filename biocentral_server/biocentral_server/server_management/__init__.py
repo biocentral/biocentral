@@ -12,8 +12,11 @@ from .library_adapters import (
 from .triton_client import (
     TritonClientConfig,
     TritonInferenceRepository,
-    TritonModelRouter,
     create_triton_repository,
+    RepositoryManager,
+    get_shared_repository,
+    cleanup_repositories,
+    TritonRepositoryInitializer,  # DEPRECATED: No-op, kept for backward compatibility
 )
 
 __all__ = [
@@ -35,6 +38,9 @@ __all__ = [
     "ServerModuleInitializer",
     "TritonClientConfig",
     "TritonInferenceRepository",
-    "TritonModelRouter",
     "create_triton_repository",
+    "RepositoryManager",
+    "get_shared_repository",
+    "cleanup_repositories",
+    "TritonRepositoryInitializer",
 ]

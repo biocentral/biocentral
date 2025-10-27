@@ -11,7 +11,7 @@ from ..protein_analysis import protein_analysis_route
 from ..prediction_models import prediction_models_service_route
 from ..embeddings import embeddings_service_route, projection_route
 from ..bayesian_optimization import bayesian_optimization_service_route
-from ..server_management import UserManager, ServerInitializationManager, cleanup_repositories, TritonRepositoryInitializer
+from ..server_management import UserManager, ServerInitializationManager, cleanup_repositories
 from ..predict import (
     prediction_metadata_route,
     prediction_service_route,
@@ -85,8 +85,6 @@ class ServerAppState:
 
         # Register initializers
         self.initialization_manager.register_initializer(PredictInitializer())
-        self.initialization_manager.register_initializer(TritonRepositoryInitializer())
-
         return app
 
     def init_app_context(self):

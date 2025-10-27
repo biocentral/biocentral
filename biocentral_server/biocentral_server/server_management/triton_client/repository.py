@@ -1,19 +1,23 @@
-"""Triton inference repository with circuit breaker and connection pooling."""
+"""Triton inference repository with connection pooling."""
 
-import asyncio
+import time
+import queue
+import threading
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 import numpy as np
 
 try:
-    import tritonclient.grpc.aio as triton_grpc
-    from circuitbreaker import circuit
-
+    import tritonclient.grpc as triton_grpc
     TRITON_AVAILABLE = True
 except ImportError:
     TRITON_AVAILABLE = False
     triton_grpc = None
-    circuit = None
+
+try:
+    import httpx
+except ImportError:
+    httpx = None
 
 from ...utils import get_logger
 from .config import TritonClientConfig
@@ -32,19 +36,19 @@ class InferenceRepository(ABC):
     """Abstract repository for ML inference operations."""
 
     @abstractmethod
-    async def compute_embeddings(
+    def compute_embeddings(
         self, sequences: List[str], model_name: str, pooled: bool = False
     ) -> List[np.ndarray]:
         """Compute embeddings for sequences."""
         pass
 
     @abstractmethod
-    async def health_check(self, model_name: str) -> Dict[str, bool]:
+    def health_check(self, model_name: str) -> Dict[str, bool]:
         """Check inference server health for specific model."""
         pass
 
     @abstractmethod
-    async def get_model_metadata(self, model_name: str) -> Dict:
+    def get_model_metadata(self, model_name: str) -> Dict:
         """Get model metadata."""
         pass
 
@@ -54,153 +58,146 @@ class InferenceRepository(ABC):
         pass
 
     @abstractmethod
-    async def connect(self) -> None:
+    def connect(self) -> None:
         """Connect to the inference backend."""
         pass
 
     @abstractmethod
-    async def disconnect(self) -> None:
+    def disconnect(self) -> None:
         """Disconnect from the inference backend."""
         pass
 
 
 class TritonInferenceRepository(InferenceRepository):
-    """Triton inference repository with circuit breaker and connection pooling.
-
-    Follows the architecture pattern from biocentral_emb_server:
-    - Connection pooling via asyncio.Queue
-    - Circuit breaker for infrastructure failures
-    - Automatic retries and fallback handling
+    """Triton inference repository with connection pooling.
+    
+    Provides synchronous interface for Triton Inference Server operations:
+    - Connection pooling via queue.Queue
+    - Thread-safe client management
+    - Automatic error handling and retries
     """
+
+    # Cache for available models (class-level)
+    _available_models_cache: Optional[Set[str]] = None
+    _cache_timestamp: Optional[float] = None
+    _cache_ttl: float = 60.0  # 60 seconds TTL
 
     def __init__(self, config: TritonClientConfig):
         if not TRITON_AVAILABLE:
             raise ImportError(
                 "Triton client dependencies not available. "
-                "Install with: pip install tritonclient[grpc] circuitbreaker"
+                "Install with: pip install tritonclient[grpc]"
             )
 
         self.config = config
-        self._clients: Optional[asyncio.Queue] = None
+        self._clients: Optional[queue.Queue] = None
         self._initialized = False
+        self._lock = threading.Lock()
 
-        # Circuit breaker for infrastructure failures only
-        infrastructure_exceptions = (
-            TritonConnectionError,
-            TritonTimeoutError,
-            TritonResourceExhaustionError,
-            ConnectionError,
-            OSError,
-            asyncio.TimeoutError,
-        )
-
-        self._circuit_breaker = circuit(
-            failure_threshold=config.triton_circuit_breaker_failure_threshold,
-            recovery_timeout=config.triton_circuit_breaker_timeout,
-            expected_exception=infrastructure_exceptions,
-        )
-
-    async def connect(self) -> None:
+    def connect(self) -> None:
         """Initialize connection pool."""
         if self._initialized:
             return
 
-        # Create connection pool
-        self._clients = asyncio.Queue(maxsize=self.config.triton_pool_size)
+        with self._lock:
+            if self._initialized:
+                return
 
-        # Configure gRPC channel options to match official Triton client
-        # This prevents "Socket closed" errors during long-running inference (e.g., ESM2-T36)
-        channel_args = [
-            # Message size limits (INT32_MAX ~2GB)
-            ("grpc.max_send_message_length", self.config.triton_max_message_size),
-            ("grpc.max_receive_message_length", self.config.triton_max_message_size),
-            # Keepalive settings to prevent connection drops
-            ("grpc.keepalive_time_ms", self.config.triton_grpc_keepalive_time_ms),
-            ("grpc.keepalive_timeout_ms", self.config.triton_grpc_keepalive_timeout_ms),
-            ("grpc.keepalive_permit_without_calls", False),
-            ("grpc.http2.max_pings_without_data", self.config.triton_http2_max_pings_without_data),
-        ]
+            # Create connection pool
+            self._clients = queue.Queue(maxsize=self.config.triton_pool_size)
 
-        # Create client pool
-        grpc_url = self.config.get_grpc_url_without_protocol()
-        for i in range(self.config.triton_pool_size):
-            client = triton_grpc.InferenceServerClient(
-                url=grpc_url, verbose=False, channel_args=channel_args
-            )
-            await self._clients.put(client)
+            # Configure gRPC channel options
+            # This prevents "Socket closed" errors during long-running inference
+            channel_args = [
+                # Message size limits (INT32_MAX ~2GB)
+                ("grpc.max_send_message_length", self.config.triton_max_message_size),
+                ("grpc.max_receive_message_length", self.config.triton_max_message_size),
+                # Keepalive settings to prevent connection drops
+                ("grpc.keepalive_time_ms", self.config.triton_grpc_keepalive_time_ms),
+                ("grpc.keepalive_timeout_ms", self.config.triton_grpc_keepalive_timeout_ms),
+                ("grpc.keepalive_permit_without_calls", False),
+                ("grpc.http2.max_pings_without_data", self.config.triton_http2_max_pings_without_data),
+            ]
 
-        # Test connection
-        test_client = await self._clients.get()
-        try:
-            await asyncio.wait_for(
-                test_client.is_server_ready(),
-                timeout=self.config.triton_connection_timeout,
-            )
-            logger.info(
-                f"Triton client pool initialized ({self.config.triton_pool_size} clients) "
-                f"at {self.config.triton_grpc_url}"
-            )
-        except Exception as e:
-            logger.error(f"Failed to connect to Triton server: {e}")
-            raise TritonConnectionError(
-                f"Failed to initialize Triton connection: {e}"
-            ) from e
-        finally:
-            await self._clients.put(test_client)
+            # Create client pool
+            grpc_url = self.config.get_grpc_url_without_protocol()
+            for i in range(self.config.triton_pool_size):
+                client = triton_grpc.InferenceServerClient(
+                    url=grpc_url, verbose=False, channel_args=channel_args
+                )
+                self._clients.put(client)
 
-        self._initialized = True
+            # Test connection
+            test_client = self._clients.get(timeout=self.config.triton_connection_timeout)
+            try:
+                if not test_client.is_server_ready():
+                    raise TritonConnectionError("Triton server is not ready")
+                logger.info(
+                    f"Triton client pool initialized ({self.config.triton_pool_size} clients) "
+                    f"at {self.config.triton_grpc_url}"
+                )
+            except Exception as e:
+                logger.error(f"Failed to connect to Triton server: {e}")
+                raise TritonConnectionError(
+                    f"Failed to initialize Triton connection: {e}"
+                ) from e
+            finally:
+                self._clients.put(test_client)
 
-    async def disconnect(self) -> None:
+            self._initialized = True
+
+    def disconnect(self) -> None:
         """Close all connections."""
         if not self._initialized or self._clients is None:
             return
 
-        while not self._clients.empty():
-            try:
-                client = self._clients.get_nowait()
-                await client.close()
-            except asyncio.QueueEmpty:
-                break
-        self._initialized = False
+        with self._lock:
+            if not self._initialized:
+                return
 
-    async def compute_embeddings(
+            while not self._clients.empty():
+                try:
+                    client = self._clients.get_nowait()
+                    client.close()
+                except queue.Empty:
+                    break
+            self._initialized = False
+
+    def compute_embeddings(
         self, sequences: List[str], model_name: str, pooled: bool = False
     ) -> List[np.ndarray]:
-        """Compute embeddings via Triton inference."""
+        """Compute embeddings via Triton inference.
+        
+        Args:
+            sequences: List of protein sequences
+            model_name: Triton model name (e.g., "prot_t5_pipeline")
+            pooled: Whether to pool embeddings per-sequence
+            
+        Returns:
+            List of embedding arrays
+        """
         # Validate batch size
         if len(sequences) > self.config.triton_max_batch_size:
             raise TritonInferenceError(
                 f"Batch size {len(sequences)} exceeds maximum {self.config.triton_max_batch_size}"
             )
 
-        # Use circuit breaker for the actual computation
-        return await self._circuit_breaker(self._compute_embeddings_impl)(
-            sequences, model_name, pooled
-        )
-
-    async def _compute_embeddings_impl(
-        self, sequences: List[str], model_name: str, pooled: bool = False
-    ) -> List[np.ndarray]:
-        """Direct implementation of compute_embeddings."""
-        start_time = asyncio.get_event_loop().time()
+        start_time = time.time()
 
         # Get client from pool
         try:
-            client = await asyncio.wait_for(
-                self._clients.get(),
-                timeout=self.config.triton_pool_acquisition_timeout,
-            )
-        except asyncio.TimeoutError:
+            client = self._clients.get(timeout=self.config.triton_pool_acquisition_timeout)
+        except queue.Empty:
             raise TritonResourceExhaustionError("Client pool exhausted")
 
         try:
             # Direct Triton inference
-            embeddings = await self._infer_embeddings_batch(
+            embeddings = self._infer_embeddings_batch(
                 client, sequences, model_name, pooled
             )
 
             # Logging
-            inference_time = asyncio.get_event_loop().time() - start_time
+            inference_time = time.time() - start_time
             logger.info(
                 f"Triton embedding inference completed: {len(sequences)} sequences "
                 f"in {inference_time * 1000:.1f}ms (model: {model_name})"
@@ -208,12 +205,6 @@ class TritonInferenceRepository(InferenceRepository):
 
             return embeddings
 
-        except (
-            TritonTimeoutError,
-            TritonResourceExhaustionError,
-            TritonInferenceError,
-        ):
-            raise
         except Exception as e:
             if "connection" in str(e).lower() or "unavailable" in str(e).lower():
                 raise TritonConnectionError(f"Connection failed: {e}") from e
@@ -224,16 +215,26 @@ class TritonInferenceRepository(InferenceRepository):
 
         finally:
             # Always return client to pool
-            await self._clients.put(client)
+            self._clients.put(client)
 
-    async def _infer_embeddings_batch(
+    def _infer_embeddings_batch(
         self,
         client: triton_grpc.InferenceServerClient,
         sequences: List[str],
         model_name: str,
         pooled: bool,
     ) -> List[np.ndarray]:
-        """Direct Triton inference for embeddings."""
+        """Direct Triton inference for embeddings.
+        
+        Args:
+            client: Triton gRPC client
+            sequences: List of protein sequences
+            model_name: Triton model name
+            pooled: Whether to pool embeddings
+            
+        Returns:
+            List of embedding arrays
+        """
         # Prepare input tensor
         sequences_array = np.array(sequences, dtype=object).reshape(-1, 1)
 
@@ -242,21 +243,20 @@ class TritonInferenceRepository(InferenceRepository):
 
         outputs = [triton_grpc.InferRequestedOutput("embeddings")]
 
-        # Make inference request with timeout
+        # Make inference request
         try:
-            response = await asyncio.wait_for(
-                client.infer(
-                    model_name=model_name,
-                    inputs=inputs,
-                    outputs=outputs,
-                    timeout=int(self.config.triton_timeout),
-                ),
-                timeout=self.config.triton_timeout,
+            response = client.infer(
+                model_name=model_name,
+                inputs=inputs,
+                outputs=outputs,
+                client_timeout=self.config.triton_timeout,
             )
-        except asyncio.TimeoutError:
-            raise TritonTimeoutError(
-                f"Inference timeout after {self.config.triton_timeout}s"
-            )
+        except Exception as e:
+            if "deadline" in str(e).lower() or "timeout" in str(e).lower():
+                raise TritonTimeoutError(
+                    f"Inference timeout after {self.config.triton_timeout}s"
+                ) from e
+            raise
 
         # Process response
         embeddings_tensor = response.as_numpy("embeddings").astype(np.float32)
@@ -298,22 +298,32 @@ class TritonInferenceRepository(InferenceRepository):
 
         return embeddings
 
-    async def health_check(self, model_name: str) -> Dict[str, bool]:
-        """Check Triton server health."""
-        return await self._circuit_breaker(self._health_check_impl)(model_name)
-
-    async def _health_check_impl(self, model_name: str) -> Dict[str, bool]:
-        """Direct health check implementation."""
-        client = await asyncio.wait_for(
-            self._clients.get(), timeout=self.config.triton_connection_timeout
-        )
+    def health_check(self, model_name: str) -> Dict[str, bool]:
+        """Check Triton server health.
+        
+        Args:
+            model_name: Model name to check
+            
+        Returns:
+            Dictionary with health status
+        """
+        try:
+            client = self._clients.get(timeout=self.config.triton_connection_timeout)
+        except queue.Empty:
+            return {
+                "connected": False,
+                "server_ready": False,
+                "server_live": False,
+                "model_ready": False,
+                "error": "Client pool exhausted"
+            }
 
         try:
-            server_ready = await client.is_server_ready()
-            server_live = await client.is_server_live()
+            server_ready = client.is_server_ready()
+            server_live = client.is_server_live()
 
             try:
-                model_ready = await client.is_model_ready(model_name)
+                model_ready = client.is_model_ready(model_name)
             except Exception:
                 model_ready = False
 
@@ -322,25 +332,35 @@ class TritonInferenceRepository(InferenceRepository):
                 "server_ready": server_ready,
                 "server_live": server_live,
                 "model_ready": model_ready,
-                "circuit_breaker_open": self._circuit_breaker.state == "open",
-                "circuit_breaker_state": self._circuit_breaker.state,
             }
 
+        except Exception as e:
+            return {
+                "connected": False,
+                "server_ready": False,
+                "server_live": False,
+                "model_ready": False,
+                "error": str(e)
+            }
         finally:
-            await self._clients.put(client)
+            self._clients.put(client)
 
-    async def get_model_metadata(self, model_name: str) -> Dict:
-        """Get model metadata."""
-        return await self._circuit_breaker(self._get_model_metadata_impl)(model_name)
-
-    async def _get_model_metadata_impl(self, model_name: str) -> Dict:
-        """Direct metadata retrieval."""
-        client = await asyncio.wait_for(
-            self._clients.get(), timeout=self.config.triton_connection_timeout
-        )
+    def get_model_metadata(self, model_name: str) -> Dict:
+        """Get model metadata.
+        
+        Args:
+            model_name: Model name
+            
+        Returns:
+            Dictionary with model metadata
+        """
+        try:
+            client = self._clients.get(timeout=self.config.triton_connection_timeout)
+        except queue.Empty:
+            raise TritonResourceExhaustionError("Client pool exhausted")
 
         try:
-            metadata = await client.get_model_metadata(model_name)
+            metadata = client.get_model_metadata(model_name)
 
             return {
                 "name": metadata.name,
@@ -365,16 +385,72 @@ class TritonInferenceRepository(InferenceRepository):
             }
 
         finally:
-            await self._clients.put(client)
+            self._clients.put(client)
+
+    def _fetch_available_models(self) -> Set[str]:
+        """Fetch list of available models from Triton server.
+        
+        Returns:
+            Set of available model names
+        """
+        if not TRITON_AVAILABLE or httpx is None:
+            logger.warning("Triton or httpx dependencies not available")
+            return set()
+
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(f"{self.config.triton_http_url}/v2/models")
+                response.raise_for_status()
+                
+                models_data = response.json()
+                available_models = set()
+                
+                for model_info in models_data:
+                    if isinstance(model_info, dict) and "name" in model_info:
+                        available_models.add(model_info["name"])
+                
+                logger.info(f"Found {len(available_models)} available models in Triton: {sorted(available_models)}")
+                return available_models
+                
+        except Exception as e:
+            logger.warning(f"Failed to fetch available models from Triton: {e}")
+            return set()
+
+    def get_available_models(self) -> Set[str]:
+        """Get available models with caching.
+        
+        Returns:
+            Set of available model names
+        """
+        current_time = time.time()
+        
+        # Check if cache is valid
+        if (self._available_models_cache is not None and 
+            self._cache_timestamp is not None and 
+            current_time - self._cache_timestamp < self._cache_ttl):
+            return self._available_models_cache
+        
+        # Fetch fresh data
+        self._available_models_cache = self._fetch_available_models()
+        self._cache_timestamp = current_time
+        
+        return self._available_models_cache
+
+    def is_model_available(self, model_name: str) -> bool:
+        """Check if a model is available in Triton.
+        
+        Args:
+            model_name: Model name to check
+            
+        Returns:
+            True if model is available, False otherwise
+        """
+        available_models = self.get_available_models()
+        return model_name in available_models
 
     def get_repository_stats(self) -> Dict:
         """Get comprehensive repository statistics."""
         return {
-            "circuit_breaker_state": self._circuit_breaker.state,
-            "circuit_breaker_failure_count": getattr(
-                self._circuit_breaker, "_failure_count", 0
-            ),
-            "circuit_breaker_failure_threshold": self.config.triton_circuit_breaker_failure_threshold,
             "pool_size": self.config.triton_pool_size,
             "available_clients": self._clients.qsize() if self._clients else 0,
             "triton_timeout": self.config.triton_timeout,

@@ -21,12 +21,20 @@ def run_server():
 
 def run_worker(worker_id):
     """Run a single worker process with a specific name"""
+    import atexit
+    from biocentral_server.server_management import cleanup_repositories
+    
     redis_jobs_host = os.environ.get("REDIS_JOBS_HOST")
     redis_jobs_port = os.environ.get("REDIS_JOBS_PORT")
     redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port)
 
     # Use custom worker name to identify in monitoring
     worker_name = f"biocentral-worker-{worker_id}"
+
+    # Register Triton cleanup on worker shutdown
+    # This ensures connections are properly closed when worker exits
+    atexit.register(cleanup_repositories)
+    print(f"Registered Triton cleanup handler for {worker_name}")
 
     # Configure worker with appropriate timeouts for long-running tasks
     worker = Worker(

@@ -2,6 +2,11 @@
 
 This module provides infrastructure for connecting to Triton Inference Server
 for embedding generation and prediction tasks.
+
+Architecture:
+- Triton repositories are lazy-initialized in RQ worker processes on first use
+- Each worker process maintains long-lived connections
+- Cleanup happens automatically via atexit hooks on worker shutdown
 """
 
 from .config import TritonClientConfig
@@ -18,7 +23,13 @@ from .repository import (
     TritonInferenceRepository,
     create_triton_repository,
 )
-from .model_router import TritonModelRouter
+from .repository_manager import (
+    RepositoryManager,
+    get_shared_repository,
+    cleanup_repositories,
+)
+# Kept for backward compatibility but does nothing
+from .repository_initializer import TritonRepositoryInitializer
 
 __all__ = [
     "TritonClientConfig",
@@ -31,5 +42,8 @@ __all__ = [
     "InferenceRepository",
     "TritonInferenceRepository",
     "create_triton_repository",
-    "TritonModelRouter",
+    "RepositoryManager",
+    "get_shared_repository",
+    "cleanup_repositories",
+    "TritonRepositoryInitializer",  # DEPRECATED: No-op, kept for backward compatibility
 ]
