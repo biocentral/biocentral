@@ -9,7 +9,7 @@ the server lifecycle.
 from ..server_initialization.server_module_initialization import ServerModuleInitializer
 from .config import TritonClientConfig
 from .repository_manager import RepositoryManager
-from ...utils import get_logger
+from biocentral_server.utils import get_logger
 
 logger = get_logger(__name__)
 

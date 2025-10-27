@@ -16,7 +16,7 @@ from typing import Optional
 
 from .config import TritonClientConfig
 from .repository import TritonInferenceRepository, create_triton_repository
-from ...utils import get_logger
+from biocentral_server.utils import get_logger
 
 logger = get_logger(__name__)
 

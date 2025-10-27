@@ -14,12 +14,10 @@ except ImportError:
     TRITON_AVAILABLE = False
     triton_grpc = None
 
-try:
-    import httpx
-except ImportError:
-    httpx = None
+import httpx
 
-from ...utils import get_logger
+
+from biocentral_server.utils import get_logger
 from .config import TritonClientConfig
 from .exceptions import (
     TritonTimeoutError,
