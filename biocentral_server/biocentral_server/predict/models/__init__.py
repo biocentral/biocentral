@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from .disorder import SETH
+from .disorder import Seth
 from .binding import BindEmbed
 from .base_model import BaseModel
 from .variant_effect import VespaG
@@ -14,7 +14,7 @@ MODEL_REGISTRY: Dict[str, Any] = {
     TMbed.get_metadata().name: TMbed,
     LightAttentionMembrane.get_metadata().name: LightAttentionMembrane,
     LightAttentionSubcellularLocalization.get_metadata().name: LightAttentionSubcellularLocalization,
-    SETH.get_metadata().name: SETH,
+    Seth.get_metadata().name: Seth,
     BindEmbed.get_metadata().name: BindEmbed,
     ProtT5Conservation.get_metadata().name: ProtT5Conservation,
     ProtT5SecondaryStructure.get_metadata().name: ProtT5SecondaryStructure,
