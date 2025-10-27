@@ -89,9 +89,7 @@ class TritonInferenceMixin(ABC):
             List of Triton InferInput objects
         """
         # Apply model-specific input transformation if defined
-        # Note: Transpose should be handled in TRITON_INPUT_TRANSFORMER if needed
-        if hasattr(self, "TRITON_INPUT_TRANSFORMER") and self.TRITON_INPUT_TRANSFORMER:
-            batch = self.TRITON_INPUT_TRANSFORMER(self, batch)
+        batch = self.triton_input_transformer(batch)
 
         # Create Triton input objects
         inputs = []
@@ -159,11 +157,8 @@ class TritonInferenceMixin(ABC):
             output = [response.as_numpy(name) for name in self.TRITON_OUTPUT_NAMES]
 
         # Apply model-specific output transformation if defined
-        if (
-            hasattr(self, "TRITON_OUTPUT_TRANSFORMER")
-            and self.TRITON_OUTPUT_TRANSFORMER
-        ):
-            output = self.TRITON_OUTPUT_TRANSFORMER(self, output)
+
+        output = self.triton_output_transformer(output)
 
         return output
 
