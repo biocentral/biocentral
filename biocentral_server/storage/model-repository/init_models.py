@@ -2,17 +2,17 @@
 """Initialize Triton model repository by downloading ONNX models.
 
 This script is run as an init container before Triton starts.
-It downloads required ONNX models from configured URLs and places them
-in the correct directory structure.
+It downloads ONNX models from configured URLs and places them
+in the correct directory structure based on explicit folder:url pairs.
 """
 
 import os
 import sys
 import logging
 import shlex
+import tarfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-import tempfile
+from typing import List, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -24,84 +24,146 @@ logger = logging.getLogger(__name__)
 # Model repository base path
 MODEL_REPO_PATH = Path(os.getenv("MODEL_REPOSITORY_PATH", "/models"))
 
-# Model configuration mapping
-# Maps Triton model names to their internal structure
-MODEL_CONFIGS = {
-    # Embedding models
-    "prot_t5_pipeline": {
-        "internal_models": ["_internal_prott5_tokenizer", "_internal_prott5_onnx"],
-        "description": "ProtT5 embedding pipeline",
-    },
-    "esm2_t33_pipeline": {
-        "internal_models": ["_internal_esm2_tokenizer", "_internal_esm2_t33_onnx"],
-        "description": "ESM2-t33 embedding pipeline",
-    },
-    "esm2_t36_pipeline": {
-        "internal_models": ["_internal_esm2_tokenizer", "_internal_esm2_t36_onnx"],
-        "description": "ESM2-t36 embedding pipeline",
-    },
-    # Prediction models
-    "prott5_sec": {
-        "internal_models": ["prott5_sec"],
-        "description": "ProtT5 secondary structure prediction",
-    },
-    "prott5_cons": {
-        "internal_models": ["prott5_cons"],
-        "description": "ProtT5 conservation prediction",
-    },
-    "bind_embed": {
-        "internal_models": ["_bind_embed_cv0", "_bind_embed_cv1", "_bind_embed_cv2", "_bind_embed_cv3", "_bind_embed_cv4"],
-        "description": "Binding sites prediction ensemble",
-    },
-    "seth": {
-        "internal_models": ["seth"],
-        "description": "SETH disorder prediction",
-    },
-    "tmbed": {
-        "internal_models": ["tmbed"],
-        "description": "TMbed membrane localization",
-    },
-    "light_attention_subcell": {
-        "internal_models": ["light_attention_subcell"],
-        "description": "Light attention subcellular localization",
-    },
-    "light_attention_membrane": {
-        "internal_models": ["light_attention_membrane"],
-        "description": "Light attention membrane localization",
-    },
-    "vespag": {
-        "internal_models": ["vespag"],
-        "description": "VespaG variant effect prediction",
-    },
-}
+
+def is_archive_url(url: str) -> bool:
+    """Check if URL points to an archive file.
+    
+    Args:
+        url: URL to check
+        
+    Returns:
+        True if URL ends with .tar.gz or .tgz, False otherwise
+    """
+    return url.endswith('.tar.gz') or url.endswith('.tgz')
 
 
-def parse_environment_arrays() -> Tuple[List[str], List[str]]:
-    """Parse MODEL_NAMES and MODEL_URLS from environment variables.
+def parse_folder_spec(folder_spec: str) -> Tuple[str, str]:
+    """Parse folder specification into folder name and version.
+    
+    Examples:
+        "tmbed/1" -> ("tmbed", "1")
+        "tmbed" -> ("tmbed", "1")
+        "_internal_esm2_t33_onnx/2" -> ("_internal_esm2_t33_onnx", "2")
+    
+    Args:
+        folder_spec: Folder specification string
+        
+    Returns:
+        Tuple of (folder_name, version)
+    """
+    if "/" in folder_spec:
+        folder, version = folder_spec.rsplit("/", 1)
+        return folder.strip(), version.strip()
+    return folder_spec.strip(), "1"
+
+
+def extract_archive(archive_path: Path, target_dir: Path) -> bool:
+    """Extract tar.gz archive to target directory.
+    
+    Args:
+        archive_path: Path to the tar.gz archive
+        target_dir: Directory to extract to
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        logger.info(f"Extracting {archive_path} to {target_dir}")
+        with tarfile.open(archive_path, 'r:gz') as tar:
+            tar.extractall(path=target_dir)
+        
+        # List extracted files for verification
+        extracted_files = list(target_dir.rglob("*"))
+        logger.info(f"Extracted {len(extracted_files)} files to {target_dir}")
+        for file_path in extracted_files:
+            if file_path.is_file():
+                logger.info(f"  - {file_path.relative_to(target_dir)}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to extract archive {archive_path}: {e}")
+        return False
+
+
+def download_file(url: str, output_path: Path) -> bool:
+    """Download a file from a URL with progress tracking.
+    
+    Args:
+        url: URL to download from
+        output_path: Local path to save the file
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        import httpx
+        from tqdm import tqdm
+        
+        logger.info(f"Downloading {url} to {output_path}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with httpx.stream("GET", url, timeout=300.0) as response:
+            response.raise_for_status()
+            
+            total_size = int(response.headers.get("content-length", 0))
+            if total_size == 0:
+                logger.warning(f"No content-length header for {url}")
+            
+            with open(output_path, "wb") as f, tqdm(
+                desc=output_path.name,
+                total=total_size if total_size > 0 else None,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as pbar:
+                for chunk in response.iter_bytes(chunk_size=8192):
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+        
+        logger.info(f"Successfully downloaded {url} to {output_path}")
+        return True
+        
+    except httpx.TimeoutException:
+        logger.error(f"Timeout downloading {url}")
+        return False
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error downloading {url}: {e.response.status_code}")
+        return False
+    except Exception as e:
+        logger.error(f"Failed to download {url}: {e}")
+        return False
+
+
+def parse_model_downloads() -> List[Tuple[str, str]]:
+    """Parse MODEL_DOWNLOADS environment variable.
+    
+    Expected format: "folder1:url1 folder2:url2 folder3:url3"
     
     Returns:
-        Tuple of (model_names, model_urls) lists
+        List of (folder_name, url) tuples
     """
-    model_names_str = os.getenv("MODEL_NAMES", "")
-    model_urls_str = os.getenv("MODEL_URLS", "")
+    downloads_str = os.getenv("MODEL_DOWNLOADS", "")
     
-    if not model_names_str or not model_urls_str:
-        logger.error("Both MODEL_NAMES and MODEL_URLS environment variables must be set")
-        logger.error("Example: MODEL_NAMES='esm2_t33_pipeline prott5_sec' MODEL_URLS='https://... https://...'")
+    if not downloads_str:
+        logger.error("MODEL_DOWNLOADS environment variable must be set")
+        logger.error("Example: MODEL_DOWNLOADS='_internal_esm2_t33_onnx:https://example.com/esm2.onnx prott5_sec:https://example.com/sec.onnx'")
         sys.exit(1)
     
-    # Parse bash array format (space-separated values)
-    model_names = shlex.split(model_names_str)
-    model_urls = shlex.split(model_urls_str)
+    # Parse space-separated "folder:url" pairs
+    downloads = []
+    for pair in shlex.split(downloads_str):
+        if ":" not in pair:
+            logger.error(f"Invalid download pair format: {pair}. Expected 'folder:url'")
+            sys.exit(1)
+        
+        folder, url = pair.split(":", 1)
+        downloads.append((folder.strip(), url.strip()))
     
-    if len(model_names) != len(model_urls):
-        logger.error(f"MODEL_NAMES and MODEL_URLS must have the same length: {len(model_names)} vs {len(model_urls)}")
-        sys.exit(1)
+    logger.info(f"Configured downloads: {len(downloads)} pairs")
+    for folder, url in downloads:
+        logger.info(f"  {folder} -> {url}")
     
-    logger.info(f"Configured models: {model_names}")
-    logger.info(f"Configured URLs: {model_urls}")
-    
-    return model_names, model_urls
+    return downloads
 
 
 def validate_onnx_file(file_path: Path) -> bool:
@@ -195,67 +257,57 @@ def download_model(url: str, output_path: Path) -> bool:
         return False
 
 
-def initialize_model(model_name: str, url: str) -> bool:
-    """Initialize a single model by downloading its ONNX file.
+def download_to_folder(folder_spec: str, url: str) -> bool:
+    """Download a model to a specific folder.
+    
+    Supports:
+    - Single ONNX files: downloads to {folder}/{version}/model.onnx
+    - tar.gz archives: extracts to {folder}/{version}/
     
     Args:
-        model_name: Triton model name
-        url: URL to download the model from
+        folder_spec: Folder specification (e.g., "tmbed/1", "prott5_sec")
+        url: URL to download from
         
     Returns:
         True if successful, False otherwise
     """
-    if model_name not in MODEL_CONFIGS:
-        logger.error(f"Unknown model: {model_name}")
-        return False
+    folder_name, version = parse_folder_spec(folder_spec)
+    target_dir = MODEL_REPO_PATH / folder_name / version
     
-    config = MODEL_CONFIGS[model_name]
-    internal_models = config["internal_models"]
-    description = config["description"]
-    
-    logger.info(f"Initializing {model_name} ({description})")
-    
-    # For most models, we download a single ONNX file
-    # For bind_embed, we need to handle the ensemble structure
-    if model_name == "bind_embed":
-        # For bind_embed, we expect 5 separate ONNX files for the CV models
-        success = True
-        for i, internal_model in enumerate(internal_models):
-            model_path = MODEL_REPO_PATH / internal_model / "1" / "model.onnx"
-            
-            # Check if already exists and is valid
-            if model_path.exists() and validate_onnx_file(model_path):
-                logger.info(f"Model {internal_model} already exists and is valid")
-                continue
-            
-            # For bind_embed, we need separate URLs for each CV model
-            # For now, we'll use the same URL and let the user provide separate files
-            if not download_model(url, model_path):
-                logger.error(f"Failed to download {internal_model}")
-                success = False
-        return success
+    if is_archive_url(url):
+        # Download and extract archive
+        logger.info(f"Processing archive for {folder_spec} from {url}")
+        
+        # Check if target directory already has content
+        if target_dir.exists() and any(target_dir.iterdir()):
+            logger.info(f"Archive already extracted to {target_dir}")
+            return True
+        
+        # Download archive to temporary location
+        archive_path = target_dir / "download.tar.gz"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        
+        if not download_file(url, archive_path):
+            return False
+        
+        if not extract_archive(archive_path, target_dir):
+            return False
+        
+        # Clean up archive
+        archive_path.unlink()
+        logger.info(f"✓ Successfully extracted archive to {target_dir}")
+        return True
     else:
-        # Single model download
-        internal_model = internal_models[0]  # Most models have one internal model
-        model_path = MODEL_REPO_PATH / internal_model / "1" / "model.onnx"
+        # Download single ONNX file
+        model_path = target_dir / "model.onnx"
         
         # Check if already exists and is valid
         if model_path.exists() and validate_onnx_file(model_path):
-            logger.info(f"Model {internal_model} already exists and is valid")
+            logger.info(f"Model {folder_spec} already exists and is valid at {model_path}")
             return True
         
+        logger.info(f"Downloading single file for {folder_spec} from {url}")
         return download_model(url, model_path)
-
-
-def write_success_state(initialized_models: List[str]) -> None:
-    """Write the list of successfully initialized models to a file.
-    
-    Args:
-        initialized_models: List of model names that were successfully initialized
-    """
-    success_file = MODEL_REPO_PATH / ".initialized_models"
-    success_file.write_text("\n".join(initialized_models) + "\n")
-    logger.info(f"Wrote success state to {success_file}")
 
 
 def main() -> int:
@@ -268,42 +320,39 @@ def main() -> int:
     logger.info(f"Model repository path: {MODEL_REPO_PATH}")
     
     # Parse environment variables
-    model_names, model_urls = parse_environment_arrays()
+    downloads = parse_model_downloads()
     
-    # Initialize each model
-    initialized_models = []
-    failed_models = []
+    # Download each model
+    successful_downloads = []
+    failed_downloads = []
     
-    for model_name, url in zip(model_names, model_urls):
-        if initialize_model(model_name, url):
-            initialized_models.append(model_name)
-            logger.info(f"✓ Successfully initialized {model_name}")
+    for folder_spec, url in downloads:
+        if download_to_folder(folder_spec, url):
+            successful_downloads.append(folder_spec)
+            logger.info(f"✓ Successfully processed {folder_spec}")
         else:
-            failed_models.append(model_name)
-            logger.error(f"✗ Failed to initialize {model_name}")
-    
-    # Write success state
-    write_success_state(initialized_models)
+            failed_downloads.append(folder_spec)
+            logger.error(f"✗ Failed to process {folder_spec}")
     
     # Summary
     logger.info("\n" + "="*60)
-    logger.info("INITIALIZATION SUMMARY")
+    logger.info("DOWNLOAD SUMMARY")
     logger.info("="*60)
-    logger.info(f"Successfully initialized: {len(initialized_models)}/{len(model_names)}")
+    logger.info(f"Successfully downloaded: {len(successful_downloads)}/{len(downloads)}")
     
-    if initialized_models:
-        logger.info("Initialized models:")
-        for model in initialized_models:
-            logger.info(f"  ✓ {model}")
+    if successful_downloads:
+        logger.info("Successful downloads:")
+        for folder_spec in successful_downloads:
+            logger.info(f"  ✓ {folder_spec}")
     
-    if failed_models:
-        logger.error("Failed models:")
-        for model in failed_models:
-            logger.error(f"  ✗ {model}")
-        logger.error("Model initialization failed!")
+    if failed_downloads:
+        logger.error("Failed downloads:")
+        for folder_spec in failed_downloads:
+            logger.error(f"  ✗ {folder_spec}")
+        logger.error("Model download failed!")
         return 1
     
-    logger.info("Model initialization successful!")
+    logger.info("Model download successful!")
     return 0
 
 

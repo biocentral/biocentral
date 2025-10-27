@@ -1,45 +1,48 @@
 #!/bin/bash
 # Triton Inference Server entrypoint script
-# Reads initialized models and starts Triton with explicit model loading
+# Parses TRITON_MODELS_TO_LOAD and starts Triton with explicit model loading
 
 set -euo pipefail
 
 MODEL_REPO_PATH="${MODEL_REPOSITORY_PATH:-/models}"
-SUCCESS_FILE="${MODEL_REPO_PATH}/.initialized_models"
+TRITON_MODELS_TO_LOAD="${TRITON_MODELS_TO_LOAD:-}"
 
 echo "Starting Triton Inference Server..."
 echo "Model repository path: ${MODEL_REPO_PATH}"
 
-# Check if success file exists
-if [[ ! -f "${SUCCESS_FILE}" ]]; then
-    echo "ERROR: Model initialization file not found at ${SUCCESS_FILE}"
-    echo "Make sure the triton-model-init container completed successfully"
+# Check if models to load are specified
+if [[ -z "${TRITON_MODELS_TO_LOAD}" ]]; then
+    echo "ERROR: TRITON_MODELS_TO_LOAD environment variable must be set"
+    echo "Example: TRITON_MODELS_TO_LOAD='esm2_t33_pipeline,bind_embed,prott5_sec'"
     exit 1
 fi
 
-# Read initialized models
-if [[ ! -s "${SUCCESS_FILE}" ]]; then
-    echo "ERROR: No models were successfully initialized"
-    echo "Check the triton-model-init container logs for errors"
-    exit 1
-fi
+# Parse comma-separated model list
+echo "Parsing models to load: ${TRITON_MODELS_TO_LOAD}"
+IFS=',' read -ra MODELS_TO_LOAD <<< "${TRITON_MODELS_TO_LOAD}"
 
-echo "Reading initialized models from ${SUCCESS_FILE}..."
-INITIALIZED_MODELS=()
-while IFS= read -r model; do
+# Trim whitespace from each model name
+MODELS_TO_LOAD=()
+for model in "${MODELS_TO_LOAD[@]}"; do
+    model=$(echo "${model}" | xargs)  # trim whitespace
     if [[ -n "${model}" ]]; then
-        INITIALIZED_MODELS+=("${model}")
+        MODELS_TO_LOAD+=("${model}")
     fi
-done < "${SUCCESS_FILE}"
+done
 
-echo "Found ${#INITIALIZED_MODELS[@]} initialized models:"
-for model in "${INITIALIZED_MODELS[@]}"; do
+if [[ ${#MODELS_TO_LOAD[@]} -eq 0 ]]; then
+    echo "ERROR: No valid models specified in TRITON_MODELS_TO_LOAD"
+    exit 1
+fi
+
+echo "Found ${#MODELS_TO_LOAD[@]} models to load:"
+for model in "${MODELS_TO_LOAD[@]}"; do
     echo "  - ${model}"
 done
 
 # Build --load-model flags
 LOAD_MODEL_FLAGS=()
-for model in "${INITIALIZED_MODELS[@]}"; do
+for model in "${MODELS_TO_LOAD[@]}"; do
     LOAD_MODEL_FLAGS+=("--load-model=${model}")
 done
 

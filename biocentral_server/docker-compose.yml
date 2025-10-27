@@ -132,34 +132,26 @@ services:
       start_period: 30s
 
   triton-model-init:
-    image: python:3.12-slim
-    command: >
-      sh -c "
-        apt-get update && apt-get install -y curl wget ca-certificates &&
-        pip install --no-cache-dir huggingface-hub httpx tqdm &&
-        python /models/init_models.py
-      "
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
     volumes:
       - triton_models:/models
-      - ./storage/model-repository/init_models.py:/models/init_models.py:ro
     environment:
-      - SKIP_MODEL_VALIDATION=true
-      - MODELS_TO_INITIALIZE=${MODELS_TO_INITIALIZE:-}
+      - MODEL_REPOSITORY_PATH=/models
+      - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
     networks:
       - biocentral-network
 
   triton:
     image: nvcr.io/nvidia/tritonserver:25.06-py3
-    command: >
-      tritonserver
-      --model-repository=/models
-      --strict-model-config=false
-      --log-verbose=1
-      --allow-grpc=true
-      --allow-http=true
-      --allow-metrics=true
     volumes:
       - triton_models:/models
+      - ./storage/model-repository/triton_entrypoint.sh:/usr/local/bin/triton_entrypoint.sh:ro
+    environment:
+      - MODEL_REPOSITORY_PATH=/models
+      - TRITON_MODELS_TO_LOAD=${TRITON_MODELS_TO_LOAD:-}
+    command: ["/bin/bash", "/usr/local/bin/triton_entrypoint.sh"]
     expose:
       - "8000"  # HTTP
       - "8001"  # gRPC
