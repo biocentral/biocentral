@@ -5,10 +5,8 @@ Triton repository during server startup, ensuring it's available throughout
 the server lifecycle.
 """
 
-import asyncio
-from typing import Optional
 
-from ...server_initialization.server_module_initialization import ServerModuleInitializer
+from ..server_initialization.server_module_initialization import ServerModuleInitializer
 from .config import TritonClientConfig
 from .repository_manager import RepositoryManager
 from ...utils import get_logger
@@ -61,7 +59,7 @@ class TritonRepositoryInitializer(ServerModuleInitializer):
             # This will create the repository and establish connections
             try:
                 # Use synchronous method for initialization
-                repository = manager.get_repository_sync()
+                manager.get_repository_sync()
                 logger.info(f"Triton repository initialized successfully at {config.triton_grpc_url}")
                 
                 # Log repository stats
