@@ -6,7 +6,6 @@ import os
 from ..utils import get_logger
 from ..server_management import TritonClientConfig, TritonModelRouter
 from .models.base_model import BaseModel
-from .triton_predictor import create_triton_predictor
 
 logger = get_logger(__name__)
 
@@ -38,34 +37,29 @@ class PredictionModelFactory:
             config = TritonClientConfig.from_env()
             use_triton = config.is_enabled()
 
-        # Try Triton first if enabled
-        if use_triton and TritonModelRouter.is_triton_prediction_available(model_name):
-            try:
-                logger.info(f"Creating Triton-backed model for {model_name}")
-                return create_triton_predictor(
-                    model_name=model_name,
-                    batch_size=batch_size,
-                )
-            except Exception as e:
-                logger.warning(
-                    f"Failed to create Triton model for {model_name}: {e}, "
-                    f"falling back to local ONNX"
-                )
+        # Determine backend string
+        backend = "triton" if (use_triton and TritonModelRouter.is_triton_prediction_available(model_name)) else "onnx"
 
-        # Fall back to local ONNX models
-        logger.info(f"Creating local ONNX model for {model_name}")
-        return PredictionModelFactory._create_local_model(model_name, batch_size)
+        logger.info(f"Creating {backend} model for {model_name}")
+
+        # Create model with backend parameter
+        return PredictionModelFactory._create_model_with_backend(
+            model_name, batch_size, backend
+        )
 
     @staticmethod
-    def _create_local_model(model_name: str, batch_size: int) -> BaseModel:
-        """Create a local ONNX-based prediction model.
+    def _create_model_with_backend(
+        model_name: str, batch_size: int, backend: str
+    ) -> BaseModel:
+        """Create a prediction model with specified backend.
 
         Args:
             model_name: Model identifier
             batch_size: Batch size for predictions
+            backend: Backend to use ("onnx" or "triton")
 
         Returns:
-            Local ONNX prediction model instance
+            Prediction model instance
 
         Raises:
             ValueError: If model_name is unknown
@@ -96,7 +90,7 @@ class PredictionModelFactory:
                 f"Unknown model: {model_name}. Available models: {list(model_map.keys())}"
             )
 
-        return model_class(batch_size=batch_size)
+        return model_class(batch_size=batch_size, backend=backend)
 
     @staticmethod
     def is_triton_available(model_name: str) -> bool:
