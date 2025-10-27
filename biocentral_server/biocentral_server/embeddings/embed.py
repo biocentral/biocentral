@@ -90,22 +90,10 @@ def compute_embeddings_triton(
         # Get Triton model name
         triton_model = get_triton_model_name(embedder_name)
         if not triton_model:
-            logger.warning(
-                f"No Triton model found for embedder {embedder_name}, "
-                f"falling back to biotrainer"
+            raise ValueError(
+                f"No Triton model found for embedder {embedder_name}. "
+                f"This function explicitly requires Triton inference."
             )
-            # Fall back to regular compute_embeddings
-            for result in compute_embeddings(
-                embedder_name=embedder_name,
-                all_seqs=non_existing_embds_seqs,
-                reduced=reduced,
-                use_half_precision=False,
-                device="cuda" if embeddings_db else "cpu",
-                embeddings_db=embeddings_db,
-                use_triton=False,
-            ):
-                yield result
-            return
 
         # Get shared Triton repository
         config = TritonClientConfig.from_env()
