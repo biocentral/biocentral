@@ -1,11 +1,10 @@
 """Triton inference mixin for remote model execution via Triton Inference Server."""
 
-import asyncio
 from typing import Dict, List, Any
 import numpy as np
 
 try:
-    import tritonclient.grpc.aio as triton_grpc
+    import tritonclient.grpc as triton_grpc
     TRITON_AVAILABLE = True
 except ImportError:
     TRITON_AVAILABLE = False
@@ -60,16 +59,6 @@ class TritonInferenceMixin:
         self.triton_config = TritonClientConfig.from_env()
         # Get the shared repository once during initialization
         self.triton_repo = get_shared_repository(self.triton_config)
-
-    async def _connect_triton(self):
-        """Establish connection to Triton server."""
-        # No-op - repository is already initialized and connected
-        pass
-
-    async def _disconnect_triton(self):
-        """Disconnect from Triton server."""
-        # No-op - repository lifecycle managed by RepositoryManager
-        pass
 
     def _prepare_triton_inputs(
         self,
@@ -159,8 +148,8 @@ class TritonInferenceMixin:
 
         return output
 
-    async def _run_triton_inference_async(self, batch: Dict[str, Any]) -> Any:
-        """Run async Triton inference on a batch.
+    def _run_triton_inference(self, batch: Dict[str, Any]) -> Any:
+        """Run Triton inference on a batch.
 
         Args:
             batch: Dictionary containing input tensors
@@ -168,13 +157,10 @@ class TritonInferenceMixin:
         Returns:
             Raw model output
         """
-        await self._connect_triton()
-
         try:
             # Get client from pool
-            client = await asyncio.wait_for(
-                self.triton_repo._clients.get(),
-                timeout=self.triton_config.triton_pool_acquisition_timeout,
+            client = self.triton_repo._clients.get(
+                timeout=self.triton_config.triton_pool_acquisition_timeout
             )
 
             try:
@@ -183,14 +169,11 @@ class TritonInferenceMixin:
                 outputs = self._prepare_triton_outputs()
 
                 # Make inference request
-                response = await asyncio.wait_for(
-                    client.infer(
-                        model_name=self.TRITON_MODEL_NAME,
-                        inputs=inputs,
-                        outputs=outputs,
-                        timeout=int(self.triton_config.triton_timeout),
-                    ),
-                    timeout=self.triton_config.triton_timeout,
+                response = client.infer(
+                    model_name=self.TRITON_MODEL_NAME,
+                    inputs=inputs,
+                    outputs=outputs,
+                    client_timeout=int(self.triton_config.triton_timeout),
                 )
 
                 # Process outputs
@@ -198,25 +181,8 @@ class TritonInferenceMixin:
 
             finally:
                 # Return client to pool
-                await self.triton_repo._clients.put(client)
+                self.triton_repo._clients.put(client)
 
         except Exception as e:
             # Re-raise any exceptions that occur during inference
             raise e
-
-    def _run_triton_inference(self, batch: Dict[str, Any]) -> Any:
-        """Run Triton inference on a batch (synchronous wrapper).
-
-        Args:
-            batch: Dictionary containing input tensors
-
-        Returns:
-            Raw model output
-        """
-        # Run async inference in event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(self._run_triton_inference_async(batch))
-        finally:
-            loop.close()
