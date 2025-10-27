@@ -26,13 +26,32 @@ class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
     # Triton configuration
     TRITON_MODEL_NAME = "tmbed"
     TRITON_INPUT_NAMES = ["input", "mask"]
-    TRITON_OUTPUT_NAMES = ["output"]
+    TRITON_OUTPUT_NAMES = [f"output_{i}" for i in range(5)]  # 5 CV folds
 
     @staticmethod
     def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
-        """Transpose TMbed output from (batch, num_classes, seq_len) to (batch, seq_len, num_classes)."""
-        # TMbed Triton returns (batch, 7, seq_len), need (batch, seq_len, 7)
-        return np.transpose(outputs[0], (0, 2, 1))
+        """Apply softmax to each CV fold, average, then transpose.
+
+        TMbed uses 5-fold CV ensemble. Each fold returns raw logits (batch, 7, seq_len).
+        Process:
+        1. Apply softmax(dim=1) over 7 topology classes for each fold
+        2. Average the 5 softmax probability distributions
+        3. Transpose to (batch, seq_len, 7) for decoder
+        """
+        # Apply softmax over topology classes (dim=1) for each CV fold
+        softmax_outputs = []
+        for logits in outputs:  # Each is (batch, 7, seq_len)
+            # Softmax over dim=1 (the 7 topology classes)
+            # Subtract max for numerical stability
+            exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+            softmax = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+            softmax_outputs.append(softmax)
+
+        # Average across the 5 CV folds
+        avg_probabilities = np.mean(softmax_outputs, axis=0)  # Shape: (batch, 7, seq_len)
+
+        # Transpose to (batch, seq_len, 7) - expected by TMbed decoder
+        return np.transpose(avg_probabilities, (0, 2, 1))
 
     def __init__(self, batch_size, backend: str = "onnx"):
         super().__init__(
