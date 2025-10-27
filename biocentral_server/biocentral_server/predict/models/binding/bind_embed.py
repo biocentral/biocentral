@@ -12,12 +12,12 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class BindEmbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """BindEmbed model for binding site prediction.
 
     Supports both ONNX (local) and Triton (remote) backends.

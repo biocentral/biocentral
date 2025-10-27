@@ -11,12 +11,12 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class ProtT5Conservation(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """ProtT5Conservation model for residue conservation prediction.
 
     Supports both ONNX (local) and Triton (remote) backends.

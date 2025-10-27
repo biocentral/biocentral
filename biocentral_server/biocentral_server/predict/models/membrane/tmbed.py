@@ -11,12 +11,12 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """TMbed model for transmembrane topology prediction.
 
     Supports both ONNX (local) and Triton (remote) backends.

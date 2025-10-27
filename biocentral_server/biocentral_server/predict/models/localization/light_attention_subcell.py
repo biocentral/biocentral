@@ -10,13 +10,13 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
 class LightAttentionSubcellularLocalization(
-    BaseModel, OnnxInferenceMixin, TritonInferenceMixin
+    BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin
 ):
     """LightAttention model for subcellular localization prediction.
 

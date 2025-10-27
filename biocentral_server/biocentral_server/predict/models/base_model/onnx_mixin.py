@@ -3,13 +3,12 @@
 import onnxruntime as ort
 from onnxruntime import InferenceSession
 from typing import List, Dict, Any
-import numpy as np
 
 from biocentral_server.server_management import FileContextManager
 from ...model_utils import MODEL_BASE_PATH
 
 
-class OnnxInferenceMixin:
+class LocalOnnxInferenceMixin:
     """Mixin providing ONNX-based inference capabilities.
 
     This mixin provides methods for loading and running ONNX models locally.

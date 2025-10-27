@@ -10,12 +10,12 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class LightAttentionMembrane(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """LightAttention model for membrane prediction.
     
     Supports both ONNX (local) and Triton (remote) backends.

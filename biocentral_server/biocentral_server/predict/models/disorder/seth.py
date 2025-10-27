@@ -9,12 +9,12 @@ from ..base_model import (
     ModelMetadata,
     ModelOutput,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class Seth(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """SETH model for predicting protein disorder.
 
     Supports both ONNX (local) and Triton (remote) backends.

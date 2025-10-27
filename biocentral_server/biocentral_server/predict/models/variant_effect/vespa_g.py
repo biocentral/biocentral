@@ -17,12 +17,12 @@ from ..base_model import (
     MutationPrediction,
     ModelOutput,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class VespaG(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """VespaG model for variant effect prediction.
 
     Supports both ONNX (local) and Triton (remote) backends.

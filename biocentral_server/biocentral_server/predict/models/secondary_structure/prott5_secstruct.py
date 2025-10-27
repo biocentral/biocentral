@@ -10,12 +10,12 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    OnnxInferenceMixin,
+    LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
 
 
-class ProtT5SecondaryStructure(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+class ProtT5SecondaryStructure(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """ProtT5SecondaryStructure model for secondary structure prediction.
 
     Supports both ONNX (local) and Triton (remote) backends.
