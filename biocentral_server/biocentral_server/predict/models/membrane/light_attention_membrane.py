@@ -4,13 +4,32 @@ import numpy as np
 from typing import Dict
 from biotrainer.protocols import Protocol
 
-from ..base_model import BaseModel, ModelMetadata, ModelOutput, OutputClass, OutputType
+from ..base_model import (
+    BaseModel,
+    ModelMetadata,
+    ModelOutput,
+    OutputClass,
+    OutputType,
+    OnnxInferenceMixin,
+    TritonInferenceMixin,
+)
 
 
-class LightAttentionMembrane(BaseModel):
-    def __init__(self, batch_size):
+class LightAttentionMembrane(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+    """LightAttention model for membrane prediction.
+    
+    Supports both ONNX (local) and Triton (remote) backends.
+    """
+    
+    # Triton configuration
+    TRITON_MODEL_NAME = "light_attention_membrane"
+    TRITON_INPUT_NAMES = ["input", "mask"]
+    TRITON_OUTPUT_NAMES = ["output"]
+    
+    def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(
             batch_size=batch_size,
+            backend=backend,
             uses_ensemble=False,
             requires_mask=True,
             requires_transpose=True,
@@ -53,18 +72,29 @@ class LightAttentionMembrane(BaseModel):
         )
 
     def predict(self, sequences: Dict[str, str], embeddings):
+        self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
+        
         for batch in inputs:
-            batch = self._transpose_batch(batch)
-
-            la_mem_Yhat = self.model.run(None, batch)
-            la_mem_Yhat = torch.from_numpy(np.float32(np.stack(la_mem_Yhat[0])))
+            if self.backend == "onnx":
+                # ONNX: Local inference
+                batch_transposed = self._transpose_batch(batch)
+                la_mem_Yhat = self.model.run(None, batch_transposed)
+                la_mem_Yhat = torch.from_numpy(np.float32(np.stack(la_mem_Yhat[0])))
+            elif self.backend == "triton":
+                # Triton: Remote inference
+                la_mem_Yhat_np = self._run_inference(batch)
+                la_mem_Yhat = torch.from_numpy(la_mem_Yhat_np)
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+            
             la_mem_Yhat = self._finalize_raw_prediction(
                 torch.max(la_mem_Yhat, dim=1)[1], dtype=np.byte
             )
             results.extend(la_mem_Yhat)
+            
         model_output = {"membrane": results}
         return self._post_process(
             model_output=model_output,
