@@ -12,13 +12,49 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
+    OnnxInferenceMixin,
+    TritonInferenceMixin,
 )
 
 
-class BindEmbed(BaseModel):
-    def __init__(self, batch_size):
+class BindEmbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+    """BindEmbed model for binding site prediction.
+
+    Supports both ONNX (local) and Triton (remote) backends.
+    Uses an ensemble of 5 models with sigmoid activation and averaging.
+    """
+
+    # Triton configuration
+    TRITON_MODEL_NAME = "bind_embed"
+    TRITON_INPUT_NAMES = ["ensemble_input"]  # Transposed input for Triton
+    TRITON_OUTPUT_NAMES = [f"output_{i}" for i in range(5)]  # 5 ensemble models
+
+    # Custom transformers for Triton
+    @staticmethod
+    def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
+        """Transform batch for Triton: rename 'input' to 'ensemble_input' and transpose."""
+        # Transpose happens via requires_transpose in BaseModel
+        # Just rename the key
+        transposed = self._transpose_batch(batch)
+        if "input" in transposed:
+            transposed["ensemble_input"] = transposed.pop("input")
+        return transposed
+
+    @staticmethod
+    def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
+        """Apply sigmoid and average the 5 ensemble outputs."""
+        # Apply sigmoid to each model output and average
+        sigmoid_outputs = []
+        for logits in outputs:  # Each is (batch, seq_len, 3)
+            sigmoid = 1.0 / (1.0 + np.exp(-logits.astype(np.float32)))
+            sigmoid_outputs.append(sigmoid)
+        # Average ensemble predictions
+        return np.mean(sigmoid_outputs, axis=0)  # Shape: (batch, seq_len, 3)
+
+    def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(
             batch_size=batch_size,
+            backend=backend,
             uses_ensemble=True,
             requires_mask=False,
             requires_transpose=True,
@@ -99,30 +135,44 @@ class BindEmbed(BaseModel):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
+
         for batch in inputs:
             B, L, _ = batch["input"].shape
-            batch = self._transpose_batch(batch)
 
-            # Container for summing up predictions of individual models in the ensemble
-            ensemble_container = torch.zeros(
-                (B, len(self.binding_classes.keys()), L),
-                device="cpu",
-                dtype=torch.float16,
-            )
-            for model in self.models:  # for each model in the ensemble
-                model_output_numpy = model.run(None, batch)
-                model_output_torch = torch.from_numpy(
-                    np.float32(np.stack(model_output_numpy[0]))
+            if self.backend == "onnx":
+                # ONNX: Run ensemble manually
+                batch_transposed = self._transpose_batch(batch)
+                ensemble_container = torch.zeros(
+                    (B, len(self.binding_classes.keys()), L),
+                    device="cpu",
+                    dtype=torch.float16,
                 )
-                pred = self.sigmoid(model_output_torch)
-                pred = torch.from_numpy(np.float32(np.stack(pred)))
-                ensemble_container = ensemble_container + pred
-            # normalize
-            bind_Yhat = ensemble_container / len(self.models)
-            # B x 3 x L --> B x L x 3
-            bind_Yhat = torch.permute(bind_Yhat, (0, 2, 1))
-            bind_Yhat = self._finalize_raw_prediction(bind_Yhat > 0.5, dtype=np.byte)
+                for model in self.models:  # for each model in the ensemble
+                    model_output_numpy = model.run(None, batch_transposed)
+                    model_output_torch = torch.from_numpy(
+                        np.float32(np.stack(model_output_numpy[0]))
+                    )
+                    pred = self.sigmoid(model_output_torch)
+                    pred = torch.from_numpy(np.float32(np.stack(pred)))
+                    ensemble_container = ensemble_container + pred
+                # normalize
+                bind_Yhat = ensemble_container / len(self.models)
+                # B x 3 x L --> B x L x 3
+                bind_Yhat = torch.permute(bind_Yhat, (0, 2, 1))
+                bind_Yhat = self._finalize_raw_prediction(bind_Yhat > 0.5, dtype=np.byte)
+
+            elif self.backend == "triton":
+                # Triton: Ensemble handled by transformers, returns (batch, seq_len, 3)
+                bind_Yhat_np = self._run_inference(batch)
+                # Apply threshold and convert to binary
+                bind_Yhat = self._finalize_raw_prediction(
+                    torch.from_numpy(bind_Yhat_np > 0.5), dtype=np.byte
+                )
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+
             results.extend(bind_Yhat)
+
         model_output = {"binding": results}
         return self._post_process(
             model_output=model_output, embedding_ids=embedding_ids
