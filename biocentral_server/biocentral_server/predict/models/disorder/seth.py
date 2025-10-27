@@ -78,10 +78,16 @@ class Seth(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
                 )
             elif self.backend == "triton":
                 # Triton returns numpy array directly (already processed by mixin)
-                # Shape should be (batch, seq_len) or (batch, seq_len, 1)
-                if len(raw_output.shape) == 3:
+                # Shape should be (batch, seq_len, 1) - squeeze to (batch, seq_len)
+                if len(raw_output.shape) == 3 and raw_output.shape[-1] == 1:
                     raw_output = np.squeeze(raw_output, axis=-1)
-                diso_Yhat = self._finalize_raw_prediction(torch.from_numpy(raw_output))
+                # Convert to tensor and process per sequence to preserve per-residue structure
+                tensor = torch.from_numpy(raw_output)
+                diso_Yhat = []
+                for i in range(tensor.shape[0]):
+                    seq_tensor = tensor[i]
+                    seq_result = self._finalize_raw_prediction(seq_tensor.unsqueeze(0))
+                    diso_Yhat.extend(seq_result)
             else:
                 raise ValueError(f"Unknown backend: {self.backend}")
 

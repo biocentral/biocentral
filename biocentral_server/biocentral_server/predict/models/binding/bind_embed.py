@@ -32,13 +32,11 @@ class BindEmbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
     # Custom transformers for Triton
     @staticmethod
     def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: rename 'input' to 'ensemble_input' and transpose."""
-        # Transpose happens via requires_transpose in BaseModel
-        # Just rename the key
-        transposed = self._transpose_batch(batch)
-        if "input" in transposed:
-            transposed["ensemble_input"] = transposed.pop("input")
-        return transposed
+        """Transform batch for Triton: rename 'input' to 'ensemble_input'."""
+        # Transpose already happened in Triton mixin, just rename the key
+        if "input" in batch:
+            batch["ensemble_input"] = batch.pop("input")
+        return batch
 
     @staticmethod
     def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
@@ -160,7 +158,9 @@ class BindEmbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
                 bind_Yhat = ensemble_container / len(self.models)
                 # B x 3 x L --> B x L x 3
                 bind_Yhat = torch.permute(bind_Yhat, (0, 2, 1))
-                bind_Yhat = self._finalize_raw_prediction(bind_Yhat > 0.5, dtype=np.byte)
+                bind_Yhat = self._finalize_raw_prediction(
+                    bind_Yhat > 0.5, dtype=np.byte
+                )
 
             elif self.backend == "triton":
                 # Triton: Ensemble handled by transformers, returns (batch, seq_len, 3)

@@ -5,6 +5,7 @@ import numpy as np
 
 try:
     import tritonclient.grpc as triton_grpc
+
     TRITON_AVAILABLE = True
 except ImportError:
     TRITON_AVAILABLE = False
@@ -42,15 +43,15 @@ class TritonInferenceMixin:
             )
 
         # Validate required attributes
-        if not hasattr(self, 'TRITON_MODEL_NAME'):
+        if not hasattr(self, "TRITON_MODEL_NAME"):
             raise AttributeError(
                 f"{self.__class__.__name__} must define TRITON_MODEL_NAME class attribute"
             )
-        if not hasattr(self, 'TRITON_INPUT_NAMES'):
+        if not hasattr(self, "TRITON_INPUT_NAMES"):
             raise AttributeError(
                 f"{self.__class__.__name__} must define TRITON_INPUT_NAMES class attribute"
             )
-        if not hasattr(self, 'TRITON_OUTPUT_NAMES'):
+        if not hasattr(self, "TRITON_OUTPUT_NAMES"):
             raise AttributeError(
                 f"{self.__class__.__name__} must define TRITON_OUTPUT_NAMES class attribute"
             )
@@ -61,8 +62,7 @@ class TritonInferenceMixin:
         self.triton_repo = get_shared_repository(self.triton_config)
 
     def _prepare_triton_inputs(
-        self,
-        batch: Dict[str, np.ndarray]
+        self, batch: Dict[str, np.ndarray]
     ) -> List[triton_grpc.InferInput]:
         """Prepare inputs for Triton inference.
 
@@ -72,8 +72,12 @@ class TritonInferenceMixin:
         Returns:
             List of Triton InferInput objects
         """
+        # Apply transpose if required
+        if hasattr(self, "requires_transpose") and self.requires_transpose:
+            batch = self._transpose_batch(batch)
+
         # Apply model-specific input transformation if defined
-        if hasattr(self, 'TRITON_INPUT_TRANSFORMER') and self.TRITON_INPUT_TRANSFORMER:
+        if hasattr(self, "TRITON_INPUT_TRANSFORMER") and self.TRITON_INPUT_TRANSFORMER:
             batch = self.TRITON_INPUT_TRANSFORMER(self, batch)
 
         # Create Triton input objects
@@ -87,7 +91,7 @@ class TritonInferenceMixin:
             tensor = batch[input_name]
 
             # Convert torch.Tensor to numpy if needed
-            if hasattr(tensor, 'numpy'):
+            if hasattr(tensor, "numpy"):
                 tensor = tensor.cpu().numpy()
 
             # Ensure tensor is numpy array
@@ -121,8 +125,7 @@ class TritonInferenceMixin:
             List of Triton InferRequestedOutput objects
         """
         return [
-            triton_grpc.InferRequestedOutput(name)
-            for name in self.TRITON_OUTPUT_NAMES
+            triton_grpc.InferRequestedOutput(name) for name in self.TRITON_OUTPUT_NAMES
         ]
 
     def _process_triton_outputs(self, response: Any) -> Any:
@@ -143,7 +146,10 @@ class TritonInferenceMixin:
             output = [response.as_numpy(name) for name in self.TRITON_OUTPUT_NAMES]
 
         # Apply model-specific output transformation if defined
-        if hasattr(self, 'TRITON_OUTPUT_TRANSFORMER') and self.TRITON_OUTPUT_TRANSFORMER:
+        if (
+            hasattr(self, "TRITON_OUTPUT_TRANSFORMER")
+            and self.TRITON_OUTPUT_TRANSFORMER
+        ):
             output = self.TRITON_OUTPUT_TRANSFORMER(self, output)
 
         return output

@@ -75,10 +75,13 @@ class VespaG(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
         )
 
     def _prepare_inputs(self, embeddings):
-        # return [{'input': torch.repeat_interleave(embedding, 2, dim=-1).unsqueeze(0).numpy()}
-        #                 for embedding in embeddings.values()]  # For testing with smaller esm2_t33_650M_UR50D model
+        """Prepare embeddings for VespaG prediction.
+
+        VespaG expects ESM2-T36 embeddings (2560-dim).
+        Returns list of batches with single sequences.
+        """
         return [
-            {"input": embedding.unsqueeze(0).numpy()}
+            {"input": torch.from_numpy(embedding).unsqueeze(0).numpy()}
             for embedding in embeddings.values()
         ]
 

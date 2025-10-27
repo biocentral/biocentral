@@ -236,11 +236,7 @@ class BaseModel(ABC):
                     # Undo padding and join with delimiter
                     formatted_value = delimiter.join(
                         [
-                            lambda p: label_map[p]
-                            if label_map
-                            else str(
-                                p
-                            )  # Process per-residue prediction (array of values)
+                            (label_map[y_hat] if label_map else str(y_hat))
                             for pred_idx, y_hat in enumerate(prediction)
                             if pred_idx
                             < self.non_padded_embedding_lengths[embedding_id]

@@ -25,18 +25,26 @@ class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
 
     # Triton configuration
     TRITON_MODEL_NAME = "tmbed"
-    TRITON_INPUT_NAMES = ["input", "mask"]
+    TRITON_INPUT_NAMES = ["ensemble_input", "mask"]
     TRITON_OUTPUT_NAMES = [f"output_{i}" for i in range(5)]  # 5 CV folds
+
+    # Custom transformers for Triton
+    @staticmethod
+    def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
+        """Transform batch for Triton: rename 'input' to 'ensemble_input'."""
+        if "input" in batch:
+            batch["ensemble_input"] = batch.pop("input")
+        return batch
 
     @staticmethod
     def TRITON_OUTPUT_TRANSFORMER(self, outputs: List[np.ndarray]) -> np.ndarray:
-        """Apply softmax to each CV fold, average, then transpose.
+        """Apply softmax to each CV fold and average.
 
         TMbed uses 5-fold CV ensemble. Each fold returns raw logits (batch, 7, seq_len).
         Process:
         1. Apply softmax(dim=1) over 7 topology classes for each fold
         2. Average the 5 softmax probability distributions
-        3. Transpose to (batch, seq_len, 7) for decoder
+        3. Return (batch, 7, seq_len) format expected by decoder
         """
         # Apply softmax over topology classes (dim=1) for each CV fold
         softmax_outputs = []
@@ -48,10 +56,12 @@ class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
             softmax_outputs.append(softmax)
 
         # Average across the 5 CV folds
-        avg_probabilities = np.mean(softmax_outputs, axis=0)  # Shape: (batch, 7, seq_len)
+        avg_probabilities = np.mean(
+            softmax_outputs, axis=0
+        )  # Shape: (batch, 7, seq_len)
 
-        # Transpose to (batch, seq_len, 7) - expected by TMbed decoder
-        return np.transpose(avg_probabilities, (0, 2, 1))
+        # Return in (batch, 7, seq_len) format expected by TMbed decoder
+        return avg_probabilities
 
     def __init__(self, batch_size, backend: str = "onnx"):
         super().__init__(
@@ -59,9 +69,9 @@ class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
             backend=backend,
             uses_ensemble=True,
             requires_mask=True,
-            requires_transpose=True,
+            requires_transpose=False,  # TMbed doesn't need transpose for Triton
         )
-        self.decoder = Decoder().to(self.device)
+        self.decoder = Decoder()
         self.pred2label = {0: "B", 1: "b", 2: "H", 3: "h", 4: "S", 5: "i", 6: "o"}
 
     @staticmethod
@@ -148,14 +158,12 @@ class TMbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
                 )
 
             elif self.backend == "triton":
-                # Triton: Ensemble handled on server, output already transposed
+                # Triton: Ensemble handled on server
                 raw_output = self._run_inference(batch)
-                # raw_output is (batch, seq_len, 7) after transformer
+                # raw_output is (batch, 7, seq_len) after transformer - same as ONNX
                 probabilities = torch.from_numpy(raw_output)
                 mem_Yhat = self._finalize_raw_prediction(
-                    self.decoder(
-                        probabilities, torch.from_numpy(batch["mask"]).to(self.device)
-                    ),
+                    self.decoder(probabilities, torch.from_numpy(batch["mask"])),
                     dtype=np.byte,
                 )
             else:
