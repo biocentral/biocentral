@@ -18,15 +18,6 @@ def on_starting(server):
     app_state.init_app_context()
 
 
-def worker_exit(server, worker):
-    """
-    Hook that runs when a worker process exits.
-    """
-    logging.info(f"Worker {worker.pid} exiting, cleaning up Triton repositories...")
-    from biocentral_server.server_management import cleanup_repositories
-    cleanup_repositories()
-
-
 # Bind address
 bind = "0.0.0.0:9540"
 
