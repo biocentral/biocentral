@@ -9,11 +9,37 @@ from ..utils import get_logger
 from ..server_management import (
     EmbeddingsDatabase,
     TritonClientConfig,
-    TritonModelRouter,
     create_triton_repository,
+    get_shared_repository,
+    get_shared_repository_async,
 )
 
 logger = get_logger(__name__)
+
+
+def _is_triton_embedding_available_sync(embedder_name: str) -> bool:
+    """Synchronous wrapper for checking Triton embedding availability."""
+    try:
+        config = TritonClientConfig.from_env()
+        if not config.is_enabled():
+            return False
+        
+        repository = get_shared_repository(config)
+        return asyncio.run(repository.is_triton_embedding_available(embedder_name))
+    except Exception as e:
+        logger.warning(f"Failed to check Triton availability for {embedder_name}: {e}")
+        return False
+
+
+def _get_embedding_model_sync(embedder_name: str) -> Optional[str]:
+    """Synchronous wrapper for getting embedding model name."""
+    try:
+        config = TritonClientConfig.from_env()
+        repository = get_shared_repository(config)
+        return repository.get_embedding_model(embedder_name)
+    except Exception as e:
+        logger.warning(f"Failed to get embedding model for {embedder_name}: {e}")
+        return None
 
 
 def compute_memory_encodings(
@@ -69,7 +95,7 @@ async def compute_embeddings_triton(
 
     if n_non_existing > 0:
         # Get Triton model name
-        triton_model = TritonModelRouter.get_embedding_model(embedder_name)
+        triton_model = _get_embedding_model_sync(embedder_name)
         if not triton_model:
             logger.warning(
                 f"No Triton model found for embedder {embedder_name}, "
@@ -87,72 +113,23 @@ async def compute_embeddings_triton(
                 yield result
             return
 
-        # Create Triton repository
+        # Get shared Triton repository
         config = TritonClientConfig.from_env()
-        triton_repo = create_triton_repository(config)
+        triton_repo = await get_shared_repository_async(config)
 
-        try:
-            # Connect to Triton
-            await triton_repo.connect()
+        # Process sequences in batches
+        batch = []
+        batch_hashes = []
+        max_batch_size = min(config.triton_max_batch_size, 8)
 
-            # Process sequences in batches
-            batch = []
-            batch_hashes = []
-            max_batch_size = min(config.triton_max_batch_size, 8)
+        non_existing_items = list(non_existing_embds_seqs.items())
 
-            non_existing_items = list(non_existing_embds_seqs.items())
+        for seq_hash, seq in non_existing_items:
+            batch.append(seq)
+            batch_hashes.append(seq_hash)
 
-            for seq_hash, seq in non_existing_items:
-                batch.append(seq)
-                batch_hashes.append(seq_hash)
-
-                if len(batch) >= max_batch_size:
-                    # Compute embeddings via Triton
-                    try:
-                        embeddings = await triton_repo.compute_embeddings(
-                            sequences=batch,
-                            model_name=triton_model,
-                            pooled=reduced,
-                        )
-
-                        # Create BiotrainerSequenceRecord objects
-                        embd_records = [
-                            BiotrainerSequenceRecord(
-                                seq_id=seq_hash, seq=seq
-                            ).copy_with_embedding(embedding)
-                            for seq_hash, seq, embedding in zip(
-                                batch_hashes, batch, embeddings
-                            )
-                        ]
-
-                        # Save to database
-                        embeddings_db.save_embeddings(
-                            embd_records=embd_records,
-                            embedder_name=embedder_name,
-                            reduced=reduced,
-                        )
-
-                        progress += len(batch)
-                        logger.info(f"Embedding progress: {progress} / {total_seqs}")
-                        yield progress, total_seqs
-
-                    except Exception as e:
-                        logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
-                        # Fall back to biotrainer for this batch
-                        _compute_embeddings_biotrainer_batch(
-                            embedder_name=embedder_name,
-                            sequences={h: s for h, s in zip(batch_hashes, batch)},
-                            reduced=reduced,
-                            embeddings_db=embeddings_db,
-                        )
-                        progress += len(batch)
-                        yield progress, total_seqs
-
-                    batch = []
-                    batch_hashes = []
-
-            # Process remaining sequences
-            if batch:
+            if len(batch) >= max_batch_size:
+                # Compute embeddings via Triton
                 try:
                     embeddings = await triton_repo.compute_embeddings(
                         sequences=batch,
@@ -160,6 +137,7 @@ async def compute_embeddings_triton(
                         pooled=reduced,
                     )
 
+                    # Create BiotrainerSequenceRecord objects
                     embd_records = [
                         BiotrainerSequenceRecord(
                             seq_id=seq_hash, seq=seq
@@ -169,6 +147,7 @@ async def compute_embeddings_triton(
                         )
                     ]
 
+                    # Save to database
                     embeddings_db.save_embeddings(
                         embd_records=embd_records,
                         embedder_name=embedder_name,
@@ -181,6 +160,7 @@ async def compute_embeddings_triton(
 
                 except Exception as e:
                     logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
+                    # Fall back to biotrainer for this batch
                     _compute_embeddings_biotrainer_batch(
                         embedder_name=embedder_name,
                         sequences={h: s for h, s in zip(batch_hashes, batch)},
@@ -190,9 +170,47 @@ async def compute_embeddings_triton(
                     progress += len(batch)
                     yield progress, total_seqs
 
-        finally:
-            # Always disconnect
-            await triton_repo.disconnect()
+                batch = []
+                batch_hashes = []
+
+        # Process remaining sequences
+        if batch:
+            try:
+                embeddings = await triton_repo.compute_embeddings(
+                    sequences=batch,
+                    model_name=triton_model,
+                    pooled=reduced,
+                )
+
+                embd_records = [
+                    BiotrainerSequenceRecord(
+                        seq_id=seq_hash, seq=seq
+                    ).copy_with_embedding(embedding)
+                    for seq_hash, seq, embedding in zip(
+                        batch_hashes, batch, embeddings
+                    )
+                ]
+
+                embeddings_db.save_embeddings(
+                    embd_records=embd_records,
+                    embedder_name=embedder_name,
+                    reduced=reduced,
+                )
+
+                progress += len(batch)
+                logger.info(f"Embedding progress: {progress} / {total_seqs}")
+                yield progress, total_seqs
+
+            except Exception as e:
+                logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
+                _compute_embeddings_biotrainer_batch(
+                    embedder_name=embedder_name,
+                    sequences={h: s for h, s in zip(batch_hashes, batch)},
+                    reduced=reduced,
+                    embeddings_db=embeddings_db,
+                )
+                progress += len(batch)
+                yield progress, total_seqs
 
     else:
         logger.debug(f"All {len(existing_embds_seqs)} embeddings already computed!")
@@ -265,7 +283,7 @@ def compute_embeddings(
         use_triton = config.is_enabled()
 
     # Try Triton first if enabled and model is available
-    if use_triton and TritonModelRouter.is_triton_embedding_available(embedder_name):
+    if use_triton and _is_triton_embedding_available_sync(embedder_name):
         logger.info(f"Using Triton for embeddings: {embedder_name}")
         try:
             # Run async function in event loop

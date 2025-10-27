@@ -3,14 +3,29 @@
 The factory uses the MODEL_REGISTRY which maps model metadata names.
 """
 
+import asyncio
 from typing import Optional
 
 from ..utils import get_logger
-from ..server_management import TritonClientConfig, TritonModelRouter
+from ..server_management import TritonClientConfig, create_triton_repository, get_shared_repository
 from .models.base_model import BaseModel
 from .models import MODEL_REGISTRY
 
 logger = get_logger(__name__)
+
+
+def _is_triton_prediction_available_sync(model_name: str) -> bool:
+    """Synchronous wrapper for checking Triton prediction availability."""
+    try:
+        config = TritonClientConfig.from_env()
+        if not config.is_enabled():
+            return False
+        
+        repository = get_shared_repository(config)
+        return asyncio.run(repository.is_triton_prediction_available(model_name))
+    except Exception as e:
+        logger.warning(f"Failed to check Triton availability for {model_name}: {e}")
+        return False
 
 
 class PredictionModelFactory:
@@ -45,7 +60,7 @@ class PredictionModelFactory:
             use_triton = config.is_enabled()
 
         # Determine backend string
-        backend = "triton" if (use_triton and TritonModelRouter.is_triton_prediction_available(model_name)) else "onnx"
+        backend = "triton" if (use_triton and _is_triton_prediction_available_sync(model_name)) else "onnx"
 
         logger.info(f"Creating {backend} model for {model_name}")
 
@@ -90,11 +105,7 @@ class PredictionModelFactory:
         Returns:
             True if Triton model is available and enabled
         """
-        config = TritonClientConfig.from_env()
-        return (
-            config.is_enabled()
-            and TritonModelRouter.is_triton_prediction_available(model_name)
-        )
+        return _is_triton_prediction_available_sync(model_name)
 
     @staticmethod
     def get_available_models() -> dict:
@@ -110,7 +121,7 @@ class PredictionModelFactory:
             model_name: {
                 "local_onnx": True,
                 "triton": triton_enabled
-                and TritonModelRouter.is_triton_prediction_available(model_name),
+                and _is_triton_prediction_available_sync(model_name),
             }
             for model_name in MODEL_REGISTRY.keys()
         }

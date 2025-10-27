@@ -1,7 +1,7 @@
 """Triton inference mixin for remote model execution via Triton Inference Server."""
 
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import numpy as np
 
 try:
@@ -13,7 +13,7 @@ except ImportError:
 
 from biocentral_server.server_management import (
     TritonClientConfig,
-    create_triton_repository,
+    get_shared_repository,
 )
 from biocentral_server.utils import get_logger
 
@@ -58,19 +58,18 @@ class TritonInferenceMixin:
 
         # Initialize Triton connection
         self.triton_config = TritonClientConfig.from_env()
-        self.triton_repo = None
+        # Get the shared repository once during initialization
+        self.triton_repo = get_shared_repository(self.triton_config)
 
     async def _connect_triton(self):
         """Establish connection to Triton server."""
-        if self.triton_repo is None:
-            self.triton_repo = create_triton_repository(self.triton_config)
-            await self.triton_repo.connect()
+        # No-op - repository is already initialized and connected
+        pass
 
     async def _disconnect_triton(self):
         """Disconnect from Triton server."""
-        if self.triton_repo is not None:
-            await self.triton_repo.disconnect()
-            self.triton_repo = None
+        # No-op - repository lifecycle managed by RepositoryManager
+        pass
 
     def _prepare_triton_inputs(
         self,
@@ -201,8 +200,9 @@ class TritonInferenceMixin:
                 # Return client to pool
                 await self.triton_repo._clients.put(client)
 
-        finally:
-            await self._disconnect_triton()
+        except Exception as e:
+            # Re-raise any exceptions that occur during inference
+            raise e
 
     def _run_triton_inference(self, batch: Dict[str, Any]) -> Any:
         """Run Triton inference on a batch (synchronous wrapper).
