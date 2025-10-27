@@ -4,7 +4,7 @@ max_batch_size: 16
 
 input [
   {
-    name: "input"
+    name: "ensemble_input"
     data_type: TYPE_FP32
     dims: [ -1, 1024 ]  # ProtT5 embeddings sequence
   },
@@ -51,11 +51,15 @@ ensemble_scheduling {
       model_name: "_tmbed_cv0"
       model_version: -1
       input_map {
-        key: "input_embedding"
+        key: "input"
         value: "ensemble_input"
       }
+      input_map {
+        key: "mask"
+        value: "mask"
+      }
       output_map {
-        key: "output_logits"
+        key: "output"
         value: "output_0"
       }
     },
@@ -63,11 +67,15 @@ ensemble_scheduling {
       model_name: "_tmbed_cv1"
       model_version: -1
       input_map {
-        key: "input_embedding"
+        key: "input"
         value: "ensemble_input"
       }
+      input_map {
+        key: "mask"
+        value: "mask"
+      }
       output_map {
-        key: "output_logits"
+        key: "output"
         value: "output_1"
       }
     },
@@ -75,11 +83,15 @@ ensemble_scheduling {
       model_name: "_tmbed_cv2"
       model_version: -1
       input_map {
-        key: "input_embedding"
+        key: "input"
         value: "ensemble_input"
       }
+      input_map {
+        key: "mask"
+        value: "mask"
+      }
       output_map {
-        key: "output_logits"
+        key: "output"
         value: "output_2"
       }
     },
@@ -87,11 +99,15 @@ ensemble_scheduling {
       model_name: "_tmbed_cv3"
       model_version: -1
       input_map {
-        key: "input_embedding"
+        key: "input"
         value: "ensemble_input"
       }
+      input_map {
+        key: "mask"
+        value: "mask"
+      }
       output_map {
-        key: "output_logits"
+        key: "output"
         value: "output_3"
       }
     },
@@ -99,11 +115,15 @@ ensemble_scheduling {
       model_name: "_tmbed_cv4"
       model_version: -1
       input_map {
-        key: "input_embedding"
+        key: "input"
         value: "ensemble_input"
       }
+      input_map {
+        key: "mask"
+        value: "mask"
+      }
       output_map {
-        key: "output_logits"
+        key: "output"
         value: "output_4"
       }
     }

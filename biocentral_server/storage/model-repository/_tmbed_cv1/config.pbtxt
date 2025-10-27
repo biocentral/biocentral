@@ -1,4 +1,4 @@
-name: "tmbed"
+name: "_tmbed_cv1"
 platform: "onnxruntime_onnx"
 max_batch_size: 16
 default_model_filename: "model.onnx"
