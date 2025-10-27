@@ -1,3 +1,6 @@
-from .seth import SETH
+from .seth import Seth
 
-__all__ = ["SETH"]
+# Backward compatibility
+SETH = Seth
+
+__all__ = ["Seth", "SETH"]

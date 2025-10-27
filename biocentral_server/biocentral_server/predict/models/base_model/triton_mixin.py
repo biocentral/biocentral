@@ -11,11 +11,11 @@ except ImportError:
     TRITON_AVAILABLE = False
     triton_grpc = None
 
-from ....server_management import (
+from biocentral_server.server_management import (
     TritonClientConfig,
     create_triton_repository,
 )
-from ....utils import get_logger
+from biocentral_server.utils import get_logger
 
 logger = get_logger(__name__)
 

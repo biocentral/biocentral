@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 import numpy as np
 
 from biocentral_server.server_management import FileContextManager
-from ....model_utils import MODEL_BASE_PATH
+from ...model_utils import MODEL_BASE_PATH
 
 
 class OnnxInferenceMixin:

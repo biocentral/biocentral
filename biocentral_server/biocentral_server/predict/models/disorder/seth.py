@@ -4,13 +4,31 @@ import numpy as np
 from typing import Dict
 from biotrainer.protocols import Protocol
 
-from ..base_model import BaseModel, ModelMetadata, ModelOutput, OutputType
+from ..base_model import (
+    BaseModel,
+    ModelMetadata,
+    ModelOutput,
+    OutputType,
+    OnnxInferenceMixin,
+    TritonInferenceMixin,
+)
 
 
-class SETH(BaseModel):
-    def __init__(self, batch_size):
+class Seth(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
+    """SETH model for predicting protein disorder.
+
+    Supports both ONNX (local) and Triton (remote) backends.
+    """
+
+    # Triton configuration
+    TRITON_MODEL_NAME = "seth"
+    TRITON_INPUT_NAMES = ["input"]  # Triton expects "input" tensor
+    TRITON_OUTPUT_NAMES = ["output"]  # Triton returns "output" tensor
+
+    def __init__(self, batch_size: int, backend: str = "onnx"):
         super().__init__(
             batch_size=batch_size,
+            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -46,12 +64,28 @@ class SETH(BaseModel):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
+
         for batch in inputs:
-            diso_Yhat = self.model.run(None, batch)
-            diso_Yhat = self._finalize_raw_prediction(
-                torch.from_numpy(np.float32(np.stack(diso_Yhat[0])))
-            )
+            # Run inference using selected backend
+            raw_output = self._run_inference(batch)
+
+            # Process output based on backend
+            if self.backend == "onnx":
+                # ONNX returns list of outputs, take first one
+                diso_Yhat = self._finalize_raw_prediction(
+                    torch.from_numpy(np.float32(np.stack(raw_output[0])))
+                )
+            elif self.backend == "triton":
+                # Triton returns numpy array directly (already processed by mixin)
+                # Shape should be (batch, seq_len) or (batch, seq_len, 1)
+                if len(raw_output.shape) == 3:
+                    raw_output = np.squeeze(raw_output, axis=-1)
+                diso_Yhat = self._finalize_raw_prediction(torch.from_numpy(raw_output))
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+
             results.extend(diso_Yhat)
+
         model_output = {"disorder": results}
         return self._post_process(
             model_output=model_output, embedding_ids=embedding_ids, delimiter=","
