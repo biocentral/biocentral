@@ -136,6 +136,9 @@ class BaseModel(ABC):
         """
         Transpose batch dimensions if required.
 
+        Transposes 'input' tensor from (B, L, E) to (B, E, L).
+        Works with both torch.Tensor and np.ndarray.
+
         Args:
             batch: Batch data
 
@@ -144,9 +147,18 @@ class BaseModel(ABC):
         """
         if not self.requires_transpose:
             return batch
-        return {
-            k: v.transpose(0, 2, 1) if k == "input" else v for k, v in batch.items()
-        }
+
+        result = {}
+        for k, v in batch.items():
+            if k == "input":
+                # Handle both torch.Tensor and np.ndarray
+                if hasattr(v, "permute"):  # torch.Tensor
+                    result[k] = v.permute(0, 2, 1)
+                else:  # np.ndarray
+                    result[k] = v.transpose(0, 2, 1)
+            else:
+                result[k] = v
+        return result
 
     @staticmethod
     def _finalize_raw_prediction(tensor: torch.tensor, dtype=None) -> List:

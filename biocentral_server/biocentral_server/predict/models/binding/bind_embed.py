@@ -32,8 +32,11 @@ class BindEmbed(BaseModel, OnnxInferenceMixin, TritonInferenceMixin):
     # Custom transformers for Triton
     @staticmethod
     def TRITON_INPUT_TRANSFORMER(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: rename 'input' to 'ensemble_input'."""
-        # Transpose already happened in Triton mixin, just rename the key
+        """Transform batch for Triton: transpose and rename 'input' to 'ensemble_input'."""
+        # BindEmbed requires transposed input (B, L, E) -> (B, E, L)
+        batch = self._transpose_batch(batch)
+
+        # Rename the key for Triton ensemble
         if "input" in batch:
             batch["ensemble_input"] = batch.pop("input")
         return batch

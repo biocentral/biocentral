@@ -72,11 +72,8 @@ class TritonInferenceMixin:
         Returns:
             List of Triton InferInput objects
         """
-        # Apply transpose if required
-        if hasattr(self, "requires_transpose") and self.requires_transpose:
-            batch = self._transpose_batch(batch)
-
         # Apply model-specific input transformation if defined
+        # Note: Transpose should be handled in TRITON_INPUT_TRANSFORMER if needed
         if hasattr(self, "TRITON_INPUT_TRANSFORMER") and self.TRITON_INPUT_TRANSFORMER:
             batch = self.TRITON_INPUT_TRANSFORMER(self, batch)
 
