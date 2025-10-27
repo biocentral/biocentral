@@ -16,7 +16,6 @@ from .triton_client import (
     RepositoryManager,
     get_shared_repository,
     cleanup_repositories,
-    TritonRepositoryInitializer,  # DEPRECATED: No-op, kept for backward compatibility
 )
 
 __all__ = [
