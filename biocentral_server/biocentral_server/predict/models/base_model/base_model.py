@@ -3,7 +3,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from biotrainer.protocols import Protocol
-from typing import List, Dict, Union, Any, Literal
+from typing import List, Dict, Union, Any, Literal, Iterable
 from biotrainer.utilities import get_device
 
 from .prediction import Prediction
@@ -137,7 +137,7 @@ class BaseModel(ABC):
         Transpose batch dimensions if required.
 
         Transposes 'input' tensor from (B, L, E) to (B, E, L).
-        Works with both torch.Tensor and np.ndarray.
+        Always converts to PyTorch tensor and uses permute.
 
         Args:
             batch: Batch data
@@ -151,11 +151,13 @@ class BaseModel(ABC):
         result = {}
         for k, v in batch.items():
             if k == "input":
-                # Handle both torch.Tensor and np.ndarray
-                if hasattr(v, "permute"):  # torch.Tensor
-                    result[k] = v.permute(0, 2, 1)
-                else:  # np.ndarray
-                    result[k] = v.transpose(0, 2, 1)
+                if isinstance(v, np.ndarray):
+                    v = torch.from_numpy(v)
+                elif isinstance(v, Iterable):
+                    v = torch.tensor(v)
+                else:
+                    raise ValueError(f"Unsupported type: {type(v)}")
+                result[k] = v.permute(0, 2, 1)
             else:
                 result[k] = v
         return result
