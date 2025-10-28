@@ -25,8 +25,8 @@ dependencies = [
     "tritonclient[grpc]>=2.61.0",
     "circuitbreaker>=2.0.0",
     # Git Dependencies
-    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@v1.0.0",
-    "protspace @ git+https://github.com/tsenoner/protspace.git@v2.0.0",
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@feat/export-embedding-transform",
+    "protspace @ git+https://github.com/biocentral/protspace.git@chore/matplotlib-optional",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
     "tmbed @ git+https://github.com/biocentral/TMbed.git@onnx-deployment",
