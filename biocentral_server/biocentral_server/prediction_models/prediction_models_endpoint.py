@@ -1,8 +1,12 @@
+import json
+
+from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.protocols import Protocol
 from flask import request, jsonify, Blueprint
 from biotrainer.config import Configurator, ConfigurationException
 
 from .biotrainer_task import BiotrainerTask
+from .biotrainer_inference_task import BiotrainerInferenceTask
 
 from ..server_management import TaskManager, UserManager, FileManager, TaskStatus
 
@@ -135,3 +139,38 @@ def model_files():
     file_manager = FileManager(user_id=user_id)
     model_file_dict = file_manager.get_biotrainer_result_files(model_hash=model_hash)
     return jsonify(model_file_dict)
+
+
+# Endpoint to make inference predictions from trained models
+@prediction_models_service_route.route(
+    "/prediction_models_service/start_inference", methods=["POST"]
+)
+def start_inference():
+    model_file_data = request.get_json()
+    model_hash = model_file_data.get("model_hash")
+    model_hash = (
+        "biocentral-BiotrainerTask-8d6699e6-4378-45c8-8f8a-23c103c9abb8"  # TODO DEBUG
+    )
+
+    sequence_input = json.loads(model_file_data.get("sequence_input", ""))
+
+    if sequence_input is None or not isinstance(sequence_input, dict):
+        return jsonify({"error": "Invalid sequence input!"})
+    seq_records = [
+        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        for seq_id, seq in sequence_input.items()
+    ]
+
+    user_id = UserManager.get_user_id_from_request(request)
+    file_manager = FileManager(user_id=user_id)
+    model_out_path = file_manager.get_biotrainer_model_path(model_hash=model_hash)
+    if model_out_path is None:
+        return jsonify({"error": "No model output file found!"})
+
+    inference_task = BiotrainerInferenceTask(
+        model_out_path=model_out_path, seq_records=seq_records
+    )
+    task_manager = TaskManager()
+    task_id = task_manager.add_task(task=inference_task)
+
+    return jsonify({"task_id": task_id})
