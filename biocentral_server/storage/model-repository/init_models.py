@@ -264,9 +264,9 @@ def download_model(url: str, output_path: Path) -> bool:
             response.raise_for_status()
             
             # Log response headers for debugging
-            logger.info(f"Response headers for {url}:")
+            logger.debug(f"Response headers for {url}:")
             for key, value in response.headers.items():
-                logger.info(f"  {key}: {value}")
+                logger.debug(f"  {key}: {value}")
             
             total_size = int(response.headers.get("content-length", 0))
             if total_size == 0:
