@@ -201,19 +201,46 @@ def validate_onnx_file(file_path: Path) -> bool:
         logger.warning(f"ONNX file {file_path} is too small ({file_path.stat().st_size} bytes)")
         return False
     
-    # Check ONNX magic bytes
+    # Check if it's a valid protobuf file (ONNX files are protobuf)
     try:
         with open(file_path, "rb") as f:
-            header = f.read(8)
-            # ONNX files start with specific magic bytes
-            if not header.startswith(b"ONNX"):
-                logger.warning(f"File {file_path} does not appear to be a valid ONNX file")
+            # Read first few bytes to check for protobuf format
+            header = f.read(16)
+            
+            # ONNX files are protobuf files, so they should start with protobuf wire format
+            # The first byte should be a valid protobuf field tag (0x08, 0x12, etc.)
+            if len(header) == 0:
+                logger.warning(f"File {file_path} is empty")
                 return False
+                
+            # Check if it looks like a protobuf file by trying to parse it
+            # ONNX files typically start with field 1 (ModelProto) which is tag 0x0A
+            first_byte = header[0]
+            if first_byte not in [0x08, 0x0A, 0x12, 0x1A, 0x22, 0x2A, 0x32, 0x3A, 0x42, 0x4A, 0x52, 0x5A, 0x62, 0x6A, 0x72, 0x7A]:
+                logger.warning(f"File {file_path} does not appear to be a valid protobuf/ONNX file (first byte: 0x{first_byte:02x})")
+                return False
+                
     except Exception as e:
         logger.error(f"Error reading file {file_path}: {e}")
         return False
     
-    return True
+    # Additional validation: try to load with onnx if available
+    try:
+        import onnx
+        model = onnx.load(str(file_path))
+        # Basic validation that it's a proper ONNX model
+        if not hasattr(model, 'graph') or not model.graph:
+            logger.warning(f"File {file_path} loaded as ONNX but has no graph")
+            return False
+        logger.info(f"✓ Validated ONNX file {file_path}")
+        return True
+    except ImportError:
+        # onnx not available, skip this validation
+        logger.info(f"ONNX library not available, skipping detailed validation for {file_path}")
+        return True
+    except Exception as e:
+        logger.warning(f"File {file_path} failed ONNX validation: {e}")
+        return False
 
 
 def download_model(url: str, output_path: Path) -> bool:
@@ -236,10 +263,16 @@ def download_model(url: str, output_path: Path) -> bool:
         with httpx.stream("GET", url, timeout=300.0) as response:
             response.raise_for_status()
             
+            # Log response headers for debugging
+            logger.info(f"Response headers for {url}:")
+            for key, value in response.headers.items():
+                logger.info(f"  {key}: {value}")
+            
             total_size = int(response.headers.get("content-length", 0))
             if total_size == 0:
                 logger.warning(f"No content-length header for {url}")
             
+            bytes_written = 0
             with open(temp_path, "wb") as f, tqdm(
                 desc=output_path.name,
                 total=total_size if total_size > 0 else None,
@@ -249,10 +282,24 @@ def download_model(url: str, output_path: Path) -> bool:
             ) as pbar:
                 for chunk in response.iter_bytes(chunk_size=8192):
                     f.write(chunk)
+                    bytes_written += len(chunk)
                     pbar.update(len(chunk))
+            
+            logger.info(f"Downloaded {bytes_written} bytes to {temp_path}")
+            if total_size > 0 and bytes_written != total_size:
+                logger.warning(f"Size mismatch: expected {total_size}, got {bytes_written}")
         
         # Validate the downloaded file
+        logger.info(f"Validating downloaded file: {temp_path} (size: {temp_path.stat().st_size} bytes)")
         if not validate_onnx_file(temp_path):
+            # Log some debug information about the file
+            try:
+                with open(temp_path, "rb") as f:
+                    first_bytes = f.read(32)
+                    logger.error(f"File validation failed. First 32 bytes: {first_bytes.hex()}")
+                    logger.error(f"First 32 bytes as text: {first_bytes}")
+            except Exception as e:
+                logger.error(f"Could not read file for debugging: {e}")
             temp_path.unlink(missing_ok=True)
             return False
         
