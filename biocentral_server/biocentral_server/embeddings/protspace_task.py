@@ -1,3 +1,4 @@
+"""TODO: Update ProtSpace API
 from __future__ import annotations
 
 import numpy as np
@@ -73,3 +74,4 @@ class ProtSpaceTask(TaskInterface):
             metadata=metadata, reductions=[reduction], headers=protspace_headers
         )
         return TaskDTO.finished(result=output)
+"""

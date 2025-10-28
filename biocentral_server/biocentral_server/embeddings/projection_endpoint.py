@@ -1,16 +1,13 @@
-import json
+from flask import Blueprint
 
-from biotrainer.input_files import BiotrainerSequenceRecord
-from flask import request, Blueprint, jsonify
+# TODO Update ProtSpace API
+# from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
+# from protspace.utils.prepare_json import (
+#    DimensionReductionConfig as ProtSpaceDimensionReductionConfig,
+# )
 
-from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
-from protspace.utils.prepare_json import (
-    DimensionReductionConfig as ProtSpaceDimensionReductionConfig,
-)
+# from .protspace_task import ProtSpaceTask
 
-from .protspace_task import ProtSpaceTask
-
-from ..server_management import TaskManager
 
 projection_route = Blueprint(
     "projection_route", __name__, url_prefix="/embeddings_service"
@@ -18,6 +15,7 @@ projection_route = Blueprint(
 
 
 # Endpoint for ProtSpace dimensionality reduction methods for sequences
+"""
 @projection_route.route("/projection_config", methods=["GET"])
 def projection_config():
     methods = list(ProtSpaceDataProcessor.REDUCERS.keys())
@@ -56,3 +54,4 @@ def projection_for_sequences():
     task_id = task_manager.add_task(task=protspace_task)
 
     return jsonify({"task_id": task_id})
+"""
