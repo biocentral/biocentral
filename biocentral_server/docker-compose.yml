@@ -144,37 +144,44 @@ services:
       - biocentral-network
 
   triton:
-    image: nvcr.io/nvidia/tritonserver:25.06-py3
-    volumes:
-      - triton_models:/models
-      - ./storage/model-repository/triton_entrypoint.sh:/usr/local/bin/triton_entrypoint.sh:ro
-    environment:
-      - MODEL_REPOSITORY_PATH=/models
-      - TRITON_MODELS=${TRITON_MODELS:-}
-    command: ["/bin/bash", "/usr/local/bin/triton_entrypoint.sh"]
-    expose:
-      - "8000"  # HTTP
-      - "8001"  # gRPC
-      - "8002"  # Metrics
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.triton
     deploy:
       resources:
+        limits:
+          memory: 24G  # ESM2-T36 (3B params) requires ~14-22GB for inference
         reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    depends_on:
-      triton-model-init:
-        condition: service_completed_successfully
-    networks:
-      - biocentral-network
+          memory: 16G
+    command: >
+      tritonserver
+      --model-repository=/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --disable-auto-complete-config
+      --log-verbose=1
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+    volumes:
+      - ./storage/model-repository:/models:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 60s
-
+      start_period: 30s
 
 volumes:
   postgres_data:

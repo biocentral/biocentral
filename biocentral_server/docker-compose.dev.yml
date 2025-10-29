@@ -35,15 +35,6 @@ services:
       - redis-jobs
     restart: unless-stopped
 
-  triton:
-    build:
-      context: .
-      dockerfile: Dockerfile.triton
-    ports:
-      - "8000:8000"  # HTTP
-      - "8001:8001"  # gRPC
-      - "8002:8002"  # Metrics
-
   seaweedfs-master:
     image: chrislusf/seaweedfs
     command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
@@ -77,6 +68,56 @@ services:
       retries: 10
       start_period: 20s
 
+  triton-model-init:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
+    volumes:
+      - triton_models:/models
+    environment:
+      - MODEL_REPOSITORY_PATH=/models
+      - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
+
+  triton:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.triton
+    deploy:
+      resources:
+        limits:
+          memory: 24G  # ESM2-T36 (3B params) requires ~14-22GB for inference
+        reservations:
+          memory: 16G
+    command: >
+      tritonserver
+      --model-repository=/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --disable-auto-complete-config
+      --log-verbose=1
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+    volumes:
+      - ./storage/model-repository:/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   postgres_data:
     driver: local
@@ -90,6 +131,12 @@ volumes:
       type: none
       o: bind
       device: ${FILES_DATA_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
 
 networks:
   seaweedfs-network:
