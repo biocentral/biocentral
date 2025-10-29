@@ -34,8 +34,8 @@ class SeaweedFSStorageBackend(StorageBackend):
 
             path = path.replace("\\", "")  # Windows compatibility
             response = requests.post(f"{self.filer_url}{path}", files=files)
-            logger.info(f"Saved file to SeaweedFS: {response.content}")
             response.raise_for_status()
+            logger.info(f"Saved file to SeaweedFS: {response.content}")
 
             return path
         except Exception as e:
@@ -107,3 +107,34 @@ class SeaweedFSStorageBackend(StorageBackend):
             return "{0:.2f}".format(stats.get("TotalSize", 0) / 1e6)
         except Exception:
             return "0.00"
+
+    def _list_files_recursive(self, directory: str) -> List[Dict[str, Any]]:
+        """
+        Recursively list all files in a directory and its subdirectories
+        Returns: List of all file information dictionaries
+        """
+        all_files = []
+
+        try:
+            # Get entries in current directory
+            entries = self.list_files(directory)
+
+            for entry in entries:
+                full_path = entry.get("FullPath", "")
+                file_size = entry.get("FileSize", 0)
+
+                if file_size == 0:  # This is a subdirectory
+                    # Recursively get files from subdirectory
+                    subdirectory = (
+                        full_path if full_path.endswith("/") else f"{full_path}/"
+                    )
+                    subdirectory_files = self._list_files_recursive(subdirectory)
+                    all_files.extend(subdirectory_files)
+                else:
+                    # This is a file
+                    all_files.append(entry)
+
+        except Exception as e:
+            logger.error(f"Error listing files in directory {directory}: {str(e)}")
+
+        return all_files

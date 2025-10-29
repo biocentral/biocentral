@@ -201,6 +201,11 @@ class FileContextManager:
         with open(temp_path, "wb") as temp_file:
             temp_file.write(file_content)
 
+    def rename_directory(
+        self, old_path: Union[str, Path], new_path: Union[str, Path]
+    ) -> bool:
+        return self.storage_backend.rename_directory(old_path, new_path)
+
     @contextlib.contextmanager
     def storage_read(
         self, file_path: Union[str, Path], suffix: str = None
@@ -220,5 +225,11 @@ class FileContextManager:
     @contextlib.contextmanager
     def storage_write(self, file_path: Union[str, Path]) -> Generator[Path, None, None]:
         """Convenience context manager for writing files to the storage backend"""
-        with StorageFileWriter(self.storage_backend, file_path) as temp_dir:
-            yield temp_dir
+        with StorageFileWriter(self.storage_backend, file_path) as writer:
+            yield writer.temp_dir
+
+    @contextlib.contextmanager
+    def storage_write_dynamic(self) -> Generator[StorageFileWriter, None, None]:
+        """Convenience context manager for writing files to the storage backend dynamically (initial save path unknown)"""
+        with StorageFileWriter(self.storage_backend, file_path=None) as writer:
+            yield writer

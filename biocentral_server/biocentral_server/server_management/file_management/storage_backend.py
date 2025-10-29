@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import shutil
 import tempfile
 
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from typing import Union, BinaryIO
 from abc import ABC, abstractmethod
 
@@ -131,18 +133,32 @@ class StorageDirectoryReader:
 
 
 class StorageFileWriter:
-    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path]):
+    def __init__(
+        self, storage_backend: StorageBackend, file_path: Union[str, Path, None]
+    ):
         self.storage_backend = storage_backend
-        self.file_path = str(file_path)
+        self.file_path: Optional[str] = str(file_path) if file_path else None
         self.temp_dir = None
 
-    def __enter__(self) -> Path:
+    def __enter__(self) -> StorageFileWriter:
         # Create a temporary directory
         self.temp_dir = Path(tempfile.mkdtemp())
-        return self.temp_dir
+        return self
+
+    def set_file_path(self, file_path: Union[str, Path]):
+        if self.file_path:
+            logger.warning("File path already set in StorageFileWriter. Overwriting.")
+        self.file_path = str(file_path)
+
+    def _cleanup(self):
+        # Clean up temporary directory
+        shutil.rmtree(self.temp_dir)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:  # Only sync if no exception occurred and saving is enabled
+            if self.file_path is None:
+                self._cleanup()
+                raise StorageError("File path not set in StorageFileWriter!")
             # Sync all files in temp directory to SeaweedFS
             for file_path in self.temp_dir.rglob("*"):
                 if file_path.is_file():
@@ -151,8 +167,7 @@ class StorageFileWriter:
                     with open(file_path, "rb") as f:
                         self.storage_backend.save_file(str(target_path), f)
 
-        # Clean up temporary directory
-        shutil.rmtree(self.temp_dir)
+        self._cleanup()
 
 
 class StorageError(Exception):
