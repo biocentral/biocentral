@@ -8,7 +8,7 @@ from biotrainer.config import Configurator, ConfigurationException
 from .biotrainer_task import BiotrainerTask
 from .biotrainer_inference_task import BiotrainerInferenceTask
 
-from ..server_management import TaskManager, UserManager, FileManager, TaskStatus
+from ..server_management import TaskManager, UserManager, FileManager
 
 prediction_models_service_route = Blueprint("prediction_models_service", __name__)
 
@@ -129,15 +129,16 @@ def model_files():
     model_file_data = request.get_json()
     model_hash = model_file_data.get("model_hash")
 
-    task_status = TaskManager().get_task_status(model_hash)
-    if task_status != TaskStatus.FINISHED:
-        return jsonify(
-            {"error": "Trying to retrieve model files before task has finished!"}
-        )
-
     user_id = UserManager.get_user_id_from_request(request)
     file_manager = FileManager(user_id=user_id)
     model_file_dict = file_manager.get_biotrainer_result_files(model_hash=model_hash)
+
+    if not model_file_dict or len(model_file_dict) == 0:
+        return jsonify(
+            {
+                "error": "Trying to retrieve model files before task has finished or unknown model hash!"
+            }
+        )
     return jsonify(model_file_dict)
 
 
@@ -148,9 +149,6 @@ def model_files():
 def start_inference():
     model_file_data = request.get_json()
     model_hash = model_file_data.get("model_hash")
-    model_hash = (
-        "biocentral-BiotrainerTask-8d6699e6-4378-45c8-8f8a-23c103c9abb8"  # TODO DEBUG
-    )
 
     sequence_input = json.loads(model_file_data.get("sequence_input", ""))
 

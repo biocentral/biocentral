@@ -60,7 +60,8 @@ class BiotrainerTask(TaskInterface):
         reduced = protocol in Protocol.using_per_sequence_embeddings()
 
         file_context_manager = FileContextManager()
-        with file_context_manager.storage_write(self.model_path) as biotrainer_out_path:
+        with file_context_manager.storage_write_dynamic() as storage_writer:
+            biotrainer_out_path = storage_writer.temp_dir
             # Set output dirs to temp dir
             self.config_dict["output_dir"] = str(biotrainer_out_path)
 
@@ -85,11 +86,19 @@ class BiotrainerTask(TaskInterface):
                 update_dto_callback=update_dto_callback
             )
 
-            _ = parse_config_file_and_execute_run(
+            result_dict = parse_config_file_and_execute_run(
                 config=config,
                 custom_pipeline=custom_pipeline,
                 custom_output_observers=[custom_observer],
             )
+
+            model_hash = result_dict.get("derived_values", {}).get("model_hash", None)
+            if model_hash is None:
+                return TaskDTO.failed(error="Model hash not found after training!")
+
+            # Save tmp dir to model hash directory
+            new_path = self.model_path.parent / model_hash
+            storage_writer.set_file_path(file_path=new_path)
 
         return TaskDTO.finished(result={})
 
