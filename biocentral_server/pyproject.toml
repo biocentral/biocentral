@@ -12,7 +12,6 @@ requires-python = ">=3.11.9,<3.13"
 dependencies = [
     # Backend
     "flask>=3.0.2,<4.0.0",
-    "levenshtein>=0.26.1,<1.0.0",
     "taxoniq>=1.0.1,<2.0.0",
     "blosc2>=2.7.1,<3.0.0",
     "psycopg[binary]>=3.2.3,<4.0.0",

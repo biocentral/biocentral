@@ -8,7 +8,6 @@ These are the currently provided modules:
 
 | Module            |                    Features                     | External Dependencies |
 |-------------------|:-----------------------------------------------:|:---------------------:|
-| protein_analysis  |                       wip                       |                       |
 | embeddings        |             Embed protein sequences             |     [biotrainer]      |
 | ppi               |     Work with protein-protein interactions      |     [hvi_toolkit]     |
 | predict           |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
