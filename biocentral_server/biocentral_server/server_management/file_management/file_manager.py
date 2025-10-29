@@ -10,10 +10,11 @@ from .storage_backend import (
     StorageBackend,
     StorageFileReader,
     StorageFileWriter,
-    SeaweedFSStorageBackend,
     StorageError,
     StorageDirectoryReader,
 )
+
+from .seaweedfs_backend import SeaweedFSStorageBackend
 
 
 class FileManager:
