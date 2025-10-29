@@ -104,7 +104,8 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
         state.setOperating(information: 'Starting training..').copyWith(copyMap: {'trainingModel': initialModel});
     yield left(trainingState);
 
-    await for (final (dto, currentModel)
+    PredictionModel? currentModel;
+    await for (final (dto, updatedModel)
         in _predictionModelsClient.biotrainerTrainingTaskStream(taskID, initialModel)) {
       if (dto.embeddingProgress != null) {
         final (current, total) = dto.embeddingProgress!;
@@ -116,25 +117,26 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
         );
         continue;
       }
-      if (currentModel == null) {
+      if (updatedModel == null) {
         continue;
       }
       // TODO Support Cross Validation properly
-      final int? currentEpoch = currentModel.holdOutResult?.getLastEpoch();
+      final int? currentEpoch = updatedModel.holdOutResult?.getLastEpoch();
       final commandProgress =
           currentEpoch != null ? BiocentralCommandProgress(current: currentEpoch, hint: 'Epoch') : null;
       trainingState =
           trainingState.setOperating(information: 'Training model..', commandProgress: commandProgress).copyWith(
         copyMap: {
-          'trainingModel': currentModel,
+          'trainingModel': updatedModel,
         },
       );
+      currentModel = updatedModel;
       yield left(trainingState);
     }
 
     // Receive files after training has finished
-    // TODO Handle case that training was interrupted/failed
-    final modelFilesEither = await _predictionModelsClient.getModelFiles(taskID);
+    // TODO Handle case that training was interrupted/failed / no hash
+    final modelFilesEither = await _predictionModelsClient.getModelFiles(currentModel!.modelHash!);
     yield* modelFilesEither.match((error) async* {
       yield left(state.setErrored(information: 'Could not retrieve model files! Error: ${error.message}'));
       return;
