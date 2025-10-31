@@ -13,6 +13,7 @@ from ..server_management import (
     EmbeddingsDatabase,
     EmbeddingDatabaseFactory,
     FileContextManager,
+    TaskStatus,
 )
 
 
@@ -64,12 +65,14 @@ class CalculateEmbeddingsTask(TaskInterface):
             embeddings_db=embeddings_db,
         ):
             update_dto_callback(
-                TaskDTO.running().add_update(
-                    update={"embedding_current": current, "embedding_total": total}
+                TaskDTO(
+                    status=TaskStatus.RUNNING,
+                    embedding_current=current,
+                    embedding_total=total,
                 )
             )
 
-        return TaskDTO.finished(result={"all_seqs": all_seqs})
+        return TaskDTO(status=TaskStatus.FINISHED, embedded_sequences=all_seqs)
 
 
 class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
@@ -84,15 +87,14 @@ class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
         )
         len_memory_embeddings = len(memory_embeddings)
         update_dto_callback(
-            TaskDTO.running().add_update(
-                update={
-                    "embedding_current": len_memory_embeddings,
-                    "embedding_total": len_memory_embeddings,
-                }
+            TaskDTO(
+                status=TaskStatus.RUNNING,
+                embedding_current=len_memory_embeddings,
+                embedding_total=len_memory_embeddings,
             )
         )
 
-        return TaskDTO.finished(result={"embeddings": memory_embeddings})
+        return TaskDTO(status=TaskStatus.FINISHED, embeddings=memory_embeddings)
 
 
 class LoadEmbeddingsTask(TaskInterface):
@@ -130,11 +132,11 @@ class LoadEmbeddingsTask(TaskInterface):
             memory_dto = dto
 
         if not memory_dto:
-            return TaskDTO.failed(error="Could not compute memory embeddings!")
+            return TaskDTO(
+                status=TaskStatus.FAILED, error="Could not compute memory embeddings!"
+            )
 
-        return TaskDTO.finished(
-            result={"embeddings": memory_dto.update["embeddings"], "missing": []}
-        )
+        return TaskDTO(status=TaskStatus.FINISHED, embeddings=memory_dto.embeddings)
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         if self.embedder_name in get_predefined_embedder_names():
@@ -151,24 +153,36 @@ class LoadEmbeddingsTask(TaskInterface):
         calculate_dto = None
         for dto in self.run_subtask(calculate_task):
             calculate_dto = dto
-            if "embedding_current" in calculate_dto.update:
+            if calculate_dto.embedding_current is not None:
                 update_dto_callback(calculate_dto)
 
-        if not calculate_dto or "all_seqs" not in calculate_dto.update:
-            return TaskDTO.failed(
-                error="Calculating of embeddings failed before loading!"
+        if not calculate_dto or calculate_dto.embedded_sequences is None:
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error="Calculating of embeddings failed before loading!",
             )
 
-        all_seqs = calculate_dto.update["all_seqs"]
+        embedded_sequences = calculate_dto.embedded_sequences
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
         embd_records = embeddings_db.get_embeddings(
-            sequences=all_seqs, embedder_name=self.embedder_name, reduced=self.reduced
+            sequences=embedded_sequences,
+            embedder_name=self.embedder_name,
+            reduced=self.reduced,
         )
         record_ids = {embd_record.seq_id for embd_record in embd_records}
-        missing = [seq_id for seq_id in all_seqs.keys() if seq_id not in record_ids]
+        missing = [
+            seq_id for seq_id in embedded_sequences.keys() if seq_id not in record_ids
+        ]
 
-        return TaskDTO.finished(result={"embeddings": embd_records, "missing": missing})
+        if len(missing) > 0:
+            # TODO Add retry of embedding calculation
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error=f"Missing number of embeddings before loading: {len(missing)}",
+            )
+
+        return TaskDTO(status=TaskStatus.FINISHED, embeddings=embd_records)
 
 
 class ExportEmbeddingsTask(TaskInterface):
@@ -181,7 +195,6 @@ class ExportEmbeddingsTask(TaskInterface):
         reduced: bool,
         use_half_precision: bool,
         device,
-        embeddings_out_path: Path,
         custom_tokenizer_config: str = None,
     ):
         # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
@@ -193,7 +206,6 @@ class ExportEmbeddingsTask(TaskInterface):
         self.reduced = reduced
         self.use_half_precision = use_half_precision
         self.device = get_device(device)
-        self.embeddings_out_path = embeddings_out_path
         self.custom_tokenizer_config = custom_tokenizer_config
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
@@ -209,20 +221,16 @@ class ExportEmbeddingsTask(TaskInterface):
         load_dto = None
         for dto in self.run_subtask(load_task):
             load_dto = dto
-            if "embedding_current" in load_dto.update:
+            if load_dto.embedding_current is not None:
                 update_dto_callback(load_dto)
 
-        if not load_dto or "embeddings" not in load_dto.update:
-            return TaskDTO.failed(error="Loading of embeddings failed before export!")
-
-        missing = load_dto.update["missing"]
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
-        if len(missing) > 0:
-            return TaskDTO.failed(
-                error=f"Missing number of embeddings before export: {len(missing)}"
+        if not load_dto or load_dto.embeddings is None:
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error="Loading of embeddings failed before export!",
             )
 
         h5_string = EmbeddingsDatabase.export_embeddings_task_result_to_h5_bytes_string(
-            embeddings
+            load_dto.embeddings
         )
-        return TaskDTO.finished(result={"embeddings_file": h5_string})
+        return TaskDTO(status=TaskStatus.FINISHED, embeddings_file=h5_string)

@@ -1,3 +1,3 @@
-from .proteins_endpoint import protein_service_route
+from .proteins_endpoint import router
 
-__all__ = ["protein_service_route"]
+__all__ = ["router"]

@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional, Tuple
 from biotrainer.protocols import Protocol
 from biotrainer.input_files import BiotrainerSequenceRecord
 
@@ -6,7 +6,7 @@ from .models.base_model import BaseModel
 
 from ..utils import get_logger
 from ..embeddings import LoadEmbeddingsTask
-from ..server_management import TaskInterface, TaskDTO
+from ..server_management import TaskInterface, TaskDTO, TaskStatus
 
 logger = get_logger(__name__)
 
@@ -46,7 +46,13 @@ class SinglePredictionTask(TaskInterface):
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # TODO CHECK SEQUENCE RECORDS
-        embeddings = self._embed_sequences()
+        error_dto, embed_records = self._embed_sequences()
+        if error_dto:
+            return error_dto
+
+        embeddings = {
+            embd_record.seq_id: embd_record.embedding for embd_record in embed_records
+        }
         predictions = self.model.predict(
             sequences={
                 seq_record.get_hash(): seq_record.seq
@@ -57,9 +63,11 @@ class SinglePredictionTask(TaskInterface):
         predictions = self._remap_predictions(
             sequence_input=self.sequence_input, predictions=predictions
         )
-        return TaskDTO.finished(result={"predictions": predictions})
+        return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
 
-    def _embed_sequences(self):
+    def _embed_sequences(
+        self,
+    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
         reduced = (
             True
             if self.model_metadata.protocol in Protocol.using_per_sequence_embeddings()
@@ -76,15 +84,10 @@ class SinglePredictionTask(TaskInterface):
         for dto in self.run_subtask(load_embeddings_task):
             load_dto = dto
 
-        if not load_dto:
-            return TaskDTO.failed(error="Loading of embeddings failed before export!")
+        if not load_dto or load_dto.embeddings is None:
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error="Loading of embeddings failed before export!",
+            ), []
 
-        missing = load_dto.update["missing"]
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.update["embeddings"]
-        if len(missing) > 0:
-            return TaskDTO.failed(
-                error=f"Missing number of embeddings before export: {len(missing)}"
-            )
-
-        # TODO [Refactoring] Maybe change to list of BiotrainerSequenceRecords in prediction
-        return {embd_record.seq_id: embd_record.embedding for embd_record in embeddings}
+        return None, load_dto.embeddings

@@ -1,5 +1,3 @@
-from flask import Blueprint
-
 # TODO Update ProtSpace API
 # from protspace.utils.prepare_json import DataProcessor as ProtSpaceDataProcessor
 # from protspace.utils.prepare_json import (
@@ -9,9 +7,9 @@ from flask import Blueprint
 # from .protspace_task import ProtSpaceTask
 
 
-projection_route = Blueprint(
-    "projection_route", __name__, url_prefix="/embeddings_service"
-)
+# projection_route = Blueprint(
+#    "projection_route", __name__, url_prefix="/embeddings_service"
+# )
 
 
 # Endpoint for ProtSpace dimensionality reduction methods for sequences

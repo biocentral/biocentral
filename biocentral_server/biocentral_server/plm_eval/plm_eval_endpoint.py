@@ -4,18 +4,38 @@ import requests
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
-from flask import request, jsonify, Blueprint
+from fastapi import APIRouter, Request
 from biotrainer.embedders import get_predefined_embedder_names
-from biotrainer.autoeval.flip.flip_datasets import FLIP_DATASETS
+from biotrainer.autoeval.pbc.pbc_datasets import PBC_DATASETS
 
 from .autoeval_task import AutoEvalTask
+from .endpoint_models import (
+    PLMEvalInformationResponse,
+    PLMEvalInformation,
+    PLMEvalTaskInformation,
+    PLMEvalValidateRequest,
+    PLMEvalValidateResponse,
+    PLMEvalAutoevalRequest,
+)
 
 from ..utils import get_logger
-from ..server_management import UserManager, TaskManager, FileManager, StorageFileType
+from ..server_management import (
+    UserManager,
+    TaskManager,
+    FileManager,
+    StorageFileType,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+)
 
 logger = get_logger(__name__)
 
-plm_eval_service_route = Blueprint("plm_eval_service", __name__)
+router = APIRouter(
+    prefix="/plm_eval_service",
+    tags=["plm_eval"],
+    responses={404: {"model": NotFoundErrorResponse}},
+)
 
 
 # TODO Improve caching such that results that are older than one hour are omitted for new huggingface models
@@ -41,52 +61,61 @@ def _validate_model_id(model_id: str):
         return f"Error checking model availability on huggingface: {e}"
 
 
-def _convert_flip_dict_to_dataset_split_dict(flip_dict: dict) -> dict:
-    return {
-        dataset: [split_dict for split_dict in values["splits"]]
-        for dataset, values in flip_dict.items()
-    }
-
-
-@plm_eval_service_route.route("/plm_eval_service/validate", methods=["POST"])
-def validate():
-    plm_eval_data = request.get_json()
-    model_id: str = str(plm_eval_data["modelID"])
-
-    error = _validate_model_id(model_id)
-    if error != "":
-        return jsonify({"error": error})
-    return jsonify({})
-
-
-@plm_eval_service_route.route(
-    "/plm_eval_service/get_benchmark_datasets", methods=["GET"]
+@router.get(
+    "/plm_eval_information",
+    response_model=PLMEvalInformationResponse,
+    responses={},
+    summary="Get PLM eval information",
+    description="Get information about PLM eval datasets and process",
 )
-def get_benchmark_datasets():
-    flip_dict = FLIP_DATASETS
+def plm_eval_information():
+    framework_datasets = PBC_DATASETS
 
-    return jsonify(_convert_flip_dict_to_dataset_split_dict(flip_dict))
+    # TODO Convert automatically or move to biotrainer.autoeval
+    return PLMEvalInformationResponse(
+        info=PLMEvalInformation(
+            n_tasks=len(framework_datasets),
+            tasks=[
+                PLMEvalTaskInformation(
+                    name="subcellular_location",
+                    description="Subcellular location prediction",
+                ),
+                PLMEvalTaskInformation(
+                    name="secondary_structure",
+                    description="Secondary structure prediction",
+                ),
+            ],
+        )
+    )
 
 
-"""
-# TODO REMOVE
-@plm_eval_service_route.route('/plm_eval_service/get_recommended_benchmark_datasets', methods=['GET'])
-def get_recommended_benchmark_datasets():
-    flip_dict = current_app.config['FLIP_DICT']
+@router.post(
+    "/validate_model_id",
+    response_model=PLMEvalValidateResponse,
+    responses={400: {"model": ErrorResponse}},
+    summary="Validate model ID",
+    description="Validate if the given model id exists on huggingface and can be used for plm_eval",
+)
+def validate(request_data: PLMEvalValidateRequest, request: Request):
+    error = _validate_model_id(request_data.model_id)
+    return PLMEvalValidateResponse(
+        valid=error != "", error=error if error != "" else None
+    )
 
-    recommended_only = _get_recommended_only_flip_dict(flip_dict)
-    return jsonify(_convert_flip_dict_to_dataset_split_dict(recommended_only))
-"""
 
-
-@plm_eval_service_route.route("/plm_eval_service/autoeval", methods=["POST"])
-def autoeval():
-    plm_eval_data = request.get_json()
-    model_id: str = str(plm_eval_data["modelID"])
+@router.post(
+    "/autoeval",
+    response_model=StartTaskResponse,
+    responses={404: {"model": ErrorResponse}},
+    summary="Automated Protein Language Model Evaluation",
+    description="Automated protein language model evaluation on pre-defined, curated datasets and tasks",
+)
+def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
+    model_id = request_data.model_id
 
     # ONNX
-    onnx_file = plm_eval_data.get("onnxFile", None)
-    tokenizer_config = plm_eval_data.get("tokenizerConfig", None)
+    onnx_file = request_data.onnx_file
+    tokenizer_config = request_data.tokenizer_config
 
     user_id = UserManager.get_user_id_from_request(req=request)
 
@@ -108,7 +137,7 @@ def autoeval():
     else:
         error = _validate_model_id(model_id)
         if error != "":
-            return jsonify({"error": error})
+            return NotFoundErrorResponse(error=error)
 
     task = AutoEvalTask(
         embedder_name=model_id,
@@ -121,4 +150,4 @@ def autoeval():
 
     task_id = TaskManager().add_task(task=task)
 
-    return jsonify({"task_id": task_id})
+    return StartTaskResponse(task_id=task_id)

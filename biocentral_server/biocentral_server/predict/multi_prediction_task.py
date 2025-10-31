@@ -6,7 +6,7 @@ from .single_prediction_task import SinglePredictionTask
 from .model_factory import PredictionModelFactory
 
 from ..utils import get_logger
-from ..server_management import TaskInterface, TaskDTO
+from ..server_management import TaskInterface, TaskDTO, TaskStatus
 
 logger = get_logger(__name__)
 
@@ -44,11 +44,13 @@ class MultiPredictionTask(TaskInterface):
             for dto in self.run_subtask(single_pred_task):
                 predict_dto = dto
             if not predict_dto:
-                return TaskDTO.failed(
-                    error=f"Model prediction with the {model_name} model failed."
+                return TaskDTO(
+                    status=TaskStatus.FAILED,
+                    error=f"Model prediction with the {model_name} model failed.",
                 )
+
             single_prediction = predict_dto.update["predictions"]
             logger.info(f"{model_name} model prediction: {single_prediction}")
             predictions[model_name] = single_prediction
 
-        return TaskDTO.finished(result={"predictions": predictions})
+        return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)

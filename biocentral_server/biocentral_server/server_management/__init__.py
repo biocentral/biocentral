@@ -1,4 +1,9 @@
 from .user_manager import UserManager
+from .shared_endpoint_models import (
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+)
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
@@ -41,5 +46,7 @@ __all__ = [
     "RepositoryManager",
     "get_shared_repository",
     "cleanup_repositories",
-    "TritonRepositoryInitializer",
+    "ErrorResponse",
+    "NotFoundErrorResponse",
+    "StartTaskResponse",
 ]

@@ -129,11 +129,13 @@ class TaskManager:
 
         additional_dto = None
         if job is None:
-            additional_dto = TaskDTO.failed(
-                error=f"task {task_id} not found on server!"
+            additional_dto = TaskDTO(
+                status=TaskStatus.FAILED, error=f"task {task_id} not found on server!"
             )
         elif job.is_failed:
-            additional_dto = TaskDTO.failed(error=str(job.latest_result()))
+            additional_dto = TaskDTO(
+                status=TaskStatus.FAILED, error=str(job.latest_result())
+            )
         elif job.is_finished:
             additional_dto = job.latest_result().return_value
 
@@ -155,7 +157,7 @@ class TaskManager:
 
         return dtos
 
-    def get_all_task_updates_from_start(self, task_id: str):
+    def get_all_task_updates_from_start(self, task_id: str) -> List[TaskDTO]:
         redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
         counter = 0
         dtos, length_read = self._read_task_updates_from_job(

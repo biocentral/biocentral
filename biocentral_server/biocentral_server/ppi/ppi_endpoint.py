@@ -1,8 +1,7 @@
 import tempfile
-from pathlib import Path
 from typing import List
-
-from flask import request, jsonify, Blueprint
+from pathlib import Path
+from fastapi import APIRouter, Request
 from hvi_toolkit.dataset_base_classes import DatasetPPIStandardized
 from hvi_toolkit.evaluators import DatasetEvaluator
 from hvi_toolkit.importer import (
@@ -12,12 +11,32 @@ from hvi_toolkit.importer import (
 )
 from hvi_toolkit.taxonomy import Taxonomy
 
+from .endpoint_models import (
+    DetectedFormatResponse,
+    AutoDetectFormatRequest,
+    RunTestResponse,
+    RunTestRequest,
+    TestResult,
+    ImportDatasetResponse,
+    ImportDatasetRequest,
+)
+
 from ..utils import get_logger
-from ..server_management import FileManager, UserManager, StorageFileType
+from ..server_management import (
+    FileManager,
+    UserManager,
+    StorageFileType,
+    ErrorResponse,
+    NotFoundErrorResponse,
+)
 
 logger = get_logger(__name__)
 
-ppi_service_route = Blueprint("ppi_service", __name__)
+router = APIRouter(
+    prefix="/ppi_service",
+    tags=["ppi"],
+    responses={404: {"model": NotFoundErrorResponse}},
+)
 
 
 def __dataset_bias_test(
@@ -104,55 +123,58 @@ dataset_evaluator_tests = {
 
 
 # Endpoint to get available dataset formats from hvi_toolkit
-@ppi_service_route.route("/ppi_service/formats", methods=["GET"])
+@router.get("/formats")
 def formats():
     dataset_formats = get_supported_dataset_formats_with_docs()
-    return jsonify(dataset_formats)
+    return dataset_formats
 
 
-@ppi_service_route.route("/ppi_service/auto_detect_format", methods=["POST"])
-def auto_detect_format_by_header():
-    format_data = request.get_json()
-    header = format_data.get("header")
-
+@router.post(
+    "/auto_detect_format",
+    response_model=DetectedFormatResponse,
+    responses={400: {"model": ErrorResponse}},
+)
+def auto_detect_format_by_header(req: AutoDetectFormatRequest):
+    header = req.header
     try:
         format_str = auto_detect_format(header)
-        return jsonify({"detected_format": format_str})
+        return DetectedFormatResponse(detected_format=format_str)
     except ValueError as e:
         logger.error(e)
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
 
-@ppi_service_route.route("/ppi_service/dataset_tests/tests", methods=["GET"])
+@router.get("/dataset_tests/tests")
 def tests():
-    return jsonify(
-        {
-            "dataset_tests": {
-                name: {key: value for key, value in values.items() if key != "function"}
-                for name, values in dataset_evaluator_tests.items()
-            }
+    return {
+        "dataset_tests": {
+            name: {key: value for key, value in values.items() if key != "function"}
+            for name, values in dataset_evaluator_tests.items()
         }
-    )
+    }
 
 
-@ppi_service_route.route("/ppi_service/dataset_tests/run_test", methods=["POST"])
-def run_test():
-    test_data = request.get_json()
-    dataset_hash = test_data.get("hash")
-    test_name = test_data.get("test")
+@router.post(
+    "/dataset_tests/run_test",
+    response_model=RunTestResponse,
+    responses={400: {"model": ErrorResponse}},
+)
+def run_test(body: RunTestRequest, request: Request):
+    database_hash = body.hash
+    test_name = body.test
 
     try:
         dataset_file_path = FileManager(
             user_id=UserManager.get_user_id_from_request(req=request)
-        ).get_file_path(dataset_hash, file_type=StorageFileType.INPUT)
+        ).get_file_path(database_hash=database_hash, file_type=StorageFileType.INPUT)
     except FileNotFoundError as e:
         logger.error(e)
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
     if test_name not in dataset_evaluator_tests.keys():
         error_message = "Given test is not available!"
         logger.error(error_message)
-        return jsonify({"error": error_message})
+        return {"error": error_message}
 
     try:
         # TODO: Dataset Evaluation Options
@@ -170,30 +192,30 @@ def run_test():
             ),
         )
 
-        return jsonify(
-            {
-                "test_result": {
-                    "success": success,
-                    "information": information,
-                    "test_metrics": test_metrics,
-                    "test_statistic": test_statistic,
-                    "p_value": p_value,
-                    "significance_level": dataset_evaluator.significance,
-                }
-            }
+        return RunTestResponse(
+            test_result=TestResult(
+                success=success,
+                information=information,
+                test_metrics=test_metrics,
+                test_statistic=test_statistic,
+                p_value=p_value,
+                significance_level=dataset_evaluator.significance,
+            )
         )
     except (ValueError, KeyError) as e:
         logger.error(e)
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
 
 # Endpoint to import a dataset
-@ppi_service_route.route("/ppi_service/import", methods=["POST"])
-def import_dataset():
-    import_data = request.get_json()
-    # Validate and extract task parameters from the request data
-    data_format = import_data.get("format")
-    dataset_file = import_data.get("dataset")
+@router.post(
+    "/import",
+    response_model=ImportDatasetResponse,
+    responses={400: {"model": ErrorResponse}},
+)
+def import_dataset(body: ImportDatasetRequest):
+    data_format = body.format
+    dataset_file = body.dataset
 
     with tempfile.TemporaryDirectory() as tmp_dir_name:
         tmp_dataset_file_path = Path(tmp_dir_name) / data_format
@@ -202,11 +224,11 @@ def import_dataset():
 
         try:
             ppi_std_dataset: DatasetPPIStandardized = import_dataset_by_format(
-                dataset_path=tmp_dataset_file_path,
+                dataset_path=str(tmp_dataset_file_path),
                 format_str=data_format,
                 taxonomy=Taxonomy(),
             )
-            return jsonify({"imported_dataset": ppi_std_dataset.store()})
+            return ImportDatasetResponse(imported_dataset=ppi_std_dataset.store())
         except (ValueError, KeyError) as e:
             logger.error(e)
-            return jsonify({"error": str(e)})
+            return {"error": str(e)}

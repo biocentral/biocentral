@@ -1,4 +1,5 @@
 import datetime
+
 from pathlib import Path
 from typing import Final
 
@@ -11,5 +12,4 @@ class Constants:
     )
     LOGGER_FORMAT: Final[str] = "%(asctime)s %(levelname)s %(message)s"
 
-    SERVER_CONFIG_FILE = "server_config.txt"
     SERVER_DEFAULT_PORT = 9540

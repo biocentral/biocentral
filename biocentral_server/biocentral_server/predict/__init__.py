@@ -1,12 +1,7 @@
-from .metadata_endpoint import prediction_metadata_route
-from .predict_endpoint import prediction_service_route
+from .predict_endpoint import router
 from .predict_initializer import PredictInitializer
-from .model_factory import PredictionModelFactory, create_prediction_model
 
 __all__ = [
-    "prediction_metadata_route",
-    "prediction_service_route",
+    "router",
     "PredictInitializer",
-    "PredictionModelFactory",
-    "create_prediction_model",
 ]

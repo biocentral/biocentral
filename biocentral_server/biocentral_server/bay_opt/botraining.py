@@ -2,7 +2,11 @@ import torch
 
 from typing import List, Dict, Any
 from biotrainer.input_files import read_FASTA, BiotrainerSequenceRecord
-from biocentral_server.bayesian_optimization import gaussian_process_models as gp
+
+from .gaussian_process_models import (
+    train_gp_regression_model,
+    train_gp_classification_model,
+)
 
 from ..utils import get_logger
 from ..server_management import FileContextManager
@@ -137,7 +141,7 @@ def train_and_inference_regression(train_data, inference_data, config_dict):
     """
     if isinstance(train_data["X"], list) or isinstance(inference_data["X"], list):
         raise ValueError("train_and_inference_regression: data should not be empty")
-    model, likelihood = gp.train_gp_regression_model(
+    model, likelihood = train_gp_regression_model(
         train_data, epoch=120, device=config_dict.get("device", "cpu")
     )
     with torch.no_grad():
@@ -171,7 +175,7 @@ def train_and_inference_classification(train_data, inference_data, config_dict):
     """
     if isinstance(train_data["X"], list) or isinstance(inference_data["X"], list):
         raise ValueError("train_and_inference_classification: data should not be empty")
-    model, likelihood = gp.train_gp_classification_model(
+    model, likelihood = train_gp_classification_model(
         train_data, epoch=200, device=config_dict.get("device", "cpu")
     )
     with torch.no_grad():

@@ -5,25 +5,17 @@ from rq import Worker
 from redis import Redis
 from dotenv import load_dotenv
 
+from biocentral_server.main import run_server
+
 # Load local environment variables
 load_dotenv(".env")
-
-
-def run_server():
-    from biocentral_server.server_entrypoint import ServerAppState
-
-    print("Starting Biocentral Server")
-    app_state = ServerAppState.get_instance()
-    app = app_state.init_app()
-    app_state.init_app_context()
-    app.run(debug=True, port=9540, use_reloader=False)
 
 
 def run_worker(worker_id):
     """Run a single worker process with a specific name"""
     import atexit
     from biocentral_server.server_management import cleanup_repositories
-    
+
     redis_jobs_host = os.environ.get("REDIS_JOBS_HOST")
     redis_jobs_port = os.environ.get("REDIS_JOBS_PORT")
     redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port)
