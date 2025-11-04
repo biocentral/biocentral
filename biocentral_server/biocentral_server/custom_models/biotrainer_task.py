@@ -109,7 +109,7 @@ class BiotrainerTask(TaskInterface):
             new_path = self.model_path.parent / model_hash
             storage_writer.set_file_path(file_path=new_path)
 
-        return TaskDTO(status=TaskStatus.FINISHED)
+        return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=result_dict)
 
     def _pre_embed_with_db(
         self,

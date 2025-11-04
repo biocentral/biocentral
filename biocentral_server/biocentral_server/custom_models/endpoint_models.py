@@ -1,9 +1,7 @@
-import json
-
 from typing import List, Optional, Any, Dict
 
 from biotrainer.input_files import BiotrainerSequenceRecord
-from pydantic import BaseModel, Field, field_validator, ValidationInfo, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class SequenceTrainingData(BaseModel):
@@ -106,22 +104,6 @@ class StartInferenceRequest(BaseModel):
     model_hash: str = Field(
         description="Hash identifier for the trained model to use for inference"
     )
-    sequence_input: str = Field(
-        description="JSON string containing sequence_id to sequence mappings"
+    sequence_data: Dict[str, str] = Field(
+        description="Sequence data for inference (seq_id -> sequence)", min_length=1
     )
-
-    @field_validator("sequence_input")
-    def validate_sequence_input(cls, v, info: ValidationInfo):
-        """Validate that sequence_input is a valid JSON string representing a dict"""
-        try:
-            parsed = json.loads(v)
-            if not isinstance(parsed, dict):
-                raise ValueError("sequence_input must be a JSON object (dictionary)")
-            if not parsed:
-                raise ValueError("sequence_input cannot be empty")
-            for seq_id, seq in parsed.items():
-                if not isinstance(seq_id, str) or not isinstance(seq, str):
-                    raise ValueError("All sequence IDs and sequences must be strings")
-            return v
-        except json.JSONDecodeError:
-            raise ValueError("sequence_input must be valid JSON")

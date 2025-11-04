@@ -1,5 +1,3 @@
-import json
-
 from fastapi import APIRouter, HTTPException, status, Request
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.protocols import Protocol
@@ -167,21 +165,12 @@ def model_files(request_data: ModelFilesRequest, request: Request):
     description="Submit sequences for prediction using a trained model",
 )
 def start_inference(request_data: StartInferenceRequest, request: Request):
-    """Make inference predictions from trained models"""
-    # Parse sequence input
-    try:
-        sequence_input = json.loads(request_data.sequence_input)
-    except json.JSONDecodeError:
-        # This shouldn't happen due to Pydantic validation but just in case
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid JSON in sequence_input",
-        )
+    """Do inference from trained models"""
 
-    # Convert to BiotrainerSequenceRecord objects
+    # Convert sequence_data to BiotrainerSequenceRecord objects
     seq_records = [
         BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
-        for seq_id, seq in sequence_input.items()
+        for seq_id, seq in request_data.sequence_data.items()
     ]
 
     # Get model path

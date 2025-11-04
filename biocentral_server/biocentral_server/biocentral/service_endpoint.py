@@ -1,10 +1,10 @@
 import torch
 import psutil
-from biocentral_server.biocentral.models import TaskStatusResponse
+from biocentral_server.biocentral.endpoint_models import TaskStatusResponse
 
 from fastapi import APIRouter, Request
 
-from .models import TransferFileRequest
+from .endpoint_models import TransferFileRequest
 from ..server_management import (
     UserManager,
     FileManager,
@@ -92,9 +92,7 @@ def task_status(task_id: str):
     # Retrieve task status from the distributed server or backend system
     # Return the task status
     dtos = TaskManager().get_new_task_updates(task_id=task_id)
-    return TaskStatusResponse(
-        dtos={str(idx): dto.dict() for idx, dto in enumerate(dtos)}
-    )
+    return TaskStatusResponse(dtos=dtos)
 
 
 # Endpoint to check task status (resumed)
@@ -104,9 +102,7 @@ def task_status_resumed(task_id: str):
     # Retrieve task status from the distributed server or backend system
     # Return the task status
     dtos = TaskManager().get_all_task_updates_from_start(task_id=task_id)
-    return TaskStatusResponse(
-        dtos={str(idx): dto.dict() for idx, dto in enumerate(dtos)}
-    )
+    return TaskStatusResponse(dtos=dtos)
 
 
 # Endpoint to get some server statistics

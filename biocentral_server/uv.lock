@@ -343,7 +343,7 @@ wheels = [
 [[package]]
 name = "biotrainer"
 version = "1.2.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?rev=fix%2Fapi-improvements#eb32fbc7fd1d5f7e63285ed40d91886cdb68657d" }
+source = { git = "https://github.com/biocentral/biotrainer.git?rev=fix%2Fapi-improvements#eabd30018d269c379c6ac226b836950a8b01f496" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -358,6 +358,7 @@ dependencies = [
     { name = "onnxscript" },
     { name = "peft" },
     { name = "protobuf" },
+    { name = "pydantic" },
     { name = "ruamel-yaml" },
     { name = "safetensors" },
     { name = "scikit-learn" },

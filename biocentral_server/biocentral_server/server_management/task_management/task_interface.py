@@ -4,6 +4,7 @@ from enum import Enum
 
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
+from biotrainer.output_files import OutputData
 from biotrainer.autoeval import AutoEvalProgress
 from biotrainer.input_files import BiotrainerSequenceRecord
 from typing import Any, Dict, Callable, Generator, Optional, List
@@ -11,24 +12,15 @@ from typing import Any, Dict, Callable, Generator, Optional, List
 from .task_utils import run_subtask_util
 
 
-class TaskStatus(Enum):
-    PENDING = 0
-    RUNNING = 1
-    FINISHED = 2
-    FAILED = 3
-
-    @staticmethod
-    def _all():
-        return [
-            TaskStatus.PENDING,
-            TaskStatus.RUNNING,
-            TaskStatus.FINISHED,
-            TaskStatus.FAILED,
-        ]
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    FINISHED = "FINISHED"
+    FAILED = "FAILED"
 
     @staticmethod
     def from_string(status: str) -> TaskStatus:
-        return {s.name: s for s in TaskStatus._all()}[status.upper()]
+        return TaskStatus(status.upper())
 
 
 class TaskDTO(BaseModel):
@@ -42,7 +34,8 @@ class TaskDTO(BaseModel):
     # TODO Duplicated for inference, single prediction, multi prediction (model_name -> predictions)
     predictions: Optional[Dict[str, Any]] = None
     # TODO Pydantic class
-    prediction_model_update: Optional[Dict[str, Any]] = None
+    biotrainer_update: Optional[OutputData] = None
+    biotrainer_result: Optional[Dict[str, Any]] = None
 
     # embeddings
     embedding_current: Optional[int] = None
