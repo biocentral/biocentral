@@ -49,7 +49,7 @@ class MultiPredictionTask(TaskInterface):
                     error=f"Model prediction with the {model_name} model failed.",
                 )
 
-            single_prediction = predict_dto.update["predictions"]
+            single_prediction = predict_dto.predictions
             logger.info(f"{model_name} model prediction: {single_prediction}")
             predictions[model_name] = single_prediction
 

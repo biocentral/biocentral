@@ -19,18 +19,18 @@ def _is_triton_prediction_available(model_name: str) -> bool:
         config = TritonClientConfig.from_env()
         if not config.is_enabled():
             return False
-        
+
         # Get model class from registry
         model_class = MODEL_REGISTRY.get(model_name)
         if not model_class:
             return False
-        
+
         # Check if model has TRITON_MODEL_NAME attribute
-        if not hasattr(model_class, 'TRITON_MODEL_NAME'):
+        if not hasattr(model_class, "TRITON_MODEL_NAME"):
             return False
-        
-        triton_model_name = model_class.TRITON_MODEL_NAME
-        
+
+        triton_model_name = model_class.TRITON_MODEL_NAME()
+
         # Check if model is available in Triton
         repository = get_shared_repository(config)
         return repository.is_model_available(triton_model_name)
@@ -71,7 +71,11 @@ class PredictionModelFactory:
             use_triton = config.is_enabled()
 
         # Determine backend string
-        backend = "triton" if (use_triton and _is_triton_prediction_available(model_name)) else "onnx"
+        backend = (
+            "triton"
+            if (use_triton and _is_triton_prediction_available(model_name))
+            else "onnx"
+        )
 
         logger.info(f"Creating {backend} model for {model_name}")
 

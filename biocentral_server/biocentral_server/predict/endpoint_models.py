@@ -11,7 +11,7 @@ class PredictionRequest(BaseModel):
     model_names: List[str] = Field(
         min_length=1,
         description="List of model names to use for prediction",
-        examples=["bind_embed"],
+        examples=["BindEmbed", "TMbed"],
     )
     sequence_input: Dict[str, str] = Field(
         min_length=1, description="Dictionary mapping sequence IDs to protein sequences"

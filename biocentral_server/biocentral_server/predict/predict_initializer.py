@@ -21,9 +21,9 @@ class PredictInitializer(ServerModuleInitializer):
         with self.file_context_manager.storage_write(
             self.predict_server_path
         ) as predict_path:
-            logger.info("PREDICTion models not found. Downloading...")
+            logger.info("PREDICTION models not found. Downloading...")
             self._download_data(urls=self.DOWNLOAD_URLS, data_dir=predict_path)
-            logger.info("PREDICTion models downloaded!")
+            logger.info("PREDICTION models downloaded!")
 
     def initialize(self) -> None:
         pass

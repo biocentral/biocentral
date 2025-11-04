@@ -21,18 +21,18 @@ class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """
 
     # Triton configuration
-    @property
-    def TRITON_MODEL_NAME(self) -> str:
+    @staticmethod
+    def TRITON_MODEL_NAME() -> str:
         """Name of model in Triton repository."""
         return "seth"
-    
-    @property
-    def TRITON_INPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_INPUT_NAMES() -> List[str]:
         """Names of input tensors."""
         return ["input"]
-    
-    @property
-    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_OUTPUT_NAMES() -> List[str]:
         """Names of output tensors."""
         return ["output"]
 

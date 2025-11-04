@@ -9,12 +9,11 @@ import numpy as np
 
 try:
     import tritonclient.grpc as triton_grpc
+
     TRITON_AVAILABLE = True
 except ImportError:
     TRITON_AVAILABLE = False
     triton_grpc = None
-
-import httpx
 
 
 from biocentral_server.utils import get_logger
@@ -68,7 +67,7 @@ class InferenceRepository(ABC):
 
 class TritonInferenceRepository(InferenceRepository):
     """Triton inference repository with connection pooling.
-    
+
     Provides synchronous interface for Triton Inference Server operations:
     - Connection pooling via queue.Queue
     - Thread-safe client management
@@ -109,12 +108,21 @@ class TritonInferenceRepository(InferenceRepository):
             channel_args = [
                 # Message size limits (INT32_MAX ~2GB)
                 ("grpc.max_send_message_length", self.config.triton_max_message_size),
-                ("grpc.max_receive_message_length", self.config.triton_max_message_size),
+                (
+                    "grpc.max_receive_message_length",
+                    self.config.triton_max_message_size,
+                ),
                 # Keepalive settings to prevent connection drops
                 ("grpc.keepalive_time_ms", self.config.triton_grpc_keepalive_time_ms),
-                ("grpc.keepalive_timeout_ms", self.config.triton_grpc_keepalive_timeout_ms),
+                (
+                    "grpc.keepalive_timeout_ms",
+                    self.config.triton_grpc_keepalive_timeout_ms,
+                ),
                 ("grpc.keepalive_permit_without_calls", False),
-                ("grpc.http2.max_pings_without_data", self.config.triton_http2_max_pings_without_data),
+                (
+                    "grpc.http2.max_pings_without_data",
+                    self.config.triton_http2_max_pings_without_data,
+                ),
             ]
 
             # Create client pool
@@ -126,7 +134,9 @@ class TritonInferenceRepository(InferenceRepository):
                 self._clients.put(client)
 
             # Test connection
-            test_client = self._clients.get(timeout=self.config.triton_connection_timeout)
+            test_client = self._clients.get(
+                timeout=self.config.triton_connection_timeout
+            )
             try:
                 if not test_client.is_server_ready():
                     raise TritonConnectionError("Triton server is not ready")
@@ -165,12 +175,12 @@ class TritonInferenceRepository(InferenceRepository):
         self, sequences: List[str], model_name: str, pooled: bool = False
     ) -> List[np.ndarray]:
         """Compute embeddings via Triton inference.
-        
+
         Args:
             sequences: List of protein sequences
             model_name: Triton model name (e.g., "prot_t5_pipeline")
             pooled: Whether to pool embeddings per-sequence
-            
+
         Returns:
             List of embedding arrays
         """
@@ -184,7 +194,9 @@ class TritonInferenceRepository(InferenceRepository):
 
         # Get client from pool
         try:
-            client = self._clients.get(timeout=self.config.triton_pool_acquisition_timeout)
+            client = self._clients.get(
+                timeout=self.config.triton_pool_acquisition_timeout
+            )
         except queue.Empty:
             raise TritonResourceExhaustionError("Client pool exhausted")
 
@@ -223,13 +235,13 @@ class TritonInferenceRepository(InferenceRepository):
         pooled: bool,
     ) -> List[np.ndarray]:
         """Direct Triton inference for embeddings.
-        
+
         Args:
             client: Triton gRPC client
             sequences: List of protein sequences
             model_name: Triton model name
             pooled: Whether to pool embeddings
-            
+
         Returns:
             List of embedding arrays
         """
@@ -285,7 +297,7 @@ class TritonInferenceRepository(InferenceRepository):
                 seq_embeddings = seq_embeddings[:seq_len, :]
             elif "esm2" in model_name.lower():
                 # ESM2 adds BOS at start + EOS at end: keep [1:seq_len+1]
-                seq_embeddings = seq_embeddings[1:seq_len+1, :]
+                seq_embeddings = seq_embeddings[1 : seq_len + 1, :]
             # else: keep as is for other models
 
             if pooled:
@@ -298,10 +310,10 @@ class TritonInferenceRepository(InferenceRepository):
 
     def health_check(self, model_name: str) -> Dict[str, bool]:
         """Check Triton server health.
-        
+
         Args:
             model_name: Model name to check
-            
+
         Returns:
             Dictionary with health status
         """
@@ -313,7 +325,7 @@ class TritonInferenceRepository(InferenceRepository):
                 "server_ready": False,
                 "server_live": False,
                 "model_ready": False,
-                "error": "Client pool exhausted"
+                "error": "Client pool exhausted",
             }
 
         try:
@@ -338,17 +350,17 @@ class TritonInferenceRepository(InferenceRepository):
                 "server_ready": False,
                 "server_live": False,
                 "model_ready": False,
-                "error": str(e)
+                "error": str(e),
             }
         finally:
             self._clients.put(client)
 
     def get_model_metadata(self, model_name: str) -> Dict:
         """Get model metadata.
-        
+
         Args:
             model_name: Model name
-            
+
         Returns:
             Dictionary with model metadata
         """
@@ -387,59 +399,68 @@ class TritonInferenceRepository(InferenceRepository):
 
     def _fetch_available_models(self) -> Set[str]:
         """Fetch list of available models from Triton server.
-        
+
         Returns:
             Set of available model names
         """
-        if not TRITON_AVAILABLE or httpx is None:
-            logger.warning("Triton or httpx dependencies not available")
+        if not TRITON_AVAILABLE:
+            logger.warning("Triton dependencies not available")
             return set()
 
         try:
-            with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{self.config.triton_http_url}/v2/models")
-                response.raise_for_status()
-                
-                models_data = response.json()
-                available_models = set()
-                
-                for model_info in models_data:
-                    if isinstance(model_info, dict) and "name" in model_info:
-                        available_models.add(model_info["name"])
-                
-                logger.info(f"Found {len(available_models)} available models in Triton: {sorted(available_models)}")
-                return available_models
-                
+            client = self._clients.get(timeout=self.config.triton_connection_timeout)
+        except queue.Empty:
+            logger.warning("Client pool exhausted when fetching models")
+            return set()
+
+        try:
+            # Use Triton gRPC client's built-in method
+            model_repository_index = client.get_model_repository_index()
+            available_models = set()
+
+            for model in model_repository_index.models:
+                available_models.add(model.name)
+
+            logger.info(
+                f"Found {len(available_models)} available models in Triton: {sorted(available_models)}"
+            )
+            return available_models
+
         except Exception as e:
             logger.warning(f"Failed to fetch available models from Triton: {e}")
             return set()
+        finally:
+            self._clients.put(client)
 
     def get_available_models(self) -> Set[str]:
         """Get available models with caching.
-        
+
         Returns:
             Set of available model names
         """
         current_time = time.time()
-        
+
         # Check if cache is valid
-        if (self._available_models_cache is not None and 
-            self._cache_timestamp is not None and 
-            current_time - self._cache_timestamp < self._cache_ttl):
+        if (
+            self._available_models_cache is not None
+            and len(self._available_models_cache) > 0
+            and self._cache_timestamp is not None
+            and current_time - self._cache_timestamp < self._cache_ttl
+        ):
             return self._available_models_cache
-        
+
         # Fetch fresh data
         self._available_models_cache = self._fetch_available_models()
         self._cache_timestamp = current_time
-        
+
         return self._available_models_cache
 
     def is_model_available(self, model_name: str) -> bool:
         """Check if a model is available in Triton.
-        
+
         Args:
             model_name: Model name to check
-            
+
         Returns:
             True if model is available, False otherwise
         """

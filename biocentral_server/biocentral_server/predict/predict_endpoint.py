@@ -71,7 +71,9 @@ def predict(request_data: PredictionRequest):
     # Get filtered models and create prediction task
     models = filter_models(model_names=model_names)
     prediction_task = MultiPredictionTask(
-        models=models, sequence_input=sequence_input, batch_size=request_data.batch_size
+        models=models,
+        sequence_input=sequence_input,
+        batch_size=1,  # TODO batch_size
     )
 
     # Add task to task manager

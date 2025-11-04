@@ -7,9 +7,10 @@ from abc import ABC, abstractmethod
 
 try:
     import tritonclient.grpc as triton_grpc
+
     TRITON_AVAILABLE = True
-    
-except ImportError: # allows to use the mixin without Triton installed
+
+except ImportError:  # allows to use the mixin without Triton installed
     TRITON_AVAILABLE = False
     triton_grpc = None
 
@@ -27,7 +28,7 @@ class TritonInferenceMixin(ABC):
 
     This mixin provides methods for running inference via Triton Inference Server.
     It should be used with BaseModel through multiple inheritance.
-    
+
     Needs to implement the following abstract properties:
         - TRITON_MODEL_NAME: str - Name of model in Triton repository
         - TRITON_INPUT_NAMES: List[str] - Names of input tensors
@@ -37,29 +38,29 @@ class TritonInferenceMixin(ABC):
         - triton_input_transformer: callable - Function to transform inputs
         - triton_output_transformer: callable - Function to transform outputs
     """
-    
-    @property
+
+    @staticmethod
     @abstractmethod
-    def TRITON_MODEL_NAME(self) -> str:
+    def TRITON_MODEL_NAME() -> str:
         """Name of model in Triton repository."""
         raise NotImplementedError
 
-    @property
+    @staticmethod
     @abstractmethod
-    def TRITON_INPUT_NAMES(self) -> List[str]:
+    def TRITON_INPUT_NAMES() -> List[str]:
         """Names of input tensors."""
         raise NotImplementedError
-    
-    @property
+
+    @staticmethod
     @abstractmethod
-    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+    def TRITON_OUTPUT_NAMES() -> List[str]:
         """Names of output tensors."""
         raise NotImplementedError
-    
+
     def triton_input_transformer(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """Transform input for Triton inference."""
         return batch
-    
+
     def triton_output_transformer(self, outputs: List[Any]) -> List[Any]:
         """Transform output for Triton inference."""
         return outputs
@@ -93,7 +94,7 @@ class TritonInferenceMixin(ABC):
 
         # Create Triton input objects
         inputs = []
-        for input_name in self.TRITON_INPUT_NAMES:
+        for input_name in self.TRITON_INPUT_NAMES():
             if input_name not in batch:
                 raise ValueError(
                     f"Input '{input_name}' not found in batch. Available: {list(batch.keys())}"
@@ -136,7 +137,8 @@ class TritonInferenceMixin(ABC):
             List of Triton InferRequestedOutput objects
         """
         return [
-            triton_grpc.InferRequestedOutput(name) for name in self.TRITON_OUTPUT_NAMES
+            triton_grpc.InferRequestedOutput(name)
+            for name in self.TRITON_OUTPUT_NAMES()
         ]
 
     def _process_triton_outputs(self, response: Any) -> Any:
@@ -149,12 +151,12 @@ class TritonInferenceMixin(ABC):
             Processed model outputs (format depends on model)
         """
         # Extract outputs
-        if len(self.TRITON_OUTPUT_NAMES) == 1:
+        if len(self.TRITON_OUTPUT_NAMES()) == 1:
             # Single output - return as-is
-            output = response.as_numpy(self.TRITON_OUTPUT_NAMES[0])
+            output = response.as_numpy(self.TRITON_OUTPUT_NAMES()[0])
         else:
             # Multiple outputs - return as list
-            output = [response.as_numpy(name) for name in self.TRITON_OUTPUT_NAMES]
+            output = [response.as_numpy(name) for name in self.TRITON_OUTPUT_NAMES()]
 
         # Apply model-specific output transformation if defined
 
@@ -184,7 +186,7 @@ class TritonInferenceMixin(ABC):
 
                 # Make inference request
                 response = client.infer(
-                    model_name=self.TRITON_MODEL_NAME,
+                    model_name=self.TRITON_MODEL_NAME(),
                     inputs=inputs,
                     outputs=outputs,
                     client_timeout=int(self.triton_config.triton_timeout),

@@ -25,22 +25,21 @@ class LightAttentionSubcellularLocalization(
     """
 
     # Triton configuration
-    @property
-    def TRITON_MODEL_NAME(self) -> str:
+    @staticmethod
+    def TRITON_MODEL_NAME() -> str:
         """Name of model in Triton repository."""
         return "light_attention_subcell"
-    
-    @property
-    def TRITON_INPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_INPUT_NAMES() -> List[str]:
         """Names of input tensors."""
         return ["input", "mask"]
-    
-    @property
-    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_OUTPUT_NAMES() -> List[str]:
         """Names of output tensors."""
         return ["output"]
-    
-    
+
     # Custom transformer for Triton
     def triton_input_transformer(self, batch: Dict) -> Dict:
         """Transform batch for Triton: transpose input."""

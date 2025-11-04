@@ -17,26 +17,26 @@ from ..base_model import (
 
 class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """LightAttention model for membrane prediction.
-    
+
     Supports both ONNX (local) and Triton (remote) backends.
     """
-    
+
     # Triton configuration
-    @property
-    def TRITON_MODEL_NAME(self) -> str:
+    @staticmethod
+    def TRITON_MODEL_NAME() -> str:
         """Name of model in Triton repository."""
         return "light_attention_membrane"
-    
-    @property
-    def TRITON_INPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_INPUT_NAMES() -> List[str]:
         """Names of input tensors."""
         return ["input", "mask"]
-    
-    @property
-    def TRITON_OUTPUT_NAMES(self) -> List[str]:
+
+    @staticmethod
+    def TRITON_OUTPUT_NAMES() -> List[str]:
         """Names of output tensors."""
         return ["output"]
-    
+
     # Custom transformer for Triton
     def triton_input_transformer(self, batch: Dict) -> Dict:
         """Transform batch for Triton: transpose input."""
@@ -93,7 +93,7 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
-        
+
         for batch in inputs:
             if self.backend == "onnx":
                 # ONNX: Local inference
@@ -106,12 +106,12 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
                 la_mem_Yhat = torch.from_numpy(la_mem_Yhat_np)
             else:
                 raise ValueError(f"Unknown backend: {self.backend}")
-            
+
             la_mem_Yhat = self._finalize_raw_prediction(
                 torch.max(la_mem_Yhat, dim=1)[1], dtype=np.byte
             )
             results.extend(la_mem_Yhat)
-            
+
         model_output = {"membrane": results}
         return self._post_process(
             model_output=model_output,
