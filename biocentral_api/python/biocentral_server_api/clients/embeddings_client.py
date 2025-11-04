@@ -63,9 +63,11 @@ class _EmbedDTOHandler(DTOHandler):
                 case TaskStatus.FINISHED:
                     pbar.set_description(f"Finished embedding calculation!")
                     pbar.close()
+                    break
                 case TaskStatus.FAILED:
                     pbar.set_description(f"Embedding failed!")
                     pbar.close()
+                    break
         return pbar
 
 

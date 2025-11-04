@@ -3,7 +3,7 @@ import numpy as np
 from typing import Optional, List, Dict, Any
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData
-from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient
+from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient
 
 
 class BiocentralServerClient:
@@ -113,4 +113,30 @@ class BiocentralServerClient:
         custom_models_client = CustomModelsClient()
         with ApiClient(self.configuration) as api_client:
             biocentral_server_task = custom_models_client.inference(api_client, model_hash, inference_data)
+            return biocentral_server_task
+
+    def predict(self, model_names: List[str], sequence_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, Any]]:
+        """
+        Provides functionality to predict results based on specified pre-trained model names and sequence data.
+
+        In contrast to the inference method, this method uses pre-defined models instead of
+        user-defined and user-trained models.
+
+        :param model_names: List of model names from which predictions should be created.
+        :param sequence_data: Dictionary containing sequence data for prediction, where keys represent identifiers
+            and values represent the sequences.
+        """
+        if len(model_names) == 0:
+            raise ValueError("No valid model names provided.")
+        invalid_model_names = [model_name for model_name in model_names if len(model_name) == 0]
+        if len(invalid_model_names) > 0:
+            raise ValueError(f"Invalid model names provided: {invalid_model_names}")
+        if len(sequence_data) == 0:
+            raise ValueError("No prediction data provided.")
+        if not isinstance(sequence_data, dict):
+            raise ValueError("Prediction data must be a dictionary.")
+
+        predict_client = PredictClient()
+        with ApiClient(self.configuration) as api_client:
+            biocentral_server_task = predict_client.predict(api_client, model_names, sequence_data)
             return biocentral_server_task
