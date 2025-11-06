@@ -1,5 +1,4 @@
 .github/workflows/python.yml
-biocentral_api/__init__.py
 biocentral_api/_generated/__init__.py
 biocentral_api/_generated/api/__init__.py
 biocentral_api/_generated/api/bayesian_optimization_api.py
