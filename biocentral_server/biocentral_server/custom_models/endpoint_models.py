@@ -9,7 +9,7 @@ class SequenceTrainingData(BaseModel):
     sequence: str = Field(description="AA Sequence", min_length=1)
     label: str = Field(description="Label to predict")
     set: str = Field(description="Set", examples=["train", "val", "test", "pred"])
-    mask: Optional[str] = Field(description="MASK for per-residue tasks")
+    mask: Optional[str] = Field(default=None, description="MASK for per-residue tasks")
 
     @model_validator(mode="after")
     def validate_training_data(self):

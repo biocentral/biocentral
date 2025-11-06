@@ -11,6 +11,8 @@ from typing import Any, Dict, Callable, Generator, Optional, List
 
 from .task_utils import run_subtask_util
 
+from ..shared_endpoint_models import Prediction
+
 
 class TaskStatus(str, Enum):
     PENDING = "PENDING"
@@ -32,7 +34,11 @@ class TaskDTO(BaseModel):
 
     # custom_models
     # TODO Duplicated for inference, single prediction, multi prediction (model_name -> predictions)
-    predictions: Optional[Dict[str, Any]] = None
+    predictions: Optional[Dict[str, List[Prediction]]] = None
+    multi_predictions: Optional[Dict[str, Dict[str, Prediction]]] = (
+        None  # model_name -> predictions
+    )
+
     # TODO Pydantic class
     biotrainer_update: Optional[OutputData] = None
     biotrainer_result: Optional[Dict[str, Any]] = None

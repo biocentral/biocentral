@@ -188,7 +188,7 @@ def start_inference(request_data: StartInferenceRequest, request: Request):
 
     # Create and submit inference task
     inference_task = BiotrainerInferenceTask(
-        model_out_path=model_out_path, seq_records=seq_records
+        model_out_path=model_out_path, sequence_input=seq_records
     )
     task_manager = TaskManager()
     task_id = task_manager.add_task(task=inference_task)

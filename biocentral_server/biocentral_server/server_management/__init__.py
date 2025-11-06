@@ -4,6 +4,7 @@ from .shared_endpoint_models import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
+from .shared_endpoint_models import Prediction, MutationPrediction
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
@@ -49,4 +50,6 @@ __all__ = [
     "ErrorResponse",
     "NotFoundErrorResponse",
     "StartTaskResponse",
+    "Prediction",
+    "MutationPrediction",
 ]

@@ -26,7 +26,7 @@ class MultiPredictionTask(TaskInterface):
         self.use_triton = use_triton
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        predictions = {}
+        multi_predictions = {}
 
         for model_name, model_class in self.models.items():
             # Create model via factory (supports both Triton and ONNX backends)
@@ -51,6 +51,6 @@ class MultiPredictionTask(TaskInterface):
 
             single_prediction = predict_dto.predictions
             logger.info(f"{model_name} model prediction: {single_prediction}")
-            predictions[model_name] = single_prediction
+            multi_predictions[model_name] = single_prediction
 
-        return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
+        return TaskDTO(status=TaskStatus.FINISHED, multi_predictions=multi_predictions)

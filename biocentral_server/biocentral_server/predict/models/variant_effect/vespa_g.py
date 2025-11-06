@@ -13,13 +13,13 @@ from vespag import (
 from ..base_model import (
     BaseModel,
     ModelMetadata,
-    Prediction,
-    MutationPrediction,
     ModelOutput,
     OutputType,
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+
+from ....server_management import Prediction, MutationPrediction
 
 
 class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):

@@ -20,13 +20,10 @@ class SinglePredictionTask(TaskInterface):
         self.sequence_input = sequence_input
         self.device = device
 
-    @staticmethod
-    def _remap_predictions(
-        sequence_input: List[BiotrainerSequenceRecord], predictions: Dict[str, List]
-    ):
+    def _remap_predictions(self, predictions: Dict[str, List]):
         """Embeddings have seq_hash -> embedding, we need seq_id -> prediction"""
         seq_hash_to_ids = {}
-        for sequence in sequence_input:
+        for sequence in self.sequence_input:
             seq_hash = sequence.get_hash()
             if seq_hash not in seq_hash_to_ids:
                 seq_hash_to_ids[seq_hash] = []
@@ -37,10 +34,10 @@ class SinglePredictionTask(TaskInterface):
             for seq_id in seq_ids:
                 result[seq_id] = predictions[seq_hash]
 
-        if len(sequence_input) != len(result):
+        if len(self.sequence_input) != len(result):
             logger.warn(
                 f"Encountered different number of input and result predictions: "
-                f"{len(sequence_input)}, {len(result)}"
+                f"{len(self.sequence_input)}, {len(result)}"
             )
         return result
 
@@ -60,9 +57,7 @@ class SinglePredictionTask(TaskInterface):
             },
             embeddings=embeddings,
         )
-        predictions = self._remap_predictions(
-            sequence_input=self.sequence_input, predictions=predictions
-        )
+        predictions = self._remap_predictions(predictions=predictions)
         return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
 
     def _embed_sequences(

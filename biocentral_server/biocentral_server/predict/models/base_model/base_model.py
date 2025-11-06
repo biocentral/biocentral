@@ -6,10 +6,11 @@ from biotrainer.protocols import Protocol
 from typing import List, Dict, Union, Any, Literal, Iterable
 from biotrainer.utilities import get_device
 
-from .prediction import Prediction
 from .model_metadata import ModelMetadata
 
 from ...model_utils import get_batched_data
+
+from ....server_management import Prediction
 
 # Backend type
 BackendType = Literal["onnx", "triton"]
@@ -68,7 +69,7 @@ class BaseModel(ABC):
     def _init_backend(self):
         """Initialize the selected inference backend."""
         if self.backend == "onnx":
-            if not hasattr(self, '_init_onnx_backend'):
+            if not hasattr(self, "_init_onnx_backend"):
                 raise RuntimeError(
                     f"{self.__class__.__name__} must inherit from OnnxInferenceMixin "
                     "to use ONNX backend"
@@ -76,7 +77,7 @@ class BaseModel(ABC):
             self._init_onnx_backend(model_dir_name=self.model_dir_name)
 
         elif self.backend == "triton":
-            if not hasattr(self, '_init_triton_backend'):
+            if not hasattr(self, "_init_triton_backend"):
                 raise RuntimeError(
                     f"{self.__class__.__name__} must inherit from TritonInferenceMixin "
                     "to use Triton backend"
@@ -84,7 +85,9 @@ class BaseModel(ABC):
             self._init_triton_backend()
 
         else:
-            raise ValueError(f"Unknown backend: {self.backend}. Must be 'onnx' or 'triton'")
+            raise ValueError(
+                f"Unknown backend: {self.backend}. Must be 'onnx' or 'triton'"
+            )
 
     def _run_inference(self, batch: Dict[str, Any]) -> Any:
         """Run inference on a batch using the selected backend.

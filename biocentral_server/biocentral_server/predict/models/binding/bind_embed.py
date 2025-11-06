@@ -8,13 +8,14 @@ from biotrainer.protocols import Protocol
 from ..base_model import (
     BaseModel,
     ModelMetadata,
-    Prediction,
     ModelOutput,
     OutputClass,
     OutputType,
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+
+from ....server_management import Prediction
 
 
 class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
