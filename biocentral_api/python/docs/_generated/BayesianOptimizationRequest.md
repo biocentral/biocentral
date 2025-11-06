@@ -21,7 +21,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.bayesian_optimization_request import BayesianOptimizationRequest
+from biocentral_api._generated.models.bayesian_optimization_request import BayesianOptimizationRequest
 
 # TODO update the JSON string below
 json = "{}"

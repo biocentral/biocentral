@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.EmbeddingsApi
+# biocentral_api._generated.EmbeddingsApi
 
 All URIs are relative to *http://localhost*
 
@@ -20,24 +20,24 @@ Add pre-computed embeddings from HDF5 file to the embeddings database
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.add_embeddings_request import AddEmbeddingsRequest
-from biocentral_server_api._generated.models.add_embeddings_response import AddEmbeddingsResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.add_embeddings_request import AddEmbeddingsRequest
+from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.EmbeddingsApi(api_client)
-    add_embeddings_request = biocentral_server_api._generated.AddEmbeddingsRequest() # AddEmbeddingsRequest | 
+    api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
+    add_embeddings_request = biocentral_api._generated.AddEmbeddingsRequest() # AddEmbeddingsRequest | 
 
     try:
         # Add embeddings
@@ -92,24 +92,24 @@ Submit sequences for embedding calculation using specified embedder model
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.embed_request import EmbedRequest
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.embed_request import EmbedRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.EmbeddingsApi(api_client)
-    embed_request = biocentral_server_api._generated.EmbedRequest() # EmbedRequest | 
+    api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
+    embed_request = biocentral_api._generated.EmbedRequest() # EmbedRequest | 
 
     try:
         # Calculate embeddings
@@ -163,24 +163,24 @@ Check which sequences are missing embeddings for a given embedder and reduction 
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest
-from biocentral_server_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest
+from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.EmbeddingsApi(api_client)
-    get_missing_embeddings_request = biocentral_server_api._generated.GetMissingEmbeddingsRequest() # GetMissingEmbeddingsRequest | 
+    api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
+    get_missing_embeddings_request = biocentral_api._generated.GetMissingEmbeddingsRequest() # GetMissingEmbeddingsRequest | 
 
     try:
         # Check missing embeddings

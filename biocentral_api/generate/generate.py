@@ -119,7 +119,7 @@ def main():
         "openapi-generator-cli",
         "generate",
         "-g", "python",
-        "--package-name", "biocentral_server_api._generated",
+        "--package-name", "biocentral_api._generated",
         "-i", str(openapi_spec),
         "-o", str(output_dir)
     ]

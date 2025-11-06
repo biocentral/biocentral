@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.PredictionApi
+# biocentral_api._generated.PredictionApi
 
 All URIs are relative to *http://localhost*
 
@@ -19,22 +19,22 @@ Get metadata for available prediction models
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.model_metadata_response import ModelMetadataResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PredictionApi(api_client)
+    api_instance = biocentral_api._generated.PredictionApi(api_client)
 
     try:
         # Get predict model metadata
@@ -84,24 +84,24 @@ Submit sequences for prediction using specified models and receive a task ID for
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.prediction_request import PredictionRequest
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.prediction_request import PredictionRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PredictionApi(api_client)
-    prediction_request = biocentral_server_api._generated.PredictionRequest() # PredictionRequest | 
+    api_instance = biocentral_api._generated.PredictionApi(api_client)
+    prediction_request = biocentral_api._generated.PredictionRequest() # PredictionRequest | 
 
     try:
         # Submit protein sequence prediction job

@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.transfer_file_request import TransferFileRequest
+from biocentral_api._generated.models.transfer_file_request import TransferFileRequest
 
 # TODO update the JSON string below
 json = "{}"

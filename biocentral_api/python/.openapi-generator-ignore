@@ -33,4 +33,4 @@ setup.cfg
 requirements.txt
 test-requirements.txt
 tox.ini
-biocentral_server_api/__init__.py
+biocentral_api/__init__.py

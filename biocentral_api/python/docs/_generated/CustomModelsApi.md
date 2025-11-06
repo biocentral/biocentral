@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.CustomModelsApi
+# biocentral_api._generated.CustomModelsApi
 
 All URIs are relative to *http://localhost*
 
@@ -23,22 +23,22 @@ Retrieve available configuration options for a specific biotrainer protocol
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.config_options_response import ConfigOptionsResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
     protocol = 'protocol_example' # str | 
 
     try:
@@ -94,23 +94,23 @@ Get trained model files after training completion
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.model_files_request import ModelFilesRequest
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.model_files_request import ModelFilesRequest
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
-    model_files_request = biocentral_server_api._generated.ModelFilesRequest() # ModelFilesRequest | 
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    model_files_request = biocentral_api._generated.ModelFilesRequest() # ModelFilesRequest | 
 
     try:
         # Retrieve model files
@@ -165,22 +165,22 @@ Retrieve list of all available biotrainer protocols
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.protocols_response import ProtocolsResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.protocols_response import ProtocolsResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
 
     try:
         # Get available protocols
@@ -230,24 +230,24 @@ Submit sequences for prediction using a trained model
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.start_inference_request import StartInferenceRequest
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.start_inference_request import StartInferenceRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
-    start_inference_request = biocentral_server_api._generated.StartInferenceRequest() # StartInferenceRequest | 
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    start_inference_request = biocentral_api._generated.StartInferenceRequest() # StartInferenceRequest | 
 
     try:
         # Start model inference
@@ -302,24 +302,24 @@ Submit a new model training job with specified configuration and training data
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.models.start_training_request import StartTrainingRequest
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.models.start_training_request import StartTrainingRequest
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
-    start_training_request = biocentral_server_api._generated.StartTrainingRequest() # StartTrainingRequest | 
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    start_training_request = biocentral_api._generated.StartTrainingRequest() # StartTrainingRequest | 
 
     try:
         # Start model training
@@ -374,24 +374,24 @@ Validate a biotrainer configuration dict
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.config_verification_request import ConfigVerificationRequest
-from biocentral_server_api._generated.models.config_verification_response import ConfigVerificationResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest
+from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.CustomModelsApi(api_client)
-    config_verification_request = biocentral_server_api._generated.ConfigVerificationRequest() # ConfigVerificationRequest | 
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    config_verification_request = biocentral_api._generated.ConfigVerificationRequest() # ConfigVerificationRequest | 
 
     try:
         # Verify configuration

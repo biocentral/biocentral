@@ -1,4 +1,4 @@
-from biocentral_server_api import BiocentralAPI
+from biocentral_api import BiocentralAPI
 
 biocentral_api = BiocentralAPI()
 

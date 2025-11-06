@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.config_options_response import ConfigOptionsResponse
+from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse
 
 # TODO update the JSON string below
 json = "{}"

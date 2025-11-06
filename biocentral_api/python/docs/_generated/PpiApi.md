@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.PpiApi
+# biocentral_api._generated.PpiApi
 
 All URIs are relative to *http://localhost*
 
@@ -20,24 +20,24 @@ Auto Detect Format By Header
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest
-from biocentral_server_api._generated.models.detected_format_response import DetectedFormatResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest
+from biocentral_api._generated.models.detected_format_response import DetectedFormatResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PpiApi(api_client)
-    auto_detect_format_request = biocentral_server_api._generated.AutoDetectFormatRequest() # AutoDetectFormatRequest | 
+    api_instance = biocentral_api._generated.PpiApi(api_client)
+    auto_detect_format_request = biocentral_api._generated.AutoDetectFormatRequest() # AutoDetectFormatRequest | 
 
     try:
         # Auto Detect Format By Header
@@ -90,21 +90,21 @@ Formats
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PpiApi(api_client)
+    api_instance = biocentral_api._generated.PpiApi(api_client)
 
     try:
         # Formats
@@ -152,24 +152,24 @@ Import Dataset
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.import_dataset_request import ImportDatasetRequest
-from biocentral_server_api._generated.models.import_dataset_response import ImportDatasetResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest
+from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PpiApi(api_client)
-    import_dataset_request = biocentral_server_api._generated.ImportDatasetRequest() # ImportDatasetRequest | 
+    api_instance = biocentral_api._generated.PpiApi(api_client)
+    import_dataset_request = biocentral_api._generated.ImportDatasetRequest() # ImportDatasetRequest | 
 
     try:
         # Import Dataset
@@ -222,24 +222,24 @@ Run Test
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.run_test_request import RunTestRequest
-from biocentral_server_api._generated.models.run_test_response import RunTestResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.run_test_request import RunTestRequest
+from biocentral_api._generated.models.run_test_response import RunTestResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PpiApi(api_client)
-    run_test_request = biocentral_server_api._generated.RunTestRequest() # RunTestRequest | 
+    api_instance = biocentral_api._generated.PpiApi(api_client)
+    run_test_request = biocentral_api._generated.RunTestRequest() # RunTestRequest | 
 
     try:
         # Run Test
@@ -292,21 +292,21 @@ Tests
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PpiApi(api_client)
+    api_instance = biocentral_api._generated.PpiApi(api_client)
 
     try:
         # Tests

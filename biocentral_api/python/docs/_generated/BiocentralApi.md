@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.BiocentralApi
+# biocentral_api._generated.BiocentralApi
 
 All URIs are relative to *http://localhost*
 
@@ -21,21 +21,21 @@ Hashes
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
     hash_id = 'hash_id_example' # str | 
     file_type = 'file_type_example' # str | 
 
@@ -90,21 +90,21 @@ Services
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
 
     try:
         # Services
@@ -152,21 +152,21 @@ Stats
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
 
     try:
         # Stats
@@ -214,22 +214,22 @@ Task Status
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.task_status_response import TaskStatusResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.task_status_response import TaskStatusResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
     task_id = 'task_id_example' # str | 
 
     try:
@@ -282,22 +282,22 @@ Task Status Resumed
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.task_status_response import TaskStatusResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.task_status_response import TaskStatusResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
     task_id = 'task_id_example' # str | 
 
     try:
@@ -350,23 +350,23 @@ Transfer File
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.transfer_file_request import TransferFileRequest
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.transfer_file_request import TransferFileRequest
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BiocentralApi(api_client)
-    transfer_file_request = biocentral_server_api._generated.TransferFileRequest() # TransferFileRequest | 
+    api_instance = biocentral_api._generated.BiocentralApi(api_client)
+    transfer_file_request = biocentral_api._generated.TransferFileRequest() # TransferFileRequest | 
 
     try:
         # Transfer File

@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.ProteinsApi
+# biocentral_api._generated.ProteinsApi
 
 All URIs are relative to *http://localhost*
 
@@ -18,24 +18,24 @@ Retrieve taxonomy data for a list of taxonomy ids
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.taxonomy_request import TaxonomyRequest
-from biocentral_server_api._generated.models.taxonomy_response import TaxonomyResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.taxonomy_request import TaxonomyRequest
+from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.ProteinsApi(api_client)
-    taxonomy_request = biocentral_server_api._generated.TaxonomyRequest() # TaxonomyRequest | 
+    api_instance = biocentral_api._generated.ProteinsApi(api_client)
+    taxonomy_request = biocentral_api._generated.TaxonomyRequest() # TaxonomyRequest | 
 
     try:
         # Retrieve taxonomy data

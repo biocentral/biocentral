@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.test_result import TestResult
+from biocentral_api._generated.models.test_result import TestResult
 
 # TODO update the JSON string below
 json = "{}"

@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.DefaultApi
+# biocentral_api._generated.DefaultApi
 
 All URIs are relative to *http://localhost*
 
@@ -16,21 +16,21 @@ Health Check
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.DefaultApi(api_client)
+    api_instance = biocentral_api._generated.DefaultApi(api_client)
 
     try:
         # Health Check

@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.BayesianOptimizationApi
+# biocentral_api._generated.BayesianOptimizationApi
 
 All URIs are relative to *http://localhost*
 
@@ -18,24 +18,24 @@ Submit a Bayesian optimization job with specified configuration and training dat
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.bayesian_optimization_request import BayesianOptimizationRequest
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.bayesian_optimization_request import BayesianOptimizationRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.BayesianOptimizationApi(api_client)
-    bayesian_optimization_request = biocentral_server_api._generated.BayesianOptimizationRequest() # BayesianOptimizationRequest | 
+    api_instance = biocentral_api._generated.BayesianOptimizationApi(api_client)
+    bayesian_optimization_request = biocentral_api._generated.BayesianOptimizationRequest() # BayesianOptimizationRequest | 
 
     try:
         # Start Bayesian optimization training

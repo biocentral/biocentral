@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.start_inference_request import StartInferenceRequest
+from biocentral_api._generated.models.start_inference_request import StartInferenceRequest
 
 # TODO update the JSON string below
 json = "{}"

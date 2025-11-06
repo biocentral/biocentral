@@ -1,12 +1,12 @@
 [project]
-name = "biocentral_server_api"
+name = "biocentral_api"
 version = "1.0.0"
-description = "Biocentral Server"
+description = " High-level programmatic access to the biocentral ecosystem. "
 authors = [
   {name = "OpenAPI Generator Community",email = "team@openapitools.org"},
 ]
 readme = "README.md"
-keywords = ["OpenAPI", "OpenAPI-Generator", "Biocentral Server"]
+keywords = ["OpenAPI", "OpenAPI-Generator", "Biocentral Server", "Biocentral"]
 requires-python = ">=3.9"
 
 dependencies = [
@@ -42,7 +42,7 @@ extension-pkg-whitelist = "pydantic"
 
 [tool.mypy]
 files = [
-  "biocentral_server._generated",
+  "biocentral_api._generated",
   #"test",  # auto-generated tests
   "tests", # hand-written tests
 ]

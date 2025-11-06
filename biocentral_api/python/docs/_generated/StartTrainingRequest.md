@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.start_training_request import StartTrainingRequest
+from biocentral_api._generated.models.start_training_request import StartTrainingRequest
 
 # TODO update the JSON string below
 json = "{}"

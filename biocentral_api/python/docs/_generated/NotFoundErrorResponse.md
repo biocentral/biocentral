@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.not_found_error_response import NotFoundErrorResponse
+from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse
 
 # TODO update the JSON string below
 json = "{}"

@@ -1,4 +1,4 @@
-# biocentral_server_api._generated.PlmEvalApi
+# biocentral_api._generated.PlmEvalApi
 
 All URIs are relative to *http://localhost*
 
@@ -20,24 +20,24 @@ Automated protein language model evaluation on pre-defined, curated datasets and
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.plm_eval_autoeval_request import PLMEvalAutoevalRequest
-from biocentral_server_api._generated.models.start_task_response import StartTaskResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.plm_eval_autoeval_request import PLMEvalAutoevalRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PlmEvalApi(api_client)
-    plm_eval_autoeval_request = biocentral_server_api._generated.PLMEvalAutoevalRequest() # PLMEvalAutoevalRequest | 
+    api_instance = biocentral_api._generated.PlmEvalApi(api_client)
+    plm_eval_autoeval_request = biocentral_api._generated.PLMEvalAutoevalRequest() # PLMEvalAutoevalRequest | 
 
     try:
         # Automated Protein Language Model Evaluation
@@ -91,22 +91,22 @@ Get information about PLM eval datasets and process
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.plm_eval_information_response import PLMEvalInformationResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.plm_eval_information_response import PLMEvalInformationResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PlmEvalApi(api_client)
+    api_instance = biocentral_api._generated.PlmEvalApi(api_client)
 
     try:
         # Get PLM eval information
@@ -156,24 +156,24 @@ Validate if the given model id exists on huggingface and can be used for plm_eva
 
 
 ```python
-import biocentral_server_api._generated
-from biocentral_server_api._generated.models.plm_eval_validate_request import PLMEvalValidateRequest
-from biocentral_server_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse
-from biocentral_server_api._generated.rest import ApiException
+import biocentral_api._generated
+from biocentral_api._generated.models.plm_eval_validate_request import PLMEvalValidateRequest
+from biocentral_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse
+from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
 # Defining the host is optional and defaults to http://localhost
 # See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_server_api._generated.Configuration(
+configuration = biocentral_api._generated.Configuration(
     host = "http://localhost"
 )
 
 
 # Enter a context with an instance of the API client
-with biocentral_server_api._generated.ApiClient(configuration) as api_client:
+with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_server_api._generated.PlmEvalApi(api_client)
-    plm_eval_validate_request = biocentral_server_api._generated.PLMEvalValidateRequest() # PLMEvalValidateRequest | 
+    api_instance = biocentral_api._generated.PlmEvalApi(api_client)
+    plm_eval_validate_request = biocentral_api._generated.PLMEvalValidateRequest() # PLMEvalValidateRequest | 
 
     try:
         # Validate model ID

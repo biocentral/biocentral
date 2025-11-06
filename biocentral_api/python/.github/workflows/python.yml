@@ -3,7 +3,7 @@
 #
 # ref: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: biocentral_server_api._generated Python package
+name: biocentral_api._generated Python package
 
 on: [push, pull_request]
 
@@ -31,4 +31,4 @@ jobs:
           pip install -r test-requirements.txt
       - name: Test with pytest
         run: |
-          pytest --cov=biocentral_server_api._generated
+          pytest --cov=biocentral_api._generated

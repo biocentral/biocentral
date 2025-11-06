@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_server_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse
+from biocentral_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse
 
 # TODO update the JSON string below
 json = "{}"
