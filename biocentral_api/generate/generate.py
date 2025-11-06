@@ -2,7 +2,8 @@
 """
 OpenAPI Client Generator Script
 
-Generates Python client from OpenAPI spec and moves generated docs to the appropriate directory.
+Generates basic clients from OpenAPI spec and moves generated docs to the appropriate directory.
+Make sure you have the [openapi-generator-cli](https://openapi-generator.tech/docs/installation) installed.
 """
 
 import os
