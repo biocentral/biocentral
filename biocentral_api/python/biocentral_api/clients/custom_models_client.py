@@ -20,7 +20,7 @@ class _TrainingDTOHandler(DTOHandler):
     def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
         for dto in dtos:
             status = dto.status
-            if status == TaskStatus.RUNNING:
+            if status == TaskStatus.RUNNING and dto.biotrainer_update is not None:
                 training_iteration = dto.biotrainer_update.training_iteration
                 if training_iteration is not None:
                     epoch = training_iteration[1]['epoch']
