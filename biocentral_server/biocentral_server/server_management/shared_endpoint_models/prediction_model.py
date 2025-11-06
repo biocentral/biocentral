@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Any, Optional
 from vespag.utils import Mutation
 from pydantic import BaseModel, Field
 
@@ -9,11 +9,11 @@ class Prediction(BaseModel):
     model_name: str = Field(description="Name of the model")
     prediction_name: str = Field(description="Name of the prediction")
     protocol: str = Field(description="Protocol name")
-    prediction: Union[str, float] = Field(description="Prediction value")
-    prediction_lower: Optional[float] = Field(
+    value: Any = Field(description="Prediction value")
+    value_lower: Optional[float] = Field(
         default=None, description="Lower bound of the prediction"
     )
-    prediction_upper: Optional[float] = Field(
+    value_upper: Optional[float] = Field(
         default=None, description="Upper bound of the prediction"
     )
 

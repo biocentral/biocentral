@@ -221,7 +221,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                         model_name=model_name,
                         prediction_name=binding_type,
                         protocol=protocol.name,
-                        prediction=prediction,
+                        value=prediction,
                     )
                 )
 

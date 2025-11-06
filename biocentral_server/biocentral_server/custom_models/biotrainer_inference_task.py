@@ -38,7 +38,7 @@ class BiotrainerInferenceTask(TaskInterface):
                     model_name=iom._derived_values["model_hash"],  # TODO
                     prediction_name="inference",
                     protocol=iom.protocol().name,
-                    prediction=pred,
+                    value=pred,
                 )
             ]
             for seq_hash, pred in predictions["mapped_predictions"].items()

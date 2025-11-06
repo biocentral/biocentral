@@ -32,13 +32,10 @@ class TaskDTO(BaseModel):
     status: TaskStatus
     error: Optional[str] = None
 
-    # custom_models
-    # TODO Duplicated for inference, single prediction, multi prediction (model_name -> predictions)
-    predictions: Optional[Dict[str, List[Prediction]]] = None
-    multi_predictions: Optional[Dict[str, Dict[str, Prediction]]] = (
-        None  # model_name -> predictions
-    )
+    # predict/inference
+    predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions
 
+    # custom_models
     # TODO Pydantic class
     biotrainer_update: Optional[OutputData] = None
     biotrainer_result: Optional[Dict[str, Any]] = None

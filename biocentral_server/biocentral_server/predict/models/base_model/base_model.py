@@ -271,7 +271,7 @@ class BaseModel(ABC):
                         model_name=model_name,
                         prediction_name=prediction_name,
                         protocol=protocol.name,
-                        prediction=formatted_value,
+                        value=formatted_value,
                     )
                 )
 

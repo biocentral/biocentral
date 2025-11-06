@@ -146,7 +146,7 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                     model_name=model_name,
                     prediction_name=self.prediction_name,
                     protocol=protocol.name,
-                    prediction=compute_mutation_score(
+                    value=compute_mutation_score(
                         y,
                         mutation,
                         normalizer=self.normalizer,

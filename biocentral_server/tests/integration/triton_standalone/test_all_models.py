@@ -122,7 +122,7 @@ def extract_predictions_from_model_output(
             pred_array = np.array([p.value for p in pred_list])
         elif hasattr(pred_list[0], "prediction"):
             # Prediction objects with .prediction attribute
-            pred_value = pred_list[0].prediction
+            pred_value = pred_list[0].value
             if isinstance(pred_value, str):
                 # String predictions (per-residue or sequence-level)
                 if pred_value:  # Non-empty string
@@ -159,9 +159,7 @@ def extract_predictions_from_model_output(
                     pred_array = np.array([], dtype=np.float32)
             else:
                 # Numeric predictions (e.g., VespaG mutation scores)
-                pred_array = np.array(
-                    [p.prediction for p in pred_list], dtype=np.float32
-                )
+                pred_array = np.array([p.value for p in pred_list], dtype=np.float32)
         elif hasattr(pred_list[0], "value") and isinstance(
             pred_list[0].value, np.ndarray
         ):
@@ -471,13 +469,13 @@ class TestPerResiduePredictionModels:
             assert pred.prediction_name in expected_types, (
                 f"Unexpected prediction type: {pred.prediction_name}"
             )
-            assert isinstance(pred.prediction, str), f"Prediction {i} should be string"
-            assert len(pred.prediction) == len(sequences[0]), (
+            assert isinstance(pred.value, str), f"Prediction {i} should be string"
+            assert len(pred.value) == len(sequences[0]), (
                 f"Prediction length mismatch for {pred.prediction_name}"
             )
             # Check that prediction contains only expected characters (M, N, S, -)
             valid_chars = set("MNS-")
-            assert all(c in valid_chars for c in pred.prediction), (
+            assert all(c in valid_chars for c in pred.value), (
                 f"Invalid characters in {pred.prediction_name} prediction"
             )
 
@@ -579,12 +577,12 @@ class TestPerResiduePredictionModels:
                 assert pred.prediction_name in expected_types, (
                     f"Unexpected prediction type: {pred.prediction_name}"
                 )
-                assert isinstance(pred.prediction, str), (
+                assert isinstance(pred.value, str), (
                     f"Prediction {i} should be string for {seq_id}"
                 )
                 # Check that prediction contains only expected characters (M, N, S, -)
                 valid_chars = set("MNS-")
-                assert all(c in valid_chars for c in pred.prediction), (
+                assert all(c in valid_chars for c in pred.value), (
                     f"Invalid characters in {pred.prediction_name} prediction for {seq_id}"
                 )
 
