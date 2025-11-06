@@ -1,27 +1,48 @@
 # Getting started with biocentral_server
 
-## Installing and running
+This guide describes how to install and run the biocentral_server.
 
-Make sure that you have `Python 3.11` and [poetry](https://python-poetry.org/docs/#installation) installed.
+## Installation
+
+### Prerequisites
+
+biocentral_server has been developed and tested throughout on Ubuntu 24.04.
+It should also work on Windows 11 and macOS, but this has not been tested yet in-depth.
+
+Make sure that you have [git](https://git-scm.com/install/) and
+[docker](https://docs.docker.com/engine/install/ubuntu/) installed.
+
+### Steps
+
+Clone the repository and navigate into it:
 
 ```shell
-# [Ubuntu 24.04]
-# Install additional dependencies
-sudo apt-get install python3-tk
-sudo apt-get install libcairo2-dev libxt-dev libgirepository1.0-dev
-poetry install --extras linux
-
-# [Windows 10/11]
-poetry install
-# Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# Run with visual control panel
-poetry run run-biocentral_server.py
+git clone https://github.com/biocentral/biocentral_server.git
+cd biocentral_server
 ```
 
-Now you should see the following control panel appear:
+Copy the environment file and check that it matches your requirements:
 
-![Biocentral Server Control Panel](images/control_panel.png "Biocentral Server Control Panel")
+```shell
+```shell
+cp .env.example .env
+```
 
-You can start and stop the server there, view statistics and available devices.
+Run the entire setup, including embedding database, prediction models and the server via docker compose:
+
+```shell
+docker compose up -d
+```
+
+## Update
+
+```shell
+# Stop the server
+docker compose down
+# Pull repository changes
+git pull
+# Pull docker image changes
+docker compose pull
+# Start the server again
+docker compose up -d
+```
