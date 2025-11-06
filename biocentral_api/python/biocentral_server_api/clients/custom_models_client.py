@@ -67,10 +67,10 @@ class _InferenceDTOHandler(DTOHandler):
 
 
 class CustomModelsClient:
-    def train(self, api_client: ApiClient, config_dict: Dict[str, Any],
+    def train(self, api_client: ApiClient, config: Dict[str, Any],
               training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
         custom_models_api = CustomModelsApi(api_client)
-        config_verification_request = ConfigVerificationRequest(config_dict=config_dict)
+        config_verification_request = ConfigVerificationRequest(config_dict=config)
 
         try:
             config_verification_response = custom_models_api.verify_config_api_v1_custom_models_service_verify_config_post(
@@ -84,7 +84,7 @@ class CustomModelsClient:
 
         training_dto_handler = _TrainingDTOHandler()
 
-        start_training_request = StartTrainingRequest(config_dict=config_dict, training_data=training_data)
+        start_training_request = StartTrainingRequest(config_dict=config, training_data=training_data)
         task_id = custom_models_api.start_training_api_v1_custom_models_service_start_training_post(
             start_training_request).task_id
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=training_dto_handler)

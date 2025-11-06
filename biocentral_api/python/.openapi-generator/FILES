@@ -45,6 +45,7 @@ biocentral_server_api/_generated/models/plm_eval_information_response.py
 biocentral_server_api/_generated/models/plm_eval_task_information.py
 biocentral_server_api/_generated/models/plm_eval_validate_request.py
 biocentral_server_api/_generated/models/plm_eval_validate_response.py
+biocentral_server_api/_generated/models/prediction.py
 biocentral_server_api/_generated/models/prediction_request.py
 biocentral_server_api/_generated/models/protocols_response.py
 biocentral_server_api/_generated/models/run_test_request.py
@@ -102,6 +103,7 @@ docs/PLMEvalValidateRequest.md
 docs/PLMEvalValidateResponse.md
 docs/PlmEvalApi.md
 docs/PpiApi.md
+docs/Prediction.md
 docs/PredictionApi.md
 docs/PredictionRequest.md
 docs/ProteinsApi.md

@@ -1,6 +1,6 @@
-from biocentral_server_api import BiocentralServerClient
+from biocentral_server_api import BiocentralAPI
 
-client = BiocentralServerClient()
+biocentral_api = BiocentralAPI()
 
 model_names = ["TMbed"]
 sequence_data = {"Seq1": "MMALSLALMM",
@@ -8,5 +8,5 @@ sequence_data = {"Seq1": "MMALSLALMM",
                  "Seq3": "PRTSSSLAMAM",
                  "Seq4": "SEQWENCEAWMMWW",
                  }
-result = client.predict(model_names=model_names, sequence_data=sequence_data).run()
+result = biocentral_api.predict(model_names=model_names, sequence_data=sequence_data).run()
 print(result)

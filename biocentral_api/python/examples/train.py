@@ -1,12 +1,12 @@
-from biocentral_server_api import BiocentralServerClient, SequenceTrainingData
+from biocentral_server_api import BiocentralAPI, SequenceTrainingData
 
-client = BiocentralServerClient()
+biocentral_api = BiocentralAPI()
 
 # OHE
-config_dict = {"embedder_name": "one_hot_encoding",
-               "model_choice": "FNN",
-               "protocol": "sequence_to_class"
-               }
+config = {"embedder_name": "one_hot_encoding",
+          "model_choice": "FNN",
+          "protocol": "sequence_to_class"
+          }
 
 training_data = [
     SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="Membrane", set="train", mask=None),
@@ -18,15 +18,15 @@ training_data = [
     SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", label="Soluble", set="test", mask=None),
 ]
 
-training_result = client.train(config_dict=config_dict, training_data=training_data).run_with_progress()
+training_result = biocentral_api.train(config=config, training_data=training_data).run_with_progress()
 print(f"Training result dict: {training_result}")
 
 model_hash = training_result['derived_values']['model_hash']
 
 inference_data = {
-    "Seq1": "PRTPRT",
-    "Seq2": "SEQPRT",
+    "Seq8": "PRTPRT",
+    "Seq9": "SEQPRT",
 }
 
-inference_result = client.inference(model_hash=model_hash, inference_data=inference_data).run_with_progress()
+inference_result = biocentral_api.inference(model_hash=model_hash, inference_data=inference_data).run_with_progress()
 print(f"Inference result dict: {inference_result}")

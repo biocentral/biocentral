@@ -6,7 +6,7 @@ from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTraining
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient
 
 
-class BiocentralServerClient:
+class BiocentralAPI:
     def __init__(self, api_token: Optional[str] = None, server_url: Optional[str] = None):
         self.api_token = api_token if api_token else ""
         self.server_url = server_url if server_url else "http://localhost:9540"
@@ -61,7 +61,7 @@ class BiocentralServerClient:
             taxonomy_data = proteins_client.taxonomy(api_client, taxonomy_ids)
             return taxonomy_data
 
-    def train(self, config_dict: Dict[str, Any],
+    def train(self, config: Dict[str, Any],
               training_data: List[SequenceTrainingData]) -> BiocentralServerTask[Dict[str, Any]]:
         """
         Trains a deep learning model using the provided configuration and training data via biotrainer.
@@ -70,7 +70,7 @@ class BiocentralServerClient:
         the training process with the specified configuration and training data. The task
         of training is executed on the biocentral server.
 
-        :param config_dict: The configuration settings for the model to be trained.
+        :param config: The configuration settings for the model to be trained.
             This dictionary defines the parameters necessary for training the model.
         :param training_data: A list of sequence training data used for training the model.
             The data must conform to required input specifications for the server.
@@ -78,7 +78,7 @@ class BiocentralServerClient:
             The return value includes task-related information required for monitoring
             or tracking the training progress.
         """
-        if len(config_dict) == 0:
+        if len(config) == 0:
             raise ValueError("No configuration provided.")
         if len(training_data) == 0:
             raise ValueError("No training data provided.")
@@ -87,7 +87,7 @@ class BiocentralServerClient:
 
         custom_models_client = CustomModelsClient()
         with ApiClient(self.configuration) as api_client:
-            biocentral_server_task = custom_models_client.train(api_client, config_dict, training_data)
+            biocentral_server_task = custom_models_client.train(api_client, config, training_data)
             return biocentral_server_task
 
     def inference(self, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, Any]]:

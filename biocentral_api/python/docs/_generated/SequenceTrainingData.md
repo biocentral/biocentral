@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **sequence** | **str** | AA Sequence | 
 **label** | **str** | Label to predict | 
 **set** | **str** | Set | 
-**mask** | **str** |  | 
+**mask** | **str** |  | [optional] 
 
 ## Example
 

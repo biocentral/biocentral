@@ -66,6 +66,7 @@ __all__ = [
     "PLMEvalTaskInformation",
     "PLMEvalValidateRequest",
     "PLMEvalValidateResponse",
+    "Prediction",
     "PredictionRequest",
     "ProtocolsResponse",
     "RunTestRequest",
@@ -139,6 +140,7 @@ from biocentral_server_api._generated.models.plm_eval_information_response impor
 from biocentral_server_api._generated.models.plm_eval_task_information import PLMEvalTaskInformation as PLMEvalTaskInformation
 from biocentral_server_api._generated.models.plm_eval_validate_request import PLMEvalValidateRequest as PLMEvalValidateRequest
 from biocentral_server_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse as PLMEvalValidateResponse
+from biocentral_server_api._generated.models.prediction import Prediction as Prediction
 from biocentral_server_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_server_api._generated.models.protocols_response import ProtocolsResponse as ProtocolsResponse
 from biocentral_server_api._generated.models.run_test_request import RunTestRequest as RunTestRequest

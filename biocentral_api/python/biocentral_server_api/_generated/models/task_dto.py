@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_server_api._generated.models.auto_eval_progress import AutoEvalProgress
 from biocentral_server_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord
 from biocentral_server_api._generated.models.output_data import OutputData
+from biocentral_server_api._generated.models.prediction import Prediction
 from biocentral_server_api._generated.models.task_status import TaskStatus
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,7 +33,7 @@ class TaskDTO(BaseModel):
     """ # noqa: E501
     status: TaskStatus
     error: Optional[StrictStr] = None
-    predictions: Optional[Dict[str, Any]] = None
+    predictions: Optional[Dict[str, List[Prediction]]] = None
     biotrainer_update: Optional[OutputData] = None
     biotrainer_result: Optional[Dict[str, Any]] = None
     embedding_current: Optional[StrictInt] = None
@@ -84,6 +85,15 @@ class TaskDTO(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each value in predictions (dict of array)
+        _field_dict_of_array = {}
+        if self.predictions:
+            for _key_predictions in self.predictions:
+                if self.predictions[_key_predictions] is not None:
+                    _field_dict_of_array[_key_predictions] = [
+                        _item.to_dict() for _item in self.predictions[_key_predictions]
+                    ]
+            _dict['predictions'] = _field_dict_of_array
         # override the default output from pydantic by calling `to_dict()` of biotrainer_update
         if self.biotrainer_update:
             _dict['biotrainer_update'] = self.biotrainer_update.to_dict()
@@ -171,7 +181,14 @@ class TaskDTO(BaseModel):
         _obj = cls.model_validate({
             "status": obj.get("status"),
             "error": obj.get("error"),
-            "predictions": obj.get("predictions"),
+            "predictions": dict(
+                (_k,
+                        [Prediction.from_dict(_item) for _item in _v]
+                        if _v is not None
+                        else None
+                )
+                for _k, _v in obj.get("predictions", {}).items()
+            ),
             "biotrainer_update": OutputData.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
             "biotrainer_result": obj.get("biotrainer_result"),
             "embedding_current": obj.get("embedding_current"),

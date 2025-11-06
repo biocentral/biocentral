@@ -17,22 +17,22 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SequenceTrainingData(BaseModel):
+class Prediction(BaseModel):
     """
-    SequenceTrainingData
+    Base class for all model predictions.
     """ # noqa: E501
-    seq_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Sequence identifier")
-    sequence: Annotated[str, Field(min_length=1, strict=True)] = Field(description="AA Sequence")
-    label: StrictStr = Field(description="Label to predict")
-    set: StrictStr = Field(description="Set")
-    mask: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["seq_id", "sequence", "label", "set", "mask"]
+    model_name: StrictStr = Field(description="Name of the model")
+    prediction_name: StrictStr = Field(description="Name of the prediction")
+    protocol: StrictStr = Field(description="Protocol name")
+    value: Optional[Any]
+    value_lower: Optional[Union[StrictFloat, StrictInt]] = None
+    value_upper: Optional[Union[StrictFloat, StrictInt]] = None
+    __properties: ClassVar[List[str]] = ["model_name", "prediction_name", "protocol", "value", "value_lower", "value_upper"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -52,7 +52,7 @@ class SequenceTrainingData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SequenceTrainingData from a JSON string"""
+        """Create an instance of Prediction from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,16 +73,26 @@ class SequenceTrainingData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if mask (nullable) is None
+        # set to None if value (nullable) is None
         # and model_fields_set contains the field
-        if self.mask is None and "mask" in self.model_fields_set:
-            _dict['mask'] = None
+        if self.value is None and "value" in self.model_fields_set:
+            _dict['value'] = None
+
+        # set to None if value_lower (nullable) is None
+        # and model_fields_set contains the field
+        if self.value_lower is None and "value_lower" in self.model_fields_set:
+            _dict['value_lower'] = None
+
+        # set to None if value_upper (nullable) is None
+        # and model_fields_set contains the field
+        if self.value_upper is None and "value_upper" in self.model_fields_set:
+            _dict['value_upper'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SequenceTrainingData from a dict"""
+        """Create an instance of Prediction from a dict"""
         if obj is None:
             return None
 
@@ -90,11 +100,12 @@ class SequenceTrainingData(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "seq_id": obj.get("seq_id"),
-            "sequence": obj.get("sequence"),
-            "label": obj.get("label"),
-            "set": obj.get("set"),
-            "mask": obj.get("mask")
+            "model_name": obj.get("model_name"),
+            "prediction_name": obj.get("prediction_name"),
+            "protocol": obj.get("protocol"),
+            "value": obj.get("value"),
+            "value_lower": obj.get("value_lower"),
+            "value_upper": obj.get("value_upper")
         })
         return _obj
 

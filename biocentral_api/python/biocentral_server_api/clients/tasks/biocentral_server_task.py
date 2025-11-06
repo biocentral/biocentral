@@ -49,7 +49,6 @@ class BiocentralServerTask(Generic[T]):
             for _ in range(self.MAX_TRIES):
                 try:
                     task_status_response = self._fetch_task_status(api_instance)
-                    print(task_status_response)
                     dtos = task_status_response.dtos if task_status_response.dtos is not None else []
                     if progress_callback is not None:
                         progress_callback(dtos, pbar)
