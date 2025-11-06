@@ -86,7 +86,11 @@ def transfer_file(transfer_file_request: TransferFileRequest, request: Request):
 
 
 # Endpoint to check task status
-@router.get("/task_status/{task_id}", response_model=TaskStatusResponse)
+@router.get(
+    "/task_status/{task_id}",
+    response_model=TaskStatusResponse,
+    response_model_exclude_none=True,
+)
 def task_status(task_id: str):
     # Check the status of the task based on task_id
     # Retrieve task status from the distributed server or backend system
@@ -96,7 +100,11 @@ def task_status(task_id: str):
 
 
 # Endpoint to check task status (resumed)
-@router.get("/task_status_resumed/{task_id}", response_model=TaskStatusResponse)
+@router.get(
+    "/task_status_resumed/{task_id}",
+    response_model=TaskStatusResponse,
+    response_model_exclude_none=True,
+)
 def task_status_resumed(task_id: str):
     # Check the status of the task based on task_id
     # Retrieve task status from the distributed server or backend system

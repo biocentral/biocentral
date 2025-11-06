@@ -54,16 +54,6 @@ class TaskDTO(BaseModel):
     # bay_opt
     bay_opt_results: Optional[List] = None
 
-    def model_dump_json(self, **kwargs) -> str:
-        """Serialize to JSON excluding None values"""
-        kwargs["exclude_none"] = True
-        return super().model_dump_json(**kwargs)
-
-    def model_dump(self, **kwargs) -> Dict[str, Any]:
-        """Serialize to dict excluding None values"""
-        kwargs["exclude_none"] = True
-        return super().model_dump(**kwargs)
-
 
 class TaskInterface(ABC):
     @abstractmethod
