@@ -2,15 +2,12 @@ import torch
 import psutil
 from biocentral_server.biocentral.endpoint_models import TaskStatusResponse
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
-from .endpoint_models import TransferFileRequest
 from ..server_management import (
     UserManager,
     FileManager,
-    StorageFileType,
     TaskManager,
-    ErrorResponse,
     NotFoundErrorResponse,
 )
 
@@ -19,70 +16,6 @@ router = APIRouter(
     tags=["biocentral"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
-
-
-# Endpoint to get all available services
-@router.get("/services")
-def services():
-    return {
-        "services": [
-            "biocentral_service",
-            "embeddings_service",
-            "ppi_service",
-            "custom_models_service",
-            "protein_service",
-            "plm_eval_service",
-            "prediction_service",
-        ]
-    }
-
-
-# Endpoint to check if a file for the given database hash exists
-@router.get("/hashes/{hash_id}/{file_type}")
-def hashes(hash_id: str, file_type: str, request: Request):
-    # Adapt FastAPI request to expected interface for UserManager
-
-    user_id = UserManager.get_user_id_from_request(req=request)
-    file_manager = FileManager(user_id=user_id)
-    storage_file_type: StorageFileType = StorageFileType.from_string(
-        file_type=file_type
-    )
-
-    exists = file_manager.check_file_exists(
-        database_hash=hash_id, file_type=storage_file_type
-    )
-
-    return {hash_id: exists}
-
-
-# Endpoint to transfer a database file
-@router.post(
-    "/transfer_file",
-    responses={400: {"model": ErrorResponse}},
-)
-def transfer_file(transfer_file_request: TransferFileRequest, request: Request):
-    user_id = UserManager.get_user_id_from_request(req=request)
-    file_manager = FileManager(user_id=user_id)
-
-    database_hash = transfer_file_request.hash
-
-    storage_file_type: StorageFileType = StorageFileType.from_string(
-        transfer_file_request.file_type
-    )
-    if file_manager.check_file_exists(
-        database_hash=database_hash, file_type=storage_file_type
-    ):
-        return {
-            "error": "Hash already exists at server, this endpoint should not have been used because transferring the file is not necessary."
-        }
-
-    file_content = transfer_file_request.file  # Fasta format
-    file_manager.save_file(
-        database_hash=database_hash,
-        file_type=storage_file_type,
-        file_content=file_content,
-    )
-    return {"success": True}
 
 
 # Endpoint to check task status
