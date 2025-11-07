@@ -5,8 +5,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from biocentral_server.server_management import ServerInitializationManager
 from .predict import PredictInitializer
+from .server_management import ServerInitializationManager, BodySizeLimitMiddleware
 
 # Import module routers
 from .ppi import router as ppi_router
@@ -65,6 +65,7 @@ def create_app() -> FastAPI:
             "X-Requested-With",
         ],
     )
+    app.add_middleware(BodySizeLimitMiddleware)
 
     # Include module routers
     prefix = "/api/v1"

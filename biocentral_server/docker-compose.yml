@@ -7,6 +7,7 @@ services:
       - huggingface_models_cache:/app/huggingface_models
       - autoeval_storage:/app/autoeval
     environment:
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}

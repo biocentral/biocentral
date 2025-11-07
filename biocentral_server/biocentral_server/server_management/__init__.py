@@ -4,6 +4,7 @@ from .shared_endpoint_models import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
+from .custom_middleware import BodySizeLimitMiddleware
 from .shared_endpoint_models import Prediction, MutationPrediction
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
@@ -52,4 +53,5 @@ __all__ = [
     "StartTaskResponse",
     "Prediction",
     "MutationPrediction",
+    "BodySizeLimitMiddleware",
 ]
