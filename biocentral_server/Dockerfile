@@ -36,7 +36,7 @@ COPY pyproject.toml ./
 RUN touch README.md
 
 # Add non-root user
-RUN useradd --create-home --shell /bin/bash biocentral-server-user
+RUN useradd --create-home --shell /bin/bash --uid 10001 biocentral-server-user
 
 # Create directories
 RUN mkdir -p /app/logs /var/log/biocentral-server && \
