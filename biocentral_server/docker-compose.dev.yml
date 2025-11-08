@@ -110,7 +110,7 @@ services:
       - "8001:8001"  # gRPC
       - "8002:8002"  # Metrics
     volumes:
-      - ./storage/model-repository:/models:ro
+      - triton_models:/models:ro
     depends_on:
       triton-model-init:
         condition: service_completed_successfully
