@@ -37,6 +37,12 @@ services:
         condition: service_healthy
     networks:
       - biocentral-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   biocentral-worker:
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
@@ -180,6 +186,8 @@ services:
     depends_on:
       triton-model-init:
         condition: service_completed_successfully
+    networks:
+      - biocentral-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
       interval: 10s
