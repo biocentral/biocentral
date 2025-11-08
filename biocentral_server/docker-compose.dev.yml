@@ -18,7 +18,7 @@ services:
   redis-jobs:
     image: redis:alpine
     ports:
-     - "${REDIS_JOBS_PORT}:6379"
+      - "${REDIS_JOBS_PORT}:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -111,8 +111,11 @@ services:
       - "8002:8002"  # Metrics
     volumes:
       - ./storage/model-repository:/models:ro
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/v2/health/ready" ]
       interval: 10s
       timeout: 5s
       retries: 5

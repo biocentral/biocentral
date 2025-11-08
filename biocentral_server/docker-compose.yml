@@ -177,6 +177,9 @@ services:
       - "8002:8002"  # Metrics
     volumes:
       - ./storage/model-repository:/models:ro
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
       interval: 10s
