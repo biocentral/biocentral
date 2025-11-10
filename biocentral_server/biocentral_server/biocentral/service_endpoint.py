@@ -18,6 +18,23 @@ router = APIRouter(
 )
 
 
+@router.get(
+    "/welcome_message",
+)
+def welcome_message():
+    return """
+    Welcome to the biocentral server!
+    By using this server you agree to the following terms and conditions:
+    1. All usage of the server is for peaceful research purposes only.
+    2. Protein sequences are only processed, but not stored.
+    3. The following data is stored for an unspecified period of time:
+        * Computed embeddings (by model name and sequence hash)
+        * Trained models (by model hash)
+        * Sequence metadata (number of sequences provided, lengths, amino acid composition)
+    4. If used in your research, please cite the biocentral paper.
+    """
+
+
 # Endpoint to check task status
 @router.get(
     "/task_status/{task_id}",
