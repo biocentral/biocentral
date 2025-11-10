@@ -54,7 +54,7 @@ class TaskManager:
         redis_task_counter_key = self._get_redis_task_counter_key(task_id)
         self.redis_conn.delete(redis_task_counter_key)
 
-    def _enqueue(self, task: TaskInterface, task_id: str, queue):
+    def _enqueue(self, task: TaskInterface, task_id: str, queue, user_id: str = ""):
         _ = queue.enqueue(
             run_task_with_updates,
             args=(task,),
@@ -66,21 +66,27 @@ class TaskManager:
             # on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
             # on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
             # on_stopped=lambda jb, connection: self._cleanup_task(task_id=task_id),
-            meta={"task_class": task.__class__.__name__},
+            meta={"task_class": task.__class__.__name__, "user_id": user_id},
         )
 
-    def add_task(self, task: TaskInterface, task_id: Optional[str] = "") -> str:
+    def add_task(
+        self, task: TaskInterface, task_id: Optional[str] = "", user_id: str = ""
+    ) -> str:
         if task_id == "" or "biocentral" not in task_id:
             task_id = self._generate_task_id(task=task.__class__)
 
-        self._enqueue(task=task, task_id=task_id, queue=self.default_queue)
+        self._enqueue(
+            task=task, task_id=task_id, queue=self.default_queue, user_id=user_id
+        )
 
         return task_id
 
-    def add_subtask(self, task: TaskInterface) -> str:
+    def add_subtask(self, task: TaskInterface, user_id: str = "") -> str:
         task_id = self._generate_task_id(task=task.__class__)
 
-        self._enqueue(task=task, task_id=task_id, queue=self.subtask_queue)
+        self._enqueue(
+            task=task, task_id=task_id, queue=self.subtask_queue, user_id=user_id
+        )
 
         return task_id
 
@@ -170,3 +176,11 @@ class TaskManager:
     def is_task_finished(self, task_id: str) -> bool:
         job = self._get_job(task_id)
         return job is not None and job.is_finished
+
+    def get_task_owner(self, task_id: str) -> Optional[str]:
+        """Return the user_id associated with this task or None if task not found."""
+        job = self._get_job(task_id)
+        if job is None:
+            return None
+        meta = getattr(job, "meta", {}) or {}
+        return meta.get("user_id", "")

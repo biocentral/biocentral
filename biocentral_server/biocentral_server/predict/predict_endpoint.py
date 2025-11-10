@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from biotrainer.input_files import BiotrainerSequenceRecord
 from fastapi_limiter.depends import RateLimiter
@@ -9,6 +9,7 @@ from .endpoint_models import PredictionRequest, ModelMetadataResponse
 
 from ..server_management import (
     TaskManager,
+    UserManager,
     ErrorResponse,
     NotFoundErrorResponse,
     StartTaskResponse,
@@ -50,7 +51,7 @@ def model_metadata():
     description="Submit sequences for prediction using specified models and receive a task ID for tracking",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-def predict(request_data: PredictionRequest):
+def predict(request_data: PredictionRequest, request: Request):
     """
     Endpoint for protein sequence prediction using a single or multiple models
     """
@@ -80,6 +81,7 @@ def predict(request_data: PredictionRequest):
     )
 
     # Add task to task manager
-    task_id = TaskManager().add_task(prediction_task)
+    user_id = UserManager.get_user_id_from_request(req=request)
+    task_id = TaskManager().add_task(prediction_task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

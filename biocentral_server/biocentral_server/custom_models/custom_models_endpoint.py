@@ -132,7 +132,9 @@ def start_training(request_data: StartTrainingRequest, request: Request):
         config_dict=config_dict,
         training_data=request_data.training_data,
     )
-    task_id = task_manager.add_task(task=biotrainer_process, task_id=task_id)
+    task_id = task_manager.add_task(
+        task=biotrainer_process, task_id=task_id, user_id=user_id
+    )
 
     return StartTaskResponse(task_id=task_id)
 
@@ -198,6 +200,6 @@ def start_inference(request_data: StartInferenceRequest, request: Request):
         model_out_path=model_out_path, sequence_input=seq_records
     )
     task_manager = TaskManager()
-    task_id = task_manager.add_task(task=inference_task)
+    task_id = task_manager.add_task(task=inference_task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

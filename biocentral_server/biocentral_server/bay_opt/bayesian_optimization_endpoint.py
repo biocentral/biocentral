@@ -84,6 +84,6 @@ def train_and_inference(request_data: BayesianOptimizationRequest, request: Requ
 
     # Launch BO process
     bo_process = BayesTask(config_dict)
-    task_manager.add_task(task=bo_process, task_id=task_id)
+    task_manager.add_task(task=bo_process, task_id=task_id, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

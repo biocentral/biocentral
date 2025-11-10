@@ -152,6 +152,6 @@ def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
         else None,
     )
 
-    task_id = TaskManager().add_task(task=task)
+    task_id = TaskManager().add_task(task=task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

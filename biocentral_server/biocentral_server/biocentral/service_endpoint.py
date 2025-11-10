@@ -1,8 +1,10 @@
+from typing import Optional
+
 import torch
 import psutil
 from biocentral_server.biocentral.endpoint_models import TaskStatusResponse
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, HTTPException, status
 
 from ..server_management import (
     UserManager,
@@ -16,6 +18,22 @@ router = APIRouter(
     tags=["biocentral"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
+
+
+def check_task_ownership(request: Request, task_id: str) -> Optional[TaskManager]:
+    """Require that the requester matches the user associated with the task"""
+    current_user = UserManager.get_user_id_from_request(req=request)
+    task_manager = TaskManager()
+    owner = task_manager.get_task_owner(task_id=task_id)
+    if owner is None or owner == "":
+        # Task not found
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
+    if owner != current_user:
+        # Task exists but belongs to a different user
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    return task_manager
 
 
 @router.get(
@@ -41,11 +59,10 @@ def welcome_message():
     response_model=TaskStatusResponse,
     response_model_exclude_none=True,
 )
-def task_status(task_id: str):
-    # Check the status of the task based on task_id
-    # Retrieve task status from the distributed server or backend system
-    # Return the task status
-    dtos = TaskManager().get_new_task_updates(task_id=task_id)
+def task_status(task_id: str, request: Request):
+    task_manager = check_task_ownership(request=request, task_id=task_id)
+
+    dtos = task_manager.get_new_task_updates(task_id=task_id)
     return TaskStatusResponse(dtos=dtos)
 
 
@@ -55,11 +72,10 @@ def task_status(task_id: str):
     response_model=TaskStatusResponse,
     response_model_exclude_none=True,
 )
-def task_status_resumed(task_id: str):
-    # Check the status of the task based on task_id
-    # Retrieve task status from the distributed server or backend system
-    # Return the task status
-    dtos = TaskManager().get_all_task_updates_from_start(task_id=task_id)
+def task_status_resumed(task_id: str, request: Request):
+    task_manager = check_task_ownership(request=request, task_id=task_id)
+
+    dtos = task_manager.get_all_task_updates_from_start(task_id=task_id)
     return TaskStatusResponse(dtos=dtos)
 
 

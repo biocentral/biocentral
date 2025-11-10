@@ -21,6 +21,7 @@ from .embedding_task import ExportEmbeddingsTask
 from ..utils import str2bool, get_logger
 from ..server_management import (
     TaskManager,
+    UserManager,
     EmbeddingDatabaseFactory,
     EmbeddingsDatabase,
     StartTaskResponse,
@@ -64,7 +65,8 @@ def embed(request_data: EmbedRequest, request: Request):
         device=device,
     )
 
-    task_id = TaskManager().add_task(embedding_task)
+    user_id = UserManager.get_user_id_from_request(req=request)
+    task_id = TaskManager().add_task(embedding_task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)
 
