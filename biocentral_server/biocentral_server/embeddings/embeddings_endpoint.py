@@ -26,6 +26,7 @@ from ..server_management import (
     EmbeddingsDatabase,
     StartTaskResponse,
     ErrorResponse,
+    MetricsCollector,
 )
 
 logger = get_logger(__name__)
@@ -66,7 +67,13 @@ async def embed(request_data: EmbedRequest, request: Request):
     )
     user_id = await UserManager.get_user_id_from_request(req=request)
 
-    user_id = UserManager.get_user_id_from_request(req=request)
+    # Record metrics
+    MetricsCollector.record_embedding_request(
+        sequence_count=len(request_data.sequence_data),
+        sequences=request_data.sequence_data,
+        embedder_name=request_data.embedder_name,
+    )
+    # Run task
     task_id = TaskManager().add_task(embedding_task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

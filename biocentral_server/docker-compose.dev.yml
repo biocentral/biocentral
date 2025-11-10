@@ -21,6 +21,7 @@ services:
       - "${REDIS_JOBS_PORT}:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
+
       interval: 5s
       timeout: 5s
       retries: 5
@@ -35,6 +36,7 @@ services:
       - redis-jobs
     restart: unless-stopped
 
+  # File storage stack
   seaweedfs-master:
     image: chrislusf/seaweedfs
     command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
@@ -68,6 +70,7 @@ services:
       retries: 10
       start_period: 20s
 
+  # Triton stack
   triton-model-init:
     build:
       context: ./storage/model-repository
@@ -121,6 +124,30 @@ services:
       retries: 5
       start_period: 30s
 
+  # Monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    network_mode: host
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 volumes:
   postgres_data:
     driver: local
@@ -140,6 +167,8 @@ volumes:
       type: none
       o: bind
       device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
+  prometheus_data:
+    driver: local
 
 networks:
   seaweedfs-network:

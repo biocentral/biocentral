@@ -5,6 +5,9 @@ from redis.asyncio import Redis
 from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from fastapi.responses import Response
 
 from .predict import PredictInitializer
 from .server_management import (
@@ -98,6 +101,23 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health_check():
         return {"status": "healthy"}
+
+    # Prometheus metrics
+    instrumentator = Instrumentator(
+        should_group_status_codes=False,
+        should_ignore_untemplated=True,
+        should_respect_env_var=True,
+        should_instrument_requests_inprogress=True,
+        excluded_handlers=["/metrics", "/health"],
+        env_var_name="ENABLE_METRICS",
+        inprogress_name="http_requests_inprogress",
+        inprogress_labels=True,
+    )
+    instrumentator.instrument(app).expose(app)
+
+    @app.get("/metrics")
+    async def metrics():
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     return app
 
