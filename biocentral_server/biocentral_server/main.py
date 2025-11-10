@@ -1,12 +1,17 @@
 import os
 
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
+from redis.asyncio import Redis
+from fastapi_limiter import FastAPILimiter
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 from .predict import PredictInitializer
-from .server_management import ServerInitializationManager, BodySizeLimitMiddleware
+from .server_management import (
+    ServerInitializationManager,
+    BodySizeLimitMiddleware,
+    UserManager,
+)
 
 # Import module routers
 from .ppi import router as ppi_router
@@ -32,15 +37,26 @@ def _setup_directories():
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
+
+    # Rate Limiting
+    redis_host = os.environ.get("REDIS_JOBS_HOST", "redis-jobs")
+    redis_port = os.environ.get("REDIS_JOBS_PORT", 6379)
+    redis_conn = Redis(host=redis_host, port=redis_port, db=0)
+    await FastAPILimiter.init(
+        redis=redis_conn, identifier=UserManager.get_user_id_from_request
+    )
+
+    # Directories
     _setup_directories()
     # Initialize modules
     initialization_manager = ServerInitializationManager()
     initialization_manager.register_initializer(PredictInitializer())
+    # initialization_manager.run_all()
 
     yield
 
-    # Shutdown - cleanup if needed
-    pass
+    # Shutdown
+    await FastAPILimiter.close()
 
 
 def create_app() -> FastAPI:

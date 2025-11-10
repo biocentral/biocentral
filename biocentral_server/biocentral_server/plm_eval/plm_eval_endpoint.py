@@ -4,9 +4,10 @@ import requests
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.autoeval.pbc.pbc_datasets import PBC_DATASETS
+from fastapi_limiter.depends import RateLimiter
 
 from .autoeval_task import AutoEvalTask
 from .endpoint_models import (
@@ -67,6 +68,7 @@ def _validate_model_id(model_id: str):
     responses={},
     summary="Get PLM eval information",
     description="Get information about PLM eval datasets and process",
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))],
 )
 def plm_eval_information():
     framework_datasets = PBC_DATASETS
@@ -95,6 +97,7 @@ def plm_eval_information():
     responses={400: {"model": ErrorResponse}},
     summary="Validate model ID",
     description="Validate if the given model id exists on huggingface and can be used for plm_eval",
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))],
 )
 def validate(request_data: PLMEvalValidateRequest, request: Request):
     error = _validate_model_id(request_data.model_id)
@@ -109,6 +112,7 @@ def validate(request_data: PLMEvalValidateRequest, request: Request):
     responses={404: {"model": ErrorResponse}},
     summary="Automated Protein Language Model Evaluation",
     description="Automated protein language model evaluation on pre-defined, curated datasets and tasks",
+    dependencies=[Depends(RateLimiter(times=1, seconds=120))],
 )
 def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
     model_id = request_data.model_id

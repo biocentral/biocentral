@@ -230,6 +230,7 @@ dependencies = [
     { name = "blosc2" },
     { name = "circuitbreaker" },
     { name = "fastapi" },
+    { name = "fastapi-limiter" },
     { name = "gpytorch" },
     { name = "httpx" },
     { name = "hvi-toolkit" },
@@ -262,6 +263,7 @@ requires-dist = [
     { name = "blosc2", specifier = ">=2.7.1,<3.0.0" },
     { name = "circuitbreaker", specifier = ">=2.0.0" },
     { name = "fastapi", specifier = ">=0.121.0" },
+    { name = "fastapi-limiter", specifier = ">=0.1.6" },
     { name = "gpytorch", specifier = ">=1.14,<2.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "hvi-toolkit", git = "https://github.com/SebieF/hvi_toolkit.git?rev=maintenance%2Fupdate-biotrainer" },
@@ -794,6 +796,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8c/e3/77a2df0946703973b9905fd0cde6172c15e0781984320123b4f5079e7113/fastapi-0.121.0.tar.gz", hash = "sha256:06663356a0b1ee93e875bbf05a31fb22314f5bed455afaaad2b2dad7f26e98fa", size = 342412, upload-time = "2025-11-03T10:25:54.818Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dd/2c/42277afc1ba1a18f8358561eee40785d27becab8f80a1f945c0a3051c6eb/fastapi-0.121.0-py3-none-any.whl", hash = "sha256:8bdf1b15a55f4e4b0d6201033da9109ea15632cb76cf156e7b8b4019f2172106", size = 109183, upload-time = "2025-11-03T10:25:53.27Z" },
+]
+
+[[package]]
+name = "fastapi-limiter"
+version = "0.1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "redis" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7f/99/c7903234488d4dca5f9bccb4f88c2f582a234f0dca33348781c9cf8a48c6/fastapi_limiter-0.1.6.tar.gz", hash = "sha256:6f5fde8efebe12eb33861bdffb91009f699369a3c2862cdc7c1d9acf912ff443", size = 8307, upload-time = "2024-01-05T09:14:48.628Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cd/b5/6f6b4d18bee1cafc857eae12738b3a03b7d1102b833668be868938c57b9d/fastapi_limiter-0.1.6-py3-none-any.whl", hash = "sha256:2e53179a4208b8f2c8795e38bb001324d3dc37d2800ff49fd28ec5caabf7a240", size = 15829, upload-time = "2024-01-05T09:14:47.613Z" },
 ]
 
 [[package]]

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status, Request, Depends
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.protocols import Protocol
 from biotrainer.config import Configurator, ConfigurationException
+from fastapi_limiter.depends import RateLimiter
 
 from .endpoint_models import (
     ConfigVerificationRequest,
@@ -40,6 +41,7 @@ router = APIRouter(
     responses={400: {"model": ErrorResponse}},
     summary="Get configuration options for a protocol",
     description="Retrieve available configuration options for a specific biotrainer protocol",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
 )
 def config_options(protocol: str):
     """Get configuration options by protocol from biotrainer"""
@@ -70,6 +72,7 @@ def config_options(protocol: str):
     response_model=ConfigVerificationResponse,
     summary="Verify configuration",
     description="Validate a biotrainer configuration dict",
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))],
 )
 def verify_config(request_data: ConfigVerificationRequest):
     """Verify configuration options"""
@@ -87,6 +90,7 @@ def verify_config(request_data: ConfigVerificationRequest):
     response_model=ProtocolsResponse,
     summary="Get available protocols",
     description="Retrieve list of all available biotrainer protocols",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
 )
 def protocols():
     """Get available protocols from biotrainer"""
@@ -100,6 +104,7 @@ def protocols():
     responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
     summary="Start model training",
     description="Submit a new model training job with specified configuration and training data",
+    dependencies=[Depends(RateLimiter(times=2, seconds=120))],
 )
 def start_training(request_data: StartTrainingRequest, request: Request):
     """Start model training for biotrainer"""
@@ -138,6 +143,7 @@ def start_training(request_data: StartTrainingRequest, request: Request):
     responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
     summary="Retrieve model files",
     description="Get trained model files after training completion",
+    dependencies=[Depends(RateLimiter(times=1, seconds=60))],
 )
 def model_files(request_data: ModelFilesRequest, request: Request):
     """Retrieve model files after training is finished"""
@@ -163,6 +169,7 @@ def model_files(request_data: ModelFilesRequest, request: Request):
     responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
     summary="Start model inference",
     description="Submit sequences for prediction using a trained model",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
 def start_inference(request_data: StartInferenceRequest, request: Request):
     """Do inference from trained models"""

@@ -20,6 +20,8 @@ class UserManager:
 
     @staticmethod
     def get_user_id_from_request(req: Request) -> str:
-        if req.client:
-            return str(req.client.host)
-        return "unknown"
+        forwarded = req.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0]
+        client = req.client.host if req.client else "unknown"
+        return client

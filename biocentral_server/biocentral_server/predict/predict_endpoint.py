@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from biotrainer.input_files import BiotrainerSequenceRecord
+from fastapi_limiter.depends import RateLimiter
 
 from .multi_prediction_task import MultiPredictionTask
 from .models import get_metadata_for_all_models, filter_models
@@ -27,6 +28,7 @@ router = APIRouter(
     responses={},
     summary="Get predict model metadata",
     description="Get metadata for available prediction models",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
 )
 def model_metadata():
     return ModelMetadataResponse(
@@ -46,6 +48,7 @@ def model_metadata():
     },
     summary="Submit protein sequence prediction job",
     description="Submit sequences for prediction using specified models and receive a task ID for tracking",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
 def predict(request_data: PredictionRequest):
     """

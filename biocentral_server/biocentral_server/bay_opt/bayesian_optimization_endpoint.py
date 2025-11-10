@@ -1,7 +1,8 @@
 import json
 import hashlib
 
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status, Request, Depends
+from fastapi_limiter.depends import RateLimiter
 
 from .endpoint_models import (
     BayesianOptimizationRequest,
@@ -37,6 +38,7 @@ router = APIRouter(
     },
     summary="Start Bayesian optimization training",
     description="Submit a Bayesian optimization job with specified configuration and training data",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
 def train_and_inference(request_data: BayesianOptimizationRequest, request: Request):
     """

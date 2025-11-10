@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi_limiter.depends import RateLimiter
 
 from .taxonomy import Taxonomy
 from .endpoint_models import TaxonomyResponse, TaxonomyRequest, TaxonomyItem
@@ -22,6 +23,7 @@ router = APIRouter(
     responses={400: {"model": ErrorResponse}},
     summary="Retrieve taxonomy data",
     description="Retrieve taxonomy data for a list of taxonomy ids",
+    dependencies=[Depends(RateLimiter(times=20, seconds=60))],
 )
 def taxonomy(taxonomy_request: TaxonomyRequest):
     taxonomy_ids = taxonomy_request.taxonomy_ids

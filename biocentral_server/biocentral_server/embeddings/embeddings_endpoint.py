@@ -5,8 +5,9 @@ import base64
 import numpy as np
 
 from biotrainer.utilities import get_device
+from fastapi_limiter.depends import RateLimiter
 from biotrainer.input_files import BiotrainerSequenceRecord
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status, Request, Depends
 
 from .endpoint_models import (
     EmbedRequest,
@@ -42,6 +43,7 @@ router = APIRouter(
     responses={404: {"model": ErrorResponse}},
     summary="Calculate embeddings",
     description="Submit sequences for embedding calculation using specified embedder model",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
 def embed(request_data: EmbedRequest, request: Request):
     """Endpoint for embeddings calculation"""
@@ -73,6 +75,7 @@ def embed(request_data: EmbedRequest, request: Request):
     responses={400: {"model": ErrorResponse}},
     summary="Check missing embeddings",
     description="Check which sequences are missing embeddings for a given embedder and reduction setting",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
 def get_missing_embeddings(request_data: GetMissingEmbeddingsRequest):
     """Endpoint to check which sequences miss embeddings"""
@@ -104,6 +107,7 @@ def get_missing_embeddings(request_data: GetMissingEmbeddingsRequest):
     responses={400: {"model": ErrorResponse}},
     summary="Add embeddings",
     description="Add pre-computed embeddings from HDF5 file to the embeddings database",
+    dependencies=[Depends(RateLimiter(times=1, seconds=60))],
 )
 def add_embeddings(request_data: AddEmbeddingsRequest):
     # TODO This endpoint should use async, embeddings db should be converted to async
