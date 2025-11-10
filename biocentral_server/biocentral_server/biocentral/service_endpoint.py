@@ -20,9 +20,9 @@ router = APIRouter(
 )
 
 
-def check_task_ownership(request: Request, task_id: str) -> Optional[TaskManager]:
+async def check_task_ownership(request: Request, task_id: str) -> Optional[TaskManager]:
     """Require that the requester matches the user associated with the task"""
-    current_user = UserManager.get_user_id_from_request(req=request)
+    current_user = await UserManager.get_user_id_from_request(req=request)
     task_manager = TaskManager()
     owner = task_manager.get_task_owner(task_id=task_id)
     if owner is None or owner == "":
@@ -59,8 +59,8 @@ def welcome_message():
     response_model=TaskStatusResponse,
     response_model_exclude_none=True,
 )
-def task_status(task_id: str, request: Request):
-    task_manager = check_task_ownership(request=request, task_id=task_id)
+async def task_status(task_id: str, request: Request):
+    task_manager = await check_task_ownership(request=request, task_id=task_id)
 
     dtos = task_manager.get_new_task_updates(task_id=task_id)
     return TaskStatusResponse(dtos=dtos)
@@ -72,8 +72,8 @@ def task_status(task_id: str, request: Request):
     response_model=TaskStatusResponse,
     response_model_exclude_none=True,
 )
-def task_status_resumed(task_id: str, request: Request):
-    task_manager = check_task_ownership(request=request, task_id=task_id)
+async def task_status_resumed(task_id: str, request: Request):
+    task_manager = await check_task_ownership(request=request, task_id=task_id)
 
     dtos = task_manager.get_all_task_updates_from_start(task_id=task_id)
     return TaskStatusResponse(dtos=dtos)

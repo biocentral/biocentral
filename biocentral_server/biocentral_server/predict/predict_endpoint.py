@@ -51,7 +51,7 @@ def model_metadata():
     description="Submit sequences for prediction using specified models and receive a task ID for tracking",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-def predict(request_data: PredictionRequest, request: Request):
+async def predict(request_data: PredictionRequest, request: Request):
     """
     Endpoint for protein sequence prediction using a single or multiple models
     """
@@ -81,7 +81,7 @@ def predict(request_data: PredictionRequest, request: Request):
     )
 
     # Add task to task manager
-    user_id = UserManager.get_user_id_from_request(req=request)
+    user_id = await UserManager.get_user_id_from_request(req=request)
     task_id = TaskManager().add_task(prediction_task, user_id=user_id)
 
     return StartTaskResponse(task_id=task_id)

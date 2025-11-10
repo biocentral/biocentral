@@ -114,14 +114,14 @@ def validate(request_data: PLMEvalValidateRequest, request: Request):
     description="Automated protein language model evaluation on pre-defined, curated datasets and tasks",
     dependencies=[Depends(RateLimiter(times=1, seconds=120))],
 )
-def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
+async def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
     model_id = request_data.model_id
 
     # ONNX
     onnx_file = request_data.onnx_file
     tokenizer_config = request_data.tokenizer_config
 
-    user_id = UserManager.get_user_id_from_request(req=request)
+    user_id = await UserManager.get_user_id_from_request(req=request)
 
     onnx_path: Optional[Path] = None
     tokenizer_config_path: Optional[Path] = None

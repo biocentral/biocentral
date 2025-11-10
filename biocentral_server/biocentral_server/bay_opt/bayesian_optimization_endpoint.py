@@ -40,7 +40,9 @@ router = APIRouter(
     description="Submit a Bayesian optimization job with specified configuration and training data",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-def train_and_inference(request_data: BayesianOptimizationRequest, request: Request):
+async def train_and_inference(
+    request_data: BayesianOptimizationRequest, request: Request
+):
     """
     Launch Bayesian optimization training and inference.
 
@@ -56,7 +58,7 @@ def train_and_inference(request_data: BayesianOptimizationRequest, request: Requ
     config_dict = request_data.model_dump()
 
     # Get user and file manager
-    user_id = UserManager.get_user_id_from_request(req=request)
+    user_id = await UserManager.get_user_id_from_request(req=request)
     file_manager = FileManager(user_id=user_id)
     task_manager = TaskManager()
 

@@ -106,7 +106,7 @@ def protocols():
     description="Submit a new model training job with specified configuration and training data",
     dependencies=[Depends(RateLimiter(times=2, seconds=120))],
 )
-def start_training(request_data: StartTrainingRequest, request: Request):
+async def start_training(request_data: StartTrainingRequest, request: Request):
     """Start model training for biotrainer"""
     # Parse and validate configuration
     try:
@@ -119,7 +119,7 @@ def start_training(request_data: StartTrainingRequest, request: Request):
         )
 
     # Get user and file manager
-    user_id = UserManager.get_user_id_from_request(req=request)
+    user_id = await UserManager.get_user_id_from_request(req=request)
     file_manager = FileManager(user_id=user_id)
 
     # Create and submit training task
@@ -147,9 +147,9 @@ def start_training(request_data: StartTrainingRequest, request: Request):
     description="Get trained model files after training completion",
     dependencies=[Depends(RateLimiter(times=1, seconds=60))],
 )
-def model_files(request_data: ModelFilesRequest, request: Request):
+async def model_files(request_data: ModelFilesRequest, request: Request):
     """Retrieve model files after training is finished"""
-    user_id = UserManager.get_user_id_from_request(request)
+    user_id = await UserManager.get_user_id_from_request(request)
     file_manager = FileManager(user_id=user_id)
 
     model_file_dict = file_manager.get_biotrainer_result_files(
@@ -173,7 +173,7 @@ def model_files(request_data: ModelFilesRequest, request: Request):
     description="Submit sequences for prediction using a trained model",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-def start_inference(request_data: StartInferenceRequest, request: Request):
+async def start_inference(request_data: StartInferenceRequest, request: Request):
     """Do inference from trained models"""
 
     # Convert sequence_data to BiotrainerSequenceRecord objects
@@ -183,7 +183,7 @@ def start_inference(request_data: StartInferenceRequest, request: Request):
     ]
 
     # Get model path
-    user_id = UserManager.get_user_id_from_request(request)
+    user_id = await UserManager.get_user_id_from_request(request)
     file_manager = FileManager(user_id=user_id)
     model_out_path = file_manager.get_biotrainer_model_path(
         model_hash=request_data.model_hash

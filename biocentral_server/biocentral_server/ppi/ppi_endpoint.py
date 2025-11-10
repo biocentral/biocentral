@@ -159,14 +159,15 @@ def tests():
     response_model=RunTestResponse,
     responses={400: {"model": ErrorResponse}},
 )
-def run_test(body: RunTestRequest, request: Request):
+async def run_test(body: RunTestRequest, request: Request):
     database_hash = body.hash
     test_name = body.test
 
     try:
-        dataset_file_path = FileManager(
-            user_id=UserManager.get_user_id_from_request(req=request)
-        ).get_file_path(database_hash=database_hash, file_type=StorageFileType.INPUT)
+        user_id = await UserManager.get_user_id_from_request(req=request)
+        dataset_file_path = FileManager(user_id=user_id).get_file_path(
+            database_hash=database_hash, file_type=StorageFileType.INPUT
+        )
     except FileNotFoundError as e:
         logger.error(e)
         return {"error": str(e)}

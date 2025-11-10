@@ -19,7 +19,7 @@ class UserManager:
             return _user_dict["n_total_requests"]
 
     @staticmethod
-    def get_user_id_from_request(req: Request) -> str:
+    async def get_user_id_from_request(req: Request) -> str:
         forwarded = req.headers.get("X-Forwarded-For")
         if forwarded:
             return forwarded.split(",")[0]

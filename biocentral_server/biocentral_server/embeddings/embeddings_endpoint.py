@@ -46,7 +46,7 @@ router = APIRouter(
     description="Submit sequences for embedding calculation using specified embedder model",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-def embed(request_data: EmbedRequest, request: Request):
+async def embed(request_data: EmbedRequest, request: Request):
     """Endpoint for embeddings calculation"""
     # Convert string booleans to actual booleans
     reduced = str2bool(str(request_data.reduce))
@@ -64,6 +64,7 @@ def embed(request_data: EmbedRequest, request: Request):
         use_half_precision=use_half_precision,
         device=device,
     )
+    user_id = await UserManager.get_user_id_from_request(req=request)
 
     user_id = UserManager.get_user_id_from_request(req=request)
     task_id = TaskManager().add_task(embedding_task, user_id=user_id)
