@@ -62,7 +62,7 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
             description="Prediction of protein membrane association",
             authors="Stärk, Hannes and Dallago, Christian and Heinzinger, Michael and Rost, Burkhard",
             model_link="https://github.com/HannesStark/protein-localization",
-            citation=" https://doi.org/10.1093/bioadv/vbab035",
+            citation="https://doi.org/10.1093/bioadv/vbab035",
             licence="MIT",
             outputs=[
                 ModelOutput(
