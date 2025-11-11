@@ -49,7 +49,7 @@ class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
             name="SETH",
-            protocol=Protocol.residue_to_class,  # TODO residue_to_value
+            protocol=Protocol.residue_to_value,
             description="SETH model for predicting nuances of residue disorder in proteins",
             authors="Dagmar Ilzhoefer, Michael Heinzinger, Burkhard Rost",
             model_link="https://github.com/DagmarIlz/SETH",
