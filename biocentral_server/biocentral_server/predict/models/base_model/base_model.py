@@ -128,9 +128,16 @@ class BaseModel(ABC):
             idx: embedding.shape[0] for idx, embedding in embeddings.items()
         }
 
+        input_name = (
+            self._infer_input_name()
+            if self.backend == "onnx"
+            else self.TRITON_INPUT_NAMES()[0]
+        )  # TODO
         # Get batched data with attention masks if required
         return get_batched_data(
             batch_size=self.batch_size,
+            protocol=self.get_metadata().protocol,
+            input_name=input_name,
             data=embeddings.values(),
             mask=self.requires_mask,
         )

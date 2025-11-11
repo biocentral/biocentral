@@ -1,12 +1,22 @@
 import numpy as np
 
+from biotrainer.protocols import Protocol
+
 MODEL_BASE_PATH = "PREDICT"
 
 
-def get_batched_data(batch_size: int, data: np.array, mask: bool = False) -> list[dict]:
+def get_batched_data(
+    batch_size: int,
+    protocol: Protocol,
+    input_name: str,
+    data: np.array,
+    mask: bool = False,
+) -> list[dict]:
     """
     Returns the given data in batches. Each batch contains its data as a dict. The structure is enforced by the onnx runtime model.
     :param batch_size: The number of elements per batch
+    :param protocol: The protocol of the model (per-sequence/per-residue).
+    :param input_name: The name of the input tensor in the onnx-model.
     :param data: The already embedded data
     :param mask: True if the onnx-model requires a mask, else false.
     :return: A list of dicts containing the batched data:
@@ -17,6 +27,11 @@ def get_batched_data(batch_size: int, data: np.array, mask: bool = False) -> lis
     """
     batched_data = []
     data = list(data)
+    if protocol in Protocol.using_per_sequence_embeddings():
+        for i in range(0, len(data), batch_size):
+            batched_data.append({input_name: data[i : i + batch_size]})
+        return batched_data
+
     if mask:
         for i in range(0, len(data), batch_size):
             batch_data = data[i : i + batch_size]
@@ -24,17 +39,19 @@ def get_batched_data(batch_size: int, data: np.array, mask: bool = False) -> lis
                 embeddings=batch_data, get_attention_mask=True
             )
             batched_data.append(
-                {"input": padded_embeddings_batch, "mask": attention_masks_batch}
+                {input_name: padded_embeddings_batch, "mask": attention_masks_batch}
             )
-    else:
-        for i in range(0, len(data), batch_size):
-            batched_data.append(
-                {
-                    "input": pad_embeddings(
-                        embeddings=data[i : i + batch_size], get_attention_mask=False
-                    )[0],
-                }
-            )
+        return batched_data
+
+    # per-residue, no mask
+    for i in range(0, len(data), batch_size):
+        batched_data.append(
+            {
+                input_name: pad_embeddings(
+                    embeddings=data[i : i + batch_size], get_attention_mask=False
+                )[0],
+            }
+        )
     return batched_data
 
 

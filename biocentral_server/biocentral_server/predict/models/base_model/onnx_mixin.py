@@ -25,8 +25,10 @@ class LocalOnnxInferenceMixin:
         Args:
             model_dir_name: Optional directory name, defaults to metadata name
         """
-        if not hasattr(self, 'uses_ensemble'):
-            raise AttributeError("OnnxInferenceMixin requires 'uses_ensemble' attribute")
+        if not hasattr(self, "uses_ensemble"):
+            raise AttributeError(
+                "OnnxInferenceMixin requires 'uses_ensemble' attribute"
+            )
 
         model_name = model_dir_name if model_dir_name else self.get_metadata().name
 
@@ -34,6 +36,10 @@ class LocalOnnxInferenceMixin:
             self.models = self._load_multiple_onnx_models(model_name=model_name)
         else:
             self.model = self._load_onnx_model(model_name=model_name)
+
+    def _infer_input_name(self):
+        model = self.model if self.model is not None else self.models[0]
+        return model.get_inputs()[0].name
 
     @staticmethod
     def _load_onnx_model(model_name: str) -> InferenceSession:
