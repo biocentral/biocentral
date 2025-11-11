@@ -69,7 +69,6 @@ async def embed(request_data: EmbedRequest, request: Request):
 
     # Record metrics
     MetricsCollector.record_embedding_request(
-        sequence_count=len(request_data.sequence_data),
         sequences=request_data.sequence_data,
         embedder_name=request_data.embedder_name,
     )
