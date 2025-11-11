@@ -106,6 +106,7 @@ services:
       --load-model=light_attention_subcell
       --load-model=light_attention_membrane
       --load-model=vespag
+      --load-model=exotox
       --disable-auto-complete-config
       --log-verbose=1
     ports:
