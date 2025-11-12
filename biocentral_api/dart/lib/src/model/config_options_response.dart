@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/config_option.dart';
+import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -18,7 +18,7 @@ part 'config_options_response.g.dart';
 abstract class ConfigOptionsResponse implements Built<ConfigOptionsResponse, ConfigOptionsResponseBuilder> {
   /// List of configuration option dictionaries
   @BuiltValueField(wireName: r'options')
-  BuiltList<ConfigOption> get options;
+  BuiltList<JsonObject?> get options;
 
   ConfigOptionsResponse._();
 
@@ -46,7 +46,7 @@ class _$ConfigOptionsResponseSerializer implements PrimitiveSerializer<ConfigOpt
     yield r'options';
     yield serializers.serialize(
       object.options,
-      specifiedType: const FullType(BuiltList, [FullType(ConfigOption)]),
+      specifiedType: const FullType(BuiltList, [FullType.nullable(JsonObject)]),
     );
   }
 
@@ -74,8 +74,8 @@ class _$ConfigOptionsResponseSerializer implements PrimitiveSerializer<ConfigOpt
         case r'options':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(ConfigOption)]),
-          ) as BuiltList<ConfigOption>;
+            specifiedType: const FullType(BuiltList, [FullType.nullable(JsonObject)]),
+          ) as BuiltList<JsonObject?>;
           result.options.replace(valueDes);
           break;
         default:

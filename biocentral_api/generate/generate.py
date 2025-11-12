@@ -228,7 +228,7 @@ def generate_dart():
 
 def main():
     """Main function to generate OpenAPI client and organize documentation."""
-    #generate_python()
+    generate_python()
     generate_dart()
 
 if __name__ == "__main__":

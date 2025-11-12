@@ -8,7 +8,7 @@ part of 'config_options_response.dart';
 
 class _$ConfigOptionsResponse extends ConfigOptionsResponse {
   @override
-  final BuiltList<ConfigOption> options;
+  final BuiltList<JsonObject?> options;
 
   factory _$ConfigOptionsResponse(
           [void Function(ConfigOptionsResponseBuilder)? updates]) =>
@@ -50,10 +50,10 @@ class ConfigOptionsResponseBuilder
     implements Builder<ConfigOptionsResponse, ConfigOptionsResponseBuilder> {
   _$ConfigOptionsResponse? _$v;
 
-  ListBuilder<ConfigOption>? _options;
-  ListBuilder<ConfigOption> get options =>
-      _$this._options ??= ListBuilder<ConfigOption>();
-  set options(ListBuilder<ConfigOption>? options) => _$this._options = options;
+  ListBuilder<JsonObject?>? _options;
+  ListBuilder<JsonObject?> get options =>
+      _$this._options ??= ListBuilder<JsonObject?>();
+  set options(ListBuilder<JsonObject?>? options) => _$this._options = options;
 
   ConfigOptionsResponseBuilder() {
     ConfigOptionsResponse._defaults(this);

@@ -22,7 +22,6 @@ import 'package:biocentral_api/src/model/bayesian_optimization_request.dart';
 import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
-import 'package:biocentral_api/src/model/config_option.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
@@ -74,7 +73,6 @@ part 'serializers.g.dart';
   BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
   BiotrainerSequenceRecord,
-  ConfigOption,
   ConfigOptionsResponse,
   ConfigVerificationRequest,
   ConfigVerificationResponse,
@@ -119,6 +117,15 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),
         () => MapBuilder<String, JsonObject>(),
+      )
+      // Builder factories for nested collection types used in models
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(Prediction)]),
+        () => ListBuilder<Prediction>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(Prediction)])]),
+        () => MapBuilder<String, BuiltList<Prediction>>(),
       )
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())

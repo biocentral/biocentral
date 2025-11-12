@@ -8,7 +8,6 @@ doc/BiocentralApi.md
 doc/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 doc/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 doc/BiotrainerSequenceRecord.md
-doc/ConfigOption.md
 doc/ConfigOptionsResponse.md
 doc/ConfigVerificationRequest.md
 doc/ConfigVerificationResponse.md
@@ -80,7 +79,6 @@ lib/src/model/bayesian_optimization_request.dart
 lib/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart
 lib/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart
 lib/src/model/biotrainer_sequence_record.dart
-lib/src/model/config_option.dart
 lib/src/model/config_options_response.dart
 lib/src/model/config_verification_request.dart
 lib/src/model/config_verification_response.dart

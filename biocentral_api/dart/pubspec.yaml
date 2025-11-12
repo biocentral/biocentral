@@ -1,11 +1,11 @@
 name: biocentral_api
 version: 1.0.0
-description: OpenAPI API client
-homepage: homepage
+description: biocentral_server OpenAPI API client
+homepage: https://github.com/biocentral/biocentral_api/dart
 
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   dio: '^5.7.0'

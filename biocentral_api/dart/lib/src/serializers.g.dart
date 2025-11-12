@@ -17,7 +17,6 @@ Serializers _$serializers = (Serializers().toBuilder()
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
       ..add(BiotrainerSequenceRecord.serializer)
-      ..add(ConfigOption.serializer)
       ..add(ConfigOptionsResponse.serializer)
       ..add(ConfigVerificationRequest.serializer)
       ..add(ConfigVerificationResponse.serializer)
@@ -58,9 +57,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ValidationError.serializer)
       ..add(ValidationErrorLocInner.serializer)
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(ConfigOption)]),
-          () => ListBuilder<ConfigOption>())
-      ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(PLMEvalTaskInformation)]),
           () => ListBuilder<PLMEvalTaskInformation>())
@@ -99,6 +95,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(int)]),
           () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType.nullable(JsonObject)]),
+          () => ListBuilder<JsonObject?>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
