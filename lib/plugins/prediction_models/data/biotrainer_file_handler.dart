@@ -7,18 +7,7 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 
 class BiotrainerFileHandler {
-  static CustomAttributes _addOrUpdateCustomAttribute(CustomAttributes attributes, Map keyVals) {
-    CustomAttributes result = attributes;
-    for (var entry in keyVals.entries) {
-      try {
-        result = result.add(entry.key.toString(), entry.value.toString());
-      } catch (Exception) {
-        result = result.update(entry.key.toString(), entry.value.toString());
-      }
-    }
-    return result;
-  }
-  
+
   static Future<String> getBiotrainerInputFile(
     Type databaseType,
     Map<String, dynamic> entryMap,
@@ -36,8 +25,7 @@ class BiotrainerFileHandler {
                   (key, value) => MapEntry(
                     key,
                     (value as Protein).copyWith(
-                      attributes: _addOrUpdateCustomAttribute(
-                        value.attributes,
+                      attributes: CustomAttributes(
                         {'TARGET': value.toMap()[targetColumn] ?? 'None', 'SET': value.toMap()[setColumn] ?? 'None'},
                       ),
                     ),
@@ -55,9 +43,8 @@ class BiotrainerFileHandler {
                   (key, value) => MapEntry(
                     key,
                     (value as ProteinProteinInteraction).copyWith(
-                      attributes: _addOrUpdateCustomAttribute(
-                        value.attributes,
-                        {'TARGET': value.toMap()[targetColumn] ?? '', 'SET': value.toMap()[setColumn] ?? ''},
+                      attributes: CustomAttributes(
+                        {'TARGET': value.toMap()[targetColumn] ?? 'None', 'SET': value.toMap()[setColumn] ?? 'None'},
                       ),
                     ),
                   ),
@@ -69,7 +56,7 @@ class BiotrainerFileHandler {
     }
     return inputFile;
   }
-  
+
   /// Convert [biotrainerConfiguration] to YAML file
   static String biotrainerConfigurationToConfigFile(Map<String, dynamic> biotrainerConfiguration) {
     String result = '';
