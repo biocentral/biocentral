@@ -26,6 +26,8 @@ def run_command(command, cwd=None):
         )
         if result.stdout:
             print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
         return True
     except subprocess.CalledProcessError as e:
         print(f"Error running command: {e}")
@@ -94,9 +96,7 @@ def move_generated_docs(source_docs_dir, target_docs_dir, existing_manual_docs):
         print(f"Error syncing docs: {e}")
         return False
 
-
-def main():
-    """Main function to generate OpenAPI client and organize documentation."""
+def generate_python():
     # Define paths
     script_dir = Path(__file__).parent
     openapi_spec = script_dir / "openapi.json"
@@ -124,7 +124,7 @@ def main():
         "-o", str(output_dir)
     ]
 
-    print("Generating OpenAPI client...")
+    print("Generating OpenAPI Python client...")
 
     # Run the generator
     if not run_command(generator_command, cwd=script_dir):
@@ -149,10 +149,87 @@ def main():
     else:
         print("No generated documentation found to move")
 
-    print("\nGeneration complete!")
+    print("\nPython Generation complete!")
     print(f"Generated client is in: {output_dir}")
     print(f"Generated docs are in: {target_docs_dir}")
 
+def generate_dart():
+    # Define paths
+    script_dir = Path(__file__).parent
+    openapi_spec = script_dir / "openapi.json"
+    output_dir = script_dir.parent / "dart"
+    temp_docs_dir = output_dir / "doc"
+    target_docs_dir = output_dir / "doc" / "_generated"
+
+    # Check if OpenAPI spec exists
+    if not openapi_spec.exists():
+        print(f"Error: OpenAPI spec not found at {openapi_spec}")
+        sys.exit(1)
+
+    if not target_docs_dir.exists():
+        target_docs_dir.mkdir(parents=True, exist_ok=True)
+
+    existing_manual_docs = list(os.listdir(temp_docs_dir))
+
+    # Prepare the openapi-generator command
+    generator_command = [
+        "openapi-generator-cli",
+        "generate",
+        "-g", "dart-dio",
+        "--package-name", "biocentral_api",
+        "--additional-properties=pubName=biocentral_api",
+        "-i", str(openapi_spec),
+        "-o", str(output_dir)
+    ]
+
+    print("Generating OpenAPI Dart client...")
+
+    # Run the generator
+    if not run_command(generator_command, cwd=script_dir):
+        print("Failed to generate OpenAPI client")
+        sys.exit(1)
+
+    print("OpenAPI Dart client generated successfully!")
+
+    # Run the builder
+    # TODO Does not work automatically yet, because BiotrainerSequenceRecord needs manual refactoring after creation
+    builder_command = [
+        "/usr/bin/flutter/bin/dart",
+        "run",
+        "build_runner",
+        "build",
+        "--delete-conflicting-outputs"
+    ]
+
+    # if not run_command(builder_command, cwd=output_dir):
+    #     print("Failed to generate Dart builder")
+    #     sys.exit(1)
+
+    # Check if docs were generated and need to be moved
+    if temp_docs_dir.exists() and any(temp_docs_dir.iterdir()):
+        print("Moving generated documentation...")
+
+        # Ensure target directory exists
+        target_docs_dir.parent.mkdir(parents=True, exist_ok=True)
+
+        # Move generated docs
+        if move_generated_docs(temp_docs_dir, target_docs_dir, existing_manual_docs):
+            print("Documentation moved successfully!")
+        else:
+            print("Warning: Failed to move documentation")
+            sys.exit(1)
+    else:
+        print("No generated documentation found to move")
+
+    print("\nDart Generation complete!")
+    print(f"Generated client is in: {output_dir}")
+    print(f"Generated docs are in: {target_docs_dir}")
+
+
+def main():
+    """Main function to generate OpenAPI client and organize documentation."""
+    #generate_python()
+    generate_dart()
 
 if __name__ == "__main__":
     main()
