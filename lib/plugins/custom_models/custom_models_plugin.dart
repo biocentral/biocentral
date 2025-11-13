@@ -1,24 +1,24 @@
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_inference_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_output_dir_handler.dart';
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/views/model_command_view.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/views/model_hub_view.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_inference_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/model_hub_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/prediction_model_events.dart';
+import 'package:biocentral/plugins/custom_models/data/biotrainer_output_dir_handler.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/presentation/views/model_command_view.dart';
+import 'package:biocentral/plugins/custom_models/presentation/views/model_hub_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PredictionModelsPlugin extends BiocentralPlugin
-    with BiocentralDatabasePluginMixin<PredictionModelRepository> {
-  PredictionModelsPlugin(super.eventBus);
+class CustomModelsPlugin extends BiocentralPlugin
+    with BiocentralDatabasePluginMixin<CustomModelRepository> {
+  CustomModelsPlugin(super.eventBus);
 
   @override
-  String get typeName => 'PredictionModelsPlugin';
+  String get typeName => 'CustomModelsPlugin';
 
   @override
   String getShortDescription() {
@@ -26,8 +26,8 @@ class PredictionModelsPlugin extends BiocentralPlugin
   }
 
   @override
-  PredictionModelRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
-    return PredictionModelRepository(projectRepository);
+  CustomModelRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+    return CustomModelRepository(projectRepository);
   }
 
   @override

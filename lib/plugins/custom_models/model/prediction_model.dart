@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral_api/biocentral_api.dart';

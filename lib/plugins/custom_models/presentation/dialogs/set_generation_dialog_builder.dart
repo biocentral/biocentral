@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/set_generation_dialog_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral/sdk/model/split_set.dart';

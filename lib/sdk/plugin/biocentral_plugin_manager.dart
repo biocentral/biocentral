@@ -50,12 +50,12 @@ class BiocentralPluginManager extends Equatable {
     // TODO PPI Plugin and BayOptPlugin Temporarily disabled
     //final PpiPlugin ppiPlugin = PpiPlugin(eventBus);
     final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
-    final PredictionModelsPlugin predictionModelsPlugin = PredictionModelsPlugin(eventBus);
+    final CustomModelsPlugin customModelsPlugin = CustomModelsPlugin(eventBus);
     final PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
     // final BayOptPlugin bayOptPlugin = BayOptPlugin(eventBus);
     return (
-      {proteinPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin}, // All
-      {proteinPlugin, embeddingsPlugin, predictionModelsPlugin, plmEvalPlugin}, // Default Selected
+      {proteinPlugin, embeddingsPlugin, customModelsPlugin, plmEvalPlugin}, // All
+      {proteinPlugin, embeddingsPlugin, customModelsPlugin, plmEvalPlugin}, // Default Selected
     );
   }
 

@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_output_dir_handler.dart';
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/data/biotrainer_output_dir_handler.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:bloc/bloc.dart';
@@ -84,7 +84,7 @@ final class LoadModelDialogState extends Equatable {
 enum LoadModelDialogStatus { initial, selecting, loading, loaded }
 
 class LoadModelDialogBloc extends Bloc<LoadModelDialogEvent, LoadModelDialogState> {
-  final PredictionModelRepository _predictionModelRepository;
+  final CustomModelRepository _predictionModelRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final EventBus _eventBus;
 

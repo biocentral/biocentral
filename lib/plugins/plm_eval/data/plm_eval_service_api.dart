@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_training_bloc.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fpdart/fpdart.dart';
