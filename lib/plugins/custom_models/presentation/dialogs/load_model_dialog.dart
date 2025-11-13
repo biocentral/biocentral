@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/prediction_models/bloc/load_model_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/load_model_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_directory_path_selection.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';

@@ -1,5 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
+import 'package:biocentral/plugins/custom_models/data/custom_models_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
 import 'package:biocentral_api/biocentral_api.dart';

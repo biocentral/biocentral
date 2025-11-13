@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 

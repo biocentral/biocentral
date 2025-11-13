@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral_api/biocentral_api.dart';
@@ -11,12 +11,12 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralAPIRepository _apiRepository;
   final BiocentralDatabase _biocentralDatabase;
-  final PredictionModelRepository _predictionModelRepository;
+  final CustomModelRepository _predictionModelRepository;
 
   final Map<String, String> _trainingConfiguration;
 
   TrainBiotrainerModelCommand(
-      {required BiocentralProjectRepository biocentralProjectRepository, required BiocentralAPIRepository apiRepository, required BiocentralDatabase biocentralDatabase, required PredictionModelRepository predictionModelRepository, required Map<
+      {required BiocentralProjectRepository biocentralProjectRepository, required BiocentralAPIRepository apiRepository, required BiocentralDatabase biocentralDatabase, required CustomModelRepository predictionModelRepository, required Map<
           String,
           String> trainingConfiguration})
       : _biocentralProjectRepository = biocentralProjectRepository,
