@@ -9,9 +9,9 @@ from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, Cus
 class BiocentralAPI:
     def __init__(self, api_token: Optional[str] = None, server_url: Optional[str] = None):
         self.api_token = api_token if api_token else ""
-        self.server_url = server_url if server_url else "http://localhost:9540"
+        self.server_url = server_url if server_url else "http://laser.bio.cit.tum.de:9540"  # TODO!
         self.configuration = Configuration(
-            host="http://localhost:9540"
+            host=self.server_url
         )
 
     def embed(self,

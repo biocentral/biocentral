@@ -44,7 +44,6 @@ __all__ = [
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
     "BiotrainerSequenceRecord",
-    "ConfigOption",
     "ConfigOptionsResponse",
     "ConfigVerificationRequest",
     "ConfigVerificationResponse",
@@ -82,7 +81,6 @@ __all__ = [
     "TaxonomyRequest",
     "TaxonomyResponse",
     "TestResult",
-    "TransferFileRequest",
     "ValidationError",
     "ValidationErrorLocInner",
 ]
@@ -118,7 +116,6 @@ from biocentral_api._generated.models.bayesian_optimization_request import Bayes
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord as BiotrainerSequenceRecord
-from biocentral_api._generated.models.config_option import ConfigOption as ConfigOption
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest as ConfigVerificationRequest
 from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse as ConfigVerificationResponse
@@ -156,7 +153,6 @@ from biocentral_api._generated.models.taxonomy_item import TaxonomyItem as Taxon
 from biocentral_api._generated.models.taxonomy_request import TaxonomyRequest as TaxonomyRequest
 from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse as TaxonomyResponse
 from biocentral_api._generated.models.test_result import TestResult as TestResult
-from biocentral_api._generated.models.transfer_file_request import TransferFileRequest as TransferFileRequest
 from biocentral_api._generated.models.validation_error import ValidationError as ValidationError
 from biocentral_api._generated.models.validation_error_loc_inner import ValidationErrorLocInner as ValidationErrorLocInner
 

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**options** | [**List[ConfigOption]**](ConfigOption.md) | List of configuration option dictionaries | 
+**options** | **List[object]** | List of configuration option dictionaries | 
 
 ## Example
 

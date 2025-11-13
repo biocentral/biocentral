@@ -19,7 +19,6 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.config_option import ConfigOption
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -27,7 +26,7 @@ class ConfigOptionsResponse(BaseModel):
     """
     ConfigOptionsResponse
     """ # noqa: E501
-    options: List[ConfigOption] = Field(description="List of configuration option dictionaries")
+    options: List[Any] = Field(description="List of configuration option dictionaries")
     __properties: ClassVar[List[str]] = ["options"]
 
     model_config = ConfigDict(
@@ -69,13 +68,6 @@ class ConfigOptionsResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in options (list)
-        _items = []
-        if self.options:
-            for _item_options in self.options:
-                if _item_options:
-                    _items.append(_item_options.to_dict())
-            _dict['options'] = _items
         return _dict
 
     @classmethod
@@ -88,7 +80,7 @@ class ConfigOptionsResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "options": [ConfigOption.from_dict(_item) for _item in obj["options"]] if obj.get("options") is not None else None
+            "options": obj.get("options")
         })
         return _obj
 

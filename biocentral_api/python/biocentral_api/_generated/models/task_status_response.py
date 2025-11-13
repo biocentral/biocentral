@@ -27,7 +27,7 @@ class TaskStatusResponse(BaseModel):
     """
     TaskStatusResponse
     """ # noqa: E501
-    dtos: List[TaskDTO] = Field(description="List of task DTOs generated during task execution")
+    dtos: List[TaskDTO] = Field(description="List of task DTOs generated during task execution since last request for the given task id")
     __properties: ClassVar[List[str]] = ["dtos"]
 
     model_config = ConfigDict(

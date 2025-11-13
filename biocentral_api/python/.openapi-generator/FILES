@@ -23,7 +23,6 @@ biocentral_api/_generated/models/bayesian_optimization_request.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
 biocentral_api/_generated/models/biotrainer_sequence_record.py
-biocentral_api/_generated/models/config_option.py
 biocentral_api/_generated/models/config_options_response.py
 biocentral_api/_generated/models/config_verification_request.py
 biocentral_api/_generated/models/config_verification_response.py
@@ -61,7 +60,6 @@ biocentral_api/_generated/models/taxonomy_item.py
 biocentral_api/_generated/models/taxonomy_request.py
 biocentral_api/_generated/models/taxonomy_response.py
 biocentral_api/_generated/models/test_result.py
-biocentral_api/_generated/models/transfer_file_request.py
 biocentral_api/_generated/models/validation_error.py
 biocentral_api/_generated/models/validation_error_loc_inner.py
 biocentral_api/_generated/py.typed
@@ -76,7 +74,6 @@ docs/BiocentralApi.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 docs/BiotrainerSequenceRecord.md
-docs/ConfigOption.md
 docs/ConfigOptionsResponse.md
 docs/ConfigVerificationRequest.md
 docs/ConfigVerificationResponse.md
@@ -121,7 +118,6 @@ docs/TaxonomyItem.md
 docs/TaxonomyRequest.md
 docs/TaxonomyResponse.md
 docs/TestResult.md
-docs/TransferFileRequest.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py

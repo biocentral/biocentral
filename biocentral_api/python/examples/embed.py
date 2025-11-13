@@ -1,6 +1,6 @@
 from biocentral_api import BiocentralAPI
 
-biocentral_api = BiocentralAPI()
+biocentral_api = BiocentralAPI(server_url="http://localhost:9540")
 
 # OHE
 embedder_name = "one_hot_encoding"

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**dtos** | [**List[TaskDTO]**](TaskDTO.md) | List of task DTOs generated during task execution | 
+**dtos** | [**List[TaskDTO]**](TaskDTO.md) | List of task DTOs generated during task execution since last request for the given task id | 
 
 ## Example
 
