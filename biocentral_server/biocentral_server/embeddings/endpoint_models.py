@@ -1,6 +1,6 @@
 import json
 
-from typing import List, Dict
+from typing import List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
 
@@ -57,3 +57,22 @@ class AddEmbeddingsResponse(BaseModel):
     success: bool = Field(
         description="Bool flag indicating whether embeddings were added successfully"
     )
+
+
+class GetProjectionConfigResponse(BaseModel):
+    """Response model for projection configuration"""
+
+    projection_config: Dict[str, List] = Field(
+        description="Projection configuration for each method"
+    )
+
+
+class ProjectionRequest(BaseModel):
+    """Request model for projection"""
+
+    sequence_data: Dict[str, str] = Field(
+        description="Sequence data to embed (seq_id -> sequence)", min_length=1
+    )
+    method: str = Field(description="Projection method to use")
+    config: Dict[str, Any] = Field(description="Projection configuration")
+    embedder_name: str = Field(description="Name of the embedder model")

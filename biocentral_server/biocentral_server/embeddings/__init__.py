@@ -1,6 +1,5 @@
 from .embeddings_endpoint import router as embeddings_router
-
-# from .projection_endpoint import projection_route
+from .projection_endpoint import router as projection_router
 from .embedding_task import (
     CalculateEmbeddingsTask,
     LoadEmbeddingsTask,
@@ -12,5 +11,5 @@ __all__ = [
     "LoadEmbeddingsTask",
     "ExportEmbeddingsTask",
     "embeddings_router",
-    #   "projection_route",
+    "projection_router",
 ]

@@ -47,6 +47,9 @@ class TaskDTO(BaseModel):
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[str] = None
 
+    # projections
+    projection_result: Optional[Dict[str, Any]] = None
+
     # plm_eval
     embedder_name: Optional[str] = None
     autoeval_progress: Optional[AutoEvalProgress] = None

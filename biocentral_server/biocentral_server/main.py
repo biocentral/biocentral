@@ -18,13 +18,13 @@ from .server_management import (
 
 # Import module routers
 from .ppi import router as ppi_router
-from .embeddings import embeddings_router
 from .predict import router as predict_router
 from .bay_opt import router as bay_opt_router
 from .plm_eval import router as plm_eval_router
 from .proteins import router as proteins_router
 from .biocentral import router as biocentral_router
 from .custom_models import router as custom_models_router
+from .embeddings import embeddings_router, projection_router
 
 from .utils import str2bool, Constants
 
@@ -90,6 +90,7 @@ def create_app() -> FastAPI:
     prefix = "/api/v1"
     app.include_router(biocentral_router, prefix=prefix)
     app.include_router(embeddings_router, prefix=prefix)
+    app.include_router(projection_router, prefix=prefix)
     app.include_router(bay_opt_router, prefix=prefix)
     app.include_router(plm_eval_router, prefix=prefix)
     app.include_router(ppi_router, prefix=prefix)
