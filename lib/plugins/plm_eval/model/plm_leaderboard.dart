@@ -44,7 +44,7 @@ class PLMLeaderboard {
           (result) => RankingEntry(
             name: result.embedderName,
             metrics: result.results.map(
-              (dataset, modelResult) => MapEntry(dataset.taskName, modelResult.defaultTestResult!.metrics.first),
+              (taskName, modelResult) => MapEntry(taskName, modelResult.defaultTestResult!.metrics.first),
             ),
           ),
         )

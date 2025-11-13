@@ -1,6 +1,5 @@
 import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
 import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/data/bay_opt_client.dart';
 import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_command_view.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Plugin for integrating Bayesian Optimization functionality into the Biocentral platform.
 class BayOptPlugin extends BiocentralPlugin
     with
-        BiocentralClientPluginMixin<BayOptClient>,
         BiocentralDatabasePluginMixin<BayOptRepository>,
         BiocentralColumnWizardPluginMixin {
   /// Creates a new [BayOptPlugin] instance.
@@ -27,11 +25,6 @@ class BayOptPlugin extends BiocentralPlugin
   @override
   String getShortDescription() {
     return 'Optimize models using Bayesian methods';
-  }
-
-  @override
-  BiocentralClientFactory<BayOptClient> createClientFactory() {
-    return BayOptClientFactory();
   }
 
   @override
@@ -52,7 +45,7 @@ class BayOptPlugin extends BiocentralPlugin
     final bayOptHubBloc = BayOptHubBloc(
       getDatabase(context),
       getBiocentralProjectRepository(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       eventBus,
       getBiocentralDatabaseRepository(context),
     );
@@ -60,7 +53,7 @@ class BayOptPlugin extends BiocentralPlugin
       getBiocentralProjectRepository(context),
       getDatabase(context),
       getBiocentralDatabaseRepository(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       eventBus,
     );
 

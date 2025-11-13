@@ -3,7 +3,7 @@ import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.
 import 'package:flutter/material.dart';
 
 class PLMEvalResultsDisplay extends StatefulWidget {
-  final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics; // Dataset name -> Split name -> Metrics
+  final Map<String, Set<BiocentralMLMetric>> metrics; // Dataset name -> Split name -> Metrics
 
   const PLMEvalResultsDisplay({required this.metrics, super.key});
 
@@ -12,12 +12,12 @@ class PLMEvalResultsDisplay extends StatefulWidget {
 }
 
 class _PLMEvalResultsDisplayState extends State<PLMEvalResultsDisplay> with AutomaticKeepAliveClientMixin {
-  String? _selectedDatasetName;
+  String? _selectedTaskName;
 
   @override
   void initState() {
     super.initState();
-    _selectedDatasetName = widget.metrics.keys.firstOrNull;
+    _selectedTaskName = widget.metrics.keys.firstOrNull;
   }
 
   @override
@@ -27,14 +27,14 @@ class _PLMEvalResultsDisplayState extends State<PLMEvalResultsDisplay> with Auto
       children: [
         BiocentralDropdownMenu(
           dropdownMenuEntries: widget.metrics.keys
-              .map((datasetName) => DropdownMenuEntry(value: datasetName, label: datasetName))
+              .map((taskName) => DropdownMenuEntry(value: taskName, label: taskName))
               .toList(),
-          label: const Text('Select dataset..'),
-          controller: TextEditingController.fromValue(TextEditingValue(text: _selectedDatasetName ?? '')),
+          label: const Text('Select task..'),
+          controller: TextEditingController.fromValue(TextEditingValue(text: _selectedTaskName ?? '')),
           onSelected: (String? value) {
             if (value != null && value.isNotEmpty) {
               setState(() {
-                _selectedDatasetName = value;
+                _selectedTaskName = value;
               });
             }
           },
@@ -42,7 +42,7 @@ class _PLMEvalResultsDisplayState extends State<PLMEvalResultsDisplay> with Auto
         SizedBox(
           height: SizeConfig.screenHeight(context) * 0.7,
           child: BiocentralMetricsDisplay(
-            metrics: widget.metrics[_selectedDatasetName] ?? {},
+            metrics: widget.metrics,
           ),
         ),
       ],

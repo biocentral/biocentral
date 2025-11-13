@@ -5,7 +5,6 @@ import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/bloc/wiki_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/info_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/plugin_dialog.dart';
-import 'package:biocentral/biocentral/presentation/dialogs/server_connection_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/wiki_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -21,20 +20,6 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void openServerConnectionDialog() {
-    final BiocentralClientBloc biocentralClientBloc = BlocProvider.of<BiocentralClientBloc>(context);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BlocProvider.value(
-          value: biocentralClientBloc,
-          child: const ServerConnectionDialog(),
-        );
-      },
-    );
   }
 
   void openWikiDialog() {
@@ -85,13 +70,6 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> {
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
       commands: [
-        BiocentralTooltip(
-          message: 'Connect to a server app for high-performance calculations',
-          child: BiocentralButton(
-            iconData: Icons.cast_connected,
-            onTap: openServerConnectionDialog,
-          ),
-        ),
         BiocentralTooltip(
           message: 'Read documentation and complete tutorials',
           child: BiocentralButton(

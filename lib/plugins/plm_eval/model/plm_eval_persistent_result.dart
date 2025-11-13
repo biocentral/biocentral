@@ -1,16 +1,15 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class PLMEvalPersistentResult {
   final String embedderName;
   final DateTime trainingDate;
-  final Map<BenchmarkDataset, PredictionModel> results;
+  final Map<String, PredictionModel> results;
 
   PLMEvalPersistentResult._internal(this.embedderName, this.trainingDate, this.results);
 
-  PLMEvalPersistentResult.fromAutoEvalProgress(AutoEvalProgress progress)
+  PLMEvalPersistentResult.fromAutoEvalProgressWrapper(AutoEvalProgressWrapper progress)
       : embedderName = progress.embedderName,
         trainingDate = DateTime.now(),
         results = Map.from(progress.results);
@@ -22,19 +21,15 @@ class PLMEvalPersistentResult {
     if (embedderName == null || trainingDate == null || parsedResults.isEmpty) {
       return null;
     }
-    final Map<BenchmarkDataset, PredictionModel> results = {};
-    for (final (benchmarkName, benchmarkResult)  in parsedResults.entriesRecord) {
-      final benchmarkDataset = BenchmarkDataset.fromCombinedString(benchmarkName);
-      if(benchmarkDataset == null) {
-        return null;
-      }
-      final predictionModel = PredictionModel.fromMap(benchmarkResult);
+    final Map<String, PredictionModel> results = {};
+    for (final (taskName, taskResult)  in parsedResults.entriesRecord) {
+      final predictionModel = PredictionModel.fromMap(taskResult);
 
       if(predictionModel == null) {
         return null;
       }
 
-      results[benchmarkDataset] = predictionModel;
+      results[taskName] = predictionModel;
     }
     return PLMEvalPersistentResult._internal(embedderName, trainingDate, results);
   }
@@ -42,9 +37,8 @@ class PLMEvalPersistentResult {
   Map<String, dynamic> toMap() {
     final Map<String, Map<String, dynamic>> resultsMap = {};
 
-    for (final (benchmarkDataset, predictionModel) in results.entriesRecord) {
-      final benchmarkName = benchmarkDataset.taskName;
-      resultsMap[benchmarkName] = predictionModel.toMap(includeTrainingLogs: false);
+    for (final (taskName, predictionModel) in results.entriesRecord) {
+      resultsMap[taskName] = predictionModel.toMap(includeTrainingLogs: false);
     }
     return {'embedder_name': embedderName, 'training_date': trainingDate.toIso8601String(), 'results': resultsMap};
   }

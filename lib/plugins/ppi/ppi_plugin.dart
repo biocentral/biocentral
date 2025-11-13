@@ -18,7 +18,6 @@ import 'package:tutorial_system/tutorial_system.dart';
 
 class PpiPlugin extends BiocentralPlugin
     with
-        BiocentralClientPluginMixin<PPIClient>,
         BiocentralDatabasePluginMixin<PPIRepository>,
         BiocentralTutorialPluginMixin {
   final GlobalKey ppiTabKey = GlobalKey();
@@ -73,7 +72,7 @@ class PpiPlugin extends BiocentralPlugin
 
     final ppiCommandBloc = PPICommandBloc(
       getDatabase(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       getBiocentralProjectRepository(context),
       eventBus,
     );
@@ -103,11 +102,6 @@ class PpiPlugin extends BiocentralPlugin
       BlocProvider<PPIDatabaseTestsBloc>.value(value: ppiDatabaseTestsBloc): ppiDatabaseTestsBloc,
       BlocProvider<ColumnWizardBloc>.value(value: ppiColumnWizardBloc): ppiColumnWizardBloc,
     };
-  }
-
-  @override
-  BiocentralClientFactory<PPIClient> createClientFactory() {
-    return PPIClientFactory();
   }
 
   @override

@@ -7,12 +7,12 @@ import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 class PLMEvalRepository {
   final BiocentralProjectRepository _projectRepository;
 
-  final List<AutoEvalProgress> _sessionResults = [];
+  final List<AutoEvalProgressWrapper> _sessionResults = [];
   final List<PLMEvalPersistentResult> _persistentResults = [];
 
   PLMEvalRepository(this._projectRepository);
 
-  Future<List<AutoEvalProgress>> addSessionResult(AutoEvalProgress progress) async {
+  Future<List<AutoEvalProgressWrapper>> addSessionResult(AutoEvalProgressWrapper progress) async {
     // TODO [Refactoring] Use autoSaving mixin
     _sessionResults.add(progress);
 
@@ -63,12 +63,12 @@ class PLMEvalRepository {
     final List<Map<String, dynamic>> persistentResults = [
       ..._persistentResults.map((persistentResult) => persistentResult.toMap()),
       ..._sessionResults
-          .map((autoEvalProgress) => PLMEvalPersistentResult.fromAutoEvalProgress(autoEvalProgress).toMap()),
+          .map((autoEvalProgress) => PLMEvalPersistentResult.fromAutoEvalProgressWrapper(autoEvalProgress).toMap()),
     ];
     return jsonEncode(persistentResults);
   }
 
-  List<AutoEvalProgress> getSessionResults() {
+  List<AutoEvalProgressWrapper> getSessionResults() {
     return List.from(_sessionResults);
   }
 
@@ -78,6 +78,6 @@ class PLMEvalRepository {
 
   List<PLMEvalPersistentResult> getAllResultsAsPersistent() {
     return getPersistentResults()
-      ..addAll(getSessionResults().map((sessionResult) => PLMEvalPersistentResult.fromAutoEvalProgress(sessionResult)));
+      ..addAll(getSessionResults().map((sessionResult) => PLMEvalPersistentResult.fromAutoEvalProgressWrapper(sessionResult)));
   }
 }

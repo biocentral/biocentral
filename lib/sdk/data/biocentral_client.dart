@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:biocentral/sdk/data/biocentral_server_data.dart';
-import 'package:biocentral/sdk/data/biocentral_service_api.dart';
 import 'package:biocentral/sdk/util/biocentral_exception.dart';
-import 'package:biocentral/sdk/util/constants.dart';
-import 'package:biocentral/sdk/util/logging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-import 'biocentral_task_dto.dart';
 
 @immutable
 class DownloadProgress {
@@ -28,7 +23,7 @@ class DownloadProgress {
   }
 }
 
-final class _BiocentralClientSandbox {
+final class _ClientSandbox {
   static Either<BiocentralException, Map> _handleServerResponse(Response response) {
     if (response.statusCode != 200) {
       if (response.statusCode >= 500) {
@@ -72,23 +67,6 @@ final class _BiocentralClientSandbox {
           stackTrace: stackTrace,
         ),
       );
-    }
-  }
-
-  /// Test the server at [url] against the specified [endpoint]
-  ///
-  /// In contrast to [doGetRequest], this method does not throw an error if the connection cannot be established,
-  /// but an empty map
-  static Future<Map> isServerUp(String url, String endpoint) async {
-    try {
-      final Uri uri = Uri.parse(url + endpoint);
-      final Response response = await http.get(uri);
-      if (response.statusCode != 200) {
-        return {};
-      }
-      return jsonDecode(response.body);
-    } catch (e) {
-      return {};
     }
   }
 
@@ -184,125 +162,21 @@ mixin HTTPClient {
 
   Future<Either<BiocentralException, Map>> doGetRequest(String endpoint) async {
     final urlEither = getBaseURL();
-    return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doGetRequest(url, endpoint));
+    return urlEither.match((l) => left(l), (url) => _ClientSandbox.doGetRequest(url, endpoint));
   }
 
   Future<Either<BiocentralException, Map>> doPostRequest(String endpoint, Map<String, String> body) async {
     final urlEither = getBaseURL();
-    return urlEither.match((l) => left(l), (url) => _BiocentralClientSandbox.doPostRequest(url, endpoint, body));
+    return urlEither.match((l) => left(l), (url) => _ClientSandbox.doPostRequest(url, endpoint, body));
   }
 
   Future<Either<BiocentralException, String>> doSimpleFileDownload(String url) async {
-    final downloadEither = await _BiocentralClientSandbox.downloadFile(url);
+    final downloadEither = await _ClientSandbox.downloadFile(url);
     return downloadEither.flatMap((bytes) => right(String.fromCharCodes(bytes.toList())));
   }
 }
 
-abstract class BiocentralClient with HTTPClient {
-  final BiocentralServerData? _server;
-  final BiocentralHubServerClient _hubServerClient;
-
-  const BiocentralClient(this._server, this._hubServerClient);
-
-  String getServiceName();
-
-  BiocentralHubServerClient get hubServerClient => _hubServerClient;
-
-  @override
-  Either<BiocentralException, String> getBaseURL() {
-    if (_server == null) {
-      return left(BiocentralNetworkException(message: 'Not connected to any server to perform request!'));
-    }
-    return right(_server!.url);
-  }
-
-  Future<Either<BiocentralException, Unit>> transferFile(
-    String databaseHash,
-    StorageFileType fileType,
-    Future<String> Function() databaseConversionFunction,
-  ) async {
-    // Check if hash exists
-    final responseEither = await doGetRequest("${BiocentralServiceEndpoints.hashes}$databaseHash/${fileType.name}");
-    return responseEither.match((l) => left(l), (responseMap) async {
-      final bool hashExists = responseMap[databaseHash] ?? false;
-      if (hashExists) {
-        logger.i('Found file type $fileType for $databaseHash on server, file is not transferred!');
-        return right(unit);
-      } else {
-        final String convertedDatabase = await databaseConversionFunction();
-
-        if (convertedDatabase.isEmpty) {
-          // Nothing to send
-          return right(unit);
-        }
-
-        final transferResponseEither = await doPostRequest(
-          BiocentralServiceEndpoints.transferFile,
-          {'hash': databaseHash, 'file_type': fileType.name, 'file': convertedDatabase},
-        );
-        return transferResponseEither.match((e) => left(e), (r) {
-          logger.i('File type $fileType was transferred for database hash $databaseHash!');
-          return right(unit);
-        });
-      }
-    });
-  }
-
-  Future<Either<BiocentralException, List<BiocentralDTO>>> getTaskStatus(String taskID) async {
-    final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatus}/$taskID');
-    return responseEither.flatMap((responseMaps) {
-      final sortedUpdatesKeys = responseMaps.keys.toList()..sort();
-      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralDTO(responseMaps[sortedKey])).toList());
-    });
-  }
-
-  Future<Either<BiocentralException, List<BiocentralDTO>>> resumeTask(String taskID) async {
-    final responseEither = await doGetRequest('${BiocentralServiceEndpoints.taskStatusResumed}/$taskID');
-    return responseEither.flatMap((responseMaps) {
-      final sortedUpdatesKeys = responseMaps.keys.toList()..sort();
-      return right(sortedUpdatesKeys.map((sortedKey) => BiocentralDTO(responseMaps[sortedKey])).toList());
-    });
-  }
-
-  Stream<(BiocentralDTO, T?)> taskUpdateStream<T>(
-    String taskID,
-    T? initialValue,
-    T? Function(T?, BiocentralDTO) updateFunction,
-  ) async* {
-    const int maxRequests = 5400; // TODO Listening for only 180 Minutes
-    bool finished = false;
-    T? currentValue = initialValue;
-    for (int i = 0; i < maxRequests; i++) {
-      if (finished) {
-        break;
-      }
-      await Future.delayed(const Duration(seconds: 2));
-      final biocentralDTOEither = await getTaskStatus(taskID);
-
-      if (biocentralDTOEither.isLeft() || biocentralDTOEither.getRight().isNone()) {
-        finished = true;
-        continue;
-      }
-      final biocentralDTOs = biocentralDTOEither.getRight().getOrElse(() => []);
-      for (final biocentralDTO in biocentralDTOs) {
-        if (biocentralDTO.taskStatus?.isFinished() ?? true) {
-          finished = true;
-        }
-        currentValue = updateFunction(currentValue, biocentralDTO) ?? currentValue;
-        yield (biocentralDTO, currentValue);
-      }
-    }
-  }
-}
-
-abstract class BiocentralClientFactory<T extends BiocentralClient> {
-  T create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient);
-
-  Type getClientType() {
-    return T;
-  }
-}
-
+// TODO [Refactoring] Could be moved directly to biocentral_api
 class BiocentralHubServerClient with HTTPClient {
   final String _baseUrl;
 
@@ -315,87 +189,17 @@ class BiocentralHubServerClient with HTTPClient {
   Either<BiocentralException, String> getBaseURL() {
     return right(_baseUrl);
   }
-}
 
-class ClientManager {
-  final Map<Type, BiocentralClientFactory> _factories = {};
-  final Map<Type, BiocentralClient> _clients = {};
-
-  final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('https://hub.biocentral.cloud');
-
-  BiocentralServerData? _server;
-
-  void registerFactory(BiocentralClientFactory factory) {
-    _factories[factory.getClientType()] = factory;
+  Future<Either<BiocentralException, Map>> downloadPLMLeaderboardData() async {
+    final leaderboardMapEither = await doGetRequest(BiocentralHubServerClient.leaderBoardEndpoint);
+    return leaderboardMapEither;
   }
 
-  void setServer(BiocentralServerData? server) {
-    _server = server;
-    _clients.clear();
+  Future<Either<BiocentralException, Map>> publishResult(String result) async {
+    final Map<String, String> body = {'result': result};
+
+    final leaderboardMapEither = await doPostRequest(BiocentralHubServerClient.publishLeaderboardEntryEndpoint, body);
+    return leaderboardMapEither;
   }
 
-  T getClient<T extends BiocentralClient>() {
-    if (!_clients.containsKey(T)) {
-      final factory = _factories[T];
-      if (factory == null) {
-        throw Exception('No factory registered for $T');
-      }
-      _clients[T] = factory.create(_server, _hubServerClient);
-    }
-    return _clients[T] as T;
-  }
-
-  BiocentralHubServerClient getHubServerClient() {
-    return _hubServerClient;
-  }
-
-  bool isServiceAvailable<T extends BiocentralClient>() {
-    return _factories.containsKey(T);
-  }
-}
-
-final class BiocentralClientRepository {
-  final ClientManager _clientManager = ClientManager();
-
-  BiocentralClientRepository.withReload(BiocentralClientRepository? old) {
-    _clientManager.setServer(old?._clientManager._server);
-  }
-
-  void registerServices(List<BiocentralClientFactory> factories) {
-    for (BiocentralClientFactory factory in factories) {
-      _clientManager.registerFactory(factory);
-    }
-  }
-
-  Future<Set<BiocentralServerData>> getAvailableServers() async {
-    // TODO Connect to master server and get actual list
-    final services = await checkServerStatus(Constants.localHostServerURL);
-    if (services.isEmpty) {
-      return {};
-    }
-    return {BiocentralServerData.local(availableServices: services)};
-  }
-
-  Future<List<String>> checkServerStatus(String url) async {
-    final serviceMap = await _BiocentralClientSandbox.isServerUp(url, BiocentralServiceEndpoints.services);
-    return List<String>.from(serviceMap['services'] ?? {});
-  }
-
-  Future<Either<BiocentralException, Unit>> connectToServer(BiocentralServerData server) async {
-    final services = await checkServerStatus(server.url);
-    if (services.isEmpty) {
-      return left(BiocentralServerException(message: 'The server does not provide any services!'));
-    }
-    _clientManager.setServer(server);
-    logger.i('Connected to biocentral server with services: ${server.availableServices}');
-    return right(unit);
-  }
-
-  bool isServiceAvailable<T extends BiocentralClient>() {
-    return _clientManager.isServiceAvailable<T>();
-  }
-
-  T getServiceClient<T extends BiocentralClient>() {
-    return _clientManager.getClient<T>();
-  }
 }

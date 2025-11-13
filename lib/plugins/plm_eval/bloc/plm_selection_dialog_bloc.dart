@@ -1,8 +1,7 @@
 import 'package:biocentral/plugins/embeddings/model/onnx_embedder.dart';
 import 'package:biocentral/plugins/embeddings/model/onnx_runtime_wrapper.dart';
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:equatable/equatable.dart';
@@ -27,75 +26,68 @@ final class PLMSelectionDialogValidateONNXEvent extends PLMSelectionDialogEvent 
 final class PLMSelectionDialogState extends Equatable {
   final Either<String, XFile>? modelSelection;
   final String? errorMessage;
-  final List<BenchmarkDataset> datasets;
+  final List<PLMEvalTaskInformation> tasks;
 
   final PLMSelectionDialogStatus status;
 
-  const PLMSelectionDialogState(this.status, this.modelSelection, this.errorMessage, this.datasets);
+  const PLMSelectionDialogState(this.status, this.modelSelection, this.errorMessage, this.tasks);
 
   const PLMSelectionDialogState.initial()
       : modelSelection = null,
         errorMessage = null,
-        datasets = const [],
+        tasks = const [],
         status = PLMSelectionDialogStatus.initial;
 
   const PLMSelectionDialogState.checking(this.modelSelection)
       : errorMessage = null,
-        datasets = const [],
+        tasks = const [],
         status = PLMSelectionDialogStatus.checking;
 
-  const PLMSelectionDialogState.validated(this.modelSelection, this.datasets)
+  const PLMSelectionDialogState.validated(this.modelSelection, this.tasks)
       : errorMessage = null,
         status = PLMSelectionDialogStatus.validated;
 
   const PLMSelectionDialogState.evaluationAlreadyAvailable(
     this.modelSelection,
-    this.datasets,
+    this.tasks,
   )   : errorMessage = null,
         status = PLMSelectionDialogStatus.evaluationAlreadyAvailable;
 
   const PLMSelectionDialogState.errored(this.errorMessage)
       : modelSelection = null,
-        datasets = const [],
+        tasks = const [],
         status = PLMSelectionDialogStatus.errored;
 
   @override
-  List<Object?> get props => [modelSelection, errorMessage, datasets, status];
+  List<Object?> get props => [modelSelection, errorMessage, tasks, status];
 }
 
 enum PLMSelectionDialogStatus { initial, checking, validated, evaluationAlreadyAvailable, errored }
 
 class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionDialogState> {
   final BiocentralProjectRepository _projectRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
-  PLMSelectionDialogBloc(this._projectRepository, this._biocentralClientRepository)
+  PLMSelectionDialogBloc(this._projectRepository, this._apiRepository)
       : super(const PLMSelectionDialogState.initial()) {
     on<PLMSelectionDialogValidateHuggingfaceEvent>((event, emit) async {
       if (event.plmSelection == null) {
         return emit(const PLMSelectionDialogState.errored('Nothing provided to validate!'));
       }
-      final plmSelection = event.plmSelection;
+      final plmSelection = event.plmSelection?.replaceAll('https://huggingface.co', '');
       final Either<String, XFile> selectionEither = left(plmSelection!);
 
       emit(PLMSelectionDialogState.checking(selectionEither));
-      final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
 
       if (plmSelection.isEmpty) {
         return emit(const PLMSelectionDialogState.errored('Provided model name is empty!'));
       }
-      if (plmSelection.contains('https://huggingface.co')) {
-        return emit(
-          const PLMSelectionDialogState.errored('Please only provide the model id, without the huggingface domain!'),
-        );
+      final validateError = await _apiRepository.getBiocentralAPI().validateModelID(modelID: plmSelection);
+      if (validateError != null) {
+        return emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: $validateError'));
       }
-      final validateEither = await plmEvalClient.validateModelID(plmSelection);
-      await validateEither.match((l) async {
-        emit(PLMSelectionDialogState.errored('Validation of model id failed! Error: ${l.error}'));
-      }, (r) async {
-        emit(PLMSelectionDialogState.validated(selectionEither, []));
-        await _getDatasets(emit, selectionEither);
-      });
+      emit(PLMSelectionDialogState.validated(selectionEither, []));
+      await _getDatasets(emit, selectionEither);
     });
     on<PLMSelectionDialogValidateONNXEvent>((event, emit) async {
       if (event.onnxFile == null) {
@@ -138,17 +130,12 @@ class PLMSelectionDialogBloc extends Bloc<PLMSelectionDialogEvent, PLMSelectionD
     });
   }
 
-  Future<void> _getDatasets(emit, Either<String, XFile> selectionEither) async {
-    final plmEvalClient = _biocentralClientRepository.getServiceClient<PLMEvalClient>();
+  Future<void> _getDatasets(dynamic emit, Either<String, XFile> selectionEither) async {
 
-    final availableBenchmarkDatasetEither = await plmEvalClient.getAvailableBenchmarkDatasets();
-    await availableBenchmarkDatasetEither.match(
-      (l) async {
-        emit(PLMSelectionDialogState.errored('Could not retrieve available benchmark datasets! Error: ${l.error}'));
-      },
-      (List<BenchmarkDataset> available) async {
-        emit(PLMSelectionDialogState.validated(selectionEither, available..sort()));
-      },
-    );
+    final plmEvalInformation = await _apiRepository.getBiocentralAPI().getPlmEvalInformation();
+    if(plmEvalInformation == null) {
+      return emit(const PLMSelectionDialogState.errored('Could not retrieve plm eval information!'));
+    }
+    return emit(PLMSelectionDialogState.validated(selectionEither, plmEvalInformation.tasks.toList()));
   }
 }

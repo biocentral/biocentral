@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_leaderboard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -85,10 +85,10 @@ final class PLMEvalLeaderboardState extends Equatable {
 enum PLMEvalLeaderBoardStatus { initial, downloading, downloadErrored, loaded, publishing, publishingErrored }
 
 class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeaderboardState> {
-  final BiocentralClientRepository _clientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final PLMEvalRepository _plmEvalRepository;
 
-  PLMEvalLeaderboardBloc(this._clientRepository, this._plmEvalRepository)
+  PLMEvalLeaderboardBloc(this._apiRepository, this._plmEvalRepository)
       : super(const PLMEvalLeaderboardState.initial()) {
     on<PLMEvalLeaderboardLoadLocalEvent>((event, emit) async {
       final localResults = _plmEvalRepository.getAllResultsAsPersistent();
@@ -105,8 +105,10 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
     });
     on<PLMEvalLeaderboardDownloadEvent>((event, emit) async {
       emit(PLMEvalLeaderboardState.downloading(state.localLeaderboard));
-      final plmEvalClient = _clientRepository.getServiceClient<PLMEvalClient>();
-      final leaderboardEither = await plmEvalClient.downloadPLMLeaderboardData();
+      final leaderboardEither = await _apiRepository
+          .getHubServerClient()
+          .downloadPLMLeaderboardData()
+          .then((either) => parseLeaderboardFromResponse(either));
       leaderboardEither.match(
         (left) => emit(PLMEvalLeaderboardState.downloadErrored(state.localLeaderboard)),
         (remoteLeaderboard) => emit(

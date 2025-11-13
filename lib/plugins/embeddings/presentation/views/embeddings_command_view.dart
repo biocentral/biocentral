@@ -67,7 +67,7 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
       builder: (BuildContext context) {
         return BlocProvider(
           create: (context) => CalculateProjectionsDialogBloc(
-            context.read<BiocentralClientRepository>(),
+            context.read<BiocentralAPIRepository>(),
             context.read<EmbeddingsRepository>(),
           )..add(CalculateProjectionsDialogGetConfigEvent()),
           child: CalculateProjectionsDialog(
@@ -108,7 +108,6 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
           message: 'Get meaningful representations for your data',
           child: BiocentralButton(
             iconData: Icons.calculate,
-            requiredServices: const ['embeddings_service'],
             onTap: () => openCalculateEmbeddingsDialog(embeddingsCommandBloc),
           ),
         ),
@@ -116,7 +115,6 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
           message: 'Perform dimensionality reduction methods on your embeddings',
           child: BiocentralButton(
             iconData: Icons.auto_graph,
-            requiredServices: const ['embeddings_service'],
             onTap: () => openCalculateUMAPDialog(embeddingsCommandBloc),
           ),
         ),

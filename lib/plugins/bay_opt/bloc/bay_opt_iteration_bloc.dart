@@ -1,6 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_commands.dart';
-import 'package:biocentral/plugins/bay_opt/data/bay_opt_client.dart';
 import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
@@ -38,13 +37,13 @@ class BayOptIterationBloc
   final BiocentralProjectRepository _projectRepository;
   final BayOptRepository _bayOptRepository;
   final BiocentralDatabaseRepository _databaseRepository;
-  final BiocentralClientRepository _clientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
   BayOptIterationBloc(
     this._projectRepository,
     this._bayOptRepository,
     this._databaseRepository,
-    this._clientRepository,
+    this._apiRepository,
     EventBus eventBus,
   ) : super(const BayOptIterationState.idle(), eventBus) {
     on<BayOptIterationStartEvent>((event, emit) async {
@@ -98,7 +97,7 @@ class BayOptIterationBloc
 
         final command = BayOptIterationCommand(
           biocentralDatabase: biocentralDatabase,
-          client: _clientRepository.getServiceClient<BayOptClient>(),
+          apiRepository: _apiRepository,
           trainingConfiguration: config,
           targetFeature: boConfig.selectedFeature.toString(),
         );

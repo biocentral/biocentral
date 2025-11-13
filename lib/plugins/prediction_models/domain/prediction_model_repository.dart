@@ -11,7 +11,8 @@ class PredictionModelRepository {
 
   PredictionModelRepository(this._projectRepository);
 
-  void _addModel(PredictionModel predictionModel) {
+  void addModel(PredictionModel predictionModel) {
+    // TODO Autosaving without files
     _predictionModels.add(predictionModel);
   }
 
@@ -32,7 +33,7 @@ class PredictionModelRepository {
     );
 
     if (predictionModel != null) {
-      _addModel(predictionModel);
+      addModel(predictionModel);
       final String modelID =
           predictionModel.modelHash ?? 'UnknownModelHash-${predictionModel.hashCode.toString().substring(0, 4)}';
       await save(

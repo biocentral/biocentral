@@ -38,12 +38,12 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
   }
 
   Widget buildResultsView(PLMEvalEvaluationState state) {
-    final Map<String, Map<String, Set<BiocentralMLMetric>>> metrics = {};
+    final Map<String, Set<BiocentralMLMetric>> metrics = {};
     if (state.autoEvalProgress != null) {
-      for (final (benchmarkDataset, predictionModel) in state.autoEvalProgress!.results.entriesRecord) {
-        metrics.putIfAbsent(benchmarkDataset.datasetName!, () => {});
+      for (final (taskName, predictionModel) in state.autoEvalProgress!.results.entriesRecord) {
+        metrics.putIfAbsent(taskName, () => {});
         if (predictionModel != null && predictionModel.defaultTestResult != null) {
-          metrics[benchmarkDataset.datasetName]?[benchmarkDataset.splitName!] =
+          metrics[taskName] =
               predictionModel.defaultTestResult!.metrics;
         }
       }
@@ -52,7 +52,7 @@ class _PLMEvalEvaluationDisplayState extends State<PLMEvalEvaluationDisplay> wit
   }
 
   Widget buildTaskQueue(PLMEvalEvaluationState state) {
-    return PLMEvalQueueDisplay(autoEvalProgress: state.autoEvalProgress);
+    return PLMEvalQueueDisplay(progress: state.autoEvalProgress);
   }
 
   @override

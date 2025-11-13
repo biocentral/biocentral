@@ -1,46 +1,44 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:biocentral/plugins/embeddings/data/embeddings_dto.dart';
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
-class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
+class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrapper> {
   final BiocentralProjectRepository _projectRepository;
+  final BiocentralAPIRepository _apiRepository;
 
-  final PLMEvalClient _plmEvalClient;
   final PLMEvalRepository _plmEvalRepository;
 
   final String _modelID;
   final XFile? _onnxFile;
   final Map<String, dynamic>? _tokenizerConfig;
-  final List<BenchmarkDataset> _benchmarkDatasets;
+  final List<PLMEvalTaskInformation> _tasks;
 
-  AutoEvalPLMCommand({
-    required BiocentralProjectRepository projectRepository,
-    required PLMEvalClient plmEvalClient,
-    required PLMEvalRepository plmEvalRepository,
-    required String modelID,
-    required List<BenchmarkDataset> benchmarkDatasets,
-    XFile? onnxFile,
-    Map<String, dynamic>? tokenizerConfig,
-  })  : _projectRepository = projectRepository,
-        _plmEvalClient = plmEvalClient,
+  AutoevalPLMCommand(
+      {required BiocentralProjectRepository projectRepository,
+      required BiocentralAPIRepository apiRepository,
+      required PLMEvalRepository plmEvalRepository,
+      required String modelID,
+      required XFile? onnxFile,
+      required Map<String, dynamic>? tokenizerConfig,
+      required List<PLMEvalTaskInformation> tasks})
+      : _projectRepository = projectRepository,
+        _apiRepository = apiRepository,
         _plmEvalRepository = plmEvalRepository,
         _modelID = modelID,
         _onnxFile = onnxFile,
         _tokenizerConfig = tokenizerConfig,
-        _benchmarkDatasets = benchmarkDatasets;
+        _tasks = tasks;
 
   @override
-  Stream<Either<T, AutoEvalProgress>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    final AutoEvalProgress initialProgress = AutoEvalProgress.fromDatasets(_modelID, _benchmarkDatasets);
+  Stream<Either<T, AutoEvalProgressWrapper>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+    final AutoEvalProgressWrapper initialProgress = AutoEvalProgressWrapper.initial(_modelID, _tasks);
 
     Uint8List? onnxBytes;
     if (_onnxFile != null) {
@@ -52,52 +50,50 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
       onnxBytes = loadEither.getRight().getOrElse(() => null);
     }
 
-    final startAutoEvalEither =
-        await _plmEvalClient.startAutoEval(_modelID, onnxBytes, _tokenizerConfig);
-
-    yield* startAutoEvalEither.match((l) async* {
-      yield left(
-        state.setErrored(
-          information: 'Start of autoeval workflow failed! Error: ${l.error}',
-        ),
-      );
-    }, (taskID) async* {
-      yield left(state.setTaskID(taskID));
-      yield* doEvaluation(taskID, state, initialProgress);
-    });
+    final biocentralAPI = _apiRepository.getBiocentralAPI();
+    final biocentralTask = await biocentralAPI.autoeval(
+      modelID: _modelID,
+      onnxFile: onnxBytes != null ? base64Encode(onnxBytes) : null,
+      tokenizerConfig: jsonEncode(_tokenizerConfig),
+    );
+    yield* doEvaluation(biocentralTask, state, initialProgress);
   }
 
-  Stream<Either<T, AutoEvalProgress>> doEvaluation<T extends BiocentralCommandState<T>>(
-      String taskID, T state, AutoEvalProgress initialProgress) async* {
+  Stream<Either<T, AutoEvalProgressWrapper>> doEvaluation<T extends BiocentralCommandState<T>>(
+      BiocentralServerTask<Map<String, dynamic>?> task, T state, AutoEvalProgressWrapper initialProgress) async* {
     state = state
         .setOperating(information: 'Running evaluation of $_modelID..')
         .copyWith(copyMap: {'modelID': _modelID, 'autoEvalProgress': initialProgress});
     yield left(state);
 
-    AutoEvalProgress? progress;
-    await for (final (dto, currentProgress) in _plmEvalClient.autoEvalProgressStream(taskID, initialProgress)) {
-      if (dto.embeddingProgress != null) {
-        // TODO [Refactoring] Duplicated code for yielding embedding progress (3x)
-        final (current, total) = dto.embeddingProgress!;
-        yield left(
-          state.setOperating(
-            information: 'Embedding..',
-            commandProgress: BiocentralCommandProgress(current: current, total: total),
-          ),
-        );
-        continue;
+    AutoEvalProgressWrapper progress = initialProgress;
+    int embeddingCurrent = 0;
+    int embeddingTotal = 0;
+    await for (final (dto, finalReport) in task.run()) {
+      if (dto != null) {
+        if (dto.status == TaskStatus.RUNNING) {
+          if (dto.embeddingTotal != null || dto.embeddingCurrent != null) {
+            // Check embedding progress
+            embeddingCurrent = dto.embeddingCurrent ?? embeddingCurrent;
+            embeddingTotal = dto.embeddingTotal ?? embeddingTotal;
+            yield left(
+              state.setOperating(
+                information: 'Embedding..',
+                commandProgress: BiocentralCommandProgress(current: embeddingCurrent, total: embeddingTotal),
+              ),
+            );
+          } else if(dto.autoevalProgress != null){
+            progress = progress.updateFromDTO(dto);
+            state = state
+                .setOperating(information: 'Running evaluation of $_modelID..', commandProgress: progress.toCommandProgress())
+                .copyWith(copyMap: {'autoEvalProgress': progress});
+            yield left(state);
+          }
+        }
       }
-      if (currentProgress == null) {
-        continue;
-      }
-      progress = currentProgress;
-      state = state
-          .setOperating(information: 'Running evaluation of $_modelID..', commandProgress: progress.toCommandProgress())
-          .copyWith(copyMap: {'autoEvalProgress': progress});
-      yield left(state);
     }
 
-    if (progress != null && progress.status == BiocentralTaskStatus.finished) {
+    if (progress.isFinished) {
       final _ = await _plmEvalRepository.addSessionResult(progress);
 
       yield left(
@@ -118,23 +114,24 @@ class AutoEvalPLMCommand extends BiocentralResumableCommand<AutoEvalProgress> {
       'modelID': _modelID,
       if (_onnxFile != null) 'onnxFile': _onnxFile.path,
       if (_tokenizerConfig != null) 'tokenizerConfig': _tokenizerConfig,
-      'benchmarkDatasets': BenchmarkDataset.benchmarkDatasetsByDatasetName(_benchmarkDatasets),
+      'tasks': _tasks,
     };
   }
 
   @override
-  Stream<Either<T, AutoEvalProgress>> resumeExecution<T extends BiocentralCommandState<T>>(
+  Stream<Either<T, AutoEvalProgressWrapper>> resumeExecution<T extends BiocentralCommandState<T>>(
       String taskID, T state) async* {
-    yield left(state.setOperating(information: 'Trying to resume evaluation..'));
-
-    final initialProgress = AutoEvalProgress.fromDatasets(_modelID, _benchmarkDatasets);
-    final resumedProgressEither = await _plmEvalClient.resumeAutoEval(taskID, initialProgress);
-    yield* resumedProgressEither.match((error) async* {
-      yield left(state.setErrored(information: 'Evaluation could not be resumed! Error: ${error.message}'));
-      return;
-    }, (resumedProgress) async* {
-      yield* doEvaluation(taskID, state, resumedProgress);
-    });
+    // TODO Refactoring Resume
+    //yield left(state.setOperating(information: 'Trying to resume evaluation..'));
+//
+    //final initialProgress = AutoEvalProgress.fromDatasets(_modelID, _tasks);
+    //final resumedProgressEither = await _plmEvalClient.resumeAutoEval(taskID, initialProgress);
+    //yield* resumedProgressEither.match((error) async* {
+    //  yield left(state.setErrored(information: 'Evaluation could not be resumed! Error: ${error.message}'));
+    //  return;
+    //}, (resumedProgress) async* {
+    //  yield* doEvaluation(taskID, state, resumedProgress);
+    //});
   }
 
   @override
@@ -163,8 +160,8 @@ class PLMEvalLoadPersistentResultCommand extends BiocentralCommand<PLMEvalPersis
     yield* contentEither.match((error) async* {
       yield left(state.setErrored(information: 'Encountered error during loading of plm eval file: $error'));
     }, (persistentFileContent) async* {
-      final updatedPersistentResults = await
-          _plmEvalRepository.addPersistentResultsFromFile(persistentFileContent?.content ?? '');
+      final updatedPersistentResults =
+          await _plmEvalRepository.addPersistentResultsFromFile(persistentFileContent?.content ?? '');
       yield left(
         state
             .setFinished(information: 'Finished loading plm evaluation result from file!')

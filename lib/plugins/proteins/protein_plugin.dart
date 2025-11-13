@@ -1,7 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/proteins/bloc/protein_database_grid_bloc.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
-import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/plugins/proteins/model/sequence_column_wizard.dart';
 import 'package:biocentral/plugins/proteins/presentation/displays/sequence_column_wizard_display.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProteinPlugin extends BiocentralPlugin
     with
-        BiocentralClientPluginMixin<ProteinClient>,
         BiocentralDatabasePluginMixin<ProteinRepository>,
         BiocentralColumnWizardPluginMixin {
   ProteinPlugin(super.eventBus);
@@ -48,7 +46,7 @@ class ProteinPlugin extends BiocentralPlugin
 
     final proteinCommandBloc = ProteinsCommandBloc(
       getDatabase(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       getBiocentralProjectRepository(context),
       eventBus,
     );
@@ -87,11 +85,6 @@ class ProteinPlugin extends BiocentralPlugin
   @override
   Widget getTab() {
     return Tab(text: 'Proteins', icon: getIcon());
-  }
-
-  @override
-  BiocentralClientFactory<ProteinClient> createClientFactory() {
-    return ProteinClientFactory();
   }
 
   @override

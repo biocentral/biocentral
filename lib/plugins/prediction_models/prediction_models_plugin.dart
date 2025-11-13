@@ -3,7 +3,6 @@ import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_training_bl
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
 import 'package:biocentral/plugins/prediction_models/data/biotrainer_output_dir_handler.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/views/model_command_view.dart';
@@ -15,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PredictionModelsPlugin extends BiocentralPlugin
-    with BiocentralClientPluginMixin<PredictionModelsClient>, BiocentralDatabasePluginMixin<PredictionModelRepository> {
+    with BiocentralDatabasePluginMixin<PredictionModelRepository> {
   PredictionModelsPlugin(super.eventBus);
 
   @override
@@ -42,7 +41,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
 
     final biotrainerTrainingBloc = BiotrainerTrainingBloc(
       getDatabase(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       getBiocentralDatabaseRepository(context),
       getBiocentralProjectRepository(context),
       eventBus,
@@ -51,7 +50,7 @@ class PredictionModelsPlugin extends BiocentralPlugin
     final biotrainerInferenceBloc = BiotrainerInferenceBloc(
       getBiocentralProjectRepository(context),
       getBiocentralDatabaseRepository(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       eventBus,
     );
 
@@ -105,11 +104,6 @@ class PredictionModelsPlugin extends BiocentralPlugin
   @override
   Widget getTab() {
     return Tab(text: 'Models', icon: getIcon());
-  }
-
-  @override
-  BiocentralClientFactory<PredictionModelsClient> createClientFactory() {
-    return PredictionModelsClientFactory();
   }
 
   @override

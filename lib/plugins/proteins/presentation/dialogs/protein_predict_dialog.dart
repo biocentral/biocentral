@@ -66,7 +66,7 @@ class _ProteinPredictDialogState extends State<ProteinPredictDialog>
           .map<CheckboxListTile>(
             (entry) => CheckboxListTile(
               title: Text(entry.key),
-              subtitle: Text(entry.value['description'] ?? ''),
+              subtitle: Text(entry.value.asMap?['description'] ?? ''),
               value: _selectedModels.contains(entry.key),
               onChanged: (bool? value) {
                 value ??= false;

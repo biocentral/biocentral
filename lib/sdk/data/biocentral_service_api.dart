@@ -2,7 +2,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class BiocentralServiceEndpoints {
-  static const services = '/biocentral_service/services';
+  static const health = '/health';
   static const hashes = '/biocentral_service/hashes/';
   static const transferFile = '/biocentral_service/transfer_file';
   static const taskStatus = '/biocentral_service/task_status';

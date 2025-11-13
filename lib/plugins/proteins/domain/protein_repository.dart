@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:crypto/crypto.dart';
 
 class ProteinRepository extends BiocentralDatabase<Protein> {
@@ -86,6 +87,34 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     _proteins.clear();
     _sequenceHashToIDs.clear();
   }
+
+  @override
+  Map<String, String>? getSequences() {
+    final result = <String, String>{};
+    for (final (id, protein) in _proteins.entriesRecord) {
+      result[id] = protein.sequence.seq;
+    }
+    return result;
+  }
+
+  @override
+  List<SequenceTrainingData> getTrainingData(
+      {required String targetColumn, required String setColumn, String? maskColumn}) {
+    final result = <SequenceTrainingData>[];
+    for (final protein in databaseToList()) {
+      final trainingData = SequenceTrainingData((b) =>
+      b
+        ..seqId = protein.id
+        ..sequence = protein.sequence.seq
+        ..label = protein.attributes[targetColumn]
+        ..set_ = protein.attributes[setColumn]
+        ..mask = protein.attributes[maskColumn],
+      );
+      result.add(trainingData);
+    }
+    return result;
+  }
+
 
   @override
   Set<String> getSystemColumns() {

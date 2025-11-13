@@ -82,7 +82,6 @@ class _BayOptCommandViewState extends State<BayOptCommandView> {
                 onTap: () {
                   openStartTrainingDialog(hubState, iterationBloc);
                 },
-                requiredServices: const ['protein_service'],
               ),
             ),
             BiocentralTooltip(
