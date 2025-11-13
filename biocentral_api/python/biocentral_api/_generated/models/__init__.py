@@ -29,6 +29,7 @@ from biocentral_api._generated.models.embed_request import EmbedRequest
 from biocentral_api._generated.models.epoch_metrics import EpochMetrics
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse
+from biocentral_api._generated.models.get_projection_config_response import GetProjectionConfigResponse
 from biocentral_api._generated.models.http_validation_error import HTTPValidationError
 from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest
 from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse
@@ -44,6 +45,7 @@ from biocentral_api._generated.models.plm_eval_validate_request import PLMEvalVa
 from biocentral_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse
 from biocentral_api._generated.models.prediction import Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest
+from biocentral_api._generated.models.projection_request import ProjectionRequest
 from biocentral_api._generated.models.protocols_response import ProtocolsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse

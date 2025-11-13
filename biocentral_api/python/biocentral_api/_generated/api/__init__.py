@@ -9,5 +9,6 @@ from biocentral_api._generated.api.embeddings_api import EmbeddingsApi
 from biocentral_api._generated.api.plm_eval_api import PlmEvalApi
 from biocentral_api._generated.api.ppi_api import PpiApi
 from biocentral_api._generated.api.prediction_api import PredictionApi
+from biocentral_api._generated.api.projections_api import ProjectionsApi
 from biocentral_api._generated.api.proteins_api import ProteinsApi
 

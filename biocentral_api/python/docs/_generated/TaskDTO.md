@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **embedded_sequences** | **Dict[str, str]** |  | [optional] 
 **embeddings** | [**List[BiotrainerSequenceRecord]**](BiotrainerSequenceRecord.md) |  | [optional] 
 **embeddings_file** | **str** |  | [optional] 
+**projection_result** | **Dict[str, object]** |  | [optional] 
 **embedder_name** | **str** |  | [optional] 
 **autoeval_progress** | [**AutoEvalProgress**](AutoEvalProgress.md) |  | [optional] 
 **bay_opt_results** | **List[object]** |  | [optional] 

@@ -41,10 +41,11 @@ class TaskDTO(BaseModel):
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[StrictStr] = None
+    projection_result: Optional[Dict[str, Any]] = None
     embedder_name: Optional[StrictStr] = None
     autoeval_progress: Optional[AutoEvalProgress] = None
     bay_opt_results: Optional[List[Any]] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_current", "embedding_total", "embedded_sequences", "embeddings", "embeddings_file", "embedder_name", "autoeval_progress", "bay_opt_results"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_current", "embedding_total", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "bay_opt_results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -152,6 +153,11 @@ class TaskDTO(BaseModel):
         if self.embeddings_file is None and "embeddings_file" in self.model_fields_set:
             _dict['embeddings_file'] = None
 
+        # set to None if projection_result (nullable) is None
+        # and model_fields_set contains the field
+        if self.projection_result is None and "projection_result" in self.model_fields_set:
+            _dict['projection_result'] = None
+
         # set to None if embedder_name (nullable) is None
         # and model_fields_set contains the field
         if self.embedder_name is None and "embedder_name" in self.model_fields_set:
@@ -196,6 +202,7 @@ class TaskDTO(BaseModel):
             "embedded_sequences": obj.get("embedded_sequences"),
             "embeddings": [BiotrainerSequenceRecord.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
+            "projection_result": obj.get("projection_result"),
             "embedder_name": obj.get("embedder_name"),
             "autoeval_progress": AutoEvalProgress.from_dict(obj["autoeval_progress"]) if obj.get("autoeval_progress") is not None else None,
             "bay_opt_results": obj.get("bay_opt_results")

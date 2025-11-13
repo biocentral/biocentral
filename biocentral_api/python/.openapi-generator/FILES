@@ -9,6 +9,7 @@ biocentral_api/_generated/api/embeddings_api.py
 biocentral_api/_generated/api/plm_eval_api.py
 biocentral_api/_generated/api/ppi_api.py
 biocentral_api/_generated/api/prediction_api.py
+biocentral_api/_generated/api/projections_api.py
 biocentral_api/_generated/api/proteins_api.py
 biocentral_api/_generated/api_client.py
 biocentral_api/_generated/api_response.py
@@ -31,6 +32,7 @@ biocentral_api/_generated/models/embed_request.py
 biocentral_api/_generated/models/epoch_metrics.py
 biocentral_api/_generated/models/get_missing_embeddings_request.py
 biocentral_api/_generated/models/get_missing_embeddings_response.py
+biocentral_api/_generated/models/get_projection_config_response.py
 biocentral_api/_generated/models/http_validation_error.py
 biocentral_api/_generated/models/import_dataset_request.py
 biocentral_api/_generated/models/import_dataset_response.py
@@ -46,6 +48,7 @@ biocentral_api/_generated/models/plm_eval_validate_request.py
 biocentral_api/_generated/models/plm_eval_validate_response.py
 biocentral_api/_generated/models/prediction.py
 biocentral_api/_generated/models/prediction_request.py
+biocentral_api/_generated/models/projection_request.py
 biocentral_api/_generated/models/protocols_response.py
 biocentral_api/_generated/models/run_test_request.py
 biocentral_api/_generated/models/run_test_response.py
@@ -85,6 +88,7 @@ docs/EmbeddingsApi.md
 docs/EpochMetrics.md
 docs/GetMissingEmbeddingsRequest.md
 docs/GetMissingEmbeddingsResponse.md
+docs/GetProjectionConfigResponse.md
 docs/HTTPValidationError.md
 docs/ImportDatasetRequest.md
 docs/ImportDatasetResponse.md
@@ -103,6 +107,8 @@ docs/PpiApi.md
 docs/Prediction.md
 docs/PredictionApi.md
 docs/PredictionRequest.md
+docs/ProjectionRequest.md
+docs/ProjectionsApi.md
 docs/ProteinsApi.md
 docs/ProtocolsResponse.md
 docs/RunTestRequest.md
@@ -121,3 +127,6 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
+test/test_get_projection_config_response.py
+test/test_projection_request.py
+test/test_projections_api.py

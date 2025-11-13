@@ -26,6 +26,7 @@ __all__ = [
     "PlmEvalApi",
     "PpiApi",
     "PredictionApi",
+    "ProjectionsApi",
     "ProteinsApi",
     "ApiResponse",
     "ApiClient",
@@ -52,6 +53,7 @@ __all__ = [
     "EpochMetrics",
     "GetMissingEmbeddingsRequest",
     "GetMissingEmbeddingsResponse",
+    "GetProjectionConfigResponse",
     "HTTPValidationError",
     "ImportDatasetRequest",
     "ImportDatasetResponse",
@@ -67,6 +69,7 @@ __all__ = [
     "PLMEvalValidateResponse",
     "Prediction",
     "PredictionRequest",
+    "ProjectionRequest",
     "ProtocolsResponse",
     "RunTestRequest",
     "RunTestResponse",
@@ -94,6 +97,7 @@ from biocentral_api._generated.api.embeddings_api import EmbeddingsApi as Embedd
 from biocentral_api._generated.api.plm_eval_api import PlmEvalApi as PlmEvalApi
 from biocentral_api._generated.api.ppi_api import PpiApi as PpiApi
 from biocentral_api._generated.api.prediction_api import PredictionApi as PredictionApi
+from biocentral_api._generated.api.projections_api import ProjectionsApi as ProjectionsApi
 from biocentral_api._generated.api.proteins_api import ProteinsApi as ProteinsApi
 
 # import ApiClient
@@ -124,6 +128,7 @@ from biocentral_api._generated.models.embed_request import EmbedRequest as Embed
 from biocentral_api._generated.models.epoch_metrics import EpochMetrics as EpochMetrics
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse
+from biocentral_api._generated.models.get_projection_config_response import GetProjectionConfigResponse as GetProjectionConfigResponse
 from biocentral_api._generated.models.http_validation_error import HTTPValidationError as HTTPValidationError
 from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest as ImportDatasetRequest
 from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse as ImportDatasetResponse
@@ -139,6 +144,7 @@ from biocentral_api._generated.models.plm_eval_validate_request import PLMEvalVa
 from biocentral_api._generated.models.plm_eval_validate_response import PLMEvalValidateResponse as PLMEvalValidateResponse
 from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
+from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
 from biocentral_api._generated.models.protocols_response import ProtocolsResponse as ProtocolsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse
