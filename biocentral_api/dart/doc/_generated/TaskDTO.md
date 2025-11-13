@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **embeddedSequences** | **BuiltMap&lt;String, String&gt;** |  | [optional] 
 **embeddings** | [**BuiltList&lt;BiotrainerSequenceRecord&gt;**](BiotrainerSequenceRecord.md) |  | [optional] 
 **embeddingsFile** | **String** |  | [optional] 
+**projectionResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) |  | [optional] 
 **embedderName** | **String** |  | [optional] 
 **autoevalProgress** | [**AutoEvalProgress**](AutoEvalProgress.md) |  | [optional] 
 **bayOptResults** | [**BuiltList&lt;JsonObject&gt;**](JsonObject.md) |  | [optional] 

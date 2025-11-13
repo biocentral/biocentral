@@ -17,6 +17,7 @@ import 'package:biocentral_api/src/api/embeddings_api.dart';
 import 'package:biocentral_api/src/api/plm_eval_api.dart';
 import 'package:biocentral_api/src/api/ppi_api.dart';
 import 'package:biocentral_api/src/api/prediction_api.dart';
+import 'package:biocentral_api/src/api/projections_api.dart';
 import 'package:biocentral_api/src/api/proteins_api.dart';
 
 class BiocentralApi {
@@ -119,6 +120,12 @@ class BiocentralApi {
   /// by doing that all interceptors will not be executed
   PredictionApi getPredictionApi() {
     return PredictionApi(dio, serializers);
+  }
+
+  /// Get ProjectionsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ProjectionsApi getProjectionsApi() {
+    return ProjectionsApi(dio, serializers);
   }
 
   /// Get ProteinsApi instance, base route and serializer can be overridden by a given but be careful,

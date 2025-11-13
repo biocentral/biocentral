@@ -28,6 +28,8 @@ class _$TaskDTO extends TaskDTO {
   @override
   final String? embeddingsFile;
   @override
+  final BuiltMap<String, JsonObject?>? projectionResult;
+  @override
   final String? embedderName;
   @override
   final AutoEvalProgress? autoevalProgress;
@@ -48,6 +50,7 @@ class _$TaskDTO extends TaskDTO {
       this.embeddedSequences,
       this.embeddings,
       this.embeddingsFile,
+      this.projectionResult,
       this.embedderName,
       this.autoevalProgress,
       this.bayOptResults})
@@ -73,6 +76,7 @@ class _$TaskDTO extends TaskDTO {
         embeddedSequences == other.embeddedSequences &&
         embeddings == other.embeddings &&
         embeddingsFile == other.embeddingsFile &&
+        projectionResult == other.projectionResult &&
         embedderName == other.embedderName &&
         autoevalProgress == other.autoevalProgress &&
         bayOptResults == other.bayOptResults;
@@ -91,6 +95,7 @@ class _$TaskDTO extends TaskDTO {
     _$hash = $jc(_$hash, embeddedSequences.hashCode);
     _$hash = $jc(_$hash, embeddings.hashCode);
     _$hash = $jc(_$hash, embeddingsFile.hashCode);
+    _$hash = $jc(_$hash, projectionResult.hashCode);
     _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, autoevalProgress.hashCode);
     _$hash = $jc(_$hash, bayOptResults.hashCode);
@@ -111,6 +116,7 @@ class _$TaskDTO extends TaskDTO {
           ..add('embeddedSequences', embeddedSequences)
           ..add('embeddings', embeddings)
           ..add('embeddingsFile', embeddingsFile)
+          ..add('projectionResult', projectionResult)
           ..add('embedderName', embedderName)
           ..add('autoevalProgress', autoevalProgress)
           ..add('bayOptResults', bayOptResults))
@@ -174,6 +180,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set embeddingsFile(String? embeddingsFile) =>
       _$this._embeddingsFile = embeddingsFile;
 
+  MapBuilder<String, JsonObject?>? _projectionResult;
+  MapBuilder<String, JsonObject?> get projectionResult =>
+      _$this._projectionResult ??= MapBuilder<String, JsonObject?>();
+  set projectionResult(MapBuilder<String, JsonObject?>? projectionResult) =>
+      _$this._projectionResult = projectionResult;
+
   String? _embedderName;
   String? get embedderName => _$this._embedderName;
   set embedderName(String? embedderName) => _$this._embedderName = embedderName;
@@ -207,6 +219,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
       _embeddedSequences = $v.embeddedSequences?.toBuilder();
       _embeddings = $v.embeddings?.toBuilder();
       _embeddingsFile = $v.embeddingsFile;
+      _projectionResult = $v.projectionResult?.toBuilder();
       _embedderName = $v.embedderName;
       _autoevalProgress = $v.autoevalProgress?.toBuilder();
       _bayOptResults = $v.bayOptResults?.toBuilder();
@@ -244,6 +257,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             embeddedSequences: _embeddedSequences?.build(),
             embeddings: _embeddings?.build(),
             embeddingsFile: embeddingsFile,
+            projectionResult: _projectionResult?.build(),
             embedderName: embedderName,
             autoevalProgress: _autoevalProgress?.build(),
             bayOptResults: _bayOptResults?.build(),
@@ -262,6 +276,9 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
         _embeddedSequences?.build();
         _$failedField = 'embeddings';
         _embeddings?.build();
+
+        _$failedField = 'projectionResult';
+        _projectionResult?.build();
 
         _$failedField = 'autoevalProgress';
         _autoevalProgress?.build();

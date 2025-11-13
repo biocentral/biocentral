@@ -135,15 +135,27 @@ extension EmbeddingAPI on BiocentralAPI {
     return EmbeddingClient().embed(api: _getAPI(), embedderName: embedderName, sequenceData: sequenceData);
   }
 
-  Future<BiocentralServerTask<String>> project({
+  Future<Map<String, dynamic>?> projectionConfig() async {
+    return EmbeddingClient().projectionConfig(api: _getAPI());
+  }
+
+  Future<BiocentralServerTask<Map<String, dynamic>?>> project({
     required String embedderName,
+    required String method,
     required Map<String, String> sequenceData,
+    required Map<String, dynamic> config,
   }) async {
     assert(sequenceData.isNotEmpty, 'No sequences provided');
     final seqValues = sequenceData.values.toList();
     assert(seqValues.length == seqValues.toSet().length, 'Duplicate sequences provided');
 
-    return EmbeddingClient().project(api: _getAPI(), embedderName: embedderName, sequenceData: sequenceData);
+    return EmbeddingClient().project(
+      api: _getAPI(),
+      embedderName: embedderName,
+      method: method,
+      sequenceData: sequenceData,
+      config: config,
+    );
   }
 }
 
@@ -151,6 +163,7 @@ extension PlmEvalAPI on BiocentralAPI {
   Future<PLMEvalInformation?> getPlmEvalInformation() async {
     return PlmEvalClient().getPlmEvalInformation(api: _getAPI());
   }
+
   Future<String?> validateModelID({
     required String modelID,
   }) async {

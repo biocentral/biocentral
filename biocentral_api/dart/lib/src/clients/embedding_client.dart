@@ -1,10 +1,10 @@
+import 'package:biocentral_api/src/model/projection_request.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/api.dart' as gen;
-import 'package:biocentral_api/src/api/embeddings_api.dart' as endpoints;
 import 'package:biocentral_api/src/model/embed_request.dart';
-import 'package:biocentral_api/src/model/start_task_response.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
+import 'package:built_value/json_object.dart';
 
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
@@ -38,10 +38,15 @@ class _EmbedDtoHandler extends DtoHandler<String> {
   }
 }
 
-class _ProjectionDTOHandler extends DtoHandler<String> {
+class _ProjectionDTOHandler extends DtoHandler<Map<String, dynamic>> {
   @override
-  String? handle(List<TaskDTO> dtos) {
-    return null; // TODO
+  Map<String, dynamic>? handle(List<TaskDTO> dtos) {
+    for (final dto in dtos) {
+      if (dto.status == TaskStatus.FINISHED) {
+        return dto.projectionResult?.toMap();
+      }
+    }
+    return null;
   }
 }
 
@@ -55,26 +60,48 @@ class EmbeddingClient {
     bool reduce = true,
     bool useHalfPrecision = false,
   }) async {
-    final endpointsApi = api.getEmbeddingsApi();
-    final req = EmbedRequest((b) => b
+    final embeddingsApi = api.getEmbeddingsApi();
+    final req = EmbedRequest((b) =>
+    b
       ..embedderName = embedderName
       ..reduce = reduce
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
       ..useHalfPrecision = useHalfPrecision);
 
-    final startResp = await endpointsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req);
+    final startResp = await embeddingsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req);
     final taskId = startResp.data!.taskId;
     final handler = _EmbedDtoHandler();
     return BiocentralServerTask<String>(taskId: taskId, api: api, dtoHandler: handler);
   }
 
-  // TODO Placeholder function
-  Future<BiocentralServerTask<String>> project({
+  Future<Map<String, dynamic>?> projectionConfig({
+    required gen.BiocentralApi api,
+}) async {
+    final projectionsApi = api.getProjectionsApi();
+
+    final resp = await projectionsApi.projectionConfigApiV1ProjectionServiceProjectionConfigGet();
+    final projectionConfigResponse = resp.data!;
+    return projectionConfigResponse.projectionConfig.toMap();
+  }
+
+  Future<BiocentralServerTask<Map<String, dynamic>?>> project({
     required gen.BiocentralApi api,
     required String embedderName,
+    required String method,
     required Map<String, String> sequenceData,
+    required Map<String, dynamic> config,
   }) async {
+    final projectionsApi = api.getProjectionsApi();
+    final req = ProjectionRequest((b) =>
+    b
+      ..embedderName = embedderName
+      ..method = method
+      ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
+      ..config.replace(config.map((k, v) => MapEntry(k, JsonObject(v))))
+    );
+    final startResp = await projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req);
+    final taskId = startResp.data!.taskId;
     final handler = _ProjectionDTOHandler();
-    return BiocentralServerTask<String>(taskId: "", api: api, dtoHandler: handler);
+    return BiocentralServerTask<Map<String, dynamic>>(taskId: taskId, api: api, dtoHandler: handler);
   }
 }

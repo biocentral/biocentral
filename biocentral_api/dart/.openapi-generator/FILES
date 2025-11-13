@@ -19,6 +19,7 @@ doc/EmbeddingsApi.md
 doc/EpochMetrics.md
 doc/GetMissingEmbeddingsRequest.md
 doc/GetMissingEmbeddingsResponse.md
+doc/GetProjectionConfigResponse.md
 doc/HTTPValidationError.md
 doc/ImportDatasetRequest.md
 doc/ImportDatasetResponse.md
@@ -37,6 +38,8 @@ doc/PpiApi.md
 doc/Prediction.md
 doc/PredictionApi.md
 doc/PredictionRequest.md
+doc/ProjectionRequest.md
+doc/ProjectionsApi.md
 doc/ProteinsApi.md
 doc/ProtocolsResponse.md
 doc/RunTestRequest.md
@@ -63,6 +66,7 @@ lib/src/api/embeddings_api.dart
 lib/src/api/plm_eval_api.dart
 lib/src/api/ppi_api.dart
 lib/src/api/prediction_api.dart
+lib/src/api/projections_api.dart
 lib/src/api/proteins_api.dart
 lib/src/api_util.dart
 lib/src/auth/api_key_auth.dart
@@ -88,6 +92,7 @@ lib/src/model/embed_request.dart
 lib/src/model/epoch_metrics.dart
 lib/src/model/get_missing_embeddings_request.dart
 lib/src/model/get_missing_embeddings_response.dart
+lib/src/model/get_projection_config_response.dart
 lib/src/model/http_validation_error.dart
 lib/src/model/import_dataset_request.dart
 lib/src/model/import_dataset_response.dart
@@ -103,6 +108,7 @@ lib/src/model/plm_eval_validate_request.dart
 lib/src/model/plm_eval_validate_response.dart
 lib/src/model/prediction.dart
 lib/src/model/prediction_request.dart
+lib/src/model/projection_request.dart
 lib/src/model/protocols_response.dart
 lib/src/model/run_test_request.dart
 lib/src/model/run_test_response.dart
@@ -120,3 +126,6 @@ lib/src/model/test_result.dart
 lib/src/model/validation_error.dart
 lib/src/model/validation_error_loc_inner.dart
 lib/src/serializers.dart
+test/get_projection_config_response_test.dart
+test/projection_request_test.dart
+test/projections_api_test.dart

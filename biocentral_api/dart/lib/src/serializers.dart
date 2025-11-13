@@ -30,6 +30,7 @@ import 'package:biocentral_api/src/model/embed_request.dart';
 import 'package:biocentral_api/src/model/epoch_metrics.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_request.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_response.dart';
+import 'package:biocentral_api/src/model/get_projection_config_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/import_dataset_request.dart';
 import 'package:biocentral_api/src/model/import_dataset_response.dart';
@@ -45,6 +46,7 @@ import 'package:biocentral_api/src/model/plm_eval_validate_request.dart';
 import 'package:biocentral_api/src/model/plm_eval_validate_response.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
+import 'package:biocentral_api/src/model/projection_request.dart';
 import 'package:biocentral_api/src/model/protocols_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
@@ -81,6 +83,7 @@ part 'serializers.g.dart';
   EpochMetrics,
   GetMissingEmbeddingsRequest,
   GetMissingEmbeddingsResponse,
+  GetProjectionConfigResponse,
   HTTPValidationError,
   ImportDatasetRequest,
   ImportDatasetResponse,
@@ -96,6 +99,7 @@ part 'serializers.g.dart';
   PLMEvalValidateResponse,
   Prediction,
   PredictionRequest,
+  ProjectionRequest,
   ProtocolsResponse,
   RunTestRequest,
   RunTestResponse,

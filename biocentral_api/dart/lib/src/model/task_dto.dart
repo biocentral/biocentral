@@ -28,6 +28,7 @@ part 'task_dto.g.dart';
 /// * [embeddedSequences] 
 /// * [embeddings] 
 /// * [embeddingsFile] 
+/// * [projectionResult] 
 /// * [embedderName] 
 /// * [autoevalProgress] 
 /// * [bayOptResults] 
@@ -63,6 +64,9 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
 
   @BuiltValueField(wireName: r'embeddings_file')
   String? get embeddingsFile;
+
+  @BuiltValueField(wireName: r'projection_result')
+  BuiltMap<String, JsonObject?>? get projectionResult;
 
   @BuiltValueField(wireName: r'embedder_name')
   String? get embedderName;
@@ -162,6 +166,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield serializers.serialize(
         object.embeddingsFile,
         specifiedType: const FullType.nullable(String),
+      );
+    }
+    if (object.projectionResult != null) {
+      yield r'projection_result';
+      yield serializers.serialize(
+        object.projectionResult,
+        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
       );
     }
     if (object.embedderName != null) {
@@ -286,6 +297,14 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           ) as String?;
           if (valueDes == null) continue;
           result.embeddingsFile = valueDes;
+          break;
+        case r'projection_result':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+          ) as BuiltMap<String, JsonObject?>?;
+          if (valueDes == null) continue;
+          result.projectionResult.replace(valueDes);
           break;
         case r'embedder_name':
           final valueDes = serializers.deserialize(
