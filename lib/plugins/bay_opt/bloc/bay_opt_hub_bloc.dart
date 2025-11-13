@@ -2,6 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/domain/biocentral_api_repository.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +105,7 @@ class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
   final BayOptRepository _bayOptRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _databaseRepository;
-  final BiocentralClientRepository _clientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final EventBus _eventBus;
 
   /// Constructor for Bayesian Optimization Bloc.
@@ -117,7 +118,7 @@ class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
   BayOptHubBloc(
     this._bayOptRepository,
     this._biocentralProjectRepository,
-    this._clientRepository,
+    this._apiRepository,
     this._eventBus,
     this._databaseRepository,
   ) : super(const BayOptHubState.idle(), _eventBus) {

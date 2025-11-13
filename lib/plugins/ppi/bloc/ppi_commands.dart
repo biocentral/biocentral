@@ -67,17 +67,17 @@ final class LoadPPIsFromFileCommand extends BiocentralCommand<Map<String, Protei
 
   @override
   String get typeName => 'LoadPPIsFromFileCommand';
-
 }
 
 final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProteinInteraction>> {
-  final PPIClient _ppiClient;
+  final BiocentralAPIRepository _apiRepository;
 
   final String _loadedDataset;
   final String _datasetFormat;
 
-  ImportPPIsCommand({required PPIClient ppiClient, required String loadedDataset, required String datasetFormat})
-      : _ppiClient = ppiClient,
+  ImportPPIsCommand(
+      {required BiocentralAPIRepository apiRepository, required String loadedDataset, required String datasetFormat})
+      : _apiRepository = apiRepository,
         _loadedDataset = loadedDataset,
         _datasetFormat = datasetFormat;
 
@@ -85,6 +85,8 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
   Stream<Either<T, Map<String, ProteinProteinInteraction>>> execute<T extends BiocentralCommandState<T>>(
     T state,
   ) async* {
+    /*
+    // TODO [Refactoring] Move to python companion
     yield left(state.setOperating(information: 'Importing interaction dataset..'));
 
     if (_loadedDataset == '') {
@@ -105,6 +107,7 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
         );
       });
     }
+    */
   }
 
   @override
@@ -117,7 +120,6 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
 
   @override
   String get typeName => 'ImportPPIsCommand';
-
 }
 
 final class RemoveDuplicatedPPIsCommand extends BiocentralCommand<int> {
@@ -156,21 +158,20 @@ final class RemoveDuplicatedPPIsCommand extends BiocentralCommand<int> {
 final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestResult> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final PPIRepository _ppiRepository;
-  final PPIClient _ppiClient;
   final PPIDatabaseTest _testToRun;
 
   RunPPIDatabaseTestCommand({
     required BiocentralProjectRepository biocentralProjectRepository,
     required PPIRepository ppiRepository,
-    required PPIClient ppiClient,
     required PPIDatabaseTest testToRun,
   })  : _biocentralProjectRepository = biocentralProjectRepository,
         _ppiRepository = ppiRepository,
-        _ppiClient = ppiClient,
         _testToRun = testToRun;
 
   @override
   Stream<Either<T, BiocentralTestResult>> execute<T extends BiocentralCommandState<T>>(T state) async* {
+    /*
+    // TODO [Refactoring] Move to python companion
     yield left(state.setOperating(information: 'Running dataset test..'));
 
     final String datasetHash = await _ppiRepository.getHash();
@@ -196,6 +197,7 @@ final class RunPPIDatabaseTestCommand extends BiocentralCommand<BiocentralTestRe
         );
       });
     });
+     */
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -106,20 +105,15 @@ final class CalculateProjectionsDialogState extends BiocentralSimpleMultiTypeUIS
 enum CalculateProjectionsDialogStatus { initial, loadedConfig, selected, errored }
 
 class CalculateProjectionsDialogBloc extends Bloc<CalculateProjectionsDialogEvent, CalculateProjectionsDialogState> {
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
   final EmbeddingsRepository _embeddingsRepository;
 
-  CalculateProjectionsDialogBloc(this._biocentralClientRepository, this._embeddingsRepository)
+  CalculateProjectionsDialogBloc(this._apiRepository, this._embeddingsRepository)
       : super(const CalculateProjectionsDialogState.initial()) {
     on<CalculateProjectionsDialogGetConfigEvent>((event, emit) async {
-      final embeddingsClient = _biocentralClientRepository.getServiceClient<EmbeddingsClient>();
-      final projectionConfigEither = await embeddingsClient.getProjectionConfig();
-      projectionConfigEither.match((error) {
-        emit(const CalculateProjectionsDialogState.errored());
-      }, (projectionConfig) {
-        emit(CalculateProjectionsDialogState.loadedConfig(projectionConfig));
-      });
+      // TODO Projection Config
+      emit(const CalculateProjectionsDialogState.errored());
     });
     on<CalculateProjectionsDialogSelectEntityTypeEvent>((event, emit) async {
       final EmbeddingsColumnWizard? embeddingsColumnWizard =

@@ -1,6 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_commands.dart';
-import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -56,7 +55,7 @@ final class EmbeddingsCommandState extends BiocentralCommandState<EmbeddingsComm
 class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, EmbeddingsCommandState>
     with BiocentralSyncBloc, BiocentralUpdateBloc {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralPythonCompanion _pythonCompanion;
 
@@ -64,7 +63,7 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
 
   EmbeddingsCommandBloc(
     this._biocentralDatabaseRepository,
-    this._biocentralClientRepository,
+    this._apiRepository,
     this._biocentralProjectRepository,
     this._pythonCompanion,
     this._embeddingsRepository,
@@ -100,12 +99,12 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
       }
       final CalculateEmbeddingsCommand calculateEmbeddingsCommand = CalculateEmbeddingsCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
+        apiRepository: _apiRepository,
         biocentralDatabase: biocentralDatabase,
         pythonCompanion: _pythonCompanion,
-        embeddingClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
         embeddingType: event.embeddingType,
         embedderName: event.predefinedEmbedder.name,
-        biotrainerName: event.predefinedEmbedder.biotrainerName,
+        biotrainerName: event.predefinedEmbedder.biotrainerName ?? '',
       );
       await calculateEmbeddingsCommand
           .executeWithLogging<EmbeddingsCommandState>(_biocentralProjectRepository, state)
@@ -119,10 +118,10 @@ class EmbeddingsCommandBloc extends BiocentralBloc<EmbeddingsCommandEvent, Embed
     on<EmbeddingsCommandCalculateProjectionsEvent>((event, emit) async {
       final CalculateProjectionsCommand calculateProjectionsCommand = CalculateProjectionsCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
+        apiRepository: _apiRepository,
         biocentralDatabaseRepository: _biocentralDatabaseRepository,
         pythonCompanion: _pythonCompanion,
         embeddingsRepository: _embeddingsRepository,
-        embeddingsClient: _biocentralClientRepository.getServiceClient<EmbeddingsClient>(),
         embeddings: event.embeddings,
         embedderName: event.embedderName,
         projectionMethod:  event.projectionMethod,

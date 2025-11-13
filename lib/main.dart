@@ -4,10 +4,12 @@ import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_load_project_view.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_start_page_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/bloc/biocentral_api_health_service.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,12 +19,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
+  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck();
+  final BiocentralAPIRepository apiRepository = BiocentralAPIRepository(biocentralAPI);
+  final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
+  healthService.startMonitoring();
   final BiocentralPluginManager pluginManager = BiocentralPluginManager(projectRepository: projectRepository);
   final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
 
   runApp(
     BiocentralApp(
       projectRepository: projectRepository,
+      apiRepository: apiRepository,
       pluginManager: pluginManager,
       pythonCompanion: pythonCompanion,
     ),
@@ -32,11 +39,13 @@ void main() async {
 @immutable
 class BiocentralApp extends StatefulWidget {
   final BiocentralProjectRepository projectRepository;
+  final BiocentralAPIRepository apiRepository;
   final BiocentralPluginManager pluginManager;
   final BiocentralPythonCompanion pythonCompanion;
 
   const BiocentralApp({
     required this.projectRepository,
+    required this.apiRepository,
     required this.pluginManager,
     required this.pythonCompanion,
     super.key,
@@ -48,18 +57,16 @@ class BiocentralApp extends StatefulWidget {
 
 class _BiocentralAppState extends State<BiocentralApp> {
   final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
-  BiocentralClientRepository? oldClientRepository;
+  late BiocentralAPIRepository cachedAPIRepository;
 
   @override
   void initState() {
     super.initState();
+    cachedAPIRepository = widget.apiRepository;
   }
 
   /// Creates global repositories that are available to all plugins
   List<RepositoryProvider> getGlobalRepositoryProviders(BuildContext context, BiocentralPluginManager pluginManager) {
-    final BiocentralClientRepository biocentralClientRepository =
-        BiocentralClientRepository.withReload(oldClientRepository);
-    oldClientRepository = biocentralClientRepository;
 
     final BiocentralColumnWizardRepository biocentralColumnWizardRepository =
         BiocentralColumnWizardRepository.withDefaultWizards();
@@ -67,7 +74,6 @@ class _BiocentralAppState extends State<BiocentralApp> {
     final TutorialRepository tutorialRepository = TutorialRepository(globalNavigatorKey);
 
     pluginManager.registerGlobalProperties(
-      biocentralClientRepository,
       biocentralColumnWizardRepository,
       biocentralDatabaseRepository,
       tutorialRepository,
@@ -77,7 +83,7 @@ class _BiocentralAppState extends State<BiocentralApp> {
       RepositoryProvider<BiocentralProjectRepository>.value(value: widget.projectRepository),
       RepositoryProvider<BiocentralPythonCompanion>.value(value: widget.pythonCompanion),
       RepositoryProvider<BiocentralDatabaseRepository>.value(value: biocentralDatabaseRepository),
-      RepositoryProvider<BiocentralClientRepository>.value(value: biocentralClientRepository),
+      RepositoryProvider<BiocentralAPIRepository>.value(value: cachedAPIRepository), // TODO Check if this works with reloading plugins
       RepositoryProvider<BiocentralColumnWizardRepository>.value(value: biocentralColumnWizardRepository),
       RepositoryProvider<TutorialRepository>.value(value: tutorialRepository),
     ];
@@ -125,15 +131,7 @@ class BiocentralAppHome extends StatelessWidget {
 
   /// Creates global blocs that are available to all plugins
   Map<BlocProvider, Bloc> getGlobalBlocProviders(BuildContext context) {
-    final biocentralClientBloc = BiocentralClientBloc(
-      context.read<BiocentralClientRepository>(),
-      context.read<BiocentralProjectRepository>(),
-    );
-    return {
-      BlocProvider<BiocentralClientBloc>.value(
-        value: biocentralClientBloc,
-      ): biocentralClientBloc,
-    };
+    return {};
   }
 
   @override

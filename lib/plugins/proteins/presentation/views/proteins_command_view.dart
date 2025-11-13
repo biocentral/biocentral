@@ -94,7 +94,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
       builder: (BuildContext context) {
         return BlocProvider(
           create: (context) => ProteinPredictDialogBloc(
-            context.read<BiocentralClientRepository>(),
+            context.read<BiocentralAPIRepository>(),
           )..add(ProteinPredictDialogStartEvent()),
           child: ProteinPredictDialog(
             onPredict: (selectedModels) => proteinCommandBloc.add(ProteinsCommandPredictEvent(selectedModels)),
@@ -163,7 +163,6 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
             message: 'Get missing taxonomy data from the server for your proteins',
             child: BiocentralButton(
               iconData: Icons.nature_people_rounded,
-              requiredServices: const ['protein_service'],
               onTap: () => retrieveTaxonomy(proteinCommandBloc),
             ),
           ),
@@ -171,7 +170,6 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
             message: 'Predict missing protein features',
             child: BiocentralButton(
               iconData: Icons.batch_prediction_outlined,
-              requiredServices: const ['protein_service', 'prediction_service'],
               onTap: () => openProteinPredictDialog(proteinCommandBloc),
             ),
           ),

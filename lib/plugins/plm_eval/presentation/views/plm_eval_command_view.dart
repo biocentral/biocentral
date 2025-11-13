@@ -1,9 +1,9 @@
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_evaluation_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_hub_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_selection_dialog_bloc.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/dialogs/plm_selection_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -32,18 +32,18 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
       builder: (BuildContext context) {
         return BlocProvider(
           create: (context) => PLMSelectionDialogBloc(
-              context.read<BiocentralProjectRepository>(), context.read<BiocentralClientRepository>()),
+              context.read<BiocentralProjectRepository>(), context.read<BiocentralAPIRepository>()),
           child: PLMSelectionDialog(
             onStartAutoeval: (
               Either<String, XFile> modelSelection,
               Map<String, dynamic> tokenizerConfig,
-              List<BenchmarkDataset> datasets,
+              List<PLMEvalTaskInformation> tasks,
             ) {
               modelSelection.match(
                 (modelID) =>
-                    plmCommandBloc.add(PLMEvalHuggingfaceEvaluationStartEvent(modelID, datasets)),
+                    plmCommandBloc.add(PLMEvalHuggingfaceEvaluationStartEvent(modelID, tasks)),
                 (onnxFile) => plmCommandBloc
-                    .add(PLMEvalONNXEvaluationStartEvent(onnxFile, tokenizerConfig, datasets)),
+                    .add(PLMEvalONNXEvaluationStartEvent(onnxFile, tokenizerConfig, tasks)),
               );
             },
           ),
@@ -74,7 +74,6 @@ class _PLMEvalCommandViewState extends State<PLMEvalCommandView> {
           message: 'Evaluate a protein language model against benchmarks',
           child: BiocentralButton(
             label: 'New evaluation..',
-            requiredServices: const ['plm_eval_service'],
             iconData: Icons.fact_check_outlined,
             onTap: openSelectPLMDialog,
           ),

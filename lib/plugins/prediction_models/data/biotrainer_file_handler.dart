@@ -57,18 +57,6 @@ class BiotrainerFileHandler {
     return inputFile;
   }
 
-  /// Convert [biotrainerConfiguration] to YAML file
-  static String biotrainerConfigurationToConfigFile(Map<String, dynamic> biotrainerConfiguration) {
-    String result = '';
-    for (String key in biotrainerConfiguration.keys) {
-      if (biotrainerConfiguration[key] != '' && !key.contains('column')) {
-        result += '$key:';
-        result += '${biotrainerConfiguration[key]!}\n';
-      }
-    }
-    return result;
-  }
-
   static PredictionModel? parsePredictionModelFromRawFiles({
     required bool failOnConflict,
     String? biotrainerConfig,

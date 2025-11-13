@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/domain/biocentral_api_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
@@ -39,8 +40,8 @@ abstract class BiocentralPlugin with TypeNameMixin {
 
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context);
 
-  BiocentralClientRepository getBiocentralClientRepository(BuildContext context) {
-    return context.read<BiocentralClientRepository>();
+  BiocentralAPIRepository getBiocentralAPIRepository(BuildContext context) {
+    return context.read<BiocentralAPIRepository>();
   }
 
   BiocentralProjectRepository getBiocentralProjectRepository(BuildContext context) {
@@ -81,10 +82,6 @@ abstract class BiocentralPlugin with TypeNameMixin {
     }
     eventBusSubscriptions.clear();
   }
-}
-
-mixin BiocentralClientPluginMixin<T extends BiocentralClient> on BiocentralPlugin {
-  BiocentralClientFactory<T> createClientFactory();
 }
 
 mixin BiocentralDatabasePluginMixin<T> on BiocentralPlugin {

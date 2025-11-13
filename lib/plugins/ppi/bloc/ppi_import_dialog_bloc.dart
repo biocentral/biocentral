@@ -68,11 +68,14 @@ class ShowAutoDetectedFormat {
 class PPIImportDialogBloc extends Bloc<PPIImportDialogEvent, PPIImportDialogState>
     with Effects<ShowAutoDetectedFormat> {
   final BiocentralProjectRepository _biocentralProjectRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
-  PPIImportDialogBloc(this._biocentralProjectRepository, this._biocentralClientRepository)
+  PPIImportDialogBloc(this._biocentralProjectRepository, this._apiRepository)
       : super(const PPIImportDialogState.initial()) {
     on<PPIImportDialogLoadFormatsEvent>((event, emit) async {
+      throw UnimplementedError();
+      /*
+      // TODO [Refactoring] Move to python companion
       emit(const PPIImportDialogState.loading());
 
       final availableFormatsWithDocsEither =
@@ -80,9 +83,14 @@ class PPIImportDialogBloc extends Bloc<PPIImportDialogEvent, PPIImportDialogStat
       // TODO ERROR + STATE HANDLING!
       availableFormatsWithDocsEither.match(
           (error) => null, (availableFormatsWithDocs) => emit(PPIImportDialogState.loaded(availableFormatsWithDocs)),);
+
+       */
     });
 
     on<PPIImportDialogSelectEvent>((event, emit) async {
+      throw UnimplementedError();
+
+      /*
       final XFile? selectedFile = event.updates.whereType<XFile?>().firstOrNull;
 
       if (selectedFile != null) {
@@ -103,6 +111,7 @@ class PPIImportDialogBloc extends Bloc<PPIImportDialogEvent, PPIImportDialogStat
       } else {
         emit(state.updateFromUIEvent(event));
       }
+       */
     });
   }
 }

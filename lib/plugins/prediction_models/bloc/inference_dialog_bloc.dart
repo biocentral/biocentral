@@ -71,9 +71,11 @@ class InferenceDialogBloc extends Bloc<InferenceDialogEvent, InferenceDialogStat
     on<InferenceDialogLoadEvent>((event, emit) async {
       final availableModels =
           _predictionModelRepository.predictionModelsToList().where((model) => model.modelHash != null).toSet();
-      final selectedModel = state.selectedModel ?? availableModels.first;
-      emit(InferenceDialogState.loaded(availableModels, selectedModel));
-      _changeModelSelection(selectedModel, emit);
+      final selectedModel = state.selectedModel ?? availableModels.firstOrNull;
+      if(selectedModel != null) {
+        emit(InferenceDialogState.loaded(availableModels, selectedModel));
+        _changeModelSelection(selectedModel, emit);
+      }
     });
 
     on<InferenceDialogSelectModelEvent>((event, emit) async {

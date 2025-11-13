@@ -1,6 +1,5 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/models_commands.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -63,13 +62,13 @@ final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTra
 class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, BiotrainerTrainingState>
     with BiocentralUpdateBloc {
   final PredictionModelRepository _predictionModelRepository;
+  final BiocentralAPIRepository _apiRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
 
   BiotrainerTrainingBloc(
     this._predictionModelRepository,
-    this._biocentralClientRepository,
+    this._apiRepository,
     this._biocentralDatabaseRepository,
     this._biocentralProjectRepository,
     EventBus eventBus,
@@ -82,9 +81,9 @@ class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, Bio
       } else {
         final TrainBiotrainerModelCommand trainBiotrainerModelCommand = TrainBiotrainerModelCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
+          apiRepository: _apiRepository,
           biocentralDatabase: database,
           predictionModelRepository: _predictionModelRepository,
-          predictionModelsClient: _biocentralClientRepository.getServiceClient<PredictionModelsClient>(),
           trainingConfiguration: event.trainingConfiguration,
         );
         await trainBiotrainerModelCommand
@@ -109,9 +108,9 @@ class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, Bio
       } else {
         final TrainBiotrainerModelCommand trainBiotrainerModelCommand = TrainBiotrainerModelCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
+          apiRepository: _apiRepository,
           biocentralDatabase: database,
           predictionModelRepository: _predictionModelRepository,
-          predictionModelsClient: _biocentralClientRepository.getServiceClient<PredictionModelsClient>(),
           trainingConfiguration: convertToStringMap(resumableCommand.commandConfig['trainingConfiguration']),
         );
         await trainBiotrainerModelCommand
