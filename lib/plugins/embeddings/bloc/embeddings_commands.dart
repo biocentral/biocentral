@@ -267,11 +267,15 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
     // }
 
     final biocentralAPI = _apiRepository.getBiocentralAPI();
-    final biocentralTask = await biocentralAPI.project(embedderName: _embedderName!, sequenceData: sequenceData);
+    final biocentralTask = await biocentralAPI.project(
+        method: _projectionMethod,
+        config: _projectionConfig.map((k, v) => MapEntry(k.name, v.toString())),
+        embedderName: _embedderName!,
+        sequenceData: sequenceData);
     Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
     await for (final (dto, projectionDataResponse) in biocentralTask.run()) {
-      if(projectionDataResponse != null) {
-        projectionData = ProtspaceFileHandler.parse(projectionDataResponse);
+      if (projectionDataResponse != null) {
+        projectionData = ProtspaceFileHandler.parse(jsonEncode(projectionDataResponse));
       }
       if (projectionData != null) {
         break;

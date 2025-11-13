@@ -3,6 +3,7 @@ import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart'
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -84,8 +85,14 @@ final class CalculateProjectionsDialogState extends BiocentralSimpleMultiTypeUIS
   }
 
   @override
-  List<Object?> get props =>
-      [embeddingsColumnWizard, selectedEmbedderName, selectedEmbeddingType, selectedImportMode, projectionConfig, status];
+  List<Object?> get props => [
+        embeddingsColumnWizard,
+        selectedEmbedderName,
+        selectedEmbeddingType,
+        selectedImportMode,
+        projectionConfig,
+        status
+      ];
 
   @override
   CalculateProjectionsDialogState updateFromUIEvent(BiocentralSimpleMultiTypeUIUpdateEvent event) {
@@ -112,8 +119,21 @@ class CalculateProjectionsDialogBloc extends Bloc<CalculateProjectionsDialogEven
   CalculateProjectionsDialogBloc(this._apiRepository, this._embeddingsRepository)
       : super(const CalculateProjectionsDialogState.initial()) {
     on<CalculateProjectionsDialogGetConfigEvent>((event, emit) async {
-      // TODO Projection Config
-      emit(const CalculateProjectionsDialogState.errored());
+      final projectionConfig = await _apiRepository.getBiocentralAPI().projectionConfig();
+      if (projectionConfig == null) {
+        return emit(const CalculateProjectionsDialogState.errored());
+      }
+      final mappedProjectionConfig = Map<String, List<BiocentralConfigOption>>.fromEntries(
+        projectionConfig
+            .map(
+              (method, options) => MapEntry(
+                  method,
+                  List<BiocentralConfigOption>.from(
+                      options.map((option) => BiocentralConfigOption.fromMap(option?.asMap ?? {})))),
+            )
+            .entries,
+      );
+      emit(CalculateProjectionsDialogState.loadedConfig(mappedProjectionConfig));
     });
     on<CalculateProjectionsDialogSelectEntityTypeEvent>((event, emit) async {
       final EmbeddingsColumnWizard? embeddingsColumnWizard =
