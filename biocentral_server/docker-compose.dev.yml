@@ -17,6 +17,7 @@ services:
 
   redis-jobs:
     image: redis:alpine
+    command: redis-server --save "" --appendonly no
     ports:
       - "${REDIS_JOBS_PORT}:6379"
     healthcheck:
@@ -85,6 +86,11 @@ services:
     build:
       context: ./storage/model-repository
       dockerfile: Dockerfile.triton
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"  # Max 50MB per log file
+        max-file: "1"
     deploy:
       resources:
         limits:

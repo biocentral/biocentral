@@ -3,6 +3,11 @@ services:
     build:
       context: ./storage/model-repository
       dockerfile: Dockerfile.triton
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"
     deploy:
       resources:
         limits:
