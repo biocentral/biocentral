@@ -1,60 +1,52 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/displays/prediction_model_display.dart';
 import 'package:flutter/material.dart';
 
 class PLMEvalQueueDisplay extends StatelessWidget {
-  final AutoEvalProgress? autoEvalProgress;
+  final AutoEvalProgressWrapper? progress;
 
-  const PLMEvalQueueDisplay({required this.autoEvalProgress, super.key});
+  const PLMEvalQueueDisplay({required this.progress, super.key});
 
   @override
   Widget build(BuildContext context) {
     Widget expansionTileWrapper(children) => ExpansionTile(
-      title: const Text('Task Queue'),
-      children: children,
-    );
-    if(autoEvalProgress == null || autoEvalProgress!.results.isEmpty) {
+          title: const Text('Task Queue'),
+          children: children,
+        );
+    if (this.progress == null || this.progress!.results.isEmpty) {
       return expansionTileWrapper([]);
     }
-    final progress = autoEvalProgress!;
+    final progress = this.progress!;
 
-    final datasetNamesToSplits =
-    BenchmarkDataset.benchmarkDatasetsByDatasetName(progress.results.keys.toList());
     final Map<String, List<Widget>> datasetGroups = {};
-    for (final entry in datasetNamesToSplits.entries) {
-      final datasetName = entry.key;
+    for (final taskName in progress.results.keys) {
       final groupTasks = <Widget>[];
 
-      for (final splitName in entry.value) {
-        // TODO Improve unnecessary conversion
-        final BenchmarkDataset datasetToBuild = BenchmarkDataset(taskName: '$datasetName-$splitName');
-        final PredictionModel? model = progress.results[datasetToBuild];
-        final bool isCurrentProcess = progress.currentTask == datasetToBuild;
+      final PredictionModel? model = progress.results[taskName];
+      final bool isCurrentProcess = progress.currentTaskName == taskName;
 
-        if (model != null) {
-          groupTasks.add(
-            InputDecorator(
-              decoration: InputDecoration(labelText: ' $splitName'),
-              child: PredictionModelDisplay(
-                predictionModel: model,
-                trainingState: isCurrentProcess ? progress.currentModelTrainingState : null,
-              ),
+      if (model != null) {
+        groupTasks.add(
+          InputDecorator(
+            decoration: InputDecoration(labelText: ' $taskName'),
+            child: PredictionModelDisplay(
+              predictionModel: model,
+              trainingState: isCurrentProcess ? progress.currentModelTrainingState : null,
             ),
-          );
-        } else {
-          final Widget leadingWidget = const Icon(Icons.query_builder);
-          groupTasks.add(
-            ListTile(
-              leading: leadingWidget,
-              title: Text(datasetToBuild.splitName ?? 'Unknown'),
-            ),
-          );
-        }
+          ),
+        );
+      } else {
+        final Widget leadingWidget = const Icon(Icons.query_builder);
+        groupTasks.add(
+          ListTile(
+            leading: leadingWidget,
+            title: Text(taskName),
+          ),
+        );
       }
 
-      datasetGroups[datasetName] = groupTasks;
+      datasetGroups[progress.currentFrameworkName] = groupTasks;
     }
 
     final List<Widget> groupedTasks = datasetGroups.entries.map((entry) {
@@ -76,5 +68,4 @@ class PLMEvalQueueDisplay extends StatelessWidget {
 
     return expansionTileWrapper(groupedTasks);
   }
-
 }

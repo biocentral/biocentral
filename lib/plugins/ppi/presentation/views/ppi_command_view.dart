@@ -75,7 +75,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
         return BlocProvider(
           create: (context) => PPIImportDialogBloc(
             context.read<BiocentralProjectRepository>(),
-            context.read<BiocentralClientRepository>(),
+            context.read<BiocentralAPIRepository>(),
           )..add(PPIImportDialogLoadFormatsEvent()),
           child: PPIDatasetImportDialog(
             onImportInteractions: (LoadedFileData selectedFile, String format, DatabaseImportMode importMode) async {
@@ -121,7 +121,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
         return BlocProvider(
           create: (context) => PPIDatabaseTestsDialogBloc(
             context.read<PPIRepository>(),
-            context.read<BiocentralClientRepository>().getServiceClient<PPIClient>(),
           )..add(PPIDatabaseTestsDialogLoadTestsEvent()),
           child: PPIDatabaseTestsDialog(
             onRunInteractionDatabaseTest: (PPIDatabaseTest testToRun) {
@@ -189,7 +188,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             message: 'Import a ppi dataset from various database formats',
             child: BiocentralButton(
               iconData: Icons.downloading,
-              requiredServices: const ['ppi_service'],
               onTap: () => openInteractionsImportDialog(ppiCommandBloc),
             ),
           ),
@@ -197,7 +195,6 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
             message: 'Perform bias and descriptive analysis on your interactions',
             child: BiocentralButton(
               iconData: Icons.check_box_outlined,
-              requiredServices: const ['ppi_service'],
               onTap: () => openRunInteractionDatabaseTestDialog(ppiCommandBloc),
             ),
           ),

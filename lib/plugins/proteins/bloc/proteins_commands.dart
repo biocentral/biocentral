@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -123,20 +123,20 @@ final class LoadCustomAttributesFromFileCommand extends BiocentralCommand<Map<St
 
 final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protein>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
+  final BiocentralAPIRepository _apiRepository;
   final ProteinRepository _proteinRepository;
-  final ProteinClient _proteinClient;
 
   // TODO Use import mode
   final DatabaseImportMode _importMode;
 
-  RetrieveTaxonomyCommand({
-    required BiocentralProjectRepository biocentralProjectRepository,
-    required ProteinRepository proteinRepository,
-    required ProteinClient proteinClient,
-    required DatabaseImportMode importMode,
-  })  : _biocentralProjectRepository = biocentralProjectRepository,
+  RetrieveTaxonomyCommand(
+      {required BiocentralProjectRepository biocentralProjectRepository,
+      required BiocentralAPIRepository apiRepository,
+      required ProteinRepository proteinRepository,
+      required DatabaseImportMode importMode})
+      : _biocentralProjectRepository = biocentralProjectRepository,
+        _apiRepository = apiRepository,
         _proteinRepository = proteinRepository,
-        _proteinClient = proteinClient,
         _importMode = importMode;
 
   @override
@@ -147,20 +147,27 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
     if (taxonomyIDs.isEmpty) {
       yield left(state.setErrored(information: 'No taxonomy data available!'));
     } else {
-      final taxonomyDataEither = await _proteinClient.retrieveTaxonomy(taxonomyIDs);
-      yield* taxonomyDataEither.match((error) async* {
-        yield left(state.setErrored(information: 'Taxonomy data could not be retrieved! Error: ${error.message}'));
-      }, (taxonomyData) async* {
-        final Map<String, Protein> updatedProteins = await _proteinRepository.addTaxonomyData(taxonomyData);
-        yield right(updatedProteins);
-        yield left(
-          state.setFinished(
-            information: 'Finished retrieving taxonomy information!',
-            commandProgress:
-                BiocentralCommandProgress(current: taxonomyData.keys.length, total: taxonomyData.keys.length),
-          ),
-        );
-      });
+      final biocentralAPI = _apiRepository.getBiocentralAPI();
+      final taxonomyItems = await biocentralAPI.taxonomy(taxonomyIds: taxonomyIDs.toList());
+
+      if (taxonomyItems == null) {
+        yield left(state.setErrored(information: 'Taxonomy data could not be retrieved!'));
+        return;
+      }
+      final taxonomyData = Map.fromEntries(
+        taxonomyItems.map(
+          (item) => MapEntry(item.taxonomyId, Taxonomy(id: item.taxonomyId, name: item.name, family: item.family)),
+        ),
+      );
+      final Map<String, Protein> updatedProteins = await _proteinRepository.addTaxonomyData(taxonomyData);
+      yield right(updatedProteins);
+      yield left(
+        state.setFinished(
+          information: 'Finished retrieving taxonomy information!',
+          commandProgress:
+              BiocentralCommandProgress(current: taxonomyData.keys.length, total: taxonomyData.keys.length),
+        ),
+      );
     }
   }
 
@@ -175,23 +182,23 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
 
 final class ProteinPredictCommand extends BiocentralCommand<Map<String, Protein>> {
   final BiocentralProjectRepository _biocentralProjectRepository;
+  final BiocentralAPIRepository _apiRepository;
   final ProteinRepository _proteinRepository;
-  final ProteinClient _proteinClient;
 
   final Set<String> _selectedModels;
 
   // TODO Use import mode
   final DatabaseImportMode _importMode;
 
-  ProteinPredictCommand({
-    required BiocentralProjectRepository biocentralProjectRepository,
-    required ProteinRepository proteinRepository,
-    required ProteinClient proteinClient,
-    required Set<String> selectedModels,
-    required DatabaseImportMode importMode,
-  })  : _biocentralProjectRepository = biocentralProjectRepository,
+  ProteinPredictCommand(
+      {required BiocentralProjectRepository biocentralProjectRepository,
+      required BiocentralAPIRepository apiRepository,
+      required ProteinRepository proteinRepository,
+      required Set<String> selectedModels,
+      required DatabaseImportMode importMode})
+      : _biocentralProjectRepository = biocentralProjectRepository,
+        _apiRepository = apiRepository,
         _proteinRepository = proteinRepository,
-        _proteinClient = proteinClient,
         _selectedModels = selectedModels,
         _importMode = importMode;
 
@@ -200,46 +207,52 @@ final class ProteinPredictCommand extends BiocentralCommand<Map<String, Protein>
     yield left(state.setOperating(information: 'Predicting protein features..'));
 
     final proteinMap = _proteinRepository.databaseToMap();
+    final sequenceData = proteinMap.map((k, v) => MapEntry(k, v.sequence.seq));
 
     if (proteinMap.isEmpty) {
       yield left(state.setErrored(information: 'No protein data available!'));
     } else {
-      final predictionEither = await _proteinClient.predictProtein(proteinMap, _selectedModels.toList());
-      yield* predictionEither.match((error) async* {
-        yield left(state.setErrored(information: 'Prediction task could not be started! Error: ${error.message}'));
-      }, (taskID) async* {
-        Map<String, dynamic> currentPredictions = {};
-        await for (final (dto, predictions) in _proteinClient.predictionTaskStream(taskID)) {
-          if (predictions == null) {
-            continue;
-          }
-          currentPredictions = predictions;
+      final biocentralAPI = _apiRepository.getBiocentralAPI();
+      final biocentralTask =
+          await biocentralAPI.predict(modelNames: _selectedModels.toList(), sequenceData: sequenceData);
+
+      Map<String, List<Prediction>> currentPredictions = {};
+      await for (final (dto, predictions) in biocentralTask.run()) {
+        if (predictions == null) {
+          continue;
         }
-        if (currentPredictions.isEmpty) {
-          yield left(state.setErrored(information: 'Did not receive any predictions!'));
-        } else {
-          Map<String, Protein> updatedProteins = {};
-          for (final (modelName, predictions) in currentPredictions.entriesRecord) {
-            updatedProteins = await _proteinRepository.addCustomAttribute(
-              '$modelName-predicted',
-              // TODO Adapt Prediction API
-              Map.from(
-                predictions.map(
-                  (entityID, modelPredictions) => MapEntry(entityID, modelPredictions[0]["prediction"].toString()),
-                ),
-              ),
-            );
+        currentPredictions =
+            Map.fromEntries(predictions.entries.map((entry) => MapEntry(entry.key, entry.value.toList())));
+      }
+      if (currentPredictions.isEmpty) {
+        yield left(state.setErrored(information: 'Did not receive any predictions!'));
+      } else {
+        final Map<String, Map<String, Prediction>> predictionsByNames = {};
+        for (final (entityID, predictions) in currentPredictions.entriesRecord) {
+          for (final prediction in predictions) {
+            final combinedName = '${prediction.modelName}-${prediction.predictionName}-predicted';
+            predictionsByNames.putIfAbsent(combinedName, () => {});
+            predictionsByNames[combinedName]![entityID] = prediction;
           }
-          yield right(updatedProteins);
-          yield left(
-            state.setFinished(
-              information: 'Finished predicting protein properties!',
-              commandProgress:
-                  BiocentralCommandProgress(current: currentPredictions.length, total: currentPredictions.length),
-            ),
+        }
+
+        Map<String, Protein> updatedProteins = {};
+        for (final (combinedName, predictionMap) in predictionsByNames.entriesRecord) {
+          updatedProteins = await _proteinRepository.addCustomAttribute(
+            combinedName,
+            // TODO Improve prediction class support
+            predictionMap.map((k, v) => MapEntry(k, v.value.toString())),
           );
         }
-      });
+        yield right(updatedProteins);
+        yield left(
+          state.setFinished(
+            information: 'Finished predicting protein properties!',
+            commandProgress:
+                BiocentralCommandProgress(current: currentPredictions.length, total: currentPredictions.length),
+          ),
+        );
+      }
     }
   }
 

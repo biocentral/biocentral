@@ -1,8 +1,7 @@
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_commands.dart';
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -13,17 +12,17 @@ sealed class PLMEvalEvaluationEvent {}
 
 final class PLMEvalHuggingfaceEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final String modelID;
-  final List<BenchmarkDataset> benchmarkDatasets;
+  final List<PLMEvalTaskInformation> tasks;
 
-  PLMEvalHuggingfaceEvaluationStartEvent(this.modelID, this.benchmarkDatasets);
+  PLMEvalHuggingfaceEvaluationStartEvent(this.modelID, this.tasks);
 }
 
 final class PLMEvalONNXEvaluationStartEvent extends PLMEvalEvaluationEvent {
   final XFile onnxFile;
   final Map<String, dynamic> tokenizerConfig;
-  final List<BenchmarkDataset> benchmarkDatasets;
+  final List<PLMEvalTaskInformation> tasks;
 
-  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.tokenizerConfig, this.benchmarkDatasets);
+  PLMEvalONNXEvaluationStartEvent(this.onnxFile, this.tokenizerConfig, this.tasks);
 }
 
 final class PLMEvalEvaluationResumeEvent extends PLMEvalEvaluationEvent {
@@ -35,7 +34,7 @@ final class PLMEvalEvaluationResumeEvent extends PLMEvalEvaluationEvent {
 @immutable
 final class PLMEvalEvaluationState extends BiocentralCommandState<PLMEvalEvaluationState> {
   final String? modelID;
-  final AutoEvalProgress? autoEvalProgress;
+  final AutoEvalProgressWrapper? autoEvalProgress;
 
   const PLMEvalEvaluationState(
     super.stateInformation,
@@ -81,22 +80,24 @@ final class PLMEvalEvaluationState extends BiocentralCommandState<PLMEvalEvaluat
 class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEvalEvaluationState>
     with BiocentralUpdateBloc {
   final BiocentralProjectRepository _projectRepository;
-  final BiocentralClientRepository _clientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final PLMEvalRepository _plmEvalRepository;
 
   PLMEvalEvaluationBloc(
     this._projectRepository,
-    this._clientRepository,
+    this._apiRepository,
     this._plmEvalRepository,
     EventBus eventBus,
   ) : super(const PLMEvalEvaluationState.idle(), eventBus) {
     on<PLMEvalHuggingfaceEvaluationStartEvent>((event, emit) async {
-      final autoEvalCommand = AutoEvalPLMCommand(
+      final autoEvalCommand = AutoevalPLMCommand(
         projectRepository: _projectRepository,
-        plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
+        apiRepository: _apiRepository,
         plmEvalRepository: _plmEvalRepository,
         modelID: event.modelID,
-        benchmarkDatasets: event.benchmarkDatasets,
+        onnxFile: null,
+        tokenizerConfig: null,
+        tasks: event.tasks,
       );
       await autoEvalCommand.executeWithLogging<PLMEvalEvaluationState>(_projectRepository, state).forEach((either) {
         either.match((l) => emit(l), (r) {
@@ -105,14 +106,14 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
       });
     });
     on<PLMEvalONNXEvaluationStartEvent>((event, emit) async {
-      final autoEvalCommand = AutoEvalPLMCommand(
+      final autoEvalCommand = AutoevalPLMCommand(
         projectRepository: _projectRepository,
-        plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
+        apiRepository: _apiRepository,
         plmEvalRepository: _plmEvalRepository,
         modelID: event.onnxFile.name.replaceAll('.onnx', ''),
         onnxFile: event.onnxFile,
         tokenizerConfig: event.tokenizerConfig,
-        benchmarkDatasets: event.benchmarkDatasets,
+        tasks: event.tasks,
       );
       await autoEvalCommand.executeWithLogging<PLMEvalEvaluationState>(_projectRepository, state).forEach((either) {
         either.match((l) => emit(l), (r) {
@@ -121,6 +122,9 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
       });
     });
     on<PLMEvalEvaluationResumeEvent>((event, emit) async {
+      /*
+      // TODO [Refactoring] Resume
+
       final String? modelID = event.commandLog.commandConfig['modelID'];
       final bool? recommendedOnly = event.commandLog.commandConfig['recommendedOnly'];
       final Map<String, dynamic>? benchmarkDatasets = event.commandLog.commandConfig['benchmarkDatasets'];
@@ -144,12 +148,12 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
         }
       }
 
-      final autoEvalCommand = AutoEvalPLMCommand(
+      final autoEvalCommand = AutoevalPLMCommand(
         projectRepository: _projectRepository,
-        plmEvalClient: _clientRepository.getServiceClient<PLMEvalClient>(),
+        apiRepository: _apiRepository,
         plmEvalRepository: _plmEvalRepository,
         modelID: modelID,
-        benchmarkDatasets: convertedBenchmarkDatasets,
+        tasks: convertedBenchmarkDatasets,
       );
       await autoEvalCommand
           .resumeWithLogging<PLMEvalEvaluationState>(
@@ -164,6 +168,7 @@ class PLMEvalEvaluationBloc extends BiocentralBloc<PLMEvalEvaluationEvent, PLMEv
           finishedResumableCommand(event.commandLog);
         }); // Ignore result here
       });
+       */
     });
   }
 }

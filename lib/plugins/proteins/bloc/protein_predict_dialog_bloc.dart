@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -36,20 +36,18 @@ final class ProteinPredictDialogState extends Equatable {
 enum ProteinPredictDialogStatus { initial, loading, loaded, errored }
 
 class ProteinPredictDialogBloc extends Bloc<ProteinPredictDialogEvent, ProteinPredictDialogState> {
-  final BiocentralClientRepository _clientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
-  ProteinPredictDialogBloc(this._clientRepository) : super(const ProteinPredictDialogState.initial()) {
+  ProteinPredictDialogBloc(this._apiRepository) : super(const ProteinPredictDialogState.initial()) {
     on<ProteinPredictDialogStartEvent>((event, emit) async {
       emit(const ProteinPredictDialogState.loading());
 
-      final ProteinClient client = _clientRepository.getServiceClient<ProteinClient>();
-      final metadataEither = await client.modelMetadata();
-      metadataEither.match(
-        (error) => emit(const ProteinPredictDialogState.errored()),
-        (modelMetadata) => emit(
-          ProteinPredictDialogState.loaded(modelMetadata),
-        ),
-      );
+      final biocentralAPI = _apiRepository.getBiocentralAPI();
+      final metadata = await biocentralAPI.getModelMetadata();
+      if(metadata == null) {
+        return emit(const ProteinPredictDialogState.errored());
+      }
+      return emit(ProteinPredictDialogState.loaded(metadata));
     });
   }
 }

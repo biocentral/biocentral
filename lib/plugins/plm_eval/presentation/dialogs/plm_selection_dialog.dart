@@ -1,8 +1,8 @@
 import 'package:biocentral/plugins/embeddings/presentation/displays/tokenizer_config_selection.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_selection_dialog_bloc.dart';
-import 'package:biocentral/plugins/plm_eval/model/benchmark_dataset.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,7 @@ class PLMSelectionDialog extends StatefulWidget {
   final void Function(
     Either<String, XFile> modelSelection,
     Map<String, dynamic> tokenizerConfig,
-    List<BenchmarkDataset> datasets,
+    List<PLMEvalTaskInformation> tasks,
   ) onStartAutoeval;
 
   const PLMSelectionDialog({required this.onStartAutoeval, super.key});
@@ -33,10 +33,8 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> with Biocentral
   }
 
   void startAutoeval(PLMSelectionDialogState state) {
-    if (state.status == PLMSelectionDialogStatus.validated &&
-        state.modelSelection != null &&
-        state.datasets.isNotEmpty) {
-      closeDialog(callback: () => widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig, state.datasets));
+    if (state.status == PLMSelectionDialogStatus.validated && state.modelSelection != null && state.tasks.isNotEmpty) {
+      closeDialog(callback: () => widget.onStartAutoeval(state.modelSelection!, _tokenizerConfig, state.tasks));
     }
   }
 
@@ -85,7 +83,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> with Biocentral
     }
     dialogChildren.addAll([
       buildModelSelection(plmSelectionDialogBloc, state),
-      buildDatasetSplitsDisplay(plmSelectionDialogBloc, state, state.datasets),
+      buildTasksInformation(plmSelectionDialogBloc, state, state.tasks),
       buildCancelButton(),
     ]);
 
@@ -196,99 +194,15 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> with Biocentral
     );
   }
 
-  TextStyle? _getTextStyleForSplits(String datasetName, String splitName) {
-    final standardTheme = Theme.of(context).textTheme.labelMedium;
-    return standardTheme?.copyWith(color: Colors.purple);
-  }
-
-  Widget buildDatasetSplitsDisplay(
-      PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state, List<BenchmarkDataset> available) {
-    if (available.isEmpty) {
+  Widget buildTasksInformation(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state,
+      List<PLMEvalTaskInformation> tasks) {
+    if (tasks.isEmpty) {
       return Container();
     }
-    final Map<String, List<String>> availableDatasetMap = BenchmarkDataset.benchmarkDatasetsByDatasetName(available);
 
     return Column(
       children: [
-        const Text('Benchmark Datasets (FLIP):'),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          child: Table(
-            border: TableBorder.all(
-              color: Colors.grey,
-              width: 1,
-            ),
-            columnWidths: const {
-              0: IntrinsicColumnWidth(),
-              1: FlexColumnWidth(),
-            },
-            children: [
-              // Header row
-              const TableRow(
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                ),
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Dataset',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Splits',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              // Data rows
-              ...availableDatasetMap.entries.map((entry) {
-                final String datasetName = entry.key;
-                final List<String> splits = entry.value;
-
-                return TableRow(
-                  children: [
-                    // Dataset name cell
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        datasetName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    // Splits cell
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        spacing: 8.0,
-                        runSpacing: 4.0,
-                        children: splits.map((splitName) {
-                          return Chip(
-                            label: Text(
-                              splitName,
-                              style: _getTextStyleForSplits(
-                                datasetName,
-                                splitName,
-                              ),
-                            ),
-                            backgroundColor: Colors.white,
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ),
+        ...tasks.map((task) => Text('${task.name}:${task.description}')),
         buildSequenceLengthHint(),
         buildEvaluateButton(plmSelectionDialogBloc, state),
       ],
@@ -303,7 +217,7 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> with Biocentral
   }
 
   Widget buildEvaluateButton(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state) {
-    if (state.status == PLMSelectionDialogStatus.validated && state.datasets.isNotEmpty) {
+    if (state.status == PLMSelectionDialogStatus.validated && state.tasks.isNotEmpty) {
       return BiocentralSmallButton(onTap: () => startAutoeval(state), label: 'Start Evaluation');
     }
     return Container();

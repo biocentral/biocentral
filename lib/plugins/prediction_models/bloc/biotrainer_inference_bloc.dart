@@ -1,7 +1,4 @@
-import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/models_commands.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
@@ -64,12 +61,12 @@ class BiotrainerInferenceBloc extends BiocentralBloc<BiotrainerInferenceEvent, B
     with BiocentralUpdateBloc {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
 
   BiotrainerInferenceBloc(
     this._biocentralProjectRepository,
     this._biocentralDatabaseRepository,
-    this._biocentralClientRepository,
+    this._apiRepository,
     EventBus eventBus,
   ) : super(const BiotrainerInferenceState.idle(), eventBus) {
     on<BiotrainerInferenceStartInferenceEvent>((event, emit) async {
@@ -81,7 +78,7 @@ class BiotrainerInferenceBloc extends BiocentralBloc<BiotrainerInferenceEvent, B
       } else {
         final BiotrainerInferenceCommand inferenceCommand = BiotrainerInferenceCommand(
           biocentralDatabase: database,
-          predictionModelsClient: _biocentralClientRepository.getServiceClient<PredictionModelsClient>(),
+          apiRepository: _apiRepository,
           predictionModel: event.predictionModel,
           selectedEntityIDs: event.selectedEntityIDs,
         );

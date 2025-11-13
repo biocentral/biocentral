@@ -4,7 +4,6 @@ import 'package:biocentral/plugins/prediction_models/bloc/inference_dialog_bloc.
 import 'package:biocentral/plugins/prediction_models/bloc/load_model_dialog_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/biotrainer_config_dialog.dart';
 import 'package:biocentral/plugins/prediction_models/presentation/dialogs/inference_dialog_builder.dart';
@@ -57,7 +56,7 @@ class _ModelCommandViewState extends State<ModelCommandView> {
         return BlocProvider(
           create: (context) => BiotrainerConfigBloc(
             context.read<BiocentralDatabaseRepository>(),
-            context.read<BiocentralClientRepository>().getServiceClient<PredictionModelsClient>(),
+            context.read<BiocentralAPIRepository>(),
           ),
           child: BiotrainerConfigDialog(eventBus: widget.eventBus),
         );
@@ -130,7 +129,6 @@ class _ModelCommandViewState extends State<ModelCommandView> {
           child: BiocentralButton(
             label: 'Train a model..',
             iconData: Icons.model_training,
-            requiredServices: const ['prediction_models_service'],
             onTap: openBiotrainerConfigDialog,
           ),
         ),
@@ -139,7 +137,6 @@ class _ModelCommandViewState extends State<ModelCommandView> {
           child: BiocentralButton(
             label: 'Inference predictions..',
             iconData: Icons.online_prediction,
-            requiredServices: const ['prediction_models_service'],
             onTap: openInferenceDialog,
           ),
         ),

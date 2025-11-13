@@ -1,7 +1,7 @@
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_dto.dart';
 import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -133,27 +133,37 @@ class PredictionModel extends Equatable {
         trainingStatus: trainingStatus ?? this.trainingStatus);
   }
 
-  PredictionModel updateFromDTO(BiocentralDTO dto) {
-    PredictionModel updatedModel = this;
-    final config = dto.config;
-    if (config != null) {
-      updatedModel = updatedModel.copyWith(config: this.config?.merge<String, dynamic>(config) ?? config);
+  PredictionModel updateFromDTO(TaskDTO taskDTO) {
+    final outputData = taskDTO.biotrainerUpdate;
+    if (outputData == null) {
+      return this;
     }
-    final derivedValues = dto.derivedValues;
+
+    PredictionModel updatedModel = this;
+    final config = outputData.config?.toMap().map((k, v) => MapEntry(k, v.toString()));
+    if (config != null) {
+      updatedModel = updatedModel.copyWith(config: this.config?.merge<String, String>(config) ?? config);
+    }
+    final derivedValues = outputData.derivedValues?.toMap().map((k, v) => MapEntry(k, v.toString()));
     if (derivedValues != null) {
       updatedModel = updatedModel.copyWith(
           derivedValues: this.derivedValues?.merge<String, dynamic>(derivedValues) ?? derivedValues);
     }
 
     // TODO Not included in DTO yet
-    final databaseType = dto.databaseType ?? 'Protein';
+    final databaseType = 'Protein';
     updatedModel = updatedModel.copyWith(databaseType: databaseType);
 
-    final trainingIteration = dto.trainingIteration;
-    if (trainingIteration != null) {
-      final splitName = trainingIteration['split_name'];
+    final trainingIterations = outputData.trainingIteration?.toList();
+    if (trainingIterations != null && trainingIterations.isNotEmpty) {
+      final splitName = trainingIterations[0].toString();
+      final epochMetrics = trainingIterations[1];
+
+      // TODO Parse EpochMetrics
+
       final existingTrainingResult = trainingResults?[splitName] ?? TrainingResult.empty();
-      final updatedTrainingResult = existingTrainingResult.update(trainingIteration['metrics'] ?? {});
+      final updatedTrainingResult =
+          existingTrainingResult.update(epochMetrics?.asMap.map((k, v) => MapEntry(k.toString(), v)) ?? {});
       if (updatedTrainingResult != null) {
         // TODO Error handling
         final newTrainingResults = Map<String, TrainingResult>.from(trainingResults ?? {});
@@ -162,7 +172,8 @@ class PredictionModel extends Equatable {
       }
     }
 
-    final testResults = dto.testResults;
+    final testResults =
+        outputData.testResults?.toMap().map((k, v) => MapEntry(k, Map<String, dynamic>.from(v?.asMap ?? {})));
     final updatedTestResults = Map<String, TestResult>.from(this.testResults ?? {});
     if (testResults != null) {
       for (final (testSetName, testSetResult) in testResults.entriesRecord) {

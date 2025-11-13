@@ -72,12 +72,12 @@ final class PPICommandState extends BiocentralCommandState<PPICommandState> {
 
 class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> with BiocentralSyncBloc {
   final PPIRepository _ppiRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
 
   PPICommandBloc(
     this._ppiRepository,
-    this._biocentralClientRepository,
+    this._apiRepository,
     this._biocentralProjectRepository,
     EventBus eventBus,
   ) : super(const PPICommandState.idle(), eventBus) {
@@ -121,7 +121,7 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
 
     on<PPICommandImportWithHVIToolkitEvent>((event, emit) async {
       final ImportPPIsCommand importPPIsCommand = ImportPPIsCommand(
-        ppiClient: _biocentralClientRepository.getServiceClient<PPIClient>(),
+        apiRepository: _apiRepository,
         loadedDataset: event.fileData.content,
         datasetFormat: event.databaseFormat,
       );
@@ -136,7 +136,6 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
       final RunPPIDatabaseTestCommand runPPIDatabaseTestCommand = RunPPIDatabaseTestCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
         ppiRepository: _ppiRepository,
-        ppiClient: _biocentralClientRepository.getServiceClient<PPIClient>(),
         testToRun: event.testToRun,
       );
       await runPPIDatabaseTestCommand.executeWithLogging(_biocentralProjectRepository, state).forEach((either) {

@@ -1,9 +1,8 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
-import 'package:biocentral/plugins/prediction_models/data/prediction_models_client.dart';
 import 'package:biocentral/plugins/prediction_models/data/prediction_models_service_api.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -313,18 +312,18 @@ enum BiotrainerConfigStatus {
 
 class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
-  final PredictionModelsClient _biotrainerTrainingClient;
+  final BiocentralAPIRepository _apiRepository;
 
-  BiotrainerConfigBloc(this._biocentralDatabaseRepository, this._biotrainerTrainingClient)
+  BiotrainerConfigBloc(this._biocentralDatabaseRepository, this._apiRepository)
       : super(const BiotrainerConfigState.selectingDatabaseType()) {
     on<BiotrainerConfigSelectDatabaseTypeEvent>((event, emit) async {
       emit(BiotrainerConfigState.loadingProtocols(event.databaseType));
 
-      final availableProtocolsEither = await _biotrainerTrainingClient.getAvailableBiotrainerProtocols();
-      availableProtocolsEither.match(
-        (error) => emit(BiotrainerConfigState.errored(error.message)),
-        (availableProtocols) => emit(BiotrainerConfigState.selectingProtocol(event.databaseType, availableProtocols)),
-      );
+      final availableProtocols = await _apiRepository.getBiocentralAPI().getProtocols();
+      if (availableProtocols == null) {
+        return emit(const BiotrainerConfigState.errored('Could not retrieve protocols!'));
+      }
+      emit(BiotrainerConfigState.selectingProtocol(event.databaseType, availableProtocols.toList()));
     });
 
     on<BiotrainerConfigSelectProtocolEvent>((event, emit) async {
@@ -345,11 +344,14 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
 
       Set<String> availableModels = {};
       if (options == null || options.isEmpty) {
-        final configOptionsByProtocolEither =
-            await _biotrainerTrainingClient.getBiotrainerConfigOptionsByProtocol(selectedProtocol);
-        options = List.from(configOptionsByProtocolEither.getOrElse((l) => []));
-        availableModels = getAvailableModelsFromBiotrainerConfig(options);
-        options = filterBiotrainerOptionsForBiocentral(options);
+        // TODO [Error Handling]
+        final configOptions =
+            await _apiRepository.getBiocentralAPI().getConfigOptionsForProtocol(protocol: selectedProtocol) ?? [];
+        // TODO Improve biotrainer config options
+        final biocentralConfigOptions =
+            configOptions.map((option) => BiocentralConfigOption.fromMap(option.asMap)).toList();
+        availableModels = getAvailableModelsFromBiotrainerConfig(biocentralConfigOptions);
+        options = filterBiotrainerOptionsForBiocentral(biocentralConfigOptions);
       }
 
       if (options.isEmpty) {
@@ -518,8 +520,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
     });
 
     on<BiotrainerConfigVerifyConfigEvent>((event, emit) async {
-      final String configFile = BiotrainerFileHandler.biotrainerConfigurationToConfigFile(state.currentConfiguration);
-
       emit(
         BiotrainerConfigState.verifying(
           state.selectedDatabaseType,
@@ -535,22 +535,24 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       );
 
       // TODO Refactor: shorten
-      final errorEither = await _biotrainerTrainingClient.verifyBiotrainerConfig(configFile);
-      errorEither.match(
-          (exception) => emit(
-                BiotrainerConfigState.configError(
-                  state.selectedDatabaseType,
-                  state.availableProtocols,
-                  state.configOptionsByProtocol,
-                  state.currentConfiguration,
-                  state.selectedProtocol,
-                  state.proteinsHaveMissingSequences,
-                  state.availableTargets,
-                  state.availableSets,
-                  state.availableModels,
-                  exception.message,
-                ),
-              ), (u) {
+      final biocentralAPI = _apiRepository.getBiocentralAPI();
+      final error = await biocentralAPI.verifyTrainingConfig(config: state.currentConfiguration);
+      if (error != null) {
+        emit(
+          BiotrainerConfigState.configError(
+            state.selectedDatabaseType,
+            state.availableProtocols,
+            state.configOptionsByProtocol,
+            state.currentConfiguration,
+            state.selectedProtocol,
+            state.proteinsHaveMissingSequences,
+            state.availableTargets,
+            state.availableSets,
+            state.availableModels,
+            error,
+          ),
+        );
+      } else {
         emit(
           BiotrainerConfigState.verified(
             state.selectedDatabaseType,
@@ -564,7 +566,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
             state.availableModels,
           ),
         );
-      });
+      }
     });
   }
 

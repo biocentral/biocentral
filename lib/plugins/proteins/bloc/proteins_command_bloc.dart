@@ -1,5 +1,4 @@
 import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
-import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:cross_file/cross_file.dart';
@@ -66,12 +65,12 @@ final class ProteinsCommandState extends BiocentralCommandState<ProteinsCommandS
 
 class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsCommandState> with BiocentralSyncBloc {
   final ProteinRepository _proteinRepository;
-  final BiocentralClientRepository _biocentralClientRepository;
+  final BiocentralAPIRepository _apiRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
 
   ProteinsCommandBloc(
     this._proteinRepository,
-    this._biocentralClientRepository,
+    this._apiRepository,
     this._biocentralProjectRepository,
     EventBus eventBus,
   ) : super(const ProteinsCommandState.idle(), eventBus) {
@@ -122,8 +121,8 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     on<ProteinsCommandRetrieveTaxonomyEvent>((event, emit) async {
       final RetrieveTaxonomyCommand retrieveTaxonomyCommand = RetrieveTaxonomyCommand(
         biocentralProjectRepository: _biocentralProjectRepository,
+        apiRepository: _apiRepository,
         proteinRepository: _proteinRepository,
-        proteinClient: _biocentralClientRepository.getServiceClient<ProteinClient>(),
         importMode: DatabaseImportMode.defaultMode,
       );
       await retrieveTaxonomyCommand
@@ -154,8 +153,8 @@ class ProteinsCommandBloc extends BiocentralBloc<ProteinsCommandEvent, ProteinsC
     on<ProteinsCommandPredictEvent>((event, emit) async {
       final ProteinPredictCommand proteinPredictCommand = ProteinPredictCommand(
           biocentralProjectRepository: _biocentralProjectRepository,
+          apiRepository: _apiRepository,
           proteinRepository: _proteinRepository,
-          proteinClient: _biocentralClientRepository.getServiceClient<ProteinClient>(),
           selectedModels: event.selectedModels,
           importMode: DatabaseImportMode.defaultMode);
       await proteinPredictCommand

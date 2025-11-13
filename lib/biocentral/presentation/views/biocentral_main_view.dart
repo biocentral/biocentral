@@ -65,7 +65,9 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final pluginState = context.read<BiocentralPluginBloc>().state;
+    final pluginState = context
+        .read<BiocentralPluginBloc>()
+        .state;
     if (_checkForUpdatedPlugins(cachedPluginState, pluginState)) {
       updateTabs();
     }
@@ -115,7 +117,9 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   }
 
   void updateTabs() {
-    final pluginState = context.read<BiocentralPluginBloc>().state;
+    final pluginState = context
+        .read<BiocentralPluginBloc>()
+        .state;
     cachedPluginState = pluginState;
     _tabs.clear();
     _tabs.addAll(
@@ -170,37 +174,78 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
       child: AppBar(
         leading: useDrawer
             ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-              )
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        )
             : null,
         title: _buildAppBarTitle(),
         backgroundColor: Colors.transparent,
         bottom: useDrawer
             ? null
             : BiocentralCommandTabBar(
-                controller: _tabController,
-                tabs: _tabs,
-              ),
+          controller: _tabController,
+          tabs: _tabs,
+        ),
       ),
     );
   }
 
   Widget _buildAppBarTitle() {
-    return FutureBuilder<PackageInfo>(
-      future: PackageInfo.fromPlatform(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              'Biocentral - develop - Alpha v${snapshot.data?.version}',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          );
-        }
-        return const CircularProgressIndicator();
-      },
+    final apiRepository = context.read<BiocentralAPIRepository>();
+    return Row(
+      children: [
+        FutureBuilder<PackageInfo>(
+          future: PackageInfo.fromPlatform(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Biocentral IRE - v${snapshot.data?.version}',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .labelSmall,
+                ),
+              );
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
+        const Spacer(),
+        StreamBuilder(
+          stream: apiRepository.healthStatusStream,
+          builder: (context, snapshot) {
+            final healthStatus = snapshot.data ?? {};
+            final connectionStatusAny = healthStatus.isEmpty ? false : healthStatus.values.any((health) => health);
+            final connectionColor =
+            connectionStatusAny == true ? Colors.green : Colors.red;
+            final connectionMessage = connectionStatusAny == true ? 'Connected!' : 'Not connected';
+            String tooltipMessage = 'Connection Status: \n\n';
+            for (final (url, health) in healthStatus.entriesRecord) {
+              tooltipMessage += '$url: ${health ? 'Connected' : 'Not connected'}\n';
+            }
+            return BiocentralTooltip(
+              message: tooltipMessage,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.cloud_circle_sharp,
+                    color: connectionColor,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4,),
+                  Text('Biocentral API - $connectionMessage', style: Theme
+                      .of(context)
+                      .textTheme
+                      .labelSmall,
+                      ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -220,7 +265,9 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Theme.of(context).dividerColor,
+                  color: Theme
+                      .of(context)
+                      .dividerColor,
                 ),
               ),
             ),
@@ -231,23 +278,30 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
                 builder: (context, state) {
                   return Switch(
                     value: state.isDarkMode,
-                    activeColor: Theme.of(context).secondaryHeaderColor,
+                    activeColor: Theme
+                        .of(context)
+                        .secondaryHeaderColor,
                     onChanged: (value) {
                       context.read<ThemeBloc>().add(ToggleThemeEvent(value));
                     },
                     thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                      (Set<WidgetState> states) {
+                          (Set<WidgetState> states) {
                         if (states.contains(WidgetState.selected)) {
                           return Icon(
                             Icons.dark_mode,
                             size: 16,
-                            color: Theme.of(context).colorScheme.tertiary,
+                            color: Theme
+                                .of(context)
+                                .colorScheme
+                                .tertiary,
                           );
                         }
                         return Icon(
                           Icons.light_mode,
                           size: 16,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme
+                              .of(context)
+                              .primaryColor,
                         );
                       },
                     ),
@@ -264,14 +318,15 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   List<Widget> _buildDrawerItems(BuildContext context) {
     return List.generate(
       _tabs.length,
-      (i) => ListTile(
-        title: _tabs[i],
-        selected: i == _tabController.index,
-        onTap: () {
-          setState(() => _tabController.animateTo(i));
-          Navigator.pop(context);
-        },
-      ),
+          (i) =>
+          ListTile(
+            title: _tabs[i],
+            selected: i == _tabController.index,
+            onTap: () {
+              setState(() => _tabController.animateTo(i));
+              Navigator.pop(context);
+            },
+          ),
     );
   }
 

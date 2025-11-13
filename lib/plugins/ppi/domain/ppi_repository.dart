@@ -2,6 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 
 class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   final Map<String, ProteinProteinInteraction> _interactions = {};
@@ -51,6 +52,21 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   void clearDatabaseImpl() {
     _interactions.clear();
     _associatedDatasetTests.clear();
+  }
+
+  @override
+  Map<String, String>? getSequences() {
+    final result = <String, String>{};
+    for(final protein in _getCurrentProteins()) {
+      result[protein.id] = protein.sequence.seq;
+    }
+    return result;
+  }
+
+  @override
+  List<SequenceTrainingData> getTrainingData(
+      {required String targetColumn, required String setColumn, String? maskColumn}) {
+    throw UnimplementedError(); // TODO [Feature] Enable training for ppis
   }
 
   @override

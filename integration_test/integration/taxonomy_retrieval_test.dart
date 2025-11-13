@@ -1,16 +1,18 @@
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
-import 'package:biocentral/plugins/proteins/data/protein_client.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockBiocentralProjectRepository extends Mock implements BiocentralProjectRepository {}
-class MockProteinClient extends Mock implements ProteinClient {}
+
+class MockBiocentralAPIRepository extends Mock implements BiocentralAPIRepository {}
+
 class MockProteinRepository extends Mock implements ProteinRepository {}
 
 void main() {
@@ -19,13 +21,13 @@ void main() {
   group('RetrieveTaxonomy Integration Test', () {
     late MockBiocentralProjectRepository mockProjectRepo;
     late MockProteinRepository mockProteinRepo;
-    late MockProteinClient mockProteinClient;
+    late MockBiocentralAPIRepository mockAPIRepository;
     late RetrieveTaxonomyCommand retrieveTaxonomyCommand;
 
     setUp(() {
       mockProjectRepo = MockBiocentralProjectRepository();
       mockProteinRepo = MockProteinRepository();
-      mockProteinClient = MockProteinClient();
+      mockAPIRepository = MockBiocentralAPIRepository();
 
       // Set up default behavior for mockProteinRepo
       when(() => mockProteinRepo.databaseToMap()).thenReturn({
@@ -46,34 +48,39 @@ void main() {
 
       retrieveTaxonomyCommand = RetrieveTaxonomyCommand(
         biocentralProjectRepository: mockProjectRepo,
+        apiRepository: mockAPIRepository,
         proteinRepository: mockProteinRepo,
-        proteinClient: mockProteinClient,
         importMode: DatabaseImportMode.overwrite,
       );
     });
 
     testWidgets('Successfully retrieve and update taxonomy data', (WidgetTester tester) async {
       // Arrange
-      final mockTaxonomyData = {
-        9606: const Taxonomy(id: 9606, name: 'Homo sapiens', family: 'Hominidae'),
-        10090: const Taxonomy(id: 10090, name: 'Mus musculus', family: 'Muridae'),
-      };
+      final mockTaxonomyData = [
+        TaxonomyItem((b) => b
+          ..taxonomyId = 9606
+          ..name = 'Homo sapiens'
+          ..family = 'Hominidae'),
+        TaxonomyItem((b) => b
+          ..taxonomyId = 10090
+          ..name = 'Mus musculus'
+          ..family = 'Muridae'),
+      ];
 
-      when(() => mockProteinClient.retrieveTaxonomy(any()))
-          .thenAnswer((_) async => Right(mockTaxonomyData));
-
+      when(() => mockAPIRepository.getBiocentralAPI().taxonomy(taxonomyIds: any()))
+          .thenAnswer((_) async => mockTaxonomyData);
       // Act
       final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
       // Assert
       await for (final either in result) {
         either.match(
-              (state) {
+          (state) {
             if (state.status == BiocentralCommandStatus.finished) {
               expect(state.stateInformation.information, contains('Finished retrieving taxonomy information'));
             }
           },
-              (updatedProteins) {
+          (updatedProteins) {
             expect(updatedProteins, isA<Map<String, Protein>>());
             expect(updatedProteins.length, equals(2));
             expect(updatedProteins['Test1']?.taxonomy, equals(mockTaxonomyData[9606]));
@@ -82,7 +89,7 @@ void main() {
         );
       }
 
-      verify(() => mockProteinClient.retrieveTaxonomy(any())).called(1);
+      verify(() => mockAPIRepository.getBiocentralAPI().taxonomy(taxonomyIds: any())).called(1);
     });
 
     testWidgets('Handle empty taxonomy IDs', (WidgetTester tester) async {
@@ -98,36 +105,12 @@ void main() {
         lastEither = either;
       }
       lastEither.match(
-            (state) {
+        (state) {
           expect(state.status, equals(BiocentralCommandStatus.errored));
           expect(state.stateInformation.information, contains('No taxonomy data available'));
         },
-            (_) => fail('Expected Left, but got Right'),
+        (_) => fail('Expected Left, but got Right'),
       );
-    });
-
-    testWidgets('Handle error from ProteinClient', (WidgetTester tester) async {
-      // Arrange
-      when(() => mockProteinClient.retrieveTaxonomy(any()))
-          .thenAnswer((_) async => Left(BiocentralNetworkException(message: 'Network error', log: false)));
-
-      // Act
-      final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
-
-      // Assert
-      await for (final either in result) {
-        either.match(
-              (state) {
-            if (state.status == BiocentralCommandStatus.errored) {
-              expect(state.stateInformation.information, contains('Taxonomy data could not be retrieved'));
-              expect(state.stateInformation.information, contains('Network error'));
-            }
-          },
-              (_) => fail('Expected Left, but got Right'),
-        );
-      }
-
-      verify(() => mockProteinClient.retrieveTaxonomy(any())).called(1);
     });
   });
 }

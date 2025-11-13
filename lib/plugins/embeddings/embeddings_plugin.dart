@@ -1,7 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/embeddings_hub_bloc.dart';
-import 'package:biocentral/plugins/embeddings/data/embeddings_client.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/plugins/embeddings/presentation/views/embeddings_command_view.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmbeddingsPlugin extends BiocentralPlugin
     with
-        BiocentralClientPluginMixin<EmbeddingsClient>,
         BiocentralDatabasePluginMixin<EmbeddingsRepository>,
         BiocentralColumnWizardPluginMixin {
   EmbeddingsPlugin(super.eventBus);
@@ -25,11 +23,6 @@ class EmbeddingsPlugin extends BiocentralPlugin
   @override
   String getShortDescription() {
     return 'Calculate, analyze and visualize embeddings for biological entities';
-  }
-
-  @override
-  BiocentralClientFactory<EmbeddingsClient> createClientFactory() {
-    return EmbeddingsClientFactory();
   }
 
   @override
@@ -49,7 +42,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
 
     final embeddingsCommandBloc = EmbeddingsCommandBloc(
       getBiocentralDatabaseRepository(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       getBiocentralProjectRepository(context),
       getBiocentralPythonCompanion(context),
       getDatabase(context),

@@ -6,6 +6,7 @@ import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/util/logging.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
@@ -62,6 +63,11 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   List<Map<String, dynamic>> entitiesAsMaps();
 
   String getEntityTypeName();
+
+  Map<String, String>? getSequences();
+
+  List<SequenceTrainingData> getTrainingData(
+      {required String targetColumn, required String setColumn, String? maskColumn});
 
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode);
 

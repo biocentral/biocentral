@@ -2,7 +2,6 @@ import 'package:biocentral/plugins/embeddings/embeddings_plugin.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_evaluation_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_hub_bloc.dart';
 import 'package:biocentral/plugins/plm_eval/bloc/plm_eval_leaderboard_bloc.dart';
-import 'package:biocentral/plugins/plm_eval/data/plm_eval_client.dart';
 import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_command_view.dart';
@@ -15,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PLMEvalPlugin extends BiocentralPlugin
-    with BiocentralClientPluginMixin, BiocentralDatabasePluginMixin<PLMEvalRepository> {
+  with BiocentralDatabasePluginMixin<PLMEvalRepository> {
   PLMEvalPlugin(super.eventBus);
 
   @override
@@ -34,13 +33,13 @@ class PLMEvalPlugin extends BiocentralPlugin
 
     final plmEvalCommandBloc = PLMEvalEvaluationBloc(
       getBiocentralProjectRepository(context),
-      getBiocentralClientRepository(context),
+      getBiocentralAPIRepository(context),
       getDatabase(context),
       eventBus,
     );
 
 
-    final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralClientRepository(context), getDatabase(context))
+    final plmEvalLeaderboardBloc = PLMEvalLeaderboardBloc(getBiocentralAPIRepository(context), getDatabase(context))
       ..add(PLMEvalLeaderboardDownloadEvent());
 
     final plmEvalHubBloc = PLMEvalHubBloc(getBiocentralProjectRepository(context), getDatabase(context), eventBus);
@@ -78,11 +77,6 @@ class PLMEvalPlugin extends BiocentralPlugin
 
   @override
   String get typeName => 'PLMEvalPlugin';
-
-  @override
-  BiocentralClientFactory<BiocentralClient> createClientFactory() {
-    return PLMEvalClientFactory();
-  }
 
   @override
   Set<Type> getDependencies() {

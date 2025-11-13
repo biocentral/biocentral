@@ -31,7 +31,7 @@ final class PLMEvalHubRemoveResumableCommandEvent extends PLMEvalHubEvent {
 
 @immutable
 final class PLMEvalHubState extends BiocentralCommandState<PLMEvalHubState> {
-  final List<AutoEvalProgress> sessionResults;
+  final List<AutoEvalProgressWrapper> sessionResults;
   final List<PLMEvalPersistentResult> persistentResults;
 
   final List<BiocentralCommandLog> resumableCommands;

@@ -6,7 +6,7 @@ import 'package:fpdart/fpdart.dart';
 
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/plugins/ppi/data/ppi_service_api.dart';
-
+/*
 final class PPIClientFactory extends BiocentralClientFactory<PPIClient> {
   @override
   PPIClient create(BiocentralServerData? server, BiocentralHubServerClient hubServerClient) {
@@ -54,3 +54,4 @@ class PPIClient extends BiocentralClient {
     return 'ppi_service';
   }
 }
+*/
