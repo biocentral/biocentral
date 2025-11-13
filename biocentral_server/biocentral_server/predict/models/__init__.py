@@ -41,7 +41,10 @@ def filter_models(model_names: List[str]) -> Dict[str, Any]:
 
 
 def get_metadata_for_all_models() -> Dict[str, Any]:
-    return {name: model.get_metadata() for name, model in MODEL_REGISTRY.items()}
+    return {
+        model.get_metadata().name: model.get_metadata()
+        for _, model in MODEL_REGISTRY.items()
+    }
 
 
 __all__ = ["filter_models", "get_metadata_for_all_models", "BaseModel"]

@@ -56,12 +56,12 @@ async def predict(request_data: PredictionRequest, request: Request):
     Endpoint for protein sequence prediction using a single or multiple models
     """
     model_names = [model_name.lower() for model_name in request_data.model_names]
-    available_model_metadata = get_metadata_for_all_models()
+    available_model_names = {
+        name.lower() for name in get_metadata_for_all_models().keys()
+    }
 
     # Check if all requested models exist
-    missing_models = [
-        name for name in model_names if name not in available_model_metadata.keys()
-    ]
+    missing_models = [name for name in model_names if name not in available_model_names]
     if missing_models:
         return NotFoundErrorResponse(
             error=f"The following models were not found: {', '.join(missing_models)}",
