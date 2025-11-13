@@ -14,7 +14,6 @@ from .endpoint_models import (
     ModelFilesResponse,
     StartInferenceRequest,
     ErrorResponse,
-    ConfigOption,
 )
 
 from .biotrainer_task import BiotrainerTask
@@ -26,6 +25,7 @@ from ..server_management import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
+from ..utils import str2bool
 
 # Create APIRouter
 router = APIRouter(
@@ -33,6 +33,29 @@ router = APIRouter(
     tags=["custom_models"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
+
+
+def _verify_config(config_dict: dict):
+    """Verify biotrainer configuration dict"""
+
+    # TODO Improve biotrainer config option handling to avoid this
+    def _apply_config_conversion(v: str):
+        import ast
+
+        try:
+            return ast.literal_eval(v)
+        except Exception:
+            if v.lower() in ["true", "false"]:
+                return str2bool(v)
+            return v
+
+    try:
+        config = {k: _apply_config_conversion(v) for k, v in config_dict.items()}
+        configurator = Configurator.from_config_dict(config)
+        configurator.verify_config(ignore_file_checks=True)
+        return config, ""
+    except ConfigurationException as config_exception:
+        return None, str(config_exception)
 
 
 @router.get(
@@ -60,9 +83,9 @@ def config_options(protocol: str):
 
     filtered_options = []
     for option_dict in options:
-        for k, v in option_dict:
-            if k not in presets:
-                filtered_options.append(ConfigOption(key=k, value=v))
+        name = option_dict.get("name")
+        if name not in presets:
+            filtered_options.append(option_dict)
 
     return ConfigOptionsResponse(options=filtered_options)
 
@@ -76,13 +99,8 @@ def config_options(protocol: str):
 )
 def verify_config(request_data: ConfigVerificationRequest):
     """Verify configuration options"""
-    try:
-        config_dict = request_data.config_dict
-        configurator = Configurator.from_config_dict(config_dict)
-        configurator.verify_config(ignore_file_checks=True)
-        return ConfigVerificationResponse(error="")
-    except ConfigurationException as config_exception:
-        return ConfigVerificationResponse(error=str(config_exception))
+    _, error = _verify_config(request_data.config_dict)
+    return ConfigVerificationResponse(error=error)
 
 
 @router.get(
@@ -109,14 +127,10 @@ def protocols():
 async def start_training(request_data: StartTrainingRequest, request: Request):
     """Start model training for biotrainer"""
     # Parse and validate configuration
-    try:
-        config_dict = request_data.config_dict
-        configurator = Configurator.from_config_dict(config_dict)
-        configurator.verify_config(ignore_file_checks=True)
-    except ConfigurationException as config_exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(config_exception)
-        )
+    config_dict = request_data.config_dict
+    verified_config, error = _verify_config(config_dict)
+    if error != "":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
     # Get user and file manager
     user_id = await UserManager.get_user_id_from_request(req=request)
@@ -129,7 +143,7 @@ async def start_training(request_data: StartTrainingRequest, request: Request):
 
     biotrainer_process = BiotrainerTask(
         model_path=model_path,
-        config_dict=config_dict,
+        config_dict=verified_config,
         training_data=request_data.training_data,
     )
     task_id = task_manager.add_task(

@@ -64,16 +64,8 @@ class ProtocolsResponse(BaseModel):
     protocols: List[str] = Field(description="List of available protocol names")
 
 
-# TODO Improve this model to match biotrainer config option format
-class ConfigOption(BaseModel):
-    key: str = Field(description="Configuration option key")
-    value: Any = Field(description="Configuration option value")
-
-
 class ConfigOptionsResponse(BaseModel):
-    options: List[ConfigOption] = Field(
-        description="List of configuration option dictionaries"
-    )
+    options: List = Field(description="List of configuration option dictionaries")
 
 
 class StartTrainingRequest(BaseModel):
