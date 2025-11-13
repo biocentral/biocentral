@@ -47,9 +47,6 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         # BindEmbed requires transposed input (B, L, E) -> (B, E, L)
         batch = self._transpose_batch(batch)
 
-        # Rename the key for Triton ensemble
-        if "input" in batch:
-            batch["ensemble_input"] = batch.pop("input")
         return batch
 
     def triton_output_transformer(self, outputs: List[np.ndarray]) -> np.ndarray:
@@ -145,11 +142,12 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     def predict(self, sequences: Dict[str, str], embeddings):
         self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
+        input_name = self._infer_input_name()
         embedding_ids = list(embeddings.keys())
         results = []
 
         for batch in inputs:
-            B, L, _ = batch["input"].shape
+            B, L, _ = batch[input_name].shape
 
             if self.backend == "onnx":
                 # ONNX: Run ensemble manually

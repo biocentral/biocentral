@@ -144,10 +144,11 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     def predict(self, sequences: Dict[str, str], embeddings):
         self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
+        input_name = self._infer_input_name()
         embedding_ids = list(embeddings.keys())
         results = []
         for batch in inputs:
-            B, L, _ = batch["input"].shape
+            B, L, _ = batch[input_name].shape
 
             if self.backend == "onnx":
                 # ONNX: Run ensemble manually

@@ -128,19 +128,20 @@ class BaseModel(ABC):
             idx: embedding.shape[0] for idx, embedding in embeddings.items()
         }
 
-        input_name = (
-            self._infer_input_name()
-            if self.backend == "onnx"
-            else self.TRITON_INPUT_NAMES()[0]
-        )  # TODO
         # Get batched data with attention masks if required
         return get_batched_data(
             batch_size=self.batch_size,
             protocol=self.get_metadata().protocol,
-            input_name=input_name,
+            input_name=self._infer_input_name(),
             data=embeddings.values(),
             mask=self.requires_mask,
         )
+
+    def _infer_input_name(self):
+        if self.backend == "onnx":
+            model = self.model if self.model is not None else self.models[0]
+            return model.get_inputs()[0].name
+        return self.TRITON_INPUT_NAMES()[0]
 
     def _transpose_batch(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -159,8 +160,9 @@ class BaseModel(ABC):
             return batch
 
         result = {}
+        input_name = self._infer_input_name()
         for k, v in batch.items():
-            if k == "input":
+            if k == input_name:
                 if isinstance(v, np.ndarray):
                     v = torch.from_numpy(v)
                 elif isinstance(v, Iterable):
