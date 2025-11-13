@@ -1,6 +1,6 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/displays/prediction_model_display.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/presentation/displays/prediction_model_display.dart';
 import 'package:flutter/material.dart';
 
 class PLMEvalQueueDisplay extends StatelessWidget {

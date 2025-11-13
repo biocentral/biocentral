@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_protocol.dart';
+import 'package:biocentral/plugins/custom_models/data/biotrainer_file_handler.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_protocol.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

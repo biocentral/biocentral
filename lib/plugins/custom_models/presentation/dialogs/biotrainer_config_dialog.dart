@@ -1,8 +1,8 @@
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/prediction_model_events.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog_builder.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/prediction_model_events.dart';
+import 'package:biocentral/plugins/custom_models/bloc/set_generation_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/presentation/dialogs/set_generation_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';

@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
 import 'package:flutter/material.dart';

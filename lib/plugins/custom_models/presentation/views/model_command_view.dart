@@ -1,14 +1,14 @@
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_config_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/biotrainer_inference_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/inference_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/load_model_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/model_hub_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/set_generation_dialog_bloc.dart';
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/biotrainer_config_dialog.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/inference_dialog_builder.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/load_model_dialog.dart';
-import 'package:biocentral/plugins/prediction_models/presentation/dialogs/set_generation_dialog_builder.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/biotrainer_inference_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/inference_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/load_model_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/model_hub_bloc.dart';
+import 'package:biocentral/plugins/custom_models/bloc/set_generation_dialog_bloc.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/presentation/dialogs/biotrainer_config_dialog.dart';
+import 'package:biocentral/plugins/custom_models/presentation/dialogs/inference_dialog_builder.dart';
+import 'package:biocentral/plugins/custom_models/presentation/dialogs/load_model_dialog.dart';
+import 'package:biocentral/plugins/custom_models/presentation/dialogs/set_generation_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:event_bus/event_bus.dart';
@@ -37,7 +37,7 @@ class _ModelCommandViewState extends State<ModelCommandView> {
       builder: (BuildContext context) {
         return BlocProvider(
           create: (context) => LoadModelDialogBloc(
-            context.read<PredictionModelRepository>(),
+            context.read<CustomModelRepository>(),
             context.read<BiocentralProjectRepository>(),
             widget.eventBus,
           ),
@@ -73,7 +73,7 @@ class _ModelCommandViewState extends State<ModelCommandView> {
         return BlocProvider(
           create: (context) => InferenceDialogBloc(
             context.read<BiocentralDatabaseRepository>(),
-            context.read<PredictionModelRepository>(),
+            context.read<CustomModelRepository>(),
           )..add(InferenceDialogLoadEvent()),
           child: BlocBuilder<InferenceDialogBloc, InferenceDialogState>(
             builder: (context, state) {

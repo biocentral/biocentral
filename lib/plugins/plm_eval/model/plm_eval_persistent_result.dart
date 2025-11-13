@@ -1,5 +1,5 @@
 import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class PLMEvalPersistentResult {

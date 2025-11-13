@@ -6,7 +6,7 @@ import 'package:biocentral/plugins/plm_eval/domain/plm_eval_repository.dart';
 import 'package:biocentral/plugins/plm_eval/model/plm_eval_persistent_result.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_command_view.dart';
 import 'package:biocentral/plugins/plm_eval/presentation/views/plm_eval_hub_view.dart';
-import 'package:biocentral/plugins/prediction_models/prediction_models_plugin.dart';
+import 'package:biocentral/plugins/custom_models/custom_models_plugin.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:cross_file/cross_file.dart';
@@ -80,7 +80,7 @@ class PLMEvalPlugin extends BiocentralPlugin
 
   @override
   Set<Type> getDependencies() {
-    return {PredictionModelsPlugin, EmbeddingsPlugin};
+    return {CustomModelsPlugin, EmbeddingsPlugin};
   }
 
   @override

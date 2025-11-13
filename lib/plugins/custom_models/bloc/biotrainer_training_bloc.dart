@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/prediction_models/bloc/models_commands.dart';
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/bloc/models_commands.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +61,7 @@ final class BiotrainerTrainingState extends BiocentralCommandState<BiotrainerTra
 
 class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, BiotrainerTrainingState>
     with BiocentralUpdateBloc {
-  final PredictionModelRepository _predictionModelRepository;
+  final CustomModelRepository _predictionModelRepository;
   final BiocentralAPIRepository _apiRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;

@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -64,7 +64,7 @@ final class InferenceDialogState extends Equatable {
 
 class InferenceDialogBloc extends Bloc<InferenceDialogEvent, InferenceDialogState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
-  final PredictionModelRepository _predictionModelRepository;
+  final CustomModelRepository _predictionModelRepository;
 
   InferenceDialogBloc(this._biocentralDatabaseRepository, this._predictionModelRepository)
       : super(const InferenceDialogState.initial()) {

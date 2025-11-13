@@ -1,15 +1,15 @@
 import 'dart:typed_data';
 
-import 'package:biocentral/plugins/prediction_models/data/biotrainer_file_handler.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/data/biotrainer_file_handler.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
-class PredictionModelRepository {
+class CustomModelRepository {
   final BiocentralProjectRepository _projectRepository;
 
   final List<PredictionModel> _predictionModels = [];
 
-  PredictionModelRepository(this._projectRepository);
+  CustomModelRepository(this._projectRepository);
 
   void addModel(PredictionModel predictionModel) {
     // TODO Autosaving without files

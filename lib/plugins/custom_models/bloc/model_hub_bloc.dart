@@ -1,5 +1,5 @@
-import 'package:biocentral/plugins/prediction_models/domain/prediction_model_repository.dart';
-import 'package:biocentral/plugins/prediction_models/model/prediction_model.dart';
+import 'package:biocentral/plugins/custom_models/domain/prediction_model_repository.dart';
+import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cross_file/cross_file.dart';
@@ -71,7 +71,7 @@ final class ModelHubState extends BiocentralCommandState<ModelHubState> {
 
 class ModelHubBloc extends Bloc<ModelHubEvent, ModelHubState> {
   final BiocentralProjectRepository _projectRepository;
-  final PredictionModelRepository _predictionModelRepository;
+  final CustomModelRepository _predictionModelRepository;
 
   ModelHubBloc(this._projectRepository, this._predictionModelRepository) : super(const ModelHubState.idle()) {
     on<ModelHubLoadEvent>((event, emit) async {
