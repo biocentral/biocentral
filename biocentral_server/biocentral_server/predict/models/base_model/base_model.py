@@ -1,85 +1,109 @@
 import torch
 import numpy as np
-import onnxruntime as ort
 
 from abc import ABC, abstractmethod
-from onnxruntime import InferenceSession
 from biotrainer.protocols import Protocol
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union, Any, Literal, Iterable
 from biotrainer.utilities import get_device
 
-from biocentral_server.server_management import FileContextManager
-from .prediction import Prediction
 from .model_metadata import ModelMetadata
 
-from ...model_utils import get_batched_data, MODEL_BASE_PATH
+from ...model_utils import get_batched_data
+
+from ....server_management import Prediction
+
+# Backend type
+BackendType = Literal["onnx", "triton"]
 
 
 class BaseModel(ABC):
-    """Base class for all prediction models."""
+    """Base class for all prediction models.
 
-    def __init__(self, batch_size: int,
-                 uses_ensemble: bool = False,
-                 requires_mask: bool = False,
-                 requires_transpose: bool = False,
-                 model_dir_name: str = None, ):
+    This class provides shared functionality for all prediction models,
+    including preprocessing, postprocessing, and batching logic.
+    Specific inference backends (ONNX, Triton) are provided via mixins.
+    """
+
+    def __init__(
+        self,
+        batch_size: int,
+        backend: BackendType = "onnx",
+        uses_ensemble: bool = False,
+        requires_mask: bool = False,
+        requires_transpose: bool = False,
+        model_dir_name: str = None,
+    ):
         """
         Initialize the model.
 
         Args:
             batch_size: Batch size for predictions
+            backend: Inference backend to use ("onnx" or "triton")
             uses_ensemble: Whether the model uses multiple models (ensemble)
             requires_mask: Whether inputs need masking
             requires_transpose: Whether inputs need transposition
             model_dir_name: Optional directory name, defaults to meta_data.name if not provided
         """
         self.batch_size = batch_size
+        self.backend = backend
+        self.uses_ensemble = uses_ensemble
         self.requires_mask = requires_mask
         self.requires_transpose = requires_transpose
         self.non_padded_embedding_lengths = {}  # Undo padding after predictions
         self.device = get_device()
+        self.model_dir_name = model_dir_name
 
-        # Load model(s)
-        model_name = model_dir_name if model_dir_name else self.get_metadata().name
-        if uses_ensemble:
-            self.models = self._load_multiple_onnx_models(model_name=model_name)
+        # Lazy initialization flag - backend initialized on first use
+        self._backend_initialized = False
+
+    def _ensure_backend_initialized(self):
+        """Lazy initialization - load backend only when first needed.
+
+        This method should be called at the start of predict() to ensure
+        the backend is initialized before inference.
+        """
+        if not self._backend_initialized:
+            self._init_backend()
+            self._backend_initialized = True
+
+    def _init_backend(self):
+        """Initialize the selected inference backend."""
+        if self.backend == "onnx":
+            if not hasattr(self, "_init_onnx_backend"):
+                raise RuntimeError(
+                    f"{self.__class__.__name__} must inherit from OnnxInferenceMixin "
+                    "to use ONNX backend"
+                )
+            self._init_onnx_backend(model_dir_name=self.model_dir_name)
+
+        elif self.backend == "triton":
+            if not hasattr(self, "_init_triton_backend"):
+                raise RuntimeError(
+                    f"{self.__class__.__name__} must inherit from TritonInferenceMixin "
+                    "to use Triton backend"
+                )
+            self._init_triton_backend()
+
         else:
-            self.model = self._load_onnx_model(model_name=model_name)
+            raise ValueError(
+                f"Unknown backend: {self.backend}. Must be 'onnx' or 'triton'"
+            )
 
-    @staticmethod
-    def _load_onnx_model(model_name: str) -> InferenceSession:
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
+    def _run_inference(self, batch: Dict[str, Any]) -> Any:
+        """Run inference on a batch using the selected backend.
 
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    return onnx_model
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
+        Args:
+            batch: Dictionary containing input tensors
 
-        raise Exception(f"Model could not be found in model directory {model_dir}!")
-
-    @staticmethod
-    def _load_multiple_onnx_models(model_name: str) -> List[InferenceSession]:
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
-        models = []
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    models.append((onnx_file.name, onnx_model))
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
-
-        if len(models) == 0:
-            raise Exception(f"Model {model_name} could not be loaded!")
-
-        # TODO [Refactoring] Sorting for cv_index does not work with temp files
-        models = [model[1] for model in sorted(models, key=lambda x: x[0])]
-        return models
+        Returns:
+            Raw model output
+        """
+        if self.backend == "onnx":
+            return self._run_onnx_inference(batch)
+        elif self.backend == "triton":
+            return self._run_triton_inference(batch)
+        else:
+            raise ValueError(f"Unknown backend: {self.backend}")
 
     @staticmethod
     @abstractmethod
@@ -87,8 +111,9 @@ class BaseModel(ABC):
         """Return model metadata."""
         raise NotImplementedError
 
-    def _prepare_inputs(self, embeddings: Dict[str, torch.Tensor]) -> Union[
-        List[Dict[str, np.ndarray]], List[Dict[str, torch.Tensor]]]:
+    def _prepare_inputs(
+        self, embeddings: Dict[str, torch.Tensor]
+    ) -> Union[List[Dict[str, np.ndarray]], List[Dict[str, torch.Tensor]]]:
         """
         Prepare inputs for the model.
 
@@ -99,14 +124,31 @@ class BaseModel(ABC):
             Batched inputs ready for model prediction
         """
         # Store original sequence lengths
-        self.non_padded_embedding_lengths = {idx: embedding.shape[0] for idx, embedding in embeddings.items()}
+        self.non_padded_embedding_lengths = {
+            idx: embedding.shape[0] for idx, embedding in embeddings.items()
+        }
 
         # Get batched data with attention masks if required
-        return get_batched_data(batch_size=self.batch_size, data=embeddings.values(), mask=self.requires_mask)
+        return get_batched_data(
+            batch_size=self.batch_size,
+            protocol=self.get_metadata().protocol,
+            input_name=self._infer_input_name(),
+            data=embeddings.values(),
+            mask=self.requires_mask,
+        )
+
+    def _infer_input_name(self):
+        if self.backend == "onnx":
+            model = self.model if self.model is not None else self.models[0]
+            return model.get_inputs()[0].name
+        return self.TRITON_INPUT_NAMES()[0]
 
     def _transpose_batch(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """
         Transpose batch dimensions if required.
+
+        Transposes 'input' tensor from (B, L, E) to (B, E, L).
+        Always converts to PyTorch tensor and uses permute.
 
         Args:
             batch: Batch data
@@ -116,7 +158,21 @@ class BaseModel(ABC):
         """
         if not self.requires_transpose:
             return batch
-        return {k: v.transpose(0, 2, 1) if k == "input" else v for k, v in batch.items()}
+
+        result = {}
+        input_name = self._infer_input_name()
+        for k, v in batch.items():
+            if k == input_name:
+                if isinstance(v, np.ndarray):
+                    v = torch.from_numpy(v)
+                elif isinstance(v, Iterable):
+                    v = torch.tensor(v)
+                else:
+                    raise ValueError(f"Unsupported type: {type(v)}")
+                result[k] = v.permute(0, 2, 1)
+            else:
+                result[k] = v
+        return result
 
     @staticmethod
     def _finalize_raw_prediction(tensor: torch.tensor, dtype=None) -> List:
@@ -145,22 +201,28 @@ class BaseModel(ABC):
         return list(result)
 
     @abstractmethod
-    def predict(self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]) -> Dict[str, List[Prediction]]:
+    def predict(
+        self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]
+    ) -> Dict[str, List[Prediction]]:
         """
         Run model prediction.
 
         Args:
-            sequences: Dictionary mapping sequence IDs to amino acid sequences
-            embeddings: Dictionary mapping sequence IDs to embeddings
+            sequences: Dictionary mapping sequence hashes to amino acid sequences
+            embeddings: Dictionary mapping sequence hashes to embeddings
 
         Returns:
             Model predictions
         """
         raise NotImplementedError
 
-    def _post_process(self, model_output: Dict[str, Any], embedding_ids: List[str],
-                      label_maps: Dict[str, Dict[int, str]] = None,
-                      delimiter: str = "") -> Dict[str, List[Prediction]]:
+    def _post_process(
+        self,
+        model_output: Dict[str, Any],
+        embedding_ids: List[str],
+        label_maps: Dict[str, Dict[int, str]] = None,
+        delimiter: str = "",
+    ) -> Dict[str, List[Prediction]]:
         """
         Unified implementation for post-processing model output for both per-residue and per-sequence predictions.
 
@@ -180,8 +242,12 @@ class BaseModel(ABC):
 
         # Check delimiter
         if delimiter and len(delimiter) > 0:
-            assert 0 <= len(delimiter) <= 1, "Delimiter must be exactly one or no character!"
-            assert per_residue, "Per-sequence prediction is not compatible with a delimiter!"
+            assert 0 <= len(delimiter) <= 1, (
+                "Delimiter must be exactly one or no character!"
+            )
+            assert per_residue, (
+                "Per-sequence prediction is not compatible with a delimiter!"
+            )
 
         for prediction_name, outputs in model_output.items():
             label_map = label_maps.get(prediction_name, {}) if label_maps else None
@@ -193,25 +259,29 @@ class BaseModel(ABC):
                     formatted_predictions[embedding_id] = []
 
                 if per_residue:
-                    # Process per-residue prediction (array of values)
-                    transform_fn = lambda p: label_map[p] if label_map else str(p)
-
                     # Undo padding and join with delimiter
-                    formatted_value = delimiter.join([
-                        transform_fn(y_hat)
-                        for pred_idx, y_hat in enumerate(prediction)
-                        if pred_idx < self.non_padded_embedding_lengths[embedding_id]
-                    ])
+                    formatted_value = delimiter.join(
+                        [
+                            (label_map[y_hat] if label_map else str(y_hat))
+                            for pred_idx, y_hat in enumerate(prediction)
+                            if pred_idx
+                            < self.non_padded_embedding_lengths[embedding_id]
+                        ]
+                    )
                 else:
                     # Process per-sequence prediction (single value)
-                    formatted_value = label_map[prediction] if label_map else str(prediction)
+                    formatted_value = (
+                        label_map[prediction] if label_map else str(prediction)
+                    )
 
                 # Create and add the prediction
-                formatted_predictions[embedding_id].append(Prediction(
-                    model_name=model_name,
-                    prediction_name=prediction_name,
-                    protocol=protocol,
-                    prediction=formatted_value
-                ))
+                formatted_predictions[embedding_id].append(
+                    Prediction(
+                        model_name=model_name,
+                        prediction_name=prediction_name,
+                        protocol=protocol.name,
+                        value=formatted_value,
+                    )
+                )
 
         return formatted_predictions

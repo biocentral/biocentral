@@ -10,7 +10,7 @@ living the spirit of open source software, that will make a difference.
 - Ensure the bug was not already reported by searching on GitHub
   under [Issues](https://github.com/biocentral/biocentral_server/issues).
 - If you're unable to find an open issue addressing the
-  problem, [open a new one](https://github.com/biocentral/biocentral_server/issues/new). 
+  problem, [open a new one](https://github.com/biocentral/biocentral_server/issues/new).
   Be sure to include a title and clear
   description, as much relevant information as possible, and a code sample or an executable test case demonstrating the
   expected behavior that is not occurring.
@@ -57,7 +57,7 @@ We use a modified GitFlow workflow for this project. Here's an overview of the p
     - Merge back into: `develop` and `main`
     - Used for critical bugfixes that need to be addressed immediately.
 
-If your contribution concerns the whole project or just the core biocentral application, please use 
+If your contribution concerns the whole project or just the core biocentral application, please use
 `biocentral/` instead of `<plugin_name>/` as prefix.
 
 ### Workflow Steps
@@ -93,10 +93,10 @@ If your contribution concerns the whole project or just the core biocentral appl
 
 ## Developer Certificate of Origin and Licensing
 
-It must be ensured that everyone submitting a contribution to this repository is allowed to do this and does not violate 
-copyrights of someone else. 
+It must be ensured that everyone submitting a contribution to this repository is allowed to do this and does not violate
+copyrights of someone else.
 
-The process has to be done and is described in more detail in the 
+The process has to be done and is described in more detail in the
 [main biocentral repository](https://github.com/biocentral/biocentral/Contributing.md).
 
 ## Styleguides

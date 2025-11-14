@@ -1,3 +1,3 @@
 from .bind_embed import BindEmbed
 
-__all__ = ['BindEmbed']
+__all__ = ["BindEmbed"]

@@ -1,22 +1,34 @@
-import json
-import logging
-
-from flask import request, jsonify, Blueprint
+from fastapi import APIRouter, Depends
+from fastapi_limiter.depends import RateLimiter
 
 from .taxonomy import Taxonomy
+from .endpoint_models import TaxonomyResponse, TaxonomyRequest, TaxonomyItem
 
-logger = logging.getLogger(__name__)
+from ..server_management import ErrorResponse, NotFoundErrorResponse
+from ..utils import get_logger
 
-protein_service_route = Blueprint("protein_service", __name__)
+logger = get_logger(__name__)
+
+router = APIRouter(
+    prefix="/protein_service",
+    tags=["proteins"],
+    responses={404: {"model": NotFoundErrorResponse}},
+)
 
 
 # Endpoint to get taxonomy data (taxon name and family name from taxonomy id)
-@protein_service_route.route('/protein_service/taxonomy', methods=['POST'])
-def taxonomy():
-    taxonomy_data = request.get_json()
-    taxonomy_ids: list = json.loads(taxonomy_data.get('taxonomy'))
+@router.post(
+    "/taxonomy/",
+    response_model=TaxonomyResponse,
+    responses={400: {"model": ErrorResponse}},
+    summary="Retrieve taxonomy data",
+    description="Retrieve taxonomy data for a list of taxonomy ids",
+    dependencies=[Depends(RateLimiter(times=20, seconds=60))],
+)
+def taxonomy(taxonomy_request: TaxonomyRequest):
+    taxonomy_ids = taxonomy_request.taxonomy_ids
 
-    taxonomy_map = {}
+    taxonomy_list = []
     taxonomy_object = Taxonomy()
     for taxonomy_id in taxonomy_ids:
         name = ""
@@ -25,15 +37,9 @@ def taxonomy():
             name = taxonomy_object.get_name_from_id(int(taxonomy_id))
             family = taxonomy_object.get_family_from_id(int(taxonomy_id))
         except Exception:
-            import ncbi_refseq_accession_db
-            import ncbi_refseq_accession_lengths
-            import ncbi_refseq_accession_offsets
-            from taxoniq import Taxon
-            print(ncbi_refseq_accession_db.db)
-            print(ncbi_refseq_accession_lengths.db)
-            print(ncbi_refseq_accession_offsets.db)
-            print(Taxon)
             logger.warning(f"Unknown taxonomy id: {taxonomy_id}")
-        taxonomy_map[taxonomy_id] = {"name": name, "family": family}
+        taxonomy_list.append(
+            TaxonomyItem(taxonomy_id=taxonomy_id, name=name, family=family)
+        )
 
-    return jsonify({"taxonomy": taxonomy_map})
+    return TaxonomyResponse(taxonomy=taxonomy_list)

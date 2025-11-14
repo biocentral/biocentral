@@ -1,0 +1,27 @@
+name: "_bind_embed_cv3"
+platform: "onnxruntime_onnx"
+max_batch_size: 128
+default_model_filename: "model.onnx"
+
+input [
+  {
+    name: "input_embedding"
+    data_type: TYPE_FP32
+    dims: [ 1024, -1 ]  # Batch dimension included (fixed to 1)
+  }
+]
+
+output [
+  {
+    name: "output_logits"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]  # Batch dimension included
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_AUTO
+  }
+]

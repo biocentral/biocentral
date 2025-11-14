@@ -1,21 +1,19 @@
-import biocentral_server.biocentral
-import biocentral_server.protein_analysis
-import biocentral_server.embeddings
-import biocentral_server.ppi
-import biocentral_server.prediction_models
-import biocentral_server.proteins
-import biocentral_server.server_entrypoint
-import biocentral_server.server_management
-import biocentral_server.utils
+from biocentral_server import (
+    biocentral,
+    embeddings,
+    ppi,
+    custom_models,
+    proteins,
+    server_management,
+    utils,
+)
 
 __all__ = [
-    'biocentral',
-    'protein_analysis',
-    'embeddings',
-    'ppi',
-    'prediction_models',
-    'proteins',
-    'server_entrypoint',
-    'server_management',
-    'utils'
+    "biocentral",
+    "embeddings",
+    "ppi",
+    "custom_models",
+    "proteins",
+    "server_management",
+    "utils",
 ]

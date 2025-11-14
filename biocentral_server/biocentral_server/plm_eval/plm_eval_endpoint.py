@@ -1,28 +1,48 @@
 import base64
-import logging
-from pathlib import Path
-from typing import Optional
-
 import requests
 
-from copy import deepcopy
+from pathlib import Path
+from typing import Optional
 from functools import lru_cache
-from flask import request, jsonify, Blueprint, current_app
+from fastapi import APIRouter, Request, Depends
+from biotrainer.embedders import get_predefined_embedder_names
+from biotrainer.autoeval.pbc.pbc_datasets import PBC_DATASETS
+from fastapi_limiter.depends import RateLimiter
 
 from .autoeval_task import AutoEvalTask
+from .endpoint_models import (
+    PLMEvalInformationResponse,
+    PLMEvalInformation,
+    PLMEvalTaskInformation,
+    PLMEvalValidateRequest,
+    PLMEvalValidateResponse,
+    PLMEvalAutoevalRequest,
+)
 
-from ..utils import str2bool
-from ..server_management import UserManager, TaskManager, FileManager, StorageFileType
+from ..utils import get_logger
+from ..server_management import (
+    UserManager,
+    TaskManager,
+    FileManager,
+    StorageFileType,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+)
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-plm_eval_service_route = Blueprint("plm_eval_service", __name__)
+router = APIRouter(
+    prefix="/plm_eval_service",
+    tags=["plm_eval"],
+    responses={404: {"model": NotFoundErrorResponse}},
+)
 
 
 # TODO Improve caching such that results that are older than one hour are omitted for new huggingface models
 @lru_cache(maxsize=12)
 def _validate_model_id(model_id: str):
-    if model_id == "one_hot_encoding":
+    if model_id in get_predefined_embedder_names():
         return ""
 
     url = f"https://huggingface.co/api/models/{model_id}"
@@ -34,7 +54,7 @@ def _validate_model_id(model_id: str):
             return ""
         elif response.status_code == 401:
             # Model not found
-            return f"Model not found on huggingface!"
+            return "Model not found on huggingface!"
         else:
             # Handle other status codes
             return f"Unexpected huggingface status code: {response.status_code}"
@@ -42,92 +62,96 @@ def _validate_model_id(model_id: str):
         return f"Error checking model availability on huggingface: {e}"
 
 
-def _get_recommended_only_flip_dict(flip_dict: dict) -> dict:
-    FLIP_RECOMMENDED = {"aav": ["low_vs_high", "two_vs_many"],
-                        "bind": ["from_publication"],
-                        "meltome": ["mixed_split"],
-                        "gb1": ["low_vs_high", "two_vs_rest"],
-                        "scl": ["mixed_hard"],
-                        "secondary_structure": ["sampled"],
-                        }
-    recommended_dict = {}
-    for dataset_name, dataset_dict in flip_dict.items():
-        if dataset_name in FLIP_RECOMMENDED:
-            recommended_splits = FLIP_RECOMMENDED[dataset_name]
-            recommended_dict[dataset_name] = deepcopy(dataset_dict)
-            recommended_dict[dataset_name]["splits"] = [split for split in dataset_dict["splits"] if
-                                                        split["name"] in recommended_splits]
-    return recommended_dict
+@router.get(
+    "/plm_eval_information",
+    response_model=PLMEvalInformationResponse,
+    responses={},
+    summary="Get PLM eval information",
+    description="Get information about PLM eval datasets and process",
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+)
+def plm_eval_information():
+    framework_datasets = PBC_DATASETS
+
+    # TODO Convert automatically or move to biotrainer.autoeval
+    return PLMEvalInformationResponse(
+        info=PLMEvalInformation(
+            n_tasks=len(framework_datasets),
+            tasks=[
+                PLMEvalTaskInformation(
+                    name="subcellular_location",
+                    description="Subcellular location prediction",
+                ),
+                PLMEvalTaskInformation(
+                    name="secondary_structure",
+                    description="Secondary structure prediction",
+                ),
+            ],
+        )
+    )
 
 
-def _convert_flip_dict_to_dataset_split_dict(flip_dict: dict) -> dict:
-    return {dataset: [split_dict["name"] for split_dict in values["splits"]] for dataset, values in flip_dict.items()}
+@router.post(
+    "/validate_model_id",
+    response_model=PLMEvalValidateResponse,
+    responses={400: {"model": ErrorResponse}},
+    summary="Validate model ID",
+    description="Validate if the given model id exists on huggingface and can be used for plm_eval",
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+)
+def validate(request_data: PLMEvalValidateRequest, request: Request):
+    error = _validate_model_id(request_data.model_id)
+    return PLMEvalValidateResponse(
+        valid=error != "", error=error if error != "" else None
+    )
 
 
-@plm_eval_service_route.route('/plm_eval_service/validate', methods=['POST'])
-def validate():
-    plm_eval_data = request.get_json()
-    model_id: str = str(plm_eval_data["modelID"])
-
-    error = _validate_model_id(model_id)
-    if error != "":
-        return jsonify({"error": error})
-    return jsonify({})
-
-
-@plm_eval_service_route.route('/plm_eval_service/get_benchmark_datasets', methods=['GET'])
-def get_benchmark_datasets():
-    flip_dict = current_app.config['FLIP_DICT']
-
-    return jsonify(_convert_flip_dict_to_dataset_split_dict(flip_dict))
-
-
-@plm_eval_service_route.route('/plm_eval_service/get_recommended_benchmark_datasets', methods=['GET'])
-def get_recommended_benchmark_datasets():
-    flip_dict = current_app.config['FLIP_DICT']
-
-    recommended_only = _get_recommended_only_flip_dict(flip_dict)
-    return jsonify(_convert_flip_dict_to_dataset_split_dict(recommended_only))
-
-
-@plm_eval_service_route.route('/plm_eval_service/autoeval', methods=['POST'])
-def autoeval():
-    plm_eval_data = request.get_json()
-    model_id: str = str(plm_eval_data["modelID"])
+@router.post(
+    "/autoeval",
+    response_model=StartTaskResponse,
+    responses={404: {"model": ErrorResponse}},
+    summary="Automated Protein Language Model Evaluation",
+    description="Automated protein language model evaluation on pre-defined, curated datasets and tasks",
+    dependencies=[Depends(RateLimiter(times=1, seconds=120))],
+)
+async def autoeval(request_data: PLMEvalAutoevalRequest, request: Request):
+    model_id = request_data.model_id
 
     # ONNX
-    onnx_file = plm_eval_data.get("onnxFile", None)
-    tokenizer_config = plm_eval_data.get("tokenizerConfig", None)
+    onnx_file = request_data.onnx_file
+    tokenizer_config = request_data.tokenizer_config
 
-    recommended_only: bool = str2bool(str(plm_eval_data["recommended_only"]))
-
-    user_id = UserManager.get_user_id_from_request(req=request)
+    user_id = await UserManager.get_user_id_from_request(req=request)
 
     onnx_path: Optional[Path] = None
     tokenizer_config_path: Optional[Path] = None
     if onnx_file and tokenizer_config:
         onnx_bytes = base64.b64decode(onnx_file)
         file_manager = FileManager(user_id=user_id)
-        onnx_path = file_manager.save_file(file_type=StorageFileType.ONNX_MODEL,
-                                           file_content=onnx_bytes,
-                                           embedder_name=model_id)
-        tokenizer_config_path = file_manager.save_file(file_type=StorageFileType.TOKENIZER_CONFIG,
-                                                       file_content=tokenizer_config,
-                                                       embedder_name=model_id)
+        onnx_path = file_manager.save_file(
+            file_type=StorageFileType.ONNX_MODEL,
+            file_content=onnx_bytes,
+            embedder_name=model_id,
+        )
+        tokenizer_config_path = file_manager.save_file(
+            file_type=StorageFileType.TOKENIZER_CONFIG,
+            file_content=tokenizer_config,
+            embedder_name=model_id,
+        )
     else:
         error = _validate_model_id(model_id)
         if error != "":
-            return jsonify({"error": error})
+            return NotFoundErrorResponse(error=error)
 
-    flip_dict = current_app.config['FLIP_DICT']
-    if recommended_only:
-        flip_dict = _get_recommended_only_flip_dict(flip_dict)
+    task = AutoEvalTask(
+        embedder_name=model_id,
+        user_id=user_id,
+        onnx_path=str(onnx_path) if onnx_path else None,
+        tokenizer_config_path=str(tokenizer_config_path)
+        if tokenizer_config_path
+        else None,
+    )
 
-    task = AutoEvalTask(flip_dict=flip_dict, embedder_name=model_id, user_id=user_id,
-                        onnx_path=str(onnx_path) if onnx_path else None,
-                        tokenizer_config_path=str(tokenizer_config_path) if tokenizer_config_path else None
-                        )
+    task_id = TaskManager().add_task(task=task, user_id=user_id)
 
-    task_id = TaskManager().add_task(task=task)
-
-    return jsonify({"task_id": task_id})
+    return StartTaskResponse(task_id=task_id)

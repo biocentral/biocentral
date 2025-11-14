@@ -5,12 +5,18 @@ services:
       - "9540:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
+      - autoeval_storage:/app/autoeval
     environment:
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
+      - AUTOEVAL_DATA_DIR=/app/autoeval
+      - TRITON_GRPC_URL=http://triton:8001
+      - TRITON_HTTP_URL=http://triton:8000
+      - USE_TRITON=true
     deploy:
       resources:
         reservations:
@@ -27,20 +33,33 @@ services:
         condition: service_healthy
       seaweedfs-filer:
         condition: service_healthy
+      triton:
+        condition: service_healthy
     networks:
       - biocentral-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   biocentral-worker:
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 3
     volumes:
-      - huggingface_models_cache:/huggingface_models
+      - huggingface_models_cache:/app/huggingface_models
+      - autoeval_storage:/app/autoeval
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - HF_HOME=/huggingface_models
+      - HF_HOME=/app/huggingface_models
+      - AUTOEVAL_DATA_DIR=/app/autoeval
+      - TRITON_GRPC_URL=http://triton:8001
+      - TRITON_HTTP_URL=http://triton:8000
+      - USE_TRITON=true
     deploy:
       resources:
         reservations:
@@ -55,11 +74,14 @@ services:
         condition: service_healthy
       seaweedfs-filer:
         condition: service_healthy
+      triton:
+        condition: service_healthy
     networks:
       - biocentral-network
 
   redis-jobs:
     image: redis:alpine
+    command: redis-server --save "" --appendonly no
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -86,6 +108,7 @@ services:
     networks:
       - biocentral-network
 
+  # File storage stack
   seaweedfs-master:
     image: chrislusf/seaweedfs
     command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
@@ -115,8 +138,96 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-      start_period: 20s
+      start_period: 30s
 
+  # Triton stack
+  triton-model-init:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
+    volumes:
+      - triton_models:/models
+    environment:
+      - MODEL_REPOSITORY_PATH=/models
+      - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
+    networks:
+      - biocentral-network
+
+  triton:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.triton
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"  # Max 50MB per log file
+        max-file: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 24G  # ESM2-T36 (3B params) requires ~14-22GB for inference
+        reservations:
+          memory: 16G
+    command: >
+      tritonserver
+      --model-repository=/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --load-model=exotox
+      --disable-auto-complete-config
+      --log-verbose=1
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+    volumes:
+      - triton_models:/models:ro
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
+    networks:
+      - biocentral-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ${PROMETHEUS_CONFIG_DIR:-./monitoring/prometheus}:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - biocentral-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--quiet", "http://localhost:9090/-/healthy" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:
@@ -143,6 +254,24 @@ volumes:
       type: none
       o: bind
       device: ${HUGGINGFACE_MODELS_DIR}
+  autoeval_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${AUTOEVAL_DATA_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PROMETHEUS_DATA_DIR:-./storage/monitoring}
 networks:
   biocentral-network:
     driver: bridge

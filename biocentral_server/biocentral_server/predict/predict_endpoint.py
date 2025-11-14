@@ -1,53 +1,89 @@
-import dataclasses
+from fastapi import APIRouter, Depends, Request
 
-from flask import request, Blueprint, jsonify
+from biotrainer.input_files import BiotrainerSequenceRecord
+from fastapi_limiter.depends import RateLimiter
 
-from .models import get_metadata_for_all_models, filter_models
 from .multi_prediction_task import MultiPredictionTask
+from .models import get_metadata_for_all_models, filter_models
+from .endpoint_models import PredictionRequest, ModelMetadataResponse
 
-from ..server_management import TaskManager
+from ..server_management import (
+    TaskManager,
+    UserManager,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+)
 
-prediction_service_route = Blueprint("prediction_service_predict", __name__)
-
-def verify_sequences(sequence_input: dict[str, str]) -> str:
-    min_seq_length = 7
-    max_seq_length = 5000  # TODO Make this configurable
-    for seq_id, seq in sequence_input.items():
-        if not isinstance(seq, str):
-            return f"{seq_id} is not a string"
-        if len(seq) < min_seq_length:
-            return f"{seq_id} is too short, min_seq_length={min_seq_length}, max_seq_length={max_seq_length}"
-        elif len(seq) > max_seq_length:
-            return f"{seq_id} is too long, max_seq_length={max_seq_length}, min_seq_length={min_seq_length}"
-
-    return ""
+router = APIRouter(
+    prefix="/prediction_service",
+    tags=["prediction"],
+    responses={404: {"description": "Not found"}},
+)
 
 
-# Endpoint for ProtSpace dimensionality reduction methods for sequences
-@prediction_service_route.route('/prediction_service/predict', methods=['POST'])
-def predict():
-    request_data = PredictionRequestData(**request.get_json())
-    model_names = request_data.model_names
-    model_metadata = get_metadata_for_all_models()
+# Endpoint to get all available model metadata
+@router.get(
+    "/model_metadata",
+    response_model=ModelMetadataResponse,
+    responses={},
+    summary="Get predict model metadata",
+    description="Get metadata for available prediction models",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
+)
+def model_metadata():
+    return ModelMetadataResponse(
+        metadata={
+            name: mdata.to_dict()
+            for name, mdata in get_metadata_for_all_models().items()
+        }
+    )
 
-    if any(model_name not in model_metadata.keys() for model_name in model_names):
-        return jsonify({"error": "A requested model was not found!"})
 
-    sequence_input = request_data.sequence_input
-    sequence_verification_error = verify_sequences(sequence_input)
-    if sequence_verification_error != "":
-        return jsonify({"error": sequence_verification_error})
+@router.post(
+    "/predict",
+    response_model=StartTaskResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Bad Request"},
+        404: {"model": NotFoundErrorResponse, "description": "Model not found"},
+    },
+    summary="Submit protein sequence prediction job",
+    description="Submit sequences for prediction using specified models and receive a task ID for tracking",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+)
+async def predict(request_data: PredictionRequest, request: Request):
+    """
+    Endpoint for protein sequence prediction using a single or multiple models
+    """
+    model_names = [model_name.lower() for model_name in request_data.model_names]
+    available_model_names = {
+        name.lower() for name in get_metadata_for_all_models().keys()
+    }
 
+    # Check if all requested models exist
+    missing_models = [name for name in model_names if name not in available_model_names]
+    if missing_models:
+        return NotFoundErrorResponse(
+            error=f"The following models were not found: {', '.join(missing_models)}",
+            error_code=404,
+        )
+
+    # Convert sequence input to BiotrainerSequenceRecord objects
+    sequence_input = [
+        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        for seq_id, seq in request_data.sequence_input.items()
+    ]
+
+    # Get filtered models and create prediction task
     models = filter_models(model_names=model_names)
-    prediction_task = MultiPredictionTask(models=models,
-                                          sequence_input=sequence_input,
-                                          batch_size=request_data.batch_size)
-    task_id = TaskManager().add_task(prediction_task)
-    return jsonify({"task_id": task_id})
+    prediction_task = MultiPredictionTask(
+        models=models,
+        sequence_input=sequence_input,
+        batch_size=1,  # TODO batch_size
+    )
 
+    # Add task to task manager
+    user_id = await UserManager.get_user_id_from_request(req=request)
+    task_id = TaskManager().add_task(prediction_task, user_id=user_id)
 
-@dataclasses.dataclass
-class PredictionRequestData:
-    model_names: list[str]
-    sequence_input: dict[str, str]  # sequence_id: sequence
-    batch_size: int
+    return StartTaskResponse(task_id=task_id)

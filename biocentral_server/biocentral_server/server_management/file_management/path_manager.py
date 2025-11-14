@@ -11,10 +11,12 @@ class PathManager:
     _embeddings_files_path: Final[Path] = Path("embeddings/")
     _models_files_path: Final[Path] = Path("models/")
     _external_models_path: Final[Path] = Path("external_models/")
-    _subdirectories_hash_dir: Final[List[Path]] = [_fasta_files_path,
-                                                   _embeddings_files_path,
-                                                   _models_files_path,
-                                                   _external_models_path]
+    _subdirectories_hash_dir: Final[List[Path]] = [
+        _fasta_files_path,
+        _embeddings_files_path,
+        _models_files_path,
+        _external_models_path,
+    ]
 
     def __init__(self, user_id: str):
         self.user_id = user_id
@@ -28,7 +30,7 @@ class PathManager:
     def get_embeddings_files_path(self, database_hash: str) -> Path:
         return self.get_database_path(database_hash) / self._embeddings_files_path
 
-    def _get_fasta_files_path(self, database_hash: str) -> Path:
+    def _get_fasta_file_path(self, database_hash: str) -> Path:
         return self.get_database_path(database_hash) / self._fasta_files_path
 
     def _get_models_files_path(self) -> Path:
@@ -41,41 +43,51 @@ class PathManager:
         return self._get_models_files_path() / model_hash
 
     @staticmethod
-    def _storage_file_type_to_file_name(file_type: StorageFileType, embedder_name: Optional[str] = "") -> str:
-        return {StorageFileType.SEQUENCES: "sequences.fasta",
-                StorageFileType.LABELS: "labels.fasta",
-                StorageFileType.MASKS: "masks.fasta",
-                StorageFileType.EMBEDDINGS_PER_RESIDUE: f"embeddings_file_{embedder_name}.h5",
-                StorageFileType.EMBEDDINGS_PER_SEQUENCE: f"reduced_embeddings_file_{embedder_name}.h5",
-                StorageFileType.BIOTRAINER_CONFIG: "config_file.yaml",
-                StorageFileType.BIOTRAINER_LOGGING: "logger_out.log",
-                StorageFileType.BIOTRAINER_RESULT: "out.yml",
-                StorageFileType.ONNX_MODEL: f"{embedder_name}.onnx",
-                StorageFileType.TOKENIZER_CONFIG: f"{embedder_name}_tokenizer_config.json",
-                }[file_type]
+    def _storage_file_type_to_file_name(
+        file_type: StorageFileType, embedder_name: Optional[str] = ""
+    ) -> str:
+        return {
+            StorageFileType.INPUT: "input_file.fasta",
+            StorageFileType.BIOTRAINER_CONFIG: "config_file.yaml",
+            StorageFileType.BIOTRAINER_LOGGING: "logger_out.log",
+            StorageFileType.BIOTRAINER_RESULT: "out.yml",
+            StorageFileType.ONNX_MODEL: f"{embedder_name}.onnx",
+            StorageFileType.TOKENIZER_CONFIG: f"{embedder_name}_tokenizer_config.json",
+        }[file_type]
 
-    def _storage_file_type_to_path(self, file_type: StorageFileType,
-                                   database_hash: Optional[str] = "",
-                                   model_hash: Optional[str] = "") -> Path:
-        return {StorageFileType.SEQUENCES: self._get_fasta_files_path(database_hash),
-                StorageFileType.LABELS: self._get_fasta_files_path(database_hash),
-                StorageFileType.MASKS: self._get_fasta_files_path(database_hash),
-                StorageFileType.EMBEDDINGS_PER_RESIDUE: self.get_embeddings_files_path(database_hash),
-                StorageFileType.EMBEDDINGS_PER_SEQUENCE: self.get_embeddings_files_path(database_hash),
-                StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path() / Path(model_hash),
-                StorageFileType.BIOTRAINER_LOGGING: self._get_models_files_path() / Path(model_hash),
-                StorageFileType.BIOTRAINER_RESULT: self._get_models_files_path() / Path(model_hash),
-                StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path() / Path(model_hash),
-                # Gets searched for pt file(s)
-                StorageFileType.ONNX_MODEL: self._get_external_models_path(),
-                StorageFileType.TOKENIZER_CONFIG: self._get_external_models_path(),
-                }[file_type]
+    def _storage_file_type_to_path(
+        self,
+        file_type: StorageFileType,
+        database_hash: Optional[str] = "",
+        model_hash: Optional[str] = "",
+    ) -> Path:
+        return {
+            StorageFileType.INPUT: self._get_fasta_file_path(database_hash),
+            StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path()
+            / Path(model_hash),
+            StorageFileType.BIOTRAINER_LOGGING: self._get_models_files_path()
+            / Path(model_hash),
+            StorageFileType.BIOTRAINER_RESULT: self._get_models_files_path()
+            / Path(model_hash),
+            StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path()
+            / Path(model_hash),
+            # Gets searched for pt file(s)
+            StorageFileType.ONNX_MODEL: self._get_external_models_path(),
+            StorageFileType.TOKENIZER_CONFIG: self._get_external_models_path(),
+        }[file_type]
 
-    def get_file_name_and_path(self, file_type: StorageFileType,
-                               database_hash: Optional[str] = "",
-                               model_hash: Optional[str] = "",
-                               embedder_name: Optional[str] = "") -> Tuple[str, Path]:
-        return (self._storage_file_type_to_file_name(file_type=file_type,
-                                                     embedder_name=embedder_name),
-                self._storage_file_type_to_path(database_hash=database_hash,
-                                                file_type=file_type, model_hash=model_hash))
+    def get_file_name_and_path(
+        self,
+        file_type: StorageFileType,
+        database_hash: Optional[str] = "",
+        model_hash: Optional[str] = "",
+        embedder_name: Optional[str] = "",
+    ) -> Tuple[str, Path]:
+        return (
+            self._storage_file_type_to_file_name(
+                file_type=file_type, embedder_name=embedder_name
+            ),
+            self._storage_file_type_to_path(
+                database_hash=database_hash, file_type=file_type, model_hash=model_hash
+            ),
+        )

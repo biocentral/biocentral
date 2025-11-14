@@ -1,7 +1,15 @@
-/storage/
+# Ignore storage except model-repository
+/storage/*
+!/storage/model-repository/
+
 /logs/
 /dist/
 /build/
 /server_config.txt
 /poetry.lock
 /releases/
+__pycache__/
+*ipynb
+
+.DS_Store
+

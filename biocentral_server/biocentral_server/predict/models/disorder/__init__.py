@@ -1,3 +1,4 @@
-from .seth import SETH
+from .seth import Seth
 
-__all__ = ['SETH']
+
+__all__ = ["Seth"]

@@ -1,0 +1,46 @@
+services:
+  triton:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.triton
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 24G  # ESM2-T36 (3B params) requires ~14-22GB for inference
+        reservations:
+          memory: 16G
+    command: >
+      tritonserver
+      --model-repository=/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --load-model=exotox
+      --disable-auto-complete-config
+      --log-verbose=1
+    ports:
+      - "8000:8000"  # HTTP
+      - "8001:8001"  # gRPC
+      - "8002:8002"  # Metrics
+    volumes:
+      - ./storage/model-repository:/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

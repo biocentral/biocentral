@@ -1,88 +1,61 @@
 from __future__ import annotations
 
 from enum import Enum
-from pathlib import Path
-from dataclasses import dataclass
+
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Callable, Generator, Optional
+from pydantic import BaseModel, ConfigDict
+from biotrainer.output_files import OutputData
+from biotrainer.autoeval import AutoEvalProgress
+from biotrainer.input_files import BiotrainerSequenceRecord
+from typing import Any, Dict, Callable, Generator, Optional, List
 
 from .task_utils import run_subtask_util
 
-from ..file_management import FileContextManager
-from ..embedding_database import EmbeddingsDatabase
+from ..shared_endpoint_models import Prediction
 
 
-class TaskStatus(Enum):
-    PENDING = 0
-    RUNNING = 1
-    FINISHED = 2
-    FAILED = 3
-
-    @staticmethod
-    def _all():
-        return [TaskStatus.PENDING, TaskStatus.RUNNING, TaskStatus.FINISHED, TaskStatus.FAILED]
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    FINISHED = "FINISHED"
+    FAILED = "FAILED"
 
     @staticmethod
     def from_string(status: str) -> TaskStatus:
-        return {s.name: s for s in TaskStatus._all()}[status.upper()]
+        return TaskStatus(status.upper())
 
-@dataclass
-class TaskDTO:
+
+class TaskDTO(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    """ Fat-struct that contains all possible (intermediate) results from tasks """
     status: TaskStatus
-    error: str
-    update: Dict[str, Any]
+    error: Optional[str] = None
 
-    @classmethod
-    def pending(cls):
-        return TaskDTO(status=TaskStatus.PENDING, error="", update={})
+    # predict/inference
+    predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions
 
-    @classmethod
-    def running(cls):
-        return TaskDTO(status=TaskStatus.RUNNING, error="", update={})
+    # custom_models
+    # TODO Pydantic class
+    biotrainer_update: Optional[OutputData] = None
+    biotrainer_result: Optional[Dict[str, Any]] = None
 
-    @classmethod
-    def finished(cls, result: Dict[str, Any]):
-        return TaskDTO(
-            status=TaskStatus.FINISHED,
-            error="",
-            update=result,
-        )
+    # embeddings
+    embedding_current: Optional[int] = None
+    embedding_total: Optional[int] = None
+    embedded_sequences: Optional[Dict[str, str]] = None
+    embeddings: Optional[List[BiotrainerSequenceRecord]] = None
+    embeddings_file: Optional[str] = None
 
-    @classmethod
-    def failed(cls, error: str):
-        return TaskDTO(status=TaskStatus.FAILED, error=error, update={})
+    # projections
+    projection_result: Optional[Dict[str, Any]] = None
 
-    def add_update(self, update: Dict[str, Any]) -> 'TaskDTO':
-        return TaskDTO(status=self.status, error=self.error, update=update)
+    # plm_eval
+    embedder_name: Optional[str] = None
+    autoeval_progress: Optional[AutoEvalProgress] = None
 
-    def finished_task_postprocessing(self):
-        # TODO This could be improved architecturally to be registered by the embedding module as a hook
-        if "embeddings_file" in self.update.keys() and self.update["embeddings_file"] is not None:
-            embeddings_path = Path(self.update["embeddings_file"])
-            file_context_manager = FileContextManager()
-            with file_context_manager.storage_read(embeddings_path) as embeddings_file:
-                h5_string = EmbeddingsDatabase.h5_file_to_base64(h5_file_path=embeddings_file)
-                self.update["embeddings_file"] = h5_string
-
-    def dict(self):
-        if self.status == TaskStatus.FINISHED:
-            self.finished_task_postprocessing()
-
-        return {"status": self.status.name, "error": self.error, **self.update}
-
-    def __getstate__(self):
-        """Called when pickling - return a serializable state"""
-        return {
-            'status': self.status.name,
-            'error': self.error,
-            'update': self.update,
-        }
-
-    def __setstate__(self, state):
-        """Called when unpickling - restore from serializable state"""
-        self.status = TaskStatus.from_string(state['status'])
-        self.error = state['error']
-        self.update = state['update']
+    # bay_opt
+    bay_opt_results: Optional[List] = None
 
 
 class TaskInterface(ABC):

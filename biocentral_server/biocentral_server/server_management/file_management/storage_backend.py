@@ -1,15 +1,16 @@
-import os
+from __future__ import annotations
+
 import shutil
-import logging
-import requests
 import tempfile
 
 from pathlib import Path
-from typing import Dict, List, Any
-from abc import ABC, abstractmethod
+from typing import Dict, List, Any, Optional
 from typing import Union, BinaryIO
+from abc import ABC, abstractmethod
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class StorageBackend(ABC):
@@ -39,7 +40,12 @@ class StorageBackend(ABC):
 
 
 class StorageFileReader:
-    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path], suffix: str = None, ):
+    def __init__(
+        self,
+        storage_backend: StorageBackend,
+        file_path: Union[str, Path],
+        suffix: str = None,
+    ):
         self.storage_backend = storage_backend
         self.file_path = str(file_path)
         self.suffix = suffix
@@ -64,7 +70,9 @@ class StorageFileReader:
 class StorageDirectoryReader:
     """Context manager for downloading entire directories from storage backend to local temp directory"""
 
-    def __init__(self, storage_backend: StorageBackend, directory_path: Union[str, Path]):
+    def __init__(
+        self, storage_backend: StorageBackend, directory_path: Union[str, Path]
+    ):
         self.storage_backend = storage_backend
         self.directory_path = str(directory_path)
         self.temp_dir = None
@@ -95,13 +103,13 @@ class StorageDirectoryReader:
             local_dir: Local directory to save files to
         """
         # Ensure trailing slash for directory listing
-        remote_dir = remote_path if remote_path.endswith('/') else f"{remote_path}/"
+        remote_dir = remote_path if remote_path.endswith("/") else f"{remote_path}/"
 
         # Get directory listing
         entries = self.storage_backend.list_files(remote_dir)
 
         for entry in entries:
-            entry_name = entry.get('FullPath', '').split('/')[-1]
+            entry_name = entry.get("FullPath", "").split("/")[-1]
             if not entry_name:
                 continue
 
@@ -109,156 +117,60 @@ class StorageDirectoryReader:
             local_entry_path = local_dir / entry_name
 
             # Check if this is a directory
-            if entry.get('FileSize', 0) == 0:
+            if entry.get("FileSize", 0) == 0:
                 # Create local directory
                 local_entry_path.mkdir(exist_ok=True)
                 # Recursively download contents
-                self._download_directory(
-                    remote_entry_path,
-                    local_entry_path
-                )
+                self._download_directory(remote_entry_path, local_entry_path)
             else:
                 # Download file
                 try:
                     content = self.storage_backend.get_file(remote_entry_path)
-                    with open(local_entry_path, 'wb') as f:
+                    with open(local_entry_path, "wb") as f:
                         f.write(content)
                 except Exception as e:
                     logger.warning(f"Error downloading {remote_entry_path}: {e}")
 
 
 class StorageFileWriter:
-    def __init__(self, storage_backend: StorageBackend, file_path: Union[str, Path]):
+    def __init__(
+        self, storage_backend: StorageBackend, file_path: Union[str, Path, None]
+    ):
         self.storage_backend = storage_backend
-        self.file_path = str(file_path)
+        self.file_path: Optional[str] = str(file_path) if file_path else None
         self.temp_dir = None
 
-    def __enter__(self) -> Path:
+    def __enter__(self) -> StorageFileWriter:
         # Create a temporary directory
         self.temp_dir = Path(tempfile.mkdtemp())
-        return self.temp_dir
+        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:  # Only sync if no exception occurred and saving is enabled
-            # Sync all files in temp directory to SeaweedFS
-            for file_path in self.temp_dir.rglob('*'):
-                if file_path.is_file():
-                    relative_path = file_path.relative_to(self.temp_dir)
-                    target_path = Path(self.file_path) / relative_path
-                    with open(file_path, 'rb') as f:
-                        self.storage_backend.save_file(str(target_path), f)
+    def set_file_path(self, file_path: Union[str, Path]):
+        if self.file_path:
+            logger.warning("File path already set in StorageFileWriter. Overwriting.")
+        self.file_path = str(file_path)
 
+    def _cleanup(self):
         # Clean up temporary directory
         shutil.rmtree(self.temp_dir)
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:  # Only sync if no exception occurred and saving is enabled
+            if self.file_path is None:
+                self._cleanup()
+                raise StorageError("File path not set in StorageFileWriter!")
+            # Sync all files in temp directory to SeaweedFS
+            for file_path in self.temp_dir.rglob("*"):
+                if file_path.is_file():
+                    relative_path = file_path.relative_to(self.temp_dir)
+                    target_path = Path(self.file_path) / relative_path
+                    with open(file_path, "rb") as f:
+                        self.storage_backend.save_file(str(target_path), f)
 
-class SeaweedFSStorageBackend(StorageBackend):
-    def __init__(self):
-        filer_host = os.environ.get("SEAWEEDFS_FILER_HOST", "seaweedfs-filer")
-        filer_port = os.environ.get("SEAWEEDFS_FILER_PORT", 8888)
-        self.filer_url: str = f"http://{filer_host}:{filer_port}/"
-
-    def save_file(self, path: str, data: Union[bytes, str, BinaryIO]) -> str:
-        """
-        Save file to SeaweedFS
-        Returns: full path to the saved file
-        """
-        try:
-            # Prepare data
-            if isinstance(data, str):
-                data = data.encode('utf-8')
-            elif isinstance(data, BinaryIO):
-                data = data.read()
-
-            filename = Path(path).name
-            files = {
-                'file': (filename, data, 'application/octet-stream')
-            }
-
-            path = path.replace("\\", "")  # Windows compatibility
-            response = requests.post(
-                f"{self.filer_url}{path}",
-                files=files
-            )
-            logger.info(f"Saved file to SeaweedFS: {response.content}")
-            response.raise_for_status()
-
-            return path
-        except Exception as e:
-            raise StorageError(f"Failed to save file to SeaweedFS: {str(e)}")
-
-    def get_file(self, path: str) -> bytes:
-        """
-        Retrieve file from SeaweedFS
-        Returns: file contents as bytes
-        """
-        try:
-            response = requests.get(f"{self.filer_url}{path}")
-            response.raise_for_status()
-            return response.content
-        except Exception as e:
-            raise StorageError(f"Failed to retrieve file from SeaweedFS: {str(e)}")
-
-    def check_file_exists(self, file_path: str) -> bool:
-        """Check if a file exists in SeaweedFS"""
-        try:
-            response = requests.head(f"{self.filer_url}{file_path}")
-            return response.status_code < 400
-        except Exception:
-            return False
-
-    def delete_file(self, path: str) -> bool:
-        """
-        Delete file from SeaweedFS
-        Returns: True if successful, False if file doesn't exist
-        """
-        try:
-            response = requests.delete(f"{self.filer_url}{path}")
-            return response.status_code in (200, 204, 404)
-        except Exception:
-            return False
-
-    def list_files(self, directory: str = "/") -> List[Dict[str, Any]]:
-        """
-        List files in a directory
-        Returns: List of file information dictionaries
-        """
-        try:
-            # Request JSON explicitly with correct headers
-            headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-
-            # Use the correct API endpoint for JSON responses
-            response = requests.get(
-                f"{self.filer_url}{directory}?listing=true",
-                headers=headers
-            )
-
-            if response.status_code == 404:
-                return []
-
-            response.raise_for_status()
-
-            # Check if we actually received JSON
-            if 'application/json' in response.headers.get('Content-Type', ''):
-                return response.json().get('Entries', [])
-
-            raise StorageError(f"Did not receive file listing as JSON: {response.url}")
-        except Exception as e:
-            raise StorageError(f"Failed to list files in SeaweedFS: {str(e)}")
-
-    def get_disk_usage(self) -> str:
-        # Get disk usage from SeaweedFS system stats
-        try:
-            response = requests.get(f"{self.filer_url}/dir/status")
-            stats = response.json()
-            return '{0:.2f}'.format(stats.get('TotalSize', 0) / 1e6)
-        except Exception:
-            return '0.00'
+        self._cleanup()
 
 
 class StorageError(Exception):
     """Custom exception for storage-related errors"""
+
     pass

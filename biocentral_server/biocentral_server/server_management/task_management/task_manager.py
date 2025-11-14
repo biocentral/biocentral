@@ -1,6 +1,5 @@
 import os
 import uuid
-import logging
 
 from redis import Redis
 from rq import Queue, get_current_job
@@ -8,7 +7,9 @@ from typing import Type, List, Optional
 
 from .task_interface import TaskStatus, TaskInterface, TaskDTO
 
-logger = logging.getLogger(__name__)
+from ...utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def run_task_with_updates(task: TaskInterface) -> TaskDTO:
@@ -38,8 +39,8 @@ class TaskManager:
         self.redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
 
         # TODO [Feature] Add priority queues not only for subtasks
-        self.default_queue = Queue('default', connection=self.redis_conn)
-        self.subtask_queue = Queue('high', connection=self.redis_conn)
+        self.default_queue = Queue("default", connection=self.redis_conn)
+        self.subtask_queue = Queue("high", connection=self.redis_conn)
 
     def _get_job(self, task_id: str):
         queues = [self.default_queue, self.subtask_queue]
@@ -53,8 +54,8 @@ class TaskManager:
         redis_task_counter_key = self._get_redis_task_counter_key(task_id)
         self.redis_conn.delete(redis_task_counter_key)
 
-    def _enqueue(self, task: TaskInterface, task_id: str, queue):
-        job = queue.enqueue(
+    def _enqueue(self, task: TaskInterface, task_id: str, queue, user_id: str = ""):
+        _ = queue.enqueue(
             run_task_with_updates,
             args=(task,),
             job_id=task_id,
@@ -62,24 +63,30 @@ class TaskManager:
             failure_ttl=3600 * 24,  # Keep failed jobs for 24 hours
             job_timeout=3600 * 24,
             # TODO Callbacks
-            #on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
-            #on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
-            #on_stopped=lambda jb, connection: self._cleanup_task(task_id=task_id),
-            meta={'task_class': task.__class__.__name__}
+            # on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
+            # on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
+            # on_stopped=lambda jb, connection: self._cleanup_task(task_id=task_id),
+            meta={"task_class": task.__class__.__name__, "user_id": user_id},
         )
 
-    def add_task(self, task: TaskInterface, task_id: Optional[str] = "") -> str:
+    def add_task(
+        self, task: TaskInterface, task_id: Optional[str] = "", user_id: str = ""
+    ) -> str:
         if task_id == "" or "biocentral" not in task_id:
             task_id = self._generate_task_id(task=task.__class__)
 
-        self._enqueue(task=task, task_id=task_id, queue=self.default_queue)
+        self._enqueue(
+            task=task, task_id=task_id, queue=self.default_queue, user_id=user_id
+        )
 
         return task_id
 
-    def add_subtask(self, task: TaskInterface) -> str:
+    def add_subtask(self, task: TaskInterface, user_id: str = "") -> str:
         task_id = self._generate_task_id(task=task.__class__)
 
-        self._enqueue(task=task, task_id=task_id, queue=self.subtask_queue)
+        self._enqueue(
+            task=task, task_id=task_id, queue=self.subtask_queue, user_id=user_id
+        )
 
         return task_id
 
@@ -113,7 +120,9 @@ class TaskManager:
     def _generate_task_id(task):
         return f"biocentral-{task.__name__}-{str(uuid.uuid4())}"
 
-    def _read_task_updates_from_job(self, task_id: str, read_counter: int = 0) -> (List[TaskDTO], int):
+    def _read_task_updates_from_job(
+        self, task_id: str, read_counter: int = 0
+    ) -> (List[TaskDTO], int):
         job = self._get_job(task_id)
 
         dtos = []
@@ -126,9 +135,13 @@ class TaskManager:
 
         additional_dto = None
         if job is None:
-            additional_dto = TaskDTO.failed(error=f"task {task_id} not found on server!")
+            additional_dto = TaskDTO(
+                status=TaskStatus.FAILED, error=f"task {task_id} not found on server!"
+            )
         elif job.is_failed:
-            additional_dto = TaskDTO.failed(error=str(job.latest_result()))
+            additional_dto = TaskDTO(
+                status=TaskStatus.FAILED, error=str(job.latest_result())
+            )
         elif job.is_finished:
             additional_dto = job.latest_result().return_value
 
@@ -143,20 +156,31 @@ class TaskManager:
             counter = 0
         counter = int(counter)
 
-        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        dtos, length_read = self._read_task_updates_from_job(
+            task_id=task_id, read_counter=counter
+        )
         self.redis_conn.set(redis_task_counter_key, length_read)
 
         return dtos
 
-    def get_all_task_updates_from_start(self, task_id: str):
+    def get_all_task_updates_from_start(self, task_id: str) -> List[TaskDTO]:
         redis_task_counter_key = self._get_redis_task_counter_key(task_id=task_id)
         counter = 0
-        dtos, length_read = self._read_task_updates_from_job(task_id=task_id, read_counter=counter)
+        dtos, length_read = self._read_task_updates_from_job(
+            task_id=task_id, read_counter=counter
+        )
         self.redis_conn.set(redis_task_counter_key, length_read)
 
         return dtos
-
 
     def is_task_finished(self, task_id: str) -> bool:
         job = self._get_job(task_id)
         return job is not None and job.is_finished
+
+    def get_task_owner(self, task_id: str) -> Optional[str]:
+        """Return the user_id associated with this task or None if task not found."""
+        job = self._get_job(task_id)
+        if job is None:
+            return None
+        meta = getattr(job, "meta", {}) or {}
+        return meta.get("user_id", "")

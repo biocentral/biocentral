@@ -1,72 +1,346 @@
-import hashlib
-import logging
-import tempfile
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Generator, Tuple
+import numpy as np
 
-from biotrainer.protocols import Protocol
+from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer.embedders import get_embedding_service, EmbeddingService
 
-from ..server_management import EmbeddingsDatabaseTriple, EmbeddingsDatabase, get_adapter_embedding_service
+from ..utils import get_logger
+from ..server_management import (
+    EmbeddingsDatabase,
+    TritonClientConfig,
+    get_shared_repository,
+)
+from .embedder_config import get_triton_model_name
 
-logger = logging.getLogger(__name__)
-
-
-def _load_embeddings(embedding_service, all_seqs: Dict[str, str], embeddings_file_path: Path) -> List[
-    EmbeddingsDatabaseTriple]:
-    loaded_embeddings = embedding_service.load_embeddings(str(embeddings_file_path))
-    return EmbeddingsDatabase.unify_seqs_with_embeddings(seqs=all_seqs, embds=loaded_embeddings)
+logger = get_logger(__name__)
 
 
-def compute_one_hot_encodings(all_seqs: Dict[str, str], reduced: bool) -> List[EmbeddingsDatabaseTriple]:
-    # OHEs are not stored, tmpdir is only necessary for compatibility with biotrainer
-    with tempfile.TemporaryDirectory() as tmpdir:
-        reduced_by_protocol = Protocol.using_per_sequence_embeddings()[0] if reduced \
-            else Protocol.using_per_residue_embeddings()[0]
+def _is_triton_embedding_available(embedder_name: str) -> bool:
+    """Check if Triton embedding is available for embedder."""
+    try:
+        config = TritonClientConfig.from_env()
+        if not config.is_enabled():
+            return False
+        
+        # Check if embedder has a Triton model mapping
+        triton_model = get_triton_model_name(embedder_name)
+        if not triton_model:
+            return False
+        
+        # Check if model is available in Triton
+        repository = get_shared_repository(config)
+        return repository.is_model_available(triton_model)
+    except Exception as e:
+        logger.warning(f"Failed to check Triton availability for {embedder_name}: {e}")
+        return False
 
-        embedding_service = get_adapter_embedding_service(embedder_name="one_hot_encoding",
-                                                          embeddings_file_path=None,
-                                                          use_half_precision=False,
-                                                          device="cpu",
-                                                          embeddings_db=None,
-                                                          sequence_dict=all_seqs,
-                                                          reduced=reduced)
-        embeddings_file_path = embedding_service.compute_embeddings(input_data=all_seqs,
-                                                                    output_dir=Path(tmpdir),
-                                                                    protocol=reduced_by_protocol,
-                                                                    force_output_dir=True)
-    return _load_embeddings(embedding_service, all_seqs, Path(embeddings_file_path))
+
+def compute_memory_encodings(
+    embedder_name: str, all_seqs: Dict[str, str], reduced: bool
+) -> List[BiotrainerSequenceRecord]:
+    embedding_service: EmbeddingService = get_embedding_service(
+        embedder_name=embedder_name,
+        use_half_precision=False,
+        custom_tokenizer_config=None,
+        device="cpu",
+    )
+    embd_record_tuples = list(
+        embedding_service.generate_embeddings(
+            input_data=list(all_seqs.values()), reduce=reduced
+        )
+    )
+    return [
+        seq_record.copy_with_embedding(embd) for seq_record, embd in embd_record_tuples
+    ]
 
 
-def compute_embeddings(embedder_name: str,
-                       all_seqs: Dict[str, str],
-                       reduced: bool,
-                       use_half_precision: bool,
-                       device,
-                       custom_tokenizer_config: Optional[str] = None,
-                       embeddings_db: EmbeddingsDatabase = None,
-                       ):
-    reduced_by_protocol = Protocol.using_per_sequence_embeddings()[0] if reduced \
-        else Protocol.using_per_residue_embeddings()[0]
+def compute_embeddings_triton(
+    embedder_name: str,
+    all_seqs: Dict[str, str],
+    reduced: bool,
+    embeddings_db: EmbeddingsDatabase = None,
+) -> Generator[Tuple[int, int], None, None]:
+    """
+    Compute embeddings using Triton Inference Server and store them in the embedding database.
 
+    :param embedder_name: Embedder name
+    :param all_seqs: Dictionary of all sequences (seq_hash -> sequence)
+    :param reduced: If per-sequence embeddings should be computed
+    :param embeddings_db: Embeddings database
+    :return: Yields number of computed embeddings
+    """
+    progress = 0
+    total_seqs = len(all_seqs)
+
+    # Filter existing embeddings
+    existing_embds_seqs, non_existing_embds_seqs = (
+        embeddings_db.filter_existing_embeddings(
+            sequences=all_seqs, embedder_name=embedder_name, reduced=reduced
+        )
+    )
+    n_non_existing = len(non_existing_embds_seqs)
+    progress += len(existing_embds_seqs)
+    logger.info(
+        f"Loaded {progress} embeddings from database, "
+        f"embedding other {n_non_existing} sequences via Triton.."
+    )
+    yield progress, total_seqs
+
+    if n_non_existing > 0:
+        # Get Triton model name
+        triton_model = get_triton_model_name(embedder_name)
+        if not triton_model:
+            raise ValueError(
+                f"No Triton model found for embedder {embedder_name}. "
+                f"This function explicitly requires Triton inference."
+            )
+
+        # Get shared Triton repository
+        config = TritonClientConfig.from_env()
+        triton_repo = get_shared_repository(config)
+
+        # Process sequences in batches
+        batch = []
+        batch_hashes = []
+        max_batch_size = min(config.triton_max_batch_size, 8)
+
+        non_existing_items = list(non_existing_embds_seqs.items())
+
+        for seq_hash, seq in non_existing_items:
+            batch.append(seq)
+            batch_hashes.append(seq_hash)
+
+            if len(batch) >= max_batch_size:
+                # Compute embeddings via Triton
+                try:
+                    embeddings = triton_repo.compute_embeddings(
+                        sequences=batch,
+                        model_name=triton_model,
+                        pooled=reduced,
+                    )
+
+                    # Create BiotrainerSequenceRecord objects
+                    embd_records = [
+                        BiotrainerSequenceRecord(
+                            seq_id=seq_hash, seq=seq
+                        ).copy_with_embedding(embedding)
+                        for seq_hash, seq, embedding in zip(
+                            batch_hashes, batch, embeddings
+                        )
+                    ]
+
+                    # Save to database
+                    embeddings_db.save_embeddings(
+                        embd_records=embd_records,
+                        embedder_name=embedder_name,
+                        reduced=reduced,
+                    )
+
+                    progress += len(batch)
+                    logger.info(f"Embedding progress: {progress} / {total_seqs}")
+                    yield progress, total_seqs
+
+                except Exception as e:
+                    logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
+                    # Fall back to biotrainer for this batch
+                    _compute_embeddings_biotrainer_batch(
+                        embedder_name=embedder_name,
+                        sequences={h: s for h, s in zip(batch_hashes, batch)},
+                        reduced=reduced,
+                        embeddings_db=embeddings_db,
+                    )
+                    progress += len(batch)
+                    yield progress, total_seqs
+
+                batch = []
+                batch_hashes = []
+
+        # Process remaining sequences
+        if batch:
+            try:
+                embeddings = triton_repo.compute_embeddings(
+                    sequences=batch,
+                    model_name=triton_model,
+                    pooled=reduced,
+                )
+
+                embd_records = [
+                    BiotrainerSequenceRecord(
+                        seq_id=seq_hash, seq=seq
+                    ).copy_with_embedding(embedding)
+                    for seq_hash, seq, embedding in zip(
+                        batch_hashes, batch, embeddings
+                    )
+                ]
+
+                embeddings_db.save_embeddings(
+                    embd_records=embd_records,
+                    embedder_name=embedder_name,
+                    reduced=reduced,
+                )
+
+                progress += len(batch)
+                logger.info(f"Embedding progress: {progress} / {total_seqs}")
+                yield progress, total_seqs
+
+            except Exception as e:
+                logger.error(f"Triton inference failed: {e}, falling back to biotrainer")
+                _compute_embeddings_biotrainer_batch(
+                    embedder_name=embedder_name,
+                    sequences={h: s for h, s in zip(batch_hashes, batch)},
+                    reduced=reduced,
+                    embeddings_db=embeddings_db,
+                )
+                progress += len(batch)
+                yield progress, total_seqs
+
+    else:
+        logger.debug(f"All {len(existing_embds_seqs)} embeddings already computed!")
+
+
+def _compute_embeddings_biotrainer_batch(
+    embedder_name: str,
+    sequences: Dict[str, str],
+    reduced: bool,
+    embeddings_db: EmbeddingsDatabase,
+) -> None:
+    """
+    Helper function to compute embeddings using biotrainer for a batch of sequences.
+
+    :param embedder_name: Embedder name
+    :param sequences: Dictionary of sequences (seq_hash -> sequence)
+    :param reduced: If per-sequence embeddings should be computed
+    :param embeddings_db: Embeddings database
+    """
+    embedding_service: EmbeddingService = get_embedding_service(
+        embedder_name=embedder_name,
+        use_half_precision=False,
+        custom_tokenizer_config=None,
+        device="cpu",
+    )
+
+    seq_records = [
+        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        for seq_id, seq in sequences.items()
+    ]
+
+    for seq_record, embedding in embedding_service.generate_embeddings(
+        seq_records, reduced
+    ):
+        embd_record = seq_record.copy_with_embedding(embedding)
+        embeddings_db.save_embeddings(
+            embd_records=[embd_record],
+            embedder_name=embedder_name,
+            reduced=reduced,
+        )
+
+
+def compute_embeddings(
+    embedder_name: str,
+    all_seqs: Dict[str, str],
+    reduced: bool,
+    use_half_precision: bool,
+    device,
+    custom_tokenizer_config: Optional[str] = None,
+    embeddings_db: EmbeddingsDatabase = None,
+    use_triton: Optional[bool] = None,
+) -> Generator[Tuple[int, int], None, None]:
+    """
+    Compute embeddings for all provided sequences and store them in the embedding database. Yields the number of
+    embeddings computed (i.e. the progress).
+
+    :param embedder_name: Embedder name
+    :param all_seqs: Dictionary of all sequences (seq_hash -> sequence)
+    :param reduced: If per-sequence embeddings should be computed
+    :param use_half_precision: Use half-precision mode for embedding calculation
+    :param device: Device to use
+    :param custom_tokenizer_config: Custom tokenizer configuration (for onnx)
+    :param embeddings_db: Embeddings database
+    :param use_triton: Whether to use Triton (if None, checks environment)
+    :return: Yields number of computed embeddings
+    """
+    # Check if Triton should be used
+    if use_triton is None:
+        config = TritonClientConfig.from_env()
+        use_triton = config.is_enabled()
+
+    # Try Triton first if enabled and model is available
+    if use_triton and _is_triton_embedding_available(embedder_name):
+        logger.info(f"Using Triton for embeddings: {embedder_name}")
+        try:
+            # Call synchronous Triton embedding generator
+            for result in compute_embeddings_triton(
+                embedder_name=embedder_name,
+                all_seqs=all_seqs,
+                reduced=reduced,
+                embeddings_db=embeddings_db,
+            ):
+                yield result
+            return
+        except Exception as e:
+            logger.warning(
+                f"Triton embedding failed: {e}, falling back to biotrainer"
+            )
+            # Fall through to biotrainer implementation
+
+    # Use biotrainer (original implementation)
+    progress = 0
+    total_seqs = len(all_seqs)
+    # TODO [Optimization] Ensure that sequences are actually unique at this step?
     # TODO [Optimization] If per-residue embeddings exist, but per-sequence embeddings not and are required,
     #  directly calculate them
-    existing_embds_seqs, non_existing_embds_seqs = embeddings_db.filter_existing_embeddings(sequences=all_seqs,
-                                                                                            embedder_name=embedder_name,
-                                                                                            reduced=reduced)
-    if len(non_existing_embds_seqs) > 0:
-        # Embeddings are not stored as h5, tmpdir is only necessary for compatibility with biotrainer
-        with tempfile.TemporaryDirectory() as tmpdir:
-            embedding_service = get_adapter_embedding_service(embedder_name=embedder_name,
-                                                              custom_tokenizer_config=custom_tokenizer_config,
-                                                              embeddings_file_path=None,
-                                                              use_half_precision=use_half_precision,
-                                                              device=device,
-                                                              embeddings_db=embeddings_db,
-                                                              sequence_dict=all_seqs,
-                                                              reduced=reduced)
-            _ = embedding_service.compute_embeddings(input_data=non_existing_embds_seqs,
-                                                     output_dir=Path(tmpdir),
-                                                     protocol=reduced_by_protocol,
-                                                     force_output_dir=True)
+    existing_embds_seqs, non_existing_embds_seqs = (
+        embeddings_db.filter_existing_embeddings(
+            sequences=all_seqs, embedder_name=embedder_name, reduced=reduced
+        )
+    )
+    n_non_existing = len(non_existing_embds_seqs)
+    progress += len(existing_embds_seqs)
+    logger.info(
+        f"Loaded {progress} embeddings from database, "
+        f"embedding other {n_non_existing} sequences.."
+    )
+    yield progress, total_seqs
+
+    if n_non_existing > 0:
+        embedding_service: EmbeddingService = get_embedding_service(
+            embedder_name=embedder_name,
+            custom_tokenizer_config=custom_tokenizer_config,
+            use_half_precision=use_half_precision,
+            device=device,
+        )
+        non_existing_records = [
+            BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+            for seq_id, seq in non_existing_embds_seqs.items()
+        ]
+
+        # Store to database in batches
+        batch = []
+        max_batch_size = 50
+
+        for seq_record, embedding in embedding_service.generate_embeddings(
+            non_existing_records, reduced
+        ):
+            batch.append(seq_record.copy_with_embedding(embedding))
+            if len(batch) >= max_batch_size:
+                embeddings_db.save_embeddings(
+                    embd_records=batch, embedder_name=embedder_name, reduced=reduced
+                )
+                progress += len(batch)
+                logger.info(f"Embedding progress: {progress} / {total_seqs}")
+                yield progress, total_seqs
+
+                batch = []
+
+        # Save remaining embeddings
+        if batch:
+            embeddings_db.save_embeddings(
+                embd_records=batch, embedder_name=embedder_name, reduced=reduced
+            )
+            progress += len(batch)
+
+            logger.info(f"Embedding progress: {progress} / {total_seqs}")
+            del batch
+            yield progress, total_seqs
     else:
         logger.debug(f"All {len(existing_embds_seqs)} embeddings already computed!")

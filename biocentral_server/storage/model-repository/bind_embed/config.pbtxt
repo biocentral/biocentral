@@ -1,0 +1,104 @@
+name: "bind_embed"
+platform: "ensemble"
+max_batch_size: 128
+
+input [
+  {
+    name: "ensemble_input"
+    data_type: TYPE_FP32
+    dims: [ 1024, -1 ]
+  }
+]
+
+output [
+  {
+    name: "output_0"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  },
+  {
+    name: "output_1"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  },
+  {
+    name: "output_2"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  },
+  {
+    name: "output_3"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  },
+  {
+    name: "output_4"
+    data_type: TYPE_FP32
+    dims: [ -1, 3 ]
+  }
+]
+
+ensemble_scheduling {
+  step: [
+    {
+      model_name: "_bind_embed_cv0"
+      model_version: -1
+      input_map {
+        key: "input_embedding"
+        value: "ensemble_input"
+      }
+      output_map {
+        key: "output_logits"
+        value: "output_0"
+      }
+    },
+    {
+      model_name: "_bind_embed_cv1"
+      model_version: -1
+      input_map {
+        key: "input_embedding"
+        value: "ensemble_input"
+      }
+      output_map {
+        key: "output_logits"
+        value: "output_1"
+      }
+    },
+    {
+      model_name: "_bind_embed_cv2"
+      model_version: -1
+      input_map {
+        key: "input_embedding"
+        value: "ensemble_input"
+      }
+      output_map {
+        key: "output_logits"
+        value: "output_2"
+      }
+    },
+    {
+      model_name: "_bind_embed_cv3"
+      model_version: -1
+      input_map {
+        key: "input_embedding"
+        value: "ensemble_input"
+      }
+      output_map {
+        key: "output_logits"
+        value: "output_3"
+      }
+    },
+    {
+      model_name: "_bind_embed_cv4"
+      model_version: -1
+      input_map {
+        key: "input_embedding"
+        value: "ensemble_input"
+      }
+      output_map {
+        key: "output_logits"
+        value: "output_4"
+      }
+    }
+  ]
+}

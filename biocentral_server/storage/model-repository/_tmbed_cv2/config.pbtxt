@@ -1,0 +1,37 @@
+name: "_tmbed_cv2"
+platform: "onnxruntime_onnx"
+max_batch_size: 16
+default_model_filename: "model.onnx"
+
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [ -1, 1024 ]  # ProtT5 embeddings sequence
+  },
+  {
+    name: "mask"
+    data_type: TYPE_FP32
+    dims: [ -1 ]  # Attention mask
+  }
+]
+
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [ -1, -1 ]  # Variable output dimensions
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [ 4, 8, 16 ]
+  max_queue_delay_microseconds: 5000
+}
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_AUTO
+  }
+]

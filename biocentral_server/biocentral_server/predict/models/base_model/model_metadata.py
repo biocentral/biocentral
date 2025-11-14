@@ -31,7 +31,7 @@ class ModelOutput:
         if self.classes is not None and self.value_range is not None:
             raise ValueError("Cannot specify both classes and value_range")
 
-        if self.value_type == 'class':
+        if self.value_type == "class":
             if self.classes is None:
                 raise ValueError("Must specify classes for value_type 'class'")
             if self.value_range is not None:
@@ -39,7 +39,7 @@ class ModelOutput:
             if self.unit is not None:
                 raise ValueError("Cannot specify unit for value_type 'class'")
 
-        if self.value_type == 'float':
+        if self.value_type == "float":
             if self.classes is not None:
                 raise ValueError("Cannot specify classes for value_type 'float'")
             if self.value_range is None:
@@ -58,7 +58,9 @@ class ModelOutput:
                 raise ValueError("classes dictionary cannot be empty")
             for key, value in self.classes.items():
                 if not isinstance(value, OutputClass):
-                    raise ValueError(f"classes values must be OutputClass instances, got {type(value)}")
+                    raise ValueError(
+                        f"classes values must be OutputClass instances, got {type(value)}"
+                    )
 
 
 @dataclass
@@ -91,14 +93,19 @@ class ModelMetadata:
                     "description": output.description,
                     "output_type": output.output_type.name,
                     "value_type": str(output.value_type),
-                    "classes": {k: {"label": v.label, "description": v.description}
-                                for k, v in output.classes.items()} if output.classes else None,
+                    "classes": {
+                        k: {"label": v.label, "description": v.description}
+                        for k, v in output.classes.items()
+                    }
+                    if output.classes
+                    else None,
                     "value_range": output.value_range,
-                    "unit": output.unit
-                } for output in self.outputs
+                    "unit": output.unit,
+                }
+                for output in self.outputs
             ],
             "model_size": self.model_size,
             "testset_performance": self.testset_performance,
             "training_data_link": self.training_data_link,
-            "embedder": self.embedder
+            "embedder": self.embedder,
         }

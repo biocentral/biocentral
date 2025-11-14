@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'embeddings-api-monitor'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  # - "alerts.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'fastapi-embeddings'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['biocentral-server:9540', 'localhost:9540']
+        labels:
+          service: 'embeddings-api'
+
+  - job_name: 'triton'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['triton:8002', 'localhost:8002']
+        labels:
+          service: 'triton-inference'

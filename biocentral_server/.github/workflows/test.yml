@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ '3.11' ]
+        python-version: [ '3.12' ]
 
     steps:
       - name: Checkout Repository
@@ -25,19 +25,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Configure Git to use HTTPS for poetry git dependencies
+      - name: Configure Git to use HTTPS for git dependencies
         run: |
           git config --global url."https://github.com/".insteadOf git@github.com:
 
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
-          pip install poetry
-          poetry self update
-          poetry cache clear --all pypi
-          poetry install
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          source $HOME/.cargo/env
+          uv sync
 
       - name: Run pytest
         uses: coactions/setup-xvfb@v1
         with:
-          run: poetry run pytest
+          run: uv run pytest

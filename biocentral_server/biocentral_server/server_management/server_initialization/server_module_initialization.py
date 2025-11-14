@@ -1,4 +1,3 @@
-import logging
 import shutil
 import requests
 
@@ -7,8 +6,9 @@ from typing import List
 from pathlib import Path
 from abc import ABC, abstractmethod
 
+from ...utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ServerModuleInitializer(ABC):
@@ -46,28 +46,33 @@ class ServerModuleInitializer(ABC):
             data_dir: Directory to extract the data to
         """
 
-        zip_file = data_dir.with_suffix('.zip')
+        zip_file = data_dir.with_suffix(".zip")
         headers = {
-            'Accept': 'application/zip, application/octet-stream',
-            'User-Agent': 'biocentral_server/alpha'
+            "Accept": "application/zip, application/octet-stream",
+            "User-Agent": "biocentral_server/alpha",
         }
 
         for i, url in enumerate(urls, 1):
             try:
-                logger.info(f"Attempting download from {url} (attempt {i}/{len(urls)})..")
+                logger.info(
+                    f"Attempting download from {url} (attempt {i}/{len(urls)}).."
+                )
                 response = requests.get(url, headers=headers, stream=True)
                 response.raise_for_status()
 
-                total_size = int(response.headers.get('content-length', 0))
+                total_size = int(response.headers.get("content-length", 0))
                 block_size = 8192  # 8 KB
 
-                with open(zip_file, "wb") as f, tqdm(
+                with (
+                    open(zip_file, "wb") as f,
+                    tqdm(
                         desc="Downloading data",
                         total=total_size,
-                        unit='iB',
+                        unit="iB",
                         unit_scale=True,
                         unit_divisor=1024,
-                ) as progress_bar:
+                    ) as progress_bar,
+                ):
                     for data in response.iter_content(block_size):
                         size = f.write(data)
                         progress_bar.update(size)
@@ -89,7 +94,9 @@ class ServerModuleInitializer(ABC):
                 # If this was the last URL, raise the exception
                 if i == len(urls):
                     logger.error("All download attempts failed")
-                    raise Exception("Failed to download data from all provided URLs") from e
+                    raise Exception(
+                        "Failed to download data from all provided URLs"
+                    ) from e
 
                 # Otherwise, continue to the next URL
                 logger.info("Trying next fallback URL...")

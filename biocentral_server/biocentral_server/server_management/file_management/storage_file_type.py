@@ -2,18 +2,15 @@ from __future__ import annotations
 
 from enum import Enum
 
+
 class StorageFileType(Enum):
-    SEQUENCES = 1,
-    LABELS = 2,
-    MASKS = 3,
-    EMBEDDINGS_PER_RESIDUE = 4,
-    EMBEDDINGS_PER_SEQUENCE = 5,
-    BIOTRAINER_CONFIG = 6,
-    BIOTRAINER_LOGGING = 7,
-    BIOTRAINER_RESULT = 8,
-    BIOTRAINER_CHECKPOINT = 9
-    ONNX_MODEL = 10
-    TOKENIZER_CONFIG = 11
+    INPUT = (1,)
+    BIOTRAINER_CONFIG = (2,)
+    BIOTRAINER_LOGGING = (3,)
+    BIOTRAINER_RESULT = (4,)
+    BIOTRAINER_CHECKPOINT = 5
+    ONNX_MODEL = 6
+    TOKENIZER_CONFIG = 7
 
     @staticmethod
     def from_string(file_type: str) -> StorageFileType:

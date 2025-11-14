@@ -1,7 +1,7 @@
 import torch
-import hashlib
 
 from typing import Union, Dict, Tuple, List, Any
+from biotrainer.utilities import calculate_sequence_hash
 
 
 class DatabaseStrategy:
@@ -14,15 +14,17 @@ class DatabaseStrategy:
     def save_embeddings(self, embeddings_data: List[Tuple]):
         raise NotImplementedError
 
-    def get_embeddings(self, sequences: Dict[str, str], embedder_name: str) -> Dict[str, Dict[str, Any]]:
+    def get_embeddings(
+        self, sequences: Dict[str, str], embedder_name: str
+    ) -> Dict[str, Dict[str, Any]]:
         raise NotImplementedError
 
     def clear_embeddings(self, sequence=None, model_name=None):
         raise NotImplementedError
 
-    def filter_existing_embeddings(self, sequences: Dict[str, str],
-                                   embedder_name: str,
-                                   reduced: bool) -> Tuple[Dict[str, str], Dict[str, str]]:
+    def filter_existing_embeddings(
+        self, sequences: Dict[str, str], embedder_name: str, reduced: bool
+    ) -> Tuple[Dict[str, str], Dict[str, str]]:
         raise NotImplementedError
 
     def delete_embeddings_by_model(self, embedder_name: str) -> bool:
@@ -33,10 +35,12 @@ class DatabaseStrategy:
         seq_len = len(sequence)
         seq_len_lookup = document["metadata"]["sequence_length"]
         if seq_len != seq_len_lookup:
-            raise Exception(f"Sequence length mismatch for sequence lookup ({seq_len} != {seq_len_lookup}). "
-                            f"This is extremely unlikely to have happened, please report at "
-                            f"https://github.com/biocentral/biocentral/issues "
-                            f"Sequence causing the issue: {sequence}")
+            raise Exception(
+                f"Sequence length mismatch for sequence lookup ({seq_len} != {seq_len_lookup}). "
+                f"This is extremely unlikely to have happened, please report at "
+                f"https://github.com/biocentral/biocentral/issues "
+                f"Sequence causing the issue: {sequence}"
+            )
 
     @staticmethod
     def compress_embedding(embedding) -> Union[str, bytes, None]:
@@ -48,7 +52,5 @@ class DatabaseStrategy:
 
     @staticmethod
     def generate_sequence_hash(sequence):
-        """Generate a hash for the given sequence, with length suffix as additional hash collision safety."""
-        suffix = len(sequence)
-        sequence = f"{sequence}_{suffix}"
-        return hashlib.sha256(sequence.encode()).hexdigest()
+        """DelegateS to biotrainer sequence hashing"""
+        return calculate_sequence_hash(sequence)

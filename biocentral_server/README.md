@@ -1,20 +1,19 @@
-# Biocentral server
+# biocentral_server
 
-Flask-based python server using REST API that provides functionality for the biocentral frontend.
+Compute functionality for biocentral. Provided via a dockerized FastAPI server.
 
 ## Features and modules
 
 These are the currently provided modules:
 
-| Module            |                    Features                     | External Dependencies | 
-|-------------------|:-----------------------------------------------:|:---------------------:|
-| protein_analysis  |                       wip                       |                       | 
-| embeddings        |             Embed protein sequences             |     [biotrainer]      | 
-| ppi               |     Work with protein-protein interactions      |     [hvi_toolkit]     | 
-| predict           |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
-| prediction_models | Train and evaluate models trained on embeddings |     [biotrainer]      |
-| proteins          |             Work with protein data              |       [taxoniq]       |
-| plm_eval          | Automatically evaluate protein language models  |  [autoeval], [FLIP]   |
+| Module        |                    Features                     | External Dependencies |
+|---------------|:-----------------------------------------------:|:---------------------:|
+| embeddings    |             Embed protein sequences             |     [biotrainer]      |
+| ppi           |     Work with protein-protein interactions      |     [hvi_toolkit]     |
+| predict       |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
+| custom_models | Train and evaluate models trained on embeddings |     [biotrainer]      |
+| proteins      |             Work with protein data              |       [taxoniq]       |
+| plm_eval      | Automatically evaluate protein language models  |  [biotrainer], [PBC]  |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
 
@@ -22,9 +21,7 @@ These are the currently provided modules:
 
 [taxoniq]: https://github.com/taxoniq/taxoniq
 
-[autoeval]: https://github.com/J-SNACKKB/autoeval
-
-[FLIP]: https://github.com/J-SNACKKB/FLIP
+[PBC]: https://github.com/Rostlab/pbc
 
 [TMbed]: https://github.com/BernhoferM/TMbed
 
@@ -33,42 +30,13 @@ These are the currently provided modules:
 
 ## Installing and running
 
-Make sure that you have `Python 3.11`, `docker` and [poetry](https://python-poetry.org/docs/#installation) installed.
+See the docs on [how to get started](/docs/getting_started.md) with biocentral_server.
 
-### Production Setup
+For development, see the [development guide](/docs/Contributing/development_setup.md).
 
-```shell
-# Copy environment file and check that it matches your setup
-cp .env.example .env
+## Citation
 
-# Run via docker compose
-docker compose up -d
-```
-
-### Local Setup
-
-```shell
-# [Ubuntu 24.04] 
-poetry install
-
-# [Windows 10/11]
-poetry install
-# Install torch with hardware settings for your system (see here: https://pytorch.org/get-started/locally/)
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# Use environment variables for local setup
-cp .env.local .env
-
-# Run additional dependencies via docker compose
-docker compose -f docker-compose.dev.yml up -d
-
-# Run
-poetry run run-biocentral_server.py
-```
-
-# Citation
-
-Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using 
+Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using
 biocentral_server in your scientific publication:
 
 ```text
