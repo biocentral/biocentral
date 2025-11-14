@@ -11,7 +11,12 @@ import 'package:mocktail/mocktail.dart';
 
 class MockBiocentralProjectRepository extends Mock implements BiocentralProjectRepository {}
 
-class MockBiocentralAPIRepository extends Mock implements BiocentralAPIRepository {}
+class MockBiocentralAPIRepository extends Mock implements BiocentralAPIRepository {
+  @override
+  BiocentralAPI getBiocentralAPI() => MockBiocentralAPI();
+}
+
+class MockBiocentralAPI extends Mock implements BiocentralAPI {}
 
 class MockProteinRepository extends Mock implements ProteinRepository {}
 
@@ -22,12 +27,14 @@ void main() {
     late MockBiocentralProjectRepository mockProjectRepo;
     late MockProteinRepository mockProteinRepo;
     late MockBiocentralAPIRepository mockAPIRepository;
+    late MockBiocentralAPI mockAPI;
     late RetrieveTaxonomyCommand retrieveTaxonomyCommand;
 
     setUp(() {
       mockProjectRepo = MockBiocentralProjectRepository();
       mockProteinRepo = MockProteinRepository();
       mockAPIRepository = MockBiocentralAPIRepository();
+      mockAPI = MockBiocentralAPI();
 
       // Set up default behavior for mockProteinRepo
       when(() => mockProteinRepo.databaseToMap()).thenReturn({
@@ -57,18 +64,21 @@ void main() {
     testWidgets('Successfully retrieve and update taxonomy data', (WidgetTester tester) async {
       // Arrange
       final mockTaxonomyData = [
-        TaxonomyItem((b) => b
-          ..taxonomyId = 9606
-          ..name = 'Homo sapiens'
-          ..family = 'Hominidae',),
-        TaxonomyItem((b) => b
-          ..taxonomyId = 10090
-          ..name = 'Mus musculus'
-          ..family = 'Muridae',),
+        TaxonomyItem(
+          (b) => b
+            ..taxonomyId = 9606
+            ..name = 'Homo sapiens'
+            ..family = 'Hominidae',
+        ),
+        TaxonomyItem(
+          (b) => b
+            ..taxonomyId = 10090
+            ..name = 'Mus musculus'
+            ..family = 'Muridae',
+        ),
       ];
 
-      when(() => mockAPIRepository.getBiocentralAPI().taxonomy(taxonomyIds: any()))
-          .thenAnswer((_) async => mockTaxonomyData);
+      when(() => mockAPI.taxonomy(taxonomyIds: any())).thenAnswer((_) async => mockTaxonomyData);
       // Act
       final result = retrieveTaxonomyCommand.execute<ProteinsCommandState>(const ProteinsCommandState.idle());
 
@@ -89,7 +99,7 @@ void main() {
         );
       }
 
-      verify(() => mockAPIRepository.getBiocentralAPI().taxonomy(taxonomyIds: any())).called(1);
+      verify(() => mockAPI.taxonomy(taxonomyIds: any())).called(1);
     });
 
     testWidgets('Handle empty taxonomy IDs', (WidgetTester tester) async {
