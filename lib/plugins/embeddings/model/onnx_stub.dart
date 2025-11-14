@@ -16,7 +16,7 @@ class OrtSession {
 
   int get outputCount => throw UnsupportedError('ONNX runtime is not supported on web platform');
 
-  static void fromBuffer(List<int> buffer, OrtSessionOptions options) {
+  static dynamic fromBuffer(List<int> buffer, OrtSessionOptions options) {
     throw UnsupportedError('ONNX runtime is not supported on web platform');
   }
 }
