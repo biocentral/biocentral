@@ -12,9 +12,11 @@ from .protspace_task import ProtSpaceTask
 
 from ..server_management import (
     TaskManager,
+    UserManager,
     StartTaskResponse,
     ErrorResponse,
 )
+from ..utils import convert_config
 
 router = APIRouter(
     prefix="/projection_service",
@@ -52,10 +54,11 @@ def projection_config():
     description="Calculate projections for embeddings using Protspace",
     dependencies=[Depends(RateLimiter(times=1, seconds=120))],
 )
-def project(request_data: ProjectionRequest, request: Request):
+async def project(request_data: ProjectionRequest, request: Request):
     method = request_data.method
     sequence_data = request_data.sequence_data
-    config = request_data.config
+    config_dict = request_data.config
+    config = convert_config(config_dict)
     embedder_name = request_data.embedder_name
 
     if method not in REDUCERS:
@@ -72,7 +75,10 @@ def project(request_data: ProjectionRequest, request: Request):
         method=method,
         config=config,
     )
+
+    user_id = await UserManager.get_user_id_from_request(request)
     task_manager = TaskManager()
-    task_id = task_manager.add_task(task=protspace_task)
+    task_id = task_manager.add_task(task=protspace_task, user_id=user_id)
+    print(task_id)
 
     return StartTaskResponse(task_id=task_id)
