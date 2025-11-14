@@ -211,7 +211,7 @@ services:
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
-      - ./monitoring/prometheus:/etc/prometheus
+      - ${PROMETHEUS_CONFIG_DIR:-./monitoring/prometheus}:/etc/prometheus
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
