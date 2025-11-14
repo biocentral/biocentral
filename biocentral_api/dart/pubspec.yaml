@@ -1,7 +1,7 @@
 name: biocentral_api
 version: 1.0.0
 description: biocentral_server OpenAPI API client
-homepage: https://github.com/biocentral/biocentral_api/dart
+homepage: https://github.com/biocentral/biocentral_api
 
 
 environment:
