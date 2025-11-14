@@ -34,11 +34,11 @@ So, copy the example environment file and check that it matches your requirement
 cp .env.example .env
 ```
 
-For all directories, make sure that they exist on your system. If you use the default settings, you can
+For all directories in the .env file, make sure that they exist on your system. If you use the default settings, you can
 run the following command to ensure that:
 
 ```shell
-mkdir -p ./storage/embeddings ./storage/files ./storage/server_temp_files ~/.cache/huggingface ~/.cache/biotrainer/autoeval
+mkdir -p ./storage/embeddings ./storage/files ./storage/server_temp_files ./storage/monitoring ~/.cache/huggingface ~/.cache/biotrainer/autoeval
 ```
 
 *Note: This assumes that you do not run docker as root.

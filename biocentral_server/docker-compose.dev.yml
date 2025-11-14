@@ -135,8 +135,6 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./monitoring/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
@@ -176,6 +174,10 @@ volumes:
       device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
   prometheus_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PROMETHEUS_DATA_DIR:-./storage/monitoring}
 
 networks:
   seaweedfs-network:
