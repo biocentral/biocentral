@@ -25,63 +25,49 @@ class ProtspaceConfigHandler {
 }
 
 class ProtspaceFileHandler {
-  static Map<ProjectionData, List<Map<String, dynamic>>> parse(String jsonFile) {
+  static Map<ProjectionData, List<Map<String, dynamic>>> parse(Map<String, dynamic> protspaceMap) {
     final Map<ProjectionData, List<Map<String, dynamic>>> result = {};
-    final Map<String, dynamic> protspaceMap = jsonDecode(jsonFile);
 
     // Parse Protein Features
-    final Map<String, dynamic> proteinData = protspaceMap['protein_data'] ?? {};
-    final Map<String, Map<String, String>> parsedProteinData = {};
-    for (final entry in proteinData.entries) {
-      final proteinID = entry.key;
-      final Map<String, dynamic> featureMap = entry.value['features'] ?? {};
-      if (featureMap.isEmpty) {
-        parsedProteinData[proteinID] = {};
-        continue;
-      }
+    final Map<String, dynamic> proteinFeatures = protspaceMap['protein_features']?.asMap ?? {};
+    final identifiers = proteinFeatures['protein_id'] as List? ?? [];
 
-      final parsedFeatureMap = Map<String, dynamic>.fromIterable(
-        featureMap.entries.map((feature) => MapEntry(feature.key.toString(), feature.value.toString())).toList(),
-      );
-      parsedFeatureMap['id'] = proteinID;
-      parsedProteinData[proteinID] = parsedFeatureMap.map((k, v) => MapEntry(k.toString(), v.toString()));
-    }
+    // Parse Projections Metadata
+    final metadata = protspaceMap['projections_metadata']?.asMap ?? {};
+    final projNames = metadata['projection_name'] as List? ?? [];
+    final dimensions = metadata['dimensions'] as List? ?? [];
 
-    // Parse Projections
-    for (final projection in protspaceMap['projections'] ?? []) {
-      final projectionID = projection?['name'] ?? 'UnknownProjectionID';
+    // Parse Projections Data
+    final projData = protspaceMap['projections_data']?.asMap ?? {};
+    final projIdentifiers = projData['identifier'] as List? ?? [];
+    final xCoords = projData['x'] as List? ?? [];
+    final yCoords = projData['y'] as List? ?? [];
+    final zCoords = projData['z'] as List? ?? [];
 
-      final data = List<Map>.from(projection?['data'] ?? {});
-
-      if (data.isEmpty) {
-        break;
-      }
+    for (int i = 0; i < projNames.length; i++) {
+      final projName = projNames[i];
+      final dim = dimensions[i];
 
       final List<String> ids = [];
-      final List<List<double>> allCoordinates = [];
-      for (final map in data) {
-        final identifier = map['identifier'];
-        if (identifier == null || identifier.toString().isEmpty) {
-          break;
-        }
-        ids.add(identifier);
+      final List<List<double>> coords = [];
 
-        final coordMap = map['coordinates'];
-        final double? x = double.tryParse(coordMap['x'].toString());
-        final double? y = double.tryParse(coordMap['y'].toString());
-        final double? z = double.tryParse(coordMap['z'].toString());
-        final List<double> coords = [];
-        if (x != null && y != null) {
-          coords.add(x);
-          coords.add(y);
-          if (z != null) {
-            coords.add(z);
-          }
-        }
-        allCoordinates.add(coords);
+      for (int j = 0; j < projIdentifiers.length; j++) {
+        ids.add(projIdentifiers[j].toString());
+
+        final x = xCoords[j];
+        final y = yCoords[j];
+        final z = zCoords[j];
+
+        final List<double> coordinates = [];
+        if (x != null) coordinates.add(x);
+        if (y != null) coordinates.add(y);
+        if (z != null) coordinates.add(z);
+
+        coords.add(coordinates);
       }
-      final projectionData = ProjectionData(projectionID, ids, allCoordinates);
-      result[projectionData] = List.from(ids.map((id) => proteinData[id]));
+
+      final projectionData = ProjectionData(projName, ids, coords);
+      result[projectionData] = List.generate(ids.length, (i) => {"id": ids[i]});
     }
     return result;
   }
