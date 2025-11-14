@@ -39,8 +39,7 @@ class BiocentralAPI {
     } else {
       _urlHealthStatus.add((_localhostURL, false));
       if (!localOnly) {
-        // TODO!
-        //_urlHealthStatus.add((_apiURL, false));
+        _urlHealthStatus.add((_apiURL, false));
       }
     }
     final api = BiocentralAPI._(
