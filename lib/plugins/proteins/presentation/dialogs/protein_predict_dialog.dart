@@ -16,10 +16,6 @@ class _ProteinPredictDialogState extends State<ProteinPredictDialog>
     with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
   final Set<String> _selectedModels = {};
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void onPredict() {
     if (_selectedModels.isNotEmpty) {
@@ -49,7 +45,7 @@ class _ProteinPredictDialogState extends State<ProteinPredictDialog>
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [buildCancelButton(), const Spacer(), buildPredictButton()],
-      )
+      ),
     ]);
 
     return BiocentralDialog(

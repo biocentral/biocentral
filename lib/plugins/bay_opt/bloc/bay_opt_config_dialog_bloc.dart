@@ -1,8 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
-import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';

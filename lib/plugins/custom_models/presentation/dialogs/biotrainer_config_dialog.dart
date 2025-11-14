@@ -23,7 +23,7 @@ class BiotrainerConfigDialog extends StatefulWidget {
 
 class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
     with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
-  bool _showOptionalOptions = false;
+  final bool _showOptionalOptions = false;
 
   final TextEditingController _protocolFromController = TextEditingController();
   final TextEditingController _protocolToController = TextEditingController();

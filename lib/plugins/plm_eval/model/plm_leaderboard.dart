@@ -27,7 +27,7 @@ class PLMLeaderboard {
   factory PLMLeaderboard.mixed(
       {required PLMLeaderboard remote,
       required PLMLeaderboard local,
-      required Map<String, String> recommendedMetrics}) {
+      required Map<String, String> recommendedMetrics,}) {
     final allResults = List<PLMEvalPersistentResult>.from(remote._results)..addAll(local._results);
     final Map<String, PLMEvalPersistentResult> mergedResults = {};
     for (final result in allResults) {
@@ -38,7 +38,7 @@ class PLMLeaderboard {
   }
 
   static List<RankingEntry> _convertToLeaderboardEntries(
-      List<PLMEvalPersistentResult> persistentResults, Map<String, String> recommendedMetrics) {
+      List<PLMEvalPersistentResult> persistentResults, Map<String, String> recommendedMetrics,) {
     return persistentResults
         .map(
           (result) => RankingEntry(

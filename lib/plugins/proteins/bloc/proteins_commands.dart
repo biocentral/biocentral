@@ -133,7 +133,7 @@ final class RetrieveTaxonomyCommand extends BiocentralCommand<Map<String, Protei
       {required BiocentralProjectRepository biocentralProjectRepository,
       required BiocentralAPIRepository apiRepository,
       required ProteinRepository proteinRepository,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _apiRepository = apiRepository,
         _proteinRepository = proteinRepository,
@@ -195,7 +195,7 @@ final class ProteinPredictCommand extends BiocentralCommand<Map<String, Protein>
       required BiocentralAPIRepository apiRepository,
       required ProteinRepository proteinRepository,
       required Set<String> selectedModels,
-      required DatabaseImportMode importMode})
+      required DatabaseImportMode importMode,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _apiRepository = apiRepository,
         _proteinRepository = proteinRepository,

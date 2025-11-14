@@ -59,17 +59,17 @@ class EmbeddingsPlugin extends BiocentralPlugin
       // TODO [Refactoring] This is redundant with the database update event in concept, but necessary because of the
       // TODO way how the blocs fire events in this plugin
       embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
-    }));
+    }),);
 
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
-    }));
+    }),);
 
     eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         embeddingsHubBloc.add(EmbeddingsHubReloadEvent());
       }
-    }));
+    }),);
 
     return {
       BlocProvider<EmbeddingsCommandBloc>.value(value: embeddingsCommandBloc): embeddingsCommandBloc,
@@ -135,7 +135,7 @@ class EmbeddingsPlugin extends BiocentralPlugin
           // TODO Handle Projection Data loading
           return [];
         },
-      )
+      ),
     ];
   }
 }

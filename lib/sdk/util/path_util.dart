@@ -41,7 +41,7 @@ class PathScanner {
     final subdirectoryResults = <String, PathScanResult>{};
 
     try {
-      final entities = directory.listSync(recursive: false); // Non-recursive initial scan
+      final entities = directory.listSync(); // Non-recursive initial scan
 
       // First pass: separate files and create subdirectory structure
       for (var entity in entities) {

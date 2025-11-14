@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/data/biocentral_client.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/domain/biocentral_api_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';

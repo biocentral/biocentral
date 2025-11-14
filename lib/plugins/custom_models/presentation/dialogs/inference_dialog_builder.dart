@@ -90,7 +90,7 @@ class InferenceDialogBuilder extends BiocentralConfigDialogBuilder<InferenceDial
                   }
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -99,7 +99,7 @@ class InferenceDialogBuilder extends BiocentralConfigDialogBuilder<InferenceDial
 
   @override
   Widget buildRunButton(
-      InferenceDialogBloc bloc, InferenceDialogState state, void Function({Function()? callback}) closeDialog) {
+      InferenceDialogBloc bloc, InferenceDialogState state, void Function({Function()? callback}) closeDialog,) {
     if (state.selectedModel != null && state.selectedEntityIDs.isNotEmpty) {
       return BiocentralSmallButton(
         onTap: () => closeDialog(callback: () => onStartInference(state.selectedModel!, state.selectedEntityIDs)),

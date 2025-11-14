@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalculateProjectionsDialog extends StatefulWidget {
   final void Function(String embedderName, Map<String, PerSequenceEmbedding> embeddings, String projectionMethod,
-      Map<BiocentralConfigOption, dynamic> projectionConfig, DatabaseImportMode importMode) calculateUMAPCallback;
+      Map<BiocentralConfigOption, dynamic> projectionConfig, DatabaseImportMode importMode,) calculateUMAPCallback;
 
   const CalculateProjectionsDialog({required this.calculateUMAPCallback, super.key});
 
@@ -89,7 +89,7 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
   }
 
   Widget buildEmbedderSelection(
-      CalculateProjectionsDialogBloc calculateProjectionsDialogBloc, CalculateProjectionsDialogState state) {
+      CalculateProjectionsDialogBloc calculateProjectionsDialogBloc, CalculateProjectionsDialogState state,) {
     if (state.embeddingsColumnWizard == null || state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty) {
       return const Text('Could not find any embeddings!');
     }
@@ -104,7 +104,7 @@ class _CalculateProjectionsDialogState extends State<CalculateProjectionsDialog>
   }
 
   Widget buildEmbeddingsTypeSelection(
-      CalculateProjectionsDialogBloc calculateProjectionsDialogBloc, CalculateProjectionsDialogState state) {
+      CalculateProjectionsDialogBloc calculateProjectionsDialogBloc, CalculateProjectionsDialogState state,) {
     if (state.embeddingsColumnWizard == null ||
         state.embeddingsColumnWizard!.getAllEmbedderNames().isEmpty ||
         state.selectedEmbedderName == null) {

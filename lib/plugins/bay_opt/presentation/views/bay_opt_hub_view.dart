@@ -37,9 +37,9 @@ class _BayOptHubViewState extends State<BayOptHubView> with AutomaticKeepAliveCl
               flex: 5,
               child: BlocBuilder<BayOptHubBloc, BayOptHubState>(
                 builder: (context, state) {
-                  return TabBarView(
+                  return const TabBarView(
                     children: [
-                      const BayOptIterationsListView(),
+                      BayOptIterationsListView(),
                       BayOptIterationResultView(),
                     ],
                   );

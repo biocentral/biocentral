@@ -38,7 +38,7 @@ class _PLMEvalResultsListDisplayState extends State<PLMEvalResultsListDisplay> w
   Widget buildResumableEvaluations(BiocentralCommandLog commandLog) {
     final PLMEvalEvaluationBloc plmEvalCommandBloc = BlocProvider.of<PLMEvalEvaluationBloc>(context);
     return BiocentralTaskDisplay.resumable(
-        commandLog, () => plmEvalCommandBloc.add(PLMEvalEvaluationResumeEvent(commandLog)));
+        commandLog, () => plmEvalCommandBloc.add(PLMEvalEvaluationResumeEvent(commandLog)),);
   }
 
   Widget buildPLMEvalPersistentResultDisplay(PLMEvalPersistentResult persistentResult) {

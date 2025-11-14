@@ -1,5 +1,4 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -76,7 +75,7 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
   final String _datasetFormat;
 
   ImportPPIsCommand(
-      {required BiocentralAPIRepository apiRepository, required String loadedDataset, required String datasetFormat})
+      {required BiocentralAPIRepository apiRepository, required String loadedDataset, required String datasetFormat,})
       : _apiRepository = apiRepository,
         _loadedDataset = loadedDataset,
         _datasetFormat = datasetFormat;

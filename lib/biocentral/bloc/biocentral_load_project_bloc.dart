@@ -22,7 +22,7 @@ final class BiocentralLoadProjectState extends BiocentralCommandState<Biocentral
 
   @override
   BiocentralLoadProjectState newState(
-      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
+      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status,) {
     return BiocentralLoadProjectState(stateInformation, status);
   }
 
@@ -95,7 +95,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
                 await _executeLoadingFunction(function, commandBloc);
                 completedLoads++;
                 emit(state.setOperating(
-                    information: 'Loading progress for ${pluginDirectory.path}: $completedLoads/$totalLoads'));
+                    information: 'Loading progress for ${pluginDirectory.path}: $completedLoads/$totalLoads',),);
               } catch (e) {
                 throw Exception('Error loading file in ${pluginDirectory.path}: ${e.toString()}');
               }

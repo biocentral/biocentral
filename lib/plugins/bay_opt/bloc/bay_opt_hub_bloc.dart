@@ -2,7 +2,6 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/domain/biocentral_api_repository.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';

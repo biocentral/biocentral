@@ -34,7 +34,7 @@ abstract class BiocentralCommandState<T extends BiocentralCommandState<T>> exten
 
   T setTaskID(String taskID) {
     return newState(
-        BiocentralCommandStateInformation(information: stateInformation.information, serverTaskID: taskID), status);
+        BiocentralCommandStateInformation(information: stateInformation.information, serverTaskID: taskID), status,);
   }
 
   T setIdle({String? information}) {

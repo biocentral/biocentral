@@ -26,7 +26,7 @@ final class BayOptIterationState extends BiocentralCommandState<BayOptIterationS
 
   @override
   BayOptIterationState newState(
-      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status) {
+      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status,) {
     return BayOptIterationState(stateInformation, status);
   }
 }

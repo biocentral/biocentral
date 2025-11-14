@@ -42,7 +42,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
     super.initState();
     for (final entry in widget.optionMap.entries) {
       _chosenOptions.putIfAbsent(
-          entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, option.defaultValue))));
+          entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, option.defaultValue))),);
     }
     if (widget.optionMap.keys.length == 1) {
       _selectedKey = widget.optionMap.keys.first;
@@ -174,7 +174,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildConfigOptionsTable() {
-    final String placeholder = "%placeholder%Key%!";
+    final String placeholder = '%placeholder%Key%!';
     var options = {placeholder: widget.optionMap[_selectedKey] ?? []};
     if (_selectedKey == null || options.isEmpty) {
       return Container();
@@ -197,7 +197,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
                 children: [
                   _buildTable(entry.value),
                 ],
-              )
+              ),
         ],
       ),
     );

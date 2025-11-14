@@ -60,11 +60,11 @@ void main() {
         TaxonomyItem((b) => b
           ..taxonomyId = 9606
           ..name = 'Homo sapiens'
-          ..family = 'Hominidae'),
+          ..family = 'Hominidae',),
         TaxonomyItem((b) => b
           ..taxonomyId = 10090
           ..name = 'Mus musculus'
-          ..family = 'Muridae'),
+          ..family = 'Muridae',),
       ];
 
       when(() => mockAPIRepository.getBiocentralAPI().taxonomy(taxonomyIds: any()))

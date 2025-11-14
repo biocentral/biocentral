@@ -291,8 +291,8 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
               IconButton(
                 icon: const Icon(Icons.save),
                 onPressed: () => handleProjectionImageSave(embeddingsHubBloc, state),
-              )
-            ]),
+              ),
+            ],),
           ],
         ),
       ),

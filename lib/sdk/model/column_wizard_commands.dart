@@ -12,7 +12,7 @@ final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, B
       {required BiocentralDatabase database,
       required String originalColumnName,
       required String newColumnName,
-      required List<ColumnWizardHistoryEntry> operationHistory})
+      required List<ColumnWizardHistoryEntry> operationHistory,})
       : _database = database,
         _originalColumnName = originalColumnName,
         _newColumnName = newColumnName,
@@ -33,7 +33,7 @@ final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, B
       'originalColumnName': _originalColumnName,
       'newColumnName': _newColumnName,
       // Skip first because this is the original column
-      'operations': _operationHistory.skip(1).map((event) => event.operation.runtimeType.toString()).toList()
+      'operations': _operationHistory.skip(1).map((event) => event.operation.runtimeType.toString()).toList(),
       // TODO Add proper configuration of each operation
     };
   }

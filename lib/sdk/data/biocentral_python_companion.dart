@@ -14,7 +14,7 @@ abstract class _BiocentralPythonCompanionUtils {
     if (id2emb == null) {
       return left(
         BiocentralPythonCompanionException(
-            message: 'Parsing of embeddings failed - Could not convert result map from companion!'),
+            message: 'Parsing of embeddings failed - Could not convert result map from companion!',),
       );
     }
 
@@ -81,7 +81,7 @@ abstract class _BiocentralPythonCompanionStrategy {
   }
 
   Future<Either<BiocentralException, T>> _intercept<T>(
-      Future<Either<BiocentralException, T>> Function() operation) async {
+      Future<Either<BiocentralException, T>> Function() operation,) async {
     final companionRunning = await _checkCompanionRunning();
     if (!companionRunning) {
       return left(
@@ -195,7 +195,7 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
     final String? result = await runPythonCommand(
       environmentVariables: {
         'PYODIDE_COMMAND': 'test_normal',
-        'PYODIDE_DATA': jsonEncode({'data': data})
+        'PYODIDE_DATA': jsonEncode({'data': data}),
       },
     );
     if (result == null || result.isEmpty) {

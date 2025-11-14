@@ -1,11 +1,5 @@
-import 'dart:async';
 
-import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:fpdart/fpdart.dart';
 
-import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
-import 'package:biocentral/plugins/ppi/data/ppi_service_api.dart';
 /*
 final class PPIClientFactory extends BiocentralClientFactory<PPIClient> {
   @override

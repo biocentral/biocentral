@@ -6,7 +6,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 sealed class EmbeddingsHubEvent {}
 
@@ -220,7 +219,7 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
               state.selectedEmbeddingType,
               state.selectedEntityID,
               _loadProjectionData(state.selectedEmbedderName, state.selectedEmbeddingType),
-              state.protspaceURL),
+              state.protspaceURL,),
         );
       }
     });
@@ -272,7 +271,7 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
         final saveEither = await _biocentralProjectRepository.handleProjectInternalSave(
             fileName: 'protspace.html',
             type: ProjectionData,
-            contentFunction: () async => ProtspaceFileHandler.createProtspaceHTML(event.projectionData!));
+            contentFunction: () async => ProtspaceFileHandler.createProtspaceHTML(event.projectionData!),);
         saveEither.match((saveError) {}, (fullPath) {
           final url = 'file://$fullPath';
           emit(state.copyWith(protspaceURL: url));
@@ -290,7 +289,7 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
   }
 
   Map<ProjectionData, List<Map<String, dynamic>>>? _loadProjectionData(
-      String? embedderName, EmbeddingType? embeddingType) {
+      String? embedderName, EmbeddingType? embeddingType,) {
     if (embedderName != null && embeddingType != null && embeddingType == EmbeddingType.perSequence) {
       return _embeddingsRepository.getProjectionDataMap(embedderName);
     }

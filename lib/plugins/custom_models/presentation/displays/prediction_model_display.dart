@@ -1,10 +1,8 @@
 import 'package:biocentral/plugins/custom_models/bloc/biotrainer_training_bloc.dart';
-import 'package:biocentral/plugins/custom_models/data/custom_models_service_api.dart';
 import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
-import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
@@ -21,7 +19,7 @@ class PredictionModelDisplay extends StatefulWidget {
 }
 
 class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
-  bool _showMetricsAsTable = true;
+  final bool _showMetricsAsTable = true;
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +166,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildAvailableCheckpoints() {
-    final List<String> checkpointNames = widget.predictionModel.checkpoints?.keys.toList() ?? [];
+    final List<String> checkpointNames = widget.predictionModel.checkpoints.keys.toList() ?? [];
     if (checkpointNames.isEmpty) return Container();
     return Column(
       children: checkpointNames.map((name) => Text(name)).toList(),

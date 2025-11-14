@@ -91,7 +91,7 @@ final class CalculateProjectionsDialogState extends BiocentralSimpleMultiTypeUIS
         selectedEmbeddingType,
         selectedImportMode,
         projectionConfig,
-        status
+        status,
       ];
 
   @override
@@ -129,7 +129,7 @@ class CalculateProjectionsDialogBloc extends Bloc<CalculateProjectionsDialogEven
               (method, options) => MapEntry(
                   method,
                   List<BiocentralConfigOption>.from(
-                      options.map((option) => BiocentralConfigOption.fromMap(option?.asMap ?? {})))),
+                      options.map((option) => BiocentralConfigOption.fromMap(option?.asMap ?? {})),),),
             )
             .entries,
       );

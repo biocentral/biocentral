@@ -46,12 +46,12 @@ class PLMEvalPlugin extends BiocentralPlugin
 
     eventBusSubscriptions.add(eventBus.on<BiocentralResumableCommandFinishedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubRemoveResumableCommandEvent(event.finishedCommand));
-    }));
+    }),);
 
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       plmEvalHubBloc.add(PLMEvalHubLoadEvent());
       plmEvalLeaderboardBloc.add(PLMEvalLeaderboardLoadLocalEvent());
-    }));
+    }),);
 
     return {
       BlocProvider<PLMEvalEvaluationBloc>.value(value: plmEvalCommandBloc): plmEvalCommandBloc,
