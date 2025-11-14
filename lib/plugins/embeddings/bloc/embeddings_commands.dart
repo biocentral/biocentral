@@ -150,7 +150,8 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     bool reduce,
   ) async* {
     // Save
-    final String embeddingsFileName = (_embedderName ?? 'custom_embedder_') + (reduce ? '_reduced.h5' : '.h5');
+    final embeddingsName = _biotrainerName.contains('/') ? _biotrainerName.split('/').last : _biotrainerName;
+    final String embeddingsFileName = '$embeddingsName.h5';
     final embeddingBytes = base64Decode(embeddingsFile);
     // TODO [Error Handling] Handle save errors
     await _biocentralProjectRepository.handleProjectInternalSave(
@@ -159,7 +160,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       bytesFunction: () async => embeddingBytes,
     );
     // Load
-    final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes, _embedderName);
+    final embeddingsEither = await _pythonCompanion.loadH5File(embeddingBytes, embeddingsName);
     yield* embeddingsEither.match((error) async* {
       yield left(
         state.setErrored(
@@ -275,7 +276,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
     Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
     await for (final (dto, projectionDataResponse) in biocentralTask.run()) {
       if (projectionDataResponse != null) {
-        projectionData = ProtspaceFileHandler.parse(jsonEncode(projectionDataResponse));
+        projectionData = ProtspaceFileHandler.parse(projectionDataResponse);
       }
       if (projectionData != null) {
         break;
