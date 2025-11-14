@@ -5,7 +5,7 @@ Python API package for biocentral.
 ## Installation
 
 ```shell
-pip install biocentral_api
+pip install biocentral-api
 ```
 
 ## Basic Usage
