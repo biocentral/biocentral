@@ -38,7 +38,9 @@ jobs:
         with:
           channel: stable
           flutter-version-file: pubspec.yaml
-      - run: flutter pub get
+      - run: |
+          flutter upgrade
+          flutter pub get
 
       - name: Build Windows Application
         run: |
