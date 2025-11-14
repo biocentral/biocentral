@@ -1,6 +1,6 @@
 [project]
 name = "biocentral-server"
-version = "0.2.5"
+version = "1.0.0"
 description = "Compute server for the biocentral frontend"
 authors = [
     { name = "Sebastian Franz", email = "sebastian.franz@tum.de" },
