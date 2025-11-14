@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.protocols import Protocol
-from biotrainer.config import Configurator, ConfigurationException
+from biotrainer.config import Configurator
 from fastapi_limiter.depends import RateLimiter
 
 from .endpoint_models import (
@@ -25,7 +25,7 @@ from ..server_management import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
-from ..utils import str2bool
+from ..utils import verify_biotrainer_config
 
 # Create APIRouter
 router = APIRouter(
@@ -33,29 +33,6 @@ router = APIRouter(
     tags=["custom_models"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
-
-
-def _verify_config(config_dict: dict):
-    """Verify biotrainer configuration dict"""
-
-    # TODO Improve biotrainer config option handling to avoid this
-    def _apply_config_conversion(v: str):
-        import ast
-
-        try:
-            return ast.literal_eval(v)
-        except Exception:
-            if v.lower() in ["true", "false"]:
-                return str2bool(v)
-            return v
-
-    try:
-        config = {k: _apply_config_conversion(v) for k, v in config_dict.items()}
-        configurator = Configurator.from_config_dict(config)
-        configurator.verify_config(ignore_file_checks=True)
-        return config, ""
-    except ConfigurationException as config_exception:
-        return None, str(config_exception)
 
 
 @router.get(
@@ -99,7 +76,7 @@ def config_options(protocol: str):
 )
 def verify_config(request_data: ConfigVerificationRequest):
     """Verify configuration options"""
-    _, error = _verify_config(request_data.config_dict)
+    _, error = verify_biotrainer_config(request_data.config_dict)
     return ConfigVerificationResponse(error=error)
 
 
@@ -122,13 +99,13 @@ def protocols():
     responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
     summary="Start model training",
     description="Submit a new model training job with specified configuration and training data",
-    dependencies=[Depends(RateLimiter(times=2, seconds=120))],
+    dependencies=[Depends(RateLimiter(times=200, seconds=120))],
 )
 async def start_training(request_data: StartTrainingRequest, request: Request):
     """Start model training for biotrainer"""
     # Parse and validate configuration
     config_dict = request_data.config_dict
-    verified_config, error = _verify_config(config_dict)
+    verified_config, error = verify_biotrainer_config(config_dict)
     if error != "":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
