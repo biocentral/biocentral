@@ -1,5 +1,5 @@
 name: biocentral
-version: '0.2.5+1'
+version: '1.0.0+1'
 publish_to: none
 environment:
   sdk: ">=3.5.0"
