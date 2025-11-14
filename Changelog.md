@@ -1,5 +1,26 @@
 # Biocentral Changelog
 
+## v1.0.0
+
+Paper release version.
+
+- **Functionality Enhancements**
+    - BiocentralConfigDialog and BiocentralRatioSlider added for unified configuration management and value selection.
+    - Improved handling of training data and protein repository examples.
+    - Advanced model comparison features and updates to metrics plots.
+- **Refactoring**
+    - Significant restructuring of config dialogs and event handlers.
+    - Adaptation to updated ProtSpace and biotrainer APIs.
+    - Creation of reusable components, e.g., `BiocentralDialogCloseMixin` for dialog operations.
+    - Renaming and aligning modules consistently (e.g., `prediction_models` to `custom_models`).
+    - Upgrading Flutter version
+- **Bug Fixes**
+    - Issues with embedding save names, projection APIs, tooltips, and type conversions resolved.
+    - Improved error-handling mechanisms in visualization and column wizard operations.
+- **UI/UX Improvements**
+    - Enhanced tooltips, explanations, and future-proofing text in column wizards.
+
+
 ## v0.2.5
 * Fixing project loading race condition
 * Adding command to load existing plm eval persistent result
