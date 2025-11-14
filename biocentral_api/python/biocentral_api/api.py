@@ -1,18 +1,114 @@
+from __future__ import annotations
+
+import time
+import urllib.parse
 import numpy as np
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
-from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData
+from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient
 
 
 class BiocentralAPI:
-    def __init__(self, api_token: Optional[str] = None, server_url: Optional[str] = None):
-        self.api_token = api_token if api_token else ""
-        self.server_url = server_url if server_url else "http://laser.bio.cit.tum.de:9540"  # TODO!
-        self.configuration = Configuration(
-            host=self.server_url
-        )
+    """
+    High-level Python API for programmatic use (e.g., notebooks).
+    """
+
+    DEFAULT_LOCAL_URL = "http://localhost:9540"
+    API_URL = "https://biocentral.rostlab.org"
+
+    def __init__(self,
+                 api_token: Optional[str] = None,
+                 fixed_server_url: Optional[str] = None,
+                 local_only: bool = False):
+        self.api_token = api_token or ""
+
+        # Candidate URLs: either the provided one or a reasonable local default
+        self._url_health_status: List[Tuple[str, bool]] = []
+        if fixed_server_url:
+            normalized = self._normalize_url(fixed_server_url)
+            if local_only and not self._is_local_url(normalized):
+                raise ValueError("Using local_only=True with a non-local server_url is not allowed")
+            self._url_health_status.append((normalized, False))
+        else:
+            if not local_only:
+                self._url_health_status.append((self.API_URL, False))
+
+            self._url_health_status.append((self.DEFAULT_LOCAL_URL, False))
+
+    def _create_api_client(self) -> ApiClient:
+        """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
+        base_url = self._get_base_url()
+        cfg = Configuration(host=base_url)
+        # Attach API token via default headers if present
+        if self.api_token and self.api_token != "":
+            api_client = ApiClient(cfg, header_name="Authorization", header_value=f"Bearer {self.api_token}")
+        else:
+            api_client = ApiClient(cfg)
+        return api_client
+
+    # ----------------------- URL + Health utilities -----------------------
+    @staticmethod
+    def _normalize_url(url: str) -> str:
+        if not url:
+            return BiocentralAPI.DEFAULT_LOCAL_URL
+        parsed = urllib.parse.urlparse(url if "://" in url else f"http://{url}")
+        # strip trailing slashes
+        netloc = parsed.netloc or parsed.path
+        scheme = parsed.scheme or "http"
+        normalized = f"{scheme}://{netloc}"
+        return normalized.rstrip("/")
+
+    @staticmethod
+    def _is_local_url(url: str) -> bool:
+        return any(h in url for h in ["localhost", "127.0.0.1"])
+
+    def _get_base_url(self) -> str:
+        # Prefer first healthy URL if any, otherwise first candidate
+        for url, healthy in self._url_health_status:
+            if healthy:
+                return url
+        return self._url_health_status[0][0]
+
+    def get_health_status(self) -> Dict[str, bool]:
+        return {url: healthy for (url, healthy) in self._url_health_status}
+
+    def _update_health_status(self, request_timeout: float = 2.0) -> Dict[str, bool]:
+        updated: List[Tuple[str, bool]] = []
+        for (url, _) in self._url_health_status:
+            healthy = self._health_check(url, timeout=request_timeout)
+            updated.append((url, healthy))
+        self._url_health_status = updated
+        return self.get_health_status()
+
+    @staticmethod
+    def _health_check(url: str, timeout: float = 2.0) -> bool:
+        try:
+            configuration = Configuration(host=url)
+            with ApiClient(configuration) as api_client:
+                default_api = DefaultApi(api_client)
+                resp = default_api.health_check_health_get_with_http_info(_request_timeout=timeout)
+                return (resp.status_code or 404) == 200
+        except Exception:
+            return False
+
+    def wait_until_healthy(self, max_wait_seconds: float = 30.0, poll_interval: float = 1.0) -> BiocentralAPI:
+        """Poll the candidate URLs until a healthy one is found or timeout.
+
+        Returns the selected base URL if found; raises TimeoutError otherwise.
+        """
+        deadline = time.time() + max_wait_seconds
+        while time.time() < deadline:
+            status = self._update_health_status()
+            healthy_candidates = [u for u, ok in status.items() if ok]
+            if len(healthy_candidates) > 0:
+                print(f"Found healthy biocentral servers at:")
+                for url in healthy_candidates:
+                    print(f"  {url}")
+                return self
+            time.sleep(poll_interval)
+        raise TimeoutError("No healthy biocentral service became available in time")
 
     def embed(self,
               embedder_name: str,
@@ -38,7 +134,7 @@ class BiocentralAPI:
             raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
 
         embeddings_client = EmbeddingsClient()
-        with ApiClient(self.configuration) as api_client:
+        with self._create_api_client() as api_client:
             biocentral_server_task = embeddings_client.embed(api_client, embedder_name, reduce, sequence_data,
                                                              use_half_precision)
             return biocentral_server_task
@@ -57,7 +153,7 @@ class BiocentralAPI:
             raise ValueError("No taxonomy identifiers provided.")
 
         proteins_client = ProteinsClient()
-        with ApiClient(self.configuration) as api_client:
+        with self._create_api_client() as api_client:
             taxonomy_data = proteins_client.taxonomy(api_client, taxonomy_ids)
             return taxonomy_data
 
@@ -86,7 +182,7 @@ class BiocentralAPI:
             raise ValueError("Training data must be a list.")
 
         custom_models_client = CustomModelsClient()
-        with ApiClient(self.configuration) as api_client:
+        with self._create_api_client() as api_client:
             biocentral_server_task = custom_models_client.train(api_client, config, training_data)
             return biocentral_server_task
 
@@ -111,7 +207,7 @@ class BiocentralAPI:
             raise ValueError("Inference data must be a dictionary.")
 
         custom_models_client = CustomModelsClient()
-        with ApiClient(self.configuration) as api_client:
+        with self._create_api_client() as api_client:
             biocentral_server_task = custom_models_client.inference(api_client, model_hash, inference_data)
             return biocentral_server_task
 
@@ -137,6 +233,6 @@ class BiocentralAPI:
             raise ValueError("Prediction data must be a dictionary.")
 
         predict_client = PredictClient()
-        with ApiClient(self.configuration) as api_client:
+        with self._create_api_client() as api_client:
             biocentral_server_task = predict_client.predict(api_client, model_names, sequence_data)
             return biocentral_server_task

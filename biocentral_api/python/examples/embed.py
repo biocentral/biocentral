@@ -1,6 +1,9 @@
 from biocentral_api import BiocentralAPI
 
-biocentral_api = BiocentralAPI(server_url="http://localhost:9540")
+biocentral_api = BiocentralAPI()
+
+# Optional: Ensure service availability
+biocentral_api = biocentral_api.wait_until_healthy(max_wait_seconds=30)
 
 # OHE
 embedder_name = "one_hot_encoding"
