@@ -55,7 +55,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   }
 
   void _setInitialLogo() {
-    _currentLogoPath = "$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat";
+    _currentLogoPath = '$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat';
   }
 
   void _startLogoAnimation() {
@@ -64,7 +64,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
         setState(() {
           if (widget.state.isOperating()) {
             _currentShownLogo = (_currentShownLogo % _numberAnimatedLogos) + 1;
-            _currentLogoPath = "$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat";
+            _currentLogoPath = '$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat';
           } else {
             _currentLogoPath = fullLogo();
             _shimmer = false;
@@ -76,7 +76,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   }
 
   String fullLogo() {
-    return "$_animatedLogoBaseUrl$_numberAnimatedLogos$_animatedLogoFileFormat";
+    return '$_animatedLogoBaseUrl$_numberAnimatedLogos$_animatedLogoFileFormat';
   }
 
   @override

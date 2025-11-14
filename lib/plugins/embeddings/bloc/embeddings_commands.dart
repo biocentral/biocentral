@@ -44,7 +44,7 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<Map<String, 
         return;
       }
       final embeddingsData = await _pythonCompanion.loadH5File(
-          embeddingsFileBytes, _xFile.name.split('.').firstOrNull ?? 'loaded_embeddings');
+          embeddingsFileBytes, _xFile.name.split('.').firstOrNull ?? 'loaded_embeddings',);
       yield* embeddingsData.match((error) async* {
         yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
       }, (embeddingsMap) async* {
@@ -90,7 +90,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
       required BiocentralPythonCompanion pythonCompanion,
       required EmbeddingType embeddingType,
       required String embedderName,
-      required String biotrainerName})
+      required String biotrainerName,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _apiRepository = apiRepository,
         _biocentralDatabase = biocentralDatabase,
@@ -114,7 +114,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
 
     final biocentralAPI = _apiRepository.getBiocentralAPI();
     final biocentralTask = await biocentralAPI.embed(
-        embedderName: _biotrainerName, sequenceData: sequenceData, reduce: reduce, useHalfPrecision: useHalfPrecision);
+        embedderName: _biotrainerName, sequenceData: sequenceData, reduce: reduce,);
 
     String? embeddingsFile;
     int embeddingCurrent = 0;
@@ -212,7 +212,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
       required Map<String, PerSequenceEmbedding> embeddings,
       required String? embedderName,
       required String projectionMethod,
-      required Map<BiocentralConfigOption, dynamic> projectionConfig})
+      required Map<BiocentralConfigOption, dynamic> projectionConfig,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _apiRepository = apiRepository,
         _biocentralDatabaseRepository = biocentralDatabaseRepository,
@@ -272,7 +272,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<ProjectionData
         method: _projectionMethod,
         config: _projectionConfig.map((k, v) => MapEntry(k.name, v.toString())),
         embedderName: _embedderName!,
-        sequenceData: sequenceData);
+        sequenceData: sequenceData,);
     Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
     await for (final (dto, projectionDataResponse) in biocentralTask.run()) {
       if (projectionDataResponse != null) {

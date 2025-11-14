@@ -1,6 +1,4 @@
-import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
-import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 

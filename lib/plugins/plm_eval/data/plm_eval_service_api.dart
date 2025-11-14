@@ -10,7 +10,7 @@ import 'package:fpdart/fpdart.dart';
 
 
 Either<BiocentralException, (PLMLeaderboard, Map<String, String>)> parseLeaderboardFromResponse(
-    Either<BiocentralException, Map<dynamic, dynamic>> leaderboardResponse) {
+    Either<BiocentralException, Map<dynamic, dynamic>> leaderboardResponse,) {
   return leaderboardResponse.match((l) => left(l), (leaderboardMap) {
     final leaderboardEntries = leaderboardMap['leaderboard'];
     final recommendedMetrics = convertToStringMap(leaderboardMap['recommended_metrics'] ?? {});

@@ -21,7 +21,7 @@ abstract class BiocentralBloc<Event, T extends BiocentralCommandState<T>> extend
     EventHandler<E, T> handler, {
     EventTransformer<E>? transformer,
   }) {
-    wrappedHandler(E event, Emitter<T> emit) async {
+    Future<void> wrappedHandler(E event, Emitter<T> emit) async {
       await handler(event, emit);
       await _setIdleAfterCommandExecution(emit);
     }

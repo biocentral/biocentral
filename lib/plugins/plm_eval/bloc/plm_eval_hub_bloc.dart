@@ -37,7 +37,7 @@ final class PLMEvalHubState extends BiocentralCommandState<PLMEvalHubState> {
   final List<BiocentralCommandLog> resumableCommands;
 
   const PLMEvalHubState(
-      super.stateInformation, super.status, this.sessionResults, this.persistentResults, this.resumableCommands);
+      super.stateInformation, super.status, this.sessionResults, this.persistentResults, this.resumableCommands,);
 
   const PLMEvalHubState.idle()
       : sessionResults = const [],

@@ -149,7 +149,7 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
       // TODO Should type be added here?
       // TODO columnName
       final updatedColumnWizard = await _columnWizardRepository.getColumnWizardForColumn(
-          columnName: state.selectedColumn ?? "", valueMap: result.newColumnValues);
+          columnName: state.selectedColumn ?? '', valueMap: result.newColumnValues,);
 
       final (columnWizardHistory, customBuildFunctions) =
           _addNewColumnWizard(updatedColumnWizard, event.columnWizardOperation);

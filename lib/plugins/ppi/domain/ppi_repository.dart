@@ -65,7 +65,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
 
   @override
   List<SequenceTrainingData> getTrainingData(
-      {required String targetColumn, required String setColumn, String? maskColumn}) {
+      {required String targetColumn, required String setColumn, String? maskColumn,}) {
     throw UnimplementedError(); // TODO [Feature] Enable training for ppis
   }
 

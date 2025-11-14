@@ -1,8 +1,6 @@
 import 'dart:collection';
 
-import 'package:biocentral/plugins/bay_opt/bay_opt_plugin.dart';
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
-import 'package:biocentral/plugins/plm_eval/plm_eval_plugin.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';

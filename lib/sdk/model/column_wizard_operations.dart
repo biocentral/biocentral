@@ -85,7 +85,7 @@ class ColumnWizardRemoveMissingOperation extends ColumnWizardOperation {
   Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     final Set<String> keysWithMissingValues = await columnWizard.getMissingValues();
     final filteredEntries = Map<String, dynamic>.fromEntries(
-        columnWizard.valueMap.entries.where((entry) => !keysWithMissingValues.contains(entry.key)));
+        columnWizard.valueMap.entries.where((entry) => !keysWithMissingValues.contains(entry.key)),);
     return ColumnWizardOperationResult(filteredEntries);
   }
 
@@ -121,7 +121,7 @@ class ColumnWizardRemoveOutliersOperation extends ColumnWizardOperation {
             final lowerBound = mean - 2 * stdDev;
             final upperBound = mean + 2 * stdDev;
             final Map<String, dynamic> filteredValues = Map<String, dynamic>.fromEntries(
-                columnWizard.valueMap.entries.where((entry) => entry.value > lowerBound && entry.value < upperBound));
+                columnWizard.valueMap.entries.where((entry) => entry.value > lowerBound && entry.value < upperBound),);
             return ColumnWizardOperationResult(filteredValues);
           }
         }
@@ -188,7 +188,7 @@ class ColumnWizardCalculateLengthOperation extends ColumnWizardOperation {
   @override
   Future<ColumnWizardOperationResult> operate(ColumnWizard columnWizard) async {
     final Map<String, int> result = Map.fromEntries(
-        columnWizard.valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString().length)));
+        columnWizard.valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString().length)),);
 
     return ColumnWizardOperationResult(result);
   }

@@ -3,14 +3,10 @@ import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
 import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
-import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
-import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
-import 'package:biocentral/sdk/presentation/dialogs/biocentral_dialog.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_entity_type_selection.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConfigDialogBloc, BayOptConfigDialogState> {
   static final List<PredefinedEmbedder> _availableEmbedders = PredefinedEmbedderContainer.predefinedEmbedders();
@@ -182,7 +178,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                           final number = double.tryParse(value);
                           if (number != null) {
                             bloc.add(
-                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMin: number)));
+                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMin: number)),);
                           }
                         },
                       ),
@@ -197,7 +193,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                           final number = double.tryParse(value);
                           if (number != null) {
                             bloc.add(
-                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMax: number)));
+                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMax: number)),);
                           }
                         },
                       ),
@@ -275,7 +271,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                     onChanged: (value) {
                       if (value != null) {
                         bloc.add(
-                            BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedEmbedder: value)));
+                            BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedEmbedder: value)),);
                       }
                     },
                   ),
@@ -333,7 +329,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
 
   @override
   Widget buildRunButton(
-      BayOptConfigDialogBloc bloc, BayOptConfigDialogState state, void Function({Function()? callback}) closeDialog) {
+      BayOptConfigDialogBloc bloc, BayOptConfigDialogState state, void Function({Function()? callback}) closeDialog,) {
     if (state.config.canStartTraining) {
       return BiocentralSmallButton(
         onTap: state.config.canStartTraining

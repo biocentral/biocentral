@@ -6,7 +6,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 
-import '../data/plm_eval_service_api.dart';
+import 'package:biocentral/plugins/plm_eval/data/plm_eval_service_api.dart';
 
 sealed class PLMEvalEvaluationEvent {}
 

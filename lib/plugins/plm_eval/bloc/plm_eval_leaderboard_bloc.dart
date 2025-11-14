@@ -98,7 +98,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
           state.remoteLeaderboard,
           localLeaderboard,
           PLMLeaderboard.mixed(
-              remote: state.remoteLeaderboard, local: localLeaderboard, recommendedMetrics: state.recommendedMetrics),
+              remote: state.remoteLeaderboard, local: localLeaderboard, recommendedMetrics: state.recommendedMetrics,),
           state.recommendedMetrics,
         ),
       );
@@ -116,7 +116,7 @@ class PLMEvalLeaderboardBloc extends Bloc<PLMEvalLeaderboardEvent, PLMEvalLeader
             remoteLeaderboard.$1,
             state.localLeaderboard,
             PLMLeaderboard.mixed(
-                remote: remoteLeaderboard.$1, local: state.localLeaderboard, recommendedMetrics: remoteLeaderboard.$2),
+                remote: remoteLeaderboard.$1, local: state.localLeaderboard, recommendedMetrics: remoteLeaderboard.$2,),
             remoteLeaderboard.$2,
           ),
         ),

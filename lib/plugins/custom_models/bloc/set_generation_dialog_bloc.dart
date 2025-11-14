@@ -165,7 +165,6 @@ final class SetGenerationDialogState extends BiocentralCommandState<SetGeneratio
     }
     if (mode != null && method != null) {
       splitRatio ??= SplitRatio.defaultForMode(mode!);
-      ;
     }
     return SetGenerationDialogState(
       stateInformation,
@@ -195,7 +194,7 @@ final class SetGenerationDialogState extends BiocentralCommandState<SetGeneratio
         subsplitSource,
         subsplitTarget,
         method,
-        splitRatio
+        splitRatio,
       ];
 
   Set<SplitSet> get availableSplitSetsForSelection => availableSourceSets[selectedSetColumn] ?? {};
@@ -303,7 +302,7 @@ class SetGenerationDialogBloc extends BiocentralBloc<SetGenerationDialogEvent, S
           Map.fromEntries(
             state.selectedSetColumn!.values.entries
                 .where((entry) =>
-                    entry.value.toString() != subsplitSource.name && entry.value.toString() != subsplitTarget.name)
+                    entry.value.toString() != subsplitSource.name && entry.value.toString() != subsplitTarget.name,)
                 .map(
                   (entry) => MapEntry(
                     entry.key,

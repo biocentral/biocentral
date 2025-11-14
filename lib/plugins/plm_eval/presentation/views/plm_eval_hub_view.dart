@@ -33,8 +33,8 @@ class _PLMEvalHubViewState extends State<PLMEvalHubView> with AutomaticKeepAlive
                     labelColor: Theme.of(context).colorScheme.onSurface,
                     unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     tabs: [
-                      Tab(icon: Icon(Icons.fact_check_outlined), text: 'Evaluations'),
-                      Tab(icon: Icon(Icons.sports_score), text: 'Leaderboard'),
+                      const Tab(icon: Icon(Icons.fact_check_outlined), text: 'Evaluations'),
+                      const Tab(icon: Icon(Icons.sports_score), text: 'Leaderboard'),
                     ],
                   ),
                 ),

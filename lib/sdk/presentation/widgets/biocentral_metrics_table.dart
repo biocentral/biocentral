@@ -252,7 +252,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
       cells.add(_buildCell(
         prominentMetric.value.isNaN ? 'N/A' : prominentMetric.value.toStringAsPrecision(Constants.maxDoublePrecision),
         estimate: prominentMetric.uncertaintyEstimate,
-      ));
+      ),);
 
       if (_isExpanded) {
         cells.addAll(allMetricNames.where((m) => m != _prominentMetric).map((metricName) {
@@ -264,7 +264,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
             metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
             estimate: metric.uncertaintyEstimate,
           );
-        }));
+        }),);
       } else {
         cells.add(_buildCell('')); // Empty cell for collapsed state
       }
@@ -278,7 +278,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
           metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
           estimate: metric.uncertaintyEstimate,
         );
-      }));
+      }),);
     }
 
     return TableRow(children: cells);

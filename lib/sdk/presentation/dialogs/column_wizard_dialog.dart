@@ -20,7 +20,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
   String newColumnName = '';
 
   void onCalculate(
-      ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state, ColumnWizardOperation operation) {
+      ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state, ColumnWizardOperation operation,) {
     if (state.columnWizard != null) {
       columnWizardDialogBloc.add(ColumnWizardCalculateEvent(operation));
     }
@@ -97,7 +97,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                  decoration: BoxDecoration(border: Border.all()),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -107,7 +107,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
                         ...(operation?.getConfigMap() ?? {}).entries.map((entry) => Text(
                               '${entry.key.capitalize()}: ${entry.value}',
                               style: Theme.of(context).textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
-                            )),
+                            ),),
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.arrow_downward, color: Colors.white),

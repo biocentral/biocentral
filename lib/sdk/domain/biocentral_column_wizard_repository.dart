@@ -9,7 +9,7 @@ class BiocentralColumnWizardRepository {
 
   BiocentralColumnWizardRepository.withDefaultWizards() {
     registerFactories(
-        {IntColumnWizardFactory(): null, DoubleColumnWizardFactory(): null, StringColumnWizardFactory(): null});
+        {IntColumnWizardFactory(): null, DoubleColumnWizardFactory(): null, StringColumnWizardFactory(): null},);
   }
 
   void registerFactories(Map<ColumnWizardFactory, Widget Function(ColumnWizard)?> factoriesToBuildFunctions) {

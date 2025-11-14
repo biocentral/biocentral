@@ -21,5 +21,5 @@ class BiocentralPluginDirectory {
       {required this.path,
       required this.saveType,
       required this.commandBlocType,
-      required this.createDirectoryLoadingEvents});
+      required this.createDirectoryLoadingEvents,});
 }

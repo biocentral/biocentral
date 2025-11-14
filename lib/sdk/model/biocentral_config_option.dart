@@ -27,7 +27,7 @@ class BiocentralConfigOption {
       required this.defaultValue,
       this.category,
       this.description,
-      this.constraints});
+      this.constraints,});
 
   BiocentralConfigOption.fromMap(Map<String, dynamic> map)
       : name = map['name'],

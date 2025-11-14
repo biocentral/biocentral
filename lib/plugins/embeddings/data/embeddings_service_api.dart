@@ -7,7 +7,7 @@ import 'package:fpdart/fpdart.dart';
 
 class ProtspaceConfigHandler {
   static Either<BiocentralParsingException, Map<String, List<BiocentralConfigOption>>> fromMap(
-      Map<dynamic, dynamic> map) {
+      Map<dynamic, dynamic> map,) {
     final Map<String, List<BiocentralConfigOption>> result = {};
     for (final entry in map.entries) {
       final method = entry.key.toString();
@@ -15,7 +15,7 @@ class ProtspaceConfigHandler {
       if (methodOptions is! List) {
         return left(
           BiocentralParsingException(
-              message: 'Could not parse projection config: Method options for $method are not valid!'),
+              message: 'Could not parse projection config: Method options for $method are not valid!',),
         );
       }
       result[method] = methodOptions.map((methodOption) => BiocentralConfigOption.fromMap(methodOption)).toList();
@@ -67,7 +67,7 @@ class ProtspaceFileHandler {
       }
 
       final projectionData = ProjectionData(projName, ids, coords);
-      result[projectionData] = List.generate(ids.length, (i) => {"id": ids[i]});
+      result[projectionData] = List.generate(ids.length, (i) => {'id': ids[i]});
     }
     return result;
   }
@@ -108,7 +108,7 @@ class ProtspaceFileHandler {
         }
 
         data.add({
-          'identifier': pointValues[i]["id"] ?? projection.pointIDs?[i],
+          'identifier': pointValues[i]['id'] ?? projection.pointIDs?[i],
           'coordinates': coordMap,
         });
       }
@@ -133,7 +133,7 @@ class ProtspaceFileHandler {
         'data': {
           'protein_data': protspaceMap['protein_data'],
           'projections': protspaceMap['projections'],
-        }
+        },
       },
     };
     final jsonData = jsonEncode(body);

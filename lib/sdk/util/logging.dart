@@ -1,5 +1,4 @@
 // https://stackoverflow.com/questions/70145480/dart-singleton-with-parameters-global-app-logger
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';

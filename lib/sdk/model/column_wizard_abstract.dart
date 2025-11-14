@@ -5,8 +5,6 @@ import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:collection/collection.dart';
 import 'package:ml_linalg/vector.dart';
 
-import 'package:biocentral/sdk/util/constants.dart';
-import 'package:biocentral/sdk/model/column_wizard_operations.dart';
 
 abstract class ColumnWizardFactory<T extends ColumnWizard> {
   T create({required String columnName, required Map<String, dynamic> valueMap});

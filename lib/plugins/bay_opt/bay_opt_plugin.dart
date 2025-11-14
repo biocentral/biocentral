@@ -59,7 +59,7 @@ class BayOptPlugin extends BiocentralPlugin
 
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       bayOptHubBloc.add(BayOptHubLoadEvent());
-    }));
+    }),);
 
     return {
       BlocProvider<BayOptHubBloc>.value(
@@ -117,7 +117,7 @@ class BayOptPlugin extends BiocentralPlugin
           }
           return loadingFunctions;
         },
-      )
+      ),
     ];
   }
 }

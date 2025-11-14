@@ -189,13 +189,13 @@ class _PLMSelectionDialogState extends State<PLMSelectionDialog> with Biocentral
           onTap: () => plmSelectionDialogBloc.add(
             PLMSelectionDialogValidateONNXEvent(onnxFile: _onnxFile),
           ),
-        )
+        ),
       ],
     );
   }
 
   Widget buildTasksInformation(PLMSelectionDialogBloc plmSelectionDialogBloc, PLMSelectionDialogState state,
-      List<PLMEvalTaskInformation> tasks) {
+      List<PLMEvalTaskInformation> tasks,) {
     if (tasks.isEmpty) {
       return Container();
     }
