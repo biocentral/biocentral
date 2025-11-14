@@ -10,9 +10,9 @@ def convert_config(config_dict: dict):
         import ast
 
         try:
-            return ast.literal_eval(v)
+            return ast.literal_eval(str(v))
         except Exception:
-            if v.lower() in ["true", "false"]:
+            if str(v).lower() in ["true", "false"]:
                 return str2bool(v)
             return v
 
