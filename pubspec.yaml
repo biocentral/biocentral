@@ -12,6 +12,7 @@ dependencies:
   async: ^2.11.0
   auto_size_text: ^3.0.0
   bio_flutter: ^0.0.9
+  biocentral_api: ^1.0.0
   bloc: ^8.1.3
   bloc_effects: ^1.0.4
   collection: ^1.18.0
