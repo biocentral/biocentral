@@ -1,8 +1,6 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/api.dart' as gen;
-import 'package:biocentral_api/src/api/proteins_api.dart' as endpoints;
 import 'package:biocentral_api/src/model/taxonomy_request.dart';
-import 'package:biocentral_api/src/model/taxonomy_response.dart';
 import 'package:biocentral_api/src/model/taxonomy_item.dart';
 
 class ProteinsClient {

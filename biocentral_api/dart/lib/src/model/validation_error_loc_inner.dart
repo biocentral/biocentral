@@ -36,9 +36,7 @@ class _$ValidationErrorLocInnerSerializer implements PrimitiveSerializer<Validat
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ValidationErrorLocInner object, {
-    FullType specifiedType = FullType.unspecified,
-  }) sync* {
+    ValidationErrorLocInner object) sync* {
   }
 
   @override

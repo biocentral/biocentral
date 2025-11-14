@@ -1,7 +1,4 @@
-import 'package:biocentral_api/src/model/bayesian_optimization_request.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/api.dart' as gen;
-import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/prediction.dart';

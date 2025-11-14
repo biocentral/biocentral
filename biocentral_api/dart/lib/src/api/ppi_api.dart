@@ -9,15 +9,11 @@ import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
 import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
-import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/detected_format_response.dart';
-import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/import_dataset_request.dart';
 import 'package:biocentral_api/src/model/import_dataset_response.dart';
-import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
-import 'package:built_value/json_object.dart';
 
 class PpiApi {
 
