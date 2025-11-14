@@ -1,6 +1,6 @@
 # biocentral_server
 
-Heavy compute functionality for biocentral. Provided via a dockerized FastAPI server.
+Compute functionality for biocentral. Provided via a dockerized FastAPI server.
 
 ## Features and modules
 
