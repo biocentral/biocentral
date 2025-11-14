@@ -5,6 +5,7 @@ import 'package:biocentral_api/src/api/biocentral_api.dart' as endpoints;
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/task_status_response.dart';
+import 'package:dio/dio.dart';
 
 import 'dto_handler.dart';
 
@@ -59,6 +60,13 @@ class BiocentralServerTask<T> {
       } catch (err) {
         // ignore transient errors and continue polling
         print(err);
+        if(err is DioException) {
+          print(err.response);
+          final detail = err.response?.data["detail"];
+          if (detail != null) {
+            print(detail);
+          }
+        }
       }
       await Future.delayed(pollInterval);
     }
