@@ -13,7 +13,7 @@ class BiocentralStartPageView extends StatefulWidget {
   final EventBus eventBus;
 
   const BiocentralStartPageView(
-      {required this.providers, required this.pluginManager, required this.eventBus, super.key});
+      {required this.providers, required this.pluginManager, required this.eventBus, super.key,});
 
   @override
   State<BiocentralStartPageView> createState() => _BiocentralStartPageViewState();

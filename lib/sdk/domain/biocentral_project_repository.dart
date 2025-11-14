@@ -256,7 +256,7 @@ class BiocentralProjectRepository {
     // TODO Handle web and errors
     outDirectoryName ??= 'extracted';
 
-    final outFile = "$_projectDir$outDirectoryName";
+    final outFile = '$_projectDir$outDirectoryName';
     Future<void> extractionFunction(_) => extractFileToDisk(archiveFilePath, outFile);
     await compute(extractionFunction, []);
 

@@ -1,6 +1,4 @@
-import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_commands.dart';
-import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/ppi_database_test.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -102,7 +100,7 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
       emit(state.setOperating(information: 'Saving interactions to file..'));
 
       final saveEither = await _biocentralProjectRepository.handleExternalSave(
-          fileName: 'interactions.fasta', contentFunction: () => _ppiRepository.convertToString('fasta'));
+          fileName: 'interactions.fasta', contentFunction: () => _ppiRepository.convertToString('fasta'),);
       saveEither.match(
         (l) => emit(state.setErrored(information: 'Error saving interactions!')),
         (r) => emit(state.setFinished(information: 'Finished saving interactions to file!')),

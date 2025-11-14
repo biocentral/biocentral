@@ -57,13 +57,13 @@ class ProteinPlugin extends BiocentralPlugin
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
       proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
       proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
-    }));
+    }),);
 
     eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
       }
-    }));
+    }),);
 
     return {
       BlocProvider<ProteinsCommandBloc>.value(value: proteinCommandBloc): proteinCommandBloc,
@@ -122,7 +122,7 @@ class ProteinPlugin extends BiocentralPlugin
           }
           return loadingFunctions;
         },
-      )
+      ),
     ];
   }
 }

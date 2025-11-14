@@ -18,7 +18,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
   TrainBiotrainerModelCommand(
       {required BiocentralProjectRepository biocentralProjectRepository, required BiocentralAPIRepository apiRepository, required BiocentralDatabase biocentralDatabase, required CustomModelRepository predictionModelRepository, required Map<
           String,
-          String> trainingConfiguration})
+          String> trainingConfiguration,})
       : _biocentralProjectRepository = biocentralProjectRepository,
         _apiRepository = apiRepository,
         _biocentralDatabase = biocentralDatabase,
@@ -55,7 +55,7 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
 
   @override
   Stream<Either<T, PredictionModel>> resumeExecution<T extends BiocentralCommandState<T>>(String taskID,
-      T state) async* {
+      T state,) async* {
     // TODO Resuming needs to be changed
     // yield left(state.setOperating(information: 'Trying to resume training..'));
     // final initialModel = _getInitialModel();
@@ -140,7 +140,7 @@ final class BiotrainerInferenceCommand extends BiocentralCommand<Map<String, dyn
   BiotrainerInferenceCommand({required BiocentralDatabase biocentralDatabase,
     required BiocentralAPIRepository apiRepository,
     required PredictionModel predictionModel,
-    required Set<String> selectedEntityIDs})
+    required Set<String> selectedEntityIDs,})
       : _biocentralDatabase = biocentralDatabase,
         _apiRepository = apiRepository,
         _predictionModel = predictionModel,
@@ -151,7 +151,7 @@ final class BiotrainerInferenceCommand extends BiocentralCommand<Map<String, dyn
     yield left(state.setOperating(information: 'Inferencing from trained model..'));
 
     final Map<String, String> sequenceData = _biocentralDatabase.getSequences()?.filterWithKey((k, v) =>
-        _selectedEntityIDs.contains(k)) ?? {};
+        _selectedEntityIDs.contains(k),) ?? {};
 
     if (sequenceData.isEmpty) {
       yield left(

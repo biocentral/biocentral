@@ -67,7 +67,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   Map<String, String>? getSequences();
 
   List<SequenceTrainingData> getTrainingData(
-      {required String targetColumn, required String setColumn, String? maskColumn});
+      {required String targetColumn, required String setColumn, String? maskColumn,});
 
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode);
 
@@ -137,7 +137,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
       final Map<String, dynamic> columnValues = allColumns[column] ?? {};
 
-      bool isTrainable = columnValues.length < numberOfEntries ||
+      final bool isTrainable = columnValues.length < numberOfEntries ||
           columnValues.values.any((value) {
             return value == null || value.toString() == '' || value.toString() == 'Unknown';
           });
@@ -146,8 +146,8 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
       if (binaryTypes == null && numericTypes == null) return true;
 
-      bool isColumnBinary = isBinary(columnValues);
-      bool isColumnNumeric = isNumeric(columnValues);
+      final bool isColumnBinary = isBinary(columnValues);
+      final bool isColumnNumeric = isNumeric(columnValues);
 
       if (binaryTypes == true && isColumnBinary) return true;
       if (numericTypes == true && isColumnNumeric) return true;

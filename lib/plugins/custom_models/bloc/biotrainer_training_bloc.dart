@@ -115,7 +115,7 @@ class BiotrainerTrainingBloc extends BiocentralBloc<BiotrainerTrainingEvent, Bio
         );
         await trainBiotrainerModelCommand
             .resumeWithLogging<BiotrainerTrainingState>(
-                _biocentralProjectRepository, resumableCommand.metaData.startTime, taskID, state)
+                _biocentralProjectRepository, resumableCommand.metaData.startTime, taskID, state,)
             .forEach((either) {
           either.match((l) => emit(l), (r) {
             updateDatabases();

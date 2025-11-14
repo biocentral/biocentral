@@ -108,7 +108,7 @@ class BiotrainerTrainingResult implements Comparable<BiotrainerTrainingResult> {
       sanityCheckWarnings: sanityCheckWarnings ?? Set.from(this.sanityCheckWarnings),
       baselineMetrics: sanityCheckBaselineMetrics ??
           Map.fromEntries(
-            this.baselineMetrics.entries.map((entry) => MapEntry(entry.key, Set.from(entry.value))),
+            baselineMetrics.entries.map((entry) => MapEntry(entry.key, Set.from(entry.value))),
           ),
       trainingLogs: trainingLogs ?? List.from(this.trainingLogs),
       trainingStatus: trainingStatus ?? this.trainingStatus,

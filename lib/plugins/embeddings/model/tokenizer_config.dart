@@ -19,7 +19,7 @@ class TokenizerConfig {
       required this.vocab,
       required this.charactersToReplace,
       required this.replacementCharacter,
-      required this.usesWhitespaces});
+      required this.usesWhitespaces,});
 
   factory TokenizerConfig.defaultConfig() {
     final defaultStringConstraints = BiocentralConfigConstraints(typeConstraint: String);
@@ -122,7 +122,7 @@ class TokenizerConfig {
       'W',
       'X',
       'Y',
-      'Z'
+      'Z',
     ];
   }
 

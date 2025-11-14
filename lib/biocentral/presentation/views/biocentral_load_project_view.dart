@@ -12,7 +12,7 @@ class BiocentralLoadProjectView extends StatefulWidget {
   final EventBus eventBus;
 
   const BiocentralLoadProjectView(
-      {required this.providers, required this.pluginManager, required this.eventBus, super.key});
+      {required this.providers, required this.pluginManager, required this.eventBus, super.key,});
 
   @override
   State<BiocentralLoadProjectView> createState() => _BiocentralLoadProjectViewState();
@@ -60,7 +60,7 @@ class _BiocentralLoadProjectViewState extends State<BiocentralLoadProjectView> {
                   SizedBox(
                       width: SizeConfig.screenWidth(context) * 0.2,
                       height: SizeConfig.screenHeight(context) * 0.2,
-                      child: BiocentralStatusIndicator(state: state, center: true,)),
+                      child: BiocentralStatusIndicator(state: state, center: true,),),
                 ],
               ),
             ],

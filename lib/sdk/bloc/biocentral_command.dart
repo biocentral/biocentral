@@ -134,7 +134,7 @@ final class BiocentralCommandLog<R> {
         resultData = BiocentralCommandResultData.fromResult(result);
 
   BiocentralCommandLog._internal(
-      this.commandName, this.commandConfig, this.commandStatus, this.metaData, this.resultData);
+      this.commandName, this.commandConfig, this.commandStatus, this.metaData, this.resultData,);
 
   factory BiocentralCommandLog.fromJsonMap(Map<String, dynamic> jsonMap) {
     final commandName = jsonMap['commandName'];
@@ -150,13 +150,13 @@ final class BiocentralCommandLog<R> {
     final resultDataReconstructed = BiocentralCommandResultData.fromJsonMap(resultData);
 
     return BiocentralCommandLog._internal(
-        commandName, commandConfig, commandStatus, metaDataReconstructed, resultDataReconstructed);
+        commandName, commandConfig, commandStatus, metaDataReconstructed, resultDataReconstructed,);
   }
 
   BiocentralCommandLog addTaskID(String taskID) {
     final updatedMetaData = metaData.addTaskID(taskID);
     return BiocentralCommandLog._internal(
-        commandName, commandConfig, commandStatus, updatedMetaData, resultData);
+        commandName, commandConfig, commandStatus, updatedMetaData, resultData,);
   }
 
   Map<String, dynamic> toMap() {
@@ -184,7 +184,7 @@ final class BiocentralCommandMetaData {
     final endTime = jsonMap['endTime'] ?? '';
     final serverTaskID = jsonMap['serverTaskID'] ?? '';
     return BiocentralCommandMetaData(
-        startTime: DateTime.parse(startTime), endTime: DateTime.tryParse(endTime), serverTaskID: serverTaskID);
+        startTime: DateTime.parse(startTime), endTime: DateTime.tryParse(endTime), serverTaskID: serverTaskID,);
   }
 
   BiocentralCommandMetaData addTaskID(String taskID) {

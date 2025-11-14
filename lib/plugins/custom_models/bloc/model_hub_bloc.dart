@@ -123,7 +123,7 @@ class ModelHubBloc extends Bloc<ModelHubEvent, ModelHubState> {
           .where((commandLog) =>
               commandLog.commandName == 'TrainBiotrainerModelCommand' &&
               commandLog.commandStatus == BiocentralCommandStatus.operating &&
-              commandLog.metaData.serverTaskID != null)
+              commandLog.metaData.serverTaskID != null,)
           .toList();
 
       emit(

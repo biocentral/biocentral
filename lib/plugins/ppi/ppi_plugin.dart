@@ -4,7 +4,6 @@ import 'package:biocentral/plugins/ppi/bloc/ppi_command_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_database_grid_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_database_tests_bloc.dart';
 import 'package:biocentral/plugins/ppi/bloc/ppi_properties_bloc.dart';
-import 'package:biocentral/plugins/ppi/data/ppi_client.dart';
 import 'package:biocentral/plugins/ppi/domain/ppi_repository.dart';
 import 'package:biocentral/plugins/ppi/model/load_example_ppi_dataset_tutorial.dart';
 import 'package:biocentral/plugins/ppi/presentation/views/ppi_command_view.dart';
@@ -87,13 +86,13 @@ class PpiPlugin extends BiocentralPlugin
       ppiPropertiesBloc.add(PPIPropertiesCalculateEvent());
       ppiDatabaseTestsBloc.add(PPIDatabaseTestsLoadTestsEvent());
       ppiColumnWizardBloc.add(ColumnWizardLoadEvent());
-    }));
+    }),);
 
     eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
       if (event.switchedTab == getTab()) {
         ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
       }
-    }));
+    }),);
 
     return {
       BlocProvider<PPICommandBloc>.value(value: ppiCommandBloc): ppiCommandBloc,
@@ -126,7 +125,7 @@ class PpiPlugin extends BiocentralPlugin
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('proteinproteininteraction.') && scannedFile.extension == 'fasta') {
               void loadingFunction() => commandBloc
-                  ?.add(PPICommandLoadFromFileEvent(xFile: scannedFile, importMode: DatabaseImportMode.overwrite));
+                  ?.add(PPICommandLoadFromFileEvent(xFile: scannedFile));
               loadingFunctions.add(loadingFunction);
             }
           }

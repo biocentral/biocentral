@@ -20,13 +20,13 @@ class ColumnWizardOperationDisplayFactory {
         );
       case ColumnOperationType.removeOutliers:
         return ColumnWizardRemoveOutliersOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
       case ColumnOperationType.clamp:
         return ColumnWizardClampOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
       case ColumnOperationType.calculateLength:
         return ColumnWizardCalculateLengthOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback);
+            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
       case ColumnOperationType.shuffle:
         return ColumnWizardShuffleOperationDisplay(
           selectedColumnName: selectedColumnName,

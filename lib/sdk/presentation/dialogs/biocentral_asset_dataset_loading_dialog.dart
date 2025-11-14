@@ -43,7 +43,7 @@ class BiocentralAssetDatasetLoadingDialogState extends State<BiocentralAssetData
 
       closeDialog(
         callback: () => widget.loadDatasetCallback(
-            LoadedFileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite),
+            LoadedFileData(content: fileContent, name: '', extension: ''), DatabaseImportMode.overwrite,),
       );
     }
   }

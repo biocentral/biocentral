@@ -27,7 +27,7 @@ class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrap
       required String modelID,
       required XFile? onnxFile,
       required Map<String, dynamic>? tokenizerConfig,
-      required List<PLMEvalTaskInformation> tasks})
+      required List<PLMEvalTaskInformation> tasks,})
       : _projectRepository = projectRepository,
         _apiRepository = apiRepository,
         _plmEvalRepository = plmEvalRepository,
@@ -60,7 +60,7 @@ class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrap
   }
 
   Stream<Either<T, AutoEvalProgressWrapper>> doEvaluation<T extends BiocentralCommandState<T>>(
-      BiocentralServerTask<Map<String, dynamic>?> task, T state, AutoEvalProgressWrapper initialProgress) async* {
+      BiocentralServerTask<Map<String, dynamic>?> task, T state, AutoEvalProgressWrapper initialProgress,) async* {
     state = state
         .setOperating(information: 'Running evaluation of $_modelID..')
         .copyWith(copyMap: {'modelID': _modelID, 'autoEvalProgress': initialProgress});
@@ -120,7 +120,7 @@ class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrap
 
   @override
   Stream<Either<T, AutoEvalProgressWrapper>> resumeExecution<T extends BiocentralCommandState<T>>(
-      String taskID, T state) async* {
+      String taskID, T state,) async* {
     // TODO Refactoring Resume
     //yield left(state.setOperating(information: 'Trying to resume evaluation..'));
 //
@@ -146,7 +146,7 @@ class PLMEvalLoadPersistentResultCommand extends BiocentralCommand<PLMEvalPersis
   PLMEvalLoadPersistentResultCommand(
       {required BiocentralProjectRepository projectRepository,
       required PLMEvalRepository plmEvalRepository,
-      required XFile persistentResultFile})
+      required XFile persistentResultFile,})
       : _projectRepository = projectRepository,
         _plmEvalRepository = plmEvalRepository,
         _persistentResultFile = persistentResultFile;

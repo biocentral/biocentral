@@ -7,11 +7,9 @@ class NestedTooltipWidget extends StatefulWidget {
   final TextStyle? textStyle;
 
   const NestedTooltipWidget({
-    Key? key,
-    required this.text,
-    required this.tooltipData,
+    required this.text, required this.tooltipData, super.key,
     this.textStyle,
-  }) : super(key: key);
+  });
 
   @override
   State<NestedTooltipWidget> createState() => _NestedTooltipWidgetState();
@@ -45,7 +43,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
   }
 
   void _showTooltip(BuildContext context, String key, Offset globalPosition,
-      Map<String, NestedTooltipData> tooltipData) {
+      Map<String, NestedTooltipData> tooltipData,) {
     final tooltipInfo = tooltipData[key];
     if (tooltipInfo == null) return;
 
@@ -123,7 +121,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
         spans.add(TextSpan(
           text: content.substring(lastIndex, match.start),
           style: const TextStyle(color: Colors.white),
-        ));
+        ),);
       }
 
       // Add the clickable tooltip text
@@ -141,7 +139,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
             final position = renderBox.localToGlobal(Offset.zero);
             _showTooltip(context, key, position, nestedData);
           },
-      ));
+      ),);
 
       lastIndex = match.end;
     }
@@ -151,7 +149,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
       spans.add(TextSpan(
         text: content.substring(lastIndex),
         style: const TextStyle(color: Colors.white),
-      ));
+      ),);
     }
 
     return RichText(
@@ -170,7 +168,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
         spans.add(TextSpan(
           text: widget.text.substring(lastIndex, match.start),
           style: widget.textStyle,
-        ));
+        ),);
       }
 
       // Add the clickable tooltip text
@@ -188,7 +186,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
             final position = renderBox.localToGlobal(Offset.zero);
             _showTooltip(context, key, position, widget.tooltipData);
           },
-      ));
+      ),);
 
       lastIndex = match.end;
     }
@@ -198,7 +196,7 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
       spans.add(TextSpan(
         text: widget.text.substring(lastIndex),
         style: widget.textStyle,
-      ));
+      ),);
     }
 
     return CompositedTransformTarget(

@@ -62,7 +62,7 @@ final class _ClientSandbox {
     } catch (e, stackTrace) {
       return left(
         BiocentralNetworkException(
-          message: "Error for GET Request at $url$endpoint",
+          message: 'Error for GET Request at $url$endpoint',
           error: e,
           stackTrace: stackTrace,
         ),
@@ -83,7 +83,7 @@ final class _ClientSandbox {
     } catch (e, stackTrace) {
       return left(
         BiocentralNetworkException(
-          message: "Error for POST Request at $url$endpoint",
+          message: 'Error for POST Request at $url$endpoint',
           error: e,
           stackTrace: stackTrace,
         ),

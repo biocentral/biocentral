@@ -34,7 +34,7 @@ final class EmbeddingsCommandCalculateProjectionsEvent extends EmbeddingsCommand
   final DatabaseImportMode importMode;
 
   EmbeddingsCommandCalculateProjectionsEvent(
-      this.embedderName, this.embeddings, this.importMode, this.projectionMethod, this.projectionConfig);
+      this.embedderName, this.embeddings, this.importMode, this.projectionMethod, this.projectionConfig,);
 }
 
 @immutable

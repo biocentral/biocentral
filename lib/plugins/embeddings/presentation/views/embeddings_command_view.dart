@@ -75,7 +75,7 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
                 Map<String, PerSequenceEmbedding> embeddings,
                 String projectionMethod,
                 Map<BiocentralConfigOption, dynamic> projectionConfig,
-                DatabaseImportMode importMode) {
+                DatabaseImportMode importMode,) {
               embeddingsCommandBloc.add(
                 EmbeddingsCommandCalculateProjectionsEvent(
                   embedderName,
