@@ -1,8 +1,31 @@
 services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "2019:2019"  # Admin API for local dev
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./assets:/var/www/assets:ro
+    environment:
+      - API_BACKEND_URL=biocentral-server:9540
+    depends_on:
+      biocentral-server:
+        condition: service_healthy
+    networks:
+      - biocentral-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   biocentral-server:
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
-    ports:
-      - "9540:9540"
+    # Port 9540 exposed internally for Caddy, not externally
+    expose:
+      - "9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - autoeval_storage:/app/autoeval
@@ -241,7 +264,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${FILES_DATA_DIR}
+      device: ${FILES_DATA_DIR:-./storage/seaweedfs}
   temp_server_storage:
     driver: local
     driver_opts:

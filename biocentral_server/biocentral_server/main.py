@@ -69,6 +69,7 @@ def create_app() -> FastAPI:
         description="API for biocentral services",
         version="1.0.0",
         lifespan=lifespan,
+        root_path="/api/v1",  # Tells FastAPI it's behind /api/v1 prefix for correct URL generation in /docs and /openapi.json
     )
 
     # Add middleware
@@ -87,16 +88,16 @@ def create_app() -> FastAPI:
     app.add_middleware(BodySizeLimitMiddleware)
 
     # Include module routers
-    prefix = "/api/v1"
-    app.include_router(biocentral_router, prefix=prefix)
-    app.include_router(embeddings_router, prefix=prefix)
-    app.include_router(projection_router, prefix=prefix)
-    app.include_router(bay_opt_router, prefix=prefix)
-    app.include_router(plm_eval_router, prefix=prefix)
-    app.include_router(ppi_router, prefix=prefix)
-    app.include_router(predict_router, prefix=prefix)
-    app.include_router(custom_models_router, prefix=prefix)
-    app.include_router(proteins_router, prefix=prefix)
+    # No prefix needed - Reverse proxy strips /api/v1, FastAPI operates at root level
+    app.include_router(biocentral_router)
+    app.include_router(embeddings_router)
+    app.include_router(projection_router)
+    app.include_router(bay_opt_router)
+    app.include_router(plm_eval_router)
+    app.include_router(ppi_router)
+    app.include_router(predict_router)
+    app.include_router(custom_models_router)
+    app.include_router(proteins_router)
 
     # Health check
     @app.get("/health")

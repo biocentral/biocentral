@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biocentral Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .links {
+            list-style: none;
+        }
+        
+        .links li {
+            margin-bottom: 12px;
+        }
+        
+        .links a {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .links a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+        }
+        
+        .info p {
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Biocentral Server</h1>
+        <p class="subtitle">Bioinformatics API Server</p>
+        
+        <div class="section">
+            <h2>API Documentation</h2>
+            <p>The API documentation is available below.</p>
+            <ul class="links">
+                <li>
+                    <a href="/api/v1/docs" target="_blank">Interactive API Documentation</a>
+                </li>
+                <li>
+                    <a href="/api/v1/openapi.json" target="_blank">OpenAPI Schema (JSON)</a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Frontend Application</h2>
+            <p>The Biocentral Frontend is currently under development. The current beta version is available below.
+            The final version will be avaialble here as soon as it is ready.</p>
+            </p>
+            <ul class="links">
+                <li>
+                    <a href="https://app.biocentral.cloud" id="frontend-link">Biocentral Frontend <span class="badge">Work in Progress</span></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <p><strong>API Base URL:</strong> <code>/api/v1</code></p>
+            <p><strong>Health Check:</strong> <code>/health</code></p>
+        </div>
+    </div>
+    
+</body>
+</html>
+
