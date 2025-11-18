@@ -1,6 +1,4 @@
 {
-   
-    admin localhost:2019
     auto_https off
 }
 
@@ -44,4 +42,3 @@
         Referrer-Policy "strict-origin-when-cross-origin"
     }
 }
-
