@@ -2,7 +2,7 @@ services:
   caddy:
     image: caddy:2-alpine
     ports:
-      - "80:80"
+      - "9999:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./assets:/var/www/assets:ro
