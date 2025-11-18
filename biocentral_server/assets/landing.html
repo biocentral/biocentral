@@ -20,7 +20,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 80px 20px 20px 20px;
         }
         
         .container {
@@ -103,9 +103,32 @@
             font-weight: 600;
             margin-left: 8px;
         }
+        
+        .info-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff3cd;
+            border-bottom: 2px solid #ffc107;
+            padding: 12px 20px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-bar p {
+            color: #856404;
+            font-size: 0.95em;
+            margin: 0;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
+    <div class="info-bar">
+        <p><strong>Note:</strong> This serves as a temporary entrypoint for the API. The frontend is under development and not the main focus of the current publication.</p>
+    </div>
     <div class="container">
         <h1>Biocentral Server</h1>
         <p class="subtitle">Bioinformatics API Server</p>
