@@ -7,6 +7,7 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - autoeval_storage:/app/autoeval
+      - assets_data:/app/assets
     environment:
       - MAX_FILE_SIZE=${MAX_FILE_SIZE}
       - POSTGRES_HOST=embeddings-db
@@ -15,6 +16,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
       - AUTOEVAL_DATA_DIR=/app/autoeval
+      - ASSETS_DIR=/app/assets
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
       - USE_TRITON=true
@@ -51,6 +53,7 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - autoeval_storage:/app/autoeval
+      - assets_data:/app/assets
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
@@ -58,6 +61,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
       - AUTOEVAL_DATA_DIR=/app/autoeval
+      - ASSETS_DIR=/app/assets
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
       - USE_TRITON=true
@@ -273,6 +277,12 @@ volumes:
       type: none
       o: bind
       device: ${PROMETHEUS_DATA_DIR:-./storage/monitoring}
+  assets_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ASSETS_DIR:-./assets}
 networks:
   biocentral-network:
     driver: bridge

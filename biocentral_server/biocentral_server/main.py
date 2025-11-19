@@ -1,13 +1,14 @@
 import os
 
+from pathlib import Path
 from fastapi import FastAPI
 from redis.asyncio import Redis
+from fastapi.responses import Response, HTMLResponse
 from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from fastapi.responses import Response
 
 from .predict import PredictInitializer
 from .server_management import (
@@ -69,7 +70,6 @@ def create_app() -> FastAPI:
         description="API for biocentral services",
         version="1.0.0",
         lifespan=lifespan,
-        root_path="/api/v1",  # Tells FastAPI it's behind /api/v1 prefix for correct URL generation in /docs and /openapi.json
     )
 
     # Add middleware
@@ -88,21 +88,34 @@ def create_app() -> FastAPI:
     app.add_middleware(BodySizeLimitMiddleware)
 
     # Include module routers
-    # No prefix needed - Reverse proxy strips /api/v1, FastAPI operates at root level
-    app.include_router(biocentral_router)
-    app.include_router(embeddings_router)
-    app.include_router(projection_router)
-    app.include_router(bay_opt_router)
-    app.include_router(plm_eval_router)
-    app.include_router(ppi_router)
-    app.include_router(predict_router)
-    app.include_router(custom_models_router)
-    app.include_router(proteins_router)
+    prefix = "/api/v1"
+    app.include_router(biocentral_router, prefix=prefix)
+    app.include_router(embeddings_router, prefix=prefix)
+    app.include_router(projection_router, prefix=prefix)
+    app.include_router(bay_opt_router, prefix=prefix)
+    app.include_router(plm_eval_router, prefix=prefix)
+    app.include_router(ppi_router, prefix=prefix)
+    app.include_router(predict_router, prefix=prefix)
+    app.include_router(custom_models_router, prefix=prefix)
+    app.include_router(proteins_router, prefix=prefix)
 
     # Health check
     @app.get("/health")
     async def health_check():
         return {"status": "healthy"}
+
+    # Landing page
+    assets_dir = Path(os.environ.get("ASSETS_DIR", "assets/"))
+    landing_file_content = None
+    with open(assets_dir / "landing.html", "r") as landing_file:
+        landing_file_content = landing_file.read()
+
+    if landing_file_content is None or len(landing_file_content) == 0:
+        raise Exception("Landing page file not found or is empty!")
+
+    @app.get("/", include_in_schema=False)
+    async def landing_page():
+        return HTMLResponse(content=landing_file_content)
 
     # Prometheus metrics
     instrumentator = Instrumentator(
