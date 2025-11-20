@@ -1,9 +1,8 @@
 services:
   biocentral-server:
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
-    # Port 9540 exposed internally for Caddy, not externally
-    expose:
-      - "9540"
+    ports:
+      - "9540:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - autoeval_storage:/app/autoeval
