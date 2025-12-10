@@ -66,10 +66,14 @@ class BiocentralAPI:
 
     def _get_base_url(self) -> str:
         # Prefer first healthy URL if any, otherwise first candidate
+        base_url = self._url_health_status[0][0]
         for url, healthy in self._url_health_status:
-            if healthy:
+            if self._is_local_url(url) and healthy:
+                # Always prefer local URLs over remote ones
                 return url
-        return self._url_health_status[0][0]
+            if healthy:
+                base_url = url
+        return base_url
 
     def get_health_status(self) -> Dict[str, bool]:
         return {url: healthy for (url, healthy) in self._url_health_status}
