@@ -1,4 +1,4 @@
-from .bayesian_optimization_endpoint import router
+from .al_endpoint import router
 
 
 __all__ = [

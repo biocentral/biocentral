@@ -44,9 +44,11 @@ class GPClassificationModel(gpytorch.models.ExactGP):
 
 
 def train_gp_classification_model(
-    train_set: dict, lr: float = 0.3, epoch: int = 140, device: str = "cpu"
+    train_set: dict,
+    lr: float = 0.3,
+    epoch: int = 140,
+    device: torch.device = torch.device("cpu"),
 ):
-    device = torch.device(device)
     logger.info(f"Training on device: {device}")
     likelihood = DirichletClassificationLikelihood(
         train_set["y"], learn_additional_noise=True
@@ -89,9 +91,11 @@ def train_gp_classification_model(
 
 
 def train_gp_regression_model(
-    train_set: dict, lr: float = 0.3, epoch: int = 400, device: str = "cpu"
+    train_set: dict,
+    lr: float = 0.3,
+    epoch: int = 400,
+    device: torch.device = torch.device("cpu"),
 ):
-    device = torch.device(device)
     logger.info(f"Training on device: {device}")
     likelihood = GaussianLikelihood().to(device=device)
     model = GPRegressionModel(train_set["X"], train_set["y"], likelihood).to(
