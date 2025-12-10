@@ -6,7 +6,12 @@ from .shared_endpoint_models import (
 )
 from .monitoring import MetricsCollector
 from .custom_middleware import BodySizeLimitMiddleware
-from .shared_endpoint_models import Prediction, MutationPrediction
+from .shared_endpoint_models import (
+    Prediction,
+    MutationPrediction,
+    ActiveLearningResult,
+    ActiveLearningIterationResult,
+)
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
@@ -56,4 +61,6 @@ __all__ = [
     "MutationPrediction",
     "BodySizeLimitMiddleware",
     "MetricsCollector",
+    "ActiveLearningResult",
+    "ActiveLearningIterationResult",
 ]

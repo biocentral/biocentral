@@ -1,6 +1,7 @@
 from .response_models import StartTaskResponse
-from .error_models import ErrorResponse, NotFoundErrorResponse
 from .prediction_model import Prediction, MutationPrediction
+from .error_models import ErrorResponse, NotFoundErrorResponse
+from .al_result import ActiveLearningIterationResult, ActiveLearningResult
 
 __all__ = [
     "StartTaskResponse",
@@ -8,4 +9,6 @@ __all__ = [
     "NotFoundErrorResponse",
     "Prediction",
     "MutationPrediction",
+    "ActiveLearningResult",
+    "ActiveLearningIterationResult",
 ]

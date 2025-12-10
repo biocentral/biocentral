@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List, Optional
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 
 from ..custom_models import SequenceTrainingData
 
@@ -99,6 +99,14 @@ class ActiveLearningIterationConfig(BaseModel):
     def get_all_labels(self):
         return set([data_point.label for data_point in self.iteration_data])
 
+    @field_validator("iteration_data")
+    @classmethod
+    def validate_iteration_data(cls, v: List[SequenceTrainingData]):
+        iteration_ids = [data_point.seq_id for data_point in v]
+        if len(iteration_ids) != len(set(iteration_ids)):
+            raise ValueError("iteration_data contains duplicate entries!")
+        return v
+
 
 class ActiveLearningSimulationConfig(BaseModel):
     """Configuration for a simulation of active learning on a complete dataset"""
@@ -106,9 +114,17 @@ class ActiveLearningSimulationConfig(BaseModel):
     simulation_data: List[SequenceTrainingData] = Field(
         description="List of all sequence data for the simulation", min_length=2
     )
-    n_start: int = Field(
-        description="Number of initial sequences to use for training", ge=1
+    n_start: Optional[int] = Field(
+        default=None,
+        description="Number of initial sequences to use for training (chosen at random)",
+        ge=1,
     )
+    start_ids: Optional[List[str]] = Field(
+        default=None,
+        description="List of sequence IDs to start the simulated campaign",
+        min_length=1,
+    )
+
     n_suggestions_per_iteration: int = Field(
         description="Number of suggestions to propose per iteration", ge=1
     )
@@ -121,3 +137,40 @@ class ActiveLearningSimulationConfig(BaseModel):
         ge=0.0,
         le=1.0,
     )
+    n_max_iterations: int = Field(
+        description="Maximum number of iterations to run the simulation", ge=1
+    )
+
+    @field_validator("simulation_data")
+    @classmethod
+    def validate_simulation_data(cls, v: List[SequenceTrainingData]):
+        simulation_ids = []
+        for seq_data in v:
+            label = seq_data.label
+            if label is None or label == "None" or label == "":
+                raise ValueError(
+                    "All sequence data must have a label for an active learning simulation!"
+                )
+            simulation_ids.append(seq_data.seq_id)
+        if len(simulation_ids) != len(set(simulation_ids)):
+            raise ValueError("simulation_data contains duplicate entries!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_start_data(self):
+        if self.n_start is not None and self.start_ids is not None:
+            raise ValueError("Cannot specify both n_start and start_ids")
+        if self.n_start:
+            if len(self.simulation_data) < self.n_start:
+                raise ValueError(f"Not enough sequence data for n_start={self.n_start}")
+        if self.start_ids:
+            start_ids_unique = set(self.start_ids)
+            if len(start_ids_unique) != len(self.start_ids):
+                raise ValueError("start_ids contains duplicate entries!")
+
+            simulation_ids = set(
+                [data_point.seq_id for data_point in self.simulation_data]
+            )
+            if not start_ids_unique.issubset(simulation_ids):
+                raise ValueError("start_ids not a subset of simulation_data ids!")
+        return self

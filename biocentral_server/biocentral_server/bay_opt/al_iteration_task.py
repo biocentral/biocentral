@@ -30,15 +30,17 @@ class ActiveLearningIterationTask(TaskInterface):
             "embeddings is None after pre-embedding before active learning iteration!"
         )
 
-        results, suggestions = al_pipeline(
+        al_iteration_result = al_pipeline(
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=self.al_iteration_config,
             embeddings=embeddings,
         )
 
-        logger.info(f"AL - Suggestions: {suggestions}")
+        logger.info(f"AL - Suggestions: {al_iteration_result.suggestions}")
 
-        return TaskDTO(status=TaskStatus.FINISHED, bay_opt_results=results)
+        return TaskDTO(
+            status=TaskStatus.FINISHED, al_iteration_result=al_iteration_result
+        )
 
     def _pre_embed_with_db(
         self,

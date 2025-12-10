@@ -11,7 +11,7 @@ from typing import Any, Dict, Callable, Generator, Optional, List
 
 from .task_utils import run_subtask_util
 
-from ..shared_endpoint_models import Prediction
+from ..shared_endpoint_models import Prediction, ActiveLearningIterationResult
 
 
 class TaskStatus(str, Enum):
@@ -54,8 +54,8 @@ class TaskDTO(BaseModel):
     embedder_name: Optional[str] = None
     autoeval_progress: Optional[AutoEvalProgress] = None
 
-    # bay_opt
-    bay_opt_results: Optional[List] = None
+    # active_learning
+    al_iteration_result: Optional[ActiveLearningIterationResult] = None
 
 
 class TaskInterface(ABC):

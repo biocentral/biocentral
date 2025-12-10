@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from typing import List, Tuple
+from typing import List
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.utilities import get_device
 
@@ -17,6 +17,7 @@ from .gaussian_process_models import (
 )
 
 from ..utils import get_logger
+from ..server_management import ActiveLearningResult, ActiveLearningIterationResult
 
 logger = get_logger(__name__)
 
@@ -61,7 +62,12 @@ def get_datasets(
             train_data["y"].append(target)
         else:  # Inference Set
             inference_data["ids"].append(embd_record.seq_id)
-            inference_data["X"].append(torch.tensor(embd_record.embedding))
+            embedding = (
+                embd_record.embedding
+                if isinstance(embd_record.embedding, torch.Tensor)
+                else torch.tensor(embd_record.embedding)
+            )
+            inference_data["X"].append(embedding)
 
     if train_data["X"]:
         train_data["X"] = torch.stack(train_data["X"]).float()
@@ -224,7 +230,7 @@ def al_pipeline(
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
     embeddings: List[BiotrainerSequenceRecord],
-) -> Tuple[List, List]:
+) -> ActiveLearningIterationResult:
     train_data, inference_data, embd_records = data_prep(
         al_campaign_config=al_campaign_config,
         al_iteration_config=al_iteration_config,
@@ -248,25 +254,23 @@ def al_pipeline(
             al_campaign_config=al_campaign_config,
             al_iteration_config=al_iteration_config,
         )
-    # ranking
-    results = []
+
+    # Gather results
+    results: List[ActiveLearningResult] = []
     for idx in range(len(inference_data["ids"])):
         sid = inference_data["ids"][idx]
-        score = scores[idx].item()
         mean = means[idx].item()
         uncertainty = uncertainties[idx].item()
-        results.append(
-            {
-                "id": sid,
-                "mean": mean,
-                "uncertainty": uncertainty,
-                "score": score,
-            }
+        score = scores[idx].item()
+        al_result = ActiveLearningResult(
+            entity_id=sid, prediction=mean, uncertainty=uncertainty, score=score
         )
-    results.sort(key=lambda x: x["score"], reverse=True)
+        results.append(al_result)
 
+    # Sort results by score and create suggestions
+    results.sort(key=lambda al_r: al_r.score, reverse=True)
     suggestions = [
-        result["id"] for result in results[: al_iteration_config.n_suggestions]
+        result.entity_id for result in results[: al_iteration_config.n_suggestions]
     ]
 
-    return results, suggestions
+    return ActiveLearningIterationResult(results=results, suggestions=suggestions)
