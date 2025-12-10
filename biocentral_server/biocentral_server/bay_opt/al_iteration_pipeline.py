@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import torch
 
-from enum import Enum
 from typing import List, Tuple
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.utilities import get_device
@@ -20,15 +19,6 @@ from .gaussian_process_models import (
 from ..utils import get_logger
 
 logger = get_logger(__name__)
-
-
-class ActiveLearningModelType(str, Enum):
-    GAUSSIAN_PROCESS = "GAUSSIAN_PROCESS"
-    FNN_MCD = "FNN_MCD"
-
-    @staticmethod
-    def from_string(status: str) -> ActiveLearningModelType:
-        return ActiveLearningModelType(status.upper())
 
 
 def get_datasets(

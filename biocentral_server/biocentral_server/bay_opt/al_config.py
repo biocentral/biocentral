@@ -4,8 +4,16 @@ from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Field, model_validator
 
-from .botraining import ActiveLearningModelType
 from ..custom_models import SequenceTrainingData
+
+
+class ActiveLearningModelType(str, Enum):
+    GAUSSIAN_PROCESS = "GAUSSIAN_PROCESS"
+    FNN_MCD = "FNN_MCD"
+
+    @staticmethod
+    def from_string(status: str) -> ActiveLearningModelType:
+        return ActiveLearningModelType(status.upper())
 
 
 class ActiveLearningOptimizationMode(str, Enum):

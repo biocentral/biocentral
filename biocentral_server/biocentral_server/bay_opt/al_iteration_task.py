@@ -2,8 +2,8 @@ from biotrainer.utilities import get_device
 from typing import Callable, Tuple, List, Optional
 from biotrainer.input_files import BiotrainerSequenceRecord
 
+from .al_iteration_pipeline import al_pipeline
 from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
-from .botraining import al_pipeline
 
 from ..utils import get_logger
 from ..embeddings import LoadEmbeddingsTask
