@@ -17,28 +17,26 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
-from typing_extensions import Annotated
+from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType
+from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode
 from typing import Optional, Set
 from typing_extensions import Self
 
-class BayesianOptimizationRequest(BaseModel):
+class ActiveLearningCampaignConfig(BaseModel):
     """
-    Request model for Bayesian optimization training
+    Configuration for an active learning campaign
     """ # noqa: E501
-    database_hash: StrictStr = Field(description="Hash identifier for the training database")
-    model_type: StrictStr = Field(description="Type of model to use")
-    coefficient: Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Coefficient value (must be non-negative)")
+    name: StrictStr = Field(description="Name of the active learning campaign")
+    model_type: ActiveLearningModelType = Field(description="Type of model to use")
     embedder_name: StrictStr = Field(description="Name of embedder to use")
-    discrete: StrictBool = Field(description="Whether to perform discrete optimization or continuous optimization")
-    optimization_mode: StrictStr = Field(description="Optimization mode selection")
+    optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     target_lb: Optional[Union[StrictFloat, StrictInt]] = None
     target_ub: Optional[Union[StrictFloat, StrictInt]] = None
     target_value: Optional[Union[StrictFloat, StrictInt]] = None
-    discrete_labels: Optional[List[StrictStr]]
-    discrete_targets: Optional[List[StrictStr]]
-    __properties: ClassVar[List[str]] = ["database_hash", "model_type", "coefficient", "embedder_name", "discrete", "optimization_mode", "target_lb", "target_ub", "target_value", "discrete_labels", "discrete_targets"]
+    discrete_targets: Optional[List[StrictStr]] = None
+    __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "target_lb", "target_ub", "target_value", "discrete_targets"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -58,7 +56,7 @@ class BayesianOptimizationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of BayesianOptimizationRequest from a JSON string"""
+        """Create an instance of ActiveLearningCampaignConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -94,11 +92,6 @@ class BayesianOptimizationRequest(BaseModel):
         if self.target_value is None and "target_value" in self.model_fields_set:
             _dict['target_value'] = None
 
-        # set to None if discrete_labels (nullable) is None
-        # and model_fields_set contains the field
-        if self.discrete_labels is None and "discrete_labels" in self.model_fields_set:
-            _dict['discrete_labels'] = None
-
         # set to None if discrete_targets (nullable) is None
         # and model_fields_set contains the field
         if self.discrete_targets is None and "discrete_targets" in self.model_fields_set:
@@ -108,7 +101,7 @@ class BayesianOptimizationRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of BayesianOptimizationRequest from a dict"""
+        """Create an instance of ActiveLearningCampaignConfig from a dict"""
         if obj is None:
             return None
 
@@ -116,16 +109,13 @@ class BayesianOptimizationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "database_hash": obj.get("database_hash"),
+            "name": obj.get("name"),
             "model_type": obj.get("model_type"),
-            "coefficient": obj.get("coefficient"),
             "embedder_name": obj.get("embedder_name"),
-            "discrete": obj.get("discrete"),
             "optimization_mode": obj.get("optimization_mode"),
             "target_lb": obj.get("target_lb"),
             "target_ub": obj.get("target_ub"),
             "target_value": obj.get("target_value"),
-            "discrete_labels": obj.get("discrete_labels"),
             "discrete_targets": obj.get("discrete_targets")
         })
         return _obj

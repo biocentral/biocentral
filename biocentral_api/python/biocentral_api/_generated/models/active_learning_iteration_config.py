@@ -17,31 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from biocentral_server_api._generated.models.discrete_labels import DiscreteLabels
-from biocentral_server_api._generated.models.discrete_targets import DiscreteTargets
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List, Union
+from typing_extensions import Annotated
+from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
 from typing import Optional, Set
 from typing_extensions import Self
 
-class DiscreteOptimizationConfig(BaseModel):
+class ActiveLearningIterationConfig(BaseModel):
     """
-    Configuration for discrete optimization
+    Configuration for a single iteration of active learning
     """ # noqa: E501
-    discrete: Optional[StrictBool] = True
-    discrete_labels: DiscreteLabels
-    discrete_targets: DiscreteTargets
-    __properties: ClassVar[List[str]] = ["discrete", "discrete_labels", "discrete_targets"]
-
-    @field_validator('discrete')
-    def discrete_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['true']):
-            raise ValueError("must be one of enum values ('true')")
-        return value
+    iteration_data: Annotated[List[SequenceTrainingData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
+    coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration Coefficient value (must be between 0 and 1, 1 is maximum exploration)")
+    n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
+    __properties: ClassVar[List[str]] = ["iteration_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -61,7 +51,7 @@ class DiscreteOptimizationConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of DiscreteOptimizationConfig from a JSON string"""
+        """Create an instance of ActiveLearningIterationConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -82,17 +72,18 @@ class DiscreteOptimizationConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of discrete_labels
-        if self.discrete_labels:
-            _dict['discrete_labels'] = self.discrete_labels.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of discrete_targets
-        if self.discrete_targets:
-            _dict['discrete_targets'] = self.discrete_targets.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in iteration_data (list)
+        _items = []
+        if self.iteration_data:
+            for _item_iteration_data in self.iteration_data:
+                if _item_iteration_data:
+                    _items.append(_item_iteration_data.to_dict())
+            _dict['iteration_data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of DiscreteOptimizationConfig from a dict"""
+        """Create an instance of ActiveLearningIterationConfig from a dict"""
         if obj is None:
             return None
 
@@ -100,9 +91,9 @@ class DiscreteOptimizationConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "discrete": obj.get("discrete") if obj.get("discrete") is not None else True,
-            "discrete_labels": DiscreteLabels.from_dict(obj["discrete_labels"]) if obj.get("discrete_labels") is not None else None,
-            "discrete_targets": DiscreteTargets.from_dict(obj["discrete_targets"]) if obj.get("discrete_targets") is not None else None
+            "iteration_data": [SequenceTrainingData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
+            "coefficient": obj.get("coefficient"),
+            "n_suggestions": obj.get("n_suggestions")
         })
         return _obj
 

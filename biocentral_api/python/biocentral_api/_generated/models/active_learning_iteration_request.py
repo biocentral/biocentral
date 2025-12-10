@@ -17,19 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig
+from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
-class TransferFileRequest(BaseModel):
+class ActiveLearningIterationRequest(BaseModel):
     """
-    TransferFileRequest
+    Request model for an active learning iteration
     """ # noqa: E501
-    hash: StrictStr
-    file_type: StrictStr
-    file: StrictStr
-    __properties: ClassVar[List[str]] = ["hash", "file_type", "file"]
+    campaign_config: ActiveLearningCampaignConfig = Field(description="Campaign configuration")
+    iteration_config: ActiveLearningIterationConfig = Field(description="Iteration configuration")
+    __properties: ClassVar[List[str]] = ["campaign_config", "iteration_config"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +50,7 @@ class TransferFileRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of TransferFileRequest from a JSON string"""
+        """Create an instance of ActiveLearningIterationRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,11 +71,17 @@ class TransferFileRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of campaign_config
+        if self.campaign_config:
+            _dict['campaign_config'] = self.campaign_config.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of iteration_config
+        if self.iteration_config:
+            _dict['iteration_config'] = self.iteration_config.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of TransferFileRequest from a dict"""
+        """Create an instance of ActiveLearningIterationRequest from a dict"""
         if obj is None:
             return None
 
@@ -82,9 +89,8 @@ class TransferFileRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "hash": obj.get("hash"),
-            "file_type": obj.get("file_type"),
-            "file": obj.get("file")
+            "campaign_config": ActiveLearningCampaignConfig.from_dict(obj["campaign_config"]) if obj.get("campaign_config") is not None else None,
+            "iteration_config": ActiveLearningIterationConfig.from_dict(obj["iteration_config"]) if obj.get("iteration_config") is not None else None
         })
         return _obj
 

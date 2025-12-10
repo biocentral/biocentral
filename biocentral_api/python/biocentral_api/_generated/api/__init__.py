@@ -1,7 +1,7 @@
 # flake8: noqa
 
 # import apis into api package
-from biocentral_api._generated.api.bayesian_optimization_api import BayesianOptimizationApi
+from biocentral_api._generated.api.active_learning_api import ActiveLearningApi
 from biocentral_api._generated.api.biocentral_api import BiocentralApi
 from biocentral_api._generated.api.custom_models_api import CustomModelsApi
 from biocentral_api._generated.api.default_api import DefaultApi

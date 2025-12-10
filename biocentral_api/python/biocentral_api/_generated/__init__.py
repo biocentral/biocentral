@@ -18,7 +18,7 @@ __version__ = "1.0.0"
 
 # Define package exports
 __all__ = [
-    "BayesianOptimizationApi",
+    "ActiveLearningApi",
     "BiocentralApi",
     "CustomModelsApi",
     "DefaultApi",
@@ -37,11 +37,15 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
+    "ActiveLearningCampaignConfig",
+    "ActiveLearningIterationConfig",
+    "ActiveLearningIterationRequest",
+    "ActiveLearningModelType",
+    "ActiveLearningOptimizationMode",
     "AddEmbeddingsRequest",
     "AddEmbeddingsResponse",
     "AutoDetectFormatRequest",
     "AutoEvalProgress",
-    "BayesianOptimizationRequest",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
     "BiotrainerSequenceRecord",
@@ -89,7 +93,7 @@ __all__ = [
 ]
 
 # import apis into sdk package
-from biocentral_api._generated.api.bayesian_optimization_api import BayesianOptimizationApi as BayesianOptimizationApi
+from biocentral_api._generated.api.active_learning_api import ActiveLearningApi as ActiveLearningApi
 from biocentral_api._generated.api.biocentral_api import BiocentralApi as BiocentralApi
 from biocentral_api._generated.api.custom_models_api import CustomModelsApi as CustomModelsApi
 from biocentral_api._generated.api.default_api import DefaultApi as DefaultApi
@@ -112,11 +116,15 @@ from biocentral_api._generated.exceptions import ApiAttributeError as ApiAttribu
 from biocentral_api._generated.exceptions import ApiException as ApiException
 
 # import models into sdk package
+from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig as ActiveLearningCampaignConfig
+from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig as ActiveLearningIterationConfig
+from biocentral_api._generated.models.active_learning_iteration_request import ActiveLearningIterationRequest as ActiveLearningIterationRequest
+from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType as ActiveLearningModelType
+from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode as ActiveLearningOptimizationMode
 from biocentral_api._generated.models.add_embeddings_request import AddEmbeddingsRequest as AddEmbeddingsRequest
 from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
 from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest
 from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress as AutoEvalProgress
-from biocentral_api._generated.models.bayesian_optimization_request import BayesianOptimizationRequest as BayesianOptimizationRequest
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord as BiotrainerSequenceRecord
