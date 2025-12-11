@@ -25,6 +25,7 @@ biocentral_api/_generated/models/active_learning_optimization_mode.py
 biocentral_api/_generated/models/active_learning_result.py
 biocentral_api/_generated/models/active_learning_simulation_config.py
 biocentral_api/_generated/models/active_learning_simulation_request.py
+biocentral_api/_generated/models/active_learning_simulation_result.py
 biocentral_api/_generated/models/add_embeddings_request.py
 biocentral_api/_generated/models/add_embeddings_response.py
 biocentral_api/_generated/models/auto_detect_format_request.py
@@ -85,6 +86,7 @@ docs/ActiveLearningOptimizationMode.md
 docs/ActiveLearningResult.md
 docs/ActiveLearningSimulationConfig.md
 docs/ActiveLearningSimulationRequest.md
+docs/ActiveLearningSimulationResult.md
 docs/AddEmbeddingsRequest.md
 docs/AddEmbeddingsResponse.md
 docs/AutoDetectFormatRequest.md
@@ -143,5 +145,4 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
-test/test_active_learning_simulation_config.py
-test/test_active_learning_simulation_request.py
+test/test_active_learning_simulation_result.py

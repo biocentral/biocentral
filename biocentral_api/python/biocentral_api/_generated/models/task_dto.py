@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
+from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult
 from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord
 from biocentral_api._generated.models.output_data import OutputData
@@ -46,7 +47,8 @@ class TaskDTO(BaseModel):
     embedder_name: Optional[StrictStr] = None
     autoeval_progress: Optional[AutoEvalProgress] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_current", "embedding_total", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "al_iteration_result"]
+    al_simulation_result: Optional[ActiveLearningSimulationResult] = None
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_current", "embedding_total", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -112,6 +114,9 @@ class TaskDTO(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of al_iteration_result
         if self.al_iteration_result:
             _dict['al_iteration_result'] = self.al_iteration_result.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of al_simulation_result
+        if self.al_simulation_result:
+            _dict['al_simulation_result'] = self.al_simulation_result.to_dict()
         # set to None if error (nullable) is None
         # and model_fields_set contains the field
         if self.error is None and "error" in self.model_fields_set:
@@ -177,6 +182,11 @@ class TaskDTO(BaseModel):
         if self.al_iteration_result is None and "al_iteration_result" in self.model_fields_set:
             _dict['al_iteration_result'] = None
 
+        # set to None if al_simulation_result (nullable) is None
+        # and model_fields_set contains the field
+        if self.al_simulation_result is None and "al_simulation_result" in self.model_fields_set:
+            _dict['al_simulation_result'] = None
+
         return _dict
 
     @classmethod
@@ -209,7 +219,8 @@ class TaskDTO(BaseModel):
             "projection_result": obj.get("projection_result"),
             "embedder_name": obj.get("embedder_name"),
             "autoeval_progress": AutoEvalProgress.from_dict(obj["autoeval_progress"]) if obj.get("autoeval_progress") is not None else None,
-            "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None
+            "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
+            "al_simulation_result": ActiveLearningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
         })
         return _obj
 

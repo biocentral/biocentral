@@ -46,6 +46,7 @@ __all__ = [
     "ActiveLearningResult",
     "ActiveLearningSimulationConfig",
     "ActiveLearningSimulationRequest",
+    "ActiveLearningSimulationResult",
     "AddEmbeddingsRequest",
     "AddEmbeddingsResponse",
     "AutoDetectFormatRequest",
@@ -129,6 +130,7 @@ from biocentral_api._generated.models.active_learning_optimization_mode import A
 from biocentral_api._generated.models.active_learning_result import ActiveLearningResult as ActiveLearningResult
 from biocentral_api._generated.models.active_learning_simulation_config import ActiveLearningSimulationConfig as ActiveLearningSimulationConfig
 from biocentral_api._generated.models.active_learning_simulation_request import ActiveLearningSimulationRequest as ActiveLearningSimulationRequest
+from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult as ActiveLearningSimulationResult
 from biocentral_api._generated.models.add_embeddings_request import AddEmbeddingsRequest as AddEmbeddingsRequest
 from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
 from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest

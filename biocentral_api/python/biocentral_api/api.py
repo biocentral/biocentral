@@ -8,7 +8,7 @@ from typing import Optional, List, Dict, Any, Tuple
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
-    ActiveLearningSimulationConfig
+    ActiveLearningSimulationConfig, ActiveLearningSimulationResult
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
     ActiveLearningClient
 
@@ -256,8 +256,8 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def al_simulation(self, campaign_config: ActiveLearningCampaignConfig,
-                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[List[
-        ActiveLearningIterationResult]]:
+                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[
+        ActiveLearningSimulationResult]:
         if len(simulation_config.simulation_data) < 2:
             raise ValueError("Not enough data provided for an active learning simulation.")
 
