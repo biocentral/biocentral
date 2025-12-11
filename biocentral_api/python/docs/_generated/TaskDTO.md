@@ -18,7 +18,7 @@ Name | Type | Description | Notes
 **projection_result** | **Dict[str, object]** |  | [optional] 
 **embedder_name** | **str** |  | [optional] 
 **autoeval_progress** | [**AutoEvalProgress**](AutoEvalProgress.md) |  | [optional] 
-**bay_opt_results** | **List[object]** |  | [optional] 
+**al_iteration_result** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 
 ## Example
 

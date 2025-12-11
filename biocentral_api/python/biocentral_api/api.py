@@ -6,8 +6,11 @@ import numpy as np
 
 from typing import Optional, List, Dict, Any, Tuple
 
-from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi
-from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient
+from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
+    ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
+    ActiveLearningSimulationConfig
+from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
+    ActiveLearningClient
 
 
 class BiocentralAPI:
@@ -239,4 +242,27 @@ class BiocentralAPI:
         predict_client = PredictClient()
         with self._create_api_client() as api_client:
             biocentral_server_task = predict_client.predict(api_client, model_names, sequence_data)
+            return biocentral_server_task
+
+    def al_iteration(self, campaign_config: ActiveLearningCampaignConfig,
+                     iteration_config: ActiveLearningIterationConfig) -> BiocentralServerTask[
+        ActiveLearningIterationResult]:
+        if len(iteration_config.iteration_data) < 2:
+            raise ValueError("Not enough data provided for an active learning iteration.")
+
+        active_learning_client = ActiveLearningClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = active_learning_client.al_iteration(api_client, campaign_config, iteration_config)
+            return biocentral_server_task
+
+    def al_simulation(self, campaign_config: ActiveLearningCampaignConfig,
+                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[List[
+        ActiveLearningIterationResult]]:
+        if len(simulation_config.simulation_data) < 2:
+            raise ValueError("Not enough data provided for an active learning simulation.")
+
+        active_learning_client = ActiveLearningClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = active_learning_client.al_simulation(api_client, campaign_config,
+                                                                          simulation_config)
             return biocentral_server_task
