@@ -11,6 +11,7 @@ from .shared_endpoint_models import (
     MutationPrediction,
     ActiveLearningResult,
     ActiveLearningIterationResult,
+    ActiveLearningSimulationResult,
 )
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
@@ -63,4 +64,5 @@ __all__ = [
     "MetricsCollector",
     "ActiveLearningResult",
     "ActiveLearningIterationResult",
+    "ActiveLearningSimulationResult",
 ]

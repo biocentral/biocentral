@@ -4,6 +4,7 @@ from .al_config import (
     ActiveLearningCampaignConfig,
     ActiveLearningIterationConfig,
     ActiveLearningOptimizationMode,
+    ActiveLearningSimulationConfig,
 )
 
 
@@ -49,3 +50,14 @@ class ActiveLearningIterationRequest(BaseModel):
                 )
 
         return self
+
+
+class ActiveLearningSimulationRequest(BaseModel):
+    """Request model for an active learning simulation"""
+
+    campaign_config: ActiveLearningCampaignConfig = Field(
+        description="Campaign configuration"
+    )
+    simulation_config: ActiveLearningSimulationConfig = Field(
+        description="Simulation configuration"
+    )

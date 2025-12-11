@@ -1,5 +1,7 @@
 import random
 import numpy as np
+import torch
+import torchmetrics
 
 from biotrainer.utilities import get_device
 from typing import Callable, Tuple, List, Optional
@@ -21,12 +23,13 @@ from ..server_management import (
     TaskDTO,
     TaskStatus,
     ActiveLearningIterationResult,
+    ActiveLearningSimulationResult,
 )
 
 logger = get_logger(__name__)
 
 
-class ActiveLearningIterationTask(TaskInterface):
+class ActiveLearningSimulationTask(TaskInterface):
     def __init__(
         self,
         al_campaign_config: ActiveLearningCampaignConfig,
@@ -35,19 +38,31 @@ class ActiveLearningIterationTask(TaskInterface):
         super().__init__()
         self.al_campaign_config = al_campaign_config
         self.al_simulation_config = al_simulation_config
+        self.all_simulation_data_dict = {
+            data_point.seq_id: data_point
+            for data_point in self.al_simulation_config.simulation_data
+        }
+        self.al_simulation_result = ActiveLearningSimulationResult(
+            campaign_name=self.al_campaign_config.name
+        )
 
-    def _get_start_data(self):
+    def _get_start_data(self) -> Tuple[List[SequenceTrainingData], int]:
+        start_ids_set: set[str]
         if self.al_simulation_config.start_ids:
             start_ids_set = set(self.al_simulation_config.start_ids)
-            return [
-                data_point
-                for data_point in self.al_simulation_config.simulation_data
-                if data_point.id in start_ids_set
-            ]
-        random_instance = random.Random(42)
-        return random_instance.sample(
-            self.al_simulation_config.simulation_data, self.al_simulation_config.n_start
-        )
+        else:
+            random_instance = random.Random(42)
+            random_sample = random_instance.sample(
+                self.al_simulation_config.simulation_data,
+                self.al_simulation_config.n_start,
+            )
+            start_ids_set = set([data_point.seq_id for data_point in random_sample])
+        return [
+            data_point
+            if data_point.seq_id in start_ids_set
+            else data_point.delete_label()
+            for data_point in self.al_simulation_config.simulation_data
+        ], len(start_ids_set)
 
     def _run_single_iteration(
         self,
@@ -67,8 +82,9 @@ class ActiveLearningIterationTask(TaskInterface):
         )
         return al_iteration_result
 
-    def _check_convergence(self, al_iteration_result: ActiveLearningIterationResult):
-        convergence_criterion = self.al_simulation_config.convergence_criterion
+    def _calculate_convergence(
+        self, al_iteration_result: ActiveLearningIterationResult
+    ) -> float:
         min_max_percentile = 0.05  # TODO Make this configurable
         target_delta = 0.5  # TODO Make this configurable
         all_labels = [
@@ -92,10 +108,7 @@ class ActiveLearningIterationTask(TaskInterface):
                     for sugg_label in suggestion_labels_float
                     if sugg_label >= max_percentile
                 ]
-                return (
-                    len(over_percentile) / len(iteration_suggestions)
-                    >= convergence_criterion
-                )
+                return len(over_percentile) / len(iteration_suggestions)
             case ActiveLearningOptimizationMode.MINIMIZE:
                 all_labels_float = list(map(float, all_labels))
                 suggestion_labels_float = list(map(float, suggestion_labels))
@@ -105,10 +118,7 @@ class ActiveLearningIterationTask(TaskInterface):
                     for sugg_label in suggestion_labels_float
                     if sugg_label <= min_percentile
                 ]
-                return (
-                    len(under_percentile) / len(iteration_suggestions)
-                    >= convergence_criterion
-                )
+                return len(under_percentile) / len(iteration_suggestions)
             case ActiveLearningOptimizationMode.VALUE:
                 target_value = self.al_campaign_config.target_value
                 suggestion_labels_float = list(map(float, suggestion_labels))
@@ -117,10 +127,7 @@ class ActiveLearningIterationTask(TaskInterface):
                     for sugg_label in suggestion_labels_float
                     if abs(sugg_label - target_value) <= target_delta
                 ]
-                return (
-                    len(within_delta) / len(iteration_suggestions)
-                    >= convergence_criterion
-                )
+                return len(within_delta) / len(iteration_suggestions)
             case ActiveLearningOptimizationMode.INTERVAL:
                 target_lb, target_ub = (
                     self.al_campaign_config.target_lb,
@@ -132,10 +139,7 @@ class ActiveLearningIterationTask(TaskInterface):
                     for sugg_label in suggestion_labels_float
                     if target_lb <= sugg_label <= target_ub
                 ]
-                return (
-                    len(within_interval) / len(iteration_suggestions)
-                    >= convergence_criterion
-                )
+                return len(within_interval) / len(iteration_suggestions)
             case ActiveLearningOptimizationMode.DISCRETE:
                 target_labels = self.al_campaign_config.discrete_targets
                 correct = [
@@ -143,27 +147,91 @@ class ActiveLearningIterationTask(TaskInterface):
                     for sugg_label in suggestion_labels
                     if sugg_label in target_labels
                 ]
-                return (
-                    len(correct) / len(iteration_suggestions) >= convergence_criterion
-                )
+                return len(correct) / len(iteration_suggestions)
+
+    def _update_metrics(
+        self, convergence: float, al_iteration_result: ActiveLearningIterationResult
+    ):
+        self.al_simulation_result.iteration_convergence.append(convergence)
+        all_preds_vs_actual = {
+            data_point.entity_id: (
+                data_point.prediction,
+                float(self.all_simulation_data_dict[data_point.entity_id].label),
+            )
+            for data_point in al_iteration_result.results
+        }
+        iteration_suggestions = set(al_iteration_result.suggestions)
+        suggestion_preds_vs_actual = {
+            entity_id: p_v_a
+            for entity_id, p_v_a in all_preds_vs_actual.items()
+            if entity_id in iteration_suggestions
+        }
+
+        # TODO Add accuracy for discrete optimization mode
+        rmse_metric = torchmetrics.MeanSquaredError(squared=False)
+
+        # Calculate RMSE for all predictions
+        all_preds = torch.tensor([p[0] for p in all_preds_vs_actual.values()])
+        all_actuals = torch.tensor([p[1] for p in all_preds_vs_actual.values()])
+        all_rmse = rmse_metric(all_preds, all_actuals)
+
+        # Calculate RMSE for suggestions only
+        sugg_preds = torch.tensor([p[0] for p in suggestion_preds_vs_actual.values()])
+        sugg_actuals = torch.tensor([p[1] for p in suggestion_preds_vs_actual.values()])
+        sugg_rmse = rmse_metric(sugg_preds, sugg_actuals)
+
+        self.al_simulation_result.iteration_metrics_total.append(float(all_rmse))
+        self.al_simulation_result.iteration_metrics_suggestions.append(float(sugg_rmse))
 
     def _run_simulation(
         self, embeddings: List[BiotrainerSequenceRecord], update_dto_callback: Callable
     ):
-        current_training_data = self._get_start_data()
+        current_data_with_masking, n_start_data = self._get_start_data()
+        n_total_suggestions = 0
+        n_converged = 0
+        n_sim_data_total = self.al_simulation_config.simulation_data
         for iteration in range(self.al_simulation_config.n_max_iterations):
+            if n_total_suggestions + n_start_data >= n_sim_data_total:
+                # No new data left
+                break
+
+            # Run iteration
             al_iteration_result = self._run_single_iteration(
-                current_training_data, embeddings
+                current_data_with_masking, embeddings
             )
             update_dto_callback(
                 TaskDTO(
                     status=TaskStatus.RUNNING, al_iteration_result=al_iteration_result
                 )
             )
-            converged = self._check_convergence(al_iteration_result)
-            if converged:
-                return TaskDTO(status=TaskStatus.FINISHED)
-        return TaskDTO(status=TaskStatus.FINISHED)
+            # Calculate convergence and update metrics
+            convergence = self._calculate_convergence(al_iteration_result)
+            self._update_metrics(convergence, al_iteration_result)
+
+            # Check convergence
+            converged = convergence >= self.al_simulation_config.convergence_criterion
+            n_converged = n_converged + 1 if converged else 0
+            if n_converged >= 2:  # TODO Make this configurable
+                logger.info(f"Simulation converged after {iteration} iterations!")
+                return TaskDTO(
+                    status=TaskStatus.FINISHED,
+                    al_simulation_result=self.al_simulation_result,
+                )
+
+            # Next iteration with updated training data
+            iteration_suggestions = set(al_iteration_result.suggestions)
+            n_total_suggestions += len(iteration_suggestions)
+            current_data_with_masking = [
+                data_point.set_label(
+                    self.all_simulation_data_dict[data_point.seq_id].label
+                )
+                if data_point.seq_id in iteration_suggestions
+                else data_point
+                for data_point in current_data_with_masking
+            ]
+        return TaskDTO(
+            status=TaskStatus.FINISHED, al_simulation_result=self.al_simulation_result
+        )
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Embed all simulation data

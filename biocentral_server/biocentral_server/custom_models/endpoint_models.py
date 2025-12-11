@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Optional, Any, Dict
 
 from biotrainer.input_files import BiotrainerSequenceRecord
@@ -32,6 +34,26 @@ class SequenceTrainingData(BaseModel):
         fasta_str += "\n" if self.mask is None else f"MASK={self.mask}\n"
         fasta_str += self.sequence
         return fasta_str
+
+    def delete_label(self) -> SequenceTrainingData:
+        """Delete label for active learning simulations"""
+        return SequenceTrainingData(
+            seq_id=self.seq_id,
+            sequence=self.sequence,
+            label="None",
+            set=self.set,
+            mask=self.mask,
+        )
+
+    def set_label(self, label: str) -> SequenceTrainingData:
+        """Set label for active learning simulations"""
+        return SequenceTrainingData(
+            seq_id=self.seq_id,
+            sequence=self.sequence,
+            label=label,
+            set=self.set,
+            mask=self.mask,
+        )
 
 
 class ErrorResponse(BaseModel):

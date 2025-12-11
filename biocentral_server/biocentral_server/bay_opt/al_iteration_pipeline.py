@@ -174,7 +174,10 @@ def train_and_inference_regression(
         train_data, epoch=120, device=get_device()
     )
     with torch.no_grad():
-        prediction_dist = likelihood(model(inference_data["X"]))
+        # TODO Using cpu for inference because of memory limitations
+        model.to(device="cpu")
+        likelihood.to(device="cpu")
+        prediction_dist = likelihood(model(inference_data["X"].to(device="cpu")))
         dist = calculate_distance_penalty(
             prediction_dist.mean, al_campaign_config=al_campaign_config
         )
@@ -214,7 +217,10 @@ def train_and_inference_classification(
         train_data, epoch=200, device=get_device()
     )
     with torch.no_grad():
-        prediction = likelihood(model(inference_data["X"]))
+        # TODO Using cpu for inference because of memory limitations
+        model.to(device="cpu")
+        likelihood.to(device="cpu")
+        prediction = likelihood(model(inference_data["X"].to(device="cpu")))
         logger.info(f"Prediction mean: {prediction.mean}")
     tgt_idx = _get_target_index(
         discrete_targets=al_campaign_config.discrete_targets,
