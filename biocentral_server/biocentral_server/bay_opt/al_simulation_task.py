@@ -85,7 +85,7 @@ class ActiveLearningSimulationTask(TaskInterface):
     def _calculate_convergence(
         self, al_iteration_result: ActiveLearningIterationResult
     ) -> float:
-        min_max_percentile = 0.05  # TODO Make this configurable
+        min_max_percentile = 5  # TODO Make this configurable
         target_delta = 0.5  # TODO Make this configurable
         all_labels = [
             data_point.label for data_point in self.al_simulation_config.simulation_data
@@ -102,7 +102,9 @@ class ActiveLearningSimulationTask(TaskInterface):
             case ActiveLearningOptimizationMode.MAXIMIZE:
                 all_labels_float = list(map(float, all_labels))
                 suggestion_labels_float = list(map(float, suggestion_labels))
-                max_percentile = np.percentile(all_labels_float, 1 - min_max_percentile)
+                max_percentile = np.percentile(
+                    all_labels_float, 100 - min_max_percentile
+                )
                 over_percentile = [
                     sugg_label
                     for sugg_label in suggestion_labels_float
@@ -186,10 +188,12 @@ class ActiveLearningSimulationTask(TaskInterface):
     def _run_simulation(
         self, embeddings: List[BiotrainerSequenceRecord], update_dto_callback: Callable
     ):
+        ITERATIONS_UNTIL_CONVERGENCE = 5
+
         current_data_with_masking, n_start_data = self._get_start_data()
         n_total_suggestions = 0
         n_converged = 0
-        n_sim_data_total = self.al_simulation_config.simulation_data
+        n_sim_data_total = len(self.al_simulation_config.simulation_data)
         for iteration in range(self.al_simulation_config.n_max_iterations):
             if n_total_suggestions + n_start_data >= n_sim_data_total:
                 # No new data left
@@ -211,8 +215,11 @@ class ActiveLearningSimulationTask(TaskInterface):
             # Check convergence
             converged = convergence >= self.al_simulation_config.convergence_criterion
             n_converged = n_converged + 1 if converged else 0
-            if n_converged >= 2:  # TODO Make this configurable
-                logger.info(f"Simulation converged after {iteration} iterations!")
+            if (
+                n_converged >= ITERATIONS_UNTIL_CONVERGENCE
+            ):  # TODO Make this configurable
+                logger.info(f"Simulation converged after {iteration + 1} iterations!")
+                self.al_simulation_result.did_converge = True
                 return TaskDTO(
                     status=TaskStatus.FINISHED,
                     al_simulation_result=self.al_simulation_result,
@@ -229,6 +236,9 @@ class ActiveLearningSimulationTask(TaskInterface):
                 else data_point
                 for data_point in current_data_with_masking
             ]
+
+        # Max epoch exceeded without convergence
+        self.al_simulation_result.did_converge = False
         return TaskDTO(
             status=TaskStatus.FINISHED, al_simulation_result=self.al_simulation_result
         )

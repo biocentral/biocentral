@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -38,6 +38,11 @@ class ActiveLearningSimulationResult(BaseModel):
     iteration_convergence: List[float] = Field(
         default_factory=list,
         description="Convergence percentage for each iteration",
+    )
+    did_converge: Optional[bool] = Field(
+        default=None,
+        description="Whether the campaign converged "
+        "(finished before n_max_iterations reached",
     )
     # iteration_results is kept empty and only filled by the api to decrease amount of data sent
     iteration_results: List[ActiveLearningIterationResult] = Field(
