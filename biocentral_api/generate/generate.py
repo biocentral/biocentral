@@ -207,6 +207,38 @@ def prune_outdated_generated_code_dart(lang_root: Path, generated_files: set):
                 # Directory not empty or other issue; ignore
                 pass
 
+
+def git_add_generated_files(lang_root: Path, language: str):
+    """Run git add on generated code and documentation directories.
+
+    Args:
+        lang_root: Path to the language root directory (e.g., repo/python or repo/dart)
+        language: Either 'python' or 'dart' to determine which directories to add
+    """
+    if language == 'python':
+        dirs_to_add = ['biocentral_api', 'docs']
+    elif language == 'dart':
+        dirs_to_add = ['lib', 'doc']
+    else:
+        print(f"Unknown language: {language}")
+        return False
+
+    success = True
+    for dir_name in dirs_to_add:
+        dir_path = lang_root / dir_name
+        if dir_path.exists():
+            git_command = ["git", "add", str(dir_path)]
+            if run_command(git_command, cwd=lang_root):
+                print(f"Successfully staged {dir_path}")
+            else:
+                print(f"Failed to stage {dir_path}")
+                success = False
+        else:
+            print(f"Directory not found: {dir_path}")
+            success = False
+
+    return success
+
 def generate_python():
     # Define paths
     script_dir = Path(__file__).parent
@@ -268,6 +300,7 @@ def generate_python():
     else:
         print("Warning: No generated files list found; skipping prune step.")
 
+    git_add_generated_files(output_dir, "python")
     print("\nPython Generation complete!")
     print(f"Generated client is in: {output_dir}")
     print(f"Generated docs are in: {target_docs_dir}")
@@ -348,6 +381,7 @@ def generate_dart():
     else:
         print("Warning: No generated files list found for Dart; skipping prune step.")
 
+    git_add_generated_files(output_dir, "dart")
     print("\nDart Generation complete!")
     print(f"Generated client is in: {output_dir}")
     print(f"Generated docs are in: {target_docs_dir}")
