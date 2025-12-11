@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from typing import Optional, Set
@@ -31,8 +31,9 @@ class ActiveLearningSimulationResult(BaseModel):
     iteration_metrics_total: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Total metrics (rmse/acc) for each iteration on all data")
     iteration_metrics_suggestions: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
     iteration_convergence: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Convergence percentage for each iteration")
+    did_converge: Optional[StrictBool] = None
     iteration_results: Optional[List[ActiveLearningIterationResult]] = Field(default=None, description="List of active learning iteration results")
-    __properties: ClassVar[List[str]] = ["campaign_name", "iteration_metrics_total", "iteration_metrics_suggestions", "iteration_convergence", "iteration_results"]
+    __properties: ClassVar[List[str]] = ["campaign_name", "iteration_metrics_total", "iteration_metrics_suggestions", "iteration_convergence", "did_converge", "iteration_results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -80,6 +81,11 @@ class ActiveLearningSimulationResult(BaseModel):
                 if _item_iteration_results:
                     _items.append(_item_iteration_results.to_dict())
             _dict['iteration_results'] = _items
+        # set to None if did_converge (nullable) is None
+        # and model_fields_set contains the field
+        if self.did_converge is None and "did_converge" in self.model_fields_set:
+            _dict['did_converge'] = None
+
         return _dict
 
     @classmethod
@@ -96,6 +102,7 @@ class ActiveLearningSimulationResult(BaseModel):
             "iteration_metrics_total": obj.get("iteration_metrics_total"),
             "iteration_metrics_suggestions": obj.get("iteration_metrics_suggestions"),
             "iteration_convergence": obj.get("iteration_convergence"),
+            "did_converge": obj.get("did_converge"),
             "iteration_results": [ActiveLearningIterationResult.from_dict(_item) for _item in obj["iteration_results"]] if obj.get("iteration_results") is not None else None
         })
         return _obj

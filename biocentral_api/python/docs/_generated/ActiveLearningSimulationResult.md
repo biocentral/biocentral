@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **iteration_metrics_total** | **List[float]** | Total metrics (rmse/acc) for each iteration on all data | [optional] 
 **iteration_metrics_suggestions** | **List[float]** | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
 **iteration_convergence** | **List[float]** | Convergence percentage for each iteration | [optional] 
+**did_converge** | **bool** |  | [optional] 
 **iteration_results** | [**List[ActiveLearningIterationResult]**](ActiveLearningIterationResult.md) | List of active learning iteration results | [optional] 
 
 ## Example
