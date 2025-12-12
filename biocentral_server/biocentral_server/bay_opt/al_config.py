@@ -84,11 +84,12 @@ class ActiveLearningCampaignConfig(BaseModel):
 class ActiveLearningIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
+    iteration: int = Field(description="Iteration number")
     iteration_data: List[SequenceTrainingData] = Field(
         description="List of sequence training data for this iteration", min_length=2
     )
     coefficient: float = Field(
-        description="Exploitation-Exploration Coefficient value (must be between 0 and 1, 1 is maximum exploration)",
+        description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)",
         ge=0.0,
         le=1.0,
     )

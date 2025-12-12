@@ -13,6 +13,10 @@ class ActiveLearningResult(BaseModel):
 
 
 class ActiveLearningIterationResult(BaseModel):
+    iteration: int = Field(
+        description="Iteration number (zero indexed for simulations, "
+        "otherwise matches the given number in the iteration config)"
+    )
     results: List[ActiveLearningResult] = Field(
         description="List of active learning results", min_length=1
     )

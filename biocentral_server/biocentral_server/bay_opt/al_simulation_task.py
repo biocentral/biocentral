@@ -66,11 +66,13 @@ class ActiveLearningSimulationTask(TaskInterface):
 
     def _run_single_iteration(
         self,
+        iteration_number: int,
         current_training_data: List[SequenceTrainingData],
         embeddings: List[BiotrainerSequenceRecord],
     ):
         # TODO [Refactoring] Might be better to run al_iteration_task as a subtask here
         al_iteration_config = ActiveLearningIterationConfig(
+            iteration=iteration_number,
             iteration_data=current_training_data,
             coefficient=0.5,  # TODO Adjust coefficient dynamically
             n_suggestions=self.al_simulation_config.n_suggestions_per_iteration,
@@ -201,7 +203,9 @@ class ActiveLearningSimulationTask(TaskInterface):
 
             # Run iteration
             al_iteration_result = self._run_single_iteration(
-                current_data_with_masking, embeddings
+                iteration_number=iteration,
+                current_training_data=current_data_with_masking,
+                embeddings=embeddings,
             )
             update_dto_callback(
                 TaskDTO(
