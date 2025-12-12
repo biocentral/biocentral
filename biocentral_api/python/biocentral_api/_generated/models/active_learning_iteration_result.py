@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_result import ActiveLearningResult
@@ -28,9 +28,10 @@ class ActiveLearningIterationResult(BaseModel):
     """
     ActiveLearningIterationResult
     """ # noqa: E501
+    iteration: StrictInt = Field(description="Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config)")
     results: Annotated[List[ActiveLearningResult], Field(min_length=1)] = Field(description="List of active learning results")
     suggestions: List[StrictStr] = Field(description="List of suggested entity IDs for next iteration")
-    __properties: ClassVar[List[str]] = ["results", "suggestions"]
+    __properties: ClassVar[List[str]] = ["iteration", "results", "suggestions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -90,6 +91,7 @@ class ActiveLearningIterationResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "iteration": obj.get("iteration"),
             "results": [ActiveLearningResult.from_dict(_item) for _item in obj["results"]] if obj.get("results") is not None else None,
             "suggestions": obj.get("suggestions")
         })

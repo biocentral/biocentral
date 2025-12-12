@@ -28,6 +28,7 @@ class ActiveLearningModelType(str, Enum):
     """
     GAUSSIAN_PROCESS = 'GAUSSIAN_PROCESS'
     FNN_MCD = 'FNN_MCD'
+    RANDOM = 'RANDOM'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

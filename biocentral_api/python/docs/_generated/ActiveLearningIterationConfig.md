@@ -6,8 +6,9 @@ Configuration for a single iteration of active learning
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**iteration** | **int** | Iteration number | 
 **iteration_data** | [**List[SequenceTrainingData]**](SequenceTrainingData.md) | List of sequence training data for this iteration | 
-**coefficient** | **float** | Exploitation-Exploration Coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
+**coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
 **n_suggestions** | **int** | Number of suggestions to propose from this iteration | 
 
 ## Example

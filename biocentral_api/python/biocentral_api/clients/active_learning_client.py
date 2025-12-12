@@ -35,7 +35,7 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
 
 
 class _ActiveLearningSimulationDTOHandler(DTOHandler):
-    _iteration_results = []
+    _iteration_results = {}  # Use dict to preserve order of results
 
     def __init__(self, simulation_config: ActiveLearningSimulationConfig):
         self._n_max_iterations = simulation_config.n_max_iterations
@@ -44,12 +44,14 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     def handle(self, dtos: List[TaskDTO]):
         for dto in dtos:
             if dto.al_iteration_result is not None:
-                self._iteration_results.append(dto.al_iteration_result)
+                iteration_idx = dto.al_iteration_result.iteration
+                self._iteration_results[iteration_idx] = dto.al_iteration_result
             status = dto.status
             if status == TaskStatus.FINISHED:
                 # TODO Error handling
                 al_simulation_result = dto.al_simulation_result
-                al_simulation_result.iteration_results = self._iteration_results
+                al_simulation_result.iteration_results = sorted(self._iteration_results.values(),
+                                                                key=lambda x: x.iteration)
                 return al_simulation_result
         return None
 

@@ -7,6 +7,8 @@
 
 * `FNN_MCD` (value: `'FNN_MCD'`)
 
+* `RANDOM` (value: `'RANDOM'`)
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
 

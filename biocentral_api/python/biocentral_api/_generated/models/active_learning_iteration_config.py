@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Union
 from typing_extensions import Annotated
 from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
@@ -28,10 +28,11 @@ class ActiveLearningIterationConfig(BaseModel):
     """
     Configuration for a single iteration of active learning
     """ # noqa: E501
+    iteration: StrictInt = Field(description="Iteration number")
     iteration_data: Annotated[List[SequenceTrainingData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
-    coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration Coefficient value (must be between 0 and 1, 1 is maximum exploration)")
+    coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
     n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
-    __properties: ClassVar[List[str]] = ["iteration_data", "coefficient", "n_suggestions"]
+    __properties: ClassVar[List[str]] = ["iteration", "iteration_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,6 +92,7 @@ class ActiveLearningIterationConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "iteration": obj.get("iteration"),
             "iteration_data": [SequenceTrainingData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
             "coefficient": obj.get("coefficient"),
             "n_suggestions": obj.get("n_suggestions")
