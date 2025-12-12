@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from typing import List
+from typing import List, Literal, Optional, Tuple
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.utilities import get_device
 
@@ -10,10 +10,10 @@ from .al_config import (
     ActiveLearningCampaignConfig,
     ActiveLearningIterationConfig,
     ActiveLearningOptimizationMode,
+    ActiveLearningModelType,
 )
 from .gaussian_process_models import (
-    train_gp_regression_model,
-    train_gp_classification_model,
+    train_gp_model,
 )
 
 from ..utils import get_logger
@@ -122,7 +122,6 @@ def data_prep(
 def calculate_distance_penalty(
     means: torch.Tensor, al_campaign_config: ActiveLearningCampaignConfig
 ):
-    # TODO Add discrete mode here as well
     mode = al_campaign_config.optimization_mode
     match mode:
         case ActiveLearningOptimizationMode.MAXIMIZE:
@@ -147,47 +146,39 @@ def calculate_distance_penalty(
             )
 
 
-def calculate_acquisition(distance_penalty, uncertainties, beta):
-    proximity = distance_penalty.max() - distance_penalty
-    acquisition = proximity + beta * uncertainties
-    return acquisition
-
-
-def train_and_inference_regression(
-    train_data,
-    inference_data,
+def _extract_classification_predictions(
+    prediction,
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
-):
-    """
-    Args:
-    - train_data: dict {'X': [], 'y': [], 'ids': []}
-    - inference_data: dict {'X': [], 'ids': []}
-    Return:
-    - scores: tensor of shape (n_inference_data)
-    - means
-    - uncertainties
-    """
-    if isinstance(train_data["X"], list) or isinstance(inference_data["X"], list):
-        raise ValueError("train_and_inference_regression: data should not be empty")
-    model, likelihood = train_gp_regression_model(
-        train_data, epoch=120, device=get_device()
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Extract means and uncertainties for classification task."""
+    logger.info(f"Prediction mean: {prediction.mean}")
+
+    tgt_idx = _get_target_index(
+        discrete_targets=al_campaign_config.discrete_targets,
+        discrete_labels=al_iteration_config.get_all_labels(),
     )
-    with torch.no_grad():
-        # TODO Using cpu for inference because of memory limitations
-        model.to(device="cpu")
-        likelihood.to(device="cpu")
-        prediction_dist = likelihood(model(inference_data["X"].to(device="cpu")))
-        dist = calculate_distance_penalty(
-            prediction_dist.mean, al_campaign_config=al_campaign_config
-        )
-        stds = prediction_dist.covariance_matrix.diag().sqrt()
-        beta = al_iteration_config.coefficient
-        score = calculate_acquisition(dist, stds, beta)
-    return score, prediction_dist.mean, stds  # (n_inference)
+
+    means = prediction.mean[tgt_idx]
+    uncertainty = prediction.covariance_matrix[tgt_idx].diag()
+
+    return means, uncertainty
+
+
+def _calculate_regression_desirability(
+    predicted_means: torch.Tensor,
+    al_campaign_config: ActiveLearningCampaignConfig,
+) -> torch.Tensor:
+    """Calculate desirability for regression task based on distance penalty."""
+    dist = calculate_distance_penalty(
+        predicted_means, al_campaign_config=al_campaign_config
+    )
+    proximity = dist.max() - dist
+    return proximity
 
 
 def _get_target_index(discrete_targets, discrete_labels):
+    """Find the index of the target label in the list of discrete labels."""
     target = discrete_targets[0]
     labels = discrete_labels
     for idx, label in enumerate(labels):
@@ -196,40 +187,291 @@ def _get_target_index(discrete_targets, discrete_labels):
     raise ValueError(f"Target '{target}' not found in discrete labels: {labels}")
 
 
-def train_and_inference_classification(
+def _train_and_inference_gp(
+    train_data: dict,
+    inference_data: dict,
+    task_type: Literal["classification", "regression"],
+    al_campaign_config: ActiveLearningCampaignConfig,
+    al_iteration_config: ActiveLearningIterationConfig,
+    epoch: Optional[int] = None,
+    inference_device: str = "cpu",
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Unified training and inference for GP models.
+
+    Args:
+        train_data: dict {'X': [], 'y': [], 'ids': []}
+        inference_data: dict {'X': [], 'ids': []}
+        task_type: 'classification' or 'regression'
+        al_campaign_config: Campaign configuration
+        al_iteration_config: Iteration configuration
+        epoch: Number of training epochs (default: 200 for classification, 120 for regression)
+        inference_device: Device to use for inference (default: 'cpu')
+
+    Returns:
+        scores: tensor of shape (n_inference_data)
+        means: predicted means
+        uncertainties: predicted uncertainties
+    """
+    # Validation
+    if isinstance(train_data["X"], list) or isinstance(inference_data["X"], list):
+        raise ValueError(f"train_and_inference_{task_type}: data should not be empty")
+
+    # Set default epochs based on task type
+    if epoch is None:
+        epoch = 200 if task_type == "classification" else 120
+
+    # Training
+    model, likelihood = train_gp_model(
+        train_data, task_type=task_type, epoch=epoch, device=get_device()
+    )
+
+    # Inference
+    with torch.no_grad():
+        # Move to inference device (CPU for memory limitations)
+        model.to(device=inference_device)
+        likelihood.to(device=inference_device)
+
+        # Get predictions
+        inference_x = inference_data["X"].to(device=inference_device)
+        prediction = likelihood(model(inference_x))
+
+        # Extract means and uncertainties based on task type
+        if task_type == "classification":
+            means, uncertainty = _extract_classification_predictions(
+                prediction, al_campaign_config, al_iteration_config
+            )
+            desirability = means
+        else:  # regression
+            means = prediction.mean
+            uncertainty = prediction.covariance_matrix.diag().sqrt()  # std
+            desirability = _calculate_regression_desirability(means, al_campaign_config)
+
+        # Calculate acquisition scores
+        beta = al_iteration_config.coefficient
+        scores = _calculate_acquisition(
+            desirability=desirability, uncertainty=uncertainty, beta=beta
+        )
+
+    return scores, means, uncertainty
+
+
+def _calculate_acquisition(desirability, uncertainty, beta):
+    """Calculate acquisition score as desirability + beta * uncertainty. (Upper Confidence Bound)"""
+    acquisition = desirability + beta * uncertainty
+    return acquisition
+
+
+def _random_baseline_inference(
+    train_data: dict,
+    inference_data: dict,
+    task_type: Literal["classification", "regression"],
+    al_campaign_config: ActiveLearningCampaignConfig,
+    al_iteration_config: ActiveLearningIterationConfig,
+    uncertainty_strategy: Literal["constant", "random", "uniform"] = "constant",
+    seed: Optional[int] = None,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Random baseline that mimics the train_and_inference interface.
+
+    Args:
+        train_data: dict {'X': [], 'y': [], 'ids': []}
+        inference_data: dict {'X': [], 'ids': []}
+        task_type: 'classification' or 'regression'
+        uncertainty_strategy: How to assign uncertainties:
+            - 'constant': Use a constant uncertainty for all samples
+            - 'random': Sample random uncertainties
+            - 'uniform': All samples get the same fixed uncertainty value
+        seed: Random seed for reproducibility
+
+    Returns:
+        scores: tensor of shape (n_inference_data)
+        means: predicted means
+        uncertainties: predicted uncertainties
+    """
+    if seed is not None:
+        torch.manual_seed(seed)
+
+    n_inference = len(inference_data["X"])
+
+    if task_type == "classification":
+        means, uncertainty = _random_classification_predictions(
+            train_data,
+            n_inference,
+            al_campaign_config,
+            al_iteration_config,
+            uncertainty_strategy,
+        )
+        desirability = means
+    else:  # regression
+        means, uncertainty = _random_regression_predictions(
+            train_data, n_inference, al_campaign_config, uncertainty_strategy
+        )
+        desirability = _calculate_regression_desirability(means, al_campaign_config)
+
+    # Calculate acquisition scores
+    beta = al_iteration_config.coefficient
+    scores = _calculate_acquisition(desirability, uncertainty, beta)
+
+    return scores, means, uncertainty
+
+
+def _random_classification_predictions(
+    train_data: dict,
+    n_inference: int,
+    al_campaign_config: ActiveLearningCampaignConfig,
+    al_iteration_config: ActiveLearningIterationConfig,
+    uncertainty_strategy: str,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Generate random predictions for classification."""
+    # Get target index
+    tgt_idx = _get_target_index(
+        discrete_targets=al_campaign_config.discrete_targets,
+        discrete_labels=al_iteration_config.get_all_labels(),
+    )
+
+    # Calculate probability of target class in training data
+    train_labels = train_data["y"]
+    target_prob = (train_labels == tgt_idx).float().mean().item()
+
+    # Sample predictions based on training distribution
+    # Probability that each inference sample belongs to target class
+    means = torch.rand(n_inference) < target_prob
+    means = means.float()
+
+    # Generate uncertainties
+    uncertainty = _generate_uncertainty(
+        n_inference,
+        uncertainty_strategy,
+        task_type="classification",
+        target_prob=target_prob,
+    )
+
+    return means, uncertainty
+
+
+def _random_regression_predictions(
+    train_data: dict,
+    n_inference: int,
+    al_campaign_config: ActiveLearningCampaignConfig,
+    uncertainty_strategy: str,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Generate random predictions for regression."""
+    train_y = train_data["y"]
+    y_min = train_y.min().item()
+    y_max = train_y.max().item()
+
+    # Sample uniformly between min and max
+    means = torch.rand(n_inference) * (y_max - y_min) + y_min
+
+    # Generate uncertainties
+    uncertainty = _generate_uncertainty(
+        n_inference,
+        uncertainty_strategy,
+        task_type="regression",
+        train_std=train_y.std().item(),
+        train_range=y_max - y_min,
+    )
+
+    return means, uncertainty
+
+
+def _generate_uncertainty(
+    n_samples: int,
+    strategy: str,
+    task_type: str,
+    target_prob: Optional[float] = None,
+    train_std: Optional[float] = None,
+    train_range: Optional[float] = None,
+) -> torch.Tensor:
+    """
+    Generate uncertainty values based on strategy.
+
+    Strategies:
+        - constant: Based on training data statistics (most principled)
+        - random: Random values to simulate uninformed model
+        - uniform: All samples get maximum uncertainty (pure exploration)
+    """
+    if strategy == "constant":
+        if task_type == "classification":
+            # Use entropy of training distribution as constant uncertainty
+            # Binary entropy: -p*log(p) - (1-p)*log(1-p)
+            p = target_prob
+            if p == 0 or p == 1:
+                uncertainty_val = 0.0
+            else:
+                uncertainty_val = -p * torch.log(torch.tensor(p)) - (1 - p) * torch.log(
+                    torch.tensor(1 - p)
+                )
+            uncertainty = torch.full((n_samples,), uncertainty_val.item())
+        else:  # regression
+            # Use training data standard deviation
+            uncertainty = torch.full((n_samples,), train_std)
+
+    # elif strategy == "random":
+    #     if task_type == "classification":
+    #         # Random uncertainty between 0 and max entropy (ln(2) for binary)
+    #         max_entropy = torch.log(torch.tensor(2.0))
+    #         uncertainty = torch.rand(n_samples) * max_entropy
+    #     else:  # regression
+    #         # Random uncertainty between 0 and training std
+    #         uncertainty = torch.rand(n_samples) * train_std
+    #
+    # elif strategy == "uniform":
+    #     if task_type == "classification":
+    #         # Maximum uncertainty (uniform distribution over classes)
+    #         max_entropy = torch.log(torch.tensor(2.0))  # Binary case
+    #         uncertainty = torch.full((n_samples,), max_entropy.item())
+    #     else:  # regression
+    #         # Use training std as uniform uncertainty
+    #         uncertainty = torch.full((n_samples,), train_std)
+    #
+    else:
+        raise ValueError(f"Unknown uncertainty strategy: {strategy}")
+
+    return uncertainty
+
+
+def _run_model(
     train_data,
     inference_data,
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
 ):
-    """
-    Args:
-    - train_data: dict {'X': [], 'y': [], 'ids': []}
-    - inference_data: dict {'X': [], 'ids': []}
-    Return:
-    - scores: tensor of shape (n_inference_data)
-    - means
-    - uncertainties
-    """
-    if isinstance(train_data["X"], list) or isinstance(inference_data["X"], list):
-        raise ValueError("train_and_inference_classification: data should not be empty")
-    model, likelihood = train_gp_classification_model(
-        train_data, epoch=200, device=get_device()
+    mode = al_campaign_config.optimization_mode
+    task_type = (
+        "classification"
+        if mode == ActiveLearningOptimizationMode.DISCRETE
+        else "regression"
     )
-    with torch.no_grad():
-        # TODO Using cpu for inference because of memory limitations
-        model.to(device="cpu")
-        likelihood.to(device="cpu")
-        prediction = likelihood(model(inference_data["X"].to(device="cpu")))
-        logger.info(f"Prediction mean: {prediction.mean}")
-    tgt_idx = _get_target_index(
-        discrete_targets=al_campaign_config.discrete_targets,
-        discrete_labels=al_iteration_config.get_all_labels(),
-    )
-    means = prediction.mean[tgt_idx]
-    uncertainty = prediction.covariance_matrix[tgt_idx].diag()
-    scores = means + al_iteration_config.coefficient * uncertainty
-    return scores, means, uncertainty
+    model_type = al_campaign_config.model_type
+    match model_type:
+        case ActiveLearningModelType.GAUSSIAN_PROCESS:
+            return _train_and_inference_gp(
+                train_data=train_data,
+                inference_data=inference_data,
+                task_type=task_type,
+                al_campaign_config=al_campaign_config,
+                al_iteration_config=al_iteration_config,
+            )
+        case ActiveLearningModelType.RANDOM:
+            return _random_baseline_inference(
+                train_data=train_data,
+                inference_data=inference_data,
+                task_type=task_type,
+                al_campaign_config=al_campaign_config,
+                al_iteration_config=al_iteration_config,
+                uncertainty_strategy="constant",
+            )
+        case ActiveLearningModelType.FNN_MCD:
+            raise NotImplementedError
+
+
+def _batch_selection(results: List[ActiveLearningResult], n_suggestions: int):
+    """Sort results by score and return top n_suggestions."""
+    results.sort(key=lambda al_r: al_r.score, reverse=True)
+    suggestions = [result.entity_id for result in results[:n_suggestions]]
+    return results, suggestions
 
 
 def al_pipeline(
@@ -244,22 +486,13 @@ def al_pipeline(
     )
     logger.info("AL - Data preparation finished!")
 
-    # train model, inference and add with acquisition function score
-    mode = al_campaign_config.optimization_mode
-    if mode == ActiveLearningOptimizationMode.DISCRETE:
-        scores, means, uncertainties = train_and_inference_classification(
-            train_data=train_data,
-            inference_data=inference_data,
-            al_campaign_config=al_campaign_config,
-            al_iteration_config=al_iteration_config,
-        )
-    else:
-        scores, means, uncertainties = train_and_inference_regression(
-            train_data=train_data,
-            inference_data=inference_data,
-            al_campaign_config=al_campaign_config,
-            al_iteration_config=al_iteration_config,
-        )
+    # train model, inference and get acquisition function score
+    scores, means, uncertainties = _run_model(
+        train_data=train_data,
+        inference_data=inference_data,
+        al_campaign_config=al_campaign_config,
+        al_iteration_config=al_iteration_config,
+    )
 
     # Gather results
     results: List[ActiveLearningResult] = []
@@ -273,10 +506,17 @@ def al_pipeline(
         )
         results.append(al_result)
 
-    # Sort results by score and create suggestions
-    results.sort(key=lambda al_r: al_r.score, reverse=True)
-    suggestions = [
-        result.entity_id for result in results[: al_iteration_config.n_suggestions]
-    ]
+    # Batch Selection
+    sorted_results, suggestions = _batch_selection(
+        results=results, n_suggestions=al_iteration_config.n_suggestions
+    )
 
-    return ActiveLearningIterationResult(results=results, suggestions=suggestions)
+    logger.info(
+        f"AL - Pipeline finished for iteration: {al_iteration_config.iteration}!"
+    )
+
+    return ActiveLearningIterationResult(
+        iteration=al_iteration_config.iteration,
+        results=sorted_results,
+        suggestions=suggestions,
+    )
