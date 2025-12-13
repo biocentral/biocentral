@@ -39,14 +39,17 @@ class ActiveLearningSimulationResult(BaseModel):
         default_factory=list,
         description="Metrics (rmse/acc) for each iteration on suggested data",
     )
-    iteration_convergence: List[float] = Field(
+    iteration_target_successes: List[int] = Field(
         default_factory=list,
-        description="Convergence percentage for each iteration",
+        description="Number of successful targets found in each iteration",
     )
-    did_converge: Optional[bool] = Field(
+    iteration_consecutive_failures: List[int] = Field(
+        default_factory=list,
+        description="Number of consecutive failures since the last successful target was found",
+    )
+    stop_reasons: Optional[List[str]] = Field(
         default=None,
-        description="Whether the campaign converged "
-        "(finished before n_max_iterations reached",
+        description="Reason(s) for stopping the simulation (convergence criteria reached)",
     )
     # iteration_results is kept empty and only filled by the api to decrease amount of data sent
     iteration_results: List[ActiveLearningIterationResult] = Field(

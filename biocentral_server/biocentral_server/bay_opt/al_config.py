@@ -110,6 +110,45 @@ class ActiveLearningIterationConfig(BaseModel):
         return v
 
 
+class ActiveLearningConvergenceConfig(BaseModel):
+    """Configuration for convergence criteria for active learning campaigns"""
+
+    max_labels_budget: Optional[int] = Field(
+        default=None,
+        description="Maximum number of labels that can be tested in the lab"
+        " ('We can afford to test 100 proteins total')",
+        ge=1,
+    )
+    target_successes: Optional[int] = Field(
+        default=None,
+        description="Number of positive targets found before stopping"
+        " ('Stop when we find 10 good proteins')",
+        ge=1,
+    )
+    max_consecutive_failures: Optional[int] = Field(
+        default=None,
+        description="Maximum number of iterations in a row that "
+        "do not yield a new target "
+        "('Stop if 3 rounds yield nothing')",
+        ge=1,
+    )
+
+    @model_validator(mode="after")
+    def validate_convergence_config(self):
+        if (
+            self.max_labels_budget is None
+            and self.target_successes is None
+            and self.max_consecutive_failures is None
+        ):
+            raise ValueError(
+                "At least one of n_max_iterations, "
+                "max_targets_budget, "
+                "target_successes, "
+                "max_consecutive_failures must be specified!"
+            )
+        return self
+
+
 class ActiveLearningSimulationConfig(BaseModel):
     """Configuration for a simulation of active learning on a complete dataset"""
 
@@ -130,17 +169,8 @@ class ActiveLearningSimulationConfig(BaseModel):
     n_suggestions_per_iteration: int = Field(
         description="Number of suggestions to propose per iteration", ge=1
     )
-    convergence_criterion: float = Field(
-        description="Convergence criterion for the simulation. "
-        "The simulation stops after two iterations that fulfill "
-        "the criterion "
-        "(>= convergence_criterion suggestions "
-        "fulfill the optimization target)",
-        ge=0.0,
-        le=1.0,
-    )
-    n_max_iterations: int = Field(
-        description="Maximum number of iterations to run the simulation", ge=1
+    convergence_config: ActiveLearningConvergenceConfig = Field(
+        description="Convergence criteria for the simulation"
     )
 
     @field_validator("simulation_data")
