@@ -38,8 +38,16 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     _iteration_results = {}  # Use dict to preserve order of results
 
     def __init__(self, simulation_config: ActiveLearningSimulationConfig):
-        self._n_max_iterations = simulation_config.n_max_iterations
+        self._n_max_iterations = self._approximate_n_max_iterations(simulation_config)
         self._set_max_iterations_tqdm = False
+
+    @staticmethod
+    def _approximate_n_max_iterations(simulation_config: ActiveLearningSimulationConfig):
+        max_labels_budget = simulation_config.convergence_config.max_labels_budget
+        if max_labels_budget is not None:
+            return simulation_config.n_suggestions_per_iteration // max_labels_budget
+        n_start_data = simulation_config.n_start if simulation_config.n_start else len(simulation_config.start_ids)
+        return (len(simulation_config.simulation_data) - n_start_data) // simulation_config.n_suggestions_per_iteration
 
     def handle(self, dtos: List[TaskDTO]):
         for dto in dtos:

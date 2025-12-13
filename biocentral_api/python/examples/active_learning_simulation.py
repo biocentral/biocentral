@@ -1,5 +1,6 @@
 from biocentral_api import BiocentralAPI, SequenceTrainingData, ActiveLearningCampaignConfig, \
-    ActiveLearningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType
+    ActiveLearningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType, \
+    ActiveLearningConvergenceConfig
 
 # TODO REMOVE LOCAL ONLY
 biocentral_api = BiocentralAPI(local_only=True)
@@ -26,9 +27,12 @@ simulation_data = [
 # Define simulation config
 simulation_config = ActiveLearningSimulationConfig(simulation_data=simulation_data,
                                                    n_start=1,
-                                                   n_max_iterations=7,
-                                                   n_suggestions_per_iteration=1,  # Will usually be higher for most campaigns
-                                                   convergence_criterion=1.0)
+                                                   n_suggestions_per_iteration=1, # Will be higher for most campaigns
+                                                   convergence_config=ActiveLearningConvergenceConfig(
+                                                       max_labels_budget=3,
+                                                       target_successes=2,
+                                                       max_consecutive_failures=2)
+                                                   )
 # Run iteration
 simulation_results = biocentral_api.al_simulation(campaign_config, simulation_config).run_with_progress()
 print(f"Simulation results: {simulation_results}")

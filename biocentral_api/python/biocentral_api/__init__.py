@@ -1,7 +1,7 @@
 from .api import BiocentralAPI
 from ._generated import SequenceTrainingData, ActiveLearningCampaignConfig, ActiveLearningIterationConfig, \
     ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningSimulationConfig, \
-    ActiveLearningIterationResult, ActiveLearningSimulationResult
+    ActiveLearningIterationResult, ActiveLearningSimulationResult, ActiveLearningConvergenceConfig
 
 __all__ = ["BiocentralAPI",
            "SequenceTrainingData",
@@ -10,4 +10,5 @@ __all__ = ["BiocentralAPI",
            "ActiveLearningOptimizationMode",
            "ActiveLearningModelType",
            "ActiveLearningIterationResult",
-           "ActiveLearningSimulationResult"]
+           "ActiveLearningSimulationResult",
+           "ActiveLearningConvergenceConfig"]

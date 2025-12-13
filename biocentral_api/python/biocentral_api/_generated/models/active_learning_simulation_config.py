@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from biocentral_api._generated.models.active_learning_convergence_config import ActiveLearningConvergenceConfig
 from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,9 +33,8 @@ class ActiveLearningSimulationConfig(BaseModel):
     n_start: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
     start_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = None
     n_suggestions_per_iteration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose per iteration")
-    convergence_criterion: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Convergence criterion for the simulation. The simulation stops after two iterations that fulfill the criterion (>= convergence_criterion suggestions fulfill the optimization target)")
-    n_max_iterations: Annotated[int, Field(strict=True, ge=1)] = Field(description="Maximum number of iterations to run the simulation")
-    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "convergence_criterion", "n_max_iterations"]
+    convergence_config: ActiveLearningConvergenceConfig = Field(description="Convergence criteria for the simulation")
+    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "convergence_config"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -82,6 +82,9 @@ class ActiveLearningSimulationConfig(BaseModel):
                 if _item_simulation_data:
                     _items.append(_item_simulation_data.to_dict())
             _dict['simulation_data'] = _items
+        # override the default output from pydantic by calling `to_dict()` of convergence_config
+        if self.convergence_config:
+            _dict['convergence_config'] = self.convergence_config.to_dict()
         # set to None if n_start (nullable) is None
         # and model_fields_set contains the field
         if self.n_start is None and "n_start" in self.model_fields_set:
@@ -108,8 +111,7 @@ class ActiveLearningSimulationConfig(BaseModel):
             "n_start": obj.get("n_start"),
             "start_ids": obj.get("start_ids"),
             "n_suggestions_per_iteration": obj.get("n_suggestions_per_iteration"),
-            "convergence_criterion": obj.get("convergence_criterion"),
-            "n_max_iterations": obj.get("n_max_iterations")
+            "convergence_config": ActiveLearningConvergenceConfig.from_dict(obj["convergence_config"]) if obj.get("convergence_config") is not None else None
         })
         return _obj
 

@@ -38,6 +38,7 @@ __all__ = [
     "ApiAttributeError",
     "ApiException",
     "ActiveLearningCampaignConfig",
+    "ActiveLearningConvergenceConfig",
     "ActiveLearningIterationConfig",
     "ActiveLearningIterationRequest",
     "ActiveLearningIterationResult",
@@ -122,6 +123,7 @@ from biocentral_api._generated.exceptions import ApiException as ApiException
 
 # import models into sdk package
 from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig as ActiveLearningCampaignConfig
+from biocentral_api._generated.models.active_learning_convergence_config import ActiveLearningConvergenceConfig as ActiveLearningConvergenceConfig
 from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig as ActiveLearningIterationConfig
 from biocentral_api._generated.models.active_learning_iteration_request import ActiveLearningIterationRequest as ActiveLearningIterationRequest
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult as ActiveLearningIterationResult

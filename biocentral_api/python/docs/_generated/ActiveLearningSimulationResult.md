@@ -9,8 +9,9 @@ Name | Type | Description | Notes
 **campaign_name** | **str** | Name of the simulated active learning campaign | 
 **iteration_metrics_total** | **List[float]** | Total metrics (rmse/acc) for each iteration on all data | [optional] 
 **iteration_metrics_suggestions** | **List[float]** | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
-**iteration_convergence** | **List[float]** | Convergence percentage for each iteration | [optional] 
-**did_converge** | **bool** |  | [optional] 
+**iteration_target_successes** | **List[int]** | Number of successful targets found in each iteration | [optional] 
+**iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
+**stop_reasons** | **List[str]** |  | [optional] 
 **iteration_results** | [**List[ActiveLearningIterationResult]**](ActiveLearningIterationResult.md) | List of active learning iteration results | [optional] 
 
 ## Example

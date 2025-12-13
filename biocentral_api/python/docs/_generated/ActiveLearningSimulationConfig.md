@@ -10,8 +10,7 @@ Name | Type | Description | Notes
 **n_start** | **int** |  | [optional] 
 **start_ids** | **List[str]** |  | [optional] 
 **n_suggestions_per_iteration** | **int** | Number of suggestions to propose per iteration | 
-**convergence_criterion** | **float** | Convergence criterion for the simulation. The simulation stops after two iterations that fulfill the criterion (&gt;&#x3D; convergence_criterion suggestions fulfill the optimization target) | 
-**n_max_iterations** | **int** | Maximum number of iterations to run the simulation | 
+**convergence_config** | [**ActiveLearningConvergenceConfig**](ActiveLearningConvergenceConfig.md) | Convergence criteria for the simulation | 
 
 ## Example
 
