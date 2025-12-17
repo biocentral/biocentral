@@ -278,9 +278,10 @@ class ActiveLearningSimulationTask(TaskInterface):
         n_total_target_successes = 0
         n_consecutive_failures = 0
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
-        for iteration in range(
+        for iteration_idx in range(
             _ActiveLearningSimulationFixedParameters.n_max_iterations()
         ):
+            iteration = iteration_idx + 1
             if n_total_suggestions + n_start_data >= n_sim_data_total:
                 # No new data left
                 logger.info(
@@ -328,9 +329,7 @@ class ActiveLearningSimulationTask(TaskInterface):
                 n_consecutive_failures=n_consecutive_failures,
             )
             if converged:
-                logger.info(
-                    f"AL - Simulation converged after {iteration + 1} iterations!"
-                )
+                logger.info(f"AL - Simulation converged after {iteration} iterations!")
                 self.al_simulation_result.stop_reasons = stop_reasons
                 return TaskDTO(
                     status=TaskStatus.FINISHED,
