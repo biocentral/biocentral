@@ -32,11 +32,12 @@ class ActiveLearningCampaignConfig(BaseModel):
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
     embedder_name: StrictStr = Field(description="Name of embedder to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
+    seed: Optional[StrictInt] = None
     target_lb: Optional[Union[StrictFloat, StrictInt]] = None
     target_ub: Optional[Union[StrictFloat, StrictInt]] = None
     target_value: Optional[Union[StrictFloat, StrictInt]] = None
     discrete_targets: Optional[List[StrictStr]] = None
-    __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "target_lb", "target_ub", "target_value", "discrete_targets"]
+    __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "seed", "target_lb", "target_ub", "target_value", "discrete_targets"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -77,6 +78,11 @@ class ActiveLearningCampaignConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if seed (nullable) is None
+        # and model_fields_set contains the field
+        if self.seed is None and "seed" in self.model_fields_set:
+            _dict['seed'] = None
+
         # set to None if target_lb (nullable) is None
         # and model_fields_set contains the field
         if self.target_lb is None and "target_lb" in self.model_fields_set:
@@ -113,6 +119,7 @@ class ActiveLearningCampaignConfig(BaseModel):
             "model_type": obj.get("model_type"),
             "embedder_name": obj.get("embedder_name"),
             "optimization_mode": obj.get("optimization_mode"),
+            "seed": obj.get("seed"),
             "target_lb": obj.get("target_lb"),
             "target_ub": obj.get("target_ub"),
             "target_value": obj.get("target_value"),

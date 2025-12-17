@@ -147,4 +147,3 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
-test/test_active_learning_convergence_config.py
