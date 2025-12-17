@@ -3,8 +3,8 @@ import numpy as np
 import torch
 import torchmetrics
 
-from biotrainer.utilities import get_device
 from typing import Callable, Tuple, List, Optional
+from biotrainer.utilities import get_device, seed_all
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_iteration_pipeline import al_pipeline
@@ -65,7 +65,7 @@ class ActiveLearningSimulationTask(TaskInterface):
         if self.al_simulation_config.start_ids:
             start_ids_set = set(self.al_simulation_config.start_ids)
         else:
-            random_instance = random.Random(42)
+            random_instance = random.Random(self.al_campaign_config.seed)
             random_sample = random_instance.sample(
                 self.al_simulation_config.simulation_data,
                 self.al_simulation_config.n_start,
@@ -270,6 +270,9 @@ class ActiveLearningSimulationTask(TaskInterface):
     def _run_simulation(
         self, embeddings: List[BiotrainerSequenceRecord], update_dto_callback: Callable
     ):
+        # Set seed for simulation reproducibility
+        seed_all(self.al_campaign_config.seed)
+
         current_data_with_masking, n_start_data = self._get_start_data()
         n_total_suggestions = 0
         n_total_target_successes = 0

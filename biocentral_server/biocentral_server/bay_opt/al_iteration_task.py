@@ -1,5 +1,5 @@
-from biotrainer.utilities import get_device
 from typing import Callable, Tuple, List, Optional
+from biotrainer.utilities import get_device, seed_all
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_iteration_pipeline import al_pipeline
@@ -29,6 +29,8 @@ class ActiveLearningIterationTask(TaskInterface):
         assert embeddings is not None, (
             "embeddings is None after pre-embedding before active learning iteration!"
         )
+        # Seed all random generators for reproducibility
+        seed_all(self.al_campaign_config.seed)
 
         al_iteration_result = al_pipeline(
             al_campaign_config=self.al_campaign_config,

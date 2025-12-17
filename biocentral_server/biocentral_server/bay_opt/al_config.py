@@ -38,6 +38,9 @@ class ActiveLearningCampaignConfig(BaseModel):
     optimization_mode: ActiveLearningOptimizationMode = Field(
         description="Optimization mode selection"
     )
+    seed: Optional[int] = Field(
+        default=42, description="Random seed for reproducibility."
+    )
 
     """Configuration for continuous optimization"""
     target_lb: Optional[float] = Field(
@@ -157,7 +160,7 @@ class ActiveLearningSimulationConfig(BaseModel):
     )
     n_start: Optional[int] = Field(
         default=None,
-        description="Number of initial sequences to use for training (chosen at random)",
+        description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)",
         ge=1,
     )
     start_ids: Optional[List[str]] = Field(
