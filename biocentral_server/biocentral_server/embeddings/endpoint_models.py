@@ -1,11 +1,38 @@
 import json
 
+from enum import Enum
 from typing import List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
 
+class CommonEmbedder(str, Enum):
+    """Common embedder model names"""
+
+    # Huggingface pLMs
+    ProtT5 = "Rostlab/prot_t5_xl_uniref50"
+    ProstT5 = "Rostlab/ProstT5"
+    ESM2_3B = "facebook/esm2_t36_3B_UR50D"
+    ESM2_650M = "facebook/esm2_t33_650M_UR50D"
+    ESM_8M = "facebook/esm2_t6_8M_UR50D"
+    # Baseline models (biotrainer)
+    ONE_HOT_ENCODING = "one_hot_encoding"
+    RANDOM_EMBEDDER = "random_embedder"
+    AAOntology = "AAOntology"
+    BLOSUM62 = "blosum62"
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        json_schema = handler(core_schema)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        # Add custom variable names for OpenAPI generator
+        json_schema["x-enum-varnames"] = [e.name for e in cls]
+        return json_schema
+
+
 class EmbedRequest(BaseModel):
-    embedder_name: str = Field(description="Name of the embedder model to use")
+    embedder_name: str = Field(
+        description="Name of the embedder model to use", examples=list(CommonEmbedder)
+    )
     reduce: bool = Field(
         default="false", description="Whether to use dimensionality reduction"
     )
@@ -21,7 +48,9 @@ class GetMissingEmbeddingsRequest(BaseModel):
     """Request model for checking missing embeddings"""
 
     sequences: str = Field(description="JSON string containing sequence data")
-    embedder_name: str = Field(description="Name of the embedder model")
+    embedder_name: str = Field(
+        description="Name of the embedder model", examples=list(CommonEmbedder)
+    )
     reduced: bool = Field(description="Whether to check for reduced embeddings")
 
     @field_validator("sequences")

@@ -10,6 +10,7 @@ from biotrainer.input_files import BiotrainerSequenceRecord
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 
 from .endpoint_models import (
+    CommonEmbedder,
     EmbedRequest,
     GetMissingEmbeddingsRequest,
     GetMissingEmbeddingsResponse,
@@ -37,6 +38,16 @@ router = APIRouter(
     tags=["embeddings"],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get(
+    "/common_embedders",
+    summary="Get a list of common embedder names support by the server",
+    response_model=list[CommonEmbedder],
+)
+async def common_embedders():
+    """Get a list of commonly used embedder names"""
+    return [e.value for e in CommonEmbedder]
 
 
 @router.post(
