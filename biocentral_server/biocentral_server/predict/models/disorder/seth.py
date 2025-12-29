@@ -63,11 +63,10 @@ class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                     "as defined by CheZOD Z-scores: "
                     "https://doi.org/10.1007/978-1-0716-0524-0_15",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=float,
+                    value_type="float",
                 )
             ],
             model_size="575.1 KB",
-            testset_performance="",
             training_data_link="http://data.bioembeddings.com/public/design/",
             embedder="Rostlab/prot_t5_xl_uniref50",
         )

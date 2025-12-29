@@ -5,15 +5,16 @@ The factory uses the MODEL_REGISTRY which maps model metadata names.
 
 from typing import Optional
 
+from .models.base_model import BaseModel
+from .models import MODEL_REGISTRY, BiocentralPredictionModel
+
 from ..utils import get_logger
 from ..server_management import TritonClientConfig, get_shared_repository
-from .models.base_model import BaseModel
-from .models import MODEL_REGISTRY
 
 logger = get_logger(__name__)
 
 
-def _is_triton_prediction_available(model_name: str) -> bool:
+def _is_triton_prediction_available(model_name: BiocentralPredictionModel) -> bool:
     """Check if Triton prediction is available for model."""
     try:
         config = TritonClientConfig.from_env()
@@ -48,7 +49,7 @@ class PredictionModelFactory:
 
     @staticmethod
     def create_model(
-        model_name: str,
+        model_name: BiocentralPredictionModel,
         batch_size: int = 16,
         use_triton: Optional[bool] = None,
     ) -> BaseModel:
@@ -86,7 +87,7 @@ class PredictionModelFactory:
 
     @staticmethod
     def _create_model_with_backend(
-        model_name: str, batch_size: int, backend: str
+        model_name: BiocentralPredictionModel, batch_size: int, backend: str
     ) -> BaseModel:
         """Create a prediction model with specified backend.
 
@@ -111,7 +112,7 @@ class PredictionModelFactory:
         return model_class(batch_size=batch_size, backend=backend)
 
     @staticmethod
-    def is_triton_available(model_name: str) -> bool:
+    def is_triton_available(model_name: BiocentralPredictionModel) -> bool:
         """Check if Triton backend is available for a model.
 
         Args:
@@ -140,28 +141,3 @@ class PredictionModelFactory:
             }
             for model_name in MODEL_REGISTRY.keys()
         }
-
-
-# Convenience function for backward compatibility
-def create_prediction_model(
-    model_name: str,
-    batch_size: int = 16,
-    use_triton: Optional[bool] = None,
-) -> BaseModel:
-    """Create a prediction model with automatic backend selection.
-
-    This is a convenience wrapper around PredictionModelFactory.create_model().
-
-    Args:
-        model_name: Model identifier
-        batch_size: Batch size for predictions
-        use_triton: Whether to use Triton backend
-
-    Returns:
-        Prediction model instance
-    """
-    return PredictionModelFactory.create_model(
-        model_name=model_name,
-        batch_size=batch_size,
-        use_triton=use_triton,
-    )

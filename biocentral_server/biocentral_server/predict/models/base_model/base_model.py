@@ -236,7 +236,7 @@ class BaseModel(ABC):
             Formatted model predictions
         """
         formatted_predictions = {}
-        model_name = self.get_metadata().name
+        model_name = self.get_metadata().name.name
         protocol = self.get_metadata().protocol
         per_residue = protocol in Protocol.per_residue_protocols()
 

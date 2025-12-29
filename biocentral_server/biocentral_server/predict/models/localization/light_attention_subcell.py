@@ -84,53 +84,62 @@ class LightAttentionSubcellularLocalization(
                     name="subcellular_localization",
                     description="Protein subcellular localization",
                     output_type=OutputType.PER_SEQUENCE,
-                    value_type=str,
-                    classes={
-                        "Cell_membrane": OutputClass(
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="Cell_membrane",
                             label="Cell membrane",
                             description="Protein is localized to the cell membrane",
                         ),
-                        "Cytoplasm": OutputClass(
+                        OutputClass(
+                            shortcut="Cytoplasm",
                             label="Cytoplasm",
                             description="Protein is localized to the cytoplasm",
                         ),
-                        "Endoplasmatic_reticulum": OutputClass(
+                        OutputClass(
+                            shortcut="Endoplasmatic_reticulum",
                             label="Endoplasmic reticulum",
                             description="Protein is localized to the endoplasmic reticulum",
                         ),
-                        "Golgi_apparatus": OutputClass(
+                        OutputClass(
+                            shortcut="Golgi_apparatus",
                             label="Golgi apparatus",
                             description="Protein is localized to the Golgi apparatus",
                         ),
-                        "Lysosome_or_Vacuole": OutputClass(
+                        OutputClass(
+                            shortcut="Lysosome_or_Vacuole",
                             label="Lysosome or Vacuole",
                             description="Protein is localized to lysosomes or vacuoles",
                         ),
-                        "Mitochondrion": OutputClass(
+                        OutputClass(
+                            shortcut="Mitochondrion",
                             label="Mitochondrion",
                             description="Protein is localized to mitochondria",
                         ),
-                        "Nucleus": OutputClass(
+                        OutputClass(
+                            shortcut="Nucleus",
                             label="Nucleus",
                             description="Protein is localized to the nucleus",
                         ),
-                        "Peroxisome": OutputClass(
+                        OutputClass(
+                            shortcut="Peroxisome",
                             label="Peroxisome",
                             description="Protein is localized to peroxisomes",
                         ),
-                        "Plastid": OutputClass(
+                        OutputClass(
+                            shortcut="Plastid",
                             label="Plastid",
                             description="Protein is localized to plastids",
                         ),
-                        "Extracellular": OutputClass(
+                        OutputClass(
+                            shortcut="Extracellular",
                             label="Extracellular",
                             description="Protein is secreted outside the cell",
                         ),
-                    },
+                    ],
                 )
             ],
             model_size="75.8 MB",
-            testset_performance="",
             training_data_link="http://data.bioembeddings.com/public/design/",
             embedder="Rostlab/prot_t5_xl_uniref50",
         )

@@ -90,52 +90,58 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                     name="metal",
                     description="Per-residue binding affinity for metal",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=str,
-                    classes={
-                        "M": OutputClass(
-                            label="Metal affinity", description="Residue binds to metal"
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="M",
+                            label="Metal affinity",
+                            description="Residue binds to metal",
                         ),
-                        "-": OutputClass(
+                        OutputClass(
+                            shortcut="-",
                             label="No metal affinity",
                             description="Residue does not bind to metal",
                         ),
-                    },
+                    ],
                 ),
                 ModelOutput(
                     name="nucleic",
                     description="Per-residue binding affinity for nucleic acids",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=str,
-                    classes={
-                        "N": OutputClass(
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="N",
                             label="Nucleic affinity",
                             description="Residue binds to nucleic acids",
                         ),
-                        "-": OutputClass(
+                        OutputClass(
+                            shortcut="-",
                             label="No nucleic affinity",
                             description="Residue does not bind to nucleic acids",
                         ),
-                    },
+                    ],
                 ),
                 ModelOutput(
                     name="small",
                     description="Per-residue binding affinity for small organic molecules",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=str,
-                    classes={
-                        "S": OutputClass(
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="S",
                             label="Small molecules affinity",
                             description="Residue binds to small organic molecules",
                         ),
-                        "-": OutputClass(
+                        OutputClass(
+                            shortcut="-",
                             label="No small molecules affinity",
                             description="Residue does not bind to small organic molecules",
                         ),
-                    },
+                    ],
                 ),
             ],
             model_size="2.6 MB",
-            testset_performance="",
             training_data_link="http://data.bioembeddings.com/public/design/",
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
@@ -199,7 +205,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         delimiter: str = "",
     ) -> Dict[str, List[Prediction]]:
         formatted_predictions = {}
-        model_name = self.get_metadata().name
+        model_name = self.get_metadata().name.name
         protocol = self.get_metadata().protocol
 
         for binding_id, (binding_type, bind_short) in self.binding_classes.items():

@@ -1,7 +1,7 @@
-from typing import Callable, Any, Optional
 from biotrainer.utilities import get_device
+from typing import Callable, Any, Optional, Dict
 
-from .models import BaseModel
+from .models import BaseModel, BiocentralPredictionModel
 from .single_prediction_task import SinglePredictionTask
 from .model_factory import PredictionModelFactory
 
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 class MultiPredictionTask(TaskInterface):
     def __init__(
         self,
-        models: dict[str, Any],
+        models: Dict[BiocentralPredictionModel, Any],
         sequence_input,
         batch_size,
         use_triton: Optional[bool] = None,
@@ -50,7 +50,7 @@ class MultiPredictionTask(TaskInterface):
                 )
 
             single_prediction = predict_dto.predictions
-            logger.info(f"{model_name} model prediction: {single_prediction}")
+            logger.info(f"{model_name.name} model prediction: {single_prediction}")
             for seq_id, prediction in single_prediction.items():
                 if seq_id not in predictions:
                     predictions[seq_id] = []

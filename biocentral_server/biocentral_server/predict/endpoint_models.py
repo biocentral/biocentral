@@ -1,17 +1,23 @@
-from typing import Dict, List, Any
-
+from typing import Dict, List
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
+
+from .models import BiocentralPredictionModel, ModelMetadata
 
 
 class ModelMetadataResponse(BaseModel):
-    metadata: Dict[str, Any]  # TODO IMPROVE
+    metadata: List[ModelMetadata] = Field(
+        description="List of model metadata", min_length=1
+    )
 
 
 class PredictionRequest(BaseModel):
-    model_names: List[str] = Field(
+    model_names: List[BiocentralPredictionModel] = Field(
         min_length=1,
         description="List of model names to use for prediction",
-        examples=["BindEmbed", "TMbed"],
+        examples=[
+            BiocentralPredictionModel.BindEmbed,
+            BiocentralPredictionModel.ProtT5SecondaryStructure,
+        ],
     )
     sequence_input: Dict[str, str] = Field(
         min_length=1, description="Dictionary mapping sequence IDs to protein sequences"

@@ -69,63 +69,75 @@ class ProtT5SecondaryStructure(
                     name="d3_Yhat",
                     description="3-state secondary structure prediction",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=str,
-                    classes={
-                        "H": OutputClass(
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="H",
                             label="Helix",
                             description="Residue is part of an alpha helix",
                         ),
-                        "E": OutputClass(
-                            label="Sheet", description="Residue is part of a beta sheet"
+                        OutputClass(
+                            shortcut="E",
+                            label="Sheet",
+                            description="Residue is part of a beta sheet",
                         ),
-                        "L": OutputClass(
+                        OutputClass(
+                            shortcut="L",
                             label="Other",
                             description="Residue is part of a loop or coil",
                         ),
-                    },
+                    ],
                 ),
                 ModelOutput(
                     name="d8_Yhat",
                     description="8-state DSSP secondary structure prediction",
                     output_type=OutputType.PER_RESIDUE,
-                    value_type=str,
-                    classes={
-                        "G": OutputClass(
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="G",
                             label="3-10 Helix",
                             description="Residue is part of a 3-10 helix",
                         ),
-                        "H": OutputClass(
+                        OutputClass(
+                            shortcut="H",
                             label="Alpha Helix",
                             description="Residue is part of an alpha helix",
                         ),
-                        "I": OutputClass(
+                        OutputClass(
+                            shortcut="I",
                             label="Pi Helix",
                             description="Residue is part of a pi helix",
                         ),
-                        "B": OutputClass(
+                        OutputClass(
+                            shortcut="B",
                             label="Beta Bridge",
                             description="Residue is part of an isolated beta bridge",
                         ),
-                        "E": OutputClass(
+                        OutputClass(
+                            shortcut="E",
                             label="Extended Strand",
                             description="Residue is part of an extended strand in a beta ladder",
                         ),
-                        "S": OutputClass(
-                            label="Bend", description="Residue is part of a bend"
+                        OutputClass(
+                            shortcut="S",
+                            label="Bend",
+                            description="Residue is part of a bend",
                         ),
-                        "T": OutputClass(
+                        OutputClass(
+                            shortcut="T",
                             label="Turn",
                             description="Residue is part of a hydrogen-bonded turn",
                         ),
-                        "C": OutputClass(
+                        OutputClass(
+                            shortcut="C",
                             label="Coil",
                             description="Residue is part of a coil (none of the above)",
                         ),
-                    },
+                    ],
                 ),
             ],
             model_size="929.0 KB",
-            testset_performance="",
             training_data_link="http://data.bioembeddings.com/public/design/",
             embedder="Rostlab/prot_t5_xl_uniref50",
         )

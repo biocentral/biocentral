@@ -7,12 +7,14 @@ from .base_model import BaseModel
 from .variant_effect import VespaG
 from .conservation import ProtT5Conservation
 from .membrane import TMbed, LightAttentionMembrane
+from .base_model.model_metadata import ModelMetadata
 from .secondary_structure import ProtT5SecondaryStructure
 from .localization import LightAttentionSubcellularLocalization
+from .biocentral_prediction_model import BiocentralPredictionModel
 
-MODEL_REGISTRY: Dict[str, Any] = {
-    name.lower(): model_class
-    for name, model_class in {
+MODEL_REGISTRY: Dict[BiocentralPredictionModel, Any] = {
+    model_name: model_class
+    for model_name, model_class in {
         TMbed.get_metadata().name: TMbed,
         LightAttentionMembrane.get_metadata().name: LightAttentionMembrane,
         LightAttentionSubcellularLocalization.get_metadata().name: LightAttentionSubcellularLocalization,
@@ -26,9 +28,9 @@ MODEL_REGISTRY: Dict[str, Any] = {
 }
 
 
-def filter_models(model_names: List[str]) -> Dict[str, Any]:
-    model_names = [model_name.lower() for model_name in model_names]
-
+def filter_models(
+    model_names: List[BiocentralPredictionModel],
+) -> Dict[BiocentralPredictionModel, Any]:
     assert all([model_name in MODEL_REGISTRY for model_name in model_names]), (
         "Invalid model name, this should have been caught in the endpoint"
     )
@@ -40,11 +42,14 @@ def filter_models(model_names: List[str]) -> Dict[str, Any]:
     }
 
 
-def get_metadata_for_all_models() -> Dict[str, Any]:
-    return {
-        model.get_metadata().name: model.get_metadata()
-        for _, model in MODEL_REGISTRY.items()
-    }
+def get_metadata_for_all_models() -> List[ModelMetadata]:
+    return [model.get_metadata() for model in MODEL_REGISTRY.values()]
 
 
-__all__ = ["filter_models", "get_metadata_for_all_models", "BaseModel"]
+__all__ = [
+    "filter_models",
+    "get_metadata_for_all_models",
+    "BaseModel",
+    "BiocentralPredictionModel",
+    "ModelMetadata",
+]

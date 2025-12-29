@@ -32,12 +32,7 @@ router = APIRouter(
     dependencies=[Depends(RateLimiter(times=10, seconds=60))],
 )
 def model_metadata():
-    return ModelMetadataResponse(
-        metadata={
-            name: mdata.to_dict()
-            for name, mdata in get_metadata_for_all_models().items()
-        }
-    )
+    return ModelMetadataResponse(metadata=get_metadata_for_all_models())
 
 
 @router.post(
@@ -55,13 +50,13 @@ async def predict(request_data: PredictionRequest, request: Request):
     """
     Endpoint for protein sequence prediction using a single or multiple models
     """
-    model_names = [model_name.lower() for model_name in request_data.model_names]
-    available_model_names = {
-        name.lower() for name in get_metadata_for_all_models().keys()
-    }
+    model_names = request_data.model_names
+    available_model_names = {model.name for model in get_metadata_for_all_models()}
 
     # Check if all requested models exist
-    missing_models = [name for name in model_names if name not in available_model_names]
+    missing_models = [
+        name.name for name in model_names if name not in available_model_names
+    ]
     if missing_models:
         return NotFoundErrorResponse(
             error=f"The following models were not found: {', '.join(missing_models)}",
