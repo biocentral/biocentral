@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**add_embeddings_api_v1_embeddings_service_add_embeddings_post**](EmbeddingsApi.md#add_embeddings_api_v1_embeddings_service_add_embeddings_post) | **POST** /api/v1/embeddings_service/add_embeddings | Add embeddings
+[**common_embedders_api_v1_embeddings_service_common_embedders_get**](EmbeddingsApi.md#common_embedders_api_v1_embeddings_service_common_embedders_get) | **GET** /api/v1/embeddings_service/common_embedders | Get a list of common embedder names support by the server
 [**embed_api_v1_embeddings_service_embed_post**](EmbeddingsApi.md#embed_api_v1_embeddings_service_embed_post) | **POST** /api/v1/embeddings_service/embed | Calculate embeddings
 [**get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post**](EmbeddingsApi.md#get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post) | **POST** /api/v1/embeddings_service/get_missing_embeddings | Check missing embeddings
 
@@ -78,6 +79,71 @@ No authorization required
 **404** | Not found |  -  |
 **400** | Bad Request |  -  |
 **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **common_embedders_api_v1_embeddings_service_common_embedders_get**
+> List[CommonEmbedder] common_embedders_api_v1_embeddings_service_common_embedders_get()
+
+Get a list of common embedder names support by the server
+
+Get a list of commonly used embedder names
+
+### Example
+
+
+```python
+import biocentral_api._generated
+from biocentral_api._generated.models.common_embedder import CommonEmbedder
+from biocentral_api._generated.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = biocentral_api._generated.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with biocentral_api._generated.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
+
+    try:
+        # Get a list of common embedder names support by the server
+        api_response = api_instance.common_embedders_api_v1_embeddings_service_common_embedders_get()
+        print("The response of EmbeddingsApi->common_embedders_api_v1_embeddings_service_common_embedders_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling EmbeddingsApi->common_embedders_api_v1_embeddings_service_common_embedders_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**List[CommonEmbedder]**](CommonEmbedder.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

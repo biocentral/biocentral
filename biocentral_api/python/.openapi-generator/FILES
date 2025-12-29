@@ -35,6 +35,7 @@ biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
 biocentral_api/_generated/models/biotrainer_sequence_record.py
+biocentral_api/_generated/models/common_embedder.py
 biocentral_api/_generated/models/config_options_response.py
 biocentral_api/_generated/models/config_verification_request.py
 biocentral_api/_generated/models/config_verification_response.py
@@ -104,6 +105,7 @@ docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 docs/BiotrainerSequenceRecord.md
+docs/CommonEmbedder.md
 docs/ConfigOptionsResponse.md
 docs/ConfigVerificationRequest.md
 docs/ConfigVerificationResponse.md
@@ -159,9 +161,3 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
-test/test_biocentral_prediction_model.py
-test/test_model_metadata.py
-test/test_model_output.py
-test/test_output_class.py
-test/test_output_type.py
-test/test_protocol.py

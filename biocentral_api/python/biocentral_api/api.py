@@ -4,11 +4,11 @@ import time
 import urllib.parse
 import numpy as np
 
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Union
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
-    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel
+    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
     ActiveLearningClient
 
@@ -118,7 +118,7 @@ class BiocentralAPI:
         raise TimeoutError("No healthy biocentral service became available in time")
 
     def embed(self,
-              embedder_name: str,
+              embedder_name: Union[str, CommonEmbedder],
               sequence_data: Dict[str, str],
               reduce: Optional[bool] = True,
               use_half_precision: Optional[bool] = False) -> BiocentralServerTask[Dict[str, np.ndarray]]:
@@ -126,6 +126,7 @@ class BiocentralAPI:
         Generates embeddings for the given sequence data using the specified embedder.
 
         :param embedder_name: The name of the embedder to be used for generating embeddings.
+            Can be any valid huggingface string identifier or a CommonEmbedder enum value.
             Examples: "one_hot_encoding", "Rostlab/prot_t5_xl_uniref50", "random_embedder"
         :param sequence_data: A dictionary containing the sequence data for which embeddings should be
             calculated. Typically maps identifiers to sequences.
@@ -139,6 +140,9 @@ class BiocentralAPI:
         sequences = list(sequence_data.values())
         if len(sequences) != len(set(sequences)):
             raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
+
+        if isinstance(embedder_name, CommonEmbedder):
+            embedder_name = embedder_name.value
 
         embeddings_client = EmbeddingsClient()
         with self._create_api_client() as api_client:
