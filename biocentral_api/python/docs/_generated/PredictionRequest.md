@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**model_names** | **List[str]** | List of model names to use for prediction | 
+**model_names** | [**List[BiocentralPredictionModel]**](BiocentralPredictionModel.md) | List of model names to use for prediction | 
 **sequence_input** | **Dict[str, str]** | Dictionary mapping sequence IDs to protein sequences | 
 
 ## Example

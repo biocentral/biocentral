@@ -8,7 +8,7 @@ from typing import Optional, List, Dict, Any, Tuple
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
-    ActiveLearningSimulationConfig, ActiveLearningSimulationResult
+    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
     ActiveLearningClient
 
@@ -218,20 +218,22 @@ class BiocentralAPI:
             biocentral_server_task = custom_models_client.inference(api_client, model_hash, inference_data)
             return biocentral_server_task
 
-    def predict(self, model_names: List[str], sequence_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, Any]]:
+    def predict(self, model_names: List[BiocentralPredictionModel], sequence_data: Dict[str, str]) -> \
+            BiocentralServerTask[Dict[str, Any]]:
         """
         Provides functionality to predict results based on specified pre-trained model names and sequence data.
 
         In contrast to the inference method, this method uses pre-defined models instead of
         user-defined and user-trained models.
 
-        :param model_names: List of model names from which predictions should be created.
+        :param model_names: List of biocentral prediction model names from which predictions should be created.
         :param sequence_data: Dictionary containing sequence data for prediction, where keys represent identifiers
             and values represent the sequences.
         """
         if len(model_names) == 0:
             raise ValueError("No valid model names provided.")
-        invalid_model_names = [model_name for model_name in model_names if len(model_name) == 0]
+        invalid_model_names = [model_name for model_name in model_names if
+                               len(model_name) == 0 or model_name not in BiocentralPredictionModel.__members__.values()]
         if len(invalid_model_names) > 0:
             raise ValueError(f"Invalid model names provided: {invalid_model_names}")
         if len(sequence_data) == 0:

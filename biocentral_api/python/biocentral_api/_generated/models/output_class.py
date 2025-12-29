@@ -19,18 +19,17 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
-from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel
 from typing import Optional, Set
 from typing_extensions import Self
 
-class PredictionRequest(BaseModel):
+class OutputClass(BaseModel):
     """
-    PredictionRequest
+    OutputClass
     """ # noqa: E501
-    model_names: Annotated[List[BiocentralPredictionModel], Field(min_length=1)] = Field(description="List of model names to use for prediction")
-    sequence_input: Dict[str, StrictStr] = Field(description="Dictionary mapping sequence IDs to protein sequences")
-    __properties: ClassVar[List[str]] = ["model_names", "sequence_input"]
+    shortcut: StrictStr = Field(description="Shortcut of the label")
+    label: StrictStr = Field(description="Label of the class")
+    description: StrictStr = Field(description="Description of the class")
+    __properties: ClassVar[List[str]] = ["shortcut", "label", "description"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +49,7 @@ class PredictionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PredictionRequest from a JSON string"""
+        """Create an instance of OutputClass from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +74,7 @@ class PredictionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PredictionRequest from a dict"""
+        """Create an instance of OutputClass from a dict"""
         if obj is None:
             return None
 
@@ -83,8 +82,9 @@ class PredictionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "model_names": obj.get("model_names"),
-            "sequence_input": obj.get("sequence_input")
+            "shortcut": obj.get("shortcut"),
+            "label": obj.get("label"),
+            "description": obj.get("description")
         })
         return _obj
 

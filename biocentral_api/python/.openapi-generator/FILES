@@ -31,6 +31,7 @@ biocentral_api/_generated/models/add_embeddings_request.py
 biocentral_api/_generated/models/add_embeddings_response.py
 biocentral_api/_generated/models/auto_detect_format_request.py
 biocentral_api/_generated/models/auto_eval_progress.py
+biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
 biocentral_api/_generated/models/biotrainer_sequence_record.py
@@ -47,9 +48,13 @@ biocentral_api/_generated/models/http_validation_error.py
 biocentral_api/_generated/models/import_dataset_request.py
 biocentral_api/_generated/models/import_dataset_response.py
 biocentral_api/_generated/models/model_files_request.py
+biocentral_api/_generated/models/model_metadata.py
 biocentral_api/_generated/models/model_metadata_response.py
+biocentral_api/_generated/models/model_output.py
 biocentral_api/_generated/models/not_found_error_response.py
+biocentral_api/_generated/models/output_class.py
 biocentral_api/_generated/models/output_data.py
+biocentral_api/_generated/models/output_type.py
 biocentral_api/_generated/models/plm_eval_autoeval_request.py
 biocentral_api/_generated/models/plm_eval_information.py
 biocentral_api/_generated/models/plm_eval_information_response.py
@@ -59,6 +64,7 @@ biocentral_api/_generated/models/plm_eval_validate_response.py
 biocentral_api/_generated/models/prediction.py
 biocentral_api/_generated/models/prediction_request.py
 biocentral_api/_generated/models/projection_request.py
+biocentral_api/_generated/models/protocol.py
 biocentral_api/_generated/models/protocols_response.py
 biocentral_api/_generated/models/run_test_request.py
 biocentral_api/_generated/models/run_test_response.py
@@ -94,6 +100,7 @@ docs/AddEmbeddingsResponse.md
 docs/AutoDetectFormatRequest.md
 docs/AutoEvalProgress.md
 docs/BiocentralApi.md
+docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 docs/BiotrainerSequenceRecord.md
@@ -113,9 +120,13 @@ docs/HTTPValidationError.md
 docs/ImportDatasetRequest.md
 docs/ImportDatasetResponse.md
 docs/ModelFilesRequest.md
+docs/ModelMetadata.md
 docs/ModelMetadataResponse.md
+docs/ModelOutput.md
 docs/NotFoundErrorResponse.md
+docs/OutputClass.md
 docs/OutputData.md
+docs/OutputType.md
 docs/PLMEvalAutoevalRequest.md
 docs/PLMEvalInformation.md
 docs/PLMEvalInformationResponse.md
@@ -130,6 +141,7 @@ docs/PredictionRequest.md
 docs/ProjectionRequest.md
 docs/ProjectionsApi.md
 docs/ProteinsApi.md
+docs/Protocol.md
 docs/ProtocolsResponse.md
 docs/RunTestRequest.md
 docs/RunTestResponse.md
@@ -147,3 +159,9 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
+test/test_biocentral_prediction_model.py
+test/test_model_metadata.py
+test/test_model_output.py
+test/test_output_class.py
+test/test_output_type.py
+test/test_protocol.py

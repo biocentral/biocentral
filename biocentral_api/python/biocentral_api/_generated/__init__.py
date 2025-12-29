@@ -52,6 +52,7 @@ __all__ = [
     "AddEmbeddingsResponse",
     "AutoDetectFormatRequest",
     "AutoEvalProgress",
+    "BiocentralPredictionModel",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
     "BiotrainerSequenceRecord",
@@ -68,9 +69,13 @@ __all__ = [
     "ImportDatasetRequest",
     "ImportDatasetResponse",
     "ModelFilesRequest",
+    "ModelMetadata",
     "ModelMetadataResponse",
+    "ModelOutput",
     "NotFoundErrorResponse",
+    "OutputClass",
     "OutputData",
+    "OutputType",
     "PLMEvalAutoevalRequest",
     "PLMEvalInformation",
     "PLMEvalInformationResponse",
@@ -80,6 +85,7 @@ __all__ = [
     "Prediction",
     "PredictionRequest",
     "ProjectionRequest",
+    "Protocol",
     "ProtocolsResponse",
     "RunTestRequest",
     "RunTestResponse",
@@ -137,6 +143,7 @@ from biocentral_api._generated.models.add_embeddings_request import AddEmbedding
 from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
 from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest
 from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress as AutoEvalProgress
+from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel as BiocentralPredictionModel
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord as BiotrainerSequenceRecord
@@ -153,9 +160,13 @@ from biocentral_api._generated.models.http_validation_error import HTTPValidatio
 from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest as ImportDatasetRequest
 from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse as ImportDatasetResponse
 from biocentral_api._generated.models.model_files_request import ModelFilesRequest as ModelFilesRequest
+from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
+from biocentral_api._generated.models.model_output import ModelOutput as ModelOutput
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse as NotFoundErrorResponse
+from biocentral_api._generated.models.output_class import OutputClass as OutputClass
 from biocentral_api._generated.models.output_data import OutputData as OutputData
+from biocentral_api._generated.models.output_type import OutputType as OutputType
 from biocentral_api._generated.models.plm_eval_autoeval_request import PLMEvalAutoevalRequest as PLMEvalAutoevalRequest
 from biocentral_api._generated.models.plm_eval_information import PLMEvalInformation as PLMEvalInformation
 from biocentral_api._generated.models.plm_eval_information_response import PLMEvalInformationResponse as PLMEvalInformationResponse
@@ -165,6 +176,7 @@ from biocentral_api._generated.models.plm_eval_validate_response import PLMEvalV
 from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
+from biocentral_api._generated.models.protocol import Protocol as Protocol
 from biocentral_api._generated.models.protocols_response import ProtocolsResponse as ProtocolsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse

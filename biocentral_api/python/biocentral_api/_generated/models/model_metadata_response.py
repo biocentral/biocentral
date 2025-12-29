@@ -17,8 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
+from biocentral_api._generated.models.model_metadata import ModelMetadata
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -26,7 +28,7 @@ class ModelMetadataResponse(BaseModel):
     """
     ModelMetadataResponse
     """ # noqa: E501
-    metadata: Dict[str, Any]
+    metadata: Annotated[List[ModelMetadata], Field(min_length=1)] = Field(description="List of model metadata")
     __properties: ClassVar[List[str]] = ["metadata"]
 
     model_config = ConfigDict(
@@ -68,6 +70,13 @@ class ModelMetadataResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in metadata (list)
+        _items = []
+        if self.metadata:
+            for _item_metadata in self.metadata:
+                if _item_metadata:
+                    _items.append(_item_metadata.to_dict())
+            _dict['metadata'] = _items
         return _dict
 
     @classmethod
@@ -80,7 +89,7 @@ class ModelMetadataResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "metadata": obj.get("metadata")
+            "metadata": [ModelMetadata.from_dict(_item) for _item in obj["metadata"]] if obj.get("metadata") is not None else None
         })
         return _obj
 

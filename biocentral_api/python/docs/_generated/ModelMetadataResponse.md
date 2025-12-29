@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**metadata** | **Dict[str, object]** |  | 
+**metadata** | [**List[ModelMetadata]**](ModelMetadata.md) | List of model metadata | 
 
 ## Example
 
