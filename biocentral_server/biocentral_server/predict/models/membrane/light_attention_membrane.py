@@ -13,6 +13,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
@@ -57,7 +58,7 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="LightAttentionMembrane",
+            name=BiocentralPredictionModel.LightAttentionMembrane,
             protocol=Protocol.residues_to_class,
             description="Prediction of protein membrane association",
             authors="Stärk, Hannes and Dallago, Christian and Heinzinger, Michael and Rost, Burkhard",

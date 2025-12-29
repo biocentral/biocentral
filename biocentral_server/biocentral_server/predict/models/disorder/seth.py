@@ -12,6 +12,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
@@ -48,7 +49,7 @@ class Seth(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="SETH",
+            name=BiocentralPredictionModel.Seth,
             protocol=Protocol.residue_to_value,
             description="SETH model for predicting nuances of residue disorder in proteins",
             authors="Dagmar Ilzhoefer, Michael Heinzinger, Burkhard Rost",

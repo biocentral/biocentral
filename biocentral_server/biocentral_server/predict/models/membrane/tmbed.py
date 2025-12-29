@@ -14,6 +14,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
@@ -86,7 +87,7 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="TMbed",
+            name=BiocentralPredictionModel.TMbed,
             protocol=Protocol.residue_to_class,
             description="Prediction of transmembrane proteins",
             authors="Bernhofer, Michael and Rost, Burkhard",

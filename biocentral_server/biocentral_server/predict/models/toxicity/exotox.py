@@ -12,6 +12,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class ExoTox(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
@@ -55,7 +56,7 @@ class ExoTox(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="ExoTox",
+            name=BiocentralPredictionModel.ExoTox,
             protocol=Protocol.sequence_to_class,
             description="Prediction of exotoxins",
             authors="Tanja Krueger and Damla A. Durmaz & Luisa F. Jimenez-Soto",

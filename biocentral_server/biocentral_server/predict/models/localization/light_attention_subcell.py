@@ -13,6 +13,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class LightAttentionSubcellularLocalization(
@@ -71,7 +72,7 @@ class LightAttentionSubcellularLocalization(
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="LightAttentionSubcellularLocalization",
+            name=BiocentralPredictionModel.LightAttentionSubcellularLocalization,
             protocol=Protocol.residues_to_class,
             description="Protein subcellular localization prediction",
             authors="Stärk, Hannes and Dallago, Christian and Heinzinger, Michael and Rost, Burkhard",

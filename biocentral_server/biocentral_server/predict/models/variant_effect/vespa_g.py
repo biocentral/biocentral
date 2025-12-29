@@ -18,6 +18,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction, MutationPrediction
 
@@ -61,7 +62,7 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="VespaG",
+            name=BiocentralPredictionModel.VespaG,
             protocol=Protocol.residue_to_class,  # TODO residue_to_value / mutation
             description="Single amino acid variant effect prediction based on VESPA and GEMME models",
             authors="Céline Marquet, Julius Schlensok, Marina Abakarova, Burkhard Rost, Elodie Laine",

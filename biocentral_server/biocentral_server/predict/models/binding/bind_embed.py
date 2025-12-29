@@ -14,6 +14,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction
 
@@ -77,7 +78,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="BindEmbed",
+            name=BiocentralPredictionModel.BindEmbed,
             protocol=Protocol.residue_to_class,
             description="bindEmbed21DL - Binding residue prediction for various ligand classes",
             authors="Littmann, Maria and Heinzinger, Michael and Dallago, Christian and Weissenow, Konstantin and Rost, Burkhard",

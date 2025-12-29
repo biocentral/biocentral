@@ -13,6 +13,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
 class ProtT5SecondaryStructure(
@@ -56,7 +57,7 @@ class ProtT5SecondaryStructure(
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="ProtT5SecondaryStructure",
+            name=BiocentralPredictionModel.ProtT5SecondaryStructure,
             protocol=Protocol.residue_to_class,
             description="ProtT5 secondary structure prediction",
             authors="Elnaggar, Ahmed and Heinzinger, Michael and Dallago, Christian and Rehawi, Ghalia and Yu, Wang and Jones, Llion and Gibbs, Tom and Feher, Tamas and Angerer, Christoph and Steinegger, Martin and Bhowmik, Debsindhu and Rost, Burkhard",

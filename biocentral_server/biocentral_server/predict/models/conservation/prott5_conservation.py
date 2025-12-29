@@ -13,6 +13,7 @@ from ..base_model import (
     LocalOnnxInferenceMixin,
     TritonInferenceMixin,
 )
+from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction
 
@@ -53,7 +54,7 @@ class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixi
     @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
-            name="ProtT5Conservation",
+            name=BiocentralPredictionModel.ProtT5Conservation,
             protocol=Protocol.residue_to_class,
             description="VESPA model for protein residue conservation prediction",
             authors="C{'{e}}line Marquet and Michael Heinzinger and Tobias Olenyi and Christian Dallago and Kyra Erckert and Michael Bernhofer and Dmitrii Nechaev and Burkhard Rost",
