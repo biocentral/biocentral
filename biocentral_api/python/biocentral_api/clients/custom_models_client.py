@@ -1,6 +1,7 @@
 from tqdm import tqdm
 from typing import Dict, Any, List
 
+from .client_interface import ClientInterface
 from .tasks import BiocentralServerTask, DTOHandler
 
 from .._generated import ApiClient, StartTrainingRequest, ConfigVerificationRequest, CustomModelsApi, \
@@ -66,9 +67,9 @@ class _InferenceDTOHandler(DTOHandler):
         return pbar
 
 
-class CustomModelsClient:
+class CustomModelsClient(ClientInterface):
     def train(self, api_client: ApiClient, config: Dict[str, Any],
-              training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
+                    training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
         custom_models_api = CustomModelsApi(api_client)
         config_verification_request = ConfigVerificationRequest(config_dict=config)
 
@@ -85,13 +86,17 @@ class CustomModelsClient:
         training_dto_handler = _TrainingDTOHandler()
 
         start_training_request = StartTrainingRequest(config_dict=config, training_data=training_data)
-        task_id = custom_models_api.start_training_api_v1_custom_models_service_start_training_post(
-            start_training_request).task_id
+        task_id = self._submit_task(
+            endpoint_caller=lambda: custom_models_api.start_training_api_v1_custom_models_service_start_training_post(
+                start_training_request)
+        )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=training_dto_handler)
 
     def inference(self, api_client: ApiClient, model_hash: str, inference_data: Dict[str, str]):
         custom_models_api = CustomModelsApi(api_client)
         start_inference_request = StartInferenceRequest(model_hash=model_hash, sequence_data=inference_data)
-        task_id = custom_models_api.start_inference_api_v1_custom_models_service_start_inference_post(
-            start_inference_request).task_id
+        task_id = self._submit_task(
+            endpoint_caller=lambda: custom_models_api.start_inference_api_v1_custom_models_service_start_inference_post(
+                start_inference_request)
+        )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=_InferenceDTOHandler())

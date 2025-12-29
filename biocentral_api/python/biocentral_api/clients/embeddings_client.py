@@ -7,9 +7,10 @@ from tqdm import tqdm
 from typing import Dict, List
 
 from .tasks import BiocentralServerTask, DTOHandler
+from .client_interface import ClientInterface
 
 from ..utils import calculate_sequence_hash
-from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, StartTaskResponse, TaskStatus, \
+from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, TaskStatus, \
     TaskDTO
 
 
@@ -71,9 +72,9 @@ class _EmbedDTOHandler(DTOHandler):
         return pbar
 
 
-class EmbeddingsClient:
+class EmbeddingsClient(ClientInterface):
     def embed(self, api_client: ApiClient, embedder_name: str, reduce: bool, sequence_data: Dict[str, str],
-              use_half_precision: bool) -> BiocentralServerTask:
+                    use_half_precision: bool) -> BiocentralServerTask:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
 
@@ -82,12 +83,12 @@ class EmbeddingsClient:
         embed_request = EmbedRequest(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
                                      use_half_precision=use_half_precision)
         api_instance = EmbeddingsApi(api_client)
-        start_task_response: StartTaskResponse = api_instance.embed_api_v1_embeddings_service_embed_post(embed_request)
-        if start_task_response.task_id is None:
-            raise Exception("Failed to start embed task")
+        task_id = self._submit_task(
+            endpoint_caller=lambda: api_instance.embed_api_v1_embeddings_service_embed_post(embed_request)
+        )
 
         embed_dto_handler = _EmbedDTOHandler(hash2id)
-        biocentral_server_task = BiocentralServerTask(task_id=start_task_response.task_id,
+        biocentral_server_task = BiocentralServerTask(task_id=task_id,
                                                       api_client=api_client,
                                                       dto_handler=embed_dto_handler)
         return biocentral_server_task

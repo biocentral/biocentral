@@ -1,15 +1,11 @@
-import io
-import h5py
-import base64
-import numpy as np
-
 from tqdm import tqdm
 from typing import Dict, List
 
+from .client_interface import ClientInterface
 from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
-from .._generated import ApiClient, PredictionRequest, PredictionApi, StartTaskResponse, TaskStatus, \
+from .._generated import ApiClient, PredictionRequest, PredictionApi, TaskStatus, \
     TaskDTO
 
 
@@ -44,7 +40,7 @@ class _PredictDTOHandler(DTOHandler):
         return pbar
 
 
-class PredictClient:
+class PredictClient(ClientInterface):
     def predict(self, api_client: ApiClient, model_names: List[str],
                 sequence_data: Dict[str, str]) -> BiocentralServerTask:
         assert len(sequence_data) > 0, "No sequences provided"
@@ -54,13 +50,12 @@ class PredictClient:
 
         prediction_request = PredictionRequest(model_names=model_names, sequence_input=sequence_data)
         api_instance = PredictionApi(api_client)
-        start_task_response: StartTaskResponse = api_instance.predict_api_v1_prediction_service_predict_post(
-            prediction_request)
-        if start_task_response.task_id is None:
-            raise Exception("Failed to start prediction task")
+        task_id = self._submit_task(
+            endpoint_caller=lambda: api_instance.predict_api_v1_prediction_service_predict_post(
+                prediction_request))
 
         predict_dto_handler = _PredictDTOHandler(hash2id)
-        biocentral_server_task = BiocentralServerTask(task_id=start_task_response.task_id,
+        biocentral_server_task = BiocentralServerTask(task_id=task_id,
                                                       api_client=api_client,
                                                       dto_handler=predict_dto_handler)
         return biocentral_server_task

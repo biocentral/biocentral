@@ -2,6 +2,7 @@ from tqdm import tqdm
 from typing import List
 
 from .tasks import BiocentralServerTask, DTOHandler
+from .client_interface import ClientInterface
 
 from .._generated import ApiClient, ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningApi, \
     TaskDTO, TaskStatus, ActiveLearningIterationRequest, ActiveLearningSimulationConfig, \
@@ -85,10 +86,10 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
         return pbar
 
 
-class ActiveLearningClient:
+class ActiveLearningClient(ClientInterface):
     def al_iteration(self, api_client: ApiClient,
-                     campaign_config: ActiveLearningCampaignConfig,
-                     iteration_config: ActiveLearningIterationConfig) -> BiocentralServerTask[
+                           campaign_config: ActiveLearningCampaignConfig,
+                           iteration_config: ActiveLearningIterationConfig) -> BiocentralServerTask[
         ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
@@ -96,13 +97,15 @@ class ActiveLearningClient:
 
         al_iteration_request = ActiveLearningIterationRequest(campaign_config=campaign_config,
                                                               iteration_config=iteration_config)
-        task_id = al_api.active_learning_iteration_api_v1_active_learning_service_iteration_post(
-            al_iteration_request).task_id
+        task_id = self._submit_task(
+            endpoint_caller=lambda: al_api.active_learning_iteration_api_v1_active_learning_service_iteration_post(
+                al_iteration_request)
+        )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler)
 
     def al_simulation(self, api_client: ApiClient,
-                      campaign_config: ActiveLearningCampaignConfig,
-                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[
+                            campaign_config: ActiveLearningCampaignConfig,
+                            simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[
         ActiveLearningSimulationResult]:
         al_api = ActiveLearningApi(api_client)
 
@@ -110,6 +113,8 @@ class ActiveLearningClient:
 
         al_simulation_request = ActiveLearningSimulationRequest(campaign_config=campaign_config,
                                                                 simulation_config=simulation_config)
-        task_id = al_api.active_learning_simulation_api_v1_active_learning_service_simulation_post(
-            al_simulation_request).task_id
+        task_id = self._submit_task(
+            endpoint_caller=lambda: al_api.active_learning_simulation_api_v1_active_learning_service_simulation_post(
+                al_simulation_request)
+        )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_simulation_dto_handler)
