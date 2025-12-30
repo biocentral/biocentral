@@ -12,12 +12,12 @@ pip install biocentral-api
 
 **Embedding protein sequences**:
 ```python
-from biocentral_api import BiocentralAPI
+from biocentral_api import BiocentralAPI, CommonEmbedder
 
 biocentral_api = BiocentralAPI()
 
 # ProtT5
-embedder_name = "Rostlab/prot_t5_xl_uniref50"
+embedder_name = CommonEmbedder.ProtT5
 reduce = True
 sequence_data = {"Seq1": "MMALSLALM"}
 result = biocentral_api.embed(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
@@ -26,5 +26,3 @@ print(result)
 ```
 
 For more examples, please refer to the [examples](examples) folder.
-
-
