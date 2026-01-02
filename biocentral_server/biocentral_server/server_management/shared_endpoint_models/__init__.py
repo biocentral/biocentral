@@ -1,4 +1,5 @@
 from .response_models import StartTaskResponse
+from .embedding_progress import EmbeddingProgress
 from .prediction_model import Prediction, MutationPrediction
 from .error_models import ErrorResponse, NotFoundErrorResponse
 from .al_result import (
@@ -16,4 +17,5 @@ __all__ = [
     "ActiveLearningResult",
     "ActiveLearningIterationResult",
     "ActiveLearningSimulationResult",
+    "EmbeddingProgress",
 ]

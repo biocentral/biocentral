@@ -9,6 +9,7 @@ from .custom_middleware import BodySizeLimitMiddleware
 from .shared_endpoint_models import (
     Prediction,
     MutationPrediction,
+    EmbeddingProgress,
     ActiveLearningResult,
     ActiveLearningIterationResult,
     ActiveLearningSimulationResult,
@@ -27,9 +28,10 @@ from .triton_client import (
     TritonClientConfig,
     TritonInferenceRepository,
     create_triton_repository,
-    RepositoryManager,
+    TritonRepositoryManager,
     get_shared_repository,
     cleanup_repositories,
+    TritonError,
 )
 
 __all__ = [
@@ -52,7 +54,8 @@ __all__ = [
     "TritonClientConfig",
     "TritonInferenceRepository",
     "create_triton_repository",
-    "RepositoryManager",
+    "TritonRepositoryManager",
+    "TritonError",
     "get_shared_repository",
     "cleanup_repositories",
     "ErrorResponse",
@@ -65,4 +68,5 @@ __all__ = [
     "ActiveLearningResult",
     "ActiveLearningIterationResult",
     "ActiveLearningSimulationResult",
+    "EmbeddingProgress",
 ]

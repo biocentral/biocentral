@@ -15,6 +15,7 @@ from ..shared_endpoint_models import (
     Prediction,
     ActiveLearningIterationResult,
     ActiveLearningSimulationResult,
+    EmbeddingProgress,
 )
 
 
@@ -45,8 +46,7 @@ class TaskDTO(BaseModel):
     biotrainer_result: Optional[Dict[str, Any]] = None
 
     # embeddings
-    embedding_current: Optional[int] = None
-    embedding_total: Optional[int] = None
+    embedding_progress: Optional[EmbeddingProgress] = None
     embedded_sequences: Optional[Dict[str, str]] = None
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[str] = None

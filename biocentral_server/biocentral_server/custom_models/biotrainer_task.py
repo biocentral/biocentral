@@ -132,7 +132,7 @@ class BiotrainerTask(TaskInterface):
         load_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(load_embedding_task):
             load_dto = current_dto
-            if load_dto.embedding_current is not None:
+            if load_dto.embedding_progress is not None:
                 update_dto_callback(load_dto)
 
         if not load_dto:

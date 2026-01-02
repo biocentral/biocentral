@@ -111,7 +111,7 @@ class AutoEvalTask(TaskInterface):
             calculate_dto = None
             for dto in self.run_subtask(calculate_task):
                 calculate_dto = dto
-                if calculate_dto.embedding_current is not None:
+                if calculate_dto.embedding_progress is not None:
                     update_dto_callback(calculate_dto)
 
             if not calculate_dto or calculate_dto.embedded_sequences is None:

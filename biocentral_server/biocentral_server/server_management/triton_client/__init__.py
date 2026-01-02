@@ -24,7 +24,7 @@ from .repository import (
     create_triton_repository,
 )
 from .repository_manager import (
-    RepositoryManager,
+    TritonRepositoryManager,
     get_shared_repository,
     cleanup_repositories,
 )
@@ -40,7 +40,7 @@ __all__ = [
     "InferenceRepository",
     "TritonInferenceRepository",
     "create_triton_repository",
-    "RepositoryManager",
+    "TritonRepositoryManager",
     "get_shared_repository",
     "cleanup_repositories",
 ]

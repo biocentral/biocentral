@@ -14,6 +14,7 @@ from ..server_management import (
     EmbeddingDatabaseFactory,
     FileContextManager,
     TaskStatus,
+    EmbeddingProgress,
 )
 
 
@@ -55,7 +56,7 @@ class CalculateEmbeddingsTask(TaskInterface):
         all_seqs = self._read_sequence_input()
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        for current, total in compute_embeddings(
+        for progress in compute_embeddings(
             embedder_name=self.embedder_name,
             custom_tokenizer_config=self.custom_tokenizer_config,
             all_seqs=all_seqs,
@@ -67,8 +68,7 @@ class CalculateEmbeddingsTask(TaskInterface):
             update_dto_callback(
                 TaskDTO(
                     status=TaskStatus.RUNNING,
-                    embedding_current=current,
-                    embedding_total=total,
+                    embedding_progress=progress,
                 )
             )
 
@@ -89,8 +89,9 @@ class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
         update_dto_callback(
             TaskDTO(
                 status=TaskStatus.RUNNING,
-                embedding_current=len_memory_embeddings,
-                embedding_total=len_memory_embeddings,
+                embedding_progress=EmbeddingProgress(
+                    current=len_memory_embeddings, total=len_memory_embeddings
+                ),
             )
         )
 
@@ -153,7 +154,7 @@ class LoadEmbeddingsTask(TaskInterface):
         calculate_dto = None
         for dto in self.run_subtask(calculate_task):
             calculate_dto = dto
-            if calculate_dto.embedding_current is not None:
+            if calculate_dto.embedding_progress is not None:
                 update_dto_callback(calculate_dto)
 
         if not calculate_dto or calculate_dto.embedded_sequences is None:
@@ -221,7 +222,7 @@ class ExportEmbeddingsTask(TaskInterface):
         load_dto = None
         for dto in self.run_subtask(load_task):
             load_dto = dto
-            if load_dto.embedding_current is not None:
+            if load_dto.embedding_progress is not None:
                 update_dto_callback(load_dto)
 
         if not load_dto or load_dto.embeddings is None:
