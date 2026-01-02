@@ -17,23 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from biocentral_api._generated.models.auto_eval_report import AutoEvalReport
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class AutoEvalProgress(BaseModel):
+class AutoEvalReport(BaseModel):
     """
-    AutoEvalProgress
+    AutoEvalReport
     """ # noqa: E501
-    completed_tasks: Annotated[int, Field(strict=True, ge=0)] = Field(description="Number of completed autoeval tasks")
-    total_tasks: Annotated[int, Field(strict=True, ge=0)] = Field(description="Total number of autoeval tasks")
-    current_framework_name: StrictStr = Field(description="Name of the current framework that is being evaluated")
-    current_task_name: StrictStr = Field(description="Name of the current task that is being executed")
-    final_report: Optional[AutoEvalReport] = None
-    __properties: ClassVar[List[str]] = ["completed_tasks", "total_tasks", "current_framework_name", "current_task_name", "final_report"]
+    embedder_name: StrictStr = Field(description="Name of the embedder")
+    training_date: StrictStr = Field(description="Date of training")
+    min_seq_len: StrictInt = Field(description="Minimum sequence length used during evaluation")
+    max_seq_len: StrictInt = Field(description="Maximum sequence length used during evaluation")
+    results: Dict[str, Dict[str, Any]] = Field(description="Autoeval results")
+    __properties: ClassVar[List[str]] = ["embedder_name", "training_date", "min_seq_len", "max_seq_len", "results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +51,7 @@ class AutoEvalProgress(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AutoEvalProgress from a JSON string"""
+        """Create an instance of AutoEvalReport from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,19 +72,11 @@ class AutoEvalProgress(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of final_report
-        if self.final_report:
-            _dict['final_report'] = self.final_report.to_dict()
-        # set to None if final_report (nullable) is None
-        # and model_fields_set contains the field
-        if self.final_report is None and "final_report" in self.model_fields_set:
-            _dict['final_report'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AutoEvalProgress from a dict"""
+        """Create an instance of AutoEvalReport from a dict"""
         if obj is None:
             return None
 
@@ -94,11 +84,11 @@ class AutoEvalProgress(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "completed_tasks": obj.get("completed_tasks"),
-            "total_tasks": obj.get("total_tasks"),
-            "current_framework_name": obj.get("current_framework_name"),
-            "current_task_name": obj.get("current_task_name"),
-            "final_report": AutoEvalReport.from_dict(obj["final_report"]) if obj.get("final_report") is not None else None
+            "embedder_name": obj.get("embedder_name"),
+            "training_date": obj.get("training_date"),
+            "min_seq_len": obj.get("min_seq_len"),
+            "max_seq_len": obj.get("max_seq_len"),
+            "results": obj.get("results")
         })
         return _obj
 

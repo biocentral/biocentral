@@ -52,6 +52,7 @@ __all__ = [
     "AddEmbeddingsResponse",
     "AutoDetectFormatRequest",
     "AutoEvalProgress",
+    "AutoEvalReport",
     "BiocentralPredictionModel",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
@@ -62,6 +63,7 @@ __all__ = [
     "ConfigVerificationResponse",
     "DetectedFormatResponse",
     "EmbedRequest",
+    "EmbeddingProgress",
     "EpochMetrics",
     "GetMissingEmbeddingsRequest",
     "GetMissingEmbeddingsResponse",
@@ -144,6 +146,7 @@ from biocentral_api._generated.models.add_embeddings_request import AddEmbedding
 from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
 from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest
 from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress as AutoEvalProgress
+from biocentral_api._generated.models.auto_eval_report import AutoEvalReport as AutoEvalReport
 from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel as BiocentralPredictionModel
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
@@ -154,6 +157,7 @@ from biocentral_api._generated.models.config_verification_request import ConfigV
 from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse as ConfigVerificationResponse
 from biocentral_api._generated.models.detected_format_response import DetectedFormatResponse as DetectedFormatResponse
 from biocentral_api._generated.models.embed_request import EmbedRequest as EmbedRequest
+from biocentral_api._generated.models.embedding_progress import EmbeddingProgress as EmbeddingProgress
 from biocentral_api._generated.models.epoch_metrics import EpochMetrics as EpochMetrics
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse

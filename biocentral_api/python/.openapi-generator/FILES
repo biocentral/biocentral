@@ -31,6 +31,7 @@ biocentral_api/_generated/models/add_embeddings_request.py
 biocentral_api/_generated/models/add_embeddings_response.py
 biocentral_api/_generated/models/auto_detect_format_request.py
 biocentral_api/_generated/models/auto_eval_progress.py
+biocentral_api/_generated/models/auto_eval_report.py
 biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
@@ -41,6 +42,7 @@ biocentral_api/_generated/models/config_verification_request.py
 biocentral_api/_generated/models/config_verification_response.py
 biocentral_api/_generated/models/detected_format_response.py
 biocentral_api/_generated/models/embed_request.py
+biocentral_api/_generated/models/embedding_progress.py
 biocentral_api/_generated/models/epoch_metrics.py
 biocentral_api/_generated/models/get_missing_embeddings_request.py
 biocentral_api/_generated/models/get_missing_embeddings_response.py
@@ -100,6 +102,7 @@ docs/AddEmbeddingsRequest.md
 docs/AddEmbeddingsResponse.md
 docs/AutoDetectFormatRequest.md
 docs/AutoEvalProgress.md
+docs/AutoEvalReport.md
 docs/BiocentralApi.md
 docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
@@ -113,6 +116,7 @@ docs/CustomModelsApi.md
 docs/DefaultApi.md
 docs/DetectedFormatResponse.md
 docs/EmbedRequest.md
+docs/EmbeddingProgress.md
 docs/EmbeddingsApi.md
 docs/EpochMetrics.md
 docs/GetMissingEmbeddingsRequest.md
@@ -161,3 +165,5 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
+test/test_auto_eval_report.py
+test/test_embedding_progress.py

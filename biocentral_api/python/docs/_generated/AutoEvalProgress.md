@@ -5,11 +5,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**completed_tasks** | **int** |  | 
-**total_tasks** | **int** |  | 
-**current_framework_name** | **str** |  | 
-**current_task_name** | **str** |  | 
-**final_report** | **Dict[str, object]** |  | [optional] 
+**completed_tasks** | **int** | Number of completed autoeval tasks | 
+**total_tasks** | **int** | Total number of autoeval tasks | 
+**current_framework_name** | **str** | Name of the current framework that is being evaluated | 
+**current_task_name** | **str** | Name of the current task that is being executed | 
+**final_report** | [**AutoEvalReport**](AutoEvalReport.md) |  | [optional] 
 
 ## Example
 

@@ -17,12 +17,13 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult
 from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord
+from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.output_data import OutputData
 from biocentral_api._generated.models.prediction import Prediction
 from biocentral_api._generated.models.task_status import TaskStatus
@@ -38,8 +39,7 @@ class TaskDTO(BaseModel):
     predictions: Optional[Dict[str, List[Prediction]]] = None
     biotrainer_update: Optional[OutputData] = None
     biotrainer_result: Optional[Dict[str, Any]] = None
-    embedding_current: Optional[StrictInt] = None
-    embedding_total: Optional[StrictInt] = None
+    embedding_progress: Optional[EmbeddingProgress] = None
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[StrictStr] = None
@@ -48,7 +48,7 @@ class TaskDTO(BaseModel):
     autoeval_progress: Optional[AutoEvalProgress] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_current", "embedding_total", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -101,6 +101,9 @@ class TaskDTO(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of biotrainer_update
         if self.biotrainer_update:
             _dict['biotrainer_update'] = self.biotrainer_update.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of embedding_progress
+        if self.embedding_progress:
+            _dict['embedding_progress'] = self.embedding_progress.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in embeddings (list)
         _items = []
         if self.embeddings:
@@ -137,15 +140,10 @@ class TaskDTO(BaseModel):
         if self.biotrainer_result is None and "biotrainer_result" in self.model_fields_set:
             _dict['biotrainer_result'] = None
 
-        # set to None if embedding_current (nullable) is None
+        # set to None if embedding_progress (nullable) is None
         # and model_fields_set contains the field
-        if self.embedding_current is None and "embedding_current" in self.model_fields_set:
-            _dict['embedding_current'] = None
-
-        # set to None if embedding_total (nullable) is None
-        # and model_fields_set contains the field
-        if self.embedding_total is None and "embedding_total" in self.model_fields_set:
-            _dict['embedding_total'] = None
+        if self.embedding_progress is None and "embedding_progress" in self.model_fields_set:
+            _dict['embedding_progress'] = None
 
         # set to None if embedded_sequences (nullable) is None
         # and model_fields_set contains the field
@@ -211,8 +209,7 @@ class TaskDTO(BaseModel):
             ),
             "biotrainer_update": OutputData.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
             "biotrainer_result": obj.get("biotrainer_result"),
-            "embedding_current": obj.get("embedding_current"),
-            "embedding_total": obj.get("embedding_total"),
+            "embedding_progress": EmbeddingProgress.from_dict(obj["embedding_progress"]) if obj.get("embedding_progress") is not None else None,
             "embedded_sequences": obj.get("embedded_sequences"),
             "embeddings": [BiotrainerSequenceRecord.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),

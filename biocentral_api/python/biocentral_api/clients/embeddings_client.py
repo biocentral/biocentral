@@ -51,9 +51,9 @@ class _EmbedDTOHandler(DTOHandler):
             if status in [TaskStatus.RUNNING,
                           TaskStatus.FINISHED]:
                 if self._cached_embedding_total is None:
-                    self._cached_embedding_total = dto.embedding_total
+                    self._cached_embedding_total = dto.embedding_progress.total if dto.embedding_progress else None
                     pbar.total = self._cached_embedding_total if self._cached_embedding_total else 0
-                current = dto.embedding_current
+                current = dto.embedding_progress.current if dto.embedding_progress else None
                 if current is not None:
                     pbar.update(current - pbar.n)
             match status:
