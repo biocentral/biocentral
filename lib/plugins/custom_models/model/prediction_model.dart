@@ -103,7 +103,7 @@ class PredictionModel extends Equatable {
   }
 
   PredictionModel addLogs(List<String> logs) {
-    return copyWith(trainingLogs: Set<String>.from((trainingLogs)..addAll(logs)).toList());
+    return copyWith(trainingLogs: Set<String>.from(List.of(trainingLogs)..addAll(logs)).toList());
   }
 
   PredictionModel addCheckpoints(Map<String, Uint8List> checkpoints) {
