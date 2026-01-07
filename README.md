@@ -11,6 +11,8 @@ Biomedical data, from lab to paper.
 Biocentral is an open-source, innovative bioinformatics platform designed to bridge the gap between the
 latest developments in bioinformatics and applications in molecular biology and diagnostic medicine.
 
+Check out our **getting started** [guide](docs/getting_started.md) to learn how to use biocentral.
+
 ### Key Features
 
 - **User-Friendly GUI**: Simplify complex protein data analysis, visualization, and modeling.
@@ -22,6 +24,10 @@ latest developments in bioinformatics and applications in molecular biology and 
 - **Customizable Plugins**: Work only with the functionality that is fitting your specific research.
 
 ## 🛠️ Installation
+
+Download and install the latest version for your operating system
+from [GitHub](https://github.com/biocentral/biocentral/releases), or use it directly in the
+[browser](https://app.biocentral.cloud).
 
 **Current platform compatibility**:
 
@@ -54,14 +60,15 @@ for details.
 
 ## 📜 Citation
 
-A publication about biocentral is under construction. Until then, please cite this repository if you are using
-biocentral for your work:
+If you use biocentral in your research, please cite it as follows:
 
 ```text
-@Online{biocentral,
-  accessed = {2024-09-10},
-  author   = {Biocentral contributors},
-  title    = {Biocentral - An open source bioinformatics application},
-  url      = {https://github.com/biocentral/biocentral},
+@Article{Franz2025,
+  author    = {Franz, Sebastian and Olenyi, Tobias and Schloetermann, Paula and Smaoui, Amine and Jimenez Soto, Luisa Fernanda and Rost, Burkhard},
+  title     = {biocentral: embedding-based protein predictions},
+  year      = {2025},
+  month     = nov,
+  doi       = {10.1101/2025.11.21.689449},
+  publisher = {Cold Spring Harbor Laboratory},
 }
 ```
