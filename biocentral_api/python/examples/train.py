@@ -1,9 +1,9 @@
-from biocentral_api import BiocentralAPI, SequenceTrainingData
+from biocentral_api import BiocentralAPI, SequenceTrainingData, CommonEmbedder
 
-biocentral_api = BiocentralAPI()
+biocentral_api = BiocentralAPI().wait_until_healthy(max_wait_seconds=30)
 
 # OHE
-config = {"embedder_name": "one_hot_encoding",
+config = {"embedder_name": CommonEmbedder.ProtT5,
           "model_choice": "FNN",
           "protocol": "sequence_to_class"
           }

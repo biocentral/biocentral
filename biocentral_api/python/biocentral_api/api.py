@@ -192,6 +192,13 @@ class BiocentralAPI:
         if not isinstance(training_data, list):
             raise ValueError("Training data must be a list.")
 
+        if "embedder_name" in config:
+            embedder_name = config["embedder_name"]
+            if isinstance(embedder_name, CommonEmbedder):
+                config["embedder_name"] = embedder_name.value
+        else:
+            raise ValueError("No embedder name provided in configuration.")
+
         custom_models_client = CustomModelsClient()
         with self._create_api_client() as api_client:
             biocentral_server_task = custom_models_client.train(api_client, config, training_data)
