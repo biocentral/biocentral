@@ -9,8 +9,14 @@ from pydantic import BaseModel, Field, model_validator
 class SequenceTrainingData(BaseModel):
     seq_id: str = Field(description="Sequence identifier", min_length=1)
     sequence: str = Field(description="AA Sequence", min_length=1)
-    label: str = Field(description="Label to predict")
-    set: str = Field(description="Set", examples=["train", "val", "test", "pred"])
+    set: str = Field(
+        description="Set", examples=["train", "val", "test", "casp12", "pred"]
+    )
+    label: Optional[str] = Field(
+        default=None,
+        description="Label to predict. "
+        "Mandatory for all sets except for prediction data.",
+    )
     mask: Optional[str] = Field(default=None, description="MASK for per-residue tasks")
 
     @model_validator(mode="after")
@@ -18,7 +24,11 @@ class SequenceTrainingData(BaseModel):
         if self.mask is not None:
             if len(self.mask) != len(self.sequence):
                 raise ValueError("Length of mask must match length of sequence")
-
+        if self.set.lower() != "pred":
+            if self.label is None:
+                raise ValueError(
+                    "Label must be specified for all sets except prediction data!"
+                )
         return self
 
     def to_biotrainer_seq_record(self) -> BiotrainerSequenceRecord:
@@ -40,7 +50,7 @@ class SequenceTrainingData(BaseModel):
         return SequenceTrainingData(
             seq_id=self.seq_id,
             sequence=self.sequence,
-            label="None",
+            label=None,
             set=self.set,
             mask=self.mask,
         )
