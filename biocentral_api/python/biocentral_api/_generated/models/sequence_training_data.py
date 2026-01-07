@@ -29,10 +29,10 @@ class SequenceTrainingData(BaseModel):
     """ # noqa: E501
     seq_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Sequence identifier")
     sequence: Annotated[str, Field(min_length=1, strict=True)] = Field(description="AA Sequence")
-    label: StrictStr = Field(description="Label to predict")
     set: StrictStr = Field(description="Set")
+    label: Optional[StrictStr] = None
     mask: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["seq_id", "sequence", "label", "set", "mask"]
+    __properties: ClassVar[List[str]] = ["seq_id", "sequence", "set", "label", "mask"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -73,6 +73,11 @@ class SequenceTrainingData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if label (nullable) is None
+        # and model_fields_set contains the field
+        if self.label is None and "label" in self.model_fields_set:
+            _dict['label'] = None
+
         # set to None if mask (nullable) is None
         # and model_fields_set contains the field
         if self.mask is None and "mask" in self.model_fields_set:
@@ -92,8 +97,8 @@ class SequenceTrainingData(BaseModel):
         _obj = cls.model_validate({
             "seq_id": obj.get("seq_id"),
             "sequence": obj.get("sequence"),
-            "label": obj.get("label"),
             "set": obj.get("set"),
+            "label": obj.get("label"),
             "mask": obj.get("mask")
         })
         return _obj

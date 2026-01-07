@@ -165,5 +165,3 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
-test/test_auto_eval_report.py
-test/test_embedding_progress.py

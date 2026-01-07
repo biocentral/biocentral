@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **seq_id** | **str** | Sequence identifier | 
 **sequence** | **str** | AA Sequence | 
-**label** | **str** | Label to predict | 
 **set** | **str** | Set | 
+**label** | **str** |  | [optional] 
 **mask** | **str** |  | [optional] 
 
 ## Example
