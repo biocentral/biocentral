@@ -64,7 +64,6 @@ class BiotrainerInferenceTask(TaskInterface):
             if error_dto:
                 return error_dto
 
-            # TODO Avoid unnecessary conversion in biotrainer
             embeddings = {
                 embd_record.get_hash(): embd_record.embedding
                 for embd_record in embeddings

@@ -1,20 +1,19 @@
 import torch
-from typing import List
 
 from ..embedding_database import EmbeddingsDatabase
 
 from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_logger
+from biotrainer.input_files import read_FASTA
 from biotrainer.trainers import DefaultPipeline
 from biotrainer.trainers.pipeline import Pipeline, PipelineContext
-from biotrainer.input_files import BiotrainerSequenceRecord, read_FASTA
 from biotrainer.embedders import get_embedding_service, EmbeddingService
 from biotrainer.trainers.pipeline.pipeline_step import PipelineStep, PipelineStepType
 
-MOCK_CONFIG = {}
+MOCK_CONFIG = {}  # Config is only used in pipeline to determine finetuning or transfer learning, so can be empty here
 
 
-def get_custom_training_pipeline_memory(embedder_name: str) -> Pipeline:
+def get_custom_training_pipeline_autoeval_memory(embedder_name: str) -> Pipeline:
     """For in-memory embeddings: Calculate directly during pipeline"""
     return (
         DefaultPipeline(config=MOCK_CONFIG)
@@ -25,20 +24,7 @@ def get_custom_training_pipeline_memory(embedder_name: str) -> Pipeline:
     )
 
 
-def get_custom_training_pipeline_injection(
-    embeddings: List[BiotrainerSequenceRecord],
-) -> Pipeline:
-    """For Biotrainer: Directly inject all calculated embeddings"""
-    return (
-        DefaultPipeline(config=MOCK_CONFIG)
-        .with_custom_steps(
-            custom_embedding_step=InjectionEmbeddingStep(embeddings=embeddings)
-        )
-        .pipeline
-    )
-
-
-def get_custom_training_pipeline_loading(
+def get_custom_training_pipeline_autoeval_loading(
     embedder_name: str, embeddings_db: EmbeddingsDatabase
 ) -> Pipeline:
     """For Autoeval: Only load relevant embeddings for task"""
@@ -51,26 +37,6 @@ def get_custom_training_pipeline_loading(
         )
         .pipeline
     )
-
-
-class InjectionEmbeddingStep(PipelineStep):
-    """Direct injection from LoadEmbeddingsTask for BiotrainerTask"""
-
-    def __init__(self, embeddings: List[BiotrainerSequenceRecord]):
-        self.embeddings = embeddings
-
-    def get_step_type(self) -> PipelineStepType:
-        return PipelineStepType.EMBEDDING
-
-    def process(self, context: PipelineContext) -> PipelineContext:
-        # Inject embeddings from LoadEmbeddingsTask directly into pipeline context
-        # TODO Consider replacing with database loading step for reduced code
-        context.id2emb = {
-            embd_record.get_hash(): torch.tensor(embd_record.embedding)
-            for embd_record in self.embeddings
-        }
-
-        return context
 
 
 class DatabaseLoadEmbeddingStep(PipelineStep):

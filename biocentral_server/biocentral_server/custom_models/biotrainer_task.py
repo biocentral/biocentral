@@ -13,7 +13,6 @@ from ..server_management import (
     FileContextManager,
     EmbeddingDatabaseFactory,
     TrainingDTOObserver,
-    get_custom_training_pipeline_injection,
     TaskStatus,
 )
 
@@ -72,7 +71,6 @@ class BiotrainerTask(TaskInterface):
             biotrainer_out_path = storage_writer.temp_dir
             # Set output dirs to temp dir
             self.config_dict["output_dir"] = str(biotrainer_out_path)
-            self.config_dict["input_data"] = sequence_records
 
             error_dto, embeddings = self._pre_embed_with_db(
                 all_seqs=sequence_records,
@@ -82,19 +80,26 @@ class BiotrainerTask(TaskInterface):
             if error_dto:
                 return error_dto
 
+            # Add embeddings to input data (are read in biotrainer instead of embedding there)
+            embd_dict = {
+                embd_record.get_hash(): embd_record.embedding
+                for embd_record in embeddings
+            }
+            embd_records = [
+                seq_record.copy_with_embedding(
+                    embedding=embd_dict[seq_record.get_hash()]
+                )
+                for seq_record in sequence_records
+            ]
+            self.config_dict["input_data"] = embd_records
             config = deepcopy(self.config_dict)
 
-            # Run biotrainer with custom pipeline to inject embeddings directly
-            custom_pipeline = get_custom_training_pipeline_injection(
-                embeddings=embeddings
-            )
             custom_observer = TrainingDTOObserver(
                 update_dto_callback=update_dto_callback
             )
 
             result_dict = parse_config_file_and_execute_run(
                 config=config,
-                custom_pipeline=custom_pipeline,
                 custom_output_observers=[custom_observer],
             )
 
