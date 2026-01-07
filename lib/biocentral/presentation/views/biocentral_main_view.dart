@@ -215,6 +215,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
         const Spacer(),
         StreamBuilder(
           stream: apiRepository.healthStatusStream,
+          initialData: apiRepository.initialAPIHealthData,
           builder: (context, snapshot) {
             final healthStatus = snapshot.data ?? {};
             final connectionStatusAny = healthStatus.isEmpty ? false : healthStatus.values.any((health) => health);
