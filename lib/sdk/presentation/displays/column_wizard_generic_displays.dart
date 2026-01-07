@@ -86,6 +86,8 @@ class _ColumnWizardGenericDisplayState extends State<ColumnWizardGenericDisplay>
       textFuture('Mean:', columnWizard.mean()),
       textFuture('Median:', columnWizard.median()),
       textFuture('Mode:', columnWizard.mode()),
+      textFuture('5%-Percentile:', columnWizard.percentile(5)),
+      textFuture('95%-Percentile:', columnWizard.percentile(95)),
       textFuture('Standard deviation:', columnWizard.stdDev()),
     ],);
   }

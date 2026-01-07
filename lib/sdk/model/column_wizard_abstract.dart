@@ -132,6 +132,44 @@ mixin NumericStats on ColumnWizard {
     return numericValues.median();
   }
 
+  Future<double> percentile(int percentile) async {
+    if (percentile < 0 || percentile > 100) {
+      throw ArgumentError('Percentile must be between 0 and 100');
+    }
+
+    if (numericValues.isEmpty) {
+      throw StateError('Cannot calculate percentile of empty vector');
+    }
+
+    // Convert vector to sorted list
+    final sortedValues = numericValues.toList()..sort();
+
+    // Handle edge cases
+    if (percentile == 0) {
+      return sortedValues.first;
+    }
+    if (percentile == 100) {
+      return sortedValues.last;
+    }
+
+    // Calculate position using linear interpolation method
+    final position = (percentile.toDouble() / 100) * (sortedValues.length - 1);
+    final lowerIndex = position.floor();
+    final upperIndex = position.ceil();
+
+    // If position is exactly on an index, return that value
+    if (lowerIndex == upperIndex) {
+      return sortedValues[lowerIndex];
+    }
+
+    // Linear interpolation between two nearest values
+    final lowerValue = sortedValues[lowerIndex];
+    final upperValue = sortedValues[upperIndex];
+    final fraction = position - lowerIndex;
+
+    return lowerValue + (upperValue - lowerValue) * fraction;
+  }
+
   double? _mode;
 
   Future<double> mode() async {
