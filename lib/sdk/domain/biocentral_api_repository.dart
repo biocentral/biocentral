@@ -11,9 +11,11 @@ class BiocentralAPIRepository {
 
   Stream<Map<String, bool>> get healthStatusStream => _healthStatusController.stream;
 
+  final Map<String, bool> initialAPIHealthData;
+
   final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('https://hub.biocentral.cloud');
 
-  BiocentralAPIRepository(this._biocentralAPI);
+  BiocentralAPIRepository(this._biocentralAPI) : initialAPIHealthData = _biocentralAPI.getHealthStatus();
 
   BiocentralAPI getBiocentralAPI() {
     return _biocentralAPI;
