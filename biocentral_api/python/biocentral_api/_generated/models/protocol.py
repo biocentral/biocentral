@@ -26,12 +26,12 @@ class Protocol(str, Enum):
     """
     allowed enum values
     """
-    LEFT_SQUARE_BRACKET_0_RIGHT_SQUARE_BRACKET = '[0]'
-    LEFT_SQUARE_BRACKET_1_RIGHT_SQUARE_BRACKET = '[1]'
-    LEFT_SQUARE_BRACKET_2_RIGHT_SQUARE_BRACKET = '[2]'
-    LEFT_SQUARE_BRACKET_3_RIGHT_SQUARE_BRACKET = '[3]'
-    LEFT_SQUARE_BRACKET_4_RIGHT_SQUARE_BRACKET = '[4]'
-    ENUM_5 = '5'
+    RESIDUE_TO_VALUE = 'residue_to_value'
+    RESIDUE_TO_CLASS = 'residue_to_class'
+    RESIDUES_TO_CLASS = 'residues_to_class'
+    RESIDUES_TO_VALUE = 'residues_to_value'
+    SEQUENCE_TO_CLASS = 'sequence_to_class'
+    SEQUENCE_TO_VALUE = 'sequence_to_value'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

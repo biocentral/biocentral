@@ -2,7 +2,7 @@ from .api import BiocentralAPI
 from ._generated import SequenceTrainingData, ActiveLearningCampaignConfig, ActiveLearningIterationConfig, \
     ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningSimulationConfig, \
     ActiveLearningIterationResult, ActiveLearningSimulationResult, ActiveLearningConvergenceConfig, \
-    BiocentralPredictionModel, CommonEmbedder
+    BiocentralPredictionModel, CommonEmbedder, Protocol
 
 __all__ = ["BiocentralAPI",
            "BiocentralPredictionModel",
@@ -14,4 +14,5 @@ __all__ = ["BiocentralAPI",
            "ActiveLearningModelType",
            "ActiveLearningIterationResult",
            "ActiveLearningSimulationResult",
-           "ActiveLearningConvergenceConfig"]
+           "ActiveLearningConvergenceConfig",
+           "Protocol"]

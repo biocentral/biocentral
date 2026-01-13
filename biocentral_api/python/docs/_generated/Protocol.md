@@ -3,17 +3,17 @@
 
 ## Enum
 
-* `LEFT_SQUARE_BRACKET_0_RIGHT_SQUARE_BRACKET` (value: `'[0]'`)
+* `RESIDUE_TO_VALUE` (value: `'residue_to_value'`)
 
-* `LEFT_SQUARE_BRACKET_1_RIGHT_SQUARE_BRACKET` (value: `'[1]'`)
+* `RESIDUE_TO_CLASS` (value: `'residue_to_class'`)
 
-* `LEFT_SQUARE_BRACKET_2_RIGHT_SQUARE_BRACKET` (value: `'[2]'`)
+* `RESIDUES_TO_CLASS` (value: `'residues_to_class'`)
 
-* `LEFT_SQUARE_BRACKET_3_RIGHT_SQUARE_BRACKET` (value: `'[3]'`)
+* `RESIDUES_TO_VALUE` (value: `'residues_to_value'`)
 
-* `LEFT_SQUARE_BRACKET_4_RIGHT_SQUARE_BRACKET` (value: `'[4]'`)
+* `SEQUENCE_TO_CLASS` (value: `'sequence_to_class'`)
 
-* `ENUM_5` (value: `'5'`)
+* `SEQUENCE_TO_VALUE` (value: `'sequence_to_value'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -10,7 +10,7 @@ from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
-    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder
+    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
     ActiveLearningClient
 
@@ -232,6 +232,13 @@ class BiocentralAPI:
                 config["embedder_name"] = embedder_name.value
         else:
             raise ValueError("No embedder name provided in configuration.")
+
+        if "protocol" in config:
+            protocol = config["protocol"]
+            if isinstance(protocol, Protocol):
+                config["protocol"] = protocol.value
+        else:
+            raise ValueError("No training protocol provided in configuration.")
 
         custom_models_client = CustomModelsClient()
         with self._create_api_client() as api_client:
