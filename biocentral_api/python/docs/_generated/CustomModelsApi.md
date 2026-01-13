@@ -6,7 +6,6 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**config_options_api_v1_custom_models_service_config_options_protocol_get**](CustomModelsApi.md#config_options_api_v1_custom_models_service_config_options_protocol_get) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
 [**model_files_api_v1_custom_models_service_model_files_post**](CustomModelsApi.md#model_files_api_v1_custom_models_service_model_files_post) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
-[**protocols_api_v1_custom_models_service_protocols_get**](CustomModelsApi.md#protocols_api_v1_custom_models_service_protocols_get) | **GET** /api/v1/custom_models_service/protocols | Get available protocols
 [**start_inference_api_v1_custom_models_service_start_inference_post**](CustomModelsApi.md#start_inference_api_v1_custom_models_service_start_inference_post) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**start_training_api_v1_custom_models_service_start_training_post**](CustomModelsApi.md#start_training_api_v1_custom_models_service_start_training_post) | **POST** /api/v1/custom_models_service/start_training | Start model training
 [**verify_config_api_v1_custom_models_service_verify_config_post**](CustomModelsApi.md#verify_config_api_v1_custom_models_service_verify_config_post) | **POST** /api/v1/custom_models_service/verify_config/ | Verify configuration
@@ -151,71 +150,6 @@ No authorization required
 **404** | Not Found |  -  |
 **400** | Bad Request |  -  |
 **422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **protocols_api_v1_custom_models_service_protocols_get**
-> ProtocolsResponse protocols_api_v1_custom_models_service_protocols_get()
-
-Get available protocols
-
-Retrieve list of all available biotrainer protocols
-
-### Example
-
-
-```python
-import biocentral_api._generated
-from biocentral_api._generated.models.protocols_response import ProtocolsResponse
-from biocentral_api._generated.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_api._generated.Configuration(
-    host = "http://localhost"
-)
-
-
-# Enter a context with an instance of the API client
-with biocentral_api._generated.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
-
-    try:
-        # Get available protocols
-        api_response = api_instance.protocols_api_v1_custom_models_service_protocols_get()
-        print("The response of CustomModelsApi->protocols_api_v1_custom_models_service_protocols_get:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CustomModelsApi->protocols_api_v1_custom_models_service_protocols_get: %s\n" % e)
-```
-
-
-
-### Parameters
-
-This endpoint does not need any parameter.
-
-### Return type
-
-[**ProtocolsResponse**](ProtocolsResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

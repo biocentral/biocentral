@@ -68,7 +68,6 @@ biocentral_api/_generated/models/prediction.py
 biocentral_api/_generated/models/prediction_request.py
 biocentral_api/_generated/models/projection_request.py
 biocentral_api/_generated/models/protocol.py
-biocentral_api/_generated/models/protocols_response.py
 biocentral_api/_generated/models/run_test_request.py
 biocentral_api/_generated/models/run_test_response.py
 biocentral_api/_generated/models/sequence_training_data.py
@@ -148,7 +147,6 @@ docs/ProjectionRequest.md
 docs/ProjectionsApi.md
 docs/ProteinsApi.md
 docs/Protocol.md
-docs/ProtocolsResponse.md
 docs/RunTestRequest.md
 docs/RunTestResponse.md
 docs/SequenceTrainingData.md

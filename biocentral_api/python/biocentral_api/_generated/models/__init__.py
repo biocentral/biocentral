@@ -65,7 +65,6 @@ from biocentral_api._generated.models.prediction import Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest
 from biocentral_api._generated.models.protocol import Protocol
-from biocentral_api._generated.models.protocols_response import ProtocolsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse
 from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData

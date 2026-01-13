@@ -89,7 +89,6 @@ __all__ = [
     "PredictionRequest",
     "ProjectionRequest",
     "Protocol",
-    "ProtocolsResponse",
     "RunTestRequest",
     "RunTestResponse",
     "SequenceTrainingData",
@@ -183,7 +182,6 @@ from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
 from biocentral_api._generated.models.protocol import Protocol as Protocol
-from biocentral_api._generated.models.protocols_response import ProtocolsResponse as ProtocolsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse
 from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData as SequenceTrainingData
