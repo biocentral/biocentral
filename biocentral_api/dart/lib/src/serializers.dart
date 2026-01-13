@@ -66,7 +66,6 @@ import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
 import 'package:biocentral_api/src/model/protocol.dart';
-import 'package:biocentral_api/src/model/protocols_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
 import 'package:biocentral_api/src/model/sequence_training_data.dart';
@@ -138,7 +137,6 @@ part 'serializers.g.dart';
   PredictionRequest,
   ProjectionRequest,
   Protocol,
-  ProtocolsResponse,
   RunTestRequest,
   RunTestResponse,
   SequenceTrainingData,

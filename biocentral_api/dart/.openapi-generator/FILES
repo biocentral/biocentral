@@ -60,7 +60,6 @@ doc/ProjectionRequest.md
 doc/ProjectionsApi.md
 doc/ProteinsApi.md
 doc/Protocol.md
-doc/ProtocolsResponse.md
 doc/RunTestRequest.md
 doc/RunTestResponse.md
 doc/SequenceTrainingData.md
@@ -147,7 +146,6 @@ lib/src/model/prediction.dart
 lib/src/model/prediction_request.dart
 lib/src/model/projection_request.dart
 lib/src/model/protocol.dart
-lib/src/model/protocols_response.dart
 lib/src/model/run_test_request.dart
 lib/src/model/run_test_response.dart
 lib/src/model/sequence_training_data.dart

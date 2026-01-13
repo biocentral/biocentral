@@ -93,9 +93,6 @@ class BiocentralAPI {
 }
 
 extension CustomModelsAPI on BiocentralAPI {
-  Future<Set<String>?> getProtocols() async {
-    return CustomModelsClient().getProtocols(api: _getAPI());
-  }
 
   Future<List<dynamic>?> getConfigOptionsForProtocol({required String protocol}) async {
     return CustomModelsClient().getConfigOptionsForProtocol(api: _getAPI(), protocol: protocol);

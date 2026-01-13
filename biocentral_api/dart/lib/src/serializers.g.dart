@@ -61,7 +61,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
       ..add(Protocol.serializer)
-      ..add(ProtocolsResponse.serializer)
       ..add(RunTestRequest.serializer)
       ..add(RunTestResponse.serializer)
       ..add(SequenceTrainingData.serializer)
@@ -117,9 +116,6 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltList, const [const FullType(SequenceTrainingData)]),
           () => ListBuilder<SequenceTrainingData>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())

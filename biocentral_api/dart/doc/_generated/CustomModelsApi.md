@@ -11,7 +11,6 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**](CustomModelsApi.md#configoptionsapiv1custommodelsserviceconfigoptionsprotocolget) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
 [**modelFilesApiV1CustomModelsServiceModelFilesPost**](CustomModelsApi.md#modelfilesapiv1custommodelsservicemodelfilespost) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
-[**protocolsApiV1CustomModelsServiceProtocolsGet**](CustomModelsApi.md#protocolsapiv1custommodelsserviceprotocolsget) | **GET** /api/v1/custom_models_service/protocols | Get available protocols
 [**startInferenceApiV1CustomModelsServiceStartInferencePost**](CustomModelsApi.md#startinferenceapiv1custommodelsservicestartinferencepost) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**startTrainingApiV1CustomModelsServiceStartTrainingPost**](CustomModelsApi.md#starttrainingapiv1custommodelsservicestarttrainingpost) | **POST** /api/v1/custom_models_service/start_training | Start model training
 [**verifyConfigApiV1CustomModelsServiceVerifyConfigPost**](CustomModelsApi.md#verifyconfigapiv1custommodelsserviceverifyconfigpost) | **POST** /api/v1/custom_models_service/verify_config/ | Verify configuration
@@ -99,45 +98,6 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **protocolsApiV1CustomModelsServiceProtocolsGet**
-> ProtocolsResponse protocolsApiV1CustomModelsServiceProtocolsGet()
-
-Get available protocols
-
-Retrieve list of all available biotrainer protocols
-
-### Example
-```dart
-import 'package:biocentral_api/api.dart';
-
-final api = BiocentralApi().getCustomModelsApi();
-
-try {
-    final response = api.protocolsApiV1CustomModelsServiceProtocolsGet();
-    print(response);
-} catch on DioException (e) {
-    print('Exception when calling CustomModelsApi->protocolsApiV1CustomModelsServiceProtocolsGet: $e\n');
-}
-```
-
-### Parameters
-This endpoint does not need any parameter.
-
-### Return type
-
-[**ProtocolsResponse**](ProtocolsResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

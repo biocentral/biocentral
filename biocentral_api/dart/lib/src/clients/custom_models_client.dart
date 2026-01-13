@@ -3,7 +3,6 @@ import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
-import 'package:biocentral_api/src/model/protocols_response.dart';
 import 'package:biocentral_api/src/model/sequence_training_data.dart';
 import 'package:biocentral_api/src/model/start_inference_request.dart';
 import 'package:biocentral_api/src/model/start_training_request.dart';
@@ -53,12 +52,6 @@ class _InferenceDtoHandler extends DtoHandler<Map<String, List<Prediction>>> {
 }
 
 class CustomModelsClient {
-  Future<Set<String>?> getProtocols({required gen.BiocentralApi api}) async {
-    final cmApi = api.getCustomModelsApi();
-    final resp = await cmApi.protocolsApiV1CustomModelsServiceProtocolsGet();
-    final ProtocolsResponse protocols = resp.data!;
-    return protocols.protocols.toSet();
-  }
 
   Future<List<dynamic>?> getConfigOptionsForProtocol({required gen.BiocentralApi api, required String protocol}) async {
     final cmApi = api.getCustomModelsApi();

@@ -13,4 +13,7 @@ export 'src/model/task_dto.dart' show TaskDTO;
 export 'src/model/plm_eval_information.dart' show PLMEvalInformation;
 export 'src/model/plm_eval_task_information.dart' show PLMEvalTaskInformation;
 export 'src/model/auto_eval_progress.dart' show AutoEvalProgress;
+export 'src/model/auto_eval_report.dart' show AutoEvalReport;
+export 'src/model/model_metadata.dart' show ModelMetadata;
+export 'src/model/protocol.dart' show Protocol;
 export 'src/high_level_api.dart' show BiocentralAPI, CustomModelsAPI, EmbeddingAPI, PlmEvalAPI, PredictAPI, ProteinsAPI;
