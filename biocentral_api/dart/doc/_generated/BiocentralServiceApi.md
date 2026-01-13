@@ -1,4 +1,4 @@
-# biocentral_api.api.BiocentralApi
+# biocentral_api.api.BiocentralServiceApi
 
 ## Load the API package
 ```dart
@@ -9,10 +9,10 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**statsApiV1BiocentralServiceStatsGet**](BiocentralApi.md#statsapiv1biocentralservicestatsget) | **GET** /api/v1/biocentral_service/stats/ | Stats
-[**taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet**](BiocentralApi.md#taskstatusapiv1biocentralservicetaskstatustaskidget) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
-[**taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet**](BiocentralApi.md#taskstatusresumedapiv1biocentralservicetaskstatusresumedtaskidget) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
-[**welcomeMessageApiV1BiocentralServiceWelcomeMessageGet**](BiocentralApi.md#welcomemessageapiv1biocentralservicewelcomemessageget) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
+[**statsApiV1BiocentralServiceStatsGet**](BiocentralServiceApi.md#statsapiv1biocentralservicestatsget) | **GET** /api/v1/biocentral_service/stats/ | Stats
+[**taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet**](BiocentralServiceApi.md#taskstatusapiv1biocentralservicetaskstatustaskidget) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
+[**taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet**](BiocentralServiceApi.md#taskstatusresumedapiv1biocentralservicetaskstatusresumedtaskidget) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
+[**welcomeMessageApiV1BiocentralServiceWelcomeMessageGet**](BiocentralServiceApi.md#welcomemessageapiv1biocentralservicewelcomemessageget) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
 
 
 # **statsApiV1BiocentralServiceStatsGet**
@@ -24,13 +24,13 @@ Stats
 ```dart
 import 'package:biocentral_api/api.dart';
 
-final api = BiocentralApi().getBiocentralApi();
+final api = BiocentralApi().getBiocentralServiceApi();
 
 try {
     final response = api.statsApiV1BiocentralServiceStatsGet();
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling BiocentralApi->statsApiV1BiocentralServiceStatsGet: $e\n');
+    print('Exception when calling BiocentralServiceApi->statsApiV1BiocentralServiceStatsGet: $e\n');
 }
 ```
 
@@ -61,14 +61,14 @@ Task Status
 ```dart
 import 'package:biocentral_api/api.dart';
 
-final api = BiocentralApi().getBiocentralApi();
+final api = BiocentralApi().getBiocentralServiceApi();
 final String taskId = taskId_example; // String | 
 
 try {
     final response = api.taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet(taskId);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling BiocentralApi->taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet: $e\n');
+    print('Exception when calling BiocentralServiceApi->taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet: $e\n');
 }
 ```
 
@@ -102,14 +102,14 @@ Task Status Resumed
 ```dart
 import 'package:biocentral_api/api.dart';
 
-final api = BiocentralApi().getBiocentralApi();
+final api = BiocentralApi().getBiocentralServiceApi();
 final String taskId = taskId_example; // String | 
 
 try {
     final response = api.taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet(taskId);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling BiocentralApi->taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet: $e\n');
+    print('Exception when calling BiocentralServiceApi->taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet: $e\n');
 }
 ```
 
@@ -143,13 +143,13 @@ Welcome Message
 ```dart
 import 'package:biocentral_api/api.dart';
 
-final api = BiocentralApi().getBiocentralApi();
+final api = BiocentralApi().getBiocentralServiceApi();
 
 try {
     final response = api.welcomeMessageApiV1BiocentralServiceWelcomeMessageGet();
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling BiocentralApi->welcomeMessageApiV1BiocentralServiceWelcomeMessageGet: $e\n');
+    print('Exception when calling BiocentralServiceApi->welcomeMessageApiV1BiocentralServiceWelcomeMessageGet: $e\n');
 }
 ```
 

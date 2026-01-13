@@ -18,9 +18,7 @@ class _$TaskDTO extends TaskDTO {
   @override
   final BuiltMap<String, JsonObject?>? biotrainerResult;
   @override
-  final int? embeddingCurrent;
-  @override
-  final int? embeddingTotal;
+  final EmbeddingProgress? embeddingProgress;
   @override
   final BuiltMap<String, String>? embeddedSequences;
   @override
@@ -34,7 +32,9 @@ class _$TaskDTO extends TaskDTO {
   @override
   final AutoEvalProgress? autoevalProgress;
   @override
-  final BuiltList<JsonObject?>? bayOptResults;
+  final ActiveLearningIterationResult? alIterationResult;
+  @override
+  final ActiveLearningSimulationResult? alSimulationResult;
 
   factory _$TaskDTO([void Function(TaskDTOBuilder)? updates]) =>
       (TaskDTOBuilder()..update(updates))._build();
@@ -45,15 +45,15 @@ class _$TaskDTO extends TaskDTO {
       this.predictions,
       this.biotrainerUpdate,
       this.biotrainerResult,
-      this.embeddingCurrent,
-      this.embeddingTotal,
+      this.embeddingProgress,
       this.embeddedSequences,
       this.embeddings,
       this.embeddingsFile,
       this.projectionResult,
       this.embedderName,
       this.autoevalProgress,
-      this.bayOptResults})
+      this.alIterationResult,
+      this.alSimulationResult})
       : super._();
   @override
   TaskDTO rebuild(void Function(TaskDTOBuilder) updates) =>
@@ -71,15 +71,15 @@ class _$TaskDTO extends TaskDTO {
         predictions == other.predictions &&
         biotrainerUpdate == other.biotrainerUpdate &&
         biotrainerResult == other.biotrainerResult &&
-        embeddingCurrent == other.embeddingCurrent &&
-        embeddingTotal == other.embeddingTotal &&
+        embeddingProgress == other.embeddingProgress &&
         embeddedSequences == other.embeddedSequences &&
         embeddings == other.embeddings &&
         embeddingsFile == other.embeddingsFile &&
         projectionResult == other.projectionResult &&
         embedderName == other.embedderName &&
         autoevalProgress == other.autoevalProgress &&
-        bayOptResults == other.bayOptResults;
+        alIterationResult == other.alIterationResult &&
+        alSimulationResult == other.alSimulationResult;
   }
 
   @override
@@ -90,15 +90,15 @@ class _$TaskDTO extends TaskDTO {
     _$hash = $jc(_$hash, predictions.hashCode);
     _$hash = $jc(_$hash, biotrainerUpdate.hashCode);
     _$hash = $jc(_$hash, biotrainerResult.hashCode);
-    _$hash = $jc(_$hash, embeddingCurrent.hashCode);
-    _$hash = $jc(_$hash, embeddingTotal.hashCode);
+    _$hash = $jc(_$hash, embeddingProgress.hashCode);
     _$hash = $jc(_$hash, embeddedSequences.hashCode);
     _$hash = $jc(_$hash, embeddings.hashCode);
     _$hash = $jc(_$hash, embeddingsFile.hashCode);
     _$hash = $jc(_$hash, projectionResult.hashCode);
     _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, autoevalProgress.hashCode);
-    _$hash = $jc(_$hash, bayOptResults.hashCode);
+    _$hash = $jc(_$hash, alIterationResult.hashCode);
+    _$hash = $jc(_$hash, alSimulationResult.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -111,15 +111,15 @@ class _$TaskDTO extends TaskDTO {
           ..add('predictions', predictions)
           ..add('biotrainerUpdate', biotrainerUpdate)
           ..add('biotrainerResult', biotrainerResult)
-          ..add('embeddingCurrent', embeddingCurrent)
-          ..add('embeddingTotal', embeddingTotal)
+          ..add('embeddingProgress', embeddingProgress)
           ..add('embeddedSequences', embeddedSequences)
           ..add('embeddings', embeddings)
           ..add('embeddingsFile', embeddingsFile)
           ..add('projectionResult', projectionResult)
           ..add('embedderName', embedderName)
           ..add('autoevalProgress', autoevalProgress)
-          ..add('bayOptResults', bayOptResults))
+          ..add('alIterationResult', alIterationResult)
+          ..add('alSimulationResult', alSimulationResult))
         .toString();
   }
 }
@@ -153,15 +153,11 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set biotrainerResult(MapBuilder<String, JsonObject?>? biotrainerResult) =>
       _$this._biotrainerResult = biotrainerResult;
 
-  int? _embeddingCurrent;
-  int? get embeddingCurrent => _$this._embeddingCurrent;
-  set embeddingCurrent(int? embeddingCurrent) =>
-      _$this._embeddingCurrent = embeddingCurrent;
-
-  int? _embeddingTotal;
-  int? get embeddingTotal => _$this._embeddingTotal;
-  set embeddingTotal(int? embeddingTotal) =>
-      _$this._embeddingTotal = embeddingTotal;
+  EmbeddingProgressBuilder? _embeddingProgress;
+  EmbeddingProgressBuilder get embeddingProgress =>
+      _$this._embeddingProgress ??= EmbeddingProgressBuilder();
+  set embeddingProgress(EmbeddingProgressBuilder? embeddingProgress) =>
+      _$this._embeddingProgress = embeddingProgress;
 
   MapBuilder<String, String>? _embeddedSequences;
   MapBuilder<String, String> get embeddedSequences =>
@@ -196,11 +192,19 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set autoevalProgress(AutoEvalProgressBuilder? autoevalProgress) =>
       _$this._autoevalProgress = autoevalProgress;
 
-  ListBuilder<JsonObject?>? _bayOptResults;
-  ListBuilder<JsonObject?> get bayOptResults =>
-      _$this._bayOptResults ??= ListBuilder<JsonObject?>();
-  set bayOptResults(ListBuilder<JsonObject?>? bayOptResults) =>
-      _$this._bayOptResults = bayOptResults;
+  ActiveLearningIterationResultBuilder? _alIterationResult;
+  ActiveLearningIterationResultBuilder get alIterationResult =>
+      _$this._alIterationResult ??= ActiveLearningIterationResultBuilder();
+  set alIterationResult(
+          ActiveLearningIterationResultBuilder? alIterationResult) =>
+      _$this._alIterationResult = alIterationResult;
+
+  ActiveLearningSimulationResultBuilder? _alSimulationResult;
+  ActiveLearningSimulationResultBuilder get alSimulationResult =>
+      _$this._alSimulationResult ??= ActiveLearningSimulationResultBuilder();
+  set alSimulationResult(
+          ActiveLearningSimulationResultBuilder? alSimulationResult) =>
+      _$this._alSimulationResult = alSimulationResult;
 
   TaskDTOBuilder() {
     TaskDTO._defaults(this);
@@ -214,15 +218,15 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
       _predictions = $v.predictions?.toBuilder();
       _biotrainerUpdate = $v.biotrainerUpdate?.toBuilder();
       _biotrainerResult = $v.biotrainerResult?.toBuilder();
-      _embeddingCurrent = $v.embeddingCurrent;
-      _embeddingTotal = $v.embeddingTotal;
+      _embeddingProgress = $v.embeddingProgress?.toBuilder();
       _embeddedSequences = $v.embeddedSequences?.toBuilder();
       _embeddings = $v.embeddings?.toBuilder();
       _embeddingsFile = $v.embeddingsFile;
       _projectionResult = $v.projectionResult?.toBuilder();
       _embedderName = $v.embedderName;
       _autoevalProgress = $v.autoevalProgress?.toBuilder();
-      _bayOptResults = $v.bayOptResults?.toBuilder();
+      _alIterationResult = $v.alIterationResult?.toBuilder();
+      _alSimulationResult = $v.alSimulationResult?.toBuilder();
       _$v = null;
     }
     return this;
@@ -252,15 +256,15 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             predictions: _predictions?.build(),
             biotrainerUpdate: _biotrainerUpdate?.build(),
             biotrainerResult: _biotrainerResult?.build(),
-            embeddingCurrent: embeddingCurrent,
-            embeddingTotal: embeddingTotal,
+            embeddingProgress: _embeddingProgress?.build(),
             embeddedSequences: _embeddedSequences?.build(),
             embeddings: _embeddings?.build(),
             embeddingsFile: embeddingsFile,
             projectionResult: _projectionResult?.build(),
             embedderName: embedderName,
             autoevalProgress: _autoevalProgress?.build(),
-            bayOptResults: _bayOptResults?.build(),
+            alIterationResult: _alIterationResult?.build(),
+            alSimulationResult: _alSimulationResult?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -271,7 +275,8 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
         _biotrainerUpdate?.build();
         _$failedField = 'biotrainerResult';
         _biotrainerResult?.build();
-
+        _$failedField = 'embeddingProgress';
+        _embeddingProgress?.build();
         _$failedField = 'embeddedSequences';
         _embeddedSequences?.build();
         _$failedField = 'embeddings';
@@ -282,8 +287,10 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
 
         _$failedField = 'autoevalProgress';
         _autoevalProgress?.build();
-        _$failedField = 'bayOptResults';
-        _bayOptResults?.build();
+        _$failedField = 'alIterationResult';
+        _alIterationResult?.build();
+        _$failedField = 'alSimulationResult';
+        _alSimulationResult?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'TaskDTO', _$failedField, e.toString());

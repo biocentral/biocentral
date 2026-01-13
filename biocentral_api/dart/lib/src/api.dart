@@ -9,8 +9,8 @@ import 'package:biocentral_api/src/auth/api_key_auth.dart';
 import 'package:biocentral_api/src/auth/basic_auth.dart';
 import 'package:biocentral_api/src/auth/bearer_auth.dart';
 import 'package:biocentral_api/src/auth/oauth.dart';
-import 'package:biocentral_api/src/api/bayesian_optimization_api.dart';
-import 'package:biocentral_api/src/api/biocentral_api.dart' as endpoint;
+import 'package:biocentral_api/src/api/active_learning_api.dart';
+import 'package:biocentral_api/src/api/biocentral_service_api.dart';
 import 'package:biocentral_api/src/api/custom_models_api.dart';
 import 'package:biocentral_api/src/api/default_api.dart';
 import 'package:biocentral_api/src/api/embeddings_api.dart';
@@ -74,16 +74,16 @@ class BiocentralApi {
     }
   }
 
-  /// Get BayesianOptimizationApi instance, base route and serializer can be overridden by a given but be careful,
+  /// Get ActiveLearningApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
-  BayesianOptimizationApi getBayesianOptimizationApi() {
-    return BayesianOptimizationApi(dio, serializers);
+  ActiveLearningApi getActiveLearningApi() {
+    return ActiveLearningApi(dio, serializers);
   }
 
-  /// Get BiocentralApi instance, base route and serializer can be overridden by a given but be careful,
+  /// Get BiocentralServiceApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
-  endpoint.BiocentralApi getBiocentralApi() {
-    return endpoint.BiocentralApi(dio, serializers);
+  BiocentralServiceApi getBiocentralServiceApi() {
+    return BiocentralServiceApi(dio, serializers);
   }
 
   /// Get CustomModelsApi instance, base route and serializer can be overridden by a given but be careful,

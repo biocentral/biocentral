@@ -5,8 +5,11 @@
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
+import 'package:biocentral_api/src/model/embedding_progress.dart';
+import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
 import 'package:biocentral_api/src/model/output_data.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
+import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
 import 'package:biocentral_api/src/model/auto_eval_progress.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
 import 'package:built_value/json_object.dart';
@@ -23,15 +26,15 @@ part 'task_dto.g.dart';
 /// * [predictions] 
 /// * [biotrainerUpdate] 
 /// * [biotrainerResult] 
-/// * [embeddingCurrent] 
-/// * [embeddingTotal] 
+/// * [embeddingProgress] 
 /// * [embeddedSequences] 
 /// * [embeddings] 
 /// * [embeddingsFile] 
 /// * [projectionResult] 
 /// * [embedderName] 
 /// * [autoevalProgress] 
-/// * [bayOptResults] 
+/// * [alIterationResult] 
+/// * [alSimulationResult] 
 @BuiltValue()
 abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'status')
@@ -50,11 +53,8 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'biotrainer_result')
   BuiltMap<String, JsonObject?>? get biotrainerResult;
 
-  @BuiltValueField(wireName: r'embedding_current')
-  int? get embeddingCurrent;
-
-  @BuiltValueField(wireName: r'embedding_total')
-  int? get embeddingTotal;
+  @BuiltValueField(wireName: r'embedding_progress')
+  EmbeddingProgress? get embeddingProgress;
 
   @BuiltValueField(wireName: r'embedded_sequences')
   BuiltMap<String, String>? get embeddedSequences;
@@ -74,8 +74,11 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'autoeval_progress')
   AutoEvalProgress? get autoevalProgress;
 
-  @BuiltValueField(wireName: r'bay_opt_results')
-  BuiltList<JsonObject?>? get bayOptResults;
+  @BuiltValueField(wireName: r'al_iteration_result')
+  ActiveLearningIterationResult? get alIterationResult;
+
+  @BuiltValueField(wireName: r'al_simulation_result')
+  ActiveLearningSimulationResult? get alSimulationResult;
 
   TaskDTO._();
 
@@ -133,18 +136,11 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
       );
     }
-    if (object.embeddingCurrent != null) {
-      yield r'embedding_current';
+    if (object.embeddingProgress != null) {
+      yield r'embedding_progress';
       yield serializers.serialize(
-        object.embeddingCurrent,
-        specifiedType: const FullType.nullable(int),
-      );
-    }
-    if (object.embeddingTotal != null) {
-      yield r'embedding_total';
-      yield serializers.serialize(
-        object.embeddingTotal,
-        specifiedType: const FullType.nullable(int),
+        object.embeddingProgress,
+        specifiedType: const FullType.nullable(EmbeddingProgress),
       );
     }
     if (object.embeddedSequences != null) {
@@ -189,11 +185,18 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         specifiedType: const FullType.nullable(AutoEvalProgress),
       );
     }
-    if (object.bayOptResults != null) {
-      yield r'bay_opt_results';
+    if (object.alIterationResult != null) {
+      yield r'al_iteration_result';
       yield serializers.serialize(
-        object.bayOptResults,
-        specifiedType: const FullType.nullable(BuiltList, [FullType.nullable(JsonObject)]),
+        object.alIterationResult,
+        specifiedType: const FullType.nullable(ActiveLearningIterationResult),
+      );
+    }
+    if (object.alSimulationResult != null) {
+      yield r'al_simulation_result';
+      yield serializers.serialize(
+        object.alSimulationResult,
+        specifiedType: const FullType.nullable(ActiveLearningSimulationResult),
       );
     }
   }
@@ -258,21 +261,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           if (valueDes == null) continue;
           result.biotrainerResult.replace(valueDes);
           break;
-        case r'embedding_current':
+        case r'embedding_progress':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(int),
-          ) as int?;
+            specifiedType: const FullType.nullable(EmbeddingProgress),
+          ) as EmbeddingProgress?;
           if (valueDes == null) continue;
-          result.embeddingCurrent = valueDes;
-          break;
-        case r'embedding_total':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(int),
-          ) as int?;
-          if (valueDes == null) continue;
-          result.embeddingTotal = valueDes;
+          result.embeddingProgress.replace(valueDes);
           break;
         case r'embedded_sequences':
           final valueDes = serializers.deserialize(
@@ -322,13 +317,21 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           if (valueDes == null) continue;
           result.autoevalProgress.replace(valueDes);
           break;
-        case r'bay_opt_results':
+        case r'al_iteration_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltList, [FullType.nullable(JsonObject)]),
-          ) as BuiltList<JsonObject?>?;
+            specifiedType: const FullType.nullable(ActiveLearningIterationResult),
+          ) as ActiveLearningIterationResult?;
           if (valueDes == null) continue;
-          result.bayOptResults.replace(valueDes);
+          result.alIterationResult.replace(valueDes);
+          break;
+        case r'al_simulation_result':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(ActiveLearningSimulationResult),
+          ) as ActiveLearningSimulationResult?;
+          if (valueDes == null) continue;
+          result.alSimulationResult.replace(valueDes);
           break;
         default:
           unhandled.add(key);

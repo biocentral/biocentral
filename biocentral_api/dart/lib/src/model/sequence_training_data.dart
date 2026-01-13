@@ -13,8 +13,8 @@ part 'sequence_training_data.g.dart';
 /// Properties:
 /// * [seqId] - Sequence identifier
 /// * [sequence] - AA Sequence
-/// * [label] - Label to predict
 /// * [set_] - Set
+/// * [label] 
 /// * [mask] 
 @BuiltValue()
 abstract class SequenceTrainingData implements Built<SequenceTrainingData, SequenceTrainingDataBuilder> {
@@ -26,13 +26,12 @@ abstract class SequenceTrainingData implements Built<SequenceTrainingData, Seque
   @BuiltValueField(wireName: r'sequence')
   String get sequence;
 
-  /// Label to predict
-  @BuiltValueField(wireName: r'label')
-  String get label;
-
   /// Set
   @BuiltValueField(wireName: r'set')
   String get set_;
+
+  @BuiltValueField(wireName: r'label')
+  String? get label;
 
   @BuiltValueField(wireName: r'mask')
   String? get mask;
@@ -70,16 +69,18 @@ class _$SequenceTrainingDataSerializer implements PrimitiveSerializer<SequenceTr
       object.sequence,
       specifiedType: const FullType(String),
     );
-    yield r'label';
-    yield serializers.serialize(
-      object.label,
-      specifiedType: const FullType(String),
-    );
     yield r'set';
     yield serializers.serialize(
       object.set_,
       specifiedType: const FullType(String),
     );
+    if (object.label != null) {
+      yield r'label';
+      yield serializers.serialize(
+        object.label,
+        specifiedType: const FullType.nullable(String),
+      );
+    }
     if (object.mask != null) {
       yield r'mask';
       yield serializers.serialize(
@@ -124,19 +125,20 @@ class _$SequenceTrainingDataSerializer implements PrimitiveSerializer<SequenceTr
           ) as String;
           result.sequence = valueDes;
           break;
-        case r'label':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.label = valueDes;
-          break;
         case r'set':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
           result.set_ = valueDes;
+          break;
+        case r'label':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.label = valueDes;
           break;
         case r'mask':
           final valueDes = serializers.deserialize(

@@ -16,7 +16,7 @@ class _$AutoEvalProgress extends AutoEvalProgress {
   @override
   final String currentTaskName;
   @override
-  final BuiltMap<String, JsonObject?>? finalReport;
+  final AutoEvalReport? finalReport;
 
   factory _$AutoEvalProgress(
           [void Function(AutoEvalProgressBuilder)? updates]) =>
@@ -95,10 +95,10 @@ class AutoEvalProgressBuilder
   set currentTaskName(String? currentTaskName) =>
       _$this._currentTaskName = currentTaskName;
 
-  MapBuilder<String, JsonObject?>? _finalReport;
-  MapBuilder<String, JsonObject?> get finalReport =>
-      _$this._finalReport ??= MapBuilder<String, JsonObject?>();
-  set finalReport(MapBuilder<String, JsonObject?>? finalReport) =>
+  AutoEvalReportBuilder? _finalReport;
+  AutoEvalReportBuilder get finalReport =>
+      _$this._finalReport ??= AutoEvalReportBuilder();
+  set finalReport(AutoEvalReportBuilder? finalReport) =>
       _$this._finalReport = finalReport;
 
   AutoEvalProgressBuilder() {

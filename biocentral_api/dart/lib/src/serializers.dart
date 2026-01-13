@@ -14,19 +14,33 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:biocentral_api/src/date_serializer.dart';
 import 'package:biocentral_api/src/model/date.dart';
 
+import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
+import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
+import 'package:biocentral_api/src/model/active_learning_iteration_config.dart';
+import 'package:biocentral_api/src/model/active_learning_iteration_request.dart';
+import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
+import 'package:biocentral_api/src/model/active_learning_model_type.dart';
+import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
+import 'package:biocentral_api/src/model/active_learning_result.dart';
+import 'package:biocentral_api/src/model/active_learning_simulation_config.dart';
+import 'package:biocentral_api/src/model/active_learning_simulation_request.dart';
+import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
 import 'package:biocentral_api/src/model/add_embeddings_request.dart';
 import 'package:biocentral_api/src/model/add_embeddings_response.dart';
 import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
 import 'package:biocentral_api/src/model/auto_eval_progress.dart';
-import 'package:biocentral_api/src/model/bayesian_optimization_request.dart';
+import 'package:biocentral_api/src/model/auto_eval_report.dart';
+import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
+import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
 import 'package:biocentral_api/src/model/detected_format_response.dart';
 import 'package:biocentral_api/src/model/embed_request.dart';
+import 'package:biocentral_api/src/model/embedding_progress.dart';
 import 'package:biocentral_api/src/model/epoch_metrics.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_request.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_response.dart';
@@ -35,9 +49,13 @@ import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/import_dataset_request.dart';
 import 'package:biocentral_api/src/model/import_dataset_response.dart';
 import 'package:biocentral_api/src/model/model_files_request.dart';
+import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/model_metadata_response.dart';
+import 'package:biocentral_api/src/model/model_output.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';
+import 'package:biocentral_api/src/model/output_class.dart';
 import 'package:biocentral_api/src/model/output_data.dart';
+import 'package:biocentral_api/src/model/output_type.dart';
 import 'package:biocentral_api/src/model/plm_eval_autoeval_request.dart';
 import 'package:biocentral_api/src/model/plm_eval_information.dart';
 import 'package:biocentral_api/src/model/plm_eval_information_response.dart';
@@ -47,6 +65,7 @@ import 'package:biocentral_api/src/model/plm_eval_validate_response.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
+import 'package:biocentral_api/src/model/protocol.dart';
 import 'package:biocentral_api/src/model/protocols_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
@@ -67,19 +86,33 @@ import 'package:biocentral_api/src/model/validation_error_loc_inner.dart';
 part 'serializers.g.dart';
 
 @SerializersFor([
+  ActiveLearningCampaignConfig,
+  ActiveLearningConvergenceConfig,
+  ActiveLearningIterationConfig,
+  ActiveLearningIterationRequest,
+  ActiveLearningIterationResult,
+  ActiveLearningModelType,
+  ActiveLearningOptimizationMode,
+  ActiveLearningResult,
+  ActiveLearningSimulationConfig,
+  ActiveLearningSimulationRequest,
+  ActiveLearningSimulationResult,
   AddEmbeddingsRequest,
   AddEmbeddingsResponse,
   AutoDetectFormatRequest,
   AutoEvalProgress,
-  BayesianOptimizationRequest,
+  AutoEvalReport,
+  BiocentralPredictionModel,
   BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
   BiotrainerSequenceRecord,
+  CommonEmbedder,
   ConfigOptionsResponse,
   ConfigVerificationRequest,
   ConfigVerificationResponse,
   DetectedFormatResponse,
   EmbedRequest,
+  EmbeddingProgress,
   EpochMetrics,
   GetMissingEmbeddingsRequest,
   GetMissingEmbeddingsResponse,
@@ -88,9 +121,13 @@ part 'serializers.g.dart';
   ImportDatasetRequest,
   ImportDatasetResponse,
   ModelFilesRequest,
+  ModelMetadata,
   ModelMetadataResponse,
+  ModelOutput,
   NotFoundErrorResponse,
+  OutputClass,
   OutputData,
+  OutputType,
   PLMEvalAutoevalRequest,
   PLMEvalInformation,
   PLMEvalInformationResponse,
@@ -100,6 +137,7 @@ part 'serializers.g.dart';
   Prediction,
   PredictionRequest,
   ProjectionRequest,
+  Protocol,
   ProtocolsResponse,
   RunTestRequest,
   RunTestResponse,
@@ -119,17 +157,16 @@ part 'serializers.g.dart';
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),
+        const FullType(BuiltList, [FullType(CommonEmbedder)]),
+        () => ListBuilder<CommonEmbedder>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
         () => MapBuilder<String, JsonObject>(),
       )
-      // Builder factories for nested collection types used in models
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(Prediction)]),
-        () => ListBuilder<Prediction>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(Prediction)])]),
-        () => MapBuilder<String, BuiltList<Prediction>>(),
+        const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),
+        () => MapBuilder<String, JsonObject>(),
       )
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())

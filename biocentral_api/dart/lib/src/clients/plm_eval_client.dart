@@ -6,16 +6,17 @@ import 'package:biocentral_api/src/model/plm_eval_validate_response.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 
+import '../model/auto_eval_report.dart';
 import '../model/plm_eval_information.dart';
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
 
-class _PLMEvalDTOHandler extends DtoHandler<Map<String, dynamic>> {
+class _PLMEvalDTOHandler extends DtoHandler<AutoEvalReport> {
   @override
-  Map<String, dynamic>? handle(List<TaskDTO> dtos) {
+  AutoEvalReport? handle(List<TaskDTO> dtos) {
     for (final dto in dtos) {
       if (dto.status == TaskStatus.FINISHED) {
-        return dto.autoevalProgress?.finalReport?.toMap();
+        return dto.autoevalProgress?.finalReport;
       }
     }
     return null;
@@ -50,7 +51,7 @@ class PlmEvalClient {
     return err;
   }
 
-  Future<BiocentralServerTask<Map<String, dynamic>?>> autoeval({
+  Future<BiocentralServerTask<AutoEvalReport?>> autoeval({
     required gen.BiocentralApi api,
     required String modelID,
     String? onnxFile,
@@ -65,6 +66,6 @@ class PlmEvalClient {
     final startResp = await plmEvalApi.autoevalApiV1PlmEvalServiceAutoevalPost(pLMEvalAutoevalRequest: autoevalRequest);
     final taskId = startResp.data!.taskId;
     final handler = _PLMEvalDTOHandler();
-    return BiocentralServerTask<Map<String, dynamic>?>(taskId: taskId, api: api, dtoHandler: handler);
+    return BiocentralServerTask<AutoEvalReport?>(taskId: taskId, api: api, dtoHandler: handler);
   }
 }

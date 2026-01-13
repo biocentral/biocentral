@@ -27,8 +27,8 @@ class _EmbedDtoHandler extends DtoHandler<String> {
   void updateProgress(List<TaskDTO> dtos) {
     for (final dto in dtos) {
       if (dto.status == TaskStatus.RUNNING || dto.status == TaskStatus.FINISHED) {
-        _total ??= dto.embeddingTotal;
-        final current = dto.embeddingCurrent;
+        _total ??= dto.embeddingProgress?.total;
+        final current = dto.embeddingProgress?.current;
         if (current != null && _total != null) {
           // Placeholder hook: users can attach a progress listener via BiocentralServerTask.run(onProgress: ...)
           _last = current;

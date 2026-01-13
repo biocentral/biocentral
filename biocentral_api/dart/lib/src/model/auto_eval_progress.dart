@@ -3,8 +3,7 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:built_collection/built_collection.dart';
-import 'package:built_value/json_object.dart';
+import 'package:biocentral_api/src/model/auto_eval_report.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -13,27 +12,31 @@ part 'auto_eval_progress.g.dart';
 /// AutoEvalProgress
 ///
 /// Properties:
-/// * [completedTasks] 
-/// * [totalTasks] 
-/// * [currentFrameworkName] 
-/// * [currentTaskName] 
+/// * [completedTasks] - Number of completed autoeval tasks
+/// * [totalTasks] - Total number of autoeval tasks
+/// * [currentFrameworkName] - Name of the current framework that is being evaluated
+/// * [currentTaskName] - Name of the current task that is being executed
 /// * [finalReport] 
 @BuiltValue()
 abstract class AutoEvalProgress implements Built<AutoEvalProgress, AutoEvalProgressBuilder> {
+  /// Number of completed autoeval tasks
   @BuiltValueField(wireName: r'completed_tasks')
   int get completedTasks;
 
+  /// Total number of autoeval tasks
   @BuiltValueField(wireName: r'total_tasks')
   int get totalTasks;
 
+  /// Name of the current framework that is being evaluated
   @BuiltValueField(wireName: r'current_framework_name')
   String get currentFrameworkName;
 
+  /// Name of the current task that is being executed
   @BuiltValueField(wireName: r'current_task_name')
   String get currentTaskName;
 
   @BuiltValueField(wireName: r'final_report')
-  BuiltMap<String, JsonObject?>? get finalReport;
+  AutoEvalReport? get finalReport;
 
   AutoEvalProgress._();
 
@@ -82,7 +85,7 @@ class _$AutoEvalProgressSerializer implements PrimitiveSerializer<AutoEvalProgre
       yield r'final_report';
       yield serializers.serialize(
         object.finalReport,
-        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+        specifiedType: const FullType.nullable(AutoEvalReport),
       );
     }
   }
@@ -139,8 +142,8 @@ class _$AutoEvalProgressSerializer implements PrimitiveSerializer<AutoEvalProgre
         case r'final_report':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-          ) as BuiltMap<String, JsonObject?>?;
+            specifiedType: const FullType.nullable(AutoEvalReport),
+          ) as AutoEvalReport?;
           if (valueDes == null) continue;
           result.finalReport.replace(valueDes);
           break;

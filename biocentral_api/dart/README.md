@@ -8,8 +8,7 @@ The openapi specification can be found [here](https://biocentral.rostlab.org/doc
 
 ## Post-generation setup
 1. Fix `lib/src/model/biotrainer_sequence_record.dart` with BuiltMap
-2. Fix `lib/src/api.dart` `getBiocentralApi()` method
-3. Fix `serializers.dart`:
+2. Fix `serializers.dart`:
 ```dart
       // Builder factories for nested collection types used in models
       ..addBuilderFactory(

@@ -1,3 +1,4 @@
+import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/api.dart' as gen;
 import 'package:biocentral_api/src/model/prediction_request.dart';
@@ -22,13 +23,13 @@ class _PredictDtoHandler extends DtoHandler<Map<String, List<Prediction>>> {
 
 class PredictClient {
 
-  Future<Map<String, dynamic>?> getModelMetadata({
+  Future<List<ModelMetadata>?> getModelMetadata({
     required gen.BiocentralApi api,
   }) async {
     final predictionApi = api.getPredictionApi();
     final resp = await predictionApi.modelMetadataApiV1PredictionServiceModelMetadataGet();
     final metadataResponse = resp.data!;
-    return metadataResponse.metadata.toMap();
+    return metadataResponse.metadata.toList();
   }
 
   /// Start a prediction task using provided model names and sequences.

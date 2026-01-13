@@ -1,4 +1,4 @@
-# biocentral_api.model.BayesianOptimizationRequest
+# biocentral_api.model.ActiveLearningCampaignConfig
 
 ## Load the model package
 ```dart
@@ -8,17 +8,15 @@ import 'package:biocentral_api/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**databaseHash** | **String** | Hash identifier for the training database | 
-**modelType** | **String** | Type of model to use | 
-**coefficient** | **num** | Coefficient value (must be non-negative) | 
+**name** | **String** | Name of the active learning campaign | 
+**modelType** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
 **embedderName** | **String** | Name of embedder to use | 
-**discrete** | **bool** | Whether to perform discrete optimization or continuous optimization | 
-**optimizationMode** | **String** | Optimization mode selection | 
+**optimizationMode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
+**seed** | **int** |  | [optional] 
 **targetLb** | **num** |  | [optional] 
 **targetUb** | **num** |  | [optional] 
 **targetValue** | **num** |  | [optional] 
-**discreteLabels** | **BuiltList&lt;String&gt;** |  | 
-**discreteTargets** | **BuiltList&lt;String&gt;** |  | 
+**discreteTargets** | **BuiltList&lt;String&gt;** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

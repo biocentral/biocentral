@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -18,7 +19,7 @@ part 'prediction_request.g.dart';
 abstract class PredictionRequest implements Built<PredictionRequest, PredictionRequestBuilder> {
   /// List of model names to use for prediction
   @BuiltValueField(wireName: r'model_names')
-  BuiltList<String> get modelNames;
+  BuiltList<BiocentralPredictionModel> get modelNames;
 
   /// Dictionary mapping sequence IDs to protein sequences
   @BuiltValueField(wireName: r'sequence_input')
@@ -50,7 +51,7 @@ class _$PredictionRequestSerializer implements PrimitiveSerializer<PredictionReq
     yield r'model_names';
     yield serializers.serialize(
       object.modelNames,
-      specifiedType: const FullType(BuiltList, [FullType(String)]),
+      specifiedType: const FullType(BuiltList, [FullType(BiocentralPredictionModel)]),
     );
     yield r'sequence_input';
     yield serializers.serialize(
@@ -83,8 +84,8 @@ class _$PredictionRequestSerializer implements PrimitiveSerializer<PredictionReq
         case r'model_names':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(String)]),
-          ) as BuiltList<String>;
+            specifiedType: const FullType(BuiltList, [FullType(BiocentralPredictionModel)]),
+          ) as BuiltList<BiocentralPredictionModel>;
           result.modelNames.replace(valueDes);
           break;
         case r'sequence_input':

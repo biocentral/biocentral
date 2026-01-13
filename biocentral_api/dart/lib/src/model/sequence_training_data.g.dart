@@ -12,9 +12,9 @@ class _$SequenceTrainingData extends SequenceTrainingData {
   @override
   final String sequence;
   @override
-  final String label;
-  @override
   final String set_;
+  @override
+  final String? label;
   @override
   final String? mask;
 
@@ -25,8 +25,8 @@ class _$SequenceTrainingData extends SequenceTrainingData {
   _$SequenceTrainingData._(
       {required this.seqId,
       required this.sequence,
-      required this.label,
       required this.set_,
+      this.label,
       this.mask})
       : super._();
   @override
@@ -44,8 +44,8 @@ class _$SequenceTrainingData extends SequenceTrainingData {
     return other is SequenceTrainingData &&
         seqId == other.seqId &&
         sequence == other.sequence &&
-        label == other.label &&
         set_ == other.set_ &&
+        label == other.label &&
         mask == other.mask;
   }
 
@@ -54,8 +54,8 @@ class _$SequenceTrainingData extends SequenceTrainingData {
     var _$hash = 0;
     _$hash = $jc(_$hash, seqId.hashCode);
     _$hash = $jc(_$hash, sequence.hashCode);
-    _$hash = $jc(_$hash, label.hashCode);
     _$hash = $jc(_$hash, set_.hashCode);
+    _$hash = $jc(_$hash, label.hashCode);
     _$hash = $jc(_$hash, mask.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -66,8 +66,8 @@ class _$SequenceTrainingData extends SequenceTrainingData {
     return (newBuiltValueToStringHelper(r'SequenceTrainingData')
           ..add('seqId', seqId)
           ..add('sequence', sequence)
-          ..add('label', label)
           ..add('set_', set_)
+          ..add('label', label)
           ..add('mask', mask))
         .toString();
   }
@@ -85,13 +85,13 @@ class SequenceTrainingDataBuilder
   String? get sequence => _$this._sequence;
   set sequence(String? sequence) => _$this._sequence = sequence;
 
-  String? _label;
-  String? get label => _$this._label;
-  set label(String? label) => _$this._label = label;
-
   String? _set_;
   String? get set_ => _$this._set_;
   set set_(String? set_) => _$this._set_ = set_;
+
+  String? _label;
+  String? get label => _$this._label;
+  set label(String? label) => _$this._label = label;
 
   String? _mask;
   String? get mask => _$this._mask;
@@ -106,8 +106,8 @@ class SequenceTrainingDataBuilder
     if ($v != null) {
       _seqId = $v.seqId;
       _sequence = $v.sequence;
-      _label = $v.label;
       _set_ = $v.set_;
+      _label = $v.label;
       _mask = $v.mask;
       _$v = null;
     }
@@ -134,10 +134,9 @@ class SequenceTrainingDataBuilder
               seqId, r'SequenceTrainingData', 'seqId'),
           sequence: BuiltValueNullFieldError.checkNotNull(
               sequence, r'SequenceTrainingData', 'sequence'),
-          label: BuiltValueNullFieldError.checkNotNull(
-              label, r'SequenceTrainingData', 'label'),
           set_: BuiltValueNullFieldError.checkNotNull(
               set_, r'SequenceTrainingData', 'set_'),
+          label: label,
           mask: mask,
         );
     replace(_$result);

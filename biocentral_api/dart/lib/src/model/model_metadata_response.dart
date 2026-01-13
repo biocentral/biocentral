@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:built_value/json_object.dart';
+import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -13,11 +13,12 @@ part 'model_metadata_response.g.dart';
 /// ModelMetadataResponse
 ///
 /// Properties:
-/// * [metadata] 
+/// * [metadata] - List of model metadata
 @BuiltValue()
 abstract class ModelMetadataResponse implements Built<ModelMetadataResponse, ModelMetadataResponseBuilder> {
+  /// List of model metadata
   @BuiltValueField(wireName: r'metadata')
-  BuiltMap<String, JsonObject?> get metadata;
+  BuiltList<ModelMetadata> get metadata;
 
   ModelMetadataResponse._();
 
@@ -45,7 +46,7 @@ class _$ModelMetadataResponseSerializer implements PrimitiveSerializer<ModelMeta
     yield r'metadata';
     yield serializers.serialize(
       object.metadata,
-      specifiedType: const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+      specifiedType: const FullType(BuiltList, [FullType(ModelMetadata)]),
     );
   }
 
@@ -73,8 +74,8 @@ class _$ModelMetadataResponseSerializer implements PrimitiveSerializer<ModelMeta
         case r'metadata':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-          ) as BuiltMap<String, JsonObject?>;
+            specifiedType: const FullType(BuiltList, [FullType(ModelMetadata)]),
+          ) as BuiltList<ModelMetadata>;
           result.metadata.replace(valueDes);
           break;
         default:

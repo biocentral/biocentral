@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**addEmbeddingsApiV1EmbeddingsServiceAddEmbeddingsPost**](EmbeddingsApi.md#addembeddingsapiv1embeddingsserviceaddembeddingspost) | **POST** /api/v1/embeddings_service/add_embeddings | Add embeddings
+[**commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet**](EmbeddingsApi.md#commonembeddersapiv1embeddingsservicecommonembeddersget) | **GET** /api/v1/embeddings_service/common_embedders | Get a list of common embedder names support by the server
 [**embedApiV1EmbeddingsServiceEmbedPost**](EmbeddingsApi.md#embedapiv1embeddingsserviceembedpost) | **POST** /api/v1/embeddings_service/embed | Calculate embeddings
 [**getMissingEmbeddingsApiV1EmbeddingsServiceGetMissingEmbeddingsPost**](EmbeddingsApi.md#getmissingembeddingsapiv1embeddingsservicegetmissingembeddingspost) | **POST** /api/v1/embeddings_service/get_missing_embeddings | Check missing embeddings
 
@@ -53,6 +54,45 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet**
+> BuiltList<CommonEmbedder> commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet()
+
+Get a list of common embedder names support by the server
+
+Get a list of commonly used embedder names
+
+### Example
+```dart
+import 'package:biocentral_api/api.dart';
+
+final api = BiocentralApi().getEmbeddingsApi();
+
+try {
+    final response = api.commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet();
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling EmbeddingsApi->commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**BuiltList&lt;CommonEmbedder&gt;**](CommonEmbedder.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

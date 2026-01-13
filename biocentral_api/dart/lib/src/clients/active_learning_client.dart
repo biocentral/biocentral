@@ -6,19 +6,8 @@ import 'package:biocentral_api/src/model/prediction.dart';
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
 
-class _PredictDtoHandler extends DtoHandler<Map<String, List<Prediction>>> {
-  @override
-  Map<String, List<Prediction>>? handle(List<TaskDTO> dtos) {
-    for (final dto in dtos) {
-      if (dto.status == TaskStatus.FINISHED) {
-        return dto.predictions?.toMap().map((k, v) => MapEntry(k, v.toList()));
-      }
-    }
-    return null;
-  }
-}
 
-class BayOptClient {
+class ActiveLearningClient {
 
   /// Start a prediction task using provided model names and sequences.
   Future<BiocentralServerTask<dynamic>> activeLearningIteration({
@@ -26,7 +15,7 @@ class BayOptClient {
     required List<String> modelNames,
     required Map<String, String> sequenceData,
   }) async {
-    final bayOptApi = api.getBayesianOptimizationApi();
+    final alApi = api.getActiveLearningApi();
     throw UnimplementedError();
   }
 }

@@ -7,21 +7,35 @@ part of 'serializers.dart';
 // **************************************************************************
 
 Serializers _$serializers = (Serializers().toBuilder()
+      ..add(ActiveLearningCampaignConfig.serializer)
+      ..add(ActiveLearningConvergenceConfig.serializer)
+      ..add(ActiveLearningIterationConfig.serializer)
+      ..add(ActiveLearningIterationRequest.serializer)
+      ..add(ActiveLearningIterationResult.serializer)
+      ..add(ActiveLearningModelType.serializer)
+      ..add(ActiveLearningOptimizationMode.serializer)
+      ..add(ActiveLearningResult.serializer)
+      ..add(ActiveLearningSimulationConfig.serializer)
+      ..add(ActiveLearningSimulationRequest.serializer)
+      ..add(ActiveLearningSimulationResult.serializer)
       ..add(AddEmbeddingsRequest.serializer)
       ..add(AddEmbeddingsResponse.serializer)
       ..add(AutoDetectFormatRequest.serializer)
       ..add(AutoEvalProgress.serializer)
-      ..add(BayesianOptimizationRequest.serializer)
+      ..add(AutoEvalReport.serializer)
+      ..add(BiocentralPredictionModel.serializer)
       ..add(BiocentralServerCustomModelsEndpointModelsErrorResponse.serializer)
       ..add(
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
       ..add(BiotrainerSequenceRecord.serializer)
+      ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
       ..add(ConfigVerificationRequest.serializer)
       ..add(ConfigVerificationResponse.serializer)
       ..add(DetectedFormatResponse.serializer)
       ..add(EmbedRequest.serializer)
+      ..add(EmbeddingProgress.serializer)
       ..add(EpochMetrics.serializer)
       ..add(GetMissingEmbeddingsRequest.serializer)
       ..add(GetMissingEmbeddingsResponse.serializer)
@@ -30,9 +44,13 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ImportDatasetRequest.serializer)
       ..add(ImportDatasetResponse.serializer)
       ..add(ModelFilesRequest.serializer)
+      ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
+      ..add(ModelOutput.serializer)
       ..add(NotFoundErrorResponse.serializer)
+      ..add(OutputClass.serializer)
       ..add(OutputData.serializer)
+      ..add(OutputType.serializer)
       ..add(PLMEvalAutoevalRequest.serializer)
       ..add(PLMEvalInformation.serializer)
       ..add(PLMEvalInformationResponse.serializer)
@@ -42,6 +60,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(Prediction.serializer)
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
+      ..add(Protocol.serializer)
       ..add(ProtocolsResponse.serializer)
       ..add(RunTestRequest.serializer)
       ..add(RunTestResponse.serializer)
@@ -60,27 +79,56 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ValidationErrorLocInner.serializer)
       ..addBuilderFactory(
           const FullType(
-              BuiltList, const [const FullType(PLMEvalTaskInformation)]),
-          () => ListBuilder<PLMEvalTaskInformation>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
+              BuiltList, const [const FullType(ActiveLearningResult)]),
+          () => ListBuilder<ActiveLearningResult>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(
+              BuiltList, const [const FullType(BiocentralPredictionModel)]),
+          () => ListBuilder<BiocentralPredictionModel>())
+      ..addBuilderFactory(
+          const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ModelMetadata)]),
+          () => ListBuilder<ModelMetadata>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ModelOutput)]),
+          () => ListBuilder<ModelOutput>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(OutputClass)]),
+          () => ListBuilder<OutputClass>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType.nullable(JsonObject)]),
+          () => ListBuilder<JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(PLMEvalTaskInformation)]),
+          () => ListBuilder<PLMEvalTaskInformation>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(SequenceTrainingData)]),
+          () => ListBuilder<SequenceTrainingData>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(SequenceTrainingData)]),
+          () => ListBuilder<SequenceTrainingData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TaskDTO)]),
           () => ListBuilder<TaskDTO>())
@@ -97,6 +145,25 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(int)]),
           () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(int)]),
+          () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(int)]),
+          () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(ActiveLearningIterationResult)]),
+          () => ListBuilder<ActiveLearningIterationResult>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType.nullable(JsonObject)]),
@@ -128,10 +195,6 @@ Serializers _$serializers = (Serializers().toBuilder()
           ]),
           () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType.nullable(JsonObject)]),
-          () => ListBuilder<JsonObject?>())
-      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
             const FullType(
@@ -139,29 +202,26 @@ Serializers _$serializers = (Serializers().toBuilder()
           ]),
           () => MapBuilder<String, BuiltList<JsonObject?>>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltMap, const [const FullType(String), const FullType(String)]),
-          () => MapBuilder<String, String>())
-      ..addBuilderFactory(
-          const FullType(
-              BuiltMap, const [const FullType(String), const FullType(String)]),
-          () => MapBuilder<String, String>())
-      ..addBuilderFactory(
-          const FullType(
-              BuiltMap, const [const FullType(String), const FullType(String)]),
-          () => MapBuilder<String, String>())
-      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
-            const FullType.nullable(JsonObject)
+            const FullType(BuiltMap, const [
+              const FullType(String),
+              const FullType.nullable(JsonObject)
+            ])
           ]),
-          () => MapBuilder<String, JsonObject?>())
+          () => MapBuilder<String, BuiltMap<String, JsonObject?>>())
       ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:biocentral_api/src/api.dart' as gen;
-import 'package:biocentral_api/src/api/biocentral_api.dart' as endpoints;
+import 'package:biocentral_api/src/api/biocentral_service_api.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/task_status_response.dart';
@@ -23,14 +23,14 @@ class BiocentralServerTask<T> {
     required this.dtoHandler,
   });
 
-  Future<TaskStatusResponse> _fetchStatus(endpoints.BiocentralApi biocentralApi) async {
-    final resp = await biocentralApi.taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet(taskId: taskId);
+  Future<TaskStatusResponse> _fetchStatus(BiocentralServiceApi biocentralServiceApi) async {
+    final resp = await biocentralServiceApi.taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet(taskId: taskId);
     return resp.data!;
   }
 
   /// Poll the server until the task finishes and return the parsed result.
   Stream<(TaskDTO?, T?)> run({void Function(List<TaskDTO> dtos)? onProgress}) async* {
-    final biocentralApi = api.getBiocentralApi();
+    final biocentralApi = api.getBiocentralServiceApi();
 
     for (int i = 0; i < maxTries; i++) {
       try {

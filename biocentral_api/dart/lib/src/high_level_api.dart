@@ -1,5 +1,7 @@
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/plm_eval_client.dart';
+import 'package:biocentral_api/src/model/auto_eval_report.dart';
+import 'package:biocentral_api/src/model/model_metadata.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
@@ -169,7 +171,7 @@ extension PlmEvalAPI on BiocentralAPI {
     return PlmEvalClient().validateModelID(api: _getAPI(), modelID: modelID);
   }
 
-  Future<BiocentralServerTask<Map<String, dynamic>?>> autoeval({
+  Future<BiocentralServerTask<AutoEvalReport?>> autoeval({
     required String modelID,
     String? onnxFile,
     String? tokenizerConfig,
@@ -180,7 +182,7 @@ extension PlmEvalAPI on BiocentralAPI {
 }
 
 extension PredictAPI on BiocentralAPI {
-  Future<Map<String, dynamic>?> getModelMetadata() {
+  Future<List<ModelMetadata>?> getModelMetadata() {
     return PredictClient().getModelMetadata(api: _getAPI());
   }
 

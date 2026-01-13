@@ -8,7 +8,7 @@ part of 'model_metadata_response.dart';
 
 class _$ModelMetadataResponse extends ModelMetadataResponse {
   @override
-  final BuiltMap<String, JsonObject?> metadata;
+  final BuiltList<ModelMetadata> metadata;
 
   factory _$ModelMetadataResponse(
           [void Function(ModelMetadataResponseBuilder)? updates]) =>
@@ -50,10 +50,10 @@ class ModelMetadataResponseBuilder
     implements Builder<ModelMetadataResponse, ModelMetadataResponseBuilder> {
   _$ModelMetadataResponse? _$v;
 
-  MapBuilder<String, JsonObject?>? _metadata;
-  MapBuilder<String, JsonObject?> get metadata =>
-      _$this._metadata ??= MapBuilder<String, JsonObject?>();
-  set metadata(MapBuilder<String, JsonObject?>? metadata) =>
+  ListBuilder<ModelMetadata>? _metadata;
+  ListBuilder<ModelMetadata> get metadata =>
+      _$this._metadata ??= ListBuilder<ModelMetadata>();
+  set metadata(ListBuilder<ModelMetadata>? metadata) =>
       _$this._metadata = metadata;
 
   ModelMetadataResponseBuilder() {

@@ -4,50 +4,47 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
+import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
+import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'bayesian_optimization_request.g.dart';
+part 'active_learning_campaign_config.g.dart';
 
-/// Request model for Bayesian optimization training
+/// Configuration for an active learning campaign
 ///
 /// Properties:
-/// * [databaseHash] - Hash identifier for the training database
+/// * [name] - Name of the active learning campaign
 /// * [modelType] - Type of model to use
-/// * [coefficient] - Coefficient value (must be non-negative)
 /// * [embedderName] - Name of embedder to use
-/// * [discrete] - Whether to perform discrete optimization or continuous optimization
 /// * [optimizationMode] - Optimization mode selection
+/// * [seed] 
 /// * [targetLb] 
 /// * [targetUb] 
 /// * [targetValue] 
-/// * [discreteLabels] 
 /// * [discreteTargets] 
 @BuiltValue()
-abstract class BayesianOptimizationRequest implements Built<BayesianOptimizationRequest, BayesianOptimizationRequestBuilder> {
-  /// Hash identifier for the training database
-  @BuiltValueField(wireName: r'database_hash')
-  String get databaseHash;
+abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampaignConfig, ActiveLearningCampaignConfigBuilder> {
+  /// Name of the active learning campaign
+  @BuiltValueField(wireName: r'name')
+  String get name;
 
   /// Type of model to use
   @BuiltValueField(wireName: r'model_type')
-  String get modelType;
-
-  /// Coefficient value (must be non-negative)
-  @BuiltValueField(wireName: r'coefficient')
-  num get coefficient;
+  ActiveLearningModelType get modelType;
+  // enum modelTypeEnum {  GAUSSIAN_PROCESS,  FNN_MCD,  RANDOM,  };
 
   /// Name of embedder to use
   @BuiltValueField(wireName: r'embedder_name')
   String get embedderName;
 
-  /// Whether to perform discrete optimization or continuous optimization
-  @BuiltValueField(wireName: r'discrete')
-  bool get discrete;
-
   /// Optimization mode selection
   @BuiltValueField(wireName: r'optimization_mode')
-  String get optimizationMode;
+  ActiveLearningOptimizationMode get optimizationMode;
+  // enum optimizationModeEnum {  INTERVAL,  VALUE,  MAXIMIZE,  MINIMIZE,  DISCRETE,  };
+
+  @BuiltValueField(wireName: r'seed')
+  int? get seed;
 
   @BuiltValueField(wireName: r'target_lb')
   num? get targetLb;
@@ -58,65 +55,59 @@ abstract class BayesianOptimizationRequest implements Built<BayesianOptimization
   @BuiltValueField(wireName: r'target_value')
   num? get targetValue;
 
-  @BuiltValueField(wireName: r'discrete_labels')
-  BuiltList<String>? get discreteLabels;
-
   @BuiltValueField(wireName: r'discrete_targets')
   BuiltList<String>? get discreteTargets;
 
-  BayesianOptimizationRequest._();
+  ActiveLearningCampaignConfig._();
 
-  factory BayesianOptimizationRequest([void updates(BayesianOptimizationRequestBuilder b)]) = _$BayesianOptimizationRequest;
+  factory ActiveLearningCampaignConfig([void updates(ActiveLearningCampaignConfigBuilder b)]) = _$ActiveLearningCampaignConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(BayesianOptimizationRequestBuilder b) => b;
+  static void _defaults(ActiveLearningCampaignConfigBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<BayesianOptimizationRequest> get serializer => _$BayesianOptimizationRequestSerializer();
+  static Serializer<ActiveLearningCampaignConfig> get serializer => _$ActiveLearningCampaignConfigSerializer();
 }
 
-class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<BayesianOptimizationRequest> {
+class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<ActiveLearningCampaignConfig> {
   @override
-  final Iterable<Type> types = const [BayesianOptimizationRequest, _$BayesianOptimizationRequest];
+  final Iterable<Type> types = const [ActiveLearningCampaignConfig, _$ActiveLearningCampaignConfig];
 
   @override
-  final String wireName = r'BayesianOptimizationRequest';
+  final String wireName = r'ActiveLearningCampaignConfig';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    BayesianOptimizationRequest object, {
+    ActiveLearningCampaignConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'database_hash';
+    yield r'name';
     yield serializers.serialize(
-      object.databaseHash,
+      object.name,
       specifiedType: const FullType(String),
     );
     yield r'model_type';
     yield serializers.serialize(
       object.modelType,
-      specifiedType: const FullType(String),
-    );
-    yield r'coefficient';
-    yield serializers.serialize(
-      object.coefficient,
-      specifiedType: const FullType(num),
+      specifiedType: const FullType(ActiveLearningModelType),
     );
     yield r'embedder_name';
     yield serializers.serialize(
       object.embedderName,
       specifiedType: const FullType(String),
     );
-    yield r'discrete';
-    yield serializers.serialize(
-      object.discrete,
-      specifiedType: const FullType(bool),
-    );
     yield r'optimization_mode';
     yield serializers.serialize(
       object.optimizationMode,
-      specifiedType: const FullType(String),
+      specifiedType: const FullType(ActiveLearningOptimizationMode),
     );
+    if (object.seed != null) {
+      yield r'seed';
+      yield serializers.serialize(
+        object.seed,
+        specifiedType: const FullType.nullable(int),
+      );
+    }
     if (object.targetLb != null) {
       yield r'target_lb';
       yield serializers.serialize(
@@ -138,22 +129,19 @@ class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<Bay
         specifiedType: const FullType.nullable(num),
       );
     }
-    yield r'discrete_labels';
-    yield object.discreteLabels == null ? null : serializers.serialize(
-      object.discreteLabels,
-      specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
-    );
-    yield r'discrete_targets';
-    yield object.discreteTargets == null ? null : serializers.serialize(
-      object.discreteTargets,
-      specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
-    );
+    if (object.discreteTargets != null) {
+      yield r'discrete_targets';
+      yield serializers.serialize(
+        object.discreteTargets,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+      );
+    }
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    BayesianOptimizationRequest object, {
+    ActiveLearningCampaignConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -164,33 +152,26 @@ class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<Bay
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required BayesianOptimizationRequestBuilder result,
+    required ActiveLearningCampaignConfigBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'database_hash':
+        case r'name':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
-          result.databaseHash = valueDes;
+          result.name = valueDes;
           break;
         case r'model_type':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType(ActiveLearningModelType),
+          ) as ActiveLearningModelType;
           result.modelType = valueDes;
-          break;
-        case r'coefficient':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(num),
-          ) as num;
-          result.coefficient = valueDes;
           break;
         case r'embedder_name':
           final valueDes = serializers.deserialize(
@@ -199,19 +180,20 @@ class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<Bay
           ) as String;
           result.embedderName = valueDes;
           break;
-        case r'discrete':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.discrete = valueDes;
-          break;
         case r'optimization_mode':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType(ActiveLearningOptimizationMode),
+          ) as ActiveLearningOptimizationMode;
           result.optimizationMode = valueDes;
+          break;
+        case r'seed':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.seed = valueDes;
           break;
         case r'target_lb':
           final valueDes = serializers.deserialize(
@@ -237,14 +219,6 @@ class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<Bay
           if (valueDes == null) continue;
           result.targetValue = valueDes;
           break;
-        case r'discrete_labels':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
-          ) as BuiltList<String>?;
-          if (valueDes == null) continue;
-          result.discreteLabels.replace(valueDes);
-          break;
         case r'discrete_targets':
           final valueDes = serializers.deserialize(
             value,
@@ -262,12 +236,12 @@ class _$BayesianOptimizationRequestSerializer implements PrimitiveSerializer<Bay
   }
 
   @override
-  BayesianOptimizationRequest deserialize(
+  ActiveLearningCampaignConfig deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = BayesianOptimizationRequestBuilder();
+    final result = ActiveLearningCampaignConfigBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

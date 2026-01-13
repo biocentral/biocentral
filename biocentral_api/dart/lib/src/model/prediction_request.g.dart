@@ -8,7 +8,7 @@ part of 'prediction_request.dart';
 
 class _$PredictionRequest extends PredictionRequest {
   @override
-  final BuiltList<String> modelNames;
+  final BuiltList<BiocentralPredictionModel> modelNames;
   @override
   final BuiltMap<String, String> sequenceInput;
 
@@ -56,10 +56,10 @@ class PredictionRequestBuilder
     implements Builder<PredictionRequest, PredictionRequestBuilder> {
   _$PredictionRequest? _$v;
 
-  ListBuilder<String>? _modelNames;
-  ListBuilder<String> get modelNames =>
-      _$this._modelNames ??= ListBuilder<String>();
-  set modelNames(ListBuilder<String>? modelNames) =>
+  ListBuilder<BiocentralPredictionModel>? _modelNames;
+  ListBuilder<BiocentralPredictionModel> get modelNames =>
+      _$this._modelNames ??= ListBuilder<BiocentralPredictionModel>();
+  set modelNames(ListBuilder<BiocentralPredictionModel>? modelNames) =>
       _$this._modelNames = modelNames;
 
   MapBuilder<String, String>? _sequenceInput;
