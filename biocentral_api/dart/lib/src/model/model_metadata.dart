@@ -36,7 +36,7 @@ abstract class ModelMetadata implements Built<ModelMetadata, ModelMetadataBuilde
   /// Protocol of model predictions
   @BuiltValueField(wireName: r'protocol')
   Protocol get protocol;
-  // enum protocolEnum {  [0],  [1],  [2],  [3],  [4],  5,  };
+  // enum protocolEnum {  residue_to_value,  residue_to_class,  residues_to_class,  residues_to_value,  sequence_to_class,  sequence_to_value,  };
 
   /// Model description
   @BuiltValueField(wireName: r'description')

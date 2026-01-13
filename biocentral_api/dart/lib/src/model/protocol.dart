@@ -11,18 +11,18 @@ part 'protocol.g.dart';
 
 class Protocol extends EnumClass {
 
-  @BuiltValueEnumConst(wireName: r'[0]')
-  static const Protocol leftSquareBracket0RightSquareBracket = _$leftSquareBracket0RightSquareBracket;
-  @BuiltValueEnumConst(wireName: r'[1]')
-  static const Protocol leftSquareBracket1RightSquareBracket = _$leftSquareBracket1RightSquareBracket;
-  @BuiltValueEnumConst(wireName: r'[2]')
-  static const Protocol leftSquareBracket2RightSquareBracket = _$leftSquareBracket2RightSquareBracket;
-  @BuiltValueEnumConst(wireName: r'[3]')
-  static const Protocol leftSquareBracket3RightSquareBracket = _$leftSquareBracket3RightSquareBracket;
-  @BuiltValueEnumConst(wireName: r'[4]')
-  static const Protocol leftSquareBracket4RightSquareBracket = _$leftSquareBracket4RightSquareBracket;
-  @BuiltValueEnumConst(wireName: r'5')
-  static const Protocol n5 = _$n5;
+  @BuiltValueEnumConst(wireName: r'residue_to_value')
+  static const Protocol residueToValue = _$residueToValue;
+  @BuiltValueEnumConst(wireName: r'residue_to_class')
+  static const Protocol residueToClass = _$residueToClass;
+  @BuiltValueEnumConst(wireName: r'residues_to_class')
+  static const Protocol residuesToClass = _$residuesToClass;
+  @BuiltValueEnumConst(wireName: r'residues_to_value')
+  static const Protocol residuesToValue = _$residuesToValue;
+  @BuiltValueEnumConst(wireName: r'sequence_to_class')
+  static const Protocol sequenceToClass = _$sequenceToClass;
+  @BuiltValueEnumConst(wireName: r'sequence_to_value')
+  static const Protocol sequenceToValue = _$sequenceToValue;
 
   static Serializer<Protocol> get serializer => _$protocolSerializer;
 

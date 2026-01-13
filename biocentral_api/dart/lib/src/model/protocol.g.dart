@@ -6,59 +6,49 @@ part of 'protocol.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-const Protocol _$leftSquareBracket0RightSquareBracket =
-    const Protocol._('leftSquareBracket0RightSquareBracket');
-const Protocol _$leftSquareBracket1RightSquareBracket =
-    const Protocol._('leftSquareBracket1RightSquareBracket');
-const Protocol _$leftSquareBracket2RightSquareBracket =
-    const Protocol._('leftSquareBracket2RightSquareBracket');
-const Protocol _$leftSquareBracket3RightSquareBracket =
-    const Protocol._('leftSquareBracket3RightSquareBracket');
-const Protocol _$leftSquareBracket4RightSquareBracket =
-    const Protocol._('leftSquareBracket4RightSquareBracket');
-const Protocol _$n5 = const Protocol._('n5');
+const Protocol _$residueToValue = const Protocol._('residueToValue');
+const Protocol _$residueToClass = const Protocol._('residueToClass');
+const Protocol _$residuesToClass = const Protocol._('residuesToClass');
+const Protocol _$residuesToValue = const Protocol._('residuesToValue');
+const Protocol _$sequenceToClass = const Protocol._('sequenceToClass');
+const Protocol _$sequenceToValue = const Protocol._('sequenceToValue');
 
 Protocol _$valueOf(String name) {
   switch (name) {
-    case 'leftSquareBracket0RightSquareBracket':
-      return _$leftSquareBracket0RightSquareBracket;
-    case 'leftSquareBracket1RightSquareBracket':
-      return _$leftSquareBracket1RightSquareBracket;
-    case 'leftSquareBracket2RightSquareBracket':
-      return _$leftSquareBracket2RightSquareBracket;
-    case 'leftSquareBracket3RightSquareBracket':
-      return _$leftSquareBracket3RightSquareBracket;
-    case 'leftSquareBracket4RightSquareBracket':
-      return _$leftSquareBracket4RightSquareBracket;
-    case 'n5':
-      return _$n5;
+    case 'residueToValue':
+      return _$residueToValue;
+    case 'residueToClass':
+      return _$residueToClass;
+    case 'residuesToClass':
+      return _$residuesToClass;
+    case 'residuesToValue':
+      return _$residuesToValue;
+    case 'sequenceToClass':
+      return _$sequenceToClass;
+    case 'sequenceToValue':
+      return _$sequenceToValue;
     default:
       throw ArgumentError(name);
   }
 }
 
 final BuiltSet<Protocol> _$values = BuiltSet<Protocol>(const <Protocol>[
-  _$leftSquareBracket0RightSquareBracket,
-  _$leftSquareBracket1RightSquareBracket,
-  _$leftSquareBracket2RightSquareBracket,
-  _$leftSquareBracket3RightSquareBracket,
-  _$leftSquareBracket4RightSquareBracket,
-  _$n5,
+  _$residueToValue,
+  _$residueToClass,
+  _$residuesToClass,
+  _$residuesToValue,
+  _$sequenceToClass,
+  _$sequenceToValue,
 ]);
 
 class _$ProtocolMeta {
   const _$ProtocolMeta();
-  Protocol get leftSquareBracket0RightSquareBracket =>
-      _$leftSquareBracket0RightSquareBracket;
-  Protocol get leftSquareBracket1RightSquareBracket =>
-      _$leftSquareBracket1RightSquareBracket;
-  Protocol get leftSquareBracket2RightSquareBracket =>
-      _$leftSquareBracket2RightSquareBracket;
-  Protocol get leftSquareBracket3RightSquareBracket =>
-      _$leftSquareBracket3RightSquareBracket;
-  Protocol get leftSquareBracket4RightSquareBracket =>
-      _$leftSquareBracket4RightSquareBracket;
-  Protocol get n5 => _$n5;
+  Protocol get residueToValue => _$residueToValue;
+  Protocol get residueToClass => _$residueToClass;
+  Protocol get residuesToClass => _$residuesToClass;
+  Protocol get residuesToValue => _$residuesToValue;
+  Protocol get sequenceToClass => _$sequenceToClass;
+  Protocol get sequenceToValue => _$sequenceToValue;
   Protocol valueOf(String name) => _$valueOf(name);
   BuiltSet<Protocol> get values => _$values;
 }
@@ -72,20 +62,20 @@ Serializer<Protocol> _$protocolSerializer = _$ProtocolSerializer();
 
 class _$ProtocolSerializer implements PrimitiveSerializer<Protocol> {
   static const Map<String, Object> _toWire = const <String, Object>{
-    'leftSquareBracket0RightSquareBracket': '[0]',
-    'leftSquareBracket1RightSquareBracket': '[1]',
-    'leftSquareBracket2RightSquareBracket': '[2]',
-    'leftSquareBracket3RightSquareBracket': '[3]',
-    'leftSquareBracket4RightSquareBracket': '[4]',
-    'n5': '5',
+    'residueToValue': 'residue_to_value',
+    'residueToClass': 'residue_to_class',
+    'residuesToClass': 'residues_to_class',
+    'residuesToValue': 'residues_to_value',
+    'sequenceToClass': 'sequence_to_class',
+    'sequenceToValue': 'sequence_to_value',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
-    '[0]': 'leftSquareBracket0RightSquareBracket',
-    '[1]': 'leftSquareBracket1RightSquareBracket',
-    '[2]': 'leftSquareBracket2RightSquareBracket',
-    '[3]': 'leftSquareBracket3RightSquareBracket',
-    '[4]': 'leftSquareBracket4RightSquareBracket',
-    '5': 'n5',
+    'residue_to_value': 'residueToValue',
+    'residue_to_class': 'residueToClass',
+    'residues_to_class': 'residuesToClass',
+    'residues_to_value': 'residuesToValue',
+    'sequence_to_class': 'sequenceToClass',
+    'sequence_to_value': 'sequenceToValue',
   };
 
   @override
