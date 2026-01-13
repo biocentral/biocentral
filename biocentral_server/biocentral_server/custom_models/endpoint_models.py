@@ -90,12 +90,6 @@ class ConfigVerificationResponse(BaseModel):
     )
 
 
-class ProtocolsResponse(BaseModel):
-    """Response model for available protocols"""
-
-    protocols: List[str] = Field(description="List of available protocol names")
-
-
 class ConfigOptionsResponse(BaseModel):
     options: List = Field(description="List of configuration option dictionaries")
 

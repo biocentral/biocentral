@@ -7,7 +7,6 @@ from fastapi_limiter.depends import RateLimiter
 from .endpoint_models import (
     ConfigVerificationRequest,
     ConfigVerificationResponse,
-    ProtocolsResponse,
     ConfigOptionsResponse,
     StartTrainingRequest,
     ModelFilesRequest,
@@ -78,19 +77,6 @@ def verify_config(request_data: ConfigVerificationRequest):
     """Verify configuration options"""
     _, error = verify_biotrainer_config(request_data.config_dict)
     return ConfigVerificationResponse(error=error)
-
-
-@router.get(
-    "/protocols",
-    response_model=ProtocolsResponse,
-    summary="Get available protocols",
-    description="Retrieve list of all available biotrainer protocols",
-    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
-)
-def protocols():
-    """Get available protocols from biotrainer"""
-    all_protocols = list(map(str, Protocol.all()))
-    return ProtocolsResponse(protocols=all_protocols)
 
 
 @router.post(
