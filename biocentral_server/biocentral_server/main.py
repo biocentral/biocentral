@@ -42,13 +42,20 @@ async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
 
+    debug = str2bool(str(os.environ.get("SERVER_DEBUG", "True")))
+
     # Rate Limiting
     redis_host = os.environ.get("REDIS_JOBS_HOST", "redis-jobs")
     redis_port = os.environ.get("REDIS_JOBS_PORT", 6379)
     redis_conn = Redis(host=redis_host, port=redis_port, db=0)
-    await FastAPILimiter.init(
-        redis=redis_conn, identifier=UserManager.get_user_id_from_request
-    )
+    if not debug:
+        await FastAPILimiter.init(
+            redis=redis_conn, identifier=UserManager.get_user_id_from_request
+        )
+    else:
+        await FastAPILimiter.init(
+            redis=redis_conn, identifier=UserManager.get_random_user_id
+        )
 
     # Directories
     _setup_directories()
