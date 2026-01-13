@@ -2,7 +2,7 @@
 
 # import apis into api package
 from biocentral_api._generated.api.active_learning_api import ActiveLearningApi
-from biocentral_api._generated.api.biocentral_api import BiocentralApi
+from biocentral_api._generated.api.biocentral_service_api import BiocentralServiceApi
 from biocentral_api._generated.api.custom_models_api import CustomModelsApi
 from biocentral_api._generated.api.default_api import DefaultApi
 from biocentral_api._generated.api.embeddings_api import EmbeddingsApi

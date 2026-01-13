@@ -1,13 +1,13 @@
-# biocentral_api._generated.BiocentralApi
+# biocentral_api._generated.BiocentralServiceApi
 
 All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**stats_api_v1_biocentral_service_stats_get**](BiocentralApi.md#stats_api_v1_biocentral_service_stats_get) | **GET** /api/v1/biocentral_service/stats/ | Stats
-[**task_status_api_v1_biocentral_service_task_status_task_id_get**](BiocentralApi.md#task_status_api_v1_biocentral_service_task_status_task_id_get) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
-[**task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**](BiocentralApi.md#task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
-[**welcome_message_api_v1_biocentral_service_welcome_message_get**](BiocentralApi.md#welcome_message_api_v1_biocentral_service_welcome_message_get) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
+[**stats_api_v1_biocentral_service_stats_get**](BiocentralServiceApi.md#stats_api_v1_biocentral_service_stats_get) | **GET** /api/v1/biocentral_service/stats/ | Stats
+[**task_status_api_v1_biocentral_service_task_status_task_id_get**](BiocentralServiceApi.md#task_status_api_v1_biocentral_service_task_status_task_id_get) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
+[**task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**](BiocentralServiceApi.md#task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
+[**welcome_message_api_v1_biocentral_service_welcome_message_get**](BiocentralServiceApi.md#welcome_message_api_v1_biocentral_service_welcome_message_get) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
 
 
 # **stats_api_v1_biocentral_service_stats_get**
@@ -33,15 +33,15 @@ configuration = biocentral_api._generated.Configuration(
 # Enter a context with an instance of the API client
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
 
     try:
         # Stats
         api_response = api_instance.stats_api_v1_biocentral_service_stats_get()
-        print("The response of BiocentralApi->stats_api_v1_biocentral_service_stats_get:\n")
+        print("The response of BiocentralServiceApi->stats_api_v1_biocentral_service_stats_get:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling BiocentralApi->stats_api_v1_biocentral_service_stats_get: %s\n" % e)
+        print("Exception when calling BiocentralServiceApi->stats_api_v1_biocentral_service_stats_get: %s\n" % e)
 ```
 
 
@@ -96,16 +96,16 @@ configuration = biocentral_api._generated.Configuration(
 # Enter a context with an instance of the API client
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
     task_id = 'task_id_example' # str | 
 
     try:
         # Task Status
         api_response = api_instance.task_status_api_v1_biocentral_service_task_status_task_id_get(task_id)
-        print("The response of BiocentralApi->task_status_api_v1_biocentral_service_task_status_task_id_get:\n")
+        print("The response of BiocentralServiceApi->task_status_api_v1_biocentral_service_task_status_task_id_get:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling BiocentralApi->task_status_api_v1_biocentral_service_task_status_task_id_get: %s\n" % e)
+        print("Exception when calling BiocentralServiceApi->task_status_api_v1_biocentral_service_task_status_task_id_get: %s\n" % e)
 ```
 
 
@@ -164,16 +164,16 @@ configuration = biocentral_api._generated.Configuration(
 # Enter a context with an instance of the API client
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
     task_id = 'task_id_example' # str | 
 
     try:
         # Task Status Resumed
         api_response = api_instance.task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get(task_id)
-        print("The response of BiocentralApi->task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get:\n")
+        print("The response of BiocentralServiceApi->task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling BiocentralApi->task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get: %s\n" % e)
+        print("Exception when calling BiocentralServiceApi->task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get: %s\n" % e)
 ```
 
 
@@ -231,15 +231,15 @@ configuration = biocentral_api._generated.Configuration(
 # Enter a context with an instance of the API client
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = biocentral_api._generated.BiocentralApi(api_client)
+    api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
 
     try:
         # Welcome Message
         api_response = api_instance.welcome_message_api_v1_biocentral_service_welcome_message_get()
-        print("The response of BiocentralApi->welcome_message_api_v1_biocentral_service_welcome_message_get:\n")
+        print("The response of BiocentralServiceApi->welcome_message_api_v1_biocentral_service_welcome_message_get:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling BiocentralApi->welcome_message_api_v1_biocentral_service_welcome_message_get: %s\n" % e)
+        print("Exception when calling BiocentralServiceApi->welcome_message_api_v1_biocentral_service_welcome_message_get: %s\n" % e)
 ```
 
 

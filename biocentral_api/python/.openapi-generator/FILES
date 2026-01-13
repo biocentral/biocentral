@@ -2,7 +2,7 @@
 biocentral_api/_generated/__init__.py
 biocentral_api/_generated/api/__init__.py
 biocentral_api/_generated/api/active_learning_api.py
-biocentral_api/_generated/api/biocentral_api.py
+biocentral_api/_generated/api/biocentral_service_api.py
 biocentral_api/_generated/api/custom_models_api.py
 biocentral_api/_generated/api/default_api.py
 biocentral_api/_generated/api/embeddings_api.py
@@ -103,10 +103,10 @@ docs/AddEmbeddingsResponse.md
 docs/AutoDetectFormatRequest.md
 docs/AutoEvalProgress.md
 docs/AutoEvalReport.md
-docs/BiocentralApi.md
 docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
+docs/BiocentralServiceApi.md
 docs/BiotrainerSequenceRecord.md
 docs/CommonEmbedder.md
 docs/ConfigOptionsResponse.md
@@ -165,3 +165,4 @@ docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 test/__init__.py
+test/test_biocentral_service_api.py

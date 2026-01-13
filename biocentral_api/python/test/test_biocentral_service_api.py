@@ -14,30 +14,16 @@
 
 import unittest
 
-from biocentral_server_api._generated.api.biocentral_api import BiocentralApi
+from biocentral_api._generated.api.biocentral_service_api import BiocentralServiceApi
 
 
-class TestBiocentralApi(unittest.TestCase):
-    """BiocentralApi unit test stubs"""
+class TestBiocentralServiceApi(unittest.TestCase):
+    """BiocentralServiceApi unit test stubs"""
 
     def setUp(self) -> None:
-        self.api = BiocentralApi()
+        self.api = BiocentralServiceApi()
 
     def tearDown(self) -> None:
-        pass
-
-    def test_hashes_api_v1_biocentral_service_hashes_hash_id_file_type_get(self) -> None:
-        """Test case for hashes_api_v1_biocentral_service_hashes_hash_id_file_type_get
-
-        Hashes
-        """
-        pass
-
-    def test_services_api_v1_biocentral_service_services_get(self) -> None:
-        """Test case for services_api_v1_biocentral_service_services_get
-
-        Services
-        """
         pass
 
     def test_stats_api_v1_biocentral_service_stats_get(self) -> None:
@@ -61,10 +47,10 @@ class TestBiocentralApi(unittest.TestCase):
         """
         pass
 
-    def test_transfer_file_api_v1_biocentral_service_transfer_file_post(self) -> None:
-        """Test case for transfer_file_api_v1_biocentral_service_transfer_file_post
+    def test_welcome_message_api_v1_biocentral_service_welcome_message_get(self) -> None:
+        """Test case for welcome_message_api_v1_biocentral_service_welcome_message_get
 
-        Transfer File
+        Welcome Message
         """
         pass
 

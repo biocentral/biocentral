@@ -19,7 +19,7 @@ __version__ = "1.0.0"
 # Define package exports
 __all__ = [
     "ActiveLearningApi",
-    "BiocentralApi",
+    "BiocentralServiceApi",
     "CustomModelsApi",
     "DefaultApi",
     "EmbeddingsApi",
@@ -109,7 +109,7 @@ __all__ = [
 
 # import apis into sdk package
 from biocentral_api._generated.api.active_learning_api import ActiveLearningApi as ActiveLearningApi
-from biocentral_api._generated.api.biocentral_api import BiocentralApi as BiocentralApi
+from biocentral_api._generated.api.biocentral_service_api import BiocentralServiceApi as BiocentralServiceApi
 from biocentral_api._generated.api.custom_models_api import CustomModelsApi as CustomModelsApi
 from biocentral_api._generated.api.default_api import DefaultApi as DefaultApi
 from biocentral_api._generated.api.embeddings_api import EmbeddingsApi as EmbeddingsApi

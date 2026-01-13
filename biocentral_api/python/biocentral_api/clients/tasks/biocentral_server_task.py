@@ -5,7 +5,7 @@ from typing import Generic, TypeVar, Optional, Callable, Any, List
 
 from .dto_handler import DTOHandler
 
-from ..._generated import BiocentralApi, ApiClient, TaskStatusResponse, TaskDTO
+from ..._generated import BiocentralServiceApi, ApiClient, TaskStatusResponse, TaskDTO
 
 T = TypeVar('T')
 
@@ -23,7 +23,7 @@ class BiocentralServerTask(Generic[T]):
         self.api_client = api_client
         self.dto_handler = dto_handler
 
-    def _fetch_task_status(self, api_instance: BiocentralApi) -> TaskStatusResponse:
+    def _fetch_task_status(self, api_instance: BiocentralServiceApi) -> TaskStatusResponse:
         """Fetch task status from the API."""
         return api_instance.task_status_api_v1_biocentral_service_task_status_task_id_get(
             self.task_id
@@ -42,7 +42,7 @@ class BiocentralServerTask(Generic[T]):
         Returns:
             Result from dto_handler if task completes, None on timeout
         """
-        api_instance = BiocentralApi(self.api_client)
+        api_instance = BiocentralServiceApi(self.api_client)
         pbar = tqdm() if progress_callback else None
 
         try:
