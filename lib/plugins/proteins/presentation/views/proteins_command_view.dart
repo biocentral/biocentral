@@ -2,12 +2,16 @@ import 'package:biocentral/plugins/proteins/bloc/protein_predict_dialog_bloc.dar
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
 import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/model/analyze_example_dataset_tutorial.dart';
+import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_asset_datasets_dialog.dart';
+import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_column_wizard_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_predict_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tutorial_system/presentation/tutorial_registration_mixin.dart';
 
 class ProteinsCommandView extends StatefulWidget {
   const ProteinsCommandView({super.key});
@@ -16,10 +20,14 @@ class ProteinsCommandView extends StatefulWidget {
   State<ProteinsCommandView> createState() => _ProteinsCommandViewState();
 }
 
-class _ProteinsCommandViewState extends State<ProteinsCommandView> {
+class _ProteinsCommandViewState extends State<ProteinsCommandView> with TutorialRegistrationMixin {
+  GlobalKey loadProteinsExampleDatasetsButtonKey = GlobalKey();
+  GlobalKey showProteinsColumnWizardButtonKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
+    registerForTutorials([AnalyzeExampleDatasetTutorial]);
   }
 
   void loadProteinFile(ProteinsCommandBloc proteinCommandBloc) async {
@@ -75,7 +83,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
             context.read<ProteinRepository>(),
             context.read<BiocentralColumnWizardRepository>(),
           )..add(ColumnWizardLoadEvent()),
-          child: ColumnWizardDialog(
+          child: ProteinColumnWizardDialog(
             onApplyColumn: (newColumnName, originalColumnName, operationHistory) {
               proteinCommandBloc.add(
                 ProteinsCommandAddColumnEvent(newColumnName, originalColumnName, operationHistory),
@@ -108,11 +116,11 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
     proteinCommandBloc.add(ProteinsCommandRetrieveTaxonomyEvent());
   }
 
-  void openLoadExampleProteinDatasetDialog(ProteinsCommandBloc proteinCommandBloc) {
+  void openProteinAssetDatasetsDialog(ProteinsCommandBloc proteinCommandBloc) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BiocentralAssetDatasetLoadingDialog(
+        return ProteinAssetDatasetsDialog(
           assetDatasets: AssetProteinDatasetContainer.assetProteinDatasets(),
           loadDatasetCallback: (LoadedFileData fileData, DatabaseImportMode importMode) {
             // TODO FILE / STRING
@@ -155,6 +163,7 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
           BiocentralTooltip(
             message: 'Analyze and modify the columns in your dataset',
             child: BiocentralButton(
+              key: showProteinsColumnWizardButtonKey,
               iconData: Icons.view_column_outlined,
               onTap: () => openColumnWizardDialog(proteinCommandBloc, null),
             ),
@@ -176,12 +185,24 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> {
           BiocentralTooltip(
             message: 'Load a predefined dataset to learn and explore',
             child: BiocentralButton(
+              key: loadProteinsExampleDatasetsButtonKey,
               iconData: Icons.bubble_chart_sharp,
-              onTap: () => openLoadExampleProteinDatasetDialog(proteinCommandBloc),
+              onTap: () => openProteinAssetDatasetsDialog(proteinCommandBloc),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+extension TutorialExtCommand on ProteinsCommandView {
+  ProteinsCommandBloc? getProteinsCommandBloc(dynamic state) =>
+      state is _ProteinsCommandViewState ? BlocProvider.of(state.context) : null;
+
+  GlobalKey? getLoadProteinsExampleDatasetsButtonKey(dynamic state) =>
+      state is _ProteinsCommandViewState ? state.loadProteinsExampleDatasetsButtonKey : null;
+
+  GlobalKey? getShowProteinsColumnWizardButtonKey(dynamic state) =>
+      state is _ProteinsCommandViewState ? state.showProteinsColumnWizardButtonKey : null;
 }

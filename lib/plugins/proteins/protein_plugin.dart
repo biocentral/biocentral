@@ -2,6 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/proteins/bloc/protein_database_grid_bloc.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/plugins/proteins/model/analyze_example_dataset_tutorial.dart';
 import 'package:biocentral/plugins/proteins/model/sequence_column_wizard.dart';
 import 'package:biocentral/plugins/proteins/presentation/displays/sequence_column_wizard_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/protein_hub_view.dart';
@@ -11,11 +12,15 @@ import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tutorial_system/data/tutorial.dart';
 
 class ProteinPlugin extends BiocentralPlugin
     with
         BiocentralDatabasePluginMixin<ProteinRepository>,
-        BiocentralColumnWizardPluginMixin {
+        BiocentralColumnWizardPluginMixin,
+        BiocentralTutorialPluginMixin {
+  final GlobalKey proteinTabKey = GlobalKey();
+
   ProteinPlugin(super.eventBus);
 
   @override
@@ -54,16 +59,20 @@ class ProteinPlugin extends BiocentralPlugin
     final proteinColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
       ..add(ColumnWizardLoadEvent());
 
-    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
-      proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
-    }),);
-
-    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
-      if (event.switchedTab == getTab()) {
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
         proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
-      }
-    }),);
+        proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
+      }),
+    );
+
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+        if (event.switchedTab == getTab()) {
+          proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
+        }
+      }),
+    );
 
     return {
       BlocProvider<ProteinsCommandBloc>.value(value: proteinCommandBloc): proteinCommandBloc,
@@ -84,7 +93,7 @@ class ProteinPlugin extends BiocentralPlugin
 
   @override
   Widget getTab() {
-    return Tab(text: 'Proteins', icon: getIcon());
+    return Tab(key: proteinTabKey, text: 'Proteins', icon: getIcon());
   }
 
   @override
@@ -124,5 +133,10 @@ class ProteinPlugin extends BiocentralPlugin
         },
       ),
     ];
+  }
+
+  @override
+  List<Tutorial> getTutorials() {
+    return [AnalyzeExampleDatasetTutorial()];
   }
 }

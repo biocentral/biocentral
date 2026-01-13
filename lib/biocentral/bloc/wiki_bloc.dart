@@ -35,6 +35,7 @@ enum WikiStatus { initial, loading, loaded }
 class WikiBloc extends Bloc<WikiEvent, WikiState> {
   WikiBloc() : super(const WikiState.initial()) {
     on<WikiLoadEvent>((event, emit) async {
+      /*
       emit(const WikiState.loading());
 
       final manifestContent = await rootBundle.loadString('AssetManifest.json');
@@ -49,6 +50,7 @@ class WikiBloc extends Bloc<WikiEvent, WikiState> {
         }
       }
       emit(WikiState.loaded(wikiDocs));
+      */
     });
   }
 }

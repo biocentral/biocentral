@@ -1,3 +1,4 @@
+import 'package:biocentral/plugins/proteins/model/analyze_example_dataset_tutorial.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class AssetProteinDatasetContainer {
@@ -11,6 +12,7 @@ class AssetProteinDatasetContainer {
     name: 'Amylase Mutations Expression Levels',
     path: 'assets/example_datasets/protein/amylase_pet.fasta',
     docs: 'Alpha Amylase (PDB: 1UA7) Single and Double Mutations with Normalized Expression Levels',
+    tutorialID: AnalyzeExampleDatasetTutorialID.amylaseDatasetSelector
   );
 
   static List<BiocentralAssetDataset> assetProteinDatasets() {
