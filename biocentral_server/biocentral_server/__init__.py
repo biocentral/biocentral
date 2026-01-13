@@ -1,5 +1,5 @@
 from biocentral_server import (
-    biocentral,
+    biocentral_service,
     embeddings,
     ppi,
     custom_models,
@@ -9,7 +9,7 @@ from biocentral_server import (
 )
 
 __all__ = [
-    "biocentral",
+    "biocentral_service",
     "embeddings",
     "ppi",
     "custom_models",

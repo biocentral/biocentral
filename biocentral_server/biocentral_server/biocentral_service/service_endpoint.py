@@ -2,7 +2,8 @@ from typing import Optional
 
 import torch
 import psutil
-from biocentral_server.biocentral.endpoint_models import TaskStatusResponse
+
+from .endpoint_models import TaskStatusResponse
 
 from fastapi import APIRouter, Request, HTTPException, status
 
@@ -15,7 +16,7 @@ from ..server_management import (
 
 router = APIRouter(
     prefix="/biocentral_service",
-    tags=["biocentral"],
+    tags=["biocentral_service"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
 

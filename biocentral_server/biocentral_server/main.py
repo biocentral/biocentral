@@ -3,10 +3,11 @@ import os
 from pathlib import Path
 from fastapi import FastAPI
 from redis.asyncio import Redis
-from fastapi.responses import Response, HTMLResponse
+from importlib.metadata import version
 from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response, HTMLResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
@@ -23,9 +24,9 @@ from .predict import router as predict_router
 from .bay_opt import router as bay_opt_router
 from .plm_eval import router as plm_eval_router
 from .proteins import router as proteins_router
-from .biocentral import router as biocentral_router
 from .custom_models import router as custom_models_router
 from .embeddings import embeddings_router, projection_router
+from .biocentral_service import router as biocentral_service_router
 
 from .utils import str2bool, Constants
 
@@ -96,7 +97,7 @@ def create_app() -> FastAPI:
 
     # Include module routers
     prefix = "/api/v1"
-    app.include_router(biocentral_router, prefix=prefix)
+    app.include_router(biocentral_service_router, prefix=prefix)
     app.include_router(embeddings_router, prefix=prefix)
     app.include_router(projection_router, prefix=prefix)
     app.include_router(bay_opt_router, prefix=prefix)
@@ -107,9 +108,11 @@ def create_app() -> FastAPI:
     app.include_router(proteins_router, prefix=prefix)
 
     # Health check
+    __version__ = version("biocentral-server")
+
     @app.get("/health")
     async def health_check():
-        return {"status": "healthy"}
+        return {"status": "healthy", "version": __version__}
 
     # Landing page
     assets_dir = Path(os.environ.get("ASSETS_DIR", "assets/"))
