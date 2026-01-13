@@ -52,8 +52,9 @@ class _WelcomeDialogState extends State<WelcomeDialog> with BiocentralDialogClos
           text: const TextSpan(
             children: [
               TextSpan(
-                  text: 'Thank you for using biocentral!\n'
-                      'The Biocentral IRE is currently under constant development.\n'),
+                text: 'Thank you for using biocentral!\n'
+                    'The biocentral IRE is currently under constant development.\n',
+              ),
             ],
             style: TextStyle(color: Colors.black, fontSize: 18),
           ),
