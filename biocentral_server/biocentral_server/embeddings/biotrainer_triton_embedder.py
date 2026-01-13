@@ -136,7 +136,6 @@ class BiotrainerTritonEmbedder(EmbedderInterface):
         batch_size = self.config.triton_max_batch_size
         for i in range(0, len(batch), batch_size):
             current_batch = batch[i : i + batch_size]
-            print(len(current_batch))
             embeddings = self.triton_repo.compute_embeddings(
                 sequences=current_batch,
                 model_name=self.triton_model_name,
