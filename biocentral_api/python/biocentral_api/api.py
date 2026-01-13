@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import time
-import urllib.parse
 import numpy as np
+import urllib.parse
 
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Tuple, Union
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
@@ -13,6 +14,12 @@ from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, Cus
     ActiveLearningClient
 
 
+class _BiocentralAPIHealth(BaseModel):
+    url: str = Field(description="The URL of the biocentral server.")
+    healthy: bool = Field(description="Indicates whether the biocentral server is healthy.")
+    version: Optional[str] = Field(default=None, description="The version of the biocentral server.")
+
+
 class BiocentralAPI:
     """
     High-level Python API for programmatic use (e.g., notebooks).
@@ -20,6 +27,8 @@ class BiocentralAPI:
 
     DEFAULT_LOCAL_URL = "http://localhost:9540"
     API_URL = "https://biocentral.rostlab.org"
+    MIN_API_VERSION = "1.0.0"
+    MAX_API_VERSION = "2.0.0"
 
     def __init__(self,
                  api_token: Optional[str] = None,
@@ -28,17 +37,17 @@ class BiocentralAPI:
         self.api_token = api_token or ""
 
         # Candidate URLs: either the provided one or a reasonable local default
-        self._url_health_status: List[Tuple[str, bool]] = []
+        self._url_health_status: List[_BiocentralAPIHealth] = []
         if fixed_server_url:
             normalized = self._normalize_url(fixed_server_url)
             if local_only and not self._is_local_url(normalized):
                 raise ValueError("Using local_only=True with a non-local server_url is not allowed")
-            self._url_health_status.append((normalized, False))
+            self._url_health_status.append(_BiocentralAPIHealth(url=normalized, healthy=False))
         else:
             if not local_only:
-                self._url_health_status.append((self.API_URL, False))
+                self._url_health_status.append(_BiocentralAPIHealth(url=self.API_URL, healthy=False))
 
-            self._url_health_status.append((self.DEFAULT_LOCAL_URL, False))
+            self._url_health_status.append(_BiocentralAPIHealth(url=self.DEFAULT_LOCAL_URL, healthy=False))
 
     def _create_api_client(self) -> ApiClient:
         """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
@@ -69,36 +78,44 @@ class BiocentralAPI:
 
     def _get_base_url(self) -> str:
         # Prefer first healthy URL if any, otherwise first candidate
-        base_url = self._url_health_status[0][0]
-        for url, healthy in self._url_health_status:
-            if self._is_local_url(url) and healthy:
+        base_url = self._url_health_status[0].url
+        for url_health in self._url_health_status:
+            if self._is_local_url(url_health.url) and url_health.healthy:
                 # Always prefer local URLs over remote ones
-                return url
-            if healthy:
-                base_url = url
+                return url_health.url
+            if url_health.healthy:
+                base_url = url_health.url
         return base_url
 
-    def get_health_status(self) -> Dict[str, bool]:
-        return {url: healthy for (url, healthy) in self._url_health_status}
+    def get_health_status(self) -> List[Tuple[str, bool, str]]:
+        return [(api_health_status.url, api_health_status.healthy, api_health_status.version) for api_health_status in
+                self._url_health_status]
 
-    def _update_health_status(self, request_timeout: float = 2.0) -> Dict[str, bool]:
-        updated: List[Tuple[str, bool]] = []
-        for (url, _) in self._url_health_status:
-            healthy = self._health_check(url, timeout=request_timeout)
-            updated.append((url, healthy))
+    def _update_health_status(self, request_timeout: float = 2.0) -> List[_BiocentralAPIHealth]:
+        updated: List[_BiocentralAPIHealth] = []
+        for api_health_status in self._url_health_status:
+            updated_health_status = self._health_check(api_health_status.url, timeout=request_timeout)
+            updated.append(updated_health_status)
         self._url_health_status = updated
-        return self.get_health_status()
+        return self._url_health_status
 
     @staticmethod
-    def _health_check(url: str, timeout: float = 2.0) -> bool:
+    def _health_check(url: str, timeout: float = 2.0) -> _BiocentralAPIHealth:
         try:
             configuration = Configuration(host=url)
             with ApiClient(configuration) as api_client:
                 default_api = DefaultApi(api_client)
                 resp = default_api.health_check_health_get_with_http_info(_request_timeout=timeout)
-                return (resp.status_code or 404) == 200
+                if (resp.status_code or 404) == 200:
+                    server_version = resp.data["version"]
+                    server_major_version = server_version.split(".")[0]
+                    min_major_version = BiocentralAPI.MIN_API_VERSION.split(".")[0]
+                    max_major_version = BiocentralAPI.MAX_API_VERSION.split(".")[0]
+                    if min_major_version <= server_major_version < max_major_version:
+                        return _BiocentralAPIHealth(url=url, healthy=True, version=server_version)
+                return _BiocentralAPIHealth(url=url, healthy=False)
         except Exception:
-            return False
+            return _BiocentralAPIHealth(url=url, healthy=False)
 
     def wait_until_healthy(self, max_wait_seconds: float = 30.0, poll_interval: float = 1.0) -> BiocentralAPI:
         """Poll the candidate URLs until a healthy one is found or timeout.
@@ -108,11 +125,11 @@ class BiocentralAPI:
         deadline = time.time() + max_wait_seconds
         while time.time() < deadline:
             status = self._update_health_status()
-            healthy_candidates = [u for u, ok in status.items() if ok]
+            healthy_candidates = [api_health_status for api_health_status in status if api_health_status.healthy]
             if len(healthy_candidates) > 0:
                 print(f"Found healthy biocentral servers at:")
-                for url in healthy_candidates:
-                    print(f"  {url}")
+                for candidate in healthy_candidates:
+                    print(f"  {candidate.url} - v{candidate.version}")
                 return self
             time.sleep(poll_interval)
         raise TimeoutError("No healthy biocentral service became available in time")
