@@ -12,11 +12,15 @@ class ColumnWizardDialog extends StatefulWidget {
   const ColumnWizardDialog({required this.onApplyColumn, required this.initialSelectedColumn, super.key});
 
   @override
-  State<ColumnWizardDialog> createState() => _ColumnWizardDialogState();
+  State<ColumnWizardDialog> createState() => ColumnWizardDialogState();
 }
 
-class _ColumnWizardDialogState extends State<ColumnWizardDialog>
+class ColumnWizardDialogState extends State<ColumnWizardDialog>
     with BiocentralDialogCloseMixin, AutomaticKeepAliveClientMixin {
+  final GlobalKey columnSelectionKey = GlobalKey();
+  final GlobalKey operationSelectionKey = GlobalKey();
+  final GlobalKey calculateButtonKey = GlobalKey();
+
   String newColumnName = '';
 
   void onCalculate(
@@ -68,6 +72,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
 
   Widget buildColumnSelection(ColumnWizardBloc columnWizardDialogBloc, ColumnWizardBlocState state) {
     return BiocentralDropdownMenu<String>(
+      key: columnSelectionKey,
       dropdownMenuEntries: state.columns.keys.map((key) => DropdownMenuEntry(value: key, label: key)).toList(),
       label: const Text('Select column..'),
       initialSelection: widget.initialSelectedColumn,
@@ -136,6 +141,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
       return Container();
     }
     return BiocentralDropdownMenu<ColumnOperationType>(
+      key: operationSelectionKey,
       dropdownMenuEntries:
           availableOperations.map((operation) => DropdownMenuEntry(value: operation, label: operation.name)).toList(),
       label: const Text('Select operation..'),
@@ -155,6 +161,7 @@ class _ColumnWizardDialogState extends State<ColumnWizardDialog>
       columnOperationType: state.selectedOperationType!,
       selectedColumnName: state.selectedColumn!,
       onCalculateCallback: (ColumnWizardOperation operation) => onCalculate(columnWizardDialogBloc, state, operation),
+      calculateButtonKey: calculateButtonKey,
     );
   }
 

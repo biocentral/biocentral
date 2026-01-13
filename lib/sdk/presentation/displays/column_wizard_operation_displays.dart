@@ -5,6 +5,7 @@ class ColumnWizardOperationDisplayFactory {
   static Widget fromSelected({
     required ColumnOperationType columnOperationType,
     required String selectedColumnName,
+    required GlobalKey calculateButtonKey,
     required void Function(ColumnWizardOperation) onCalculateCallback,
   }) {
     switch (columnOperationType) {
@@ -12,25 +13,37 @@ class ColumnWizardOperationDisplayFactory {
         return ColumnWizardToBinaryOperationDisplay(
           selectedColumnName: selectedColumnName,
           onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
         );
       case ColumnOperationType.removeMissing:
         return ColumnWizardRemoveMissingOperationDisplay(
           selectedColumnName: selectedColumnName,
           onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
         );
       case ColumnOperationType.removeOutliers:
         return ColumnWizardRemoveOutliersOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
+        );
       case ColumnOperationType.clamp:
         return ColumnWizardClampOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
+        );
       case ColumnOperationType.calculateLength:
         return ColumnWizardCalculateLengthOperationDisplay(
-            selectedColumnName: selectedColumnName, onCalculateCallback: onCalculateCallback,);
+          selectedColumnName: selectedColumnName,
+          onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
+        );
       case ColumnOperationType.shuffle:
         return ColumnWizardShuffleOperationDisplay(
           selectedColumnName: selectedColumnName,
           onCalculateCallback: onCalculateCallback,
+          calculateButtonKey: calculateButtonKey,
         );
     }
   }
@@ -38,9 +51,14 @@ class ColumnWizardOperationDisplayFactory {
 
 abstract class ColumnWizardOperationDisplay extends StatefulWidget {
   final String selectedColumnName;
+  final GlobalKey calculateButtonKey;
   final void Function(ColumnWizardOperation) onCalculateCallback;
 
-  const ColumnWizardOperationDisplay({required this.selectedColumnName, required this.onCalculateCallback, super.key});
+  const ColumnWizardOperationDisplay(
+      {required this.selectedColumnName,
+      required this.calculateButtonKey,
+      required this.onCalculateCallback,
+      super.key});
 }
 
 abstract class ColumnWizardOperationDisplayState extends State<ColumnWizardOperationDisplay> {
@@ -76,7 +94,7 @@ abstract class ColumnWizardOperationDisplayState extends State<ColumnWizardOpera
   }
 
   Widget buildCalculateButton() {
-    return BiocentralSmallButton(onTap: collectAndInvokeCallback, label: 'Calculate');
+    return BiocentralSmallButton(key: widget.calculateButtonKey, onTap: collectAndInvokeCallback, label: 'Calculate');
   }
 
   List<Widget> buildParameterSelections();
@@ -86,6 +104,7 @@ class ColumnWizardShuffleOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardShuffleOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
@@ -123,6 +142,7 @@ class ColumnWizardToBinaryOperationDisplay extends ColumnWizardOperationDisplay 
   const ColumnWizardToBinaryOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
@@ -184,6 +204,7 @@ class ColumnWizardRemoveMissingOperationDisplay extends ColumnWizardOperationDis
   const ColumnWizardRemoveMissingOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
@@ -207,6 +228,7 @@ class ColumnWizardRemoveOutliersOperationDisplay extends ColumnWizardOperationDi
   const ColumnWizardRemoveOutliersOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
@@ -249,6 +271,7 @@ class ColumnWizardClampOperationDisplay extends ColumnWizardOperationDisplay {
   const ColumnWizardClampOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
@@ -307,6 +330,7 @@ class ColumnWizardCalculateLengthOperationDisplay extends ColumnWizardOperationD
   const ColumnWizardCalculateLengthOperationDisplay({
     required super.selectedColumnName,
     required super.onCalculateCallback,
+    required super.calculateButtonKey,
     super.key,
   });
 
