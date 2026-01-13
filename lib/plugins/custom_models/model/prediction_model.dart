@@ -1,4 +1,3 @@
-import 'package:biocentral/plugins/custom_models/model/prediction_protocol.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral_api/biocentral_api.dart';
@@ -199,8 +198,8 @@ class PredictionModel extends Equatable {
 
   TestResult? get defaultTestResult => testResults?['test'];
 
-  PredictionProtocol? get protocol =>
-      enumFromString<PredictionProtocol>(config?['protocol'], PredictionProtocol.values);
+  Protocol? get protocol =>
+      enumFromString<Protocol>(config?['protocol'], Protocol.values.toList());
 
   String getReadableModelID() {
     String modelID = '';

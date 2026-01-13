@@ -53,24 +53,29 @@ class _ProteinPredictDialogState extends State<ProteinPredictDialog>
     );
   }
 
+  String formatModelName(String modelName) {
+    final firstLetter = modelName.characters.first;
+    return firstLetter.toUpperCase() + modelName.substring(1);
+  }
+
   Widget buildModelSelection(ProteinPredictDialogState state) {
     if (state.modelMetadata.isEmpty) {
       return Container();
     }
     return Column(
-      children: state.modelMetadata.entries
+      children: state.modelMetadata
           .map<CheckboxListTile>(
-            (entry) => CheckboxListTile(
-              title: Text(entry.key),
-              subtitle: Text(entry.value.asMap?['description'] ?? ''),
-              value: _selectedModels.contains(entry.key),
+            (metadata) => CheckboxListTile(
+              title: Text(formatModelName(metadata.name.name)),
+              subtitle: Text('${metadata.description}\nEmbedder: ${metadata.embedder}'),
+              value: _selectedModels.contains(metadata.name.name),
               onChanged: (bool? value) {
                 value ??= false;
                 setState(() {
                   if (value!) {
-                    _selectedModels.add(entry.key);
+                    _selectedModels.add(metadata.name.name);
                   } else {
-                    _selectedModels.remove(entry.key);
+                    _selectedModels.remove(metadata.name.name);
                   }
                 });
               },

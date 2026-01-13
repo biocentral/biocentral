@@ -122,8 +122,8 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<Map<String, Emb
     await for (final (dto, receivedEmbeddingsFile) in biocentralTask.run()) {
       if (dto != null) {
         if (dto.status == TaskStatus.RUNNING) {
-          embeddingCurrent = dto.embeddingCurrent ?? embeddingCurrent;
-          embeddingTotal = dto.embeddingTotal ?? embeddingTotal;
+          embeddingCurrent = dto.embeddingProgress?.current ?? embeddingCurrent;
+          embeddingTotal = dto.embeddingProgress?.total ?? embeddingTotal;
           yield left(
             state.setOperating(
               information: 'Embedding..',

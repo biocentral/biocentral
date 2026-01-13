@@ -60,7 +60,7 @@ class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrap
   }
 
   Stream<Either<T, AutoEvalProgressWrapper>> doEvaluation<T extends BiocentralCommandState<T>>(
-      BiocentralServerTask<Map<String, dynamic>?> task, T state, AutoEvalProgressWrapper initialProgress,) async* {
+      BiocentralServerTask<AutoEvalReport?> task, T state, AutoEvalProgressWrapper initialProgress,) async* {
     state = state
         .setOperating(information: 'Running evaluation of $_modelID..')
         .copyWith(copyMap: {'modelID': _modelID, 'autoEvalProgress': initialProgress});
@@ -72,10 +72,10 @@ class AutoevalPLMCommand extends BiocentralResumableCommand<AutoEvalProgressWrap
     await for (final (dto, finalReport) in task.run()) {
       if (dto != null) {
         if (dto.status == TaskStatus.RUNNING) {
-          if (dto.embeddingTotal != null || dto.embeddingCurrent != null) {
+          if (dto.embeddingProgress != null) {
             // Check embedding progress
-            embeddingCurrent = dto.embeddingCurrent ?? embeddingCurrent;
-            embeddingTotal = dto.embeddingTotal ?? embeddingTotal;
+            embeddingCurrent = dto.embeddingProgress?.current ?? embeddingCurrent;
+            embeddingTotal = dto.embeddingProgress?.total ?? embeddingTotal;
             yield left(
               state.setOperating(
                 information: 'Embedding..',

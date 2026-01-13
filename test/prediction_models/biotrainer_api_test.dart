@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/custom_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
-import 'package:biocentral/plugins/custom_models/model/prediction_protocol.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
       expect(model.embedderName, equals('one_hot_encoding'));
       expect(model.modelChoice, equals('CNN'));
       expect(model.databaseType, equals(const Protein.empty().typeName));
-      expect(model.protocol, equals(PredictionProtocol.residue_to_class));
+      expect(model.protocol, equals(Protocol.residueToClass));
     });
   });
 }

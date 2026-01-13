@@ -10,23 +10,23 @@ final class ProteinPredictDialogStartEvent extends ProteinPredictDialogEvent {}
 
 @immutable
 final class ProteinPredictDialogState extends Equatable {
-  final Map<String, dynamic> modelMetadata;
+  final List<ModelMetadata> modelMetadata;
   final ProteinPredictDialogStatus status;
 
   const ProteinPredictDialogState(this.modelMetadata, this.status);
 
   const ProteinPredictDialogState.initial()
-      : modelMetadata = const {},
+      : modelMetadata = const [],
         status = ProteinPredictDialogStatus.initial;
 
   const ProteinPredictDialogState.loading()
-      : modelMetadata = const {},
+      : modelMetadata = const [],
         status = ProteinPredictDialogStatus.loading;
 
   const ProteinPredictDialogState.loaded(this.modelMetadata) : status = ProteinPredictDialogStatus.loaded;
 
   const ProteinPredictDialogState.errored()
-      : modelMetadata = const {},
+      : modelMetadata = const [],
         status = ProteinPredictDialogStatus.errored;
 
   @override

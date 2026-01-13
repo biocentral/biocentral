@@ -64,7 +64,9 @@ final class BiotrainerConfigVerifyEvent extends BiotrainerConfigEvent {}
 
 @immutable
 final class BiotrainerConfigState extends Equatable {
-  final List<String> availableProtocols;
+  static final List<String> availableProtocols =
+      Protocol.values.map((protocol) => protocol.name.toLowerCase()).toList();
+
   final Map<String, List<BiocentralConfigOption>> configOptionsByProtocol;
   final Set<String> availableTargets;
   final Set<String> availableSets;
@@ -81,7 +83,6 @@ final class BiotrainerConfigState extends Equatable {
   final BiotrainerConfigStatus status;
 
   const BiotrainerConfigState(
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.availableTargets,
     this.availableSets,
@@ -96,7 +97,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingDatabaseType()
       : selectedDatabaseType = null,
-        availableProtocols = const [],
         configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
@@ -107,19 +107,7 @@ final class BiotrainerConfigState extends Equatable {
         errorMessage = '',
         status = BiotrainerConfigStatus.selectingDatabaseType;
 
-  const BiotrainerConfigState.loadingProtocols(this.selectedDatabaseType)
-      : availableProtocols = const [],
-        configOptionsByProtocol = const {},
-        availableTargets = const {},
-        availableSets = const {},
-        availableModels = const {},
-        currentConfiguration = const {},
-        proteinsHaveMissingSequences = null,
-        selectedProtocol = '',
-        errorMessage = '',
-        status = BiotrainerConfigStatus.loadingProtocols;
-
-  const BiotrainerConfigState.selectingProtocol(this.selectedDatabaseType, this.availableProtocols)
+  const BiotrainerConfigState.selectingProtocol(this.selectedDatabaseType)
       : configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
@@ -132,7 +120,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.loadingConfigOptions(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.selectedProtocol,
   )   : configOptionsByProtocol = const {},
         availableTargets = const {},
@@ -145,7 +132,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingEmbeddings(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -158,7 +144,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingTarget(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -171,7 +156,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingSets(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -184,7 +168,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingModel(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -197,7 +180,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.selectingOptionalConfig(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -210,7 +192,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.verifying(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -223,7 +204,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.verified(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -236,7 +216,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.configError(
     this.selectedDatabaseType,
-    this.availableProtocols,
     this.configOptionsByProtocol,
     this.currentConfiguration,
     this.selectedProtocol,
@@ -249,7 +228,6 @@ final class BiotrainerConfigState extends Equatable {
 
   const BiotrainerConfigState.errored(this.errorMessage)
       : selectedDatabaseType = null,
-        availableProtocols = const [],
         configOptionsByProtocol = const {},
         availableTargets = const {},
         availableSets = const {},
@@ -261,22 +239,23 @@ final class BiotrainerConfigState extends Equatable {
 
   Set<String> getProtocolsFrom(String to) {
     return availableProtocols
-        .where((protocol) => protocol.contains('to_$to'))
-        .map((protocol) => protocol.split('_').first)
+        .where((protocol) => protocol.contains(to))
+        .map((protocol) => protocol.split('to').first)
         .toSet();
   }
 
   Set<String> getProtocolsTo(String from) {
     return availableProtocols
-        .where((protocol) => protocol.contains('${from}_'))
-        .map((protocol) => protocol.split('_').last)
+        .where((protocol) => protocol.contains(from))
+        .map((protocol) => protocol.split('to').last)
         .toSet();
   }
 
   String? buildProtocolFromTo(String from, String to) {
-    final String protocol = [from, to].join('_to_');
-    if (availableProtocols.contains(protocol)) {
-      return protocol;
+    final String biotrainerProtocol = [from, to].join('_to_');
+    final String dartProtocolRep = [from, to].join('to');
+    if (availableProtocols.contains(dartProtocolRep)) {
+      return biotrainerProtocol;
     }
     return null;
   }
@@ -296,7 +275,6 @@ final class BiotrainerConfigState extends Equatable {
 
 enum BiotrainerConfigStatus {
   selectingDatabaseType,
-  loadingProtocols,
   selectingProtocol,
   loadingConfigOptions,
   selectingEmbeddings,
@@ -317,13 +295,7 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
   BiotrainerConfigBloc(this._biocentralDatabaseRepository, this._apiRepository)
       : super(const BiotrainerConfigState.selectingDatabaseType()) {
     on<BiotrainerConfigSelectDatabaseTypeEvent>((event, emit) async {
-      emit(BiotrainerConfigState.loadingProtocols(event.databaseType));
-
-      final availableProtocols = await _apiRepository.getBiocentralAPI().getProtocols();
-      if (availableProtocols == null) {
-        return emit(const BiotrainerConfigState.errored('Could not retrieve protocols!'));
-      }
-      emit(BiotrainerConfigState.selectingProtocol(event.databaseType, availableProtocols.toList()));
+      emit(BiotrainerConfigState.selectingProtocol(event.databaseType));
     });
 
     on<BiotrainerConfigSelectProtocolEvent>((event, emit) async {
@@ -332,7 +304,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.loadingConfigOptions(
           state.selectedDatabaseType,
-          state.availableProtocols,
           selectedProtocol,
         ),
       );
@@ -383,7 +354,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
         emit(
           BiotrainerConfigState.selectingEmbeddings(
             state.selectedDatabaseType,
-            state.availableProtocols,
             configOptionsByProtocol,
             currentConfiguration,
             selectedProtocol,
@@ -409,7 +379,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
         emit(
           BiotrainerConfigState.selectingTarget(
             state.selectedDatabaseType,
-            state.availableProtocols,
             state.configOptionsByProtocol,
             newConfiguration,
             state.selectedProtocol,
@@ -430,7 +399,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.selectingSets(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           newConfiguration,
           state.selectedProtocol,
@@ -453,7 +421,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.selectingModel(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           newConfiguration,
           state.selectedProtocol,
@@ -471,7 +438,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.selectingModel(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           newConfiguration,
           state.selectedProtocol,
@@ -489,7 +455,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.selectingOptionalConfig(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           newConfiguration,
           state.selectedProtocol,
@@ -507,7 +472,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.selectingOptionalConfig(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           newConfiguration,
           state.selectedProtocol,
@@ -523,7 +487,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
       emit(
         BiotrainerConfigState.verifying(
           state.selectedDatabaseType,
-          state.availableProtocols,
           state.configOptionsByProtocol,
           state.currentConfiguration,
           state.selectedProtocol,
@@ -541,7 +504,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
         emit(
           BiotrainerConfigState.configError(
             state.selectedDatabaseType,
-            state.availableProtocols,
             state.configOptionsByProtocol,
             state.currentConfiguration,
             state.selectedProtocol,
@@ -556,7 +518,6 @@ class BiotrainerConfigBloc extends Bloc<BiotrainerConfigEvent, BiotrainerConfigS
         emit(
           BiotrainerConfigState.verified(
             state.selectedDatabaseType,
-            state.availableProtocols,
             state.configOptionsByProtocol,
             state.currentConfiguration,
             state.selectedProtocol,
