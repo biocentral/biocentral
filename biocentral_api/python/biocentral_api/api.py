@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import time
+import warnings
 import numpy as np
 import urllib.parse
 
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any, Tuple, Union
+from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
@@ -29,6 +30,7 @@ class BiocentralAPI:
     API_URL = "https://biocentral.rostlab.org"
     MIN_API_VERSION = "1.0.0"
     MAX_API_VERSION = "2.0.0"
+    RECOMMENDED_MAX_SEQUENCE_LENGTH = 1024
 
     def __init__(self,
                  api_token: Optional[str] = None,
@@ -134,6 +136,19 @@ class BiocentralAPI:
             time.sleep(poll_interval)
         raise TimeoutError("No healthy biocentral service became available in time")
 
+    @staticmethod
+    def _check_sequence_lengths(seqs: Iterable[str]) -> None:
+        n_overlong_seqs = 0
+        for seq in seqs:
+            if len(seq) > BiocentralAPI.RECOMMENDED_MAX_SEQUENCE_LENGTH:
+                n_overlong_seqs += 1
+        if n_overlong_seqs > 0:
+            warnings.warn(
+                f"{n_overlong_seqs} sequences are longer than the recommended "
+                f"amount of {BiocentralAPI.RECOMMENDED_MAX_SEQUENCE_LENGTH} amino acids!\n"
+                f"Embeddings will still be computed, but might not be as reliable for these sequences.",
+            stacklevel=3)
+
     def embed(self,
               embedder_name: Union[str, CommonEmbedder],
               sequence_data: Dict[str, str],
@@ -157,6 +172,7 @@ class BiocentralAPI:
         sequences = list(sequence_data.values())
         if len(sequences) != len(set(sequences)):
             raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
+        BiocentralAPI._check_sequence_lengths(sequences)
 
         if isinstance(embedder_name, CommonEmbedder):
             embedder_name = embedder_name.value
@@ -208,6 +224,7 @@ class BiocentralAPI:
             raise ValueError("No training data provided.")
         if not isinstance(training_data, list):
             raise ValueError("Training data must be a list.")
+        BiocentralAPI._check_sequence_lengths([train_data_point.sequence for train_data_point in training_data])
 
         if "embedder_name" in config:
             embedder_name = config["embedder_name"]
@@ -238,8 +255,12 @@ class BiocentralAPI:
             raise ValueError("No valid model hash provided.")
         if len(inference_data) == 0:
             raise ValueError("No inference data provided.")
+        sequences = list(inference_data.values())
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
         if not isinstance(inference_data, dict):
             raise ValueError("Inference data must be a dictionary.")
+        BiocentralAPI._check_sequence_lengths(sequences)
 
         custom_models_client = CustomModelsClient()
         with self._create_api_client() as api_client:
@@ -268,6 +289,10 @@ class BiocentralAPI:
             raise ValueError("No prediction data provided.")
         if not isinstance(sequence_data, dict):
             raise ValueError("Prediction data must be a dictionary.")
+        sequences = list(sequence_data.values())
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
+        BiocentralAPI._check_sequence_lengths(sequences)
 
         predict_client = PredictClient()
         with self._create_api_client() as api_client:
@@ -279,6 +304,8 @@ class BiocentralAPI:
         ActiveLearningIterationResult]:
         if len(iteration_config.iteration_data) < 2:
             raise ValueError("Not enough data provided for an active learning iteration.")
+        BiocentralAPI._check_sequence_lengths(
+            [iteration_data_point.sequence for iteration_data_point in iteration_config.iteration_data])
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
@@ -290,6 +317,8 @@ class BiocentralAPI:
         ActiveLearningSimulationResult]:
         if len(simulation_config.simulation_data) < 2:
             raise ValueError("Not enough data provided for an active learning simulation.")
+        BiocentralAPI._check_sequence_lengths(
+            [simulation_data_point.sequence for simulation_data_point in simulation_config.simulation_data])
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
