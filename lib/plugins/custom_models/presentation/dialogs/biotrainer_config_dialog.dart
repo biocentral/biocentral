@@ -90,8 +90,7 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
   Widget buildDialog(BiotrainerConfigState state) {
     final BiotrainerConfigBloc biotrainerConfigBloc = BlocProvider.of<BiotrainerConfigBloc>(context);
     final List<Widget> dialogChildren = [];
-    if (state.status == BiotrainerConfigStatus.loadingProtocols ||
-        state.status == BiotrainerConfigStatus.loadingConfigOptions) {
+    if (state.status == BiotrainerConfigStatus.loadingConfigOptions) {
       dialogChildren.add(const CircularProgressIndicator());
     } else {
       dialogChildren.addAll([
@@ -114,8 +113,6 @@ class _BiotrainerConfigDialogState extends State<BiotrainerConfigDialog>
       switch (BiotrainerConfigStatus.values.elementAt(statusIndex)) {
         case BiotrainerConfigStatus.selectingDatabaseType:
           widgetsForCurrentState.add(buildSelectDatabaseType(biotrainerConfigBloc, state));
-          break;
-        case BiotrainerConfigStatus.loadingProtocols:
           break;
         case BiotrainerConfigStatus.selectingProtocol:
           widgetsForCurrentState.add(buildProtocolSelection(biotrainerConfigBloc, state));

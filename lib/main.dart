@@ -19,7 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
-  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck();
+  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: true);
   final BiocentralAPIRepository apiRepository = BiocentralAPIRepository(biocentralAPI);
   final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
   healthService.startMonitoring();

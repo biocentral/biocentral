@@ -84,8 +84,8 @@ final class TrainBiotrainerModelCommand extends BiocentralResumableCommand<Predi
         if (dto.status == TaskStatus.RUNNING) {
           if (dto.biotrainerUpdate == null) {
             // Check embedding progress
-            embeddingCurrent = dto.embeddingCurrent ?? embeddingCurrent;
-            embeddingTotal = dto.embeddingTotal ?? embeddingTotal;
+            embeddingCurrent = dto.embeddingProgress?.current ?? embeddingCurrent;
+            embeddingTotal = dto.embeddingProgress?.total ?? embeddingTotal;
             yield left(
               state.setOperating(
                 information: 'Embedding..',
@@ -183,10 +183,10 @@ final class BiotrainerInferenceCommand extends BiocentralCommand<Map<String, dyn
     await for (final (dto, predictions) in biocentralTask.run()) {
       if (dto != null) {
         if (dto.status == TaskStatus.RUNNING) {
-          if (dto.embeddingTotal != null || dto.embeddingCurrent != null) {
+          if (dto.embeddingProgress != null) {
             // Check embedding progress
-            embeddingCurrent = dto.embeddingCurrent ?? embeddingCurrent;
-            embeddingTotal = dto.embeddingTotal ?? embeddingTotal;
+            embeddingCurrent = dto.embeddingProgress?.current ?? embeddingCurrent;
+            embeddingTotal = dto.embeddingProgress?.total ?? embeddingTotal;
             yield left(
               state.setOperating(
                 information: 'Embedding..',
