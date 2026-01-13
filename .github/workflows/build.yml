@@ -42,6 +42,10 @@ jobs:
           flutter upgrade
           flutter pub get
 
+      - name: Create Launcher Icons
+        run: |
+          dart run flutter_launcher_icons
+
       - name: Build Windows Application
         run: |
           dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
