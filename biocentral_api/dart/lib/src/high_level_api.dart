@@ -13,35 +13,47 @@ import 'model/prediction.dart';
 import 'model/sequence_training_data.dart';
 import 'model/taxonomy_item.dart';
 
+final class BiocentralAPIHealth {
+  final String url;
+  final bool healthy;
+  final String? version;
+
+  BiocentralAPIHealth({required this.url, required this.healthy, this.version});
+}
+
 class BiocentralAPI {
   final String? fixedURL;
   final String? apiToken;
   final bool localOnly;
 
-  final List<(String, bool)> _urlHealthStatus;
+  final List<BiocentralAPIHealth> _urlHealthStatus;
 
   static const String _apiURL = "https://biocentral.rostlab.org";
   static const String _localhostURL = "http://localhost:9540";
+
+  // API compatibility window: [MIN_API_VERSION, MAX_API_VERSION)
+  static const String MIN_API_VERSION = "1.0.0"; // inclusive
+  static const String MAX_API_VERSION = "2.0.0"; // exclusive
 
   BiocentralAPI._(
       {required this.fixedURL,
       required this.apiToken,
       required this.localOnly,
-      required List<(String, bool)> urlHealthStatus})
+      required List<BiocentralAPIHealth> urlHealthStatus})
       : _urlHealthStatus = urlHealthStatus;
 
   static Future<BiocentralAPI> createWithHealthCheck(
       {String? fixedUrl, String? apiToken, bool localOnly = false}) async {
-    List<(String, bool)> _urlHealthStatus = [];
+    List<BiocentralAPIHealth> _urlHealthStatus = [];
     if (fixedUrl != null) {
       if (localOnly && !(fixedUrl.contains("localhost") || fixedUrl.contains("127.0.0.1"))) {
         throw Exception("Using localOnly=true and a non-local fixedURL is not possible!");
       }
-      _urlHealthStatus.add((fixedUrl, false));
+      _urlHealthStatus.add(BiocentralAPIHealth(url: fixedUrl, healthy: false));
     } else {
-      _urlHealthStatus.add((_localhostURL, false));
+      _urlHealthStatus.add(BiocentralAPIHealth(url: _localhostURL, healthy: false));
       if (!localOnly) {
-        _urlHealthStatus.add((_apiURL, false));
+        _urlHealthStatus.add(BiocentralAPIHealth(url: _apiURL, healthy: false));
       }
     }
     final api = BiocentralAPI._(
@@ -50,41 +62,78 @@ class BiocentralAPI {
   }
 
   Future<BiocentralAPI> updateHealthStatus() async {
-    final updatedHealthStatus = <(String, bool)>[];
-    for (final (url, _) in _urlHealthStatus) {
-      final healthy = await _healthCheck(url);
-      updatedHealthStatus.add((url, healthy));
+    final updatedList = <BiocentralAPIHealth>[];
+    for (final healthStatus in _urlHealthStatus) {
+      final updatedHealthStatus = await _healthCheck(healthStatus.url);
+      updatedList.add(updatedHealthStatus);
     }
-    return BiocentralAPI._(
-        fixedURL: fixedURL, apiToken: apiToken, localOnly: localOnly, urlHealthStatus: updatedHealthStatus);
+    return BiocentralAPI._(fixedURL: fixedURL, apiToken: apiToken, localOnly: localOnly, urlHealthStatus: updatedList);
   }
 
-  Map<String, bool> getHealthStatus() {
-    return Map.fromEntries(_urlHealthStatus.map((r) => MapEntry(r.$1, r.$2)));
+  List<BiocentralAPIHealth> getHealthStatus() {
+    return List.from(_urlHealthStatus);
   }
 
-  static Future<bool> _healthCheck(String url) async {
+  static Future<BiocentralAPIHealth> _healthCheck(String url) async {
     final defaultApi = gen.BiocentralApi(basePathOverride: url).getDefaultApi();
 
     try {
       final resp = await defaultApi.healthCheckHealthGet();
-      return (resp.statusCode ?? 404) == 200;
+      if ((resp.statusCode ?? 404) != 200) {
+        return BiocentralAPIHealth(url: url, healthy: false);
+      }
+      // Extract version string from response body
+      final data = resp.data;
+      String? serverVersion;
+      try {
+        final value = data?.value;
+        if (value is Map) {
+          final v = value['version'];
+          if (v.toString().contains(".")) {
+            serverVersion = v;
+          }
+        }
+      } catch (_) {
+        // ignore and treat as incompatible
+      }
+
+      if (serverVersion == null) {
+        return BiocentralAPIHealth(url: url, healthy: false);
+      }
+
+      String serverMajor = serverVersion.split('.').first;
+      String minMajor = MIN_API_VERSION.split('.').first;
+      String maxMajor = MAX_API_VERSION.split('.').first;
+
+      // Compare majors lexicographically since they are integers in string form
+      // Ensure padding not needed as we only compare single number strings
+      final isCompatible = (minMajor.compareTo(serverMajor) <= 0) && (serverMajor.compareTo(maxMajor) < 0);
+      return BiocentralAPIHealth(url: url, healthy: isCompatible, version: serverVersion);
     } catch (e) {
-      return false;
+      return BiocentralAPIHealth(url: url, healthy: false);
     }
   }
 
-  String? _getFirstAvailableURL() {
-    for (final (url, health) in _urlHealthStatus) {
-      if (health) {
-        return url;
+  static bool _isLocalUrl(String url) {
+    return url.contains("localhost") || url.contains("127.0.0.1");
+  }
+
+  String? _getAvailableURL() {
+    String? availableURL;
+    for (final healthStatus in _urlHealthStatus) {
+      if (healthStatus.healthy && _isLocalUrl(healthStatus.url)) {
+        availableURL = healthStatus.url;
+        break; // Always prefer local URL
+      }
+      if (healthStatus.healthy && availableURL == null) {
+        availableURL = healthStatus.url;
       }
     }
-    return null;
+    return availableURL;
   }
 
   gen.BiocentralApi _getAPI() {
-    String? url = _getFirstAvailableURL();
+    String? url = _getAvailableURL();
     if (url == null) {
       throw Exception("No healthy service available!");
     }
@@ -93,7 +142,6 @@ class BiocentralAPI {
 }
 
 extension CustomModelsAPI on BiocentralAPI {
-
   Future<List<dynamic>?> getConfigOptionsForProtocol({required String protocol}) async {
     return CustomModelsClient().getConfigOptionsForProtocol(api: _getAPI(), protocol: protocol);
   }
@@ -190,6 +238,7 @@ extension PredictAPI on BiocentralAPI {
     assert(sequenceData.isNotEmpty, 'No sequences provided');
     final seqValues = sequenceData.values.toList();
     assert(seqValues.length == seqValues.toSet().length, 'Duplicate sequences provided');
+    assert(modelNames.isNotEmpty, 'Empty model list provided');
 
     return PredictClient().predict(api: _getAPI(), modelNames: modelNames, sequenceData: sequenceData);
   }

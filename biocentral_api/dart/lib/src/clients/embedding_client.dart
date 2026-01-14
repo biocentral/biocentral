@@ -8,6 +8,7 @@ import 'package:built_value/json_object.dart';
 
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
+import 'tasks/submit_task.dart';
 
 class _EmbedDtoHandler extends DtoHandler<String> {
   int? _total;
@@ -68,8 +69,8 @@ class EmbeddingClient {
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
       ..useHalfPrecision = useHalfPrecision);
 
-    final startResp = await embeddingsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req);
-    final taskId = startResp.data!.taskId;
+    final taskId = await submitTask(() =>
+        embeddingsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req));
     final handler = _EmbedDtoHandler();
     return BiocentralServerTask<String>(taskId: taskId, api: api, dtoHandler: handler);
   }
@@ -99,8 +100,8 @@ class EmbeddingClient {
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
       ..config.replace(config.map((k, v) => MapEntry(k, JsonObject(v))))
     );
-    final startResp = await projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req);
-    final taskId = startResp.data!.taskId;
+    final taskId = await submitTask(() =>
+        projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req));
     final handler = _ProjectionDTOHandler();
     return BiocentralServerTask<Map<String, dynamic>>(taskId: taskId, api: api, dtoHandler: handler);
   }

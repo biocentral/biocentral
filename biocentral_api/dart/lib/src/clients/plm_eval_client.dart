@@ -10,6 +10,7 @@ import '../model/auto_eval_report.dart';
 import '../model/plm_eval_information.dart';
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
+import 'tasks/submit_task.dart';
 
 class _PLMEvalDTOHandler extends DtoHandler<AutoEvalReport> {
   @override
@@ -63,8 +64,8 @@ class PlmEvalClient {
       ..onnxFile = onnxFile
       ..tokenizerConfig = tokenizerConfig);
 
-    final startResp = await plmEvalApi.autoevalApiV1PlmEvalServiceAutoevalPost(pLMEvalAutoevalRequest: autoevalRequest);
-    final taskId = startResp.data!.taskId;
+    final taskId = await submitTask(() => plmEvalApi
+        .autoevalApiV1PlmEvalServiceAutoevalPost(pLMEvalAutoevalRequest: autoevalRequest));
     final handler = _PLMEvalDTOHandler();
     return BiocentralServerTask<AutoEvalReport?>(taskId: taskId, api: api, dtoHandler: handler);
   }

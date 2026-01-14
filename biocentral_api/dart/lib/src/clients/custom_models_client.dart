@@ -13,6 +13,7 @@ import 'package:built_value/json_object.dart';
 
 import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
+import 'tasks/submit_task.dart';
 
 class _TrainingDtoHandler extends DtoHandler<Map<String, dynamic>> {
 
@@ -97,10 +98,8 @@ class CustomModelsClient {
       ..configDict.replace(config.map((k, v) => MapEntry(k, JsonObject(v))))
       ..trainingData.replace(BuiltList<SequenceTrainingData>(trainingData)));
 
-    final startResp = await cmApi.startTrainingApiV1CustomModelsServiceStartTrainingPost(
-      startTrainingRequest: startReq,
-    );
-    final taskId = startResp.data!.taskId;
+    final taskId = await submitTask(() => cmApi
+        .startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest: startReq));
     return BiocentralServerTask<Map<String, dynamic>>(taskId: taskId, api: api, dtoHandler: handler);
   }
 
@@ -115,10 +114,8 @@ class CustomModelsClient {
       ..modelHash = modelHash
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData)));
 
-    final startResp = await cmApi.startInferenceApiV1CustomModelsServiceStartInferencePost(
-      startInferenceRequest: startReq,
-    );
-    final taskId = startResp.data!.taskId;
+    final taskId = await submitTask(() => cmApi
+        .startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest: startReq));
     return BiocentralServerTask<Map<String, List<Prediction>>>(
       taskId: taskId,
       api: api,
