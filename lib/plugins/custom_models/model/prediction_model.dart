@@ -122,14 +122,15 @@ class PredictionModel extends Equatable {
     trainingStatus,
   }) {
     return PredictionModel(
-        config: config ?? this.config,
-        databaseType: databaseType ?? this.databaseType,
-        derivedValues: derivedValues ?? this.derivedValues,
-        trainingResults: trainingResults ?? this.trainingResults,
-        testResults: testResults ?? this.testResults,
-        trainingLogs: trainingLogs ?? this.trainingLogs,
-        checkpoints: checkpoints ?? this.checkpoints,
-        trainingStatus: trainingStatus ?? this.trainingStatus,);
+      config: config ?? this.config,
+      databaseType: databaseType ?? this.databaseType,
+      derivedValues: derivedValues ?? this.derivedValues,
+      trainingResults: trainingResults ?? this.trainingResults,
+      testResults: testResults ?? this.testResults,
+      trainingLogs: trainingLogs ?? this.trainingLogs,
+      checkpoints: checkpoints ?? this.checkpoints,
+      trainingStatus: trainingStatus ?? this.trainingStatus,
+    );
   }
 
   PredictionModel updateFromDTO(TaskDTO taskDTO) {
@@ -146,7 +147,8 @@ class PredictionModel extends Equatable {
     final derivedValues = outputData.derivedValues?.toMap().map((k, v) => MapEntry(k, v.toString()));
     if (derivedValues != null) {
       updatedModel = updatedModel.copyWith(
-          derivedValues: this.derivedValues?.merge<String, dynamic>(derivedValues) ?? derivedValues,);
+        derivedValues: this.derivedValues?.merge<String, dynamic>(derivedValues) ?? derivedValues,
+      );
     }
 
     // TODO Not included in DTO yet
@@ -198,8 +200,8 @@ class PredictionModel extends Equatable {
 
   TestResult? get defaultTestResult => testResults?['test'];
 
-  Protocol? get protocol =>
-      enumFromString<Protocol>(config?['protocol'], Protocol.values.toList());
+  Protocol? get protocol => enumFromString<Protocol>(
+      config?['protocol'].toString().replaceAll('_', '').toLowerCase(), Protocol.values.toList());
 
   String getReadableModelID() {
     String modelID = '';
@@ -235,9 +237,11 @@ class PredictionModel extends Equatable {
       'database_type': databaseType,
       'derived_values': derivedValues,
       'training_results': Map<String, dynamic>.from(
-          trainingResults?.map((splitName, result) => MapEntry(splitName, result.toMap())) ?? {},),
+        trainingResults?.map((splitName, result) => MapEntry(splitName, result.toMap())) ?? {},
+      ),
       'test_results': Map<String, dynamic>.from(
-          testResults?.map((testSetName, result) => MapEntry(testSetName, result.toMap())) ?? {},),
+        testResults?.map((testSetName, result) => MapEntry(testSetName, result.toMap())) ?? {},
+      ),
       if (includeTrainingLogs) 'training_logs': trainingLogs,
       'training_status': trainingStatus?.name,
     };
@@ -327,8 +331,9 @@ class TrainingResult {
       return null;
     }
     return copyWith(
-        trainingLoss: trainingLoss..addAll({epoch: trainingLossUpdate}),
-        validationLoss: validationLoss..addAll({epoch: validationLossUpdate}),);
+      trainingLoss: trainingLoss..addAll({epoch: trainingLossUpdate}),
+      validationLoss: validationLoss..addAll({epoch: validationLossUpdate}),
+    );
   }
 
   TrainingResult copyWith({
@@ -339,11 +344,12 @@ class TrainingResult {
     metadata,
   }) {
     return TrainingResult(
-        trainingLoss: trainingLoss ?? this.trainingLoss,
-        validationLoss: validationLoss ?? this.validationLoss,
-        bestEpoch: bestEpoch ?? this.bestEpoch,
-        bestEpochMetrics: bestEpochMetrics ?? this.bestEpochMetrics,
-        metadata: metadata ?? this.metadata,);
+      trainingLoss: trainingLoss ?? this.trainingLoss,
+      validationLoss: validationLoss ?? this.validationLoss,
+      bestEpoch: bestEpoch ?? this.bestEpoch,
+      bestEpochMetrics: bestEpochMetrics ?? this.bestEpochMetrics,
+      metadata: metadata ?? this.metadata,
+    );
   }
 
   int getLastEpoch() {
@@ -470,8 +476,11 @@ class TestResult {
     return {
       'metrics': Map<String, dynamic>.fromEntries(metrics.map((metric) => MapEntry(metric.name, metric.value))),
       'bootstrapping': _convertToBootstrapping(metrics),
-      'test_baselines': Map<String, dynamic>.from(baselineMetrics.map(
-          (baselineName, baselineMetricSet) => MapEntry(baselineName, _convertToBootstrapping(baselineMetricSet)),),),
+      'test_baselines': Map<String, dynamic>.from(
+        baselineMetrics.map(
+          (baselineName, baselineMetricSet) => MapEntry(baselineName, _convertToBootstrapping(baselineMetricSet)),
+        ),
+      ),
       'sanity_check_warnings': sanityCheckWarnings.toList(),
     };
   }
