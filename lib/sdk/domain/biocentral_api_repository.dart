@@ -7,11 +7,11 @@ import 'package:biocentral_api/biocentral_api.dart';
 class BiocentralAPIRepository {
   BiocentralAPI _biocentralAPI;
 
-  final _healthStatusController = StreamController<Map<String, bool>>.broadcast();
+  final _healthStatusController = StreamController<List<BiocentralAPIHealth>>.broadcast();
 
-  Stream<Map<String, bool>> get healthStatusStream => _healthStatusController.stream;
+  Stream<List<BiocentralAPIHealth>> get healthStatusStream => _healthStatusController.stream;
 
-  final Map<String, bool> initialAPIHealthData;
+  final List<BiocentralAPIHealth> initialAPIHealthData;
 
   final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('https://hub.biocentral.cloud');
 
@@ -27,7 +27,7 @@ class BiocentralAPIRepository {
 
   void checkHealth() async {
     _biocentralAPI = await _biocentralAPI.updateHealthStatus();
-    final Map<String, bool> healthInformationToStream = _biocentralAPI.getHealthStatus();
+    final List<BiocentralAPIHealth> healthInformationToStream = _biocentralAPI.getHealthStatus();
     _healthStatusController.add(healthInformationToStream);
   }
 
