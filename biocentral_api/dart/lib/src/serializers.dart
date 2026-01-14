@@ -155,6 +155,14 @@ part 'serializers.g.dart';
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(Prediction)])]),
+        () => MapBuilder<String, BuiltList<Prediction>>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(Prediction)]),
+        () => ListBuilder<Prediction>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(CommonEmbedder)]),
         () => ListBuilder<CommonEmbedder>(),
       )
