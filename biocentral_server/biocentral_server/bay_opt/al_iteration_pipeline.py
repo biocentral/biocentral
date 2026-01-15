@@ -3,8 +3,9 @@ from __future__ import annotations
 import torch
 
 from typing import List, Literal, Optional, Tuple
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer.protocols import Protocol
 from biotrainer.utilities import get_device
+from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_config import (
     ActiveLearningCampaignConfig,
@@ -263,8 +264,8 @@ def _calculate_acquisition(desirability, uncertainty, beta):
 
 
 def _random_baseline_inference(
-    train_data: dict,
-    inference_data: dict,
+    train_data: List[BiotrainerSequenceRecord],
+    inference_data: List[BiotrainerSequenceRecord],
     task_type: Literal["classification", "regression"],
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
@@ -275,8 +276,8 @@ def _random_baseline_inference(
     Random baseline that mimics the train_and_inference interface.
 
     Args:
-        train_data: dict {'X': [], 'y': [], 'ids': []}
-        inference_data: dict {'X': [], 'ids': []}
+        train_data
+        inference_data
         task_type: 'classification' or 'regression'
         uncertainty_strategy: How to assign uncertainties:
             - 'constant': Use a constant uncertainty for all samples
@@ -292,7 +293,7 @@ def _random_baseline_inference(
     if seed is not None:
         torch.manual_seed(seed)
 
-    n_inference = len(inference_data["X"])
+    n_inference = len(inference_data)
 
     if task_type == "classification":
         means, uncertainty = _random_classification_predictions(
@@ -317,7 +318,7 @@ def _random_baseline_inference(
 
 
 def _random_classification_predictions(
-    train_data: dict,
+    train_data: List[BiotrainerSequenceRecord],
     n_inference: int,
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
@@ -331,7 +332,7 @@ def _random_classification_predictions(
     )
 
     # Calculate probability of target class in training data
-    train_labels = train_data["y"]
+    train_labels = torch.tensor([data_point.get_target() for data_point in train_data])
     target_prob = (train_labels == tgt_idx).float().mean().item()
 
     # Sample predictions based on training distribution
@@ -351,15 +352,17 @@ def _random_classification_predictions(
 
 
 def _random_regression_predictions(
-    train_data: dict,
+    train_data: List[BiotrainerSequenceRecord],
     n_inference: int,
     al_campaign_config: ActiveLearningCampaignConfig,
     uncertainty_strategy: str,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """Generate random predictions for regression."""
-    train_y = train_data["y"]
-    y_min = train_y.min().item()
-    y_max = train_y.max().item()
+    train_labels = torch.tensor(
+        [float(data_point.get_target()) for data_point in train_data]
+    )
+    y_min = train_labels.min().item()
+    y_max = train_labels.max().item()
 
     # Sample uniformly between min and max
     means = torch.rand(n_inference) * (y_max - y_min) + y_min
@@ -369,7 +372,7 @@ def _random_regression_predictions(
         n_inference,
         uncertainty_strategy,
         task_type="regression",
-        train_std=train_y.std().item(),
+        train_std=train_labels.std().item(),
         train_range=y_max - y_min,
     )
 
@@ -433,8 +436,8 @@ def _generate_uncertainty(
 
 
 def _run_model(
-    train_data,
-    inference_data,
+    train_data: List[BiotrainerSequenceRecord],
+    inference_data: List[BiotrainerSequenceRecord],
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
 ):
@@ -474,12 +477,57 @@ def _batch_selection(results: List[ActiveLearningResult], n_suggestions: int):
     return results, suggestions
 
 
+def _prepare_biotrainer_data(
+    al_campaign_config: ActiveLearningCampaignConfig,
+    al_iteration_config: ActiveLearningIterationConfig,
+    embeddings: List[BiotrainerSequenceRecord],
+):
+    id2emb = {embd.get_hash(): embd.embedding for embd in embeddings}
+    train_data = []
+    inference_data = []
+    for data_point in al_iteration_config.iteration_data:
+        biotrainer_seq_record = data_point.to_biotrainer_seq_record()
+        if data_point.set == "pred":
+            inference_data.append(
+                biotrainer_seq_record.copy_with_embedding(
+                    id2emb[biotrainer_seq_record.get_hash()]
+                )
+            )
+        else:
+            train_data.append(
+                biotrainer_seq_record.copy_with_embedding(
+                    id2emb[biotrainer_seq_record.get_hash()]
+                )
+            )
+    assert len(train_data) + len(inference_data) == len(embeddings)
+    return train_data, inference_data
+
+
+def _prepare_biotrainer_config(
+    al_campaign_config: ActiveLearningCampaignConfig,
+    al_iteration_config: ActiveLearningIterationConfig,
+):
+    model_choice = None
+    match al_campaign_config.model_type:
+        case ActiveLearningModelType.GAUSSIAN_PROCESS:
+            model_choice = "GP"
+        case ActiveLearningModelType.FNN_MCD:
+            model_choice = "FNN"
+    protocol = None
+    match al_campaign_config.optimization_mode:
+        case ActiveLearningOptimizationMode.DISCRETE:
+            protocol = Protocol.sequence_to_class
+        case ActiveLearningOptimizationMode.VALUE:
+            protocol = Protocol.sequence_to_value
+    return {"model_choice": model_choice, "protocol": protocol}
+
+
 def al_pipeline(
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
     embeddings: List[BiotrainerSequenceRecord],
 ) -> ActiveLearningIterationResult:
-    train_data, inference_data, embd_records = data_prep(
+    train_data, inference_data = _prepare_biotrainer_data(
         al_campaign_config=al_campaign_config,
         al_iteration_config=al_iteration_config,
         embeddings=embeddings,
@@ -496,8 +544,8 @@ def al_pipeline(
 
     # Gather results
     results: List[ActiveLearningResult] = []
-    for idx in range(len(inference_data["ids"])):
-        sid = inference_data["ids"][idx]
+    for idx in range(len(inference_data)):
+        sid = inference_data[idx].seq_id
         mean = means[idx].item()
         uncertainty = uncertainties[idx].item()
         score = scores[idx].item()

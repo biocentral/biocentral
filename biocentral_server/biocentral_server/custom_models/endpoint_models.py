@@ -51,7 +51,7 @@ class SequenceTrainingData(BaseModel):
             seq_id=self.seq_id,
             sequence=self.sequence,
             label=None,
-            set=self.set,
+            set="pred",
             mask=self.mask,
         )
 
@@ -61,7 +61,7 @@ class SequenceTrainingData(BaseModel):
             seq_id=self.seq_id,
             sequence=self.sequence,
             label=label,
-            set=self.set,
+            set="train",
             mask=self.mask,
         )
 
