@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **entity_id** | **str** | Entity identifier | 
-**prediction** | **float** | Predicted value | 
+**prediction** | **str** | Predicted value | 
 **uncertainty** | **float** | Uncertainty of the prediction | 
 **score** | **float** | Score of the entity for using it for the next iteration | 
 

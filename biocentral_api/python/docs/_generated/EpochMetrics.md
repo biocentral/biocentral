@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**epoch** | **int** |  | 
-**training** | **Dict[str, object]** |  | 
-**validation** | **Dict[str, object]** |  | 
+**epoch** | **int** | Epoch number | 
+**training** | **Dict[str, object]** | Training metrics | 
+**validation** | **Dict[str, object]** | Validation metrics | 
 
 ## Example
 

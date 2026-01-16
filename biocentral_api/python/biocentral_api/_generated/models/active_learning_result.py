@@ -27,7 +27,7 @@ class ActiveLearningResult(BaseModel):
     ActiveLearningResult
     """ # noqa: E501
     entity_id: StrictStr = Field(description="Entity identifier")
-    prediction: Union[StrictFloat, StrictInt] = Field(description="Predicted value")
+    prediction: StrictStr = Field(description="Predicted value")
     uncertainty: Union[StrictFloat, StrictInt] = Field(description="Uncertainty of the prediction")
     score: Union[StrictFloat, StrictInt] = Field(description="Score of the entity for using it for the next iteration")
     __properties: ClassVar[List[str]] = ["entity_id", "prediction", "uncertainty", "score"]

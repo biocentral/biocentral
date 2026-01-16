@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -26,9 +26,9 @@ class EpochMetrics(BaseModel):
     """
     EpochMetrics
     """ # noqa: E501
-    epoch: StrictInt
-    training: Dict[str, Any]
-    validation: Dict[str, Any]
+    epoch: StrictInt = Field(description="Epoch number")
+    training: Dict[str, Any] = Field(description="Training metrics")
+    validation: Dict[str, Any] = Field(description="Validation metrics")
     __properties: ClassVar[List[str]] = ["epoch", "training", "validation"]
 
     model_config = ConfigDict(
