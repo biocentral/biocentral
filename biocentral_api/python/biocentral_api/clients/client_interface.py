@@ -1,5 +1,5 @@
 from abc import ABC
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from time import sleep
 from typing import Callable
 

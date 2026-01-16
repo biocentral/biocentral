@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Dict, Any, List
 
 from .client_interface import ClientInterface
@@ -58,11 +58,9 @@ class _InferenceDTOHandler(DTOHandler):
                     pbar.set_description(f"Running inference..")
                 case TaskStatus.FINISHED:
                     pbar.set_description(f"Finished inference!")
-                    pbar.close()
                     break
                 case TaskStatus.FAILED:
                     pbar.set_description(f"Inference failed!")
-                    pbar.close()
                     break
         return pbar
 

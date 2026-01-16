@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Dict, List
 
 from .client_interface import ClientInterface
@@ -31,11 +31,9 @@ class _PredictDTOHandler(DTOHandler):
                     pbar.set_description(f"Predicting..")
                 case TaskStatus.FINISHED:
                     pbar.set_description(f"Finished predictions!")
-                    pbar.close()
                     break
                 case TaskStatus.FAILED:
                     pbar.set_description(f"Predictions failed!")
-                    pbar.close()
                     break
         return pbar
 

@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import List, Optional
 from abc import ABC, abstractmethod
 

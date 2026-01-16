@@ -1,6 +1,6 @@
 import time
 
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Generic, TypeVar, Optional, Callable, Any, List
 
 from .dto_handler import DTOHandler
@@ -45,7 +45,19 @@ class BiocentralServerTask(Generic[T]):
             Result from dto_handler if task completes, None on timeout
         """
         api_instance = BiocentralServiceApi(self.api_client)
-        pbar = tqdm() if progress_callback else None
+        # Create a stable tqdm progress bar (works in terminals and notebooks)
+        # Let handlers adjust total when they know it; keep updates rate-limited to avoid spam
+        pbar = (
+            tqdm(
+                total=None,  # unknown at start; handlers may set
+                dynamic_ncols=True,
+                leave=False,
+                mininterval=0.3,
+                smoothing=0.3,
+            )
+            if progress_callback
+            else None
+        )
         error_message = None
 
         try:
@@ -98,7 +110,6 @@ class BiocentralServerTask(Generic[T]):
 
         def update_progress(dtos: List[TaskDTO], pbar: Optional[tqdm]) -> None:
             if pbar is not None and len(dtos) > 0:
-                updated_pbar = self.dto_handler.update_tqdm(dtos, pbar)
-                updated_pbar.refresh()
+                pbar = self.dto_handler.update_tqdm(dtos, pbar)
 
         return self._poll_task_status(progress_callback=update_progress)

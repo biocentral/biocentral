@@ -3,7 +3,7 @@ import h5py
 import base64
 import numpy as np
 
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Dict, List
 
 from .tasks import BiocentralServerTask, DTOHandler
@@ -63,11 +63,9 @@ class _EmbedDTOHandler(DTOHandler):
                     pbar.set_description(f"Embedding..")
                 case TaskStatus.FINISHED:
                     pbar.set_description(f"Finished embedding calculation!")
-                    pbar.close()
                     break
                 case TaskStatus.FAILED:
                     pbar.set_description(f"Embedding failed!")
-                    pbar.close()
                     break
         return pbar
 
