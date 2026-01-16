@@ -11,7 +11,7 @@ from .._generated import ApiClient, ActiveLearningCampaignConfig, ActiveLearning
 
 class _ActiveLearningIterationDTOHandler(DTOHandler):
 
-    def handle(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.FINISHED:
@@ -50,7 +50,7 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
         n_start_data = simulation_config.n_start if simulation_config.n_start else len(simulation_config.start_ids)
         return (len(simulation_config.simulation_data) - n_start_data) // simulation_config.n_suggestions_per_iteration
 
-    def handle(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             if dto.al_iteration_result is not None:
                 iteration_idx = dto.al_iteration_result.iteration

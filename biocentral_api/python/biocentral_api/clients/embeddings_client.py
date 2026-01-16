@@ -34,7 +34,7 @@ class _EmbedDTOHandler(DTOHandler):
         embeddings_file.close()
         return id2emb
 
-    def handle(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.FINISHED:

@@ -9,9 +9,11 @@ from ..._generated import BiocentralServiceApi, ApiClient, TaskStatusResponse, T
 
 T = TypeVar('T')
 
+
 class BiocentralServerTask(Generic[T]):
     TIMEOUT: int = 2  # seconds
     MAX_TRIES: int = 10000
+    MAX_CONSECUTIVE_FAILURES: int = 10
 
     def __init__(
             self,
@@ -44,28 +46,48 @@ class BiocentralServerTask(Generic[T]):
         """
         api_instance = BiocentralServiceApi(self.api_client)
         pbar = tqdm() if progress_callback else None
+        error_message = None
 
         try:
+            consecutive_failures = 0
             for _ in range(self.MAX_TRIES):
                 try:
                     task_status_response = self._fetch_task_status(api_instance)
                     dtos = task_status_response.dtos if task_status_response.dtos is not None else []
+
+                    # 1. Check progress
                     if progress_callback is not None:
                         progress_callback(dtos, pbar)
 
-                    result = self.dto_handler.handle(dtos)
+                    # 2. Check failure (after progress for tqdm updates)
+                    error = self.dto_handler.handle_failure(dtos)
+
+                    if error is not None:
+                        error_message = error
+                        break
+
+                    # 3. Check for result (success)
+                    result = self.dto_handler.handle_result(dtos)
                     if result is not None:
                         return result
 
                 except Exception as e:
                     print(f"Error fetching task status for task {self.task_id}: {e}")
+                    consecutive_failures += 1
+                    if consecutive_failures >= self.MAX_CONSECUTIVE_FAILURES:
+                        error_message = (f"Task failed due to exceeding max consecutive "
+                                         f"failures ({self.MAX_CONSECUTIVE_FAILURES})!")
+                        break
 
                 time.sleep(self.TIMEOUT)
         finally:
             if pbar is not None:
                 pbar.close()
 
-        return None  # timeout
+        if error_message is None:
+            error_message = f"\nTask {self.task_id} failed due to exceeding max tries!"
+
+        raise Exception(error_message)
 
     def run(self) -> Optional[T]:
         """Execute task polling without progress bar."""

@@ -13,7 +13,7 @@ class _PredictDTOHandler(DTOHandler):
     def __init__(self, hash2id: Dict[str, str]):
         self.hash2id = hash2id
 
-    def handle(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.FINISHED:
