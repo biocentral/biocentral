@@ -15,7 +15,7 @@ from .endpoint_models import (
     ErrorResponse,
 )
 
-from .biotrainer_task import BiotrainerTask
+from .biotrainer_task import BiotrainerTask, get_config_presets
 from .biotrainer_inference_task import BiotrainerInferenceTask
 from ..server_management import (
     TaskManager,
@@ -55,7 +55,7 @@ def config_options(protocol: str):
     options = Configurator.get_option_dicts_by_protocol(
         protocol=protocol_obj, sub_configs_to_include=[]
     )
-    presets = BiotrainerTask.get_config_presets()
+    presets = get_config_presets()
 
     filtered_options = []
     for option_dict in options:

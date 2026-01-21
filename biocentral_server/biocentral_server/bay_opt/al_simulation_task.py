@@ -1,13 +1,13 @@
+import torch
 import random
 import numpy as np
-import torch
 import torchmetrics
 
 from typing import Callable, Tuple, List, Optional
 from biotrainer.utilities import get_device, seed_all
 from biotrainer.input_files import BiotrainerSequenceRecord
 
-from .al_iteration_pipeline import al_pipeline
+from .al_iteration_task import ActiveLearningIterationTask
 from .al_config import (
     ActiveLearningCampaignConfig,
     ActiveLearningIterationConfig,
@@ -56,6 +56,16 @@ class ActiveLearningSimulationTask(TaskInterface):
             data_point.seq_id: data_point
             for data_point in self.al_simulation_config.simulation_data
         }
+        # Save all target classes for discrete optimization mode to avoid problems with label masking
+        self.all_target_classes = (
+            {
+                data_point.label
+                for data_point in self.al_simulation_config.simulation_data
+            }
+            if self.al_campaign_config.optimization_mode
+            == ActiveLearningOptimizationMode.DISCRETE
+            else None
+        )
         self.al_simulation_result = ActiveLearningSimulationResult(
             campaign_name=self.al_campaign_config.name
         )
@@ -84,7 +94,8 @@ class ActiveLearningSimulationTask(TaskInterface):
         n_total_suggestions: int,
         current_training_data: List[SequenceTrainingData],
         embeddings: List[BiotrainerSequenceRecord],
-    ):
+        update_dto_callback: Callable,
+    ) -> ActiveLearningIterationResult:
         # Limit number of suggestions per iteration to budget if applicable
         if self.al_simulation_config.convergence_config.max_labels_budget is not None:
             n_to_suggest = min(
@@ -101,13 +112,24 @@ class ActiveLearningSimulationTask(TaskInterface):
             n_suggestions=n_to_suggest,
         )
 
-        # TODO [Refactoring] Might be better to run al_iteration_task as a subtask here
-        al_iteration_result = al_pipeline(
+        al_iteration_task = ActiveLearningIterationTask(
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=al_iteration_config,
             embeddings=embeddings,
+            all_target_classes=self.all_target_classes,
         )
-        return al_iteration_result
+        al_iteration_dto: Optional[TaskDTO] = None
+        for current_dto in self.run_subtask(al_iteration_task):
+            al_iteration_dto = current_dto
+            update_dto_callback(al_iteration_dto)
+
+        if not al_iteration_dto or al_iteration_dto.al_iteration_result is None:
+            update_dto_callback(
+                TaskDTO(status=TaskStatus.FAILED, error="AL iteration failed!")
+            )
+            raise Exception("No AL iteration result received!")
+
+        return al_iteration_dto.al_iteration_result
 
     def _calculate_target_successes(self, iteration_suggestions) -> int:
         min_max_percentile = (
@@ -225,6 +247,57 @@ class ActiveLearningSimulationTask(TaskInterface):
         else:
             return False, []
 
+    def _update_classification_metrics(
+        self,
+        al_iteration_result: ActiveLearningIterationResult,
+    ):
+        all_preds_vs_actual = {
+            data_point.entity_id: (
+                str(data_point.prediction),
+                str(self.all_simulation_data_dict[data_point.entity_id].label),
+            )
+            for data_point in al_iteration_result.results
+        }
+        suggestion_preds_vs_actual = {
+            entity_id: p_v_a
+            for entity_id, p_v_a in all_preds_vs_actual.items()
+            if entity_id in set(al_iteration_result.suggestions)
+        }
+
+        accuracy_metric = torchmetrics.Accuracy(
+            task="multiclass", num_classes=len(self.all_target_classes)
+        )
+
+        # Calculate accuracy for all predictions
+        target_classes_list = list(self.all_target_classes)
+        all_preds = torch.tensor(
+            [target_classes_list.index(p[0]) for p in all_preds_vs_actual.values()]
+        )
+        all_actuals = torch.tensor(
+            [target_classes_list.index(p[1]) for p in all_preds_vs_actual.values()]
+        )
+        all_accuracy = accuracy_metric(all_preds, all_actuals)
+
+        # Calculate accuracy for suggestions only
+        sugg_preds = torch.tensor(
+            [
+                target_classes_list.index(p[0])
+                for p in suggestion_preds_vs_actual.values()
+            ]
+        )
+        sugg_actuals = torch.tensor(
+            [
+                target_classes_list.index(p[1])
+                for p in suggestion_preds_vs_actual.values()
+            ]
+        )
+        sugg_accuracy = accuracy_metric(sugg_preds, sugg_actuals)
+
+        self.al_simulation_result.iteration_metrics_total.append(float(all_accuracy))
+        self.al_simulation_result.iteration_metrics_suggestions.append(
+            float(sugg_accuracy)
+        )
+
     def _update_metrics(
         self,
         iteration_target_successes: int,
@@ -237,35 +310,14 @@ class ActiveLearningSimulationTask(TaskInterface):
         self.al_simulation_result.iteration_consecutive_failures.append(
             n_consecutive_failures
         )
-        all_preds_vs_actual = {
-            data_point.entity_id: (
-                data_point.prediction,
-                float(self.all_simulation_data_dict[data_point.entity_id].label),
-            )
-            for data_point in al_iteration_result.results
-        }
-        iteration_suggestions = set(al_iteration_result.suggestions)
-        suggestion_preds_vs_actual = {
-            entity_id: p_v_a
-            for entity_id, p_v_a in all_preds_vs_actual.items()
-            if entity_id in iteration_suggestions
-        }
 
-        # TODO Add accuracy for discrete optimization mode
-        rmse_metric = torchmetrics.MeanSquaredError(squared=False)
-
-        # Calculate RMSE for all predictions
-        all_preds = torch.tensor([p[0] for p in all_preds_vs_actual.values()])
-        all_actuals = torch.tensor([p[1] for p in all_preds_vs_actual.values()])
-        all_rmse = rmse_metric(all_preds, all_actuals)
-
-        # Calculate RMSE for suggestions only
-        sugg_preds = torch.tensor([p[0] for p in suggestion_preds_vs_actual.values()])
-        sugg_actuals = torch.tensor([p[1] for p in suggestion_preds_vs_actual.values()])
-        sugg_rmse = rmse_metric(sugg_preds, sugg_actuals)
-
-        self.al_simulation_result.iteration_metrics_total.append(float(all_rmse))
-        self.al_simulation_result.iteration_metrics_suggestions.append(float(sugg_rmse))
+        if (
+            self.al_campaign_config.optimization_mode
+            == ActiveLearningOptimizationMode.DISCRETE
+        ):
+            self._update_classification_metrics(al_iteration_result)
+        else:
+            self._update_regression_metrics(al_iteration_result)
 
     def _run_simulation(
         self, embeddings: List[BiotrainerSequenceRecord], update_dto_callback: Callable
@@ -299,11 +351,7 @@ class ActiveLearningSimulationTask(TaskInterface):
                 n_total_suggestions=n_total_suggestions,
                 current_training_data=current_data_with_masking,
                 embeddings=embeddings,
-            )
-            update_dto_callback(
-                TaskDTO(
-                    status=TaskStatus.RUNNING, al_iteration_result=al_iteration_result
-                )
+                update_dto_callback=update_dto_callback,
             )
 
             # Update iteration metrics
@@ -311,6 +359,9 @@ class ActiveLearningSimulationTask(TaskInterface):
             n_total_suggestions += len(iteration_suggestions)
             iteration_target_successes = self._calculate_target_successes(
                 iteration_suggestions
+            )
+            logger.info(
+                f"Target successes for iteration {iteration}: {iteration_target_successes}"
             )
             n_total_target_successes += iteration_target_successes
             n_consecutive_failures = (

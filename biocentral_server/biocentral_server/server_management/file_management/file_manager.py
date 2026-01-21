@@ -1,4 +1,5 @@
 import base64
+import tempfile
 import contextlib
 
 from pathlib import Path
@@ -233,3 +234,8 @@ class FileContextManager:
         """Convenience context manager for writing files to the storage backend dynamically (initial save path unknown)"""
         with StorageFileWriter(self.storage_backend, file_path=None) as writer:
             yield writer
+
+    @contextlib.contextmanager
+    def temp_dir(self) -> Generator[str, None, None]:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            yield temp_dir

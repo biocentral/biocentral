@@ -1,11 +1,10 @@
 from typing import List, Optional
-
 from pydantic import BaseModel, Field
 
 
 class ActiveLearningResult(BaseModel):
     entity_id: str = Field(description="Entity identifier")
-    prediction: float = Field(description="Predicted value")
+    prediction: str = Field(description="Predicted value")
     uncertainty: float = Field(description="Uncertainty of the prediction")
     score: float = Field(
         description="Score of the entity for using it for the next iteration"
