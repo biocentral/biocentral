@@ -54,7 +54,7 @@ wheels = [
 
 [[package]]
 name = "accelerate"
-version = "1.11.0"
+version = "1.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub" },
@@ -65,9 +65,9 @@ dependencies = [
     { name = "safetensors" },
     { name = "torch" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/60/2757c4f03a8705dbf80b1268b03881927878dca5ed07d74f733fb6c219e0/accelerate-1.11.0.tar.gz", hash = "sha256:bb1caf2597b4cd632b917b5000c591d10730bb024a79746f1ee205bba80bd229", size = 393715, upload-time = "2025-10-20T14:42:25.025Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/8e/ac2a9566747a93f8be36ee08532eb0160558b07630a081a6056a9f89bf1d/accelerate-1.12.0.tar.gz", hash = "sha256:70988c352feb481887077d2ab845125024b2a137a5090d6d7a32b57d03a45df6", size = 398399, upload-time = "2025-11-21T11:27:46.973Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/85/85951bc0f9843e2c10baaa1b6657227056095de08f4d1eea7d8b423a6832/accelerate-1.11.0-py3-none-any.whl", hash = "sha256:a628fa6beb069b8e549460fc449135d5bd8d73e7a11fd09f0bc9fc4ace7f06f1", size = 375777, upload-time = "2025-10-20T14:42:23.256Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/d2/c581486aa6c4fbd7394c23c47b83fa1a919d34194e16944241daf9e762dd/accelerate-1.12.0-py3-none-any.whl", hash = "sha256:3e2091cd341423207e2f084a6654b1efcd250dc326f2a37d6dde446e07cabb11", size = 380935, upload-time = "2025-11-21T11:27:44.522Z" },
 ]
 
 [[package]]
@@ -210,7 +210,7 @@ wheels = [
 
 [[package]]
 name = "biocentral-server"
-version = "1.0.0"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "biotrainer" },
@@ -248,7 +248,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=fix%2Fapi-improvements" },
+    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=feature%2Fbioengineer-base" },
     { name = "blosc2", specifier = ">=2.7.1,<3.0.0" },
     { name = "circuitbreaker", specifier = ">=2.0.0" },
     { name = "fastapi", specifier = ">=0.121.0" },
@@ -306,8 +306,8 @@ wheels = [
 
 [[package]]
 name = "biotrainer"
-version = "1.2.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?rev=fix%2Fapi-improvements#eabd30018d269c379c6ac226b836950a8b01f496" }
+version = "1.3.0"
+source = { git = "https://github.com/biocentral/biotrainer.git?rev=feature%2Fbioengineer-base#8b0c840bf2200718e967a37ceecab90d6e558289" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -3089,7 +3089,7 @@ wheels = [
 
 [[package]]
 name = "transformers"
-version = "4.57.1"
+version = "4.57.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
@@ -3103,9 +3103,9 @@ dependencies = [
     { name = "tokenizers" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d6/68/a39307bcc4116a30b2106f2e689130a48de8bd8a1e635b5e1030e46fcd9e/transformers-4.57.1.tar.gz", hash = "sha256:f06c837959196c75039809636cd964b959f6604b75b8eeec6fdfc0440b89cc55", size = 10142511, upload-time = "2025-10-14T15:39:26.18Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/fb/3b41120b61e036b7d8b5ce8ea0f0e75085f3dd45bac5641b949d2636a0bf/transformers-4.57.4.tar.gz", hash = "sha256:e73b4cd94d6f25ba64210949dc809f1e88cc3e876bb17280d14ad36ae8bb03da", size = 10138027, upload-time = "2026-01-13T11:04:49.104Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/d3/c16c3b3cf7655a67db1144da94b021c200ac1303f82428f2beef6c2e72bb/transformers-4.57.1-py3-none-any.whl", hash = "sha256:b10d05da8fa67dc41644dbbf9bc45a44cb86ae33da6f9295f5fbf5b7890bd267", size = 11990925, upload-time = "2025-10-14T15:39:23.085Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/60/9da7cb82a84cc2a725cd452d5552f7b9490b63c1c25d76d09612f053f401/transformers-4.57.4-py3-none-any.whl", hash = "sha256:11109b65a20413a7784bf3f3e908dc074217f4414cf1f7a5bd015b8c3b10bacb", size = 11993481, upload-time = "2026-01-13T11:04:40.945Z" },
 ]
 
 [[package]]
