@@ -1,5 +1,18 @@
 # biocentral_server Changelog
 
+## v1.1.0
+
+- Refactored and added common embedders, enums, and dataclasses for API consistency.
+- Introduced debug mode for rate limiting in local deployment.
+- Improved `SequenceTrainingData` model by making `label` optional and added validation for prediction sets.
+- Simplified embeddings for training by using input data directly, added `BiotrainerTritonEmbedder` and updated naming.
+- Added seed and reproducibility settings to AL configurations and tasks.
+- Extended simulation task with real-world inspired convergence configurations and consistent iteration index usage.
+- Added new features like `did_converge` flag, iteration tracking options, and improvements in `al_simulation_task`.
+- Unified Gaussian Process (GP) models while introducing a random baseline model.
+- Improved AL DTO handling with new result classes.
+- Various minor fixes, including modularity enhancements and overall cleanup.
+
 ## v1.0.0
 
 - Fixed configuration conversion issues and various `.env` path resolutions.
