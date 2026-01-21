@@ -10,7 +10,7 @@ from .._generated import ApiClient, StartTrainingRequest, ConfigVerificationRequ
 
 class _TrainingDTOHandler(DTOHandler):
 
-    def handle_task_dtos(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.FINISHED:
@@ -40,7 +40,7 @@ class _TrainingDTOHandler(DTOHandler):
 
 class _InferenceDTOHandler(DTOHandler):
 
-    def handle_task_dtos(self, dtos: List[TaskDTO]):
+    def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.FINISHED:
