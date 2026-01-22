@@ -8,6 +8,7 @@ import urllib.parse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
+from ._generated.models import Prediction
 from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
     ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol
@@ -275,7 +276,7 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def predict(self, model_names: List[BiocentralPredictionModel], sequence_data: Dict[str, str]) -> \
-            BiocentralServerTask[Dict[str, Any]]:
+            BiocentralServerTask[Dict[str, List[Prediction]]]:
         """
         Provides functionality to predict results based on specified pre-trained model names and sequence data.
 

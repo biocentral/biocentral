@@ -6,7 +6,7 @@ from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
 from .._generated import ApiClient, PredictionRequest, PredictionApi, TaskStatus, \
-    TaskDTO
+    TaskDTO, BiocentralPredictionModel, Prediction
 
 
 class _PredictDTOHandler(DTOHandler):
@@ -39,8 +39,8 @@ class _PredictDTOHandler(DTOHandler):
 
 
 class PredictClient(ClientInterface):
-    def predict(self, api_client: ApiClient, model_names: List[str],
-                sequence_data: Dict[str, str]) -> BiocentralServerTask:
+    def predict(self, api_client: ApiClient, model_names: List[BiocentralPredictionModel],
+                sequence_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, List[Prediction]]]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
 
