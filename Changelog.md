@@ -1,5 +1,19 @@
 # Biocentral Changelog
 
+## v1.1.0
+
+Paper review version.
+
+- **API Updates**: Adapted to `healthStatus` API, improved `biocentralAPI`, and enhanced initial health data handling.
+- **Bug Fixes**: Addressed issues in prediction protocol parsing, launcher icon creation, model logs loading, and welcome dialog formatting.
+- **Refactored Module**: Updated welcome dialog with an interactive tutorial and user guide removal of redundant endpoints.
+- **New Features**:
+    - Introduced a tutorial using the amylase asset dataset.
+    - Enhanced the column wizard with percentile calculations.
+    - Added a comprehensive getting started guide and module overviews.
+- **Documentation Improvements**: Readme updated with citations and a getting started guide.
+- **Chore Update**: Version update for `bio_flutter`.
+
 ## v1.0.0
 
 Paper release version.
