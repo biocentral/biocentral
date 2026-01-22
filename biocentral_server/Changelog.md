@@ -12,6 +12,8 @@
 - Unified Gaussian Process (GP) models while introducing a random baseline model.
 - Improved AL DTO handling with new result classes.
 - Various minor fixes, including modularity enhancements and overall cleanup.
+- Updating dependencies.
+- Paper review version.
 
 ## v1.0.0
 
