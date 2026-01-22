@@ -4,16 +4,7 @@
 
 // ignore_for_file: unused_import
 
-import 'package:one_of_serializer/any_of_serializer.dart';
-import 'package:one_of_serializer/one_of_serializer.dart';
-import 'package:built_collection/built_collection.dart';
-import 'package:built_value/json_object.dart';
-import 'package:built_value/serializer.dart';
-import 'package:built_value/standard_json_plugin.dart';
-import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:biocentral_api/src/date_serializer.dart';
-import 'package:biocentral_api/src/model/date.dart';
-
 import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
 import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_config.dart';
@@ -38,6 +29,7 @@ import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
+import 'package:biocentral_api/src/model/date.dart';
 import 'package:biocentral_api/src/model/detected_format_response.dart';
 import 'package:biocentral_api/src/model/embed_request.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
@@ -81,6 +73,13 @@ import 'package:biocentral_api/src/model/taxonomy_response.dart';
 import 'package:biocentral_api/src/model/test_result.dart';
 import 'package:biocentral_api/src/model/validation_error.dart';
 import 'package:biocentral_api/src/model/validation_error_loc_inner.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:built_value/iso_8601_date_time_serializer.dart';
+import 'package:built_value/json_object.dart';
+import 'package:built_value/serializer.dart';
+import 'package:built_value/standard_json_plugin.dart';
+import 'package:one_of_serializer/any_of_serializer.dart';
+import 'package:one_of_serializer/one_of_serializer.dart';
 
 part 'serializers.g.dart';
 

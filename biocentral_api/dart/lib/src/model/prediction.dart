@@ -2,9 +2,9 @@
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
 
+import 'package:built_value/built_value.dart';
 // ignore_for_file: unused_element
 import 'package:built_value/json_object.dart';
-import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'prediction.g.dart';

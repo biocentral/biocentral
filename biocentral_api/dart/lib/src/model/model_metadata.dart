@@ -5,8 +5,8 @@
 // ignore_for_file: unused_element
 import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:biocentral_api/src/model/model_output.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/protocol.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 

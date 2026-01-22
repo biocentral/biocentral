@@ -1,7 +1,7 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/api.dart' as gen;
-import 'package:biocentral_api/src/model/taxonomy_request.dart';
 import 'package:biocentral_api/src/model/taxonomy_item.dart';
+import 'package:biocentral_api/src/model/taxonomy_request.dart';
+import 'package:built_collection/built_collection.dart';
 
 class ProteinsClient {
   /// Retrieve taxonomy data for the provided taxonomy IDs.

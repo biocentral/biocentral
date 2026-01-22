@@ -2,9 +2,9 @@
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
 
+import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
 // ignore_for_file: unused_element
 import 'package:biocentral_api/src/model/active_learning_iteration_config.dart';
-import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 

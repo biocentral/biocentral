@@ -2,8 +2,8 @@
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
 
-import 'package:dio/dio.dart';
 import 'package:biocentral_api/src/auth/auth.dart';
+import 'package:dio/dio.dart';
 
 class OAuthInterceptor extends AuthInterceptor {
   final Map<String, String> tokens = {};

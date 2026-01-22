@@ -2,13 +2,6 @@
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
 
-import 'package:dio/dio.dart';
-import 'package:built_value/serializer.dart';
-import 'package:biocentral_api/src/serializers.dart';
-import 'package:biocentral_api/src/auth/api_key_auth.dart';
-import 'package:biocentral_api/src/auth/basic_auth.dart';
-import 'package:biocentral_api/src/auth/bearer_auth.dart';
-import 'package:biocentral_api/src/auth/oauth.dart';
 import 'package:biocentral_api/src/api/active_learning_api.dart';
 import 'package:biocentral_api/src/api/biocentral_service_api.dart';
 import 'package:biocentral_api/src/api/custom_models_api.dart';
@@ -19,6 +12,13 @@ import 'package:biocentral_api/src/api/ppi_api.dart';
 import 'package:biocentral_api/src/api/prediction_api.dart';
 import 'package:biocentral_api/src/api/projections_api.dart';
 import 'package:biocentral_api/src/api/proteins_api.dart';
+import 'package:biocentral_api/src/auth/api_key_auth.dart';
+import 'package:biocentral_api/src/auth/basic_auth.dart';
+import 'package:biocentral_api/src/auth/bearer_auth.dart';
+import 'package:biocentral_api/src/auth/oauth.dart';
+import 'package:biocentral_api/src/serializers.dart';
+import 'package:built_value/serializer.dart';
+import 'package:dio/dio.dart';
 
 class BiocentralApi {
   static const String basePath = r'http://localhost';

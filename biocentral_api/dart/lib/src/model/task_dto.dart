@@ -2,18 +2,18 @@
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
 
-// ignore_for_file: unused_element
-import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/prediction.dart';
-import 'package:biocentral_api/src/model/embedding_progress.dart';
-import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
-import 'package:biocentral_api/src/model/output_data.dart';
-import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
+import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
 import 'package:biocentral_api/src/model/auto_eval_progress.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
-import 'package:built_value/json_object.dart';
+import 'package:biocentral_api/src/model/embedding_progress.dart';
+import 'package:biocentral_api/src/model/output_data.dart';
+import 'package:biocentral_api/src/model/prediction.dart';
+import 'package:biocentral_api/src/model/task_status.dart';
+// ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
+import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 
 part 'task_dto.g.dart';
