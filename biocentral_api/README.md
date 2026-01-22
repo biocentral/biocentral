@@ -5,7 +5,7 @@ API packages for easy access to the functionality of the biocentral ecosystem.
 ## Supported languages
 
 * ✅ [Python](/python)
-* 🔜 [Dart](/dart)
+* ✅ [Dart](/dart)
 
 ## Main Features
 
@@ -16,4 +16,14 @@ API packages for easy access to the functionality of the biocentral ecosystem.
 
 ## Citation
 
-We are currently working on a paper describing the biocentral ecosystem.
+If you find the biocentral API useful in your research, please cite our paper:
+```bibtex
+@Article{Franz2025,
+  author    = {Franz, Sebastian and Olenyi, Tobias and Schloetermann, Paula and Smaoui, Amine and Jimenez Soto, Luisa Fernanda and Rost, Burkhard},
+  title     = {biocentral: embedding-based protein predictions},
+  year      = {2025},
+  month     = nov,
+  doi       = {10.1101/2025.11.21.689449},
+  publisher = {Cold Spring Harbor Laboratory},
+}
+```
