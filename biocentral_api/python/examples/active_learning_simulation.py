@@ -1,3 +1,8 @@
+"""
+BETA
+
+This API feature is currently in BETA state. Some configurations might not work as expected.
+"""
 from biocentral_api import BiocentralAPI, SequenceTrainingData, ActiveLearningCampaignConfig, \
     ActiveLearningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType, \
     ActiveLearningConvergenceConfig
