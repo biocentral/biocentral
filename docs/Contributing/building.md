@@ -11,6 +11,11 @@ flutter run -d linux
 SERIOUS_PYTHON_SITE_PACKAGES=/absolute/path/to/biocentral/build/site-packages
 ```
 
+Create the launcher icons:
+```shell
+dart run flutter_launcher_icons
+```
+
 ## Python Companion
 
 Build python companion via `serious_python` package command before building the flutter app:
