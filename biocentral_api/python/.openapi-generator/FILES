@@ -162,4 +162,3 @@ docs/TaxonomyResponse.md
 docs/TestResult.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
-test/__init__.py

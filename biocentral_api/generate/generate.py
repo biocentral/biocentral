@@ -264,6 +264,7 @@ def generate_python():
         "generate",
         "-g", "python",
         "--package-name", "biocentral_api._generated",
+        "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
         "-i", str(openapi_spec),
         "-o", str(output_dir)
     ]
@@ -332,6 +333,7 @@ def generate_dart():
         "-g", "dart-dio",
         "--package-name", "biocentral_api",
         "--additional-properties=pubName=biocentral_api",
+        "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
         "-i", str(openapi_spec),
         "-o", str(output_dir)
     ]
