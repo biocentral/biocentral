@@ -1,4 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_display_mode_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_load_project_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
@@ -102,6 +103,9 @@ class _BiocentralAppState extends State<BiocentralApp> {
         ),
         BlocProvider<BiocentralSideBarBloc>(
           create: (context) => BiocentralSideBarBloc(),
+        ),
+        BlocProvider<BiocentralDisplayModeBloc>(
+          create: (context) => BiocentralDisplayModeBloc(),
         ),
       ],
       child: BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
