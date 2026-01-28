@@ -6,6 +6,7 @@ import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_side_bar.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_tab_view.dart';
+import 'package:biocentral/biocentral/presentation/widgets/biocentral_api_connectivity_widget.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
@@ -208,7 +209,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   PreferredSize _buildAppBar(bool useDrawer, BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(
-        useDrawer ? SizeConfig.screenHeight(context) * 0.05 : SizeConfig.screenHeight(context) * 0.125,
+        useDrawer ? SizeConfig.screenHeight(context) * 0.05 : SizeConfig.screenHeight(context) * 0.15,
       ),
       child: AppBar(
         leading: useDrawer
@@ -233,6 +234,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     final apiRepository = context.read<BiocentralAPIRepository>();
     return Row(
       children: [
+        // App Name and Version
         FutureBuilder<PackageInfo>(
           future: PackageInfo.fromPlatform(),
           builder: (context, snapshot) {
@@ -285,6 +287,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
             );
           },
         ),
+        const Spacer(),
+        const BiocentralAPIConnectivityWidget(),
       ],
     );
   }
