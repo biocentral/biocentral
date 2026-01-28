@@ -1,18 +1,19 @@
 import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_display_mode_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_side_bar.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_tab_view.dart';
 import 'package:biocentral/biocentral/presentation/widgets/biocentral_api_connectivity_widget.dart';
+import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
-import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,7 +67,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openWelcomeDialog();
     });
-    
+
     // Sidebar Key Handler
     ServicesBinding.instance.keyboard.addHandler(_handleSideBarKeyEvent);
   }
@@ -162,11 +163,29 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
       }
 
       // No explainable widget focused, handle globally
-      final sideBarBloc = BlocProvider.of<BiocentralSideBarBloc>(context);
-      sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent());
+      _toggleSideBar();
+      return true;
+    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit1) {
+      _toggleDisplayMode(0); // Visualize
+      return true;
+    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit2) {
+      _toggleDisplayMode(1); // Analyze
+      return true;
+    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit3) {
+      _toggleSideBar(); // Contextualize
       return true;
     }
     return false;
+  }
+
+  void _toggleSideBar() {
+    final sideBarBloc = BlocProvider.of<BiocentralSideBarBloc>(context);
+    sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent());
+  }
+
+  void _toggleDisplayMode(int index) {
+    final displayModeBloc = BlocProvider.of<BiocentralDisplayModeBloc>(context);
+    displayModeBloc.add(BiocentralDisplayModeChangedEvent(newMode: BiocentralDisplayMode.values[index]));
   }
 
   bool _hasExplainableAncestor(BuildContext context) {
@@ -231,7 +250,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   }
 
   Widget _buildAppBarTitle() {
-    final apiRepository = context.read<BiocentralAPIRepository>();
+    List<bool> _selections = [true, false, false]; // [option1, option2, option3]
     return Row(
       children: [
         // App Name and Version
@@ -251,39 +270,27 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
           },
         ),
         const Spacer(),
-        StreamBuilder(
-          stream: apiRepository.healthStatusStream,
-          initialData: apiRepository.initialAPIHealthData,
-          builder: (context, snapshot) {
-            final healthStatusList = snapshot.data ?? [];
-            final connectionStatusAny =
-                healthStatusList.isEmpty ? false : healthStatusList.any((health) => health.healthy);
-            final connectionColor = connectionStatusAny == true ? Colors.green : Colors.red;
-            final connectionMessage = connectionStatusAny == true ? 'Connected!' : 'Not connected';
-            String tooltipMessage = 'Connection Status: \n\n';
-            for (final healthStatus in healthStatusList) {
-              tooltipMessage += '${healthStatus.url}: ${healthStatus.healthy ? 'Connected' : 'Not connected'}';
-              tooltipMessage += healthStatus.version != null ? ' (v${healthStatus.version})' : '';
-              tooltipMessage += '\n';
-            }
-            return BiocentralTooltip(
-              message: tooltipMessage,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.cloud_circle_sharp,
-                    color: connectionColor,
-                    size: 14,
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Text(
-                    'Biocentral API - $connectionMessage',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
-              ),
+        BlocBuilder<BiocentralSideBarBloc, BiocentralSideBarState>(
+          builder: (context, sideBarState) {
+            return BlocBuilder<BiocentralDisplayModeBloc, BiocentralDisplayModeState>(
+              builder: (context, displayModeState) {
+                return ToggleButtons(
+                  isSelected: displayModeState.toSelection..add(sideBarState.showSidebar),
+                  onPressed: (int index) {
+                    if (index < BiocentralDisplayMode.values.length) {
+                      _toggleDisplayMode(index);
+                    } else {
+                      // Option 3 toggles independently
+                      _toggleSideBar();
+                    }
+                  },
+                  children: [
+                    const BiocentralTooltip(message: 'Visualize data', child: Icon(Icons.visibility)),
+                    const BiocentralTooltip(message: 'Analyze data', child: Icon(Icons.analytics)),
+                    const BiocentralTooltip(message: 'Information & Settings', child: Icon(Icons.lightbulb))
+                  ],
+                );
+              },
             );
           },
         ),
