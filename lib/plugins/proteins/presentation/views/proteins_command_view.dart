@@ -7,6 +7,7 @@ import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_asset_d
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_column_wizard_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_predict_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -148,9 +149,12 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> with Tutorial
           ),
           BiocentralTooltip(
             message: 'Load protein attributes from file..',
-            child: BiocentralButton(
-              iconData: Icons.file_present_rounded,
-              onTap: () => loadCustomAttributesFile(proteinCommandBloc),
+            child: BiocentralExplainableWidget(
+              explain: "TEST",
+              child: BiocentralButton(
+                iconData: Icons.file_present_rounded,
+                onTap: () => loadCustomAttributesFile(proteinCommandBloc),
+              ),
             ),
           ),
           BiocentralTooltip(
