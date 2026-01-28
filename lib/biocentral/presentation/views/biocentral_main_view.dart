@@ -2,15 +2,19 @@ import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
+import 'package:biocentral/biocentral/presentation/views/biocentral_side_bar.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_tab_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -27,6 +31,13 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  final Widget _biocentralTab = const Tab(
+    text: 'Biocentral',
+    icon: Icon(Icons.center_focus_weak_outlined),
+  );
+
+  final List<Widget> _tabs = [];
+
   late final BiocentralCommandLogBloc biocentralCommandLogBloc;
 
   late final AppLifecycleListener _exitListener;
@@ -35,16 +46,10 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   BiocentralPluginState? cachedPluginState;
 
-  final Widget _biocentralTab = const Tab(
-    text: 'Biocentral',
-    icon: Icon(Icons.center_focus_weak_outlined),
-  );
-
-  final List<Widget> _tabs = [];
-
   @override
   void initState() {
     super.initState();
+
     // Initialize TabController here with a default length
     _tabController = TabController(length: 1, vsync: this);
     // BLOCS
@@ -60,6 +65,9 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openWelcomeDialog();
     });
+    
+    // Sidebar Key Handler
+    ServicesBinding.instance.keyboard.addHandler(_handleSideBarKeyEvent);
   }
 
   @override
@@ -86,7 +94,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   @override
   void dispose() {
     _exitListener.dispose();
-
+    _tabController.dispose();
+    ServicesBinding.instance.keyboard.removeHandler(_handleSideBarKeyEvent);
     super.dispose();
   }
 
@@ -142,6 +151,35 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     );
   }
 
+  bool _handleSideBarKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyT) {
+      // Check if a BiocentralExplainableWidget has focus
+      final focusedContext = FocusManager.instance.primaryFocus?.context;
+      if (focusedContext != null && _hasExplainableAncestor(focusedContext)) {
+        // Let the widget handle it
+        return false;
+      }
+
+      // No explainable widget focused, handle globally
+      final sideBarBloc = BlocProvider.of<BiocentralSideBarBloc>(context);
+      sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent());
+      return true;
+    }
+    return false;
+  }
+
+  bool _hasExplainableAncestor(BuildContext context) {
+    bool found = false;
+    context.visitAncestorElements((element) {
+      if (element.widget is BiocentralExplainableWidget) {
+        found = true;
+        return false; // Stop visiting
+      }
+      return true; // Continue visiting
+    });
+    return found;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -154,7 +192,12 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
               key: _scaffoldKey,
               appBar: _buildAppBar(useDrawer, context),
               drawer: useDrawer ? _buildDrawer(context) : null,
-              body: _buildBody(pluginState, context),
+              body: Row(
+                children: [
+                  Expanded(child: _buildBody(pluginState, context)),
+                  const BiocentralSideBar(),
+                ],
+              ),
             );
           },
         );
@@ -355,4 +398,12 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class TestAction extends Action<ActivateIntent> {
+  @override
+  Object? invoke(ActivateIntent intent) {
+    print(intent);
+    return null;
+  }
 }

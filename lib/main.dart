@@ -1,14 +1,15 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_load_project_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_load_project_view.dart';
 import 'package:biocentral/biocentral/presentation/views/biocentral_start_page_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/biocentral_api_health_service.dart';
-import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
-import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
+import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,6 @@ class _BiocentralAppState extends State<BiocentralApp> {
 
   /// Creates global repositories that are available to all plugins
   List<RepositoryProvider> getGlobalRepositoryProviders(BuildContext context, BiocentralPluginManager pluginManager) {
-
     final BiocentralColumnWizardRepository biocentralColumnWizardRepository =
         BiocentralColumnWizardRepository.withDefaultWizards();
     final BiocentralDatabaseRepository biocentralDatabaseRepository = BiocentralDatabaseRepository();
@@ -83,7 +83,8 @@ class _BiocentralAppState extends State<BiocentralApp> {
       RepositoryProvider<BiocentralProjectRepository>.value(value: widget.projectRepository),
       RepositoryProvider<BiocentralPythonCompanion>.value(value: widget.pythonCompanion),
       RepositoryProvider<BiocentralDatabaseRepository>.value(value: biocentralDatabaseRepository),
-      RepositoryProvider<BiocentralAPIRepository>.value(value: cachedAPIRepository), // TODO Check if this works with reloading plugins
+      RepositoryProvider<BiocentralAPIRepository>.value(value: cachedAPIRepository),
+      // TODO Check if this works with reloading plugins
       RepositoryProvider<BiocentralColumnWizardRepository>.value(value: biocentralColumnWizardRepository),
       RepositoryProvider<TutorialRepository>.value(value: tutorialRepository),
     ];
@@ -98,6 +99,9 @@ class _BiocentralAppState extends State<BiocentralApp> {
         ),
         BlocProvider<ThemeBloc>(
           create: (context) => ThemeBloc()..add(InitializeThemeEvent()),
+        ),
+        BlocProvider<BiocentralSideBarBloc>(
+          create: (context) => BiocentralSideBarBloc(),
         ),
       ],
       child: BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
