@@ -49,6 +49,7 @@ class TestEmbeddings(unittest.TestCase):
             sequence_data=sequence_data,
             use_half_precision=False,
         ).run()
+        res1 = res1.to_dict()
 
         self.assertEqual(set(res1.keys()), set(sequence_data.keys()))
         for v in res1.values():
@@ -60,6 +61,7 @@ class TestEmbeddings(unittest.TestCase):
             sequence_data=sequence_data,
             use_half_precision=False,
         ).run_with_progress()
+        res2 = res2.to_dict()
 
         self.assertEqual(set(res2.keys()), set(sequence_data.keys()))
         for v in res2.values():

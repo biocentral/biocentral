@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import time
 import warnings
-import numpy as np
 import urllib.parse
 
 from pydantic import BaseModel, Field
@@ -13,7 +12,7 @@ from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTraining
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
     ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
-    ActiveLearningClient
+    ActiveLearningClient, EmbeddingsResult
 
 
 class _BiocentralAPIHealth(BaseModel):
@@ -154,7 +153,7 @@ class BiocentralAPI:
               embedder_name: Union[str, CommonEmbedder],
               sequence_data: Dict[str, str],
               reduce: Optional[bool] = True,
-              use_half_precision: Optional[bool] = False) -> BiocentralServerTask[Dict[str, np.ndarray]]:
+              use_half_precision: Optional[bool] = False) -> BiocentralServerTask[EmbeddingsResult]:
         """
         Generates embeddings for the given sequence data using the specified embedder.
 

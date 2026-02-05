@@ -16,11 +16,13 @@ sequence_data = {"Seq1": "MMALSLALM",
                  }
 result = biocentral_api.embed(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
                             use_half_precision=False).run()
-print(result)
+print(result.to_dict())
 
 # ProtT5
 embedder_name = CommonEmbedder.ProtT5
 result = biocentral_api.embed(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
                             use_half_precision=False).run_with_progress()
 
-print(result)
+print(result["Seq1"])
+result.save("local_path.h5")
+print(result.to_dict())

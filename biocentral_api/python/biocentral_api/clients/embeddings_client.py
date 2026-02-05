@@ -3,8 +3,9 @@ import h5py
 import base64
 import numpy as np
 
+from pathlib import Path
 from tqdm.auto import tqdm
-from typing import Dict, List
+from typing import Dict, List, Union, Optional
 
 from .tasks import BiocentralServerTask, DTOHandler
 from .client_interface import ClientInterface
@@ -14,25 +15,104 @@ from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, TaskStatus, \
     TaskDTO
 
 
+class EmbeddingsResult:
+    def __init__(self, hash2id: Dict[str, str], embeddings_file_str: str):
+        self._hash2id = hash2id
+        self._id2hash = {v: k for k, v in hash2id.items()}
+        self._embeddings_file_str = embeddings_file_str
+
+        # Cached
+        self.__embeddings_file_handle = None  # h5 file handle 
+        self.__id2emb = None  # Hashed ids -> Embedding
+
+    def _lazy_read_handle(self):
+        """ Return cached handle or lazily read embeddings string """
+        assert self.__id2emb is None, "Lazy reading called after id2emb already exists!"
+
+        if self.__embeddings_file_handle is not None:
+            return self.__embeddings_file_handle
+        # Open
+        h5_bytes = base64.b64decode(self._embeddings_file_str)
+        h5_io = io.BytesIO(h5_bytes)
+        self.__embeddings_file_handle = h5py.File(h5_io, 'r')
+        return self.__embeddings_file_handle
+
+    def _id2emb(self):
+        if self.__id2emb is not None:
+            return self.__id2emb
+        # Read embeddings
+        embeddings_file_handle = self._lazy_read_handle()
+        id2emb = {
+            hash_idx: np.array(embedding)
+            for (hash_idx, embedding) in embeddings_file_handle.items()
+        }
+        self.__id2emb = id2emb
+        embeddings_file_handle.close()
+        return self.__id2emb
+
+    def to_dict(self, hashed_ids: Optional[bool] = False) -> Dict[str, np.ndarray]:
+        """
+        Get a dictionary of id -> embedding.
+        
+        :param hashed_ids: If True, sequence hashes instead of the original sequence ids are used to index dict
+        :return: Dictionary of sequence/hash ids and embeddings as numpy arrays
+        """
+        if hashed_ids:
+            return dict(self._id2emb())
+        else:
+            seqid2emb = {self._hash2id[idx]: embd for idx, embd in self._id2emb().items()}
+            return seqid2emb
+
+    def to_list(self) -> List:
+        """ Get the list of embeddings as lists """
+        id2emb = self._id2emb()
+        return [embd.tolist() for embd in id2emb.values()]
+
+    def to_numpy(self) -> np.ndarray:
+        """ Get the stacked numpy array of all embeddings """
+        id2emb = self._id2emb()
+        return np.stack(list(id2emb.values()))
+
+    def __getitem__(self, item: str) -> Optional[np.ndarray]:
+        """ Get a specific embedding for a particular id (can be both, sequence id or sequence hash) """
+        def _retrieve(d):
+            try:
+                res = d.get(item)
+                if res is None:
+                    res = d.get(self._id2hash[item])
+                if res is None:
+                    raise Exception("No embedding found for id")
+                return np.array(res)
+            except Exception:
+                raise KeyError(f"No embedding found for id {item}")
+
+        if self.__id2emb is not None:
+            return _retrieve(self.__id2emb)
+        # Lazy get from handle
+        embeddings_file_handle = self._lazy_read_handle()
+        return _retrieve(embeddings_file_handle)
+
+    def save(self, save_path: Union[Path, str], hashed_ids: Optional[bool] = False) -> None:
+        """
+        Save the embeddings as h5 file locally.
+        
+        :param save_path: Path where to save the embeddings file.
+        :param hashed_ids: If True, sequence hashes instead of the original sequence ids are used to index the h5 database
+        """
+        if hashed_ids:
+            with open(save_path, 'w') as h5_file:
+                h5_file.write(self._embeddings_file_str)
+        else:
+            seqid2emb = self.to_dict(hashed_ids=False)
+            with h5py.File(save_path, 'w') as h5_file:
+                for seq_id, embedding in seqid2emb.items():
+                    h5_file.create_dataset(seq_id, data=embedding)
+
+
 class _EmbedDTOHandler(DTOHandler):
     def __init__(self, hash2id: Dict[str, str]):
-        self.hash2id = hash2id
+        self._hash2id = hash2id
         self._cached_embedding_total = None
-
-    def _parse_embeddings_file(self, embeddings_file: str):
-        h5_bytes = base64.b64decode(embeddings_file)
-
-        h5_io = io.BytesIO(h5_bytes)
-        embeddings_file = h5py.File(h5_io, 'r')
-
-        # sequence hash -> Embedding
-        id2emb = {
-            self.hash2id[idx]: np.array(embedding).tolist()
-            for (idx, embedding) in embeddings_file.items()
-        }
-
-        embeddings_file.close()
-        return id2emb
 
     def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
@@ -40,8 +120,8 @@ class _EmbedDTOHandler(DTOHandler):
             if status == TaskStatus.FINISHED:
                 embeddings_file = dto.embeddings_file
                 if embeddings_file is None:
-                    pass # TODO Handle error
-                return self._parse_embeddings_file(embeddings_file)
+                    pass  # TODO Handle error
+                return EmbeddingsResult(hash2id=self._hash2id, embeddings_file_str=embeddings_file)
 
         return None
 
@@ -72,7 +152,7 @@ class _EmbedDTOHandler(DTOHandler):
 
 class EmbeddingsClient(ClientInterface):
     def embed(self, api_client: ApiClient, embedder_name: str, reduce: bool, sequence_data: Dict[str, str],
-                    use_half_precision: bool) -> BiocentralServerTask:
+              use_half_precision: bool) -> BiocentralServerTask[EmbeddingsResult]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
 
