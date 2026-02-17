@@ -1,6 +1,13 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 title: biocentral.
+authors:
+  - family-names: Franz
+    given-names: Sebastian
+    orcid: "https://orcid.org/0009-0002-0740-1571"
+  - family-names: Olenyi
+    given-names: Tobias
+    orcid: "https://orcid.org/0000-0002-6315-0458"
 references:
   - title: 'biocentral: embedding-based protein predictions'
     authors:
