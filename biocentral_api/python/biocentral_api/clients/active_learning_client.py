@@ -32,6 +32,9 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
                 break
         return pbar
 
+    def get_tqdm_initial_description(self) -> str:
+        return "Running active learning iteration.."
+
 
 class _ActiveLearningSimulationDTOHandler(DTOHandler):
     _iteration_results = {}  # Use dict to preserve order of results
@@ -87,6 +90,9 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
                 pbar.set_description(f"Active learning simulation failed!")
                 break
         return pbar
+
+    def get_tqdm_initial_description(self) -> str:
+        return "Running active learning simulation.."
 
 
 class ActiveLearningClient(ClientInterface):

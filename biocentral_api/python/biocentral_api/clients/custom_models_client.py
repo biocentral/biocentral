@@ -37,6 +37,9 @@ class _TrainingDTOHandler(DTOHandler):
                 break
         return pbar
 
+    def get_tqdm_initial_description(self) -> str:
+        return "Starting training.."
+
 
 class _InferenceDTOHandler(DTOHandler):
 
@@ -64,10 +67,13 @@ class _InferenceDTOHandler(DTOHandler):
                     break
         return pbar
 
+    def get_tqdm_initial_description(self) -> str:
+        return "Starting inference.."
+
 
 class CustomModelsClient(ClientInterface):
     def train(self, api_client: ApiClient, config: Dict[str, Any],
-                    training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
+              training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
         custom_models_api = CustomModelsApi(api_client)
         config_verification_request = ConfigVerificationRequest(config_dict=config)
 

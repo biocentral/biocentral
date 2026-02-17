@@ -54,6 +54,7 @@ class BiocentralServerTask(Generic[T]):
                 leave=False,
                 mininterval=0.3,
                 smoothing=0.3,
+                desc=self.dto_handler.get_tqdm_initial_description()
             )
             if progress_callback
             else None

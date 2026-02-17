@@ -75,6 +75,7 @@ class EmbeddingsResult:
 
     def __getitem__(self, item: str) -> Optional[np.ndarray]:
         """ Get a specific embedding for a particular id (can be both, sequence id or sequence hash) """
+
         def _retrieve(d):
             try:
                 res = d.get(item)
@@ -110,9 +111,10 @@ class EmbeddingsResult:
 
 
 class _EmbedDTOHandler(DTOHandler):
-    def __init__(self, hash2id: Dict[str, str]):
+    def __init__(self, hash2id: Dict[str, str], embedder_name):
         self._hash2id = hash2id
         self._cached_embedding_total = None
+        self._embedder_name = embedder_name
 
     def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
@@ -140,7 +142,7 @@ class _EmbedDTOHandler(DTOHandler):
                 case TaskStatus.PENDING:
                     pbar.set_description(f"Waiting for embedding calculation to start..")
                 case TaskStatus.RUNNING:
-                    pbar.set_description(f"Embedding..")
+                    pbar.set_description(f"Embedding with {self._embedder_name}..")
                 case TaskStatus.FINISHED:
                     pbar.set_description(f"Finished embedding calculation!")
                     break
@@ -148,6 +150,9 @@ class _EmbedDTOHandler(DTOHandler):
                     pbar.set_description(f"Embedding failed!")
                     break
         return pbar
+
+    def get_tqdm_initial_description(self) -> str:
+        return f"Embedding with {self._embedder_name}.."
 
 
 class EmbeddingsClient(ClientInterface):
@@ -165,7 +170,7 @@ class EmbeddingsClient(ClientInterface):
             endpoint_caller=lambda: api_instance.embed_api_v1_embeddings_service_embed_post(embed_request)
         )
 
-        embed_dto_handler = _EmbedDTOHandler(hash2id)
+        embed_dto_handler = _EmbedDTOHandler(hash2id=hash2id, embedder_name=embedder_name)
         biocentral_server_task = BiocentralServerTask(task_id=task_id,
                                                       api_client=api_client,
                                                       dto_handler=embed_dto_handler)

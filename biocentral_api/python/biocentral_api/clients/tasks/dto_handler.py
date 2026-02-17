@@ -19,3 +19,7 @@ class DTOHandler(ABC):
     @abstractmethod
     def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
         return pbar  # Don't update by default
+
+    @abstractmethod
+    def get_tqdm_initial_description(self) -> str:
+        return ""

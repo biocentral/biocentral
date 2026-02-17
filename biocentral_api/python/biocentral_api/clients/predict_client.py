@@ -37,6 +37,9 @@ class _PredictDTOHandler(DTOHandler):
                     break
         return pbar
 
+    def get_tqdm_initial_description(self) -> str:
+        return f"Running predictions for {len(self.hash2id)} sequence(s).."
+
 
 class PredictClient(ClientInterface):
     def predict(self, api_client: ApiClient, model_names: List[BiocentralPredictionModel],
