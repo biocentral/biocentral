@@ -36,14 +36,19 @@ For development, see the [development guide](/docs/Contributing/development_setu
 
 ## Citation
 
-Please cite the [biocentral main repository](https://github.com/biocentral/biocentral) if you are using
-biocentral_server in your scientific publication:
+Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using *biocentral* in your work:
 
 ```text
-@Online{biocentral,
-  accessed = {2024-09-10},
-  author   = {Biocentral contributors},
-  title    = {Biocentral - An open source bioinformatics application},
-  url      = {https://github.com/biocentral/biocentral},
+@Article{Franz2026,
+  author    = {Franz, Sebastian and Olenyi, Tobias and Schloetermann, Paula and Smaoui, Amine and Jimenez-Soto, Luisa F. and Rost, Burkhard},
+  journal   = {Journal of Molecular Biology},
+  title     = {biocentral: embedding-based protein predictions},
+  year      = {2026},
+  issn      = {0022-2836},
+  month     = jan,
+  pages     = {169673},
+  doi       = {10.1016/j.jmb.2026.169673},
+  groups    = {[JMB] biocentral: embedding-based protein predictions, swc_bo_engineering},
+  publisher = {Elsevier BV},
 }
 ```

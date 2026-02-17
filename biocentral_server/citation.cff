@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+title: biocentral.
+references:
+  - title: 'biocentral: embedding-based protein predictions'
+    authors:
+      - family-names: Franz
+        given-names: Sebastian
+      - family-names: Olenyi
+        given-names: Tobias
+      - family-names: Schloetermann
+        given-names: Paula
+      - family-names: Smaoui
+        given-names: Amine
+      - family-names: Jimenez-Soto
+        given-names: Luisa F.
+      - family-names: Rost
+        given-names: Burkhard
+    type: article
+    journal: Journal of Molecular Biology
+    year: '2026'
+    issn: 0022-2836
+    month: '#jan#'
+    doi: 10.1016/j.jmb.2026.169673
+    pages: '169673'
