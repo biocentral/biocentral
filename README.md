@@ -60,15 +60,20 @@ for details.
 
 ## 📜 Citation
 
-If you use biocentral in your research, please cite it as follows:
+Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using *biocentral* in your work:
 
 ```text
-@Article{Franz2025,
-  author    = {Franz, Sebastian and Olenyi, Tobias and Schloetermann, Paula and Smaoui, Amine and Jimenez Soto, Luisa Fernanda and Rost, Burkhard},
+@Article{Franz2026,
+  author    = {Franz, Sebastian and Olenyi, Tobias and Schloetermann, Paula and Smaoui, Amine and Jimenez-Soto, Luisa F. and Rost, Burkhard},
+  journal   = {Journal of Molecular Biology},
   title     = {biocentral: embedding-based protein predictions},
-  year      = {2025},
-  month     = nov,
-  doi       = {10.1101/2025.11.21.689449},
-  publisher = {Cold Spring Harbor Laboratory},
+  year      = {2026},
+  issn      = {0022-2836},
+  month     = jan,
+  pages     = {169673},
+  doi       = {10.1016/j.jmb.2026.169673},
+  groups    = {[JMB] biocentral: embedding-based protein predictions, swc_bo_engineering},
+  publisher = {Elsevier BV},
 }
 ```
+
