@@ -391,7 +391,7 @@ def _train_and_inference_biotrainer(
     desirability = _calculate_desirability(
         means,
         al_campaign_config,
-        class_str2int=result["derived_values"]["class_str2int"],
+        class_str2int=result["derived_values"].get("class_str2int"),
     )
     # Calculate acquisition scores
     beta = al_iteration_config.coefficient

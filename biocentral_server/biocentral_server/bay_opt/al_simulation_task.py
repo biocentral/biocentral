@@ -298,6 +298,37 @@ class ActiveLearningSimulationTask(TaskInterface):
             float(sugg_accuracy)
         )
 
+    def _update_regression_metrics(
+        self, al_iteration_result: ActiveLearningIterationResult
+    ):
+        all_preds_vs_actual = {
+            data_point.entity_id: (
+                float(data_point.prediction),
+                float(self.all_simulation_data_dict[data_point.entity_id].label),
+            )
+            for data_point in al_iteration_result.results
+        }
+        suggestion_preds_vs_actual = {
+            entity_id: p_v_a
+            for entity_id, p_v_a in all_preds_vs_actual.items()
+            if entity_id in set(al_iteration_result.suggestions)
+        }
+
+        rmse_metric = torchmetrics.MeanSquaredError(squared=False)
+
+        # Calculate RMSE for all predictions
+        all_preds = torch.tensor([p[0] for p in all_preds_vs_actual.values()])
+        all_actuals = torch.tensor([p[1] for p in all_preds_vs_actual.values()])
+        all_rmse = rmse_metric(all_preds, all_actuals)
+
+        # Calculate RMSE for suggestions only
+        sugg_preds = torch.tensor([p[0] for p in suggestion_preds_vs_actual.values()])
+        sugg_actuals = torch.tensor([p[1] for p in suggestion_preds_vs_actual.values()])
+        sugg_rmse = rmse_metric(sugg_preds, sugg_actuals)
+
+        self.al_simulation_result.iteration_metrics_total.append(float(all_rmse))
+        self.al_simulation_result.iteration_metrics_suggestions.append(float(sugg_rmse))
+
     def _update_metrics(
         self,
         iteration_target_successes: int,
