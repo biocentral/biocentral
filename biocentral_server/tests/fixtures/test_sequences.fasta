@@ -1,0 +1,70 @@
+>standard_001 Medium-length standard protein (15 aa)
+MKTAYIAKQRQISFV
+>standard_002 Signal peptide containing sequence (19 aa)
+KEQRQVVRSQNGDLADNIK
+>standard_003 Hemoglobin-like sequence (20 aa)
+MVHLTPEEKSAVTALWGALG
+>length_min_1 Minimum length: single residue (1 aa)
+M
+>length_min_2 Very short: two residues (2 aa)
+MK
+>length_short_5 Short sequence (5 aa)
+MKTAY
+>length_short_10 Short sequence (10 aa)
+MKTAYIAKQR
+>length_medium_50 Medium sequence (20 aa)
+MKTAYIAKQRQISFVKSHFSRQ
+>length_long_200 Long sequence - GFP-like (211 aa)
+MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVK
+>length_very_long_400 Very long repetitive sequence (400 aa)
+MKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAKMKTAYIAK
+>unknown_single Single unknown residue
+X
+>unknown_multiple Multiple consecutive unknown residues (5 aa)
+XXXXX
+>unknown_start Unknown at start of sequence
+XMKTAYIAKQRQISFVK
+>unknown_end Unknown at end of sequence
+MKTAYIAKQRQISFVKX
+>unknown_middle Unknown in middle of sequence
+MKTAYXAKQRQISFVK
+>unknown_scattered Multiple scattered unknown residues
+MXKTXYIAXQRQXSFVK
+>unknown_high_ratio High ratio of unknown residues (~70%)
+MXXXXXKXXXXXAXXXX
+>all_standard_aa All 20 standard amino acids (20 aa)
+ACDEFGHIKLMNPQRSTVWY
+>homopolymer_A Homopolymer: 10 Alanines
+AAAAAAAAAA
+>homopolymer_long Long homopolymer: 50 Alanines
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+>hydrophobic_rich Hydrophobic-rich sequence (40 aa)
+MILVFWILVFMILVFWILVFMILVFWILVFMILVFWILVF
+>charged_rich Charged residue-rich sequence (36 aa)
+KKRRKKRRKKRRKKRRKKRRKKRRKKRRKKERERDE
+>proline_rich Proline-rich sequence (25 aa)
+PPPPGPPPPGPPPPGPPPPGPPPPG
+>cysteine_rich Cysteine-rich sequence (25 aa) - disulfide potential
+MCCKCCMCCKCCKCCMCCKCCKCCM
+>ambiguous_B Contains B (Asx: Asp or Asn)
+MKTABIAK
+>ambiguous_Z Contains Z (Glx: Glu or Gln)
+MKTAZIAK
+>ambiguous_J Contains J (Xle: Leu or Ile)
+MKTAJIAK
+>selenocysteine Contains U (Selenocysteine)
+MKTAUIAK
+>pyrrolysine Contains O (Pyrrolysine)
+MKTAOIAK
+>motif_alpha_helix Alpha helix-forming sequence (27 aa)
+AEEAAKAAEEAAKAAEEAAKAAEEAAK
+>motif_beta_sheet Beta sheet-forming sequence (20 aa)
+VTVTVTVTVTVTVTVTVTVT
+>motif_glycine_loop Glycine-rich flexible loop (15 aa)
+GGGGGGGGGGGGGGG
+>real_insulin_b Human Insulin B chain (30 aa)
+FVNQHLCGSHLVEALYLVCGERGFFYTPKT
+>real_ubiquitin Human Ubiquitin (76 aa)
+MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG
+>real_gfp_core GFP chromophore region (77 aa)
+SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMK

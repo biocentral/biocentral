@@ -2,12 +2,30 @@ name: Test
 
 on:
   push:
-    branches: [ 'main', 'develop' ]
+    branches: [ 'main', 'develop']
   pull_request:
     branches: [ 'main', 'develop' ]
+  workflow_dispatch:
+    inputs:
+      skip_unit_tests:
+        description: 'Skip unit tests'
+        required: false
+        default: false
+        type: boolean
+      reason:
+        description: 'Why are you running this?'
+        required: false
+        default: 'Manual trigger'
+
+# Required for GHA cache to work on pull requests
+permissions:
+  contents: read
+  packages: read
+  actions: write
 
 jobs:
-  test:
+  unit-test:
+    if: ${{ github.event.inputs.skip_unit_tests != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -29,14 +47,183 @@ jobs:
         run: |
           git config --global url."https://github.com/".insteadOf git@github.com:
 
-      - name: Install Linux Dependencies
-        run: |
-          sudo apt-get update
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          source $HOME/.cargo/env
-          uv sync
-
-      - name: Run pytest
-        uses: coactions/setup-xvfb@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          run: uv run pytest
+          version: "0.9.26"
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Run pytest (unit tests) with coverage
+        run: |
+          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning" \
+            --cov=biocentral_server/embeddings \
+            --cov=biocentral_server/predict \
+            --cov=biocentral_server/custom_models \
+            --cov-branch \
+            --cov-report=xml \
+            --cov-report=term-missing
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 1
+
+  integration-test:
+    runs-on: ubuntu-latest
+
+    env:
+      CI_SERVER_URL: http://localhost:9540
+      SEAWEEDFS_FILER_HOST: localhost
+      SEAWEEDFS_FILER_PORT: 8888
+      #CI_EMBEDDER: fixed
+
+    steps:
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 24576
+          swap-size-mb: 1024
+          temp-reserve-mb: 16384
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'       
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          overprovision-lvm: 'true'
+
+      - name: Move Docker storage to large partition
+        run: |
+          sudo systemctl stop docker.service
+          sudo systemctl stop docker.socket
+          sudo mkdir -p /home/runner/work/docker
+          sudo mv /var/lib/docker /home/runner/work/docker
+          sudo ln -s /home/runner/work/docker /var/lib/docker
+          sudo systemctl start docker.service
+        
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git to use HTTPS for git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.9.26"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          cache-local-path: "/tmp/.uv-cache"
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker image
+        run: docker pull ghcr.io/${{ github.repository }}/biocentral-server:ci
+
+      - name: Start services with Docker Compose
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.local up -d --wait
+        env:
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          BUILDKIT_STEP_LOG_MAX_SIZE: 10000000
+          CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
+        timeout-minutes: 10
+
+      - name: Run integration tests
+        run: uv run pytest tests/integration/ -v -m "not triton" -n auto --reruns 2 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning"  --capture=tee-sys
+
+      - name: Show logs 
+        if: always()
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.local logs
+
+      - name: Stop services
+        if: always()
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.local down -v
+
+  property-oracle-test:
+    runs-on: ubuntu-latest
+
+    env:
+      ONNX_MODELS_PATH: ${{ github.workspace }}/onnx_models
+
+    steps:
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 24576
+          swap-size-mb: 1024
+          temp-reserve-mb: 8192
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'       
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          overprovision-lvm: 'true'
+        
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git to use HTTPS for git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.9.26"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          cache-local-path: "/tmp/.uv-cache"
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Run property oracle tests
+        run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"
+      
+      - name: Upload oracle reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oracle-reports
+          path: tests/reports/*.csv
+          if-no-files-found: warn
+ 

@@ -55,6 +55,11 @@ class ProtT5SecondaryStructure(
         }
 
     @staticmethod
+    def label_mapping() -> Dict[int, str]:
+        """3-state secondary structure label mapping (index -> label)."""
+        return {0: "H", 1: "E", 2: "L"}
+
+    @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
             name=BiocentralPredictionModel.ProtT5SecondaryStructure,

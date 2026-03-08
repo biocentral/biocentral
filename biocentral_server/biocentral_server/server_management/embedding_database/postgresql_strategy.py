@@ -21,17 +21,21 @@ class PostgreSQLStrategy(DatabaseStrategy):
         self.db_config = config
         with self._get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("""
-                    CREATE TABLE IF NOT EXISTS embeddings (
-                        sequence_hash TEXT,
-                        sequence_length INTEGER,
-                        last_updated TIMESTAMP,
-                        embedder_name TEXT,
-                        per_sequence BYTEA,
-                        per_residue BYTEA,
-                        PRIMARY KEY (sequence_hash, embedder_name)
-                    )
-                """)
+                try:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS embeddings (
+                            sequence_hash TEXT,
+                            sequence_length INTEGER,
+                            last_updated TIMESTAMP,
+                            embedder_name TEXT,
+                            per_sequence BYTEA,
+                            per_residue BYTEA,
+                            PRIMARY KEY (sequence_hash, embedder_name)
+                        )
+                    """)
+                except psycopg.errors.UniqueViolation:
+                    # Table already exists (race condition with concurrent init)
+                    conn.rollback()
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_sequence_hash_embedder_name
                     ON embeddings(sequence_hash, embedder_name)

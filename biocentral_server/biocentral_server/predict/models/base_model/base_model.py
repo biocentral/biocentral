@@ -139,7 +139,7 @@ class BaseModel(ABC):
 
     def _infer_input_name(self):
         if self.backend == "onnx":
-            model = self.model if self.model is not None else self.models[0]
+            model = getattr(self, "model", None) or self.models[0]
             return model.get_inputs()[0].name
         return self.TRITON_INPUT_NAMES()[0]
 
@@ -169,7 +169,9 @@ class BaseModel(ABC):
                     v = torch.tensor(v)
                 else:
                     raise ValueError(f"Unsupported type: {type(v)}")
-                result[k] = v.permute(0, 2, 1)
+                transposed = v.permute(0, 2, 1)
+                # Convert back to numpy for ONNX compatibility
+                result[k] = transposed.numpy() if self.backend == "onnx" else transposed
             else:
                 result[k] = v
         return result

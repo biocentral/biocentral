@@ -39,10 +39,18 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest==8.3.1",
+    "pytest-rerunfailures>=14.0",
+    "pytest-cov>=4.1.0",
+    "pytest-order>=1.2.0",
+    "pytest-xdist>=3.5.0",
     "pip-audit>=2.7.3,<3.0.0",
     "ruff>=0.12.1",
     "pre-commit>=4.2.0",
     "pytest-asyncio>=1.2.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.100.0",
+    "mutmut>=2.4.4",
+    "psutil>=5.9.0",
 ]
 
 [build-system]
@@ -54,9 +62,51 @@ allow-direct-references = true
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "performance: marks tests as performance benchmarks",
+    "integration: marks tests as integration tests",
+    "property: marks property-based/oracle tests",
+    "triton: marks tests that require Triton server",
+]
+
+[tool.pytest.benchmark]
+min_rounds = 5
+disable_gc = true
+warmup = true
 
 
 [tool.uv]
 override-dependencies = [
     "perf-analyzer>=2.59.1; sys_platform == 'linux'",
 ]
+[tool.coverage.run]
+source = ["biocentral_server"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    # Task files (async execution logic)
+    "*_task.py",
+    # Triton/external integration
+    "*/triton_mixin.py",
+    "*/biotrainer_triton_embedder.py",
+    # Model implementations (except __init__.py)
+    "*/predict/models/binding/*",
+    "*/predict/models/conservation/*",
+    "*/predict/models/disorder/*",
+    "*/predict/models/localization/*",
+    "*/predict/models/membrane/*",
+    "*/predict/models/secondary_structure/*",
+    "*/predict/models/toxicity/*",
+    "*/predict/models/variant_effect/*",
+    "*/predict/models/base_model/base_model.py",
+    "*/predict/models/base_model/onnx_mixin.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+show_missing = true

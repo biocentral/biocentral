@@ -51,7 +51,7 @@ class LocalOnnxInferenceMixin:
             Exception: If model cannot be loaded
         """
         file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
+        model_dir = f"{MODEL_BASE_PATH}/{model_name.value.lower()}"
 
         with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
             for onnx_file in onnx_path.iterdir():
@@ -77,7 +77,7 @@ class LocalOnnxInferenceMixin:
             Exception: If models cannot be loaded
         """
         file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.lower()}"
+        model_dir = f"{MODEL_BASE_PATH}/{model_name.value.lower()}"
         models = []
 
         with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
@@ -89,7 +89,7 @@ class LocalOnnxInferenceMixin:
                     raise Exception(f"Model {onnx_file} could not be loaded!")
 
         if len(models) == 0:
-            raise Exception(f"Model {model_name} could not be loaded!")
+            raise Exception(f"Model {model_name.value} could not be loaded!")
 
         # TODO [Refactoring] Sorting for cv_index does not work with temp files
         models = [model[1] for model in sorted(models, key=lambda x: x[0])]

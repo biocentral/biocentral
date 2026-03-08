@@ -85,6 +85,11 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         self.pred2label = {0: "B", 1: "b", 2: "H", 3: "h", 4: "S", 5: "i", 6: "o"}
 
     @staticmethod
+    def label_mapping() -> Dict[int, str]:
+        """Transmembrane topology label mapping (index -> label)."""
+        return {0: "B", 1: "b", 2: "H", 3: "h", 4: "S", 5: "i", 6: "o"}
+
+    @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
             name=BiocentralPredictionModel.TMbed,

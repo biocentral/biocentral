@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-push:
     name: Build and Push Docker Image
-    runs-on: ubuntu-large-disk
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write  # Needed for GitHub Container Registry
@@ -35,6 +35,7 @@ jobs:
           images: ghcr.io/${{ github.repository }}/biocentral-server
           tags: |
             type=sha,format=short
+            type=raw,value=ci
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image

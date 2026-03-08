@@ -31,28 +31,33 @@ WORKDIR /app
 # Install uv
 RUN pip3 install --break-system-packages uv
 
-# Copy only requirements first to leverage Docker caching
-COPY pyproject.toml ./
-RUN touch README.md
-
 # Add non-root user
 RUN useradd --create-home --shell /bin/bash --uid 10001 biocentral-server-user
 
-# Create directories
-RUN mkdir -p /app/logs /var/log/biocentral-server && \
+# Create directories including HuggingFace cache directory
+RUN mkdir -p /app/logs /var/log/biocentral-server /app/huggingface_models && \
     chown -R biocentral-server-user:biocentral-server-user /app /var/log/
 
-# Copy application files
+# Copy only dependency files first to leverage Docker caching
+COPY pyproject.toml uv.lock ./
+RUN touch README.md
+
+# PyTorch index url (pass --build-arg UV_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cpu for CPU-only)
+ARG UV_EXTRA_INDEX_URL
+ENV UV_EXTRA_INDEX_URL=${UV_EXTRA_INDEX_URL}
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# Copy application files  
 COPY --chown=biocentral-server-user:biocentral-server-user ./biocentral_server ./biocentral_server
 
-# Install dependencies
-RUN uv sync
+# Install project
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 # Switch to non-root user
 USER biocentral-server-user
-
-# Remove cache
-RUN rm -rf ~/.cache/uv
 
 EXPOSE $PORT
 

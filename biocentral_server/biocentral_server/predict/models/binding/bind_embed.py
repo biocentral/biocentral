@@ -76,6 +76,11 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         }
 
     @staticmethod
+    def label_mapping() -> Dict[int, str]:
+        """Binding type label mapping (index -> shortcut)."""
+        return {0: "M", 1: "N", 2: "S"}
+
+    @staticmethod
     def get_metadata() -> ModelMetadata:
         return ModelMetadata(
             name=BiocentralPredictionModel.BindEmbed,
