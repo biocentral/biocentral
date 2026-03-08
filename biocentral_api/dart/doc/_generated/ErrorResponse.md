@@ -1,4 +1,4 @@
-# biocentral_api.model.BiocentralServerCustomModelsEndpointModelsErrorResponse
+# biocentral_api.model.ErrorResponse
 
 ## Load the model package
 ```dart

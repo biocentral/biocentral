@@ -4,8 +4,8 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:built_value/built_value.dart';
 import 'package:built_value/json_object.dart';
+import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'epoch_metrics.g.dart';
@@ -13,17 +13,20 @@ part 'epoch_metrics.g.dart';
 /// EpochMetrics
 ///
 /// Properties:
-/// * [epoch] 
-/// * [training] 
-/// * [validation] 
+/// * [epoch] - Epoch number
+/// * [training] - Training metrics
+/// * [validation] - Validation metrics
 @BuiltValue()
 abstract class EpochMetrics implements Built<EpochMetrics, EpochMetricsBuilder> {
+  /// Epoch number
   @BuiltValueField(wireName: r'epoch')
   int get epoch;
 
+  /// Training metrics
   @BuiltValueField(wireName: r'training')
   BuiltMap<String, JsonObject?> get training;
 
+  /// Validation metrics
   @BuiltValueField(wireName: r'validation')
   BuiltMap<String, JsonObject?> get validation;
 

@@ -1,7 +1,10 @@
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/plm_eval_client.dart';
+import 'package:biocentral_api/src/clients/stats_client.dart';
 import 'package:biocentral_api/src/model/auto_eval_report.dart';
+import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
+import 'package:biocentral_api/src/model/research_stats.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
@@ -64,7 +67,7 @@ class BiocentralAPI {
   Future<BiocentralAPI> updateHealthStatus() async {
     final updatedList = <BiocentralAPIHealth>[];
     for (final healthStatus in _urlHealthStatus) {
-      final updatedHealthStatus = await _healthCheck(healthStatus.url);
+      final updatedHealthStatus = await healthCheck(healthStatus.url);
       updatedList.add(updatedHealthStatus);
     }
     return BiocentralAPI._(fixedURL: fixedURL, apiToken: apiToken, localOnly: localOnly, urlHealthStatus: updatedList);
@@ -74,7 +77,20 @@ class BiocentralAPI {
     return List.from(_urlHealthStatus);
   }
 
-  static Future<BiocentralAPIHealth> _healthCheck(String url) async {
+  static Future<(BiocentralServiceStats?, ResearchStats?)?> getStats(String url) async {
+    final api = gen.BiocentralApi(basePathOverride: url);
+    final statsClient = StatsClient();
+
+    try {
+      final serviceStats = await statsClient.serviceStats(api: api);
+      final researchStats = await statsClient.researchStats(api: api);
+      return (serviceStats, researchStats);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<BiocentralAPIHealth> healthCheck(String url) async {
     final defaultApi = gen.BiocentralApi(basePathOverride: url).getDefaultApi();
 
     try {

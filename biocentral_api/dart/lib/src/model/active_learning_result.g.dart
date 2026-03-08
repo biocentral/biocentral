@@ -10,7 +10,7 @@ class _$ActiveLearningResult extends ActiveLearningResult {
   @override
   final String entityId;
   @override
-  final num prediction;
+  final String prediction;
   @override
   final num uncertainty;
   @override
@@ -75,9 +75,9 @@ class ActiveLearningResultBuilder
   String? get entityId => _$this._entityId;
   set entityId(String? entityId) => _$this._entityId = entityId;
 
-  num? _prediction;
-  num? get prediction => _$this._prediction;
-  set prediction(num? prediction) => _$this._prediction = prediction;
+  String? _prediction;
+  String? get prediction => _$this._prediction;
+  set prediction(String? prediction) => _$this._prediction = prediction;
 
   num? _uncertainty;
   num? get uncertainty => _$this._uncertainty;

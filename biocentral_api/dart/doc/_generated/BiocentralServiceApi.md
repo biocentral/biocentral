@@ -9,14 +9,52 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**researchStatsApiV1BiocentralServiceResearchStatsGet**](BiocentralServiceApi.md#researchstatsapiv1biocentralserviceresearchstatsget) | **GET** /api/v1/biocentral_service/research_stats/ | Research Stats
 [**statsApiV1BiocentralServiceStatsGet**](BiocentralServiceApi.md#statsapiv1biocentralservicestatsget) | **GET** /api/v1/biocentral_service/stats/ | Stats
 [**taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet**](BiocentralServiceApi.md#taskstatusapiv1biocentralservicetaskstatustaskidget) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
 [**taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet**](BiocentralServiceApi.md#taskstatusresumedapiv1biocentralservicetaskstatusresumedtaskidget) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
 [**welcomeMessageApiV1BiocentralServiceWelcomeMessageGet**](BiocentralServiceApi.md#welcomemessageapiv1biocentralservicewelcomemessageget) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
 
 
+# **researchStatsApiV1BiocentralServiceResearchStatsGet**
+> ResearchStatsResponse researchStatsApiV1BiocentralServiceResearchStatsGet()
+
+Research Stats
+
+### Example
+```dart
+import 'package:biocentral_api/api.dart';
+
+final api = BiocentralApi().getBiocentralServiceApi();
+
+try {
+    final response = api.researchStatsApiV1BiocentralServiceResearchStatsGet();
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling BiocentralServiceApi->researchStatsApiV1BiocentralServiceResearchStatsGet: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**ResearchStatsResponse**](ResearchStatsResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **statsApiV1BiocentralServiceStatsGet**
-> JsonObject statsApiV1BiocentralServiceStatsGet()
+> ServiceStatsResponse statsApiV1BiocentralServiceStatsGet()
 
 Stats
 
@@ -39,7 +77,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**JsonObject**](JsonObject.md)
+[**ServiceStatsResponse**](ServiceStatsResponse.md)
 
 ### Authorization
 

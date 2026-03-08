@@ -3,58 +3,56 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/validation_error.dart';
+import 'package:biocentral_api/src/model/research_stats.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'http_validation_error.g.dart';
+part 'research_stats_response.g.dart';
 
-/// HTTPValidationError
+/// ResearchStatsResponse
 ///
 /// Properties:
-/// * [detail] 
+/// * [researchStats] - Research statistics
 @BuiltValue()
-abstract class HTTPValidationError implements Built<HTTPValidationError, HTTPValidationErrorBuilder> {
-  @BuiltValueField(wireName: r'detail')
-  BuiltList<ValidationError>? get detail;
+abstract class ResearchStatsResponse implements Built<ResearchStatsResponse, ResearchStatsResponseBuilder> {
+  /// Research statistics
+  @BuiltValueField(wireName: r'research_stats')
+  ResearchStats get researchStats;
 
-  HTTPValidationError._();
+  ResearchStatsResponse._();
 
-  factory HTTPValidationError([void updates(HTTPValidationErrorBuilder b)]) = _$HTTPValidationError;
+  factory ResearchStatsResponse([void updates(ResearchStatsResponseBuilder b)]) = _$ResearchStatsResponse;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(HTTPValidationErrorBuilder b) => b;
+  static void _defaults(ResearchStatsResponseBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<HTTPValidationError> get serializer => _$HTTPValidationErrorSerializer();
+  static Serializer<ResearchStatsResponse> get serializer => _$ResearchStatsResponseSerializer();
 }
 
-class _$HTTPValidationErrorSerializer implements PrimitiveSerializer<HTTPValidationError> {
+class _$ResearchStatsResponseSerializer implements PrimitiveSerializer<ResearchStatsResponse> {
   @override
-  final Iterable<Type> types = const [HTTPValidationError, _$HTTPValidationError];
+  final Iterable<Type> types = const [ResearchStatsResponse, _$ResearchStatsResponse];
 
   @override
-  final String wireName = r'HTTPValidationError';
+  final String wireName = r'ResearchStatsResponse';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    HTTPValidationError object, {
+    ResearchStatsResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    if (object.detail != null) {
-      yield r'detail';
-      yield serializers.serialize(
-        object.detail,
-        specifiedType: const FullType(BuiltList, [FullType(ValidationError)]),
-      );
-    }
+    yield r'research_stats';
+    yield serializers.serialize(
+      object.researchStats,
+      specifiedType: const FullType(ResearchStats),
+    );
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    HTTPValidationError object, {
+    ResearchStatsResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -65,19 +63,19 @@ class _$HTTPValidationErrorSerializer implements PrimitiveSerializer<HTTPValidat
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required HTTPValidationErrorBuilder result,
+    required ResearchStatsResponseBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'detail':
+        case r'research_stats':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(ValidationError)]),
-          ) as BuiltList<ValidationError>;
-          result.detail.replace(valueDes);
+            specifiedType: const FullType(ResearchStats),
+          ) as ResearchStats;
+          result.researchStats.replace(valueDes);
           break;
         default:
           unhandled.add(key);
@@ -88,12 +86,12 @@ class _$HTTPValidationErrorSerializer implements PrimitiveSerializer<HTTPValidat
   }
 
   @override
-  HTTPValidationError deserialize(
+  ResearchStatsResponse deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = HTTPValidationErrorBuilder();
+    final result = ResearchStatsResponseBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

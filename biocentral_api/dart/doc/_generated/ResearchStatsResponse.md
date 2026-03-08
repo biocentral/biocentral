@@ -1,4 +1,4 @@
-# biocentral_api.model.ActiveLearningResult
+# biocentral_api.model.ResearchStatsResponse
 
 ## Load the model package
 ```dart
@@ -8,10 +8,7 @@ import 'package:biocentral_api/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**entityId** | **String** | Entity identifier | 
-**prediction** | **String** | Predicted value | 
-**uncertainty** | **num** | Uncertainty of the prediction | 
-**score** | **num** | Score of the entity for using it for the next iteration | 
+**researchStats** | [**ResearchStats**](ResearchStats.md) | Research statistics | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

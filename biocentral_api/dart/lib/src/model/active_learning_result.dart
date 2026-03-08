@@ -23,7 +23,7 @@ abstract class ActiveLearningResult implements Built<ActiveLearningResult, Activ
 
   /// Predicted value
   @BuiltValueField(wireName: r'prediction')
-  num get prediction;
+  String get prediction;
 
   /// Uncertainty of the prediction
   @BuiltValueField(wireName: r'uncertainty')
@@ -64,7 +64,7 @@ class _$ActiveLearningResultSerializer implements PrimitiveSerializer<ActiveLear
     yield r'prediction';
     yield serializers.serialize(
       object.prediction,
-      specifiedType: const FullType(num),
+      specifiedType: const FullType(String),
     );
     yield r'uncertainty';
     yield serializers.serialize(
@@ -109,8 +109,8 @@ class _$ActiveLearningResultSerializer implements PrimitiveSerializer<ActiveLear
         case r'prediction':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType(String),
+          ) as String;
           result.prediction = valueDes;
           break;
         case r'uncertainty':

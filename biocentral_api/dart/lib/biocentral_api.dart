@@ -18,3 +18,5 @@ export 'src/model/sequence_training_data.dart' show SequenceTrainingData;
 export 'src/model/task_dto.dart' show TaskDTO;
 export 'src/model/task_status.dart' show TaskStatus;
 export 'src/model/taxonomy_item.dart' show TaxonomyItem;
+export 'src/model/biocentral_service_stats.dart' show BiocentralServiceStats;
+export 'src/model/research_stats.dart' show ResearchStats;

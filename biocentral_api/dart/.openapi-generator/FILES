@@ -16,9 +16,9 @@ doc/AutoDetectFormatRequest.md
 doc/AutoEvalProgress.md
 doc/AutoEvalReport.md
 doc/BiocentralPredictionModel.md
-doc/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 doc/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 doc/BiocentralServiceApi.md
+doc/BiocentralServiceStats.md
 doc/BiotrainerSequenceRecord.md
 doc/CommonEmbedder.md
 doc/ConfigOptionsResponse.md
@@ -31,6 +31,7 @@ doc/EmbedRequest.md
 doc/EmbeddingProgress.md
 doc/EmbeddingsApi.md
 doc/EpochMetrics.md
+doc/ErrorResponse.md
 doc/GetMissingEmbeddingsRequest.md
 doc/GetMissingEmbeddingsResponse.md
 doc/GetProjectionConfigResponse.md
@@ -60,9 +61,12 @@ doc/ProjectionRequest.md
 doc/ProjectionsApi.md
 doc/ProteinsApi.md
 doc/Protocol.md
+doc/ResearchStats.md
+doc/ResearchStatsResponse.md
 doc/RunTestRequest.md
 doc/RunTestResponse.md
 doc/SequenceTrainingData.md
+doc/ServiceStatsResponse.md
 doc/StartInferenceRequest.md
 doc/StartTaskResponse.md
 doc/StartTrainingRequest.md
@@ -110,8 +114,8 @@ lib/src/model/auto_detect_format_request.dart
 lib/src/model/auto_eval_progress.dart
 lib/src/model/auto_eval_report.dart
 lib/src/model/biocentral_prediction_model.dart
-lib/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart
 lib/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart
+lib/src/model/biocentral_service_stats.dart
 lib/src/model/biotrainer_sequence_record.dart
 lib/src/model/common_embedder.dart
 lib/src/model/config_options_response.dart
@@ -122,6 +126,7 @@ lib/src/model/detected_format_response.dart
 lib/src/model/embed_request.dart
 lib/src/model/embedding_progress.dart
 lib/src/model/epoch_metrics.dart
+lib/src/model/error_response.dart
 lib/src/model/get_missing_embeddings_request.dart
 lib/src/model/get_missing_embeddings_response.dart
 lib/src/model/get_projection_config_response.dart
@@ -146,9 +151,12 @@ lib/src/model/prediction.dart
 lib/src/model/prediction_request.dart
 lib/src/model/projection_request.dart
 lib/src/model/protocol.dart
+lib/src/model/research_stats.dart
+lib/src/model/research_stats_response.dart
 lib/src/model/run_test_request.dart
 lib/src/model/run_test_response.dart
 lib/src/model/sequence_training_data.dart
+lib/src/model/service_stats_response.dart
 lib/src/model/start_inference_request.dart
 lib/src/model/start_task_response.dart
 lib/src/model/start_training_request.dart

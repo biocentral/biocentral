@@ -24,10 +24,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AutoEvalProgress.serializer)
       ..add(AutoEvalReport.serializer)
       ..add(BiocentralPredictionModel.serializer)
-      ..add(BiocentralServerCustomModelsEndpointModelsErrorResponse.serializer)
       ..add(
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
+      ..add(BiocentralServiceStats.serializer)
       ..add(BiotrainerSequenceRecord.serializer)
       ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
@@ -37,6 +37,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(EmbedRequest.serializer)
       ..add(EmbeddingProgress.serializer)
       ..add(EpochMetrics.serializer)
+      ..add(ErrorResponse.serializer)
       ..add(GetMissingEmbeddingsRequest.serializer)
       ..add(GetMissingEmbeddingsResponse.serializer)
       ..add(GetProjectionConfigResponse.serializer)
@@ -61,9 +62,12 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
       ..add(Protocol.serializer)
+      ..add(ResearchStats.serializer)
+      ..add(ResearchStatsResponse.serializer)
       ..add(RunTestRequest.serializer)
       ..add(RunTestResponse.serializer)
       ..add(SequenceTrainingData.serializer)
+      ..add(ServiceStatsResponse.serializer)
       ..add(StartInferenceRequest.serializer)
       ..add(StartTaskResponse.serializer)
       ..add(StartTrainingRequest.serializer)
@@ -92,6 +96,12 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [
+            const FullType(
+                BuiltMap, const [const FullType(String), const FullType(num)])
+          ]),
+          () => ListBuilder<BuiltMap<String, num>>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ModelMetadata)]),
           () => ListBuilder<ModelMetadata>())
       ..addBuilderFactory(
@@ -116,6 +126,9 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltList, const [const FullType(SequenceTrainingData)]),
           () => ListBuilder<SequenceTrainingData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
