@@ -30,40 +30,6 @@ EMBEDDER_MAP = {
 }
 
 
-CANONICAL_STANDARD_IDS = ["standard_001", "standard_002", "standard_003"]
-CANONICAL_LENGTH_EDGE_IDS = [
-    "length_min_1",
-    "length_min_2",
-    "length_short_5",
-    "length_short_10",
-    "length_medium_50",
-    "length_long_200",
-]
-CANONICAL_UNKNOWN_TOKEN_IDS = [
-    "unknown_single",
-    "unknown_multiple",
-    "unknown_start",
-    "unknown_end",
-    "unknown_middle",
-    "unknown_scattered",
-    "unknown_high_ratio",
-]
-CANONICAL_AMBIGUOUS_CODE_IDS = [
-    "ambiguous_B",
-    "ambiguous_Z",
-    "ambiguous_J",
-    "selenocysteine",
-    "pyrrolysine",
-]
-CANONICAL_REAL_WORLD_IDS = ["real_insulin_b", "real_ubiquitin", "real_gfp_core"]
-
-ALL_CANONICAL_IDS = (
-    CANONICAL_STANDARD_IDS
-    + CANONICAL_LENGTH_EDGE_IDS
-    + CANONICAL_UNKNOWN_TOKEN_IDS
-    + CANONICAL_AMBIGUOUS_CODE_IDS
-    + CANONICAL_REAL_WORLD_IDS
-)
 
 def get_redis_port() -> int:
     return int(os.environ.get("REDIS_JOBS_PORT", "6379"))
@@ -368,63 +334,6 @@ def assert_task_success(
     return task_dto
 
 
-def assert_projection_result_schema(
-    task_dto: Dict[str, Any],
-    method: str,
-    expected_sequence_count: int,
-) -> Dict[str, Any]:
-    projection_result = task_dto.get("projection_result")
-    assert isinstance(projection_result, dict), (
-        "Task DTO missing 'projection_result' dict"
-    )
-
-    method_key = method.lower()
-    method_payload = (
-        projection_result.get(method_key)
-        or projection_result.get(method.upper())
-        or projection_result.get(method)
-    )
-    assert isinstance(method_payload, dict), (
-        f"Projection result missing method payload for '{method}'"
-    )
-
-    identifiers = method_payload.get("identifier")
-    assert isinstance(identifiers, list), "Projection payload missing 'identifier' list"
-    assert len(identifiers) == expected_sequence_count, (
-        f"Projection identifier length {len(identifiers)} != expected {expected_sequence_count}"
-    )
-
-    for key, values in method_payload.items():
-        if key.startswith("D"):
-            assert isinstance(values, list), f"Projection axis '{key}' must be a list"
-            assert len(values) == len(identifiers), (
-                f"Projection axis '{key}' length {len(values)} != identifier length {len(identifiers)}"
-            )
-    return method_payload
-
-
-def assert_prediction_result_schema(
-    task_dto: Dict[str, Any],
-    expected_sequence_ids,
-) -> Dict[str, Any]:
-    if isinstance(task_dto.get("predictions"), dict):
-        predictions = task_dto.get("predictions")
-        prediction_result = {"predictions": predictions}
-    else:
-        prediction_result = task_dto.get("prediction_result")
-        if prediction_result is None:
-            prediction_result = task_dto.get("result")
-        assert isinstance(prediction_result, dict), (
-            "Task DTO missing prediction result dict"
-        )
-        predictions = prediction_result.get("predictions")
-    assert isinstance(predictions, dict), "Prediction result missing 'predictions' dict"
-    assert set(predictions.keys()) == set(expected_sequence_ids), (
-        f"Prediction keys {sorted(predictions.keys())} do not match input ids {sorted(expected_sequence_ids)}"
-    )
-    return prediction_result
-
-
 @pytest.fixture(scope="session")
 def poll_task(client):
     def _poll(
@@ -541,20 +450,9 @@ def get_embedder_name() -> str:
     return embedder_name
 
 
-def is_fixed_embedder() -> bool:
-    return os.environ.get("CI_EMBEDDER", "esm2_t6_8m").lower() == "fixed"
-
-
 @pytest.fixture(scope="session")
 def embedder_name() -> str:
     return get_embedder_name()
-
-
-@pytest.fixture(scope="session")
-def test_sequences() -> Dict[str, str]:
-    return {
-        "protein_1": CANONICAL_TEST_DATASET.get_by_id("standard_001").sequence,
-    }
 
 
 @pytest.fixture(scope="session")
@@ -578,96 +476,6 @@ def short_test_sequences() -> Dict[str, str]:
         "short_1": CANONICAL_TEST_DATASET.get_by_id("length_short_10").sequence,
         "short_2": CANONICAL_TEST_DATASET.get_by_id("length_medium_50").sequence,
     }
-
-
-@pytest.fixture(scope="session")
-def minimum_length_sequences() -> Dict[str, str]:
-    return {
-        "min_1": CANONICAL_TEST_DATASET.get_by_id("length_min_1").sequence,
-        "min_2": CANONICAL_TEST_DATASET.get_by_id("length_min_2").sequence,
-        "short_5": CANONICAL_TEST_DATASET.get_by_id("length_short_5").sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def long_sequences() -> Dict[str, str]:
-    return {
-        "long_200": CANONICAL_TEST_DATASET.get_by_id("length_long_200").sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def unknown_token_sequences() -> Dict[str, str]:
-    return {
-        "unknown_single": CANONICAL_TEST_DATASET.get_by_id("unknown_single").sequence,
-        "unknown_multiple": CANONICAL_TEST_DATASET.get_by_id(
-            "unknown_multiple"
-        ).sequence,
-        "unknown_start": CANONICAL_TEST_DATASET.get_by_id("unknown_start").sequence,
-        "unknown_end": CANONICAL_TEST_DATASET.get_by_id("unknown_end").sequence,
-        "unknown_middle": CANONICAL_TEST_DATASET.get_by_id("unknown_middle").sequence,
-        "unknown_scattered": CANONICAL_TEST_DATASET.get_by_id(
-            "unknown_scattered"
-        ).sequence,
-        "unknown_high_ratio": CANONICAL_TEST_DATASET.get_by_id(
-            "unknown_high_ratio"
-        ).sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def ambiguous_code_sequences() -> Dict[str, str]:
-    return {
-        "ambiguous_B": CANONICAL_TEST_DATASET.get_by_id("ambiguous_B").sequence,
-        "ambiguous_Z": CANONICAL_TEST_DATASET.get_by_id("ambiguous_Z").sequence,
-        "ambiguous_J": CANONICAL_TEST_DATASET.get_by_id("ambiguous_J").sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def composition_edge_sequences() -> Dict[str, str]:
-    return {
-        "all_standard_aa": CANONICAL_TEST_DATASET.get_by_id("all_standard_aa").sequence,
-        "homopolymer_A": CANONICAL_TEST_DATASET.get_by_id("homopolymer_A").sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def structural_motif_sequences() -> Dict[str, str]:
-    return {
-        "alpha_helix": CANONICAL_TEST_DATASET.get_by_id("motif_alpha_helix").sequence,
-        "beta_sheet": CANONICAL_TEST_DATASET.get_by_id("motif_beta_sheet").sequence,
-    }
-
-
-@pytest.fixture(scope="session")
-def real_world_sequences() -> Dict[str, str]:
-    return {
-        "insulin_b": CANONICAL_TEST_DATASET.get_by_id("length_short_10").sequence,
-    }
-
-def get_sequence_by_id(seq_id: str) -> str:
-    return CANONICAL_TEST_DATASET.get_by_id(seq_id).sequence
-
-
-@pytest.fixture(scope="session")
-def all_canonical_sequences() -> Dict[str, str]:
-    return {seq_id: get_sequence_by_id(seq_id) for seq_id in ALL_CANONICAL_IDS}
-
-
-@pytest.fixture(scope="session")
-def large_batch_sequences() -> Dict[str, str]:
-    base_sequences = [
-        CANONICAL_TEST_DATASET.get_by_id("standard_001").sequence,
-    ]
-
-    sequences = {}
-    for i in range(100):
-        base_seq = base_sequences[i % len(base_sequences)]
-        seq_id = f"batch_seq_{i:03d}"
-        sequences[seq_id] = base_seq
-
-    return sequences
 
 
 def validate_task_response(
@@ -697,13 +505,6 @@ def validate_error_response(response_json: Dict, expected_status: int = None) ->
             assert "type" in error, "Validation error missing 'type'"
 
     return response_json
-
-
-@pytest.fixture(scope="session")
-def test_run_id() -> str:
-    import uuid
-
-    return str(uuid.uuid4())[:8]
 
 
 @pytest.fixture(scope="session")

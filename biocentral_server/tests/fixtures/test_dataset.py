@@ -45,50 +45,18 @@ class TestDataset(BaseModel):
 
     @classmethod
     def from_fasta(cls, fasta_path: Path) -> "TestDataset":
-        """Load test dataset from a FASTA file.
-        
-        FASTA format: >id description
-                      SEQUENCE
-        """
-        sequences = []
-        current_id = None
-        current_desc = None
-        current_seq_lines = []
+        """Load test dataset from a FASTA file."""
+        from biotrainer.input_files import read_FASTA
 
-        with open(fasta_path) as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                if line.startswith(">"):
-                    # Save previous sequence if exists
-                    if current_id is not None:
-                        sequences.append(
-                            TestSequence(
-                                id=current_id,
-                                sequence="".join(current_seq_lines),
-                                description=current_desc or "",
-                            )
-                        )
-                    # Parse new header: >id description
-                    header = line[1:]  # Remove >
-                    parts = header.split(" ", 1)
-                    current_id = parts[0]
-                    current_desc = parts[1] if len(parts) > 1 else ""
-                    current_seq_lines = []
-                else:
-                    current_seq_lines.append(line)
-
-            # Don't forget the last sequence
-            if current_id is not None:
-                sequences.append(
-                    TestSequence(
-                        id=current_id,
-                        sequence="".join(current_seq_lines),
-                        description=current_desc or "",
-                    )
-                )
-
+        records = read_FASTA(fasta_path)
+        sequences = [
+            TestSequence(
+                id=record.seq_id,
+                sequence=record.seq,
+                description=" ".join(f"{k}={v}" for k, v in record.attributes.items()),
+            )
+            for record in records
+        ]
         return cls(sequences=sequences)
 
 
