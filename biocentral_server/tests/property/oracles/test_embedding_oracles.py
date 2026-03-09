@@ -18,12 +18,8 @@ pytestmark = pytest.mark.property
 
 
 def _stable_sort_key(row: Dict[str, Any]) -> tuple:
-    # Use masking_ratio for numerical sorting if present, otherwise fall back to parameter string
-    masking_ratio = row.get("masking_ratio")
     seq_idx = (
         row.get("parameter", "").split("_")[0]
-        if "mask" in row.get("parameter", "")
-        else ""
     )
     return (
         str(row.get("embedder", "")),
@@ -31,7 +27,6 @@ def _stable_sort_key(row: Dict[str, Any]) -> tuple:
         str(row.get("method", "")),
         str(row.get("test_type", "")),
         seq_idx,
-        masking_ratio if masking_ratio is not None else float("inf"),
         str(row.get("parameter", "")),
     )
 
@@ -201,10 +196,7 @@ class OracleConfig(BaseModel):
         default=[1, 5, 10],
         description="List of batch sizes to test for batch invariance",
     )
-    masking_ratios: List[float] = Field(
-        default=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-        description="Ratios of sequence masking to test for metamorphic relations",
-    )
+  
 
 
 ORACLE_CONFIGS = {
