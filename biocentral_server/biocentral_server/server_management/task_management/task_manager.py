@@ -109,6 +109,14 @@ class TaskManager:
         # Count jobs that are currently being processed
         return len(self.default_queue.started_job_registry)
 
+    def get_current_number_of_queued_tasks(self) -> int:
+        """Count jobs that are queued but not yet started (i.e., waiting to be executed)."""
+        # Jobs in the queue that haven't started yet
+        queued_count = (
+            len(self.default_queue) - self.get_current_number_of_running_tasks()
+        )
+        return max(0, queued_count)  # Ensure non-negative result
+
     def get_unique_task_id(self, task: Type) -> str:
         return self._generate_task_id(task=task)
 
