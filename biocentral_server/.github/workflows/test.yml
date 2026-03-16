@@ -34,12 +34,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -48,9 +48,7 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "0.9.26"
+        uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies (CPU-only PyTorch)
         run: uv sync --no-install-project --index-strategy unsafe-best-match
@@ -100,12 +98,12 @@ jobs:
           sudo systemctl start docker.service
         
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
           
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -114,7 +112,7 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.26"
           enable-cache: true
@@ -183,12 +181,12 @@ jobs:
           overprovision-lvm: 'true'
         
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
           
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -197,9 +195,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
-          version: "0.9.26"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           cache-local-path: "/tmp/.uv-cache"
