@@ -6,7 +6,6 @@ import torch
 
 from typing import List, Literal, Optional, Tuple, Dict, Callable
 from biotrainer.protocols import Protocol
-from biotrainer.utilities import get_device
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_config import (
@@ -20,106 +19,13 @@ from .gaussian_process_models import (
 )
 
 from ..utils import get_logger
-from ..server_management import ActiveLearningResult, ActiveLearningIterationResult
+from ..server_management import (
+    ActiveLearningResult,
+    ActiveLearningIterationResult,
+    DeviceService,
+)
 
 logger = get_logger(__name__)
-
-
-def get_datasets(
-    al_campaign_config: ActiveLearningCampaignConfig,
-    al_iteration_config: ActiveLearningIterationConfig,
-    embd_records: List[BiotrainerSequenceRecord],
-):
-    """
-    train_data = {"ids": [], "X": [], "y": []}
-    inference_data = {"ids": [], "X": []}
-    if dataset is empty, the type of 'X' will be a list.
-    """
-    mode = al_campaign_config.optimization_mode
-    target_classes = {}
-    if mode == ActiveLearningOptimizationMode.DISCRETE:
-        all_labels = al_iteration_config.get_all_labels()
-        target_classes = {label: idx for idx, label in enumerate(all_labels)}
-
-    train_data = {"ids": [], "X": [], "y": []}
-    inference_data = {"ids": [], "X": []}
-
-    device = get_device()
-
-    for embd_record in embd_records:
-        target = embd_record.get_target()
-        target = None if target is None or target == "None" else target
-        if target is not None:  # Train Set
-            train_data["ids"].append(embd_record.seq_id)
-            train_data["X"].append(torch.tensor(embd_record.embedding))
-            # Convert target
-            if mode == ActiveLearningOptimizationMode.DISCRETE:
-                if target in target_classes:
-                    target = target_classes[target]
-                else:
-                    ValueError(
-                        f"get_datasets: illegal label {target} in labels: {target_classes.keys()}"
-                    )
-            else:
-                target = float(target)
-            train_data["y"].append(target)
-        else:  # Inference Set
-            inference_data["ids"].append(embd_record.seq_id)
-            embedding = (
-                embd_record.embedding
-                if isinstance(embd_record.embedding, torch.Tensor)
-                else torch.tensor(embd_record.embedding)
-            )
-            inference_data["X"].append(embedding)
-
-    if train_data["X"]:
-        train_data["X"] = torch.stack(train_data["X"]).float()
-        train_data["X"] = train_data["X"].to(device=device)
-    if inference_data["X"]:
-        inference_data["X"] = torch.stack(inference_data["X"]).float()
-        inference_data["X"] = inference_data["X"].to(device=device)
-    if train_data["y"]:
-        train_data["y"] = torch.tensor(train_data["y"])
-        train_data["y"] = train_data["y"].to(device=device)
-    if mode == ActiveLearningOptimizationMode.DISCRETE and isinstance(
-        train_data["y"], torch.Tensor
-    ):
-        train_data["y"] = torch.nn.functional.one_hot(train_data["y"], len(all_labels))
-    return train_data, inference_data
-
-
-def data_prep(
-    al_campaign_config: ActiveLearningCampaignConfig,
-    al_iteration_config: ActiveLearningIterationConfig,
-    embeddings: List[BiotrainerSequenceRecord],
-) -> tuple[dict[str, list], dict[str, list], List[BiotrainerSequenceRecord]]:
-    """
-    train_data = {"ids": [], "X": （n_sample, dim）, "y": (n_sample), (n_sample, n_class))}
-    inference_data = {"ids": [], "X": []}
-    dict[seq_id] = [seq, description, embedding]
-    """
-
-    seq_records = [
-        data_point.to_biotrainer_seq_record()
-        for data_point in al_iteration_config.iteration_data
-    ]
-    id2record = {seq_record.get_hash(): seq_record for seq_record in seq_records}
-    embd_records = [
-        id2record[seq_record.get_hash()].copy_with_embedding(seq_record.embedding)
-        for seq_record in embeddings
-    ]
-
-    # train & test set split
-    train_data, inference_data = get_datasets(
-        al_campaign_config=al_campaign_config,
-        al_iteration_config=al_iteration_config,
-        embd_records=embd_records,
-    )
-    if len(train_data["ids"]) * len(inference_data) == 0:
-        raise ValueError(
-            "data_prep: training set or inference set is empty. Have you set feature_name?"
-        )
-    return train_data, inference_data, embd_records
 
 
 def calculate_distance_penalty(
@@ -218,7 +124,6 @@ def _train_and_inference_gp(
     al_campaign_config: ActiveLearningCampaignConfig,
     al_iteration_config: ActiveLearningIterationConfig,
     epoch: Optional[int] = None,
-    inference_device: str = "cpu",
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Unified training and inference for GP models.
@@ -230,7 +135,6 @@ def _train_and_inference_gp(
         al_campaign_config: Campaign configuration
         al_iteration_config: Iteration configuration
         epoch: Number of training epochs (default: 200 for classification, 120 for regression)
-        inference_device: Device to use for inference (default: 'cpu')
 
     Returns:
         scores: tensor of shape (n_inference_data)
@@ -246,11 +150,16 @@ def _train_and_inference_gp(
         epoch = 200 if task_type == "classification" else 120
 
     # Training
+    train_device = DeviceService.train_device()
     model, likelihood = train_gp_model(
-        train_data, task_type=task_type, epoch=epoch, device=get_device()
+        train_data,
+        task_type=task_type,
+        epoch=epoch,
+        device=train_device,
     )
 
     # Inference
+    inference_device = DeviceService.inference_device()
     with torch.no_grad():
         # Move to inference device (CPU for memory limitations)
         model.to(device=inference_device)
@@ -299,7 +208,6 @@ def _train_and_inference_biotrainer(
         al_campaign_config: Campaign configuration
         al_iteration_config: Iteration configuration
         epoch: Number of training epochs (default: 200 for classification, 120 for regression)
-        inference_device: Device to use for inference (default: 'cpu')
 
     Returns:
         scores: tensor of shape (n_inference_data)

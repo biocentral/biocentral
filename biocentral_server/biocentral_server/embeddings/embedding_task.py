@@ -1,6 +1,5 @@
 from typing import Callable, Dict, List
 
-from biotrainer.utilities import get_device
 from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.input_files import BiotrainerSequenceRecord
 
@@ -25,14 +24,12 @@ class CalculateEmbeddingsTask(TaskInterface):
         sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
-        device,
         custom_tokenizer_config: str = None,
     ):
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
-        self.device = get_device(device)
         self.custom_tokenizer_config = custom_tokenizer_config
 
     def _read_sequence_input(self) -> Dict[str, str]:
@@ -53,7 +50,6 @@ class CalculateEmbeddingsTask(TaskInterface):
             all_seqs=all_seqs,
             reduced=self.reduced,
             use_half_precision=self.use_half_precision,
-            device=self.device,
             embeddings_db=embeddings_db,
         ):
             update_dto_callback(
@@ -98,7 +94,6 @@ class LoadEmbeddingsTask(TaskInterface):
         sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
-        device,
         custom_tokenizer_config: str = None,
     ):
         if use_half_precision:
@@ -108,7 +103,6 @@ class LoadEmbeddingsTask(TaskInterface):
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
-        self.device = get_device(device)
         self.custom_tokenizer_config = custom_tokenizer_config
 
     def _handle_memory_embedding(self):
@@ -117,7 +111,6 @@ class LoadEmbeddingsTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=self.reduced,
             use_half_precision=False,
-            device=self.device,
         )
         memory_dto = None
         for dto in self.run_subtask(memory_task):
@@ -157,7 +150,6 @@ class LoadEmbeddingsTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=self.reduced,
             use_half_precision=self.use_half_precision,
-            device=self.device,
             custom_tokenizer_config=self.custom_tokenizer_config,
         )
         calculate_dto = None
@@ -222,7 +214,6 @@ class ExportEmbeddingsTask(TaskInterface):
         sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
-        device,
         custom_tokenizer_config: str = None,
     ):
         # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
@@ -233,7 +224,6 @@ class ExportEmbeddingsTask(TaskInterface):
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
-        self.device = get_device(device)
         self.custom_tokenizer_config = custom_tokenizer_config
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
@@ -242,7 +232,6 @@ class ExportEmbeddingsTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=self.reduced,
             use_half_precision=self.use_half_precision,
-            device=self.device,
             custom_tokenizer_config=self.custom_tokenizer_config,
         )
 

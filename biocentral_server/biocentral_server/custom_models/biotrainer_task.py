@@ -14,6 +14,7 @@ from ..server_management import (
     EmbeddingDatabaseFactory,
     TrainingDTOObserver,
     TaskStatus,
+    DeviceService,
 )
 
 
@@ -26,7 +27,7 @@ def _config_with_presets(config_dict: dict):
 
 def get_config_presets():
     return {
-        "device": "cuda",  # TODO Device Management
+        "device": DeviceService.train_device(),
         "cross_validation_config": {"method": "hold_out"},
         "save_split_ids": False,
         "sanity_check": True,

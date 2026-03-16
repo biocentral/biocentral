@@ -9,6 +9,7 @@ from ..server_management import (
     EmbeddingProgress,
     EmbeddingsDatabase,
     TritonError,
+    DeviceService,
 )
 
 logger = get_logger(__name__)
@@ -23,7 +24,7 @@ def compute_memory_encodings(
         embedder_name=embedder_name,
         use_half_precision=False,
         custom_tokenizer_config=None,
-        device="cpu",
+        device=DeviceService.embedding_device(embedder_name=embedder_name),
         force_biotrainer=True,
     )
     embd_record_tuples = list(
@@ -41,7 +42,6 @@ def _compute_embeddings_implementation(
     all_seqs: Dict[str, str],
     reduced: bool,
     use_half_precision: bool,
-    device,
     custom_tokenizer_config: Optional[str] = None,
     embeddings_db: EmbeddingsDatabase = None,
     force_biotrainer: Optional[bool] = False,
@@ -69,7 +69,7 @@ def _compute_embeddings_implementation(
             embedder_name=embedder_name,
             custom_tokenizer_config=custom_tokenizer_config,
             use_half_precision=use_half_precision,
-            device=device,
+            device=DeviceService.embedding_device(embedder_name=embedder_name),
             force_biotrainer=force_biotrainer,
         )
         non_existing_records = [
@@ -114,7 +114,6 @@ def compute_embeddings(
     all_seqs: Dict[str, str],
     reduced: bool,
     use_half_precision: bool,
-    device,
     custom_tokenizer_config: Optional[str] = None,
     embeddings_db: EmbeddingsDatabase = None,
 ) -> Generator[EmbeddingProgress, None, None]:
@@ -138,7 +137,6 @@ def compute_embeddings(
             all_seqs,
             reduced,
             use_half_precision,
-            device,
             custom_tokenizer_config,
             embeddings_db,
             force_biotrainer=False,
@@ -152,7 +150,6 @@ def compute_embeddings(
             all_seqs,
             reduced,
             use_half_precision,
-            device,
             custom_tokenizer_config,
             embeddings_db,
             force_biotrainer=True,

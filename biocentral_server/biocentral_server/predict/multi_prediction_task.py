@@ -1,4 +1,3 @@
-from biotrainer.utilities import get_device
 from typing import Callable, Any, Optional, Dict
 
 from .models import BaseModel, BiocentralPredictionModel
@@ -21,7 +20,6 @@ class MultiPredictionTask(TaskInterface):
     ):
         self.models = models
         self.sequence_input = sequence_input
-        self.device = get_device()
         self.batch_size = batch_size
         self.use_triton = use_triton
 
@@ -38,7 +36,7 @@ class MultiPredictionTask(TaskInterface):
             )
 
             single_pred_task = SinglePredictionTask(
-                model=model, sequence_input=self.sequence_input, device=self.device
+                model=model, sequence_input=self.sequence_input
             )
             predict_dto = None
             for dto in self.run_subtask(single_pred_task):

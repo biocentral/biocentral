@@ -13,12 +13,11 @@ logger = get_logger(__name__)
 
 class SinglePredictionTask(TaskInterface):
     def __init__(
-        self, model: BaseModel, sequence_input: List[BiotrainerSequenceRecord], device
+        self, model: BaseModel, sequence_input: List[BiotrainerSequenceRecord]
     ):
         self.model = model
         self.model_metadata = model.get_metadata()
         self.sequence_input = sequence_input
-        self.device = device
 
     def _remap_predictions(self, predictions: Dict[str, List]):
         """Embeddings have seq_hash -> embedding, we need seq_id -> prediction"""
@@ -73,7 +72,6 @@ class SinglePredictionTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=reduced,
             use_half_precision=False,
-            device=self.device,
         )
         load_dto = None
         for dto in self.run_subtask(load_embeddings_task):

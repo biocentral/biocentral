@@ -4,6 +4,7 @@ from .shared_endpoint_models import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
+from .device_management import DeviceService
 from .monitoring import MetricsService, ResearchStats
 from .custom_middleware import BodySizeLimitMiddleware
 from .shared_endpoint_models import (
@@ -68,4 +69,5 @@ __all__ = [
     "ActiveLearningIterationResult",
     "ActiveLearningSimulationResult",
     "EmbeddingProgress",
+    "DeviceService",
 ]

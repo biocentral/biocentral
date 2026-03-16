@@ -3,8 +3,8 @@ import random
 import numpy as np
 import torchmetrics
 
+from biotrainer.utilities import seed_all
 from typing import Callable, Tuple, List, Optional
-from biotrainer.utilities import get_device, seed_all
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_iteration_task import ActiveLearningIterationTask
@@ -464,7 +464,6 @@ class ActiveLearningSimulationTask(TaskInterface):
             sequence_input=simulation_data,
             reduced=True,
             use_half_precision=False,
-            device=get_device(),
             custom_tokenizer_config=None,
         )
         load_dto = None

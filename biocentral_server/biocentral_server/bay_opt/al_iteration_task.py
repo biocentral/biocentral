@@ -1,5 +1,5 @@
+from biotrainer.utilities import seed_all
 from typing import Callable, Tuple, List, Optional
-from biotrainer.utilities import get_device, seed_all
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_iteration_pipeline import al_pipeline
@@ -93,7 +93,6 @@ class ActiveLearningIterationTask(TaskInterface):
             sequence_input=iteration_data,
             reduced=True,
             use_half_precision=False,
-            device=get_device(),
             custom_tokenizer_config=None,
         )
         load_dto = None

@@ -4,7 +4,6 @@ import numpy as np
 from abc import ABC, abstractmethod
 from biotrainer.protocols import Protocol
 from typing import List, Dict, Union, Any, Literal, Iterable
-from biotrainer.utilities import get_device
 
 from .model_metadata import ModelMetadata
 
@@ -50,7 +49,6 @@ class BaseModel(ABC):
         self.requires_mask = requires_mask
         self.requires_transpose = requires_transpose
         self.non_padded_embedding_lengths = {}  # Undo padding after predictions
-        self.device = get_device()
         self.model_dir_name = model_dir_name
 
         # Lazy initialization flag - backend initialized on first use

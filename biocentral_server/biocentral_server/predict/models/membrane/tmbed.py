@@ -16,6 +16,8 @@ from ..base_model import (
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
+from ....server_management import DeviceService
+
 
 class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
     """TMbed model for transmembrane topology prediction.
@@ -151,6 +153,7 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
 
     def predict(self, sequences: Dict[str, str], embeddings):
         self._ensure_backend_initialized()
+        device = DeviceService.prediction_device()
         inputs = self._prepare_inputs(embeddings=embeddings)
         input_name = self._infer_input_name()
         embedding_ids = list(embeddings.keys())
@@ -161,16 +164,16 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             if self.backend == "onnx":
                 # ONNX: Run ensemble manually
                 # Container for summing up predictions of individual models in the ensemble
-                pred = torch.zeros((B, len(self.models), L), device=self.device)
+                pred = torch.zeros((B, len(self.models), L), device=device)
                 for model in self.models:
                     y = model.run(None, batch)
                     y = torch.from_numpy(np.float32(np.stack(y[0])))
-                    pred = pred + torch.softmax(y, dim=1).to(self.device)
+                    pred = pred + torch.softmax(y, dim=1).to(device)
 
                 probabilities = pred / len(self.models)
                 mem_Yhat = self._finalize_raw_prediction(
                     self.decoder(
-                        probabilities, torch.from_numpy(batch["mask"]).to(self.device)
+                        probabilities, torch.from_numpy(batch["mask"]).to(device)
                     ),
                     dtype=np.byte,
                 )

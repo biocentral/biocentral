@@ -1,12 +1,10 @@
 import io
-from typing import Annotated
-
 import h5py
 import json
 import base64
 import numpy as np
 
-from biotrainer.utilities import get_device
+from typing import Annotated
 from fastapi_limiter.depends import RateLimiter
 from biotrainer.input_files import BiotrainerSequenceRecord
 from fastapi import APIRouter, HTTPException, status, Request, Depends
@@ -19,8 +17,8 @@ from .endpoint_models import (
     AddEmbeddingsRequest,
     AddEmbeddingsResponse,
 )
-
 from .embedding_task import ExportEmbeddingsTask
+
 from ..utils import str2bool, get_logger
 from ..server_management import (
     TaskManager,
@@ -69,7 +67,6 @@ async def embed(
     # Convert string booleans to actual booleans
     reduced = str2bool(str(request_data.reduce))
     use_half_precision = str2bool(str(request_data.use_half_precision))
-    device = get_device()
     sequence_data = [
         BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
         for seq_id, seq in request_data.sequence_data.items()
@@ -80,7 +77,6 @@ async def embed(
         sequence_input=sequence_data,
         reduced=reduced,
         use_half_precision=use_half_precision,
-        device=device,
     )
     user_id = await UserManager.get_user_id_from_request(req=request)
 

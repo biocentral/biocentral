@@ -86,7 +86,6 @@ class BiotrainerInferenceTask(TaskInterface):
             sequence_input=all_seqs,
             reduced=reduced,
             use_half_precision=False,
-            device="cuda:0",
         )
         load_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(load_embedding_task):
