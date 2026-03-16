@@ -1,7 +1,7 @@
 import os
 import multiprocessing
 
-from rq import Worker
+from rq import SpawnWorker
 from redis import Redis
 from dotenv import load_dotenv
 
@@ -18,7 +18,7 @@ def run_worker(worker_id):
 
     redis_jobs_host = os.environ.get("REDIS_JOBS_HOST")
     redis_jobs_port = os.environ.get("REDIS_JOBS_PORT")
-    redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port)
+    redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
 
     # Use custom worker name to identify in monitoring
     worker_name = f"biocentral-worker-{worker_id}"
@@ -29,7 +29,7 @@ def run_worker(worker_id):
     print(f"Registered Triton cleanup handler for {worker_name}")
 
     # Configure worker with appropriate timeouts for long-running tasks
-    worker = Worker(
+    worker = SpawnWorker(
         queues=["high", "default", "low"],  # Process high priority queue first
         connection=redis_conn,
         name=worker_name,
