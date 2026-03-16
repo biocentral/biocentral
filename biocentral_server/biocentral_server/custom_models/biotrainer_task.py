@@ -99,10 +99,7 @@ class BiotrainerTask(TaskInterface):
 
             model_hash = result_dict.get("derived_values", {}).get("model_hash", None)
             if model_hash is None:
-                return TaskDTO(
-                    status=TaskStatus.FAILED,
-                    error="Model hash not found after training!",
-                )
+                return TaskDTO.errored("Model hash not found after training!")
 
             # Save tmp dir to model hash directory
             new_path = self.model_path.parent / model_hash
@@ -135,9 +132,7 @@ class BiotrainerTask(TaskInterface):
                 update_dto_callback(load_dto)
 
         if not load_dto:
-            return TaskDTO(
-                status=TaskStatus.FAILED, error="Could not compute embeddings!"
-            ), []
+            return TaskDTO.errored("Could not compute embeddings!"), []
 
         if ".onnx" in embedder_name:
             # TODO CHECK
@@ -148,10 +143,7 @@ class BiotrainerTask(TaskInterface):
 
         embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
         if len(embeddings) == 0:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Did not receive embeddings for training!",
-            ), []
+            return TaskDTO.errored("Did not receive embeddings for training!"), []
 
         return None, embeddings
 

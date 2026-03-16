@@ -94,15 +94,10 @@ class BiotrainerInferenceTask(TaskInterface):
                 update_dto_callback(load_dto)
 
         if not load_dto:
-            return TaskDTO(
-                status=TaskStatus.FAILED, error="Could not compute embeddings!"
-            ), []
+            return TaskDTO.errored("Could not compute embeddings!"), []
 
         embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
         if len(embeddings) == 0:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Did not receive embeddings for training!",
-            ), []
+            return TaskDTO.errored("Did not receive embeddings for training!"), []
 
         return None, embeddings

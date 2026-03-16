@@ -78,9 +78,6 @@ class SinglePredictionTask(TaskInterface):
             load_dto = dto
 
         if not load_dto or load_dto.embeddings is None:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Loading of embeddings failed before export!",
-            ), []
+            return TaskDTO.errored("Loading of embeddings failed before export!"), []
 
         return None, load_dto.embeddings

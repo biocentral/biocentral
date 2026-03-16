@@ -42,13 +42,14 @@ class MultiPredictionTask(TaskInterface):
             for dto in self.run_subtask(single_pred_task):
                 predict_dto = dto
             if not predict_dto:
-                return TaskDTO(
-                    status=TaskStatus.FAILED,
-                    error=f"Model prediction with the {model_name} model failed.",
+                return TaskDTO.errored(
+                    f"Model prediction with the {model_name} model failed."
                 )
 
             single_prediction = predict_dto.predictions
-            logger.info(f"{model_name.name} model prediction: {single_prediction}")
+            logger.info(
+                f"{model_name.name} created {len(single_prediction)} predictions successfully!"
+            )
             for seq_id, prediction in single_prediction.items():
                 if seq_id not in predictions:
                     predictions[seq_id] = []

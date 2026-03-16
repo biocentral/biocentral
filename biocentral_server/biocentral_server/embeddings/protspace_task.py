@@ -43,10 +43,7 @@ class ProtSpaceTask(TaskInterface):
             load_dto = dto
 
         if not load_dto or load_dto.embeddings is None:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Loading of embeddings failed before projection!",
-            )
+            return TaskDTO.errored("Loading of embeddings failed before projection!")
 
         embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
 

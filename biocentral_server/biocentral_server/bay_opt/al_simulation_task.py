@@ -124,9 +124,7 @@ class ActiveLearningSimulationTask(TaskInterface):
             update_dto_callback(al_iteration_dto)
 
         if not al_iteration_dto or al_iteration_dto.al_iteration_result is None:
-            update_dto_callback(
-                TaskDTO(status=TaskStatus.FAILED, error="AL iteration failed!")
-            )
+            update_dto_callback(TaskDTO.errored("AL iteration failed!"))
             raise Exception("No AL iteration result received!")
 
         return al_iteration_dto.al_iteration_result
@@ -471,15 +469,10 @@ class ActiveLearningSimulationTask(TaskInterface):
             load_dto = dto
 
         if not load_dto:
-            return TaskDTO(
-                status=TaskStatus.FAILED, error="Could not compute embeddings!"
-            ), []
+            return TaskDTO.errored("Could not compute embeddings!"), []
 
         embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
         if embeddings is None or len(embeddings) == 0:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Did not receive embeddings for training!",
-            ), []
+            return TaskDTO.errored("Did not receive embeddings for training!"), []
 
         return None, embeddings

@@ -117,9 +117,7 @@ class LoadEmbeddingsTask(TaskInterface):
             memory_dto = dto
 
         if not memory_dto:
-            return TaskDTO(
-                status=TaskStatus.FAILED, error="Could not compute memory embeddings!"
-            )
+            return TaskDTO.errored("Could not compute memory embeddings!")
 
         # Unify with original input
         record_ids2embd = {
@@ -136,10 +134,7 @@ class LoadEmbeddingsTask(TaskInterface):
             ]
             return TaskDTO(status=TaskStatus.FINISHED, embeddings=input_with_embeddings)
         except KeyError as e:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error=f"Could not find embedding for sequence id: {e}",
-            )
+            return TaskDTO.errored(f"Could not find embedding for sequence id: {e}")
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         if self.embedder_name in get_predefined_embedder_names():
@@ -159,10 +154,7 @@ class LoadEmbeddingsTask(TaskInterface):
                 update_dto_callback(calculate_dto)
 
         if not calculate_dto or calculate_dto.embedded_sequences is None:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Calculating of embeddings failed before loading!",
-            )
+            return TaskDTO.errored("Calculating of embeddings failed before loading!")
 
         embedded_sequences = calculate_dto.embedded_sequences
 
@@ -184,9 +176,8 @@ class LoadEmbeddingsTask(TaskInterface):
 
         if len(missing) > 0:
             # TODO Add retry of embedding calculation
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error=f"Missing number of embeddings before loading: {len(missing)}",
+            return TaskDTO.errored(
+                f"Missing number of embeddings before loading: {len(missing)}"
             )
 
         # Unify with original input
@@ -199,10 +190,7 @@ class LoadEmbeddingsTask(TaskInterface):
             ]
             return TaskDTO(status=TaskStatus.FINISHED, embeddings=input_with_embeddings)
         except KeyError as e:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error=f"Could not find embedding for sequence id: {e}",
-            )
+            return TaskDTO.errored(f"Could not find embedding for sequence id: {e}")
 
 
 class ExportEmbeddingsTask(TaskInterface):
@@ -242,10 +230,7 @@ class ExportEmbeddingsTask(TaskInterface):
                 update_dto_callback(load_dto)
 
         if not load_dto or load_dto.embeddings is None:
-            return TaskDTO(
-                status=TaskStatus.FAILED,
-                error="Loading of embeddings failed before export!",
-            )
+            return TaskDTO.errored("Loading of embeddings failed before export!")
 
         h5_string = EmbeddingsDatabase.export_embeddings_task_result_to_h5_bytes_string(
             load_dto.embeddings

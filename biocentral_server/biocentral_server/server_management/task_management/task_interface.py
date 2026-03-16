@@ -17,6 +17,10 @@ from ..shared_endpoint_models import (
     EmbeddingProgress,
 )
 
+from ...utils import get_logger
+
+logger = get_logger(__name__)
+
 
 class TaskStatus(str, Enum):
     PENDING = "PENDING"
@@ -31,6 +35,11 @@ class TaskStatus(str, Enum):
 
 class TaskDTO(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @classmethod
+    def errored(cls, error: str):
+        logger.error(f"TaskDTO - Failed: {error}")
+        return cls(status=TaskStatus.FAILED, error=error)
 
     """ Fat-struct that contains all possible (intermediate) results from tasks """
     status: TaskStatus
