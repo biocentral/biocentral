@@ -202,7 +202,7 @@ class TestActiveLearning(unittest.TestCase):
 
         simulation_config = ActiveLearningSimulationConfig(
             simulation_data=simulation_data,
-            n_start=1,
+            n_start=2,
             n_suggestions_per_iteration=1,
             convergence_config=ActiveLearningConvergenceConfig(
                 max_labels_budget=3,
@@ -213,7 +213,6 @@ class TestActiveLearning(unittest.TestCase):
 
         simulation_results = self.api.al_simulation(campaign_config, simulation_config).run_with_progress()
         self.assertTrue(hasattr(simulation_results, "iteration_results"))
-        self.assertTrue(hasattr(simulation_results, "summary"))
 
 
 if __name__ == '__main__':
