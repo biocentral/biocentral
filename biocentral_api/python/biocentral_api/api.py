@@ -161,7 +161,7 @@ class BiocentralAPI:
             Can be any valid huggingface string identifier or a CommonEmbedder enum value.
             Examples: "one_hot_encoding", "Rostlab/prot_t5_xl_uniref50", "random_embedder"
         :param sequence_data: A dictionary containing the sequence data for which embeddings should be
-            calculated. Typically maps identifiers to sequences.
+            calculated. Typically maps identifiers to sequences. Must have at least one and maximum 1,000 sequences.
         :param reduce: Specifies whether the embeddings should be reduced to per-sequence or not. Defaults to True.
         :param use_half_precision: Indicates whether half-precision should be used for embeddings to
             minimize memory usage. Defaults to False.
@@ -169,6 +169,11 @@ class BiocentralAPI:
         """
         if len(sequence_data) == 0:
             raise ValueError("No sequence data provided.")
+        if len(sequence_data) > 1000:
+            raise ValueError(
+                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
+                "Automated batching is planned for a future release, but not supported yet."
+            )
         sequences = list(sequence_data.values())
         if len(sequences) != len(set(sequences)):
             raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
