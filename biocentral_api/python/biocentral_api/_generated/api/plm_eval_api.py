@@ -95,7 +95,7 @@ class PlmEvalApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -164,7 +164,7 @@ class PlmEvalApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -233,7 +233,7 @@ class PlmEvalApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -623,7 +623,7 @@ class PlmEvalApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "PLMEvalValidateResponse",
             '404': "NotFoundErrorResponse",
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -693,7 +693,7 @@ class PlmEvalApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "PLMEvalValidateResponse",
             '404': "NotFoundErrorResponse",
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -763,7 +763,7 @@ class PlmEvalApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "PLMEvalValidateResponse",
             '404': "NotFoundErrorResponse",
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(

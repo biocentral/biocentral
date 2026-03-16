@@ -17,8 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from biocentral_api._generated.models.supervised_framework_report import SupervisedFrameworkReport
+from biocentral_api._generated.models.zero_shot_framework_report import ZeroShotFrameworkReport
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,10 +30,9 @@ class AutoEvalReport(BaseModel):
     """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder")
     training_date: StrictStr = Field(description="Date of training")
-    min_seq_len: StrictInt = Field(description="Minimum sequence length used during evaluation")
-    max_seq_len: StrictInt = Field(description="Maximum sequence length used during evaluation")
-    results: Dict[str, Dict[str, Any]] = Field(description="Autoeval results")
-    __properties: ClassVar[List[str]] = ["embedder_name", "training_date", "min_seq_len", "max_seq_len", "results"]
+    supervised_results: Dict[str, SupervisedFrameworkReport] = Field(description="Supervised autoeval results")
+    zeroshot_results: Dict[str, ZeroShotFrameworkReport] = Field(description="Zero-Shot autoeval results")
+    __properties: ClassVar[List[str]] = ["embedder_name", "training_date", "supervised_results", "zeroshot_results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -72,6 +73,20 @@ class AutoEvalReport(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each value in supervised_results (dict)
+        _field_dict = {}
+        if self.supervised_results:
+            for _key_supervised_results in self.supervised_results:
+                if self.supervised_results[_key_supervised_results]:
+                    _field_dict[_key_supervised_results] = self.supervised_results[_key_supervised_results].to_dict()
+            _dict['supervised_results'] = _field_dict
+        # override the default output from pydantic by calling `to_dict()` of each value in zeroshot_results (dict)
+        _field_dict = {}
+        if self.zeroshot_results:
+            for _key_zeroshot_results in self.zeroshot_results:
+                if self.zeroshot_results[_key_zeroshot_results]:
+                    _field_dict[_key_zeroshot_results] = self.zeroshot_results[_key_zeroshot_results].to_dict()
+            _dict['zeroshot_results'] = _field_dict
         return _dict
 
     @classmethod
@@ -86,9 +101,18 @@ class AutoEvalReport(BaseModel):
         _obj = cls.model_validate({
             "embedder_name": obj.get("embedder_name"),
             "training_date": obj.get("training_date"),
-            "min_seq_len": obj.get("min_seq_len"),
-            "max_seq_len": obj.get("max_seq_len"),
-            "results": obj.get("results")
+            "supervised_results": dict(
+                (_k, SupervisedFrameworkReport.from_dict(_v))
+                for _k, _v in obj["supervised_results"].items()
+            )
+            if obj.get("supervised_results") is not None
+            else None,
+            "zeroshot_results": dict(
+                (_k, ZeroShotFrameworkReport.from_dict(_v))
+                for _k, _v in obj["zeroshot_results"].items()
+            )
+            if obj.get("zeroshot_results") is not None
+            else None
         })
         return _obj
 

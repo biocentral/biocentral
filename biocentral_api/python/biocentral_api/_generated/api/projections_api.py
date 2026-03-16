@@ -93,7 +93,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -162,7 +162,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -231,7 +231,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -368,7 +368,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetProjectionConfigResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -432,7 +432,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetProjectionConfigResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -496,7 +496,7 @@ class ProjectionsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetProjectionConfigResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
             *_param,

@@ -4,14 +4,78 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**research_stats_api_v1_biocentral_service_research_stats_get**](BiocentralServiceApi.md#research_stats_api_v1_biocentral_service_research_stats_get) | **GET** /api/v1/biocentral_service/research_stats/ | Research Stats
 [**stats_api_v1_biocentral_service_stats_get**](BiocentralServiceApi.md#stats_api_v1_biocentral_service_stats_get) | **GET** /api/v1/biocentral_service/stats/ | Stats
 [**task_status_api_v1_biocentral_service_task_status_task_id_get**](BiocentralServiceApi.md#task_status_api_v1_biocentral_service_task_status_task_id_get) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
 [**task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**](BiocentralServiceApi.md#task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
 [**welcome_message_api_v1_biocentral_service_welcome_message_get**](BiocentralServiceApi.md#welcome_message_api_v1_biocentral_service_welcome_message_get) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
 
 
+# **research_stats_api_v1_biocentral_service_research_stats_get**
+> ResearchStatsResponse research_stats_api_v1_biocentral_service_research_stats_get()
+
+Research Stats
+
+### Example
+
+
+```python
+import biocentral_api._generated
+from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse
+from biocentral_api._generated.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = biocentral_api._generated.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with biocentral_api._generated.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
+
+    try:
+        # Research Stats
+        api_response = api_instance.research_stats_api_v1_biocentral_service_research_stats_get()
+        print("The response of BiocentralServiceApi->research_stats_api_v1_biocentral_service_research_stats_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling BiocentralServiceApi->research_stats_api_v1_biocentral_service_research_stats_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**ResearchStatsResponse**](ResearchStatsResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **stats_api_v1_biocentral_service_stats_get**
-> object stats_api_v1_biocentral_service_stats_get()
+> ServiceStatsResponse stats_api_v1_biocentral_service_stats_get()
 
 Stats
 
@@ -20,6 +84,7 @@ Stats
 
 ```python
 import biocentral_api._generated
+from biocentral_api._generated.models.service_stats_response import ServiceStatsResponse
 from biocentral_api._generated.rest import ApiException
 from pprint import pprint
 
@@ -52,7 +117,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-**object**
+[**ServiceStatsResponse**](ServiceStatsResponse.md)
 
 ### Authorization
 

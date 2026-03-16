@@ -7,9 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **embedder_name** | **str** | Name of the embedder | 
 **training_date** | **str** | Date of training | 
-**min_seq_len** | **int** | Minimum sequence length used during evaluation | 
-**max_seq_len** | **int** | Maximum sequence length used during evaluation | 
-**results** | **Dict[str, Dict[str, object]]** | Autoeval results | 
+**supervised_results** | [**Dict[str, SupervisedFrameworkReport]**](SupervisedFrameworkReport.md) | Supervised autoeval results | 
+**zeroshot_results** | [**Dict[str, ZeroShotFrameworkReport]**](ZeroShotFrameworkReport.md) | Zero-Shot autoeval results | 
 
 ## Example
 

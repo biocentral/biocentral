@@ -99,7 +99,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "AddEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -169,7 +169,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "AddEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -239,7 +239,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "AddEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -628,7 +628,7 @@ class EmbeddingsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -697,7 +697,7 @@ class EmbeddingsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -766,7 +766,7 @@ class EmbeddingsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "StartTaskResponse",
-            '404': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '404': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -908,7 +908,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetMissingEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -978,7 +978,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetMissingEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -1048,7 +1048,7 @@ class EmbeddingsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "GetMissingEmbeddingsResponse",
             '404': None,
-            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+            '400': "ErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(

@@ -55,7 +55,7 @@ __all__ = [
     "AutoEvalReport",
     "BiocentralPredictionModel",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
-    "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
+    "BiocentralServiceStats",
     "BiotrainerSequenceRecord",
     "CommonEmbedder",
     "ConfigOptionsResponse",
@@ -65,12 +65,14 @@ __all__ = [
     "EmbedRequest",
     "EmbeddingProgress",
     "EpochMetrics",
+    "ErrorResponse",
     "GetMissingEmbeddingsRequest",
     "GetMissingEmbeddingsResponse",
     "GetProjectionConfigResponse",
     "HTTPValidationError",
     "ImportDatasetRequest",
     "ImportDatasetResponse",
+    "MetricEstimate",
     "ModelFilesRequest",
     "ModelMetadata",
     "ModelMetadataResponse",
@@ -89,12 +91,17 @@ __all__ = [
     "PredictionRequest",
     "ProjectionRequest",
     "Protocol",
+    "RankingResult",
+    "ResearchStats",
+    "ResearchStatsResponse",
     "RunTestRequest",
     "RunTestResponse",
     "SequenceTrainingData",
+    "ServiceStatsResponse",
     "StartInferenceRequest",
     "StartTaskResponse",
     "StartTrainingRequest",
+    "SupervisedFrameworkReport",
     "TaskDTO",
     "TaskStatus",
     "TaskStatusResponse",
@@ -104,6 +111,8 @@ __all__ = [
     "TestResult",
     "ValidationError",
     "ValidationErrorLocInner",
+    "ZeroShotFrameworkReport",
+    "ZeroShotMethod",
 ]
 
 # import apis into sdk package
@@ -148,7 +157,7 @@ from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress
 from biocentral_api._generated.models.auto_eval_report import AutoEvalReport as AutoEvalReport
 from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel as BiocentralPredictionModel
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
-from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
+from biocentral_api._generated.models.biocentral_service_stats import BiocentralServiceStats as BiocentralServiceStats
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord as BiotrainerSequenceRecord
 from biocentral_api._generated.models.common_embedder import CommonEmbedder as CommonEmbedder
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
@@ -158,12 +167,14 @@ from biocentral_api._generated.models.detected_format_response import DetectedFo
 from biocentral_api._generated.models.embed_request import EmbedRequest as EmbedRequest
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress as EmbeddingProgress
 from biocentral_api._generated.models.epoch_metrics import EpochMetrics as EpochMetrics
+from biocentral_api._generated.models.error_response import ErrorResponse as ErrorResponse
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse
 from biocentral_api._generated.models.get_projection_config_response import GetProjectionConfigResponse as GetProjectionConfigResponse
 from biocentral_api._generated.models.http_validation_error import HTTPValidationError as HTTPValidationError
 from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest as ImportDatasetRequest
 from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse as ImportDatasetResponse
+from biocentral_api._generated.models.metric_estimate import MetricEstimate as MetricEstimate
 from biocentral_api._generated.models.model_files_request import ModelFilesRequest as ModelFilesRequest
 from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
@@ -182,12 +193,17 @@ from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
 from biocentral_api._generated.models.protocol import Protocol as Protocol
+from biocentral_api._generated.models.ranking_result import RankingResult as RankingResult
+from biocentral_api._generated.models.research_stats import ResearchStats as ResearchStats
+from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse as ResearchStatsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse
 from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData as SequenceTrainingData
+from biocentral_api._generated.models.service_stats_response import ServiceStatsResponse as ServiceStatsResponse
 from biocentral_api._generated.models.start_inference_request import StartInferenceRequest as StartInferenceRequest
 from biocentral_api._generated.models.start_task_response import StartTaskResponse as StartTaskResponse
 from biocentral_api._generated.models.start_training_request import StartTrainingRequest as StartTrainingRequest
+from biocentral_api._generated.models.supervised_framework_report import SupervisedFrameworkReport as SupervisedFrameworkReport
 from biocentral_api._generated.models.task_dto import TaskDTO as TaskDTO
 from biocentral_api._generated.models.task_status import TaskStatus as TaskStatus
 from biocentral_api._generated.models.task_status_response import TaskStatusResponse as TaskStatusResponse
@@ -197,4 +213,6 @@ from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse 
 from biocentral_api._generated.models.test_result import TestResult as TestResult
 from biocentral_api._generated.models.validation_error import ValidationError as ValidationError
 from biocentral_api._generated.models.validation_error_loc_inner import ValidationErrorLocInner as ValidationErrorLocInner
+from biocentral_api._generated.models.zero_shot_framework_report import ZeroShotFrameworkReport as ZeroShotFrameworkReport
+from biocentral_api._generated.models.zero_shot_method import ZeroShotMethod as ZeroShotMethod
 
