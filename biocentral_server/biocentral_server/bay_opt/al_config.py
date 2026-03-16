@@ -156,17 +156,17 @@ class ActiveLearningSimulationConfig(BaseModel):
     """Configuration for a simulation of active learning on a complete dataset"""
 
     simulation_data: List[SequenceTrainingData] = Field(
-        description="List of all sequence data for the simulation", min_length=2
+        description="List of all sequence data for the simulation", min_length=3
     )
     n_start: Optional[int] = Field(
         default=None,
         description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)",
-        ge=1,
+        ge=2,  # 1 train, 1 val
     )
     start_ids: Optional[List[str]] = Field(
         default=None,
         description="List of sequence IDs to start the simulated campaign",
-        min_length=1,
+        min_length=2,  # 1 train, 1 val
     )
 
     n_suggestions_per_iteration: int = Field(
