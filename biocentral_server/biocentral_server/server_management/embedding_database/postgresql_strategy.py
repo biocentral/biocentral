@@ -186,3 +186,27 @@ class PostgreSQLStrategy(DatabaseStrategy):
         except Exception as e:
             logger.error(f"Error deleting embeddings for model {embedder_name}: {e}")
             return False
+
+    def get_database_size(self) -> str:
+        """
+        Get the current size of the database.
+
+        :return: Size in MB
+        """
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT pg_database_size(current_database()) as size_bytes
+                    """
+                    )
+                    result = cur.fetchone()
+                    size_bytes = result[0]
+
+                    size_mb = size_bytes / (1024 * 1024)
+
+                    return str(round(size_mb, 2))
+        except Exception as e:
+            logger.error(f"Error retrieving database size: {e}")
+            return "0"

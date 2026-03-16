@@ -54,3 +54,11 @@ class DatabaseStrategy:
     def generate_sequence_hash(sequence):
         """DelegateS to biotrainer sequence hashing"""
         return calculate_sequence_hash(sequence)
+
+    def get_database_size(self) -> str:
+        """
+        Get the current size of the database.
+
+        :return: Size in MB
+        """
+        raise NotImplementedError

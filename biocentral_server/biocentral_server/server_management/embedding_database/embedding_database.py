@@ -190,3 +190,6 @@ class EmbeddingsDatabase:
     @staticmethod
     def get_onnx_model_hash(onnx_path: str):
         return "onnx/" + hashlib.md5(onnx_path.encode("utf8")).hexdigest()
+
+    def get_database_size(self) -> str:
+        return self.strategy.get_database_size()
