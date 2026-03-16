@@ -1,9 +1,8 @@
-from pathlib import Path
-from typing import Callable, Dict, Union, List
+from typing import Callable, Dict, List
 
 from biotrainer.utilities import get_device
 from biotrainer.embedders import get_predefined_embedder_names
-from biotrainer.input_files import BiotrainerSequenceRecord, read_FASTA
+from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .embed import compute_embeddings, compute_memory_encodings
 
@@ -12,7 +11,6 @@ from ..server_management import (
     TaskDTO,
     EmbeddingsDatabase,
     EmbeddingDatabaseFactory,
-    FileContextManager,
     TaskStatus,
     EmbeddingProgress,
 )
@@ -24,7 +22,7 @@ class CalculateEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: Union[List[BiotrainerSequenceRecord], Path],
+        sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
         device,
@@ -43,14 +41,7 @@ class CalculateEmbeddingsTask(TaskInterface):
                 seq_record.get_hash(): str(seq_record.seq)
                 for seq_record in self.sequence_input
             }
-        file_context_manager = FileContextManager()
-        with file_context_manager.storage_read(self.sequence_input) as seq_file_path:
-            all_seq_records = read_FASTA(str(seq_file_path))
-
-        # This will make sure that only unique sequences are filtered
-        return {
-            seq_record.get_hash(): str(seq_record.seq) for seq_record in all_seq_records
-        }
+        assert False, f"Unknown sequence input type: {type(self.sequence_input)}"
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         all_seqs = self._read_sequence_input()
@@ -104,7 +95,7 @@ class LoadEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: Union[List[BiotrainerSequenceRecord], Path],
+        sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
         device,
@@ -137,7 +128,25 @@ class LoadEmbeddingsTask(TaskInterface):
                 status=TaskStatus.FAILED, error="Could not compute memory embeddings!"
             )
 
-        return TaskDTO(status=TaskStatus.FINISHED, embeddings=memory_dto.embeddings)
+        # Unify with original input
+        record_ids2embd = {
+            embd_record.get_hash(): embd_record.embedding
+            for embd_record in memory_dto.embeddings
+        }
+
+        try:
+            input_with_embeddings = [
+                seq_record.copy_with_embedding(
+                    embedding=record_ids2embd[seq_record.get_hash()]
+                )
+                for seq_record in self.sequence_input
+            ]
+            return TaskDTO(status=TaskStatus.FINISHED, embeddings=input_with_embeddings)
+        except KeyError as e:
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error=f"Could not find embedding for sequence id: {e}",
+            )
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         if self.embedder_name in get_predefined_embedder_names():
@@ -171,9 +180,14 @@ class LoadEmbeddingsTask(TaskInterface):
             embedder_name=self.embedder_name,
             reduced=self.reduced,
         )
-        record_ids = {embd_record.seq_id for embd_record in embd_records}
+        record_ids2embd = {
+            embd_record.get_hash(): embd_record.embedding
+            for embd_record in embd_records
+        }
         missing = [
-            seq_id for seq_id in embedded_sequences.keys() if seq_id not in record_ids
+            seq_id
+            for seq_id in embedded_sequences.keys()
+            if seq_id not in record_ids2embd
         ]
 
         if len(missing) > 0:
@@ -183,7 +197,20 @@ class LoadEmbeddingsTask(TaskInterface):
                 error=f"Missing number of embeddings before loading: {len(missing)}",
             )
 
-        return TaskDTO(status=TaskStatus.FINISHED, embeddings=embd_records)
+        # Unify with original input
+        try:
+            input_with_embeddings = [
+                seq_record.copy_with_embedding(
+                    embedding=record_ids2embd[seq_record.get_hash()]
+                )
+                for seq_record in self.sequence_input
+            ]
+            return TaskDTO(status=TaskStatus.FINISHED, embeddings=input_with_embeddings)
+        except KeyError as e:
+            return TaskDTO(
+                status=TaskStatus.FAILED,
+                error=f"Could not find embedding for sequence id: {e}",
+            )
 
 
 class ExportEmbeddingsTask(TaskInterface):
@@ -192,7 +219,7 @@ class ExportEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: Union[List[BiotrainerSequenceRecord], Path],
+        sequence_input: List[BiotrainerSequenceRecord],
         reduced: bool,
         use_half_precision: bool,
         device,
