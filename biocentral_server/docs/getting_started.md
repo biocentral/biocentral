@@ -38,7 +38,7 @@ For all directories in the .env file, make sure that they exist on your system. 
 run the following command to ensure that:
 
 ```shell
-mkdir -p ./storage/embeddings ./storage/files ./storage/server_temp_files ./storage/monitoring ~/.cache/huggingface ~/.cache/biotrainer/autoeval
+mkdir -p ./storage/embeddings ./storage/files ./storage/server_temp_files ./storage/redis ~/.cache/huggingface ~/.cache/biotrainer/autoeval
 ```
 
 *Note: This assumes that you do not run docker as root.

@@ -25,11 +25,9 @@ dependencies = [
     "pydantic>=2.12.5",
     "fastapi>=0.128.0",
     "uvicorn>=0.40.0",
-    "prometheus-client>=0.24.1",
-    "prometheus-fastapi-instrumentator>=6.1.0",
     "fastapi-limiter>=0.1.6",
     # Git Dependencies
-    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@feature/bioengineer-base",
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@feature/bioengineer-base-dev",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v3.1.1",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
