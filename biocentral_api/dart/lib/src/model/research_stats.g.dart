@@ -8,15 +8,17 @@ part of 'research_stats.dart';
 
 class _$ResearchStats extends ResearchStats {
   @override
-  final int totalSequences24h;
-  @override
-  final int totalSequences7d;
+  final int totalSequencesToday;
   @override
   final int totalSequencesAllTime;
   @override
   final num avgSequenceLength;
   @override
-  final BuiltList<BuiltMap<String, num>> topEmbedders;
+  final BuiltMap<String, int> aaDistribution;
+  @override
+  final BuiltMap<String, num> topEmbedders;
+  @override
+  final BuiltMap<String, num> topPredictors;
   @override
   final DateTime updatedAt;
 
@@ -24,11 +26,12 @@ class _$ResearchStats extends ResearchStats {
       (ResearchStatsBuilder()..update(updates))._build();
 
   _$ResearchStats._(
-      {required this.totalSequences24h,
-      required this.totalSequences7d,
+      {required this.totalSequencesToday,
       required this.totalSequencesAllTime,
       required this.avgSequenceLength,
+      required this.aaDistribution,
       required this.topEmbedders,
+      required this.topPredictors,
       required this.updatedAt})
       : super._();
   @override
@@ -42,22 +45,24 @@ class _$ResearchStats extends ResearchStats {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is ResearchStats &&
-        totalSequences24h == other.totalSequences24h &&
-        totalSequences7d == other.totalSequences7d &&
+        totalSequencesToday == other.totalSequencesToday &&
         totalSequencesAllTime == other.totalSequencesAllTime &&
         avgSequenceLength == other.avgSequenceLength &&
+        aaDistribution == other.aaDistribution &&
         topEmbedders == other.topEmbedders &&
+        topPredictors == other.topPredictors &&
         updatedAt == other.updatedAt;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, totalSequences24h.hashCode);
-    _$hash = $jc(_$hash, totalSequences7d.hashCode);
+    _$hash = $jc(_$hash, totalSequencesToday.hashCode);
     _$hash = $jc(_$hash, totalSequencesAllTime.hashCode);
     _$hash = $jc(_$hash, avgSequenceLength.hashCode);
+    _$hash = $jc(_$hash, aaDistribution.hashCode);
     _$hash = $jc(_$hash, topEmbedders.hashCode);
+    _$hash = $jc(_$hash, topPredictors.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -66,11 +71,12 @@ class _$ResearchStats extends ResearchStats {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'ResearchStats')
-          ..add('totalSequences24h', totalSequences24h)
-          ..add('totalSequences7d', totalSequences7d)
+          ..add('totalSequencesToday', totalSequencesToday)
           ..add('totalSequencesAllTime', totalSequencesAllTime)
           ..add('avgSequenceLength', avgSequenceLength)
+          ..add('aaDistribution', aaDistribution)
           ..add('topEmbedders', topEmbedders)
+          ..add('topPredictors', topPredictors)
           ..add('updatedAt', updatedAt))
         .toString();
   }
@@ -80,15 +86,10 @@ class ResearchStatsBuilder
     implements Builder<ResearchStats, ResearchStatsBuilder> {
   _$ResearchStats? _$v;
 
-  int? _totalSequences24h;
-  int? get totalSequences24h => _$this._totalSequences24h;
-  set totalSequences24h(int? totalSequences24h) =>
-      _$this._totalSequences24h = totalSequences24h;
-
-  int? _totalSequences7d;
-  int? get totalSequences7d => _$this._totalSequences7d;
-  set totalSequences7d(int? totalSequences7d) =>
-      _$this._totalSequences7d = totalSequences7d;
+  int? _totalSequencesToday;
+  int? get totalSequencesToday => _$this._totalSequencesToday;
+  set totalSequencesToday(int? totalSequencesToday) =>
+      _$this._totalSequencesToday = totalSequencesToday;
 
   int? _totalSequencesAllTime;
   int? get totalSequencesAllTime => _$this._totalSequencesAllTime;
@@ -100,11 +101,23 @@ class ResearchStatsBuilder
   set avgSequenceLength(num? avgSequenceLength) =>
       _$this._avgSequenceLength = avgSequenceLength;
 
-  ListBuilder<BuiltMap<String, num>>? _topEmbedders;
-  ListBuilder<BuiltMap<String, num>> get topEmbedders =>
-      _$this._topEmbedders ??= ListBuilder<BuiltMap<String, num>>();
-  set topEmbedders(ListBuilder<BuiltMap<String, num>>? topEmbedders) =>
+  MapBuilder<String, int>? _aaDistribution;
+  MapBuilder<String, int> get aaDistribution =>
+      _$this._aaDistribution ??= MapBuilder<String, int>();
+  set aaDistribution(MapBuilder<String, int>? aaDistribution) =>
+      _$this._aaDistribution = aaDistribution;
+
+  MapBuilder<String, num>? _topEmbedders;
+  MapBuilder<String, num> get topEmbedders =>
+      _$this._topEmbedders ??= MapBuilder<String, num>();
+  set topEmbedders(MapBuilder<String, num>? topEmbedders) =>
       _$this._topEmbedders = topEmbedders;
+
+  MapBuilder<String, num>? _topPredictors;
+  MapBuilder<String, num> get topPredictors =>
+      _$this._topPredictors ??= MapBuilder<String, num>();
+  set topPredictors(MapBuilder<String, num>? topPredictors) =>
+      _$this._topPredictors = topPredictors;
 
   DateTime? _updatedAt;
   DateTime? get updatedAt => _$this._updatedAt;
@@ -117,11 +130,12 @@ class ResearchStatsBuilder
   ResearchStatsBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _totalSequences24h = $v.totalSequences24h;
-      _totalSequences7d = $v.totalSequences7d;
+      _totalSequencesToday = $v.totalSequencesToday;
       _totalSequencesAllTime = $v.totalSequencesAllTime;
       _avgSequenceLength = $v.avgSequenceLength;
+      _aaDistribution = $v.aaDistribution.toBuilder();
       _topEmbedders = $v.topEmbedders.toBuilder();
+      _topPredictors = $v.topPredictors.toBuilder();
       _updatedAt = $v.updatedAt;
       _$v = null;
     }
@@ -146,25 +160,29 @@ class ResearchStatsBuilder
     try {
       _$result = _$v ??
           _$ResearchStats._(
-            totalSequences24h: BuiltValueNullFieldError.checkNotNull(
-                totalSequences24h, r'ResearchStats', 'totalSequences24h'),
-            totalSequences7d: BuiltValueNullFieldError.checkNotNull(
-                totalSequences7d, r'ResearchStats', 'totalSequences7d'),
+            totalSequencesToday: BuiltValueNullFieldError.checkNotNull(
+                totalSequencesToday, r'ResearchStats', 'totalSequencesToday'),
             totalSequencesAllTime: BuiltValueNullFieldError.checkNotNull(
                 totalSequencesAllTime,
                 r'ResearchStats',
                 'totalSequencesAllTime'),
             avgSequenceLength: BuiltValueNullFieldError.checkNotNull(
                 avgSequenceLength, r'ResearchStats', 'avgSequenceLength'),
+            aaDistribution: aaDistribution.build(),
             topEmbedders: topEmbedders.build(),
+            topPredictors: topPredictors.build(),
             updatedAt: BuiltValueNullFieldError.checkNotNull(
                 updatedAt, r'ResearchStats', 'updatedAt'),
           );
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'aaDistribution';
+        aaDistribution.build();
         _$failedField = 'topEmbedders';
         topEmbedders.build();
+        _$failedField = 'topPredictors';
+        topPredictors.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ResearchStats', _$failedField, e.toString());

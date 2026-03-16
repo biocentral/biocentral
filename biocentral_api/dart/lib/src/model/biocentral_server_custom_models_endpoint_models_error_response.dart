@@ -6,50 +6,42 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'error_response.g.dart';
+part 'biocentral_server_custom_models_endpoint_models_error_response.g.dart';
 
-/// ErrorResponse
+/// Standard error response model
 ///
 /// Properties:
 /// * [error] 
-/// * [errorType] 
-/// * [details] 
-/// * [errorCode] 
+/// * [detail] 
 @BuiltValue()
-abstract class ErrorResponse implements Built<ErrorResponse, ErrorResponseBuilder> {
+abstract class BiocentralServerCustomModelsEndpointModelsErrorResponse implements Built<BiocentralServerCustomModelsEndpointModelsErrorResponse, BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder> {
   @BuiltValueField(wireName: r'error')
   String get error;
 
-  @BuiltValueField(wireName: r'error_type')
-  String get errorType;
+  @BuiltValueField(wireName: r'detail')
+  String? get detail;
 
-  @BuiltValueField(wireName: r'details')
-  String? get details;
+  BiocentralServerCustomModelsEndpointModelsErrorResponse._();
 
-  @BuiltValueField(wireName: r'error_code')
-  int? get errorCode;
-
-  ErrorResponse._();
-
-  factory ErrorResponse([void updates(ErrorResponseBuilder b)]) = _$ErrorResponse;
+  factory BiocentralServerCustomModelsEndpointModelsErrorResponse([void updates(BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder b)]) = _$BiocentralServerCustomModelsEndpointModelsErrorResponse;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ErrorResponseBuilder b) => b;
+  static void _defaults(BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ErrorResponse> get serializer => _$ErrorResponseSerializer();
+  static Serializer<BiocentralServerCustomModelsEndpointModelsErrorResponse> get serializer => _$BiocentralServerCustomModelsEndpointModelsErrorResponseSerializer();
 }
 
-class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
+class _$BiocentralServerCustomModelsEndpointModelsErrorResponseSerializer implements PrimitiveSerializer<BiocentralServerCustomModelsEndpointModelsErrorResponse> {
   @override
-  final Iterable<Type> types = const [ErrorResponse, _$ErrorResponse];
+  final Iterable<Type> types = const [BiocentralServerCustomModelsEndpointModelsErrorResponse, _$BiocentralServerCustomModelsEndpointModelsErrorResponse];
 
   @override
-  final String wireName = r'ErrorResponse';
+  final String wireName = r'BiocentralServerCustomModelsEndpointModelsErrorResponse';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ErrorResponse object, {
+    BiocentralServerCustomModelsEndpointModelsErrorResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'error';
@@ -57,23 +49,11 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
       object.error,
       specifiedType: const FullType(String),
     );
-    yield r'error_type';
-    yield serializers.serialize(
-      object.errorType,
-      specifiedType: const FullType(String),
-    );
-    if (object.details != null) {
-      yield r'details';
+    if (object.detail != null) {
+      yield r'detail';
       yield serializers.serialize(
-        object.details,
+        object.detail,
         specifiedType: const FullType.nullable(String),
-      );
-    }
-    if (object.errorCode != null) {
-      yield r'error_code';
-      yield serializers.serialize(
-        object.errorCode,
-        specifiedType: const FullType.nullable(int),
       );
     }
   }
@@ -81,7 +61,7 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
   @override
   Object serialize(
     Serializers serializers,
-    ErrorResponse object, {
+    BiocentralServerCustomModelsEndpointModelsErrorResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -92,7 +72,7 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ErrorResponseBuilder result,
+    required BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -106,28 +86,13 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
           ) as String;
           result.error = valueDes;
           break;
-        case r'error_type':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.errorType = valueDes;
-          break;
-        case r'details':
+        case r'detail':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType.nullable(String),
           ) as String?;
           if (valueDes == null) continue;
-          result.details = valueDes;
-          break;
-        case r'error_code':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(int),
-          ) as int?;
-          if (valueDes == null) continue;
-          result.errorCode = valueDes;
+          result.detail = valueDes;
           break;
         default:
           unhandled.add(key);
@@ -138,12 +103,12 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
   }
 
   @override
-  ErrorResponse deserialize(
+  BiocentralServerCustomModelsEndpointModelsErrorResponse deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ErrorResponseBuilder();
+    final result = BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

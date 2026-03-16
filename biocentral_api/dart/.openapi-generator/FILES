@@ -16,7 +16,7 @@ doc/AutoDetectFormatRequest.md
 doc/AutoEvalProgress.md
 doc/AutoEvalReport.md
 doc/BiocentralPredictionModel.md
-doc/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
+doc/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 doc/BiocentralServiceApi.md
 doc/BiocentralServiceStats.md
 doc/BiotrainerSequenceRecord.md
@@ -38,6 +38,7 @@ doc/GetProjectionConfigResponse.md
 doc/HTTPValidationError.md
 doc/ImportDatasetRequest.md
 doc/ImportDatasetResponse.md
+doc/MetricEstimate.md
 doc/ModelFilesRequest.md
 doc/ModelMetadata.md
 doc/ModelMetadataResponse.md
@@ -61,6 +62,7 @@ doc/ProjectionRequest.md
 doc/ProjectionsApi.md
 doc/ProteinsApi.md
 doc/Protocol.md
+doc/RankingResult.md
 doc/ResearchStats.md
 doc/ResearchStatsResponse.md
 doc/RunTestRequest.md
@@ -70,6 +72,7 @@ doc/ServiceStatsResponse.md
 doc/StartInferenceRequest.md
 doc/StartTaskResponse.md
 doc/StartTrainingRequest.md
+doc/SupervisedFrameworkReport.md
 doc/TaskDTO.md
 doc/TaskStatus.md
 doc/TaskStatusResponse.md
@@ -79,6 +82,8 @@ doc/TaxonomyResponse.md
 doc/TestResult.md
 doc/ValidationError.md
 doc/ValidationErrorLocInner.md
+doc/ZeroShotFrameworkReport.md
+doc/ZeroShotMethod.md
 lib/src/api.dart
 lib/src/api/active_learning_api.dart
 lib/src/api/biocentral_service_api.dart
@@ -114,7 +119,7 @@ lib/src/model/auto_detect_format_request.dart
 lib/src/model/auto_eval_progress.dart
 lib/src/model/auto_eval_report.dart
 lib/src/model/biocentral_prediction_model.dart
-lib/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart
+lib/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart
 lib/src/model/biocentral_service_stats.dart
 lib/src/model/biotrainer_sequence_record.dart
 lib/src/model/common_embedder.dart
@@ -133,6 +138,7 @@ lib/src/model/get_projection_config_response.dart
 lib/src/model/http_validation_error.dart
 lib/src/model/import_dataset_request.dart
 lib/src/model/import_dataset_response.dart
+lib/src/model/metric_estimate.dart
 lib/src/model/model_files_request.dart
 lib/src/model/model_metadata.dart
 lib/src/model/model_metadata_response.dart
@@ -151,6 +157,7 @@ lib/src/model/prediction.dart
 lib/src/model/prediction_request.dart
 lib/src/model/projection_request.dart
 lib/src/model/protocol.dart
+lib/src/model/ranking_result.dart
 lib/src/model/research_stats.dart
 lib/src/model/research_stats_response.dart
 lib/src/model/run_test_request.dart
@@ -160,6 +167,7 @@ lib/src/model/service_stats_response.dart
 lib/src/model/start_inference_request.dart
 lib/src/model/start_task_response.dart
 lib/src/model/start_training_request.dart
+lib/src/model/supervised_framework_report.dart
 lib/src/model/task_dto.dart
 lib/src/model/task_status.dart
 lib/src/model/task_status_response.dart
@@ -169,4 +177,6 @@ lib/src/model/taxonomy_response.dart
 lib/src/model/test_result.dart
 lib/src/model/validation_error.dart
 lib/src/model/validation_error_loc_inner.dart
+lib/src/model/zero_shot_framework_report.dart
+lib/src/model/zero_shot_method.dart
 lib/src/serializers.dart

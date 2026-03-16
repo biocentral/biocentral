@@ -6,82 +6,82 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'error_response.g.dart';
+part 'metric_estimate.g.dart';
 
-/// ErrorResponse
+/// MetricEstimate
 ///
 /// Properties:
-/// * [error] 
-/// * [errorType] 
-/// * [details] 
-/// * [errorCode] 
+/// * [name] - Name of the metric
+/// * [mean] - Mean of the metric values
+/// * [lower] - Lower bound of the metric values
+/// * [upper] - Upper bound of the metric values
 @BuiltValue()
-abstract class ErrorResponse implements Built<ErrorResponse, ErrorResponseBuilder> {
-  @BuiltValueField(wireName: r'error')
-  String get error;
+abstract class MetricEstimate implements Built<MetricEstimate, MetricEstimateBuilder> {
+  /// Name of the metric
+  @BuiltValueField(wireName: r'name')
+  String get name;
 
-  @BuiltValueField(wireName: r'error_type')
-  String get errorType;
+  /// Mean of the metric values
+  @BuiltValueField(wireName: r'mean')
+  num get mean;
 
-  @BuiltValueField(wireName: r'details')
-  String? get details;
+  /// Lower bound of the metric values
+  @BuiltValueField(wireName: r'lower')
+  num get lower;
 
-  @BuiltValueField(wireName: r'error_code')
-  int? get errorCode;
+  /// Upper bound of the metric values
+  @BuiltValueField(wireName: r'upper')
+  num get upper;
 
-  ErrorResponse._();
+  MetricEstimate._();
 
-  factory ErrorResponse([void updates(ErrorResponseBuilder b)]) = _$ErrorResponse;
+  factory MetricEstimate([void updates(MetricEstimateBuilder b)]) = _$MetricEstimate;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ErrorResponseBuilder b) => b;
+  static void _defaults(MetricEstimateBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ErrorResponse> get serializer => _$ErrorResponseSerializer();
+  static Serializer<MetricEstimate> get serializer => _$MetricEstimateSerializer();
 }
 
-class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
+class _$MetricEstimateSerializer implements PrimitiveSerializer<MetricEstimate> {
   @override
-  final Iterable<Type> types = const [ErrorResponse, _$ErrorResponse];
+  final Iterable<Type> types = const [MetricEstimate, _$MetricEstimate];
 
   @override
-  final String wireName = r'ErrorResponse';
+  final String wireName = r'MetricEstimate';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ErrorResponse object, {
+    MetricEstimate object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'error';
+    yield r'name';
     yield serializers.serialize(
-      object.error,
+      object.name,
       specifiedType: const FullType(String),
     );
-    yield r'error_type';
+    yield r'mean';
     yield serializers.serialize(
-      object.errorType,
-      specifiedType: const FullType(String),
+      object.mean,
+      specifiedType: const FullType(num),
     );
-    if (object.details != null) {
-      yield r'details';
-      yield serializers.serialize(
-        object.details,
-        specifiedType: const FullType.nullable(String),
-      );
-    }
-    if (object.errorCode != null) {
-      yield r'error_code';
-      yield serializers.serialize(
-        object.errorCode,
-        specifiedType: const FullType.nullable(int),
-      );
-    }
+    yield r'lower';
+    yield serializers.serialize(
+      object.lower,
+      specifiedType: const FullType(num),
+    );
+    yield r'upper';
+    yield serializers.serialize(
+      object.upper,
+      specifiedType: const FullType(num),
+    );
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    ErrorResponse object, {
+    MetricEstimate object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -92,42 +92,40 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ErrorResponseBuilder result,
+    required MetricEstimateBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'error':
+        case r'name':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
-          result.error = valueDes;
+          result.name = valueDes;
           break;
-        case r'error_type':
+        case r'mean':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.errorType = valueDes;
+            specifiedType: const FullType(num),
+          ) as num;
+          result.mean = valueDes;
           break;
-        case r'details':
+        case r'lower':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(String),
-          ) as String?;
-          if (valueDes == null) continue;
-          result.details = valueDes;
+            specifiedType: const FullType(num),
+          ) as num;
+          result.lower = valueDes;
           break;
-        case r'error_code':
+        case r'upper':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(int),
-          ) as int?;
-          if (valueDes == null) continue;
-          result.errorCode = valueDes;
+            specifiedType: const FullType(num),
+          ) as num;
+          result.upper = valueDes;
           break;
         default:
           unhandled.add(key);
@@ -138,12 +136,12 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
   }
 
   @override
-  ErrorResponse deserialize(
+  MetricEstimate deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ErrorResponseBuilder();
+    final result = MetricEstimateBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

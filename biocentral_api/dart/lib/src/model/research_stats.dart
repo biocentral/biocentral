@@ -12,21 +12,18 @@ part 'research_stats.g.dart';
 /// ResearchStats
 ///
 /// Properties:
-/// * [totalSequences24h] - Total number of sequences uploaded in the last 24 hours
-/// * [totalSequences7d] - Total number of sequences uploaded in the last 7 days
+/// * [totalSequencesToday] - Total number of sequences uploaded in the last 24 hours
 /// * [totalSequencesAllTime] - Total number of sequences uploaded in all time
 /// * [avgSequenceLength] - Average length of sequences uploaded
+/// * [aaDistribution] - Distribution of amino acids in the sequences
 /// * [topEmbedders] - Top embedders based on usage
+/// * [topPredictors] - Top prediction models based on usage
 /// * [updatedAt] - Timestamp of the last update
 @BuiltValue()
 abstract class ResearchStats implements Built<ResearchStats, ResearchStatsBuilder> {
   /// Total number of sequences uploaded in the last 24 hours
-  @BuiltValueField(wireName: r'total_sequences_24h')
-  int get totalSequences24h;
-
-  /// Total number of sequences uploaded in the last 7 days
-  @BuiltValueField(wireName: r'total_sequences_7d')
-  int get totalSequences7d;
+  @BuiltValueField(wireName: r'total_sequences_today')
+  int get totalSequencesToday;
 
   /// Total number of sequences uploaded in all time
   @BuiltValueField(wireName: r'total_sequences_all_time')
@@ -36,9 +33,17 @@ abstract class ResearchStats implements Built<ResearchStats, ResearchStatsBuilde
   @BuiltValueField(wireName: r'avg_sequence_length')
   num get avgSequenceLength;
 
+  /// Distribution of amino acids in the sequences
+  @BuiltValueField(wireName: r'aa_distribution')
+  BuiltMap<String, int> get aaDistribution;
+
   /// Top embedders based on usage
   @BuiltValueField(wireName: r'top_embedders')
-  BuiltList<BuiltMap<String, num>> get topEmbedders;
+  BuiltMap<String, num> get topEmbedders;
+
+  /// Top prediction models based on usage
+  @BuiltValueField(wireName: r'top_predictors')
+  BuiltMap<String, num> get topPredictors;
 
   /// Timestamp of the last update
   @BuiltValueField(wireName: r'updated_at')
@@ -67,14 +72,9 @@ class _$ResearchStatsSerializer implements PrimitiveSerializer<ResearchStats> {
     ResearchStats object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'total_sequences_24h';
+    yield r'total_sequences_today';
     yield serializers.serialize(
-      object.totalSequences24h,
-      specifiedType: const FullType(int),
-    );
-    yield r'total_sequences_7d';
-    yield serializers.serialize(
-      object.totalSequences7d,
+      object.totalSequencesToday,
       specifiedType: const FullType(int),
     );
     yield r'total_sequences_all_time';
@@ -87,10 +87,20 @@ class _$ResearchStatsSerializer implements PrimitiveSerializer<ResearchStats> {
       object.avgSequenceLength,
       specifiedType: const FullType(num),
     );
+    yield r'aa_distribution';
+    yield serializers.serialize(
+      object.aaDistribution,
+      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(int)]),
+    );
     yield r'top_embedders';
     yield serializers.serialize(
       object.topEmbedders,
-      specifiedType: const FullType(BuiltList, [FullType(BuiltMap, [FullType(String), FullType(num)])]),
+      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(num)]),
+    );
+    yield r'top_predictors';
+    yield serializers.serialize(
+      object.topPredictors,
+      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(num)]),
     );
     yield r'updated_at';
     yield serializers.serialize(
@@ -120,19 +130,12 @@ class _$ResearchStatsSerializer implements PrimitiveSerializer<ResearchStats> {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'total_sequences_24h':
+        case r'total_sequences_today':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
-          result.totalSequences24h = valueDes;
-          break;
-        case r'total_sequences_7d':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalSequences7d = valueDes;
+          result.totalSequencesToday = valueDes;
           break;
         case r'total_sequences_all_time':
           final valueDes = serializers.deserialize(
@@ -148,12 +151,26 @@ class _$ResearchStatsSerializer implements PrimitiveSerializer<ResearchStats> {
           ) as num;
           result.avgSequenceLength = valueDes;
           break;
+        case r'aa_distribution':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(int)]),
+          ) as BuiltMap<String, int>;
+          result.aaDistribution.replace(valueDes);
+          break;
         case r'top_embedders':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(BuiltMap, [FullType(String), FullType(num)])]),
-          ) as BuiltList<BuiltMap<String, num>>;
+            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(num)]),
+          ) as BuiltMap<String, num>;
           result.topEmbedders.replace(valueDes);
+          break;
+        case r'top_predictors':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(num)]),
+          ) as BuiltMap<String, num>;
+          result.topPredictors.replace(valueDes);
           break;
         case r'updated_at':
           final valueDes = serializers.deserialize(

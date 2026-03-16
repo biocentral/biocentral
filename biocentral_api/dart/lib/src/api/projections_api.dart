@@ -8,7 +8,7 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
+import 'package:biocentral_api/src/model/error_response.dart';
 import 'package:biocentral_api/src/model/get_projection_config_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';

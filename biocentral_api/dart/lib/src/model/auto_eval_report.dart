@@ -4,7 +4,8 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:built_value/json_object.dart';
+import 'package:biocentral_api/src/model/zero_shot_framework_report.dart';
+import 'package:biocentral_api/src/model/supervised_framework_report.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -15,9 +16,8 @@ part 'auto_eval_report.g.dart';
 /// Properties:
 /// * [embedderName] - Name of the embedder
 /// * [trainingDate] - Date of training
-/// * [minSeqLen] - Minimum sequence length used during evaluation
-/// * [maxSeqLen] - Maximum sequence length used during evaluation
-/// * [results] - Autoeval results
+/// * [supervisedResults] - Supervised autoeval results
+/// * [zeroshotResults] - Zero-Shot autoeval results
 @BuiltValue()
 abstract class AutoEvalReport implements Built<AutoEvalReport, AutoEvalReportBuilder> {
   /// Name of the embedder
@@ -28,17 +28,13 @@ abstract class AutoEvalReport implements Built<AutoEvalReport, AutoEvalReportBui
   @BuiltValueField(wireName: r'training_date')
   String get trainingDate;
 
-  /// Minimum sequence length used during evaluation
-  @BuiltValueField(wireName: r'min_seq_len')
-  int get minSeqLen;
+  /// Supervised autoeval results
+  @BuiltValueField(wireName: r'supervised_results')
+  BuiltMap<String, SupervisedFrameworkReport> get supervisedResults;
 
-  /// Maximum sequence length used during evaluation
-  @BuiltValueField(wireName: r'max_seq_len')
-  int get maxSeqLen;
-
-  /// Autoeval results
-  @BuiltValueField(wireName: r'results')
-  BuiltMap<String, BuiltMap<String, JsonObject?>> get results;
+  /// Zero-Shot autoeval results
+  @BuiltValueField(wireName: r'zeroshot_results')
+  BuiltMap<String, ZeroShotFrameworkReport> get zeroshotResults;
 
   AutoEvalReport._();
 
@@ -73,20 +69,15 @@ class _$AutoEvalReportSerializer implements PrimitiveSerializer<AutoEvalReport> 
       object.trainingDate,
       specifiedType: const FullType(String),
     );
-    yield r'min_seq_len';
+    yield r'supervised_results';
     yield serializers.serialize(
-      object.minSeqLen,
-      specifiedType: const FullType(int),
+      object.supervisedResults,
+      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(SupervisedFrameworkReport)]),
     );
-    yield r'max_seq_len';
+    yield r'zeroshot_results';
     yield serializers.serialize(
-      object.maxSeqLen,
-      specifiedType: const FullType(int),
-    );
-    yield r'results';
-    yield serializers.serialize(
-      object.results,
-      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)])]),
+      object.zeroshotResults,
+      specifiedType: const FullType(BuiltMap, [FullType(String), FullType(ZeroShotFrameworkReport)]),
     );
   }
 
@@ -125,26 +116,19 @@ class _$AutoEvalReportSerializer implements PrimitiveSerializer<AutoEvalReport> 
           ) as String;
           result.trainingDate = valueDes;
           break;
-        case r'min_seq_len':
+        case r'supervised_results':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.minSeqLen = valueDes;
+            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(SupervisedFrameworkReport)]),
+          ) as BuiltMap<String, SupervisedFrameworkReport>;
+          result.supervisedResults.replace(valueDes);
           break;
-        case r'max_seq_len':
+        case r'zeroshot_results':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.maxSeqLen = valueDes;
-          break;
-        case r'results':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)])]),
-          ) as BuiltMap<String, BuiltMap<String, JsonObject?>>;
-          result.results.replace(valueDes);
+            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(ZeroShotFrameworkReport)]),
+          ) as BuiltMap<String, ZeroShotFrameworkReport>;
+          result.zeroshotResults.replace(valueDes);
           break;
         default:
           unhandled.add(key);

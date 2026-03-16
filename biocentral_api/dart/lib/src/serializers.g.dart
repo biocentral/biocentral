@@ -24,9 +24,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(AutoEvalProgress.serializer)
       ..add(AutoEvalReport.serializer)
       ..add(BiocentralPredictionModel.serializer)
-      ..add(
-          BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
-              .serializer)
+      ..add(BiocentralServerCustomModelsEndpointModelsErrorResponse.serializer)
       ..add(BiocentralServiceStats.serializer)
       ..add(BiotrainerSequenceRecord.serializer)
       ..add(CommonEmbedder.serializer)
@@ -44,6 +42,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(HTTPValidationError.serializer)
       ..add(ImportDatasetRequest.serializer)
       ..add(ImportDatasetResponse.serializer)
+      ..add(MetricEstimate.serializer)
       ..add(ModelFilesRequest.serializer)
       ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
@@ -62,6 +61,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
       ..add(Protocol.serializer)
+      ..add(RankingResult.serializer)
       ..add(ResearchStats.serializer)
       ..add(ResearchStatsResponse.serializer)
       ..add(RunTestRequest.serializer)
@@ -71,6 +71,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(StartInferenceRequest.serializer)
       ..add(StartTaskResponse.serializer)
       ..add(StartTrainingRequest.serializer)
+      ..add(SupervisedFrameworkReport.serializer)
       ..add(TaskDTO.serializer)
       ..add(TaskStatus.serializer)
       ..add(TaskStatusResponse.serializer)
@@ -80,6 +81,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(TestResult.serializer)
       ..add(ValidationError.serializer)
       ..add(ValidationErrorLocInner.serializer)
+      ..add(ZeroShotFrameworkReport.serializer)
+      ..add(ZeroShotMethod.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ActiveLearningResult)]),
@@ -95,12 +98,6 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [
-            const FullType(
-                BuiltMap, const [const FullType(String), const FullType(num)])
-          ]),
-          () => ListBuilder<BuiltMap<String, num>>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ModelMetadata)]),
           () => ListBuilder<ModelMetadata>())
@@ -220,6 +217,14 @@ Serializers _$serializers = (Serializers().toBuilder()
           ]),
           () => MapBuilder<String, BuiltMap<String, JsonObject?>>())
       ..addBuilderFactory(
+          const FullType(BuiltMap,
+              const [const FullType(String), const FullType(RankingResult)]),
+          () => MapBuilder<String, RankingResult>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap,
+              const [const FullType(String), const FullType(RankingResult)]),
+          () => MapBuilder<String, RankingResult>())
+      ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
@@ -237,6 +242,30 @@ Serializers _$serializers = (Serializers().toBuilder()
             const FullType.nullable(JsonObject)
           ]),
           () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType(SupervisedFrameworkReport)
+          ]),
+          () => MapBuilder<String, SupervisedFrameworkReport>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType(ZeroShotFrameworkReport)
+          ]),
+          () => MapBuilder<String, ZeroShotFrameworkReport>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(int)]),
+          () => MapBuilder<String, int>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),

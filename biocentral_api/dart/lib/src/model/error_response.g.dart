@@ -10,12 +10,21 @@ class _$ErrorResponse extends ErrorResponse {
   @override
   final String error;
   @override
-  final String? detail;
+  final String errorType;
+  @override
+  final String? details;
+  @override
+  final int? errorCode;
 
   factory _$ErrorResponse([void Function(ErrorResponseBuilder)? updates]) =>
       (ErrorResponseBuilder()..update(updates))._build();
 
-  _$ErrorResponse._({required this.error, this.detail}) : super._();
+  _$ErrorResponse._(
+      {required this.error,
+      required this.errorType,
+      this.details,
+      this.errorCode})
+      : super._();
   @override
   ErrorResponse rebuild(void Function(ErrorResponseBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -28,14 +37,18 @@ class _$ErrorResponse extends ErrorResponse {
     if (identical(other, this)) return true;
     return other is ErrorResponse &&
         error == other.error &&
-        detail == other.detail;
+        errorType == other.errorType &&
+        details == other.details &&
+        errorCode == other.errorCode;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, error.hashCode);
-    _$hash = $jc(_$hash, detail.hashCode);
+    _$hash = $jc(_$hash, errorType.hashCode);
+    _$hash = $jc(_$hash, details.hashCode);
+    _$hash = $jc(_$hash, errorCode.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -44,7 +57,9 @@ class _$ErrorResponse extends ErrorResponse {
   String toString() {
     return (newBuiltValueToStringHelper(r'ErrorResponse')
           ..add('error', error)
-          ..add('detail', detail))
+          ..add('errorType', errorType)
+          ..add('details', details)
+          ..add('errorCode', errorCode))
         .toString();
   }
 }
@@ -57,9 +72,17 @@ class ErrorResponseBuilder
   String? get error => _$this._error;
   set error(String? error) => _$this._error = error;
 
-  String? _detail;
-  String? get detail => _$this._detail;
-  set detail(String? detail) => _$this._detail = detail;
+  String? _errorType;
+  String? get errorType => _$this._errorType;
+  set errorType(String? errorType) => _$this._errorType = errorType;
+
+  String? _details;
+  String? get details => _$this._details;
+  set details(String? details) => _$this._details = details;
+
+  int? _errorCode;
+  int? get errorCode => _$this._errorCode;
+  set errorCode(int? errorCode) => _$this._errorCode = errorCode;
 
   ErrorResponseBuilder() {
     ErrorResponse._defaults(this);
@@ -69,7 +92,9 @@ class ErrorResponseBuilder
     final $v = _$v;
     if ($v != null) {
       _error = $v.error;
-      _detail = $v.detail;
+      _errorType = $v.errorType;
+      _details = $v.details;
+      _errorCode = $v.errorCode;
       _$v = null;
     }
     return this;
@@ -93,7 +118,10 @@ class ErrorResponseBuilder
         _$ErrorResponse._(
           error: BuiltValueNullFieldError.checkNotNull(
               error, r'ErrorResponse', 'error'),
-          detail: detail,
+          errorType: BuiltValueNullFieldError.checkNotNull(
+              errorType, r'ErrorResponse', 'errorType'),
+          details: details,
+          errorCode: errorCode,
         );
     replace(_$result);
     return _$result;

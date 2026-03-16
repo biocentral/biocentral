@@ -9,10 +9,10 @@ import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
 import 'package:biocentral_api/src/api_util.dart';
+import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
-import 'package:biocentral_api/src/model/error_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/model_files_request.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';

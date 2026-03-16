@@ -10,11 +10,11 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
   @override
   final int usableCpuCount;
   @override
-  final String diskUsage;
+  final String embeddingsDatabaseSize;
   @override
-  final int numberRequestsSinceStart;
+  final int totalTasks;
   @override
-  final int nProcesses;
+  final int queueLength;
   @override
   final bool cudaAvailable;
   @override
@@ -28,9 +28,9 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
 
   _$BiocentralServiceStats._(
       {required this.usableCpuCount,
-      required this.diskUsage,
-      required this.numberRequestsSinceStart,
-      required this.nProcesses,
+      required this.embeddingsDatabaseSize,
+      required this.totalTasks,
+      required this.queueLength,
       required this.cudaAvailable,
       required this.cudaDeviceNames,
       required this.cudaDeviceCount})
@@ -49,9 +49,9 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
     if (identical(other, this)) return true;
     return other is BiocentralServiceStats &&
         usableCpuCount == other.usableCpuCount &&
-        diskUsage == other.diskUsage &&
-        numberRequestsSinceStart == other.numberRequestsSinceStart &&
-        nProcesses == other.nProcesses &&
+        embeddingsDatabaseSize == other.embeddingsDatabaseSize &&
+        totalTasks == other.totalTasks &&
+        queueLength == other.queueLength &&
         cudaAvailable == other.cudaAvailable &&
         cudaDeviceNames == other.cudaDeviceNames &&
         cudaDeviceCount == other.cudaDeviceCount;
@@ -61,9 +61,9 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, usableCpuCount.hashCode);
-    _$hash = $jc(_$hash, diskUsage.hashCode);
-    _$hash = $jc(_$hash, numberRequestsSinceStart.hashCode);
-    _$hash = $jc(_$hash, nProcesses.hashCode);
+    _$hash = $jc(_$hash, embeddingsDatabaseSize.hashCode);
+    _$hash = $jc(_$hash, totalTasks.hashCode);
+    _$hash = $jc(_$hash, queueLength.hashCode);
     _$hash = $jc(_$hash, cudaAvailable.hashCode);
     _$hash = $jc(_$hash, cudaDeviceNames.hashCode);
     _$hash = $jc(_$hash, cudaDeviceCount.hashCode);
@@ -75,9 +75,9 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
   String toString() {
     return (newBuiltValueToStringHelper(r'BiocentralServiceStats')
           ..add('usableCpuCount', usableCpuCount)
-          ..add('diskUsage', diskUsage)
-          ..add('numberRequestsSinceStart', numberRequestsSinceStart)
-          ..add('nProcesses', nProcesses)
+          ..add('embeddingsDatabaseSize', embeddingsDatabaseSize)
+          ..add('totalTasks', totalTasks)
+          ..add('queueLength', queueLength)
           ..add('cudaAvailable', cudaAvailable)
           ..add('cudaDeviceNames', cudaDeviceNames)
           ..add('cudaDeviceCount', cudaDeviceCount))
@@ -94,18 +94,18 @@ class BiocentralServiceStatsBuilder
   set usableCpuCount(int? usableCpuCount) =>
       _$this._usableCpuCount = usableCpuCount;
 
-  String? _diskUsage;
-  String? get diskUsage => _$this._diskUsage;
-  set diskUsage(String? diskUsage) => _$this._diskUsage = diskUsage;
+  String? _embeddingsDatabaseSize;
+  String? get embeddingsDatabaseSize => _$this._embeddingsDatabaseSize;
+  set embeddingsDatabaseSize(String? embeddingsDatabaseSize) =>
+      _$this._embeddingsDatabaseSize = embeddingsDatabaseSize;
 
-  int? _numberRequestsSinceStart;
-  int? get numberRequestsSinceStart => _$this._numberRequestsSinceStart;
-  set numberRequestsSinceStart(int? numberRequestsSinceStart) =>
-      _$this._numberRequestsSinceStart = numberRequestsSinceStart;
+  int? _totalTasks;
+  int? get totalTasks => _$this._totalTasks;
+  set totalTasks(int? totalTasks) => _$this._totalTasks = totalTasks;
 
-  int? _nProcesses;
-  int? get nProcesses => _$this._nProcesses;
-  set nProcesses(int? nProcesses) => _$this._nProcesses = nProcesses;
+  int? _queueLength;
+  int? get queueLength => _$this._queueLength;
+  set queueLength(int? queueLength) => _$this._queueLength = queueLength;
 
   bool? _cudaAvailable;
   bool? get cudaAvailable => _$this._cudaAvailable;
@@ -131,9 +131,9 @@ class BiocentralServiceStatsBuilder
     final $v = _$v;
     if ($v != null) {
       _usableCpuCount = $v.usableCpuCount;
-      _diskUsage = $v.diskUsage;
-      _numberRequestsSinceStart = $v.numberRequestsSinceStart;
-      _nProcesses = $v.nProcesses;
+      _embeddingsDatabaseSize = $v.embeddingsDatabaseSize;
+      _totalTasks = $v.totalTasks;
+      _queueLength = $v.queueLength;
       _cudaAvailable = $v.cudaAvailable;
       _cudaDeviceNames = $v.cudaDeviceNames.toBuilder();
       _cudaDeviceCount = $v.cudaDeviceCount;
@@ -162,14 +162,14 @@ class BiocentralServiceStatsBuilder
           _$BiocentralServiceStats._(
             usableCpuCount: BuiltValueNullFieldError.checkNotNull(
                 usableCpuCount, r'BiocentralServiceStats', 'usableCpuCount'),
-            diskUsage: BuiltValueNullFieldError.checkNotNull(
-                diskUsage, r'BiocentralServiceStats', 'diskUsage'),
-            numberRequestsSinceStart: BuiltValueNullFieldError.checkNotNull(
-                numberRequestsSinceStart,
+            embeddingsDatabaseSize: BuiltValueNullFieldError.checkNotNull(
+                embeddingsDatabaseSize,
                 r'BiocentralServiceStats',
-                'numberRequestsSinceStart'),
-            nProcesses: BuiltValueNullFieldError.checkNotNull(
-                nProcesses, r'BiocentralServiceStats', 'nProcesses'),
+                'embeddingsDatabaseSize'),
+            totalTasks: BuiltValueNullFieldError.checkNotNull(
+                totalTasks, r'BiocentralServiceStats', 'totalTasks'),
+            queueLength: BuiltValueNullFieldError.checkNotNull(
+                queueLength, r'BiocentralServiceStats', 'queueLength'),
             cudaAvailable: BuiltValueNullFieldError.checkNotNull(
                 cudaAvailable, r'BiocentralServiceStats', 'cudaAvailable'),
             cudaDeviceNames: cudaDeviceNames.build(),

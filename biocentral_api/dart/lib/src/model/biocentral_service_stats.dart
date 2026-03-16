@@ -13,9 +13,9 @@ part 'biocentral_service_stats.g.dart';
 ///
 /// Properties:
 /// * [usableCpuCount] - Number of usable CPU cores available to the process
-/// * [diskUsage] - Current disk usage statistics
-/// * [numberRequestsSinceStart] - Total number of requests processed since server startup
-/// * [nProcesses] - Current number of running task processes
+/// * [embeddingsDatabaseSize] - Current size of the embeddings database in MB
+/// * [totalTasks] - Total number of tasks submitted since server startup
+/// * [queueLength] - Current number of tasks queued for execution
 /// * [cudaAvailable] - Whether CUDA GPU acceleration is available
 /// * [cudaDeviceNames] - List of names of available CUDA devices
 /// * [cudaDeviceCount] - Number of available CUDA devices
@@ -25,17 +25,17 @@ abstract class BiocentralServiceStats implements Built<BiocentralServiceStats, B
   @BuiltValueField(wireName: r'usable_cpu_count')
   int get usableCpuCount;
 
-  /// Current disk usage statistics
-  @BuiltValueField(wireName: r'disk_usage')
-  String get diskUsage;
+  /// Current size of the embeddings database in MB
+  @BuiltValueField(wireName: r'embeddings_database_size')
+  String get embeddingsDatabaseSize;
 
-  /// Total number of requests processed since server startup
-  @BuiltValueField(wireName: r'number_requests_since_start')
-  int get numberRequestsSinceStart;
+  /// Total number of tasks submitted since server startup
+  @BuiltValueField(wireName: r'total_tasks')
+  int get totalTasks;
 
-  /// Current number of running task processes
-  @BuiltValueField(wireName: r'n_processes')
-  int get nProcesses;
+  /// Current number of tasks queued for execution
+  @BuiltValueField(wireName: r'queue_length')
+  int get queueLength;
 
   /// Whether CUDA GPU acceleration is available
   @BuiltValueField(wireName: r'cuda_available')
@@ -77,19 +77,19 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
       object.usableCpuCount,
       specifiedType: const FullType(int),
     );
-    yield r'disk_usage';
+    yield r'embeddings_database_size';
     yield serializers.serialize(
-      object.diskUsage,
+      object.embeddingsDatabaseSize,
       specifiedType: const FullType(String),
     );
-    yield r'number_requests_since_start';
+    yield r'total_tasks';
     yield serializers.serialize(
-      object.numberRequestsSinceStart,
+      object.totalTasks,
       specifiedType: const FullType(int),
     );
-    yield r'n_processes';
+    yield r'queue_length';
     yield serializers.serialize(
-      object.nProcesses,
+      object.queueLength,
       specifiedType: const FullType(int),
     );
     yield r'cuda_available';
@@ -137,26 +137,26 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
           ) as int;
           result.usableCpuCount = valueDes;
           break;
-        case r'disk_usage':
+        case r'embeddings_database_size':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
-          result.diskUsage = valueDes;
+          result.embeddingsDatabaseSize = valueDes;
           break;
-        case r'number_requests_since_start':
+        case r'total_tasks':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
-          result.numberRequestsSinceStart = valueDes;
+          result.totalTasks = valueDes;
           break;
-        case r'n_processes':
+        case r'queue_length':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
-          result.nProcesses = valueDes;
+          result.queueLength = valueDes;
           break;
         case r'cuda_available':
           final valueDes = serializers.deserialize(

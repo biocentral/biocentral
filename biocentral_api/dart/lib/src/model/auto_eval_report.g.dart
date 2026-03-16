@@ -12,11 +12,9 @@ class _$AutoEvalReport extends AutoEvalReport {
   @override
   final String trainingDate;
   @override
-  final int minSeqLen;
+  final BuiltMap<String, SupervisedFrameworkReport> supervisedResults;
   @override
-  final int maxSeqLen;
-  @override
-  final BuiltMap<String, BuiltMap<String, JsonObject?>> results;
+  final BuiltMap<String, ZeroShotFrameworkReport> zeroshotResults;
 
   factory _$AutoEvalReport([void Function(AutoEvalReportBuilder)? updates]) =>
       (AutoEvalReportBuilder()..update(updates))._build();
@@ -24,9 +22,8 @@ class _$AutoEvalReport extends AutoEvalReport {
   _$AutoEvalReport._(
       {required this.embedderName,
       required this.trainingDate,
-      required this.minSeqLen,
-      required this.maxSeqLen,
-      required this.results})
+      required this.supervisedResults,
+      required this.zeroshotResults})
       : super._();
   @override
   AutoEvalReport rebuild(void Function(AutoEvalReportBuilder) updates) =>
@@ -41,9 +38,8 @@ class _$AutoEvalReport extends AutoEvalReport {
     return other is AutoEvalReport &&
         embedderName == other.embedderName &&
         trainingDate == other.trainingDate &&
-        minSeqLen == other.minSeqLen &&
-        maxSeqLen == other.maxSeqLen &&
-        results == other.results;
+        supervisedResults == other.supervisedResults &&
+        zeroshotResults == other.zeroshotResults;
   }
 
   @override
@@ -51,9 +47,8 @@ class _$AutoEvalReport extends AutoEvalReport {
     var _$hash = 0;
     _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, trainingDate.hashCode);
-    _$hash = $jc(_$hash, minSeqLen.hashCode);
-    _$hash = $jc(_$hash, maxSeqLen.hashCode);
-    _$hash = $jc(_$hash, results.hashCode);
+    _$hash = $jc(_$hash, supervisedResults.hashCode);
+    _$hash = $jc(_$hash, zeroshotResults.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -63,9 +58,8 @@ class _$AutoEvalReport extends AutoEvalReport {
     return (newBuiltValueToStringHelper(r'AutoEvalReport')
           ..add('embedderName', embedderName)
           ..add('trainingDate', trainingDate)
-          ..add('minSeqLen', minSeqLen)
-          ..add('maxSeqLen', maxSeqLen)
-          ..add('results', results))
+          ..add('supervisedResults', supervisedResults)
+          ..add('zeroshotResults', zeroshotResults))
         .toString();
   }
 }
@@ -82,19 +76,20 @@ class AutoEvalReportBuilder
   String? get trainingDate => _$this._trainingDate;
   set trainingDate(String? trainingDate) => _$this._trainingDate = trainingDate;
 
-  int? _minSeqLen;
-  int? get minSeqLen => _$this._minSeqLen;
-  set minSeqLen(int? minSeqLen) => _$this._minSeqLen = minSeqLen;
+  MapBuilder<String, SupervisedFrameworkReport>? _supervisedResults;
+  MapBuilder<String, SupervisedFrameworkReport> get supervisedResults =>
+      _$this._supervisedResults ??=
+          MapBuilder<String, SupervisedFrameworkReport>();
+  set supervisedResults(
+          MapBuilder<String, SupervisedFrameworkReport>? supervisedResults) =>
+      _$this._supervisedResults = supervisedResults;
 
-  int? _maxSeqLen;
-  int? get maxSeqLen => _$this._maxSeqLen;
-  set maxSeqLen(int? maxSeqLen) => _$this._maxSeqLen = maxSeqLen;
-
-  MapBuilder<String, BuiltMap<String, JsonObject?>>? _results;
-  MapBuilder<String, BuiltMap<String, JsonObject?>> get results =>
-      _$this._results ??= MapBuilder<String, BuiltMap<String, JsonObject?>>();
-  set results(MapBuilder<String, BuiltMap<String, JsonObject?>>? results) =>
-      _$this._results = results;
+  MapBuilder<String, ZeroShotFrameworkReport>? _zeroshotResults;
+  MapBuilder<String, ZeroShotFrameworkReport> get zeroshotResults =>
+      _$this._zeroshotResults ??= MapBuilder<String, ZeroShotFrameworkReport>();
+  set zeroshotResults(
+          MapBuilder<String, ZeroShotFrameworkReport>? zeroshotResults) =>
+      _$this._zeroshotResults = zeroshotResults;
 
   AutoEvalReportBuilder() {
     AutoEvalReport._defaults(this);
@@ -105,9 +100,8 @@ class AutoEvalReportBuilder
     if ($v != null) {
       _embedderName = $v.embedderName;
       _trainingDate = $v.trainingDate;
-      _minSeqLen = $v.minSeqLen;
-      _maxSeqLen = $v.maxSeqLen;
-      _results = $v.results.toBuilder();
+      _supervisedResults = $v.supervisedResults.toBuilder();
+      _zeroshotResults = $v.zeroshotResults.toBuilder();
       _$v = null;
     }
     return this;
@@ -135,17 +129,16 @@ class AutoEvalReportBuilder
                 embedderName, r'AutoEvalReport', 'embedderName'),
             trainingDate: BuiltValueNullFieldError.checkNotNull(
                 trainingDate, r'AutoEvalReport', 'trainingDate'),
-            minSeqLen: BuiltValueNullFieldError.checkNotNull(
-                minSeqLen, r'AutoEvalReport', 'minSeqLen'),
-            maxSeqLen: BuiltValueNullFieldError.checkNotNull(
-                maxSeqLen, r'AutoEvalReport', 'maxSeqLen'),
-            results: results.build(),
+            supervisedResults: supervisedResults.build(),
+            zeroshotResults: zeroshotResults.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'results';
-        results.build();
+        _$failedField = 'supervisedResults';
+        supervisedResults.build();
+        _$failedField = 'zeroshotResults';
+        zeroshotResults.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'AutoEvalReport', _$failedField, e.toString());

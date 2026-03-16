@@ -31,7 +31,7 @@ import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
 import 'package:biocentral_api/src/model/auto_eval_progress.dart';
 import 'package:biocentral_api/src/model/auto_eval_report.dart';
 import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
-import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
+import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
 import 'package:biocentral_api/src/model/common_embedder.dart';
@@ -49,6 +49,7 @@ import 'package:biocentral_api/src/model/get_projection_config_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/import_dataset_request.dart';
 import 'package:biocentral_api/src/model/import_dataset_response.dart';
+import 'package:biocentral_api/src/model/metric_estimate.dart';
 import 'package:biocentral_api/src/model/model_files_request.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/model_metadata_response.dart';
@@ -67,6 +68,7 @@ import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
 import 'package:biocentral_api/src/model/protocol.dart';
+import 'package:biocentral_api/src/model/ranking_result.dart';
 import 'package:biocentral_api/src/model/research_stats.dart';
 import 'package:biocentral_api/src/model/research_stats_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
@@ -76,6 +78,7 @@ import 'package:biocentral_api/src/model/service_stats_response.dart';
 import 'package:biocentral_api/src/model/start_inference_request.dart';
 import 'package:biocentral_api/src/model/start_task_response.dart';
 import 'package:biocentral_api/src/model/start_training_request.dart';
+import 'package:biocentral_api/src/model/supervised_framework_report.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/task_status_response.dart';
@@ -85,6 +88,8 @@ import 'package:biocentral_api/src/model/taxonomy_response.dart';
 import 'package:biocentral_api/src/model/test_result.dart';
 import 'package:biocentral_api/src/model/validation_error.dart';
 import 'package:biocentral_api/src/model/validation_error_loc_inner.dart';
+import 'package:biocentral_api/src/model/zero_shot_framework_report.dart';
+import 'package:biocentral_api/src/model/zero_shot_method.dart';
 
 part 'serializers.g.dart';
 
@@ -106,7 +111,7 @@ part 'serializers.g.dart';
   AutoEvalProgress,
   AutoEvalReport,
   BiocentralPredictionModel,
-  BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
+  BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServiceStats,
   BiotrainerSequenceRecord,
   CommonEmbedder,
@@ -124,6 +129,7 @@ part 'serializers.g.dart';
   HTTPValidationError,
   ImportDatasetRequest,
   ImportDatasetResponse,
+  MetricEstimate,
   ModelFilesRequest,
   ModelMetadata,
   ModelMetadataResponse,
@@ -142,6 +148,7 @@ part 'serializers.g.dart';
   PredictionRequest,
   ProjectionRequest,
   Protocol,
+  RankingResult,
   ResearchStats,
   ResearchStatsResponse,
   RunTestRequest,
@@ -151,6 +158,7 @@ part 'serializers.g.dart';
   StartInferenceRequest,
   StartTaskResponse,
   StartTrainingRequest,
+  SupervisedFrameworkReport,
   TaskDTO,
   TaskStatus,
   TaskStatusResponse,
@@ -160,6 +168,8 @@ part 'serializers.g.dart';
   TestResult,
   ValidationError,
   ValidationErrorLocInner,
+  ZeroShotFrameworkReport,
+  ZeroShotMethod,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
