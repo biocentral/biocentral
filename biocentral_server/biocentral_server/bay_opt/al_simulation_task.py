@@ -82,7 +82,7 @@ class ActiveLearningSimulationTask(TaskInterface):
             )
             start_ids_set = set([data_point.seq_id for data_point in random_sample])
         return [
-            data_point
+            data_point.set_label(data_point.label)  # Set "train"
             if data_point.seq_id in start_ids_set
             else data_point.delete_label()
             for data_point in self.al_simulation_config.simulation_data
@@ -477,7 +477,7 @@ class ActiveLearningSimulationTask(TaskInterface):
             ), []
 
         embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
-        if len(embeddings) == 0:
+        if embeddings is None or len(embeddings) == 0:
             return TaskDTO(
                 status=TaskStatus.FAILED,
                 error="Did not receive embeddings for training!",
