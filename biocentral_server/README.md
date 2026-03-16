@@ -13,15 +13,12 @@ These are the currently provided modules:
 | predict       |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
 | custom_models | Train and evaluate models trained on embeddings |     [biotrainer]      |
 | proteins      |             Work with protein data              |       [taxoniq]       |
-| plm_eval      | Automatically evaluate protein language models  |  [biotrainer], [PBC]  |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
 
 [hvi_toolkit]: https://github.com/SebieF/hvi_toolkit
 
 [taxoniq]: https://github.com/taxoniq/taxoniq
-
-[PBC]: https://github.com/Rostlab/pbc
 
 [TMbed]: https://github.com/BernhoferM/TMbed
 

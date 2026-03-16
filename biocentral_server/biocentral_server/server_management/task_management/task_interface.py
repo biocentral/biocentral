@@ -5,7 +5,6 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
 from biotrainer.output_files import OutputData
-from biotrainer.autoeval import AutoEvalProgress
 from biotrainer.input_files import BiotrainerSequenceRecord
 from typing import Any, Dict, Callable, Generator, Optional, List
 
@@ -53,10 +52,6 @@ class TaskDTO(BaseModel):
 
     # projections
     projection_result: Optional[Dict[str, Any]] = None
-
-    # plm_eval
-    embedder_name: Optional[str] = None
-    autoeval_progress: Optional[AutoEvalProgress] = None
 
     # active_learning
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
