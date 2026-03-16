@@ -3,7 +3,7 @@ import torch
 from biotrainer.embedders import get_embedding_service
 from biotrainer.embedders.services import EmbeddingService
 from biotrainer.embedders.interfaces import EmbedderInterface
-from typing import List, Generator, Optional, Union, Dict, Any
+from typing import List, Generator, Optional, Union, Dict, Any, Iterable
 
 from ..utils import get_logger
 from ..server_management import (
@@ -126,6 +126,10 @@ class BiotrainerTritonEmbedder(EmbedderInterface):
                 f"Failed to check Triton availability for {embedder_name}: {e}"
             )
             return False
+
+    def _preprocess_sequences(self, sequences: Iterable[str]) -> List[str]:
+        # Handled in triton internally
+        return sequences
 
     def _embed_single(self, sequence: str) -> torch.Tensor:
         embd = list(self._embed_batch([sequence]))[0]
