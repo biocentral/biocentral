@@ -37,7 +37,8 @@ class EmbedRequest(BaseModel):
         default="false", description="Whether to use dimensionality reduction"
     )
     sequence_data: Dict[str, str] = Field(
-        description="Sequence data to embed (seq_id -> sequence)", min_length=1
+        description="Sequence data to embed (seq_id -> sequence)",
+        min_length=1,  # TODO max_length=1000,
     )
     use_half_precision: bool = Field(
         default="false", description="Whether to use half precision"

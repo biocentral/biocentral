@@ -1,4 +1,6 @@
 import io
+from typing import Annotated
+
 import h5py
 import json
 import base64
@@ -27,7 +29,7 @@ from ..server_management import (
     EmbeddingsDatabase,
     StartTaskResponse,
     ErrorResponse,
-    MetricsCollector,
+    MetricsService,
 )
 
 logger = get_logger(__name__)
@@ -58,7 +60,11 @@ async def common_embedders():
     description="Submit sequences for embedding calculation using specified embedder model",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-async def embed(request_data: EmbedRequest, request: Request):
+async def embed(
+    request_data: EmbedRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
     """Endpoint for embeddings calculation"""
     # Convert string booleans to actual booleans
     reduced = str2bool(str(request_data.reduce))
@@ -79,7 +85,7 @@ async def embed(request_data: EmbedRequest, request: Request):
     user_id = await UserManager.get_user_id_from_request(req=request)
 
     # Record metrics
-    MetricsCollector.record_embedding_request(
+    metrics_service.record_sequence_data(
         sequences=request_data.sequence_data,
         embedder_name=request_data.embedder_name,
     )

@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 
 from biotrainer.input_files import BiotrainerSequenceRecord
@@ -12,6 +13,7 @@ from ..server_management import (
     UserManager,
     ErrorResponse,
     NotFoundErrorResponse,
+    MetricsService,
     StartTaskResponse,
 )
 
@@ -46,7 +48,11 @@ def model_metadata():
     description="Submit sequences for prediction using specified models and receive a task ID for tracking",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-async def predict(request_data: PredictionRequest, request: Request):
+async def predict(
+    request_data: PredictionRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
     """
     Endpoint for protein sequence prediction using a single or multiple models
     """
@@ -75,6 +81,12 @@ async def predict(request_data: PredictionRequest, request: Request):
         models=models,
         sequence_input=sequence_input,
         batch_size=1,  # TODO batch_size
+    )
+
+    # Record metrics
+    metrics_service.record_prediction_data(
+        sequences=request_data.sequence_input,
+        predictor_names=[m.name for m in models.keys()],
     )
 
     # Add task to task manager

@@ -1,3 +1,4 @@
-from .metrics import MetricsCollector
+from .metrics_service import MetricsService
+from .research_stats import ResearchStats
 
-__all__ = ["MetricsCollector"]
+__all__ = ["MetricsService", "ResearchStats"]

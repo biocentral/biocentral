@@ -1,3 +1,4 @@
+from typing import Annotated
 from biotrainer.input_files import BiotrainerSequenceRecord
 from fastapi_limiter.depends import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
@@ -14,6 +15,7 @@ from ..server_management import (
     TaskManager,
     UserManager,
     StartTaskResponse,
+    MetricsService,
     ErrorResponse,
 )
 from ..utils import convert_config
@@ -54,7 +56,11 @@ def projection_config():
     description="Calculate projections for embeddings using Protspace",
     dependencies=[Depends(RateLimiter(times=1, seconds=120))],
 )
-async def project(request_data: ProjectionRequest, request: Request):
+async def project(
+    request_data: ProjectionRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
     method = request_data.method
     sequence_data = request_data.sequence_data
     config_dict = request_data.config
@@ -76,9 +82,14 @@ async def project(request_data: ProjectionRequest, request: Request):
         config=config,
     )
 
+    # Record metrics
+    metrics_service.record_sequence_data(
+        sequences=sequence_data, embedder_name=embedder_name
+    )
+
+    # Submit task
     user_id = await UserManager.get_user_id_from_request(request)
     task_manager = TaskManager()
     task_id = task_manager.add_task(task=protspace_task, user_id=user_id)
-    print(task_id)
 
     return StartTaskResponse(task_id=task_id)

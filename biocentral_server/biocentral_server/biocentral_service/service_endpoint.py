@@ -1,17 +1,23 @@
-from typing import Optional
+from typing import Optional, Annotated
 
 import torch
 import psutil
 
-from .endpoint_models import TaskStatusResponse
+from fastapi import APIRouter, Request, HTTPException, status, Depends
 
-from fastapi import APIRouter, Request, HTTPException, status
+from .endpoint_models import (
+    TaskStatusResponse,
+    BiocentralServiceStats,
+    ServiceStatsResponse,
+    ResearchStatsResponse,
+)
 
 from ..server_management import (
     UserManager,
-    FileManager,
+    EmbeddingDatabaseFactory,
     TaskManager,
     NotFoundErrorResponse,
+    MetricsService,
 )
 
 router = APIRouter(
@@ -81,8 +87,8 @@ async def task_status_resumed(task_id: str, request: Request):
 
 
 # Endpoint to get some server statistics
-@router.get("/stats/")
-def stats():
+@router.get("/stats/", response_model=ServiceStatsResponse)
+async def stats(metrics_service: Annotated[MetricsService, Depends(MetricsService)]):
     def _get_usable_cpu_count():
         try:
             # Try to use psutil, which works on Windows, Linux, and macOS
@@ -92,21 +98,35 @@ def stats():
             return psutil.cpu_count(logical=True)
 
     usable_cpu_count = _get_usable_cpu_count()
-    disk_usage: str = FileManager(user_id="").get_disk_usage()
 
-    number_requests_since_start = UserManager.get_total_number_of_requests_since_start()
-    n_processes = TaskManager().get_current_number_of_running_tasks()
+    embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+    embeddings_database_size = embeddings_db.get_database_size()
+
+    total_tasks = await metrics_service.get_total_tasks()
+    queue_length = TaskManager().get_current_number_of_queued_tasks()
 
     cuda_available = torch.cuda.is_available()
     cuda_device_count = torch.cuda.device_count() if cuda_available else 0
-    mps_available = torch.backends.mps.is_available()
+    cuda_device_names = [
+        torch.cuda.get_device_name(i) for i in range(cuda_device_count)
+    ]
 
-    return {
-        "usable_cpu_count": usable_cpu_count,
-        "disk_usage": disk_usage,
-        "number_requests_since_start": number_requests_since_start,
-        "n_processes": n_processes,
-        "cuda_available": cuda_available,
-        "cuda_device_count": cuda_device_count,
-        "mps_available": mps_available,
-    }
+    return ServiceStatsResponse(
+        service_stats=BiocentralServiceStats(
+            usable_cpu_count=usable_cpu_count,
+            embeddings_database_size=embeddings_database_size,
+            total_tasks=total_tasks,
+            queue_length=queue_length,
+            cuda_available=cuda_available,
+            cuda_device_names=cuda_device_names,
+            cuda_device_count=cuda_device_count,
+        )
+    )
+
+
+@router.get("/research_stats/", response_model=ResearchStatsResponse)
+async def research_stats(
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
+    r_stats = await metrics_service.get_research_stats()
+    return ResearchStatsResponse(research_stats=r_stats)

@@ -4,7 +4,7 @@ from .shared_endpoint_models import (
     NotFoundErrorResponse,
     StartTaskResponse,
 )
-from .monitoring import MetricsCollector
+from .monitoring import MetricsService, ResearchStats
 from .custom_middleware import BodySizeLimitMiddleware
 from .shared_endpoint_models import (
     Prediction,
@@ -62,7 +62,8 @@ __all__ = [
     "Prediction",
     "MutationPrediction",
     "BodySizeLimitMiddleware",
-    "MetricsCollector",
+    "MetricsService",
+    "ResearchStats",
     "ActiveLearningResult",
     "ActiveLearningIterationResult",
     "ActiveLearningSimulationResult",

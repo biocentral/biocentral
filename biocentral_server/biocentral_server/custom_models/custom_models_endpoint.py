@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 from biotrainer.input_files import BiotrainerSequenceRecord
 from biotrainer.protocols import Protocol
@@ -22,6 +23,7 @@ from ..server_management import (
     UserManager,
     FileManager,
     NotFoundErrorResponse,
+    MetricsService,
     StartTaskResponse,
 )
 from ..utils import verify_biotrainer_config
@@ -87,7 +89,11 @@ def verify_config(request_data: ConfigVerificationRequest):
     description="Submit a new model training job with specified configuration and training data",
     dependencies=[Depends(RateLimiter(times=200, seconds=120))],
 )
-async def start_training(request_data: StartTrainingRequest, request: Request):
+async def start_training(
+    request_data: StartTrainingRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
     """Start model training for biotrainer"""
     # Parse and validate configuration
     config_dict = request_data.config_dict
@@ -103,6 +109,14 @@ async def start_training(request_data: StartTrainingRequest, request: Request):
     task_manager = TaskManager()
     task_id = task_manager.get_unique_task_id(task=BiotrainerTask)
     model_path = file_manager.get_biotrainer_model_path(model_hash=task_id)
+
+    # Record metrics
+    metrics_service.record_training_data(
+        sequences={
+            data_point.seq_id: data_point.sequence
+            for data_point in request_data.training_data
+        }
+    )
 
     biotrainer_process = BiotrainerTask(
         model_path=model_path,
@@ -150,7 +164,11 @@ async def model_files(request_data: ModelFilesRequest, request: Request):
     description="Submit sequences for prediction using a trained model",
     dependencies=[Depends(RateLimiter(times=2, seconds=60))],
 )
-async def start_inference(request_data: StartInferenceRequest, request: Request):
+async def start_inference(
+    request_data: StartInferenceRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
     """Do inference from trained models"""
 
     # Convert sequence_data to BiotrainerSequenceRecord objects
@@ -171,6 +189,9 @@ async def start_inference(request_data: StartInferenceRequest, request: Request)
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Model not found. Invalid model hash or model training not completed.",
         )
+
+    # Record metrics
+    metrics_service.record_inference_data(sequences=request_data.sequence_data)
 
     # Create and submit inference task
     inference_task = BiotrainerInferenceTask(
