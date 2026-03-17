@@ -55,10 +55,18 @@ class DatabaseStrategy:
         """DelegateS to biotrainer sequence hashing"""
         return calculate_sequence_hash(sequence)
 
-    def get_database_size(self) -> str:
+    def get_database_size(self) -> int:
         """
         Get the current size of the database.
 
-        :return: Size in MB
+        :return: Size in bytes
         """
+        raise NotImplementedError
+
+    def cleanup_database(
+        self, older_than_days: int = 30, size_threshold: int = 10 * 1024 * 1024 * 1024
+    ) -> int:
+        raise NotImplementedError
+
+    def get_database_statistics(self) -> Dict[str, Any]:
         raise NotImplementedError

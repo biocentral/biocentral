@@ -8,8 +8,8 @@ class BiocentralServiceStats(BaseModel):
     usable_cpu_count: int = Field(
         description="Number of usable CPU cores available to the process"
     )
-    embeddings_database_size: str = Field(
-        description="Current size of the embeddings database in MB"
+    embeddings_database_size: int = Field(
+        description="Current size of the embeddings database in bytes"
     )
     total_tasks: int = Field(
         description="Total number of tasks submitted since server startup"

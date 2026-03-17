@@ -191,5 +191,15 @@ class EmbeddingsDatabase:
     def get_onnx_model_hash(onnx_path: str):
         return "onnx/" + hashlib.md5(onnx_path.encode("utf8")).hexdigest()
 
-    def get_database_size(self) -> str:
+    def get_database_size(self) -> int:
         return self.strategy.get_database_size()
+
+    def cleanup_database(
+        self, older_than_days: int = 30, size_threshold: int = 10 * 1024 * 1024 * 1024
+    ) -> int:
+        return self.strategy.cleanup_database(
+            older_than_days=older_than_days, size_threshold=size_threshold
+        )
+
+    def get_database_statistics(self) -> Dict[str, Any]:
+        return self.strategy.get_database_statistics()
