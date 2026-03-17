@@ -7,7 +7,7 @@ from biotrainer.embedders import get_predefined_embedder_names
 class DeviceService:
     @staticmethod
     def train_device() -> torch.device:
-        return torch.device("cpu")
+        return get_device()
 
     @staticmethod
     def embedding_device(embedder_name: str) -> torch.device:
@@ -17,7 +17,7 @@ class DeviceService:
 
     @staticmethod
     def inference_device() -> torch.device:
-        return torch.device("cpu")
+        return get_device()
 
     @staticmethod
     def prediction_device() -> torch.device:
