@@ -119,12 +119,25 @@ class LoadEmbeddingsTask(TaskInterface):
         if not memory_dto:
             return TaskDTO.errored("Could not compute memory embeddings!")
 
-        # Unify with original input
+        return self._postprocess_embeddings(
+            memory_dto.embeddings, expected_length=len(self.sequence_input)
+        )
+
+    def _postprocess_embeddings(
+        self, embd_records: List[BiotrainerSequenceRecord], expected_length: int
+    ) -> TaskDTO:
         record_ids2embd = {
             embd_record.get_hash(): embd_record.embedding
-            for embd_record in memory_dto.embeddings
+            for embd_record in embd_records
         }
+        missing = expected_length - len(record_ids2embd)
+        if missing != 0:
+            # TODO Add retry of embedding calculation
+            return TaskDTO.errored(
+                f"Missing number of embeddings before loading: {missing}"
+            )
 
+        # Unify with original input
         try:
             input_with_embeddings = [
                 seq_record.copy_with_embedding(
@@ -164,33 +177,9 @@ class LoadEmbeddingsTask(TaskInterface):
             embedder_name=self.embedder_name,
             reduced=self.reduced,
         )
-        record_ids2embd = {
-            embd_record.get_hash(): embd_record.embedding
-            for embd_record in embd_records
-        }
-        missing = [
-            seq_id
-            for seq_id in embedded_sequences.keys()
-            if seq_id not in record_ids2embd
-        ]
-
-        if len(missing) > 0:
-            # TODO Add retry of embedding calculation
-            return TaskDTO.errored(
-                f"Missing number of embeddings before loading: {len(missing)}"
-            )
-
-        # Unify with original input
-        try:
-            input_with_embeddings = [
-                seq_record.copy_with_embedding(
-                    embedding=record_ids2embd[seq_record.get_hash()]
-                )
-                for seq_record in self.sequence_input
-            ]
-            return TaskDTO(status=TaskStatus.FINISHED, embeddings=input_with_embeddings)
-        except KeyError as e:
-            return TaskDTO.errored(f"Could not find embedding for sequence id: {e}")
+        return self._postprocess_embeddings(
+            embd_records, expected_length=len(embedded_sequences)
+        )
 
 
 class ExportEmbeddingsTask(TaskInterface):
