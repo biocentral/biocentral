@@ -17,7 +17,7 @@ from biocentral_api import (
 
 def _make_api(local_only_default: bool = True) -> BiocentralAPI:
     """Create API client for local (dev) or production based on env."""
-    local_only = False # local_only_default
+    local_only = local_only_default # local_only_default
     fixed_server_url = None
     return BiocentralAPI(fixed_server_url=fixed_server_url, local_only=local_only)
 
@@ -73,8 +73,9 @@ class TestPredict(unittest.TestCase):
     def setUpClass(cls):
         cls.api = _wait_or_skip(_make_api(local_only_default=True))
 
-    def test_predict_tmbed(self):
-        model_names = [BiocentralPredictionModel.TMBED]
+    def test_predict_all(self):
+        # Predict for all but VespaG (requires ESM-2 3B Model)
+        model_names = [m for m in BiocentralPredictionModel if m != BiocentralPredictionModel.VESPAG]
         sequence_data = {
             "Seq1": "MMALSLALMM",
             "Seq2": "PRTEINMMALM",
@@ -83,6 +84,8 @@ class TestPredict(unittest.TestCase):
         }
 
         result = self.api.predict(model_names=model_names, sequence_data=sequence_data).run()
+
+        print(result)
 
         self.assertEqual(set(result.keys()), set(sequence_data.keys()))
         for pred in result.values():
