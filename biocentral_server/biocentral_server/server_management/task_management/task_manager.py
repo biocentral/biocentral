@@ -58,9 +58,9 @@ class TaskManager:
             run_task_with_updates,
             args=(task,),
             job_id=task_id,
-            result_ttl=500,  # How long to keep successful job results
-            failure_ttl=3600 * 24,  # Keep failed jobs for 24 hours
-            job_timeout=3600 * 24,
+            result_ttl=60 * 15,  # Keep successful results for 15 minutes
+            failure_ttl=3600 * 12,  # Keep failed jobs for 12 hours
+            job_timeout=3600 * 12,  # Timeout after 12 hours
             # TODO Callbacks
             # on_success=lambda jb, connection, result, *args, **kwargs: self._cleanup_task(task_id=task_id),
             # on_failure=lambda jb, connection, type, value, traceback: self._cleanup_task(task_id=task_id),
