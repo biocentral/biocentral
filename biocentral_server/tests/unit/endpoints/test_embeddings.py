@@ -83,7 +83,7 @@ class TestEmbedEndpoint:
 
     @patch("biocentral_server.embeddings.embeddings_endpoint.TaskManager")
     @patch("biocentral_server.embeddings.embeddings_endpoint.UserManager")
-    @patch("biocentral_server.embeddings.embeddings_endpoint.MetricsCollector")
+    @patch("biocentral_server.embeddings.embeddings_endpoint.MetricsService")
     @patch("biocentral_server.embeddings.embeddings_endpoint.RateLimiter")
     def test_embed_valid_request(
         self,

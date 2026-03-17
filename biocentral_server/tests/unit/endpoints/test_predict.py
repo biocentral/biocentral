@@ -111,7 +111,7 @@ class TestPredictEndpoint:
         mock_metadata = MagicMock()
         mock_metadata.name = BiocentralPredictionModel.BindEmbed
         mock_get_metadata.return_value = [mock_metadata]
-        mock_filter_models.return_value = [MagicMock()]
+        mock_filter_models.return_value = MagicMock()
         mock_user_manager.get_user_id_from_request = AsyncMock(return_value="user-1")
         mock_task_manager.return_value.add_task.return_value = "predict-task-123"
 
