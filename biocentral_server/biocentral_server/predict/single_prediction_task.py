@@ -47,7 +47,8 @@ class SinglePredictionTask(TaskInterface):
             return error_dto
 
         embeddings = {
-            embd_record.seq_id: embd_record.embedding for embd_record in embed_records
+            embd_record.get_hash(): embd_record.embedding
+            for embd_record in embed_records
         }
         predictions = self.model.predict(
             sequences={
