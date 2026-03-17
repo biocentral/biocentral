@@ -20,8 +20,6 @@ from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
 from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 from .library_adapters import (
-    get_custom_training_pipeline_autoeval_loading,
-    get_custom_training_pipeline_autoeval_memory,
     TrainingDTOObserver,
 )
 from .triton_client import (
@@ -45,8 +43,6 @@ __all__ = [
     "TaskManager",
     "EmbeddingDatabaseFactory",
     "EmbeddingsDatabase",
-    "get_custom_training_pipeline_autoeval_loading",
-    "get_custom_training_pipeline_autoeval_memory",
     "TrainingDTOObserver",
     "ServerInitializationManager",
     "ServerModuleInitializer",
