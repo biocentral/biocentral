@@ -40,10 +40,9 @@ class TaskManager:
 
         # TODO [Feature] Add priority queues not only for subtasks
         self.default_queue = Queue("default", connection=self.redis_conn)
-        self.subtask_queue = Queue("high", connection=self.redis_conn)
 
     def _get_job(self, task_id: str):
-        queues = [self.default_queue, self.subtask_queue]
+        queues = [self.default_queue]
         for queue in queues:
             job = queue.fetch_job(task_id)
             if job is not None:
@@ -77,15 +76,6 @@ class TaskManager:
 
         self._enqueue(
             task=task, task_id=task_id, queue=self.default_queue, user_id=user_id
-        )
-
-        return task_id
-
-    def add_subtask(self, task: TaskInterface, user_id: str = "") -> str:
-        task_id = self._generate_task_id(task=task.__class__)
-
-        self._enqueue(
-            task=task, task_id=task_id, queue=self.subtask_queue, user_id=user_id
         )
 
         return task_id
