@@ -21,7 +21,6 @@ from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult
-from biocentral_api._generated.models.auto_eval_progress import AutoEvalProgress
 from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.output_data import OutputData
@@ -44,11 +43,9 @@ class TaskDTO(BaseModel):
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[StrictStr] = None
     projection_result: Optional[Dict[str, Any]] = None
-    embedder_name: Optional[StrictStr] = None
-    autoeval_progress: Optional[AutoEvalProgress] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "embedder_name", "autoeval_progress", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -111,9 +108,6 @@ class TaskDTO(BaseModel):
                 if _item_embeddings:
                     _items.append(_item_embeddings.to_dict())
             _dict['embeddings'] = _items
-        # override the default output from pydantic by calling `to_dict()` of autoeval_progress
-        if self.autoeval_progress:
-            _dict['autoeval_progress'] = self.autoeval_progress.to_dict()
         # override the default output from pydantic by calling `to_dict()` of al_iteration_result
         if self.al_iteration_result:
             _dict['al_iteration_result'] = self.al_iteration_result.to_dict()
@@ -165,16 +159,6 @@ class TaskDTO(BaseModel):
         if self.projection_result is None and "projection_result" in self.model_fields_set:
             _dict['projection_result'] = None
 
-        # set to None if embedder_name (nullable) is None
-        # and model_fields_set contains the field
-        if self.embedder_name is None and "embedder_name" in self.model_fields_set:
-            _dict['embedder_name'] = None
-
-        # set to None if autoeval_progress (nullable) is None
-        # and model_fields_set contains the field
-        if self.autoeval_progress is None and "autoeval_progress" in self.model_fields_set:
-            _dict['autoeval_progress'] = None
-
         # set to None if al_iteration_result (nullable) is None
         # and model_fields_set contains the field
         if self.al_iteration_result is None and "al_iteration_result" in self.model_fields_set:
@@ -214,8 +198,6 @@ class TaskDTO(BaseModel):
             "embeddings": [BiotrainerSequenceRecord.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
             "projection_result": obj.get("projection_result"),
-            "embedder_name": obj.get("embedder_name"),
-            "autoeval_progress": AutoEvalProgress.from_dict(obj["autoeval_progress"]) if obj.get("autoeval_progress") is not None else None,
             "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
             "al_simulation_result": ActiveLearningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
         })

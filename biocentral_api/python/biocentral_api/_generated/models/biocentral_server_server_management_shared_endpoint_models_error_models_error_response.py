@@ -17,18 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.plm_eval_information import PLMEvalInformation
+from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class PLMEvalInformationResponse(BaseModel):
+class BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse(BaseModel):
     """
-    PLMEvalInformationResponse
+    BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
     """ # noqa: E501
-    info: PLMEvalInformation = Field(description="Information about the PLM evaluation process")
-    __properties: ClassVar[List[str]] = ["info"]
+    error: StrictStr
+    error_type: StrictStr
+    details: Optional[StrictStr] = None
+    error_code: Optional[StrictInt] = None
+    __properties: ClassVar[List[str]] = ["error", "error_type", "details", "error_code"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +50,7 @@ class PLMEvalInformationResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PLMEvalInformationResponse from a JSON string"""
+        """Create an instance of BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,14 +71,21 @@ class PLMEvalInformationResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of info
-        if self.info:
-            _dict['info'] = self.info.to_dict()
+        # set to None if details (nullable) is None
+        # and model_fields_set contains the field
+        if self.details is None and "details" in self.model_fields_set:
+            _dict['details'] = None
+
+        # set to None if error_code (nullable) is None
+        # and model_fields_set contains the field
+        if self.error_code is None and "error_code" in self.model_fields_set:
+            _dict['error_code'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PLMEvalInformationResponse from a dict"""
+        """Create an instance of BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse from a dict"""
         if obj is None:
             return None
 
@@ -84,7 +93,10 @@ class PLMEvalInformationResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "info": PLMEvalInformation.from_dict(obj["info"]) if obj.get("info") is not None else None
+            "error": obj.get("error"),
+            "error_type": obj.get("error_type"),
+            "details": obj.get("details"),
+            "error_code": obj.get("error_code")
         })
         return _obj
 

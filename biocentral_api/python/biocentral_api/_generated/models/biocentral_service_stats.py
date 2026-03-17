@@ -27,7 +27,7 @@ class BiocentralServiceStats(BaseModel):
     BiocentralServiceStats
     """ # noqa: E501
     usable_cpu_count: StrictInt = Field(description="Number of usable CPU cores available to the process")
-    embeddings_database_size: StrictStr = Field(description="Current size of the embeddings database in MB")
+    embeddings_database_size: StrictInt = Field(description="Current size of the embeddings database in bytes")
     total_tasks: StrictInt = Field(description="Total number of tasks submitted since server startup")
     queue_length: StrictInt = Field(description="Current number of tasks queued for execution")
     cuda_available: StrictBool = Field(description="Whether CUDA GPU acceleration is available")

@@ -29,9 +29,9 @@ class ActiveLearningSimulationConfig(BaseModel):
     """
     Configuration for a simulation of active learning on a complete dataset
     """ # noqa: E501
-    simulation_data: Annotated[List[SequenceTrainingData], Field(min_length=2)] = Field(description="List of all sequence data for the simulation")
-    n_start: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
-    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = None
+    simulation_data: Annotated[List[SequenceTrainingData], Field(min_length=3)] = Field(description="List of all sequence data for the simulation")
+    n_start: Optional[Annotated[int, Field(strict=True, ge=2)]] = None
+    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=2)]] = None
     n_suggestions_per_iteration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose per iteration")
     convergence_config: ActiveLearningConvergenceConfig = Field(description="Convergence criteria for the simulation")
     __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "convergence_config"]

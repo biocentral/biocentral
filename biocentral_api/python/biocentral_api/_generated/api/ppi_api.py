@@ -97,7 +97,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DetectedFormatResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -166,7 +166,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DetectedFormatResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -235,7 +235,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DetectedFormatResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -621,7 +621,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ImportDatasetResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -690,7 +690,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ImportDatasetResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -759,7 +759,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ImportDatasetResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -900,7 +900,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "RunTestResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -969,7 +969,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "RunTestResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -1038,7 +1038,7 @@ class PpiApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "RunTestResponse",
             '404': "NotFoundErrorResponse",
-            '400': "ErrorResponse",
+            '400': "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(

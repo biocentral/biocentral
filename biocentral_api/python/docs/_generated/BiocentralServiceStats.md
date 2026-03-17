@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **usable_cpu_count** | **int** | Number of usable CPU cores available to the process | 
-**embeddings_database_size** | **str** | Current size of the embeddings database in MB | 
+**embeddings_database_size** | **int** | Current size of the embeddings database in bytes | 
 **total_tasks** | **int** | Total number of tasks submitted since server startup | 
 **queue_length** | **int** | Current number of tasks queued for execution | 
 **cuda_available** | **bool** | Whether CUDA GPU acceleration is available | 
