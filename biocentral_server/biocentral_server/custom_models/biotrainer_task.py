@@ -75,17 +75,7 @@ class BiotrainerTask(TaskInterface):
                 return error_dto
 
             # Add embeddings to input data (are read in biotrainer instead of embedding there)
-            embd_dict = {
-                embd_record.get_hash(): embd_record.embedding
-                for embd_record in embeddings
-            }
-            embd_records = [
-                seq_record.copy_with_embedding(
-                    embedding=embd_dict[seq_record.get_hash()]
-                )
-                for seq_record in sequence_records
-            ]
-            self.config_dict["input_data"] = embd_records
+            self.config_dict["input_data"] = embeddings
             config = deepcopy(self.config_dict)
 
             custom_observer = TrainingDTOObserver(
