@@ -1,7 +1,5 @@
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
-import 'package:biocentral_api/src/clients/plm_eval_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
-import 'package:biocentral_api/src/model/auto_eval_report.dart';
 import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/research_stats.dart';
@@ -11,7 +9,6 @@ import 'clients/embedding_client.dart';
 import 'clients/predict_client.dart';
 import 'clients/proteins_client.dart';
 import 'clients/tasks/biocentral_server_task.dart';
-import 'model/plm_eval_information.dart';
 import 'model/prediction.dart';
 import 'model/sequence_training_data.dart';
 import 'model/taxonomy_item.dart';
@@ -218,27 +215,6 @@ extension EmbeddingAPI on BiocentralAPI {
       sequenceData: sequenceData,
       config: config,
     );
-  }
-}
-
-extension PlmEvalAPI on BiocentralAPI {
-  Future<PLMEvalInformation?> getPlmEvalInformation() async {
-    return PlmEvalClient().getPlmEvalInformation(api: _getAPI());
-  }
-
-  Future<String?> validateModelID({
-    required String modelID,
-  }) async {
-    return PlmEvalClient().validateModelID(api: _getAPI(), modelID: modelID);
-  }
-
-  Future<BiocentralServerTask<AutoEvalReport?>> autoeval({
-    required String modelID,
-    String? onnxFile,
-    String? tokenizerConfig,
-  }) async {
-    return PlmEvalClient()
-        .autoeval(api: _getAPI(), modelID: modelID, onnxFile: onnxFile, tokenizerConfig: tokenizerConfig);
   }
 }
 

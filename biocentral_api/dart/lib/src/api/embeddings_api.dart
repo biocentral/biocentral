@@ -10,9 +10,9 @@ import 'package:dio/dio.dart';
 
 import 'package:biocentral_api/src/model/add_embeddings_request.dart';
 import 'package:biocentral_api/src/model/add_embeddings_response.dart';
+import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/embed_request.dart';
-import 'package:biocentral_api/src/model/error_response.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_request.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';

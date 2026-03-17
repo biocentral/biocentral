@@ -6,9 +6,9 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'error_response.g.dart';
+part 'biocentral_server_server_management_shared_endpoint_models_error_models_error_response.g.dart';
 
-/// ErrorResponse
+/// BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 ///
 /// Properties:
 /// * [error] 
@@ -16,7 +16,7 @@ part 'error_response.g.dart';
 /// * [details] 
 /// * [errorCode] 
 @BuiltValue()
-abstract class ErrorResponse implements Built<ErrorResponse, ErrorResponseBuilder> {
+abstract class BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse implements Built<BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse, BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder> {
   @BuiltValueField(wireName: r'error')
   String get error;
 
@@ -29,27 +29,27 @@ abstract class ErrorResponse implements Built<ErrorResponse, ErrorResponseBuilde
   @BuiltValueField(wireName: r'error_code')
   int? get errorCode;
 
-  ErrorResponse._();
+  BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse._();
 
-  factory ErrorResponse([void updates(ErrorResponseBuilder b)]) = _$ErrorResponse;
+  factory BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse([void updates(BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder b)]) = _$BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ErrorResponseBuilder b) => b;
+  static void _defaults(BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ErrorResponse> get serializer => _$ErrorResponseSerializer();
+  static Serializer<BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse> get serializer => _$BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseSerializer();
 }
 
-class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
+class _$BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseSerializer implements PrimitiveSerializer<BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse> {
   @override
-  final Iterable<Type> types = const [ErrorResponse, _$ErrorResponse];
+  final Iterable<Type> types = const [BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse, _$BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse];
 
   @override
-  final String wireName = r'ErrorResponse';
+  final String wireName = r'BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ErrorResponse object, {
+    BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'error';
@@ -81,7 +81,7 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
   @override
   Object serialize(
     Serializers serializers,
-    ErrorResponse object, {
+    BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -92,7 +92,7 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ErrorResponseBuilder result,
+    required BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -138,12 +138,12 @@ class _$ErrorResponseSerializer implements PrimitiveSerializer<ErrorResponse> {
   }
 
   @override
-  ErrorResponse deserialize(
+  BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ErrorResponseBuilder();
+    final result = BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

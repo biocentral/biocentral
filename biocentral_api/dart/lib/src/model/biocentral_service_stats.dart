@@ -13,7 +13,7 @@ part 'biocentral_service_stats.g.dart';
 ///
 /// Properties:
 /// * [usableCpuCount] - Number of usable CPU cores available to the process
-/// * [embeddingsDatabaseSize] - Current size of the embeddings database in MB
+/// * [embeddingsDatabaseSize] - Current size of the embeddings database in bytes
 /// * [totalTasks] - Total number of tasks submitted since server startup
 /// * [queueLength] - Current number of tasks queued for execution
 /// * [cudaAvailable] - Whether CUDA GPU acceleration is available
@@ -25,9 +25,9 @@ abstract class BiocentralServiceStats implements Built<BiocentralServiceStats, B
   @BuiltValueField(wireName: r'usable_cpu_count')
   int get usableCpuCount;
 
-  /// Current size of the embeddings database in MB
+  /// Current size of the embeddings database in bytes
   @BuiltValueField(wireName: r'embeddings_database_size')
-  String get embeddingsDatabaseSize;
+  int get embeddingsDatabaseSize;
 
   /// Total number of tasks submitted since server startup
   @BuiltValueField(wireName: r'total_tasks')
@@ -80,7 +80,7 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
     yield r'embeddings_database_size';
     yield serializers.serialize(
       object.embeddingsDatabaseSize,
-      specifiedType: const FullType(String),
+      specifiedType: const FullType(int),
     );
     yield r'total_tasks';
     yield serializers.serialize(
@@ -140,8 +140,8 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
         case r'embeddings_database_size':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType(int),
+          ) as int;
           result.embeddingsDatabaseSize = valueDes;
           break;
         case r'total_tasks':

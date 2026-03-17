@@ -10,7 +10,7 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
   @override
   final int usableCpuCount;
   @override
-  final String embeddingsDatabaseSize;
+  final int embeddingsDatabaseSize;
   @override
   final int totalTasks;
   @override
@@ -94,9 +94,9 @@ class BiocentralServiceStatsBuilder
   set usableCpuCount(int? usableCpuCount) =>
       _$this._usableCpuCount = usableCpuCount;
 
-  String? _embeddingsDatabaseSize;
-  String? get embeddingsDatabaseSize => _$this._embeddingsDatabaseSize;
-  set embeddingsDatabaseSize(String? embeddingsDatabaseSize) =>
+  int? _embeddingsDatabaseSize;
+  int? get embeddingsDatabaseSize => _$this._embeddingsDatabaseSize;
+  set embeddingsDatabaseSize(int? embeddingsDatabaseSize) =>
       _$this._embeddingsDatabaseSize = embeddingsDatabaseSize;
 
   int? _totalTasks;

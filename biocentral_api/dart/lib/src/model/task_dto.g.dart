@@ -28,10 +28,6 @@ class _$TaskDTO extends TaskDTO {
   @override
   final BuiltMap<String, JsonObject?>? projectionResult;
   @override
-  final String? embedderName;
-  @override
-  final AutoEvalProgress? autoevalProgress;
-  @override
   final ActiveLearningIterationResult? alIterationResult;
   @override
   final ActiveLearningSimulationResult? alSimulationResult;
@@ -50,8 +46,6 @@ class _$TaskDTO extends TaskDTO {
       this.embeddings,
       this.embeddingsFile,
       this.projectionResult,
-      this.embedderName,
-      this.autoevalProgress,
       this.alIterationResult,
       this.alSimulationResult})
       : super._();
@@ -76,8 +70,6 @@ class _$TaskDTO extends TaskDTO {
         embeddings == other.embeddings &&
         embeddingsFile == other.embeddingsFile &&
         projectionResult == other.projectionResult &&
-        embedderName == other.embedderName &&
-        autoevalProgress == other.autoevalProgress &&
         alIterationResult == other.alIterationResult &&
         alSimulationResult == other.alSimulationResult;
   }
@@ -95,8 +87,6 @@ class _$TaskDTO extends TaskDTO {
     _$hash = $jc(_$hash, embeddings.hashCode);
     _$hash = $jc(_$hash, embeddingsFile.hashCode);
     _$hash = $jc(_$hash, projectionResult.hashCode);
-    _$hash = $jc(_$hash, embedderName.hashCode);
-    _$hash = $jc(_$hash, autoevalProgress.hashCode);
     _$hash = $jc(_$hash, alIterationResult.hashCode);
     _$hash = $jc(_$hash, alSimulationResult.hashCode);
     _$hash = $jf(_$hash);
@@ -116,8 +106,6 @@ class _$TaskDTO extends TaskDTO {
           ..add('embeddings', embeddings)
           ..add('embeddingsFile', embeddingsFile)
           ..add('projectionResult', projectionResult)
-          ..add('embedderName', embedderName)
-          ..add('autoevalProgress', autoevalProgress)
           ..add('alIterationResult', alIterationResult)
           ..add('alSimulationResult', alSimulationResult))
         .toString();
@@ -182,16 +170,6 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set projectionResult(MapBuilder<String, JsonObject?>? projectionResult) =>
       _$this._projectionResult = projectionResult;
 
-  String? _embedderName;
-  String? get embedderName => _$this._embedderName;
-  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
-
-  AutoEvalProgressBuilder? _autoevalProgress;
-  AutoEvalProgressBuilder get autoevalProgress =>
-      _$this._autoevalProgress ??= AutoEvalProgressBuilder();
-  set autoevalProgress(AutoEvalProgressBuilder? autoevalProgress) =>
-      _$this._autoevalProgress = autoevalProgress;
-
   ActiveLearningIterationResultBuilder? _alIterationResult;
   ActiveLearningIterationResultBuilder get alIterationResult =>
       _$this._alIterationResult ??= ActiveLearningIterationResultBuilder();
@@ -223,8 +201,6 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
       _embeddings = $v.embeddings?.toBuilder();
       _embeddingsFile = $v.embeddingsFile;
       _projectionResult = $v.projectionResult?.toBuilder();
-      _embedderName = $v.embedderName;
-      _autoevalProgress = $v.autoevalProgress?.toBuilder();
       _alIterationResult = $v.alIterationResult?.toBuilder();
       _alSimulationResult = $v.alSimulationResult?.toBuilder();
       _$v = null;
@@ -261,8 +237,6 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             embeddings: _embeddings?.build(),
             embeddingsFile: embeddingsFile,
             projectionResult: _projectionResult?.build(),
-            embedderName: embedderName,
-            autoevalProgress: _autoevalProgress?.build(),
             alIterationResult: _alIterationResult?.build(),
             alSimulationResult: _alSimulationResult?.build(),
           );
@@ -284,9 +258,6 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
 
         _$failedField = 'projectionResult';
         _projectionResult?.build();
-
-        _$failedField = 'autoevalProgress';
-        _autoevalProgress?.build();
         _$failedField = 'alIterationResult';
         _alIterationResult?.build();
         _$failedField = 'alSimulationResult';

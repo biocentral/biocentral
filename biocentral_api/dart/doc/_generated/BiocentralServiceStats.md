@@ -9,7 +9,7 @@ import 'package:biocentral_api/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **usableCpuCount** | **int** | Number of usable CPU cores available to the process | 
-**embeddingsDatabaseSize** | **String** | Current size of the embeddings database in MB | 
+**embeddingsDatabaseSize** | **int** | Current size of the embeddings database in bytes | 
 **totalTasks** | **int** | Total number of tasks submitted since server startup | 
 **queueLength** | **int** | Current number of tasks queued for execution | 
 **cudaAvailable** | **bool** | Whether CUDA GPU acceleration is available | 

@@ -10,7 +10,6 @@ import 'package:biocentral_api/src/model/active_learning_simulation_result.dart'
 import 'package:biocentral_api/src/model/output_data.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
-import 'package:biocentral_api/src/model/auto_eval_progress.dart';
 import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
@@ -31,8 +30,6 @@ part 'task_dto.g.dart';
 /// * [embeddings] 
 /// * [embeddingsFile] 
 /// * [projectionResult] 
-/// * [embedderName] 
-/// * [autoevalProgress] 
 /// * [alIterationResult] 
 /// * [alSimulationResult] 
 @BuiltValue()
@@ -67,12 +64,6 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
 
   @BuiltValueField(wireName: r'projection_result')
   BuiltMap<String, JsonObject?>? get projectionResult;
-
-  @BuiltValueField(wireName: r'embedder_name')
-  String? get embedderName;
-
-  @BuiltValueField(wireName: r'autoeval_progress')
-  AutoEvalProgress? get autoevalProgress;
 
   @BuiltValueField(wireName: r'al_iteration_result')
   ActiveLearningIterationResult? get alIterationResult;
@@ -169,20 +160,6 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield serializers.serialize(
         object.projectionResult,
         specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-      );
-    }
-    if (object.embedderName != null) {
-      yield r'embedder_name';
-      yield serializers.serialize(
-        object.embedderName,
-        specifiedType: const FullType.nullable(String),
-      );
-    }
-    if (object.autoevalProgress != null) {
-      yield r'autoeval_progress';
-      yield serializers.serialize(
-        object.autoevalProgress,
-        specifiedType: const FullType.nullable(AutoEvalProgress),
       );
     }
     if (object.alIterationResult != null) {
@@ -300,22 +277,6 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           ) as BuiltMap<String, JsonObject?>?;
           if (valueDes == null) continue;
           result.projectionResult.replace(valueDes);
-          break;
-        case r'embedder_name':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(String),
-          ) as String?;
-          if (valueDes == null) continue;
-          result.embedderName = valueDes;
-          break;
-        case r'autoeval_progress':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(AutoEvalProgress),
-          ) as AutoEvalProgress?;
-          if (valueDes == null) continue;
-          result.autoevalProgress.replace(valueDes);
           break;
         case r'al_iteration_result':
           final valueDes = serializers.deserialize(

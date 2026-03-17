@@ -18,8 +18,6 @@ Name | Type | Description | Notes
 **embeddings** | [**BuiltList&lt;BiotrainerSequenceRecord&gt;**](BiotrainerSequenceRecord.md) |  | [optional] 
 **embeddingsFile** | **String** |  | [optional] 
 **projectionResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) |  | [optional] 
-**embedderName** | **String** |  | [optional] 
-**autoevalProgress** | [**AutoEvalProgress**](AutoEvalProgress.md) |  | [optional] 
 **alIterationResult** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 **alSimulationResult** | [**ActiveLearningSimulationResult**](ActiveLearningSimulationResult.md) |  | [optional] 
 

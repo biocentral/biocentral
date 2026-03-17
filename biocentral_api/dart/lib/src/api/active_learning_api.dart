@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 
 import 'package:biocentral_api/src/model/active_learning_iteration_request.dart';
 import 'package:biocentral_api/src/model/active_learning_simulation_request.dart';
-import 'package:biocentral_api/src/model/error_response.dart';
+import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/start_task_response.dart';

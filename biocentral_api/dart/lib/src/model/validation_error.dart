@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/validation_error_loc_inner.dart';
+import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -16,6 +17,8 @@ part 'validation_error.g.dart';
 /// * [loc] 
 /// * [msg] 
 /// * [type] 
+/// * [input] 
+/// * [ctx] 
 @BuiltValue()
 abstract class ValidationError implements Built<ValidationError, ValidationErrorBuilder> {
   @BuiltValueField(wireName: r'loc')
@@ -26,6 +29,12 @@ abstract class ValidationError implements Built<ValidationError, ValidationError
 
   @BuiltValueField(wireName: r'type')
   String get type;
+
+  @BuiltValueField(wireName: r'input')
+  JsonObject? get input;
+
+  @BuiltValueField(wireName: r'ctx')
+  JsonObject? get ctx;
 
   ValidationError._();
 
@@ -65,6 +74,20 @@ class _$ValidationErrorSerializer implements PrimitiveSerializer<ValidationError
       object.type,
       specifiedType: const FullType(String),
     );
+    if (object.input != null) {
+      yield r'input';
+      yield serializers.serialize(
+        object.input,
+        specifiedType: const FullType.nullable(JsonObject),
+      );
+    }
+    if (object.ctx != null) {
+      yield r'ctx';
+      yield serializers.serialize(
+        object.ctx,
+        specifiedType: const FullType(JsonObject),
+      );
+    }
   }
 
   @override
@@ -108,6 +131,21 @@ class _$ValidationErrorSerializer implements PrimitiveSerializer<ValidationError
             specifiedType: const FullType(String),
           ) as String;
           result.type = valueDes;
+          break;
+        case r'input':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
+          result.input = valueDes;
+          break;
+        case r'ctx':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(JsonObject),
+          ) as JsonObject;
+          result.ctx = valueDes;
           break;
         default:
           unhandled.add(key);
