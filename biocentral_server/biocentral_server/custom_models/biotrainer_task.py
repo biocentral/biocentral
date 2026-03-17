@@ -27,7 +27,7 @@ def _config_with_presets(config_dict: dict):
 
 def get_config_presets():
     return {
-        "device": DeviceService.train_device(),
+        "device": str(DeviceService.train_device()),
         "cross_validation_config": {"method": "hold_out"},
         "save_split_ids": False,
         "sanity_check": True,
@@ -115,7 +115,6 @@ class BiotrainerTask(TaskInterface):
     ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
         embedder_name = self.config_dict["embedder_name"]
         custom_tokenizer_config = self.config_dict.get("custom_tokenizer_config", None)
-        device = self.config_dict.get("device", None)
 
         load_embedding_task = LoadEmbeddingsTask(
             embedder_name=embedder_name,
@@ -123,7 +122,6 @@ class BiotrainerTask(TaskInterface):
             sequence_input=all_seqs,
             reduced=reduced,
             use_half_precision=False,
-            device=device,
         )
         load_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(load_embedding_task):
