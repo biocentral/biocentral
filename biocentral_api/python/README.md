@@ -11,6 +11,7 @@ pip install biocentral-api
 ## Basic Usage
 
 **Embedding protein sequences**:
+
 ```python
 from biocentral_api import BiocentralAPI, CommonEmbedder
 
@@ -21,11 +22,23 @@ embedder_name = CommonEmbedder.ProtT5
 reduce = True
 sequence_data = {"Seq1": "MMALSLALM"}
 result = biocentral_api.embed(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
-                            use_half_precision=False).run()
+                              use_half_precision=False).run()
 print(result)
 ```
 
 For more examples, please refer to the [examples](examples) folder.
+
+## Service Limitations
+
+The following limitations are currently in place:
+
+* **Sequence Limit**: The embed() API has a limit of 1,000 sequences per request.
+  See the [amylase example](examples/amylase_example/amylase_example.py) for how to deal with datasets
+  that exceed this limit.
+* **Rate Limiting**: Most endpoints have a quite strict rate limiting to distribute the available resources as fair
+  as possible. All affected endpoints have a built-in retry mechanism to handle the rate limiting.
+* **431 Forbidden**: Sometimes, the DDoS Protection of the API will send a mistaken 431 forbidden response. If you
+  encounter this, please just try to re-run your script.
 
 ## Citation
 
