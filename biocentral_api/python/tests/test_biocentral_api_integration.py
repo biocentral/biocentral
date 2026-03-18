@@ -32,7 +32,7 @@ def _wait_or_skip(api: BiocentralAPI, timeout: int = 60) -> BiocentralAPI:
 class TestEmbeddings(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.api = _wait_or_skip(_make_api(local_only_default=True))
+        cls.api = _wait_or_skip(_make_api())
 
     def test_embed_one_hot_and_prott5(self):
         sequence_data = {
@@ -71,7 +71,7 @@ class TestEmbeddings(unittest.TestCase):
 class TestPredict(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.api = _wait_or_skip(_make_api(local_only_default=True))
+        cls.api = _wait_or_skip(_make_api())
 
     def test_predict_all(self):
         # Predict for all but VespaG (requires ESM-2 3B Model)
@@ -96,7 +96,7 @@ class TestPredict(unittest.TestCase):
 class TestTrainAndInference(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.api = _wait_or_skip(_make_api(local_only_default=True))
+        cls.api = _wait_or_skip(_make_api())
 
     def test_train_then_infer(self):
         config = {
@@ -136,7 +136,7 @@ class TestTaxonomy(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Active learning currently requires local dev features in many setups
-        cls.api = _wait_or_skip(_make_api(local_only_default=True))
+        cls.api = _wait_or_skip(_make_api())
 
     def test_retrieve_taxonomy(self):
         result = self.api.taxonomy(taxonomy_ids=[9606, 11292])
@@ -151,7 +151,7 @@ class TestActiveLearning(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Active learning currently requires local dev features in many setups
-        cls.api = _wait_or_skip(_make_api(local_only_default=True))
+        cls.api = _wait_or_skip(_make_api())
 
     def test_active_learning_iteration(self):
         campaign_config = ActiveLearningCampaignConfig(
