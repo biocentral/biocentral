@@ -1,5 +1,5 @@
 from typing import List
-from biocentral_api import BiocentralAPI, SequenceTrainingData, CommonEmbedder, BiocentralPredictionModel
+from biocentral_api import BiocentralAPI, SequenceTrainingData, CommonEmbedder, BiocentralPredictionModel, batched
 
 
 def read_fasta(path: str) -> List[SequenceTrainingData]:
@@ -39,20 +39,35 @@ def print_test_result(result: dict):
 def main():
     # 1. Read data
     amylase_data: List[SequenceTrainingData] = read_fasta("amylase_pet.fasta")
-    sequence_data = {data_point.seq_id: data_point.sequence for data_point in amylase_data}
 
     # 2. Connect to biocentral API
     biocentral_api = BiocentralAPI().wait_until_healthy()
 
     # 3. Embed
     embedder_name = CommonEmbedder.ProtT5
-    embeddings = biocentral_api.embed(embedder_name=embedder_name,
-                                      reduce=True,
-                                      sequence_data=sequence_data).run_with_progress()
 
+    # Our number of sequences exceeds the API limit, so we need to batch it
+    current_embeddings_result = None
+    batch_idx = 1
+    for batch in batched(amylase_data, 1000):
+        sequence_data = {data_point.seq_id: data_point.sequence for data_point in batch}
+
+        embeddings = biocentral_api.embed(embedder_name=embedder_name,
+                                          reduce=True,
+                                          sequence_data=sequence_data).run_with_progress()
+        if current_embeddings_result is None:
+            current_embeddings_result = embeddings
+        else:
+            current_embeddings_result = current_embeddings_result.merge(embeddings)
+
+        print(f"Batch {batch_idx} done")
+        batch_idx += 1
+
+    embeddings = current_embeddings_result
     # Save embeddings and inspect first embedding
     embeddings.save("amylase_embeddings.h5")
     print(f"First embedding: {embeddings.to_numpy()[0]}")
+    print(f"Number of embeddings: {len(embeddings.to_list())}")
 
     # 4. Train biotrainer model with ProtT5 embeddings (embeddings are automatically re-used)
     config = {"protocol": "sequence_to_value",
