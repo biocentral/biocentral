@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import io
+import warnings
+
 import h5py
 import base64
 import numpy as np
@@ -19,11 +23,33 @@ class EmbeddingsResult:
     def __init__(self, hash2id: Dict[str, str], embeddings_file_str: str):
         self._hash2id = hash2id
         self._id2hash = {v: k for k, v in hash2id.items()}
-        self._embeddings_file_str = embeddings_file_str
+        self._embeddings_file_str: Optional[str] = embeddings_file_str
 
         # Cached
         self.__embeddings_file_handle = None  # h5 file handle 
         self.__id2emb = None  # Hashed ids -> Embedding
+
+    def merge(self, other: EmbeddingsResult) -> EmbeddingsResult:
+        """
+        Merge two EmbeddingsResult objects. This is useful for combining multiple results from batching.
+
+        The merged result will contain all embeddings from both input results. For some use cases, this loses
+        a bit of efficiency compared to using the plain results, as all embeddings are now read into memory.
+
+        :param other: EmbeddingsResult to merge with
+        :return: Merged EmbeddingsResult
+        """
+        hash2id_combined = {**self._hash2id, **other._hash2id}
+        own_id2emb = self._id2emb()
+        other_id2emb = other._id2emb()
+        new_result = EmbeddingsResult(hash2id=hash2id_combined, embeddings_file_str=self._embeddings_file_str)
+        new_result.__id2emb = {**own_id2emb, **other_id2emb}
+        assert len(new_result._id2hash) == len(new_result._hash2id)
+        if len(own_id2emb) + len(other_id2emb) != len(new_result._id2emb()):
+            warnings.warn("Merging embeddings resulted in different number of embeddings! "
+                          "This means that you tried to merge results that contain the same ids, which might not be"
+                          " intended behaviour.")
+        return new_result
 
     def _lazy_read_handle(self):
         """ Return cached handle or lazily read embeddings string """
@@ -32,6 +58,9 @@ class EmbeddingsResult:
         if self.__embeddings_file_handle is not None:
             return self.__embeddings_file_handle
         # Open
+        if self._embeddings_file_str is None:
+            raise Exception("No embeddings file string available! This is probably due to a failed merge.")
+
         h5_bytes = base64.b64decode(self._embeddings_file_str)
         h5_io = io.BytesIO(h5_bytes)
         self.__embeddings_file_handle = h5py.File(h5_io, 'r')
@@ -100,11 +129,11 @@ class EmbeddingsResult:
         :param save_path: Path where to save the embeddings file.
         :param hashed_ids: If True, sequence hashes instead of the original sequence ids are used to index the h5 database
         """
-        if hashed_ids:
+        if hashed_ids and self._embeddings_file_str is not None:
             with open(save_path, 'w') as h5_file:
                 h5_file.write(self._embeddings_file_str)
         else:
-            seqid2emb = self.to_dict(hashed_ids=False)
+            seqid2emb = self.to_dict(hashed_ids=hashed_ids)
             with h5py.File(save_path, 'w') as h5_file:
                 for seq_id, embedding in seqid2emb.items():
                     h5_file.create_dataset(seq_id, data=embedding)
