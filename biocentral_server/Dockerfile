@@ -51,6 +51,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Copy application files  
 COPY --chown=biocentral-server-user:biocentral-server-user ./biocentral_server ./biocentral_server
+COPY --chown=biocentral-server-user:biocentral-server-user ./assets ./assets
 
 # Install project
 RUN --mount=type=cache,target=/root/.cache/uv \
