@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Upgrading to biocentral_server version 1.1.1
+
 ## 1.1.1
 
 * Python Updates Only
