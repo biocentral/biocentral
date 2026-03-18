@@ -1,5 +1,17 @@
 # biocentral_server Changelog
 
+## v1.1.1
+
+- Fixed embedding deduplication, simplification, and dict creation for various tasks.
+- Addressed device handling and ensured proper train set assignment in simulations.
+- Removed deprecated functions and streamlined embeddings-related code.
+- Introduced centralized device service for unified task handling.
+- Refactored task queue settings for stability and error logging.
+- Added scheduled tasks for database cleanup and improved monitoring.
+- Improved metrics collection for both service statistics and research stats.
+- Migrated monitoring to Redis with enhanced persistence.
+- Added unit and integration tests for core functionalities by @denizozturk95.
+
 ## v1.1.0
 
 - Refactored and added common embedders, enums, and dataclasses for API consistency.
