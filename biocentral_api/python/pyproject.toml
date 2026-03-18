@@ -16,6 +16,7 @@ dependencies = [
   "typing-extensions>=4.7.1",
   "h5py>=3.14.0",
   "tqdm>=4.67.1",
+  "biopython>=1.85",
 ]
 
 [project.urls]

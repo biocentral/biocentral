@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 import warnings
 import urllib.parse
+from pathlib import Path
 
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
@@ -140,6 +141,9 @@ class BiocentralAPI:
     def _check_sequence_lengths(seqs: Iterable[str]) -> None:
         n_overlong_seqs = 0
         for seq in seqs:
+            if len(seq) == 0:
+                raise ValueError("Found an empty sequence in submitted sequences! "
+                                 "Please provide non-empty sequences.")
             if len(seq) > BiocentralAPI.RECOMMENDED_MAX_SEQUENCE_LENGTH:
                 n_overlong_seqs += 1
         if n_overlong_seqs > 0:
@@ -147,11 +151,19 @@ class BiocentralAPI:
                 f"{n_overlong_seqs} sequences are longer than the recommended "
                 f"amount of {BiocentralAPI.RECOMMENDED_MAX_SEQUENCE_LENGTH} amino acids!\n"
                 f"Embeddings will still be computed, but might not be as reliable for these sequences.",
-            stacklevel=3)
+                stacklevel=3)
+
+    @staticmethod
+    def read_fasta(fasta_path: Path) -> Dict[str, str]:
+        """Reads a fasta file and returns a dictionary of sequence identifiers and sequences."""
+        from Bio import SeqIO
+        with open(fasta_path, 'r') as fasta_file:
+            fasta_sequences = SeqIO.parse(fasta_file, 'fasta')
+            return {record.id: str(record.seq) for record in fasta_sequences}
 
     def embed(self,
               embedder_name: Union[str, CommonEmbedder],
-              sequence_data: Dict[str, str],
+              sequence_data: Union[str, Dict[str, str]],
               reduce: Optional[bool] = True,
               use_half_precision: Optional[bool] = False) -> BiocentralServerTask[EmbeddingsResult]:
         """
@@ -160,13 +172,18 @@ class BiocentralAPI:
         :param embedder_name: The name of the embedder to be used for generating embeddings.
             Can be any valid huggingface string identifier or a CommonEmbedder enum value.
             Examples: "one_hot_encoding", "Rostlab/prot_t5_xl_uniref50", "random_embedder"
-        :param sequence_data: A dictionary containing the sequence data for which embeddings should be
-            calculated. Typically maps identifiers to sequences. Must have at least one and maximum 1,000 sequences.
+        :param sequence_data: A dictionary containing the sequence data or a path to a fasta file
+            for which embeddings should be calculated. Must have at least one and maximum 1,000 sequences.
         :param reduce: Specifies whether the embeddings should be reduced to per-sequence or not. Defaults to True.
         :param use_half_precision: Indicates whether half-precision should be used for embeddings to
             minimize memory usage. Defaults to False.
         :return: Returns a BiocentralServerTask object that can be run to retrieve the embeddings.
         """
+        if isinstance(sequence_data, str):
+            fasta_path = Path(sequence_data)
+            if not fasta_path.exists():
+                raise ValueError(f"Fasta file not found at path: {fasta_path}")
+            sequence_data = self.read_fasta(fasta_path)
         if len(sequence_data) == 0:
             raise ValueError("No sequence data provided.")
         if len(sequence_data) > 1000:
