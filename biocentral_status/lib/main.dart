@@ -2,6 +2,8 @@ import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_status/biocentral_status_info.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   runApp(const BiocentralStatusApp());
@@ -75,12 +77,8 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                       tab = Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       tab = Tab(text: entry.key);
-                    } else if (snapshot.hasData) {
-                      if(entry.key.contains("localhost") && !snapshot.data!.health.healthy) {
-                       tab = Container(); // Don't show tab for localhost if not available
-                      } else {
-                        tab = buildTab(snapshot.data!);
-                      }
+                    } else {
+                      tab = buildTab(snapshot.data!);
                     }
                     tab ??= Tab(text: entry.key);
                     return tab;
@@ -100,7 +98,7 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (snapshot.hasData) {
-                  return SingleChildScrollView(child: buildTabView(snapshot.data!));
+                  return SingleChildScrollView(child: buildTabView(entry.key, snapshot.data!));
                 } else {
                   return Center(child: Text('No data available'));
                 }
@@ -115,7 +113,15 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
             Row(
               children: [
                 Text("Inprint & Information: "),
-                Text("https://biocentral.cloud", style: TextStyle(decoration: TextDecoration.underline)),
+                Linkify(
+                  onOpen: (link) async {
+                    if (!await launchUrl(Uri.parse(link.url))) {
+                      throw Exception('Could not launch ${link.url}');
+                    }
+                  },
+                  text: "https://biocentral.cloud",
+                  style: TextStyle(decoration: TextDecoration.underline),
+                ),
               ],
             ),
           ],
@@ -139,7 +145,16 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
     );
   }
 
-  Widget buildTabView(BiocentralStatusInfo statusInfo) {
+  Widget buildTabView(String url, BiocentralStatusInfo statusInfo) {
+    if (url.contains("localhost") && !statusInfo.health.healthy) {
+      return Center(
+        child: Linkify(text: "You do not have a local server currently running. \n\n"
+            "Learn how to set up a local server here:\n"
+            "https://biocentral.cloud/docs/biocentral_server/getting_started",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        options: LinkifyOptions(humanize: false),),
+      );
+    }
     return Column(
       children: [
         ListTile(
@@ -263,7 +278,10 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                             padding: const EdgeInsets.only(top: 14.0),
                             child: Transform.rotate(
                               angle: -0.785398,
-                              child: Text(entries[value.toInt()].key, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              child: Text(
+                                entries[value.toInt()].key,
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           );
                         }
@@ -358,7 +376,10 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                         if (value.toInt() >= 0 && value.toInt() < entries.length) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(entries[value.toInt()].key, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              entries[value.toInt()].key,
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
                           );
                         }
                         return Text('');
