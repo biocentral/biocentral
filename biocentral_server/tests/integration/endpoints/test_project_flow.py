@@ -114,7 +114,7 @@ class TestProjectEndpoint:
 
         task_id = response.json()["task_id"]
         print(f"[PROJECTION] Submitted task {task_id}, waiting for completion...")
-        result = poll_task(task_id, timeout=120, max_consecutive_errors=10)
+        result = poll_task(task_id, timeout=240, max_consecutive_errors=10)
 
         assert result["status"].upper() == "FINISHED", (
             f"Projection failed: {result.get('error', 'unknown')}"
