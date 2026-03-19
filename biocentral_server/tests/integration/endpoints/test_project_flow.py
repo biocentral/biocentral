@@ -1,6 +1,8 @@
 # Integration tests for projection endpoints.
 import pytest
 
+from tests.fixtures.test_dataset import CANONICAL_TEST_DATASET
+
 
 @pytest.mark.order(1)
 class TestProjectionConfigEndpoint:
@@ -61,14 +63,49 @@ class TestEndToEndProjectionFlow:
         client,
         poll_task,
         embedder_name,
-        shared_embedding_sequences,
     ):
+        # Use at least 5 sequences to avoid degenerate UMAP behavior on tiny datasets.
+        umap_sequences = CANONICAL_TEST_DATASET.get_subset_dict(
+            [
+                "standard_001",
+                "standard_002",
+                "standard_003",
+                "length_short_10",
+                "length_medium_50",
+            ]
+        )
+
+        # Ensure embeddings for the exact UMAP input are present before projection.
+        embed_request = {
+            "embedder_name": embedder_name,
+            "reduce": True,
+            "sequence_data": umap_sequences,
+            "use_half_precision": False,
+        }
+        embed_response = client.post("/embeddings_service/embed", json=embed_request)
+        assert embed_response.status_code == 200, (
+            f"Failed to submit embedding task for UMAP test: {embed_response.text}"
+        )
+
+        embed_task_id = embed_response.json()["task_id"]
+        embed_result = poll_task(
+            embed_task_id,
+            timeout=480,
+            max_consecutive_errors=15,
+            require_success=True,
+        )
+        assert embed_result["status"].upper() == "FINISHED", (
+            f"Embedding pre-step failed: {embed_result.get('error', 'unknown')}"
+        )
+
+        n_neighbors = min(5, len(umap_sequences) - 1)
+
         request_data = {
             "method": "umap",
-            "sequence_data": shared_embedding_sequences,
+            "sequence_data": umap_sequences,
             "embedder_name": embedder_name,
             "config": {
-                "n_neighbors": min(5, len(shared_embedding_sequences) - 1),
+                "n_neighbors": n_neighbors,
                 "min_dist": 0.1,
                 "n_components": 2,
             },
@@ -80,7 +117,9 @@ class TestEndToEndProjectionFlow:
         task_id = response.json()["task_id"]
         result = poll_task(task_id, timeout=300)
 
-        assert result["status"].upper() in ("FINISHED", "COMPLETED", "DONE", "FAILED")
+        assert result["status"].upper() == "FINISHED", (
+            f"UMAP projection failed: {result.get('error', 'unknown')}"
+        )
 
 @pytest.mark.order(4)
 class TestProjectEndpoint:
