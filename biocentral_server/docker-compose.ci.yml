@@ -138,6 +138,56 @@ services:
     networks:
       - backend
 
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${EMBEDDINGS_DATA_DIR}
+  seaweedfs_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FILES_DATA_DIR:-./storage/seaweedfs}
+  temp_server_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SERVER_TEMP_DATA_DIR}
+  huggingface_models_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HUGGINGFACE_MODELS_DIR}
+  autoeval_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${AUTOEVAL_DATA_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_DIR:-./storage/redis}
+  assets_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ASSETS_DIR:-./assets}
 networks:
   backend:
     driver: bridge

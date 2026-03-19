@@ -137,6 +137,18 @@ jobs:
       - name: Pull Docker image
         run: docker pull ghcr.io/${{ github.repository }}/biocentral-server:ci
 
+      - name: Prepare bind mount source directories
+        run: |
+          mkdir -p \
+            "$HOME/.cache/huggingface" \
+            "$HOME/.cache/biotrainer/autoeval" \
+            ./storage/embeddings/postgres \
+            ./storage/files \
+            ./storage/server_temp_files \
+            ./storage/model-repository \
+            ./storage/redis \
+            ./assets
+
       - name: Start services with Docker Compose
         run: |
           docker compose -f docker-compose.ci.yml --env-file .env.local up -d --wait
