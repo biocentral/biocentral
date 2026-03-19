@@ -160,7 +160,7 @@ jobs:
         timeout-minutes: 10
 
       - name: Run integration tests
-        run: uv run pytest tests/integration/ -v -m "not triton" -n auto --reruns 2 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning"  --capture=tee-sys
+        run: uv run pytest tests/integration/ -v -m "not triton" --reruns 1 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning"  --capture=tee-sys
 
       - name: Show logs 
         if: always()

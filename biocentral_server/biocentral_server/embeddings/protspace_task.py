@@ -36,7 +36,6 @@ class ProtSpaceTask(TaskInterface):
             sequence_input=self.sequences,
             reduced=True,
             use_half_precision=False,
-            device="cpu",
         )
         load_dto = None
         for dto in self.run_subtask(load_embeddings_task):

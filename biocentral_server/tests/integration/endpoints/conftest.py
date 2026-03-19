@@ -358,8 +358,6 @@ def poll_task(client):
                     max_retries=3,
                 )
 
-                consecutive_errors = 0
-
             except (
                 httpx.RemoteProtocolError,
                 httpx.ConnectError,
@@ -385,6 +383,14 @@ def poll_task(client):
                     f"[POLL] Bad status code {response.status_code} ({consecutive_errors}/{max_consecutive_errors})"
                 )
 
+                # 404 means the task id cannot be resolved by the backend.
+                # This is usually non-transient in integration tests and should fail early.
+                if response.status_code == 404 and consecutive_errors >= 3:
+                    raise RuntimeError(
+                        f"Task {task_id} not found while polling (404 x{consecutive_errors}). "
+                        f"Last known status: {last_status}"
+                    )
+
                 if consecutive_errors >= max_consecutive_errors:
                     raise RuntimeError(
                         f"Task {task_id} polling failed: got status {response.status_code} "
@@ -393,6 +399,8 @@ def poll_task(client):
 
                 time.sleep(poll_interval)
                 continue
+
+            consecutive_errors = 0
 
             response_json = response.json()
             dtos = response_json.get("dtos", [])

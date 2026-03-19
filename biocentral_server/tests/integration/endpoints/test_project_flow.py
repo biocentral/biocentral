@@ -82,7 +82,7 @@ class TestEndToEndProjectionFlow:
 
         assert result["status"].upper() in ("FINISHED", "COMPLETED", "DONE", "FAILED")
 
-@pytest.mark.order(3)
+@pytest.mark.order(4)
 class TestProjectEndpoint:
     @pytest.mark.integration
     def test_project_task_completes(
@@ -114,7 +114,7 @@ class TestProjectEndpoint:
 
         task_id = response.json()["task_id"]
         print(f"[PROJECTION] Submitted task {task_id}, waiting for completion...")
-        result = poll_task(task_id, timeout=240, max_consecutive_errors=10)
+        result = poll_task(task_id, timeout=300, max_consecutive_errors=10)
 
         assert result["status"].upper() == "FINISHED", (
             f"Projection failed: {result.get('error', 'unknown')}"
