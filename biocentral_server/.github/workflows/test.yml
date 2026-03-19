@@ -134,8 +134,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull Docker image
-        run: docker pull ghcr.io/${{ github.repository }}/biocentral-server:ci
+      - name: Build Docker image for integration tests
+        run: docker build -t biocentral-server:ci -f Dockerfile .
 
       - name: Prepare bind mount source directories
         run: |
@@ -156,7 +156,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
           BUILDKIT_STEP_LOG_MAX_SIZE: 10000000
-          CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
+          CI_IMAGE: biocentral-server:ci
         timeout-minutes: 10
 
       - name: Run integration tests
