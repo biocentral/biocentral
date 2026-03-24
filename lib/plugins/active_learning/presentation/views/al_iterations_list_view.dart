@@ -1,25 +1,25 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_iteration_bloc.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayOptIterationsListView extends StatefulWidget {
-  const BayOptIterationsListView({super.key});
+class ALIterationsListView extends StatefulWidget {
+  const ALIterationsListView({super.key});
 
   @override
-  State<BayOptIterationsListView> createState() => _BayOptIterationsListViewState();
+  State<ALIterationsListView> createState() => _ALIterationsListViewState();
 }
 
-class _BayOptIterationsListViewState extends State<BayOptIterationsListView>
+class _ALIterationsListViewState extends State<ALIterationsListView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<BayOptHubBloc, BayOptHubState>(
+    return BlocBuilder<ALHubBloc, ALHubState>(
       builder: (context, hubState) {
-        return BlocBuilder<BayOptIterationBloc, BayOptIterationState>(
+        return BlocBuilder<ALIterationBloc, ALIterationState>(
           builder: (context, iterationState) {
             return Scaffold(
               body: SingleChildScrollView(
@@ -38,7 +38,7 @@ class _BayOptIterationsListViewState extends State<BayOptIterationsListView>
     );
   }
 
-  Widget buildRunningIterationView(BayOptIterationState iterationState) {
+  Widget buildRunningIterationView(ALIterationState iterationState) {
     if (!iterationState.isOperating()) {
       return Container();
     }
@@ -51,7 +51,7 @@ class _BayOptIterationsListViewState extends State<BayOptIterationsListView>
     );
   }
 
-  Widget buildFinishedIterationsView(BayOptHubState hubState) {
+  Widget buildFinishedIterationsView(ALHubState hubState) {
     if (hubState.trainingResults.isEmpty) {
       return const Text('No results yet!');
     }

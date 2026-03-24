@@ -1,52 +1,52 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_commands.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_commands.dart';
+import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
+import 'package:biocentral/plugins/active_learning/model/al_config.dart';
+import 'package:biocentral/plugins/active_learning/model/al_task.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 
-sealed class BayOptIterationEvent {}
+sealed class ALIterationEvent {}
 
-final class BayOptIterationStartEvent extends BayOptIterationEvent {
-  final BayOptConfig config;
+final class ALIterationStartEvent extends ALIterationEvent {
+  final ALConfig config;
 
-  BayOptIterationStartEvent(this.config);
+  ALIterationStartEvent(this.config);
 }
 
 @immutable
-final class BayOptIterationState extends BiocentralCommandState<BayOptIterationState> {
-  const BayOptIterationState(super.stateInformation, super.status);
+final class ALIterationState extends BiocentralCommandState<ALIterationState> {
+  const ALIterationState(super.stateInformation, super.status);
 
-  const BayOptIterationState.idle() : super.idle();
+  const ALIterationState.idle() : super.idle();
 
   @override
   List<Object?> get props => [stateInformation, status];
 
   @override
-  BayOptIterationState newState(
+  ALIterationState newState(
       BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status,) {
-    return BayOptIterationState(stateInformation, status);
+    return ALIterationState(stateInformation, status);
   }
 }
 
-class BayOptIterationBloc
-    extends BiocentralBloc<BayOptIterationEvent, BayOptIterationState>
+class ALIterationBloc
+    extends BiocentralBloc<ALIterationEvent, ALIterationState>
     with BiocentralUpdateBloc {
   final BiocentralProjectRepository _projectRepository;
-  final BayOptRepository _bayOptRepository;
+  final ALRepository _alRepository;
   final BiocentralDatabaseRepository _databaseRepository;
   final BiocentralAPIRepository _apiRepository;
 
-  BayOptIterationBloc(
+  ALIterationBloc(
     this._projectRepository,
-    this._bayOptRepository,
+    this._alRepository,
     this._databaseRepository,
     this._apiRepository,
     EventBus eventBus,
-  ) : super(const BayOptIterationState.idle(), eventBus) {
-    on<BayOptIterationStartEvent>((event, emit) async {
+  ) : super(const ALIterationState.idle(), eventBus) {
+    on<ALIterationStartEvent>((event, emit) async {
       final BiocentralDatabase? biocentralDatabase = _databaseRepository.getFromType(Protein);
       if (biocentralDatabase == null) {
         emit(
@@ -74,7 +74,7 @@ class BayOptIterationBloc
         };
 
         // Discrete:
-        if (boConfig.selectedTask == BayOptTaskType.findHighestProbability) {
+        if (boConfig.selectedTask == ALTaskType.findHighestProbability) {
           config = {
             ...config,
             'discrete': true,
@@ -95,7 +95,7 @@ class BayOptIterationBloc
           };
         }
 
-        final command = BayOptIterationCommand(
+        final command = ALIterationCommand(
           biocentralDatabase: biocentralDatabase,
           apiRepository: _apiRepository,
           trainingConfiguration: config,
@@ -103,14 +103,14 @@ class BayOptIterationBloc
         );
 
         await command
-            .executeWithLogging<BayOptIterationState>(
+            .executeWithLogging<ALIterationState>(
           _projectRepository,
           state,
         )
             .forEach(
           (either) {
             either.match((l) => emit(l), (r) {
-              final updatedResults = _bayOptRepository.addTrainingResult(r);
+              final updatedResults = _alRepository.addTrainingResult(r);
               emit(
                 state.setFinished(
                   information: 'Training completed',

@@ -45,11 +45,11 @@ class BiocentralPluginManager extends Equatable {
 
   static (Set<BiocentralPlugin>, Set<BiocentralPlugin>) _loadCorePlugins() {
     final ProteinPlugin proteinPlugin = ProteinPlugin(eventBus);
-    // TODO PPI Plugin and BayOptPlugin Temporarily disabled
+    // TODO PPI Plugin and ALPlugin Temporarily disabled
     //final PpiPlugin ppiPlugin = PpiPlugin(eventBus);
     final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
     final CustomModelsPlugin customModelsPlugin = CustomModelsPlugin(eventBus);
-    // final BayOptPlugin bayOptPlugin = BayOptPlugin(eventBus);
+    // final ALPlugin alPlugin = ALPlugin(eventBus);
     return (
       {proteinPlugin, embeddingsPlugin, customModelsPlugin}, // All
       {proteinPlugin, embeddingsPlugin, customModelsPlugin}, // Default Selected

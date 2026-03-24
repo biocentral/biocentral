@@ -1,9 +1,9 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_command_view.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_hub_view.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_iteration_bloc.dart';
+import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
+import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_command_view.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
@@ -11,45 +11,45 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Plugin for integrating Bayesian Optimization functionality into the Biocentral platform.
-class BayOptPlugin extends BiocentralPlugin
+/// Plugin for integrating Active Learning functionality into the Biocentral platform.
+class ALPlugin extends BiocentralPlugin
     with
-        BiocentralDatabasePluginMixin<BayOptRepository>,
+        BiocentralDatabasePluginMixin<ALRepository>,
         BiocentralColumnWizardPluginMixin {
-  /// Creates a new [BayOptPlugin] instance.
-  BayOptPlugin(super.eventBus);
+  /// Creates a new [ALPlugin] instance.
+  ALPlugin(super.eventBus);
 
   @override
-  String get typeName => 'BayOptPlugin';
+  String get typeName => 'ALPlugin';
 
   @override
   String getShortDescription() {
-    return 'Optimize models using Bayesian methods';
+    return 'Perform experiments on sparse data using active learning';
   }
 
   @override
-  BayOptRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
-    final repository = BayOptRepository(projectRepository);
+  ALRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+    final repository = ALRepository(projectRepository);
     return repository;
   }
 
   @override
   Widget getCommandView(BuildContext context) {
-    return const BayOptCommandView();
+    return const ALCommandView();
   }
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     cancelSubscriptions();
 
-    final bayOptHubBloc = BayOptHubBloc(
+    final alHubBloc = ALHubBloc(
       getDatabase(context),
       getBiocentralProjectRepository(context),
       getBiocentralAPIRepository(context),
       eventBus,
       getBiocentralDatabaseRepository(context),
     );
-    final bayOptIterationBloc = BayOptIterationBloc(
+    final alIterationBloc = ALIterationBloc(
       getBiocentralProjectRepository(context),
       getDatabase(context),
       getBiocentralDatabaseRepository(context),
@@ -58,22 +58,22 @@ class BayOptPlugin extends BiocentralPlugin
     );
 
     eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      bayOptHubBloc.add(BayOptHubLoadEvent());
+      alHubBloc.add(ALHubLoadEvent());
     }),);
 
     return {
-      BlocProvider<BayOptHubBloc>.value(
-        value: bayOptHubBloc,
-      ): bayOptHubBloc,
-      BlocProvider<BayOptIterationBloc>.value(
-        value: bayOptIterationBloc,
-      ): bayOptIterationBloc,
+      BlocProvider<ALHubBloc>.value(
+        value: alHubBloc,
+      ): alHubBloc,
+      BlocProvider<ALIterationBloc>.value(
+        value: alIterationBloc,
+      ): alIterationBloc,
     };
   }
 
   @override
   Widget getScreenView(BuildContext context) {
-    return const BayOptHubView();
+    return const ALHubView();
   }
 
   @override
@@ -83,7 +83,7 @@ class BayOptPlugin extends BiocentralPlugin
 
   @override
   Widget getTab() {
-    return Tab(text: 'Bayesian Optimization', icon: getIcon());
+    return Tab(text: 'Active Learning', icon: getIcon());
   }
 
   @override
@@ -95,9 +95,9 @@ class BayOptPlugin extends BiocentralPlugin
   List<BiocentralPluginDirectory> getPluginDirectories() {
     return [
       BiocentralPluginDirectory(
-        path: 'bay_opt',
-        saveType: BayOptTrainingResult,
-        commandBlocType: BayOptHubBloc,
+        path: 'active_learning',
+        saveType: ALTrainingResult,
+        commandBlocType: ALHubBloc,
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
@@ -106,9 +106,9 @@ class BayOptPlugin extends BiocentralPlugin
         ) {
           final List<void Function()> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
-            if (scannedFile.name.contains('bo_results.') && scannedFile.extension == 'json') {
+            if (scannedFile.name.contains('al_results.') && scannedFile.extension == 'json') {
               void loadingFunction() => commandBloc?.add(
-                    BayOptHubLoadTrainingsFromFileEvent(
+                    ALHubLoadTrainingsFromFileEvent(
                       xFile: scannedFile,
                     ),
                   );

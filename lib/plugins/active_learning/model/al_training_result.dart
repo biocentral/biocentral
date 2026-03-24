@@ -1,28 +1,28 @@
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
+import 'package:biocentral/plugins/active_learning/model/al_config.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class BayOptTrainingResult extends Equatable {
-  final List<BayOptTrainingResultData> results;
+class ALTrainingResult extends Equatable {
+  final List<ALTrainingResultData> results;
   final Map<String, dynamic> experimentalData;
-  final BayOptConfig trainingConfig;
+  final ALConfig trainingConfig;
   final String taskID;
 
-  const BayOptTrainingResult({
+  const ALTrainingResult({
     required this.results,
     required this.trainingConfig,
     required this.taskID,
     Map<String, dynamic>? experimentalData,
   }) : experimentalData = experimentalData ?? const {};
 
-  BayOptTrainingResult copyWith({
-    List<BayOptTrainingResultData>? results,
+  ALTrainingResult copyWith({
+    List<ALTrainingResultData>? results,
     Map<String, dynamic>? experimentalData,
-    BayOptConfig? trainingConfig,
+    ALConfig? trainingConfig,
     String? taskID,
   }) {
-    return BayOptTrainingResult(
+    return ALTrainingResult(
       results: results ?? this.results,
       experimentalData: experimentalData ?? this.experimentalData,
       trainingConfig: trainingConfig ?? this.trainingConfig,
@@ -30,14 +30,14 @@ class BayOptTrainingResult extends Equatable {
     );
   }
 
-  /// Creates a [BayOptTrainingResult] from a JSON map
-  factory BayOptTrainingResult.fromMap(Map<String, dynamic> map) {
-    return BayOptTrainingResult(
+  /// Creates a [ALTrainingResult] from a JSON map
+  factory ALTrainingResult.fromMap(Map<String, dynamic> map) {
+    return ALTrainingResult(
       results: (map['results'] as List<dynamic>?)
-              ?.map((data) => BayOptTrainingResultData.fromMap(data))
+              ?.map((data) => ALTrainingResultData.fromMap(data))
               .toList() ??
           [], // TODO [Error Handling] No results should throw an error
-      trainingConfig: BayOptConfig.fromMap(map['trainingConfig'] ?? {}),
+      trainingConfig: ALConfig.fromMap(map['trainingConfig'] ?? {}),
       taskID: map['taskID'] as String,
       experimentalData: map['experimentalData'],
     );
@@ -75,23 +75,23 @@ class BayOptTrainingResult extends Equatable {
   List<Object?> get props => [results, experimentalData, trainingConfig, taskID];
 }
 
-class BayOptTrainingResultData extends Equatable {
+class ALTrainingResultData extends Equatable {
   final String id;
   final double score;
   final double uncertainty;
   final double prediction;
 
-  const BayOptTrainingResultData({
+  const ALTrainingResultData({
     required this.id,
     required this.score,
     required this.uncertainty,
     required this.prediction,
   });
 
-  /// Creates a [BayOptTrainingResultData] from a JSON map
-  factory BayOptTrainingResultData.fromMap(Map<String, dynamic> map) {
+  /// Creates a [ALTrainingResultData] from a JSON map
+  factory ALTrainingResultData.fromMap(Map<String, dynamic> map) {
     // TODO [Error Handling] Handle parsing errors
-    return BayOptTrainingResultData(
+    return ALTrainingResultData(
       id: map['id'],
       score: map['score'] is double ? map['score'] : double.tryParse(map['score'].toString()),
       uncertainty: map['uncertainty'] is double ? map['uncertainty'] : double.tryParse(map['uncertainty'].toString()),

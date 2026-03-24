@@ -1,22 +1,22 @@
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-/// A widget that displays a scatter plot visualization of Bayesian optimization results.
+/// A widget that displays a scatter plot visualization of Active Learning results.
 /// The plot shows protein sequences on the x-axis and their corresponding scores on the y-axis.
 /// Points are color-coded based on their score values, with a gradient legend showing the score range.
-class BayOptPlotView extends StatelessWidget {
+class ALPlotView extends StatelessWidget {
   /// Label for the y-axis (typically representing the score metric)
   final String yLabel;
 
   /// The training results data to be displayed
-  final BayOptTrainingResult? data;
+  final ALTrainingResult? data;
 
   /// Cached min/max values for the y-axis range
   final MinMaxValues minMaxValues;
 
-  BayOptPlotView({
+  ALPlotView({
     required this.yLabel,
     this.data,
     super.key,
@@ -31,7 +31,7 @@ class BayOptPlotView extends StatelessWidget {
 
   /// Calculates the minimum and maximum values for the y-axis
   /// Adds a 10% padding to both ends of the range
-  static MinMaxValues _calculateMinMax(List<BayOptTrainingResultData>? plotData) {
+  static MinMaxValues _calculateMinMax(List<ALTrainingResultData>? plotData) {
     if (plotData == null || plotData.isEmpty) {
       return MinMaxValues(minY: 0, maxY: 0);
     }
@@ -196,7 +196,7 @@ class BayOptPlotView extends StatelessWidget {
   }
 
   /// Converts the training results into scatter plot data points
-  List<ScatterSpot> getData(BayOptTrainingResult plotData) {
+  List<ScatterSpot> getData(ALTrainingResult plotData) {
     final List<ScatterSpot> scatterSpots = [];
     final (minScore, maxScore) = _calculateScoreRange(plotData);
 
@@ -222,7 +222,7 @@ class BayOptPlotView extends StatelessWidget {
   }
 
   /// Calculates the minimum and maximum score values from the training results
-  (double, double) _calculateScoreRange(BayOptTrainingResult plotData) {
+  (double, double) _calculateScoreRange(ALTrainingResult plotData) {
     double minScore = double.infinity;
     double maxScore = double.negativeInfinity;
 
