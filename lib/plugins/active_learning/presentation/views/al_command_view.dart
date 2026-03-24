@@ -1,40 +1,40 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_config_dialog_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_iteration_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_add_experimental_data_dialog.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/dialogs/bay_opt_config_dialog_builder.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_iteration_bloc.dart';
+import 'package:biocentral/plugins/active_learning/presentation/dialogs/al_add_experimental_data_dialog.dart';
+import 'package:biocentral/plugins/active_learning/presentation/dialogs/al_config_dialog_builder.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayOptCommandView extends StatefulWidget {
-  const BayOptCommandView({super.key});
+class ALCommandView extends StatefulWidget {
+  const ALCommandView({super.key});
 
   @override
-  State<BayOptCommandView> createState() => _BayOptCommandViewState();
+  State<ALCommandView> createState() => _ALCommandViewState();
 }
 
-class _BayOptCommandViewState extends State<BayOptCommandView> {
+class _ALCommandViewState extends State<ALCommandView> {
   @override
   void initState() {
     super.initState();
   }
 
-  void openStartTrainingDialog(BayOptHubState hubState, BayOptIterationBloc iterationBloc) {
+  void openStartTrainingDialog(ALHubState hubState, ALIterationBloc iterationBloc) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return BlocProvider(
-          create: (context) => BayOptConfigDialogBloc(
+          create: (context) => ALConfigDialogBloc(
             context.read<BiocentralDatabaseRepository>(),
             context.read<BiocentralProjectRepository>(),
           ),
-          child: BlocBuilder<BayOptConfigDialogBloc, BayOptConfigDialogState>(
+          child: BlocBuilder<ALConfigDialogBloc, ALConfigDialogState>(
             builder: (context, state) => BiocentralConfigDialog(
               configDialogBuilder:
-                  BayOptConfigDialogBuilder((config) => iterationBloc.add(BayOptIterationStartEvent(config))),
-              bloc: BlocProvider.of<BayOptConfigDialogBloc>(context),
+                  ALConfigDialogBuilder((config) => iterationBloc.add(ALIterationStartEvent(config))),
+              bloc: BlocProvider.of<ALConfigDialogBloc>(context),
               state: state,
             ),
           ),
@@ -43,7 +43,7 @@ class _BayOptCommandViewState extends State<BayOptCommandView> {
     );
   }
 
-  void openAddExperimentalDataDialog(BayOptHubBloc hubBloc, BayOptHubState hubState) {
+  void openAddExperimentalDataDialog(ALHubBloc hubBloc, ALHubState hubState) {
     if (hubState.trainingResults.isEmpty || hubState.latestResult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No current training result available')),
@@ -54,11 +54,11 @@ class _BayOptCommandViewState extends State<BayOptCommandView> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BayOptAddExperimentalDataDialog(
+        return ALAddExperimentalDataDialog(
           currentResult: hubState.latestResult!,
           onFinishedAddingData: (experimentalData) {
             if (experimentalData != null && experimentalData.isNotEmpty) {
-              hubBloc.add(BayOptHubAddExperimentalDataEvent(experimentalData: experimentalData));
+              hubBloc.add(ALHubAddExperimentalDataEvent(experimentalData: experimentalData));
             }
           },
         );
@@ -68,10 +68,10 @@ class _BayOptCommandViewState extends State<BayOptCommandView> {
 
   @override
   Widget build(BuildContext context) {
-    final BayOptHubBloc hubBloc = BlocProvider.of<BayOptHubBloc>(context);
-    final BayOptIterationBloc iterationBloc = context.read<BayOptIterationBloc>();
+    final ALHubBloc hubBloc = BlocProvider.of<ALHubBloc>(context);
+    final ALIterationBloc iterationBloc = context.read<ALIterationBloc>();
 
-    return BlocBuilder<BayOptHubBloc, BayOptHubState>(
+    return BlocBuilder<ALHubBloc, ALHubState>(
       builder: (context, hubState) {
         return BiocentralCommandBar(
           commands: [

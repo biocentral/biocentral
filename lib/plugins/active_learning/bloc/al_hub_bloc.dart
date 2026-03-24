@@ -1,92 +1,92 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/domain/bay_opt_repository.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
+import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class BayOptHubEvent {}
+abstract class ALHubEvent {}
 
-class BayOptHubLoadEvent extends BayOptHubEvent {}
+class ALHubLoadEvent extends ALHubEvent {}
 
-class BayOptHubSelectEvent extends BayOptHubEvent {
+class ALHubSelectEvent extends ALHubEvent {
   final int selectedIndex;
 
-  BayOptHubSelectEvent({required this.selectedIndex});
+  ALHubSelectEvent({required this.selectedIndex});
 }
 
-class BayOptHubAddExperimentalDataEvent extends BayOptHubEvent {
+class ALHubAddExperimentalDataEvent extends ALHubEvent {
   final Map<String, dynamic> experimentalData;
 
-  BayOptHubAddExperimentalDataEvent({required this.experimentalData});
+  ALHubAddExperimentalDataEvent({required this.experimentalData});
 }
 
-class BayOptHubLoadTrainingsFromFileEvent extends BayOptHubEvent {
+class ALHubLoadTrainingsFromFileEvent extends ALHubEvent {
   final XFile? xFile;
 
-  BayOptHubLoadTrainingsFromFileEvent({required this.xFile});
+  ALHubLoadTrainingsFromFileEvent({required this.xFile});
 }
 
-class BayOptIterateTrainingEvent extends BayOptHubEvent {
+class ALIterateTrainingEvent extends ALHubEvent {
   final BuildContext context;
-  final BayOptTrainingResult trainingResult;
+  final ALTrainingResult trainingResult;
   final List<double?> updateList;
 
-  /// Constructor for iterating Bayesian Optimization training.
+  /// Constructor for iterating Active Learning training.
   ///
   /// - [context]: The build context.
   /// - [trainingResult]: The training result to iterate from.
   /// - [updateList]: The list of values to update.
-  BayOptIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
+  ALIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
 }
 
-class BayOptDirectIterateTrainingEvent extends BayOptHubEvent {
+class ALDirectIterateTrainingEvent extends ALHubEvent {
   final BuildContext context;
-  final BayOptTrainingResult trainingResult;
+  final ALTrainingResult trainingResult;
   final List<double?> updateList;
 
-  /// Constructor for iterating Bayesian Optimization training.
+  /// Constructor for iterating Active Learning training.
   ///
   /// - [context]: The build context.
   /// - [trainingResult]: The training result to iterate from.
   /// - [updateList]: The list of values to update.
-  BayOptDirectIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
+  ALDirectIterateTrainingEvent(this.context, this.trainingResult, this.updateList);
 }
 
 @immutable
-final class BayOptHubState extends BiocentralCommandState<BayOptHubState> {
-  final List<BayOptTrainingResult> trainingResults;
+final class ALHubState extends BiocentralCommandState<ALHubState> {
+  final List<ALTrainingResult> trainingResults;
   final int selectedResultIndex;
 
-  const BayOptHubState(
+  const ALHubState(
     super.stateInformation,
     super.status,
     this.trainingResults,
     this.selectedResultIndex,
   );
 
-  const BayOptHubState.idle()
+  const ALHubState.idle()
       : trainingResults = const [],
         selectedResultIndex = 0,
         super.idle();
 
-  BayOptTrainingResult? get latestResult => trainingResults.lastOrNull;
+  ALTrainingResult? get latestResult => trainingResults.lastOrNull;
 
-  BayOptTrainingResult? get selectedResult => latestResult; // TODO Implement selection
+  ALTrainingResult? get selectedResult => latestResult; // TODO Implement selection
 
   @override
-  BayOptHubState newState(
+  ALHubState newState(
     BiocentralCommandStateInformation stateInformation,
     BiocentralCommandStatus status,
   ) {
-    return BayOptHubState(stateInformation, status, trainingResults, selectedResultIndex);
+    return ALHubState(stateInformation, status, trainingResults, selectedResultIndex);
   }
 
   @override
-  BayOptHubState copyWith({required Map<String, dynamic> copyMap}) {
-    return BayOptHubState(
+  ALHubState copyWith({required Map<String, dynamic> copyMap}) {
+    return ALHubState(
       stateInformation,
       status,
       copyMap['trainingResults'] ?? trainingResults,
@@ -99,54 +99,54 @@ final class BayOptHubState extends BiocentralCommandState<BayOptHubState> {
       [stateInformation, status, trainingResults, selectedResultIndex, latestResult, latestResult?.experimentalData];
 }
 
-class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
+class ALHubBloc extends BiocentralBloc<ALHubEvent, ALHubState>
     with BiocentralSyncBloc {
-  final BayOptRepository _bayOptRepository;
+  final ALRepository _alRepository;
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralDatabaseRepository _databaseRepository;
   final BiocentralAPIRepository _apiRepository;
   final EventBus _eventBus;
 
-  /// Constructor for Bayesian Optimization Bloc.
+  /// Constructor for Active Learning Bloc.
   ///
-  /// - [_bayOptRepository]: Repository for managing Bayesian Optimization data.
+  /// - [_alRepository]: Repository for managing active learning data.
   /// - [_biocentralProjectRepository]: Repository for managing project data.
   /// - [_bioCentralClientRepository]: Repository for managing client data.
   /// - [eventBus]: Event bus for handling events.
   /// - [_biocentralDatabaseRepository]: Repository for managing database data.
-  BayOptHubBloc(
-    this._bayOptRepository,
+  ALHubBloc(
+    this._alRepository,
     this._biocentralProjectRepository,
     this._apiRepository,
     this._eventBus,
     this._databaseRepository,
-  ) : super(const BayOptHubState.idle(), _eventBus) {
-    on<BayOptHubLoadEvent>(_onLoadTrainings);
-    on<BayOptHubSelectEvent>(_onSelectTraining);
-    on<BayOptHubAddExperimentalDataEvent>(_onAddExperimentalData);
-    on<BayOptHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
+  ) : super(const ALHubState.idle(), _eventBus) {
+    on<ALHubLoadEvent>(_onLoadTrainings);
+    on<ALHubSelectEvent>(_onSelectTraining);
+    on<ALHubAddExperimentalDataEvent>(_onAddExperimentalData);
+    on<ALHubLoadTrainingsFromFileEvent>(_onLoadPreviousTrainingsFromFile);
   }
 
   Future<void> _onLoadTrainings(
-    BayOptHubLoadEvent event,
-    Emitter<BayOptHubState> emit,
+    ALHubLoadEvent event,
+    Emitter<ALHubState> emit,
   ) async {
-    final loadedTrainings = _bayOptRepository.trainingResultsToList();
+    final loadedTrainings = _alRepository.trainingResultsToList();
     emit(
       state.copyWith(copyMap: {'trainingResults': loadedTrainings}),
     );
   }
 
   Future<void> _onSelectTraining(
-    BayOptHubSelectEvent event,
-    Emitter<BayOptHubState> emit,
+    ALHubSelectEvent event,
+    Emitter<ALHubState> emit,
   ) async {
     emit(state.copyWith(copyMap: {'selectedResultIndex': event.selectedIndex}));
   }
 
   Future<void> _onAddExperimentalData(
-    BayOptHubAddExperimentalDataEvent event,
-    Emitter<BayOptHubState> emit,
+    ALHubAddExperimentalDataEvent event,
+    Emitter<ALHubState> emit,
   ) async {
     // Always add to latest result
     if (state.latestResult == null) {
@@ -160,7 +160,7 @@ class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
       mergedData[key] = value; // Overwrite if data was updated via dialog
     }
     final updatedResult = state.latestResult!.copyWith(experimentalData: mergedData);
-    final updatedResults = _bayOptRepository.updateLatestResult(updatedResult);
+    final updatedResults = _alRepository.updateLatestResult(updatedResult);
     // Sync back to database
     // TODO [Refactor] Get database type from campaign
     final database = _databaseRepository.getFromType(Protein);
@@ -184,8 +184,8 @@ class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
   /// - [event]: The event to load previous trainings.
   /// - [emit]: Emits the new state.
   Future<void> _onLoadPreviousTrainingsFromFile(
-    BayOptHubLoadTrainingsFromFileEvent event,
-    Emitter<BayOptHubState> emit,
+    ALHubLoadTrainingsFromFileEvent event,
+    Emitter<ALHubState> emit,
   ) async {
     // TODO Refactor to command
     emit(state.setOperating(information: 'Loading previous trainings...'));
@@ -196,7 +196,7 @@ class BayOptHubBloc extends BiocentralBloc<BayOptHubEvent, BayOptHubState>
       if (loadedFile == null) {
         emit(state.setErrored(information: 'Loading previous trainings failed!'));
       } else {
-        final loadedTrainings = _bayOptRepository.loadTrainingResults(loadedFile.content);
+        final loadedTrainings = _alRepository.loadTrainingResults(loadedFile.content);
         emit(
           state
               .setFinished(information: 'Loading previous trainings finished!')

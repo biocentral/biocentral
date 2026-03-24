@@ -1,28 +1,28 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_config_dialog_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_config_dialog_bloc.dart';
+import 'package:biocentral/plugins/active_learning/model/al_config.dart';
+import 'package:biocentral/plugins/active_learning/model/al_model_types.dart';
+import 'package:biocentral/plugins/active_learning/model/al_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/sdk/presentation/dialogs/biocentral_config_dialog.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_entity_type_selection.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_small_button.dart';
 import 'package:flutter/material.dart';
 
-class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConfigDialogBloc, BayOptConfigDialogState> {
+class ALConfigDialogBuilder extends BiocentralConfigDialogBuilder<ALConfigDialogBloc, ALConfigDialogState> {
   static final List<PredefinedEmbedder> _availableEmbedders = PredefinedEmbedderContainer.predefinedEmbedders();
-  static final List<BayOptTaskType> _availableTasks = BayOptTaskType.values;
+  static final List<ALTaskType> _availableTasks = ALTaskType.values;
 
-  final void Function(BayOptConfig config) onStartTraining;
+  final void Function(ALConfig config) onStartTraining;
 
-  BayOptConfigDialogBuilder(this.onStartTraining);
+  ALConfigDialogBuilder(this.onStartTraining);
 
   @override
   String title() {
-    return 'Start New Bayesian Optimization Iteration Cycle';
+    return 'Start New Active Learning Iteration Cycle';
   }
 
   @override
-  List<BiocentralConfigDialogStep<BayOptConfigDialogBloc, BayOptConfigDialogState>> steps() => [
+  List<BiocentralConfigDialogStep<ALConfigDialogBloc, ALConfigDialogState>> steps() => [
         BiocentralConfigDialogStep(
           shouldShow: (state) => true, // Always show first step
           builder: (bloc, state) => buildDatasetSelection(bloc, state),
@@ -45,7 +45,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
         ),
       ];
 
-  static Widget buildDatasetSelection(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildDatasetSelection(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,14 +53,14 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
         const SizedBox(height: 8),
         BiocentralEntityTypeSelection(
           onChangedCallback: (Type? value) {
-            if (value != null) bloc.add(BayOptTrainingDialogDatasetTypeSelectedEvent(value.toString()));
+            if (value != null) bloc.add(ALTrainingDialogDatasetTypeSelectedEvent(value.toString()));
           },
         ),
       ],
     );
   }
 
-  static Widget buildTaskSelection(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildTaskSelection(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,7 +75,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Select Task:', style: TextStyle(fontSize: 16)),
-                  DropdownButton<BayOptTaskType>(
+                  DropdownButton<ALTaskType>(
                     value: state.config.selectedTask,
                     hint: const Text('Choose a task'),
                     isExpanded: true,
@@ -83,7 +83,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                         .map((task) => DropdownMenuItem(value: task, child: Text(task.displayName)))
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) bloc.add(BayOptTrainingDialogTaskSelectedEvent(value));
+                      if (value != null) bloc.add(ALTrainingDialogTaskSelectedEvent(value));
                     },
                   ),
                 ],
@@ -98,7 +98,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
     );
   }
 
-  static Widget buildFeatureSelection(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildFeatureSelection(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     if (state.config.selectedTask != null && state.availableFeatures.isEmpty) {
       return const Text('Could not find any features to optimize, please check your dataset!');
     }
@@ -120,7 +120,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
             onChanged: state.config.selectedTask != null
                 ? (value) {
                     if (value != null) {
-                      bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedFeature: value)));
+                      bloc.add(ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedFeature: value)));
                     }
                   }
                 : null,
@@ -130,13 +130,13 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
     );
   }
 
-  static Widget buildFeatureConfiguration(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildFeatureConfiguration(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
         // Boolean type configuration
-        if (state.config.selectedTask == BayOptTaskType.findHighestProbability)
+        if (state.config.selectedTask == ALTaskType.findHighestProbability)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -150,7 +150,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                 ],
                 onChanged: (value) {
                   if (value != null) {
-                    bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(desiredBooleanValue: value)));
+                    bloc.add(ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(desiredBooleanValue: value)));
                   }
                 },
               ),
@@ -158,7 +158,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
           ),
 
         // Optimization Type for findOptimalValues
-        if (state.config.selectedTask == BayOptTaskType.findOptimalValues)
+        if (state.config.selectedTask == ALTaskType.findOptimalValues)
           (state.config.optimizationType == 'Target Range')
               // Target Range: 1/3 1/3 1/3 layout
               ? Row(
@@ -178,7 +178,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                           final number = double.tryParse(value);
                           if (number != null) {
                             bloc.add(
-                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMin: number)),);
+                                ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMin: number)),);
                           }
                         },
                       ),
@@ -193,7 +193,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                           final number = double.tryParse(value);
                           if (number != null) {
                             bloc.add(
-                                BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMax: number)),);
+                                ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(targetRangeMax: number)),);
                           }
                         },
                       ),
@@ -204,7 +204,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
               : buildOptimizationTypeSelection(bloc, state),
 
         // Show error for target range if needed
-        if (state.config.selectedTask == BayOptTaskType.findOptimalValues &&
+        if (state.config.selectedTask == ALTaskType.findOptimalValues &&
             state.config.optimizationType == 'Target Range' &&
             state.config.targetRangeMin != null &&
             state.config.targetRangeMax != null &&
@@ -220,7 +220,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
     );
   }
 
-  static Widget buildOptimizationTypeSelection(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildOptimizationTypeSelection(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -234,7 +234,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
               .toList(),
           onChanged: (value) {
             if (value != null) {
-              bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(optimizationType: value)));
+              bloc.add(ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(optimizationType: value)));
             }
           },
         ),
@@ -242,7 +242,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
     );
   }
 
-  static Widget buildEmbedderAndModelSelection(BayOptConfigDialogBloc bloc, BayOptConfigDialogState state) {
+  static Widget buildEmbedderAndModelSelection(ALConfigDialogBloc bloc, ALConfigDialogState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -271,7 +271,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                     onChanged: (value) {
                       if (value != null) {
                         bloc.add(
-                            BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedEmbedder: value)),);
+                            ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedEmbedder: value)),);
                       }
                     },
                   ),
@@ -285,16 +285,16 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Select Model:', style: TextStyle(fontSize: 16)),
-                  DropdownButton<BayOptModelTypes>(
+                  DropdownButton<ALModelType>(
                     value: state.config.selectedModel,
                     hint: const Text('Choose model'),
                     isExpanded: true,
-                    items: BayOptModelTypes.values
+                    items: ALModelType.values
                         .map((model) => DropdownMenuItem(value: model, child: Text(model.name)))
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
-                        bloc.add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedModel: value)));
+                        bloc.add(ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(selectedModel: value)));
                       }
                     },
                   ),
@@ -308,8 +308,8 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
   }
 
   static Widget buildExploitationVsExplorationSelection(
-    BayOptConfigDialogBloc bloc,
-    BayOptConfigDialogState state,
+    ALConfigDialogBloc bloc,
+    ALConfigDialogState state,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +321,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
           divisions: 10,
           label: (state.config.exploitationExplorationValue ?? 0.5).toStringAsFixed(1),
           onChanged: (value) => bloc
-              .add(BayOptTrainingDialogConfigUpdatedEvent(state.config.copyWith(exploitationExplorationValue: value))),
+              .add(ALTrainingDialogConfigUpdatedEvent(state.config.copyWith(exploitationExplorationValue: value))),
         ),
       ],
     );
@@ -329,7 +329,7 @@ class BayOptConfigDialogBuilder extends BiocentralConfigDialogBuilder<BayOptConf
 
   @override
   Widget buildRunButton(
-      BayOptConfigDialogBloc bloc, BayOptConfigDialogState state, void Function({Function()? callback}) closeDialog,) {
+      ALConfigDialogBloc bloc, ALConfigDialogState state, void Function({Function()? callback}) closeDialog,) {
     if (state.config.canStartTraining) {
       return BiocentralSmallButton(
         onTap: state.config.canStartTraining

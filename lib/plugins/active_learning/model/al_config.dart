@@ -1,13 +1,13 @@
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_model_types.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
+import 'package:biocentral/plugins/active_learning/model/al_model_types.dart';
+import 'package:biocentral/plugins/active_learning/model/al_task.dart';
 import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 
-class BayOptConfig {
+class ALConfig {
   final String? selectedDatasetType;
-  final BayOptTaskType? selectedTask;
+  final ALTaskType? selectedTask;
   final String? selectedFeature;
   final PredefinedEmbedder? selectedEmbedder;
-  final BayOptModelTypes? selectedModel;
+  final ALModelType? selectedModel;
   final double? exploitationExplorationValue;
   final String? optimizationType;
   final double? targetValue;
@@ -15,7 +15,7 @@ class BayOptConfig {
   final double? targetRangeMax;
   final bool? desiredBooleanValue;
 
-  BayOptConfig({
+  ALConfig({
     this.selectedDatasetType,
     this.selectedTask,
     this.selectedFeature,
@@ -29,17 +29,17 @@ class BayOptConfig {
     this.desiredBooleanValue,
   });
 
-  factory BayOptConfig.empty() => BayOptConfig();
+  factory ALConfig.empty() => ALConfig();
 
-  BayOptConfig copyWith({
+  ALConfig copyWith({
     String? selectedDatasetType,
-    BayOptTaskType? selectedTask,
+    ALTaskType? selectedTask,
     String? selectedFeature,
     PredefinedEmbedder? selectedEmbedder,
-    BayOptModelTypes? selectedModel,
+    ALModelType? selectedModel,
     double? exploitationExplorationValue,
     List<String>? availableFeatures,
-    List<BayOptTaskType>? tasks,
+    List<ALTaskType>? tasks,
     List<PredefinedEmbedder>? availableEmbedders,
     String? optimizationType,
     double? targetValue,
@@ -49,13 +49,13 @@ class BayOptConfig {
   }) {
     // Reset feature-related fields when task changes
     if (selectedTask != null && selectedTask != this.selectedTask) {
-      return BayOptConfig(
+      return ALConfig(
         selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
         selectedTask: selectedTask,
       );
     }
 
-    return BayOptConfig(
+    return ALConfig(
       selectedDatasetType: selectedDatasetType ?? this.selectedDatasetType,
       selectedTask: selectedTask ?? this.selectedTask,
       selectedFeature: selectedFeature ?? this.selectedFeature,
@@ -71,7 +71,7 @@ class BayOptConfig {
   }
 
   bool get isFeatureConfigurationComplete {
-    if (selectedTask == BayOptTaskType.findOptimalValues) {
+    if (selectedTask == ALTaskType.findOptimalValues) {
       switch (optimizationType) {
         case 'Maximize':
           return true;
@@ -84,7 +84,7 @@ class BayOptConfig {
         default:
           return false;
       }
-    } else if (selectedTask == BayOptTaskType.findHighestProbability) {
+    } else if (selectedTask == ALTaskType.findHighestProbability) {
       return desiredBooleanValue != null;
     }
     return false;
@@ -118,13 +118,13 @@ class BayOptConfig {
     };
   }
 
-  factory BayOptConfig.fromMap(Map<String, dynamic> map) {
-    return BayOptConfig(
+  factory ALConfig.fromMap(Map<String, dynamic> map) {
+    return ALConfig(
       selectedDatasetType: map['selectedDatasetType'],
       selectedTask: map['selectedTask'] != null
-          ? BayOptTaskType.values.firstWhere(
+          ? ALTaskType.values.firstWhere(
             (e) => e.name == map['selectedTask'],
-        orElse: () => BayOptTaskType.values.first,
+        orElse: () => ALTaskType.values.first,
       )
           : null,
       selectedFeature: map['feature_name'],
@@ -135,9 +135,9 @@ class BayOptConfig {
       )
           : null,
       selectedModel: map['model_type'] != null
-          ? BayOptModelTypes.values.firstWhere(
+          ? ALModelType.values.firstWhere(
             (e) => e.name == map['model_type'],
-        orElse: () => BayOptModelTypes.values.first,
+        orElse: () => ALModelType.values.first,
       )
           : null,
       exploitationExplorationValue: double.tryParse(map['coefficient'].toString()),

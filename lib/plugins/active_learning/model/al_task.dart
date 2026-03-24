@@ -1,13 +1,13 @@
 // Define an enum for task types
-enum BayOptTaskType {
+enum ALTaskType {
   findOptimalValues,
   findHighestProbability;
 
   String get displayName {
     switch (this) {
-      case BayOptTaskType.findOptimalValues:
+      case ALTaskType.findOptimalValues:
         return 'Find proteins with optimal values for feature...';
-      case BayOptTaskType.findHighestProbability:
+      case ALTaskType.findHighestProbability:
         return 'Find proteins with the highest probability to have feature...';
     }
   }

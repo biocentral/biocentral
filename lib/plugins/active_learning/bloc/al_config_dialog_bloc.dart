@@ -1,6 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_config.dart';
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_task.dart';
+import 'package:biocentral/plugins/active_learning/model/al_config.dart';
+import 'package:biocentral/plugins/active_learning/model/al_task.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
@@ -8,36 +8,36 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class BayOptTrainingDialogEvent {}
+abstract class ALTrainingDialogEvent {}
 
-class BayOptTrainingDialogDatasetTypeSelectedEvent extends BayOptTrainingDialogEvent {
+class ALTrainingDialogDatasetTypeSelectedEvent extends ALTrainingDialogEvent {
   final String datasetType;
 
-  BayOptTrainingDialogDatasetTypeSelectedEvent(this.datasetType);
+  ALTrainingDialogDatasetTypeSelectedEvent(this.datasetType);
 }
 
-class BayOptTrainingDialogTaskSelectedEvent extends BayOptTrainingDialogEvent {
-  final BayOptTaskType task;
+class ALTrainingDialogTaskSelectedEvent extends ALTrainingDialogEvent {
+  final ALTaskType task;
 
-  BayOptTrainingDialogTaskSelectedEvent(this.task);
+  ALTrainingDialogTaskSelectedEvent(this.task);
 }
 
-class BayOptTrainingDialogConfigUpdatedEvent extends BayOptTrainingDialogEvent {
-  final BayOptConfig config;
+class ALTrainingDialogConfigUpdatedEvent extends ALTrainingDialogEvent {
+  final ALConfig config;
 
-  BayOptTrainingDialogConfigUpdatedEvent(this.config);
+  ALTrainingDialogConfigUpdatedEvent(this.config);
 }
 
 @immutable
-final class BayOptConfigDialogState extends Equatable {
+final class ALConfigDialogState extends Equatable {
   final List<String> availableFeatures;
-  final BayOptConfig config;
+  final ALConfig config;
 
-  BayOptConfigDialogState.initial()
+  ALConfigDialogState.initial()
       : availableFeatures = const [],
-        config = BayOptConfig.empty();
+        config = ALConfig.empty();
 
-  const BayOptConfigDialogState.updateConfig({
+  const ALConfigDialogState.updateConfig({
     required this.availableFeatures,
     required this.config,
   });
@@ -46,22 +46,22 @@ final class BayOptConfigDialogState extends Equatable {
   List<Object?> get props => [availableFeatures, config];
 }
 
-class BayOptConfigDialogBloc extends Bloc<BayOptTrainingDialogEvent, BayOptConfigDialogState> {
+class ALConfigDialogBloc extends Bloc<ALTrainingDialogEvent, ALConfigDialogState> {
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final BiocentralProjectRepository biocentralProjectRepository;
 
-  BayOptConfigDialogBloc(
+  ALConfigDialogBloc(
     this._biocentralDatabaseRepository,
     this.biocentralProjectRepository, {
-    BayOptConfig? initialConfig,
-  }) : super(BayOptConfigDialogState.initial()) {
-    on<BayOptTrainingDialogDatasetTypeSelectedEvent>(_onDatasetSelected);
-    on<BayOptTrainingDialogTaskSelectedEvent>(_onTaskSelected);
+    ALConfig? initialConfig,
+  }) : super(ALConfigDialogState.initial()) {
+    on<ALTrainingDialogDatasetTypeSelectedEvent>(_onDatasetSelected);
+    on<ALTrainingDialogTaskSelectedEvent>(_onTaskSelected);
 
-    on<BayOptTrainingDialogConfigUpdatedEvent>(_onConfigUpdated);
+    on<ALTrainingDialogConfigUpdatedEvent>(_onConfigUpdated);
   }
 
-  void _onDatasetSelected(BayOptTrainingDialogDatasetTypeSelectedEvent event, Emitter<BayOptConfigDialogState> emit) {
+  void _onDatasetSelected(ALTrainingDialogDatasetTypeSelectedEvent event, Emitter<ALConfigDialogState> emit) {
     final availableFeatures = <String>[];
     if (event.datasetType.toString() == 'Protein') {
       final ProteinRepository? biocentralDatabase =
@@ -70,7 +70,7 @@ class BayOptConfigDialogBloc extends Bloc<BayOptTrainingDialogEvent, BayOptConfi
     }
 
     emit(
-      BayOptConfigDialogState.updateConfig(
+      ALConfigDialogState.updateConfig(
         availableFeatures: availableFeatures,
         config: state.config.copyWith(
           selectedDatasetType: event.datasetType,
@@ -79,33 +79,33 @@ class BayOptConfigDialogBloc extends Bloc<BayOptTrainingDialogEvent, BayOptConfi
     );
   }
 
-  void _onTaskSelected(BayOptTrainingDialogTaskSelectedEvent event, Emitter<BayOptConfigDialogState> emit) {
+  void _onTaskSelected(ALTrainingDialogTaskSelectedEvent event, Emitter<ALConfigDialogState> emit) {
     final ProteinRepository? biocentralDatabase =
         _biocentralDatabaseRepository.getFromType(Protein) as ProteinRepository?;
 
     List<String> filteredFeatures = [];
 
     switch (event.task) {
-      case BayOptTaskType.findHighestProbability:
+      case ALTaskType.findHighestProbability:
         filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: true, numericTypes: false);
         break;
-      case BayOptTaskType.findOptimalValues:
+      case ALTaskType.findOptimalValues:
         filteredFeatures = biocentralDatabase!.getPartiallyUnlabeledColumnNames(binaryTypes: false, numericTypes: true);
         break;
     }
 
     final config = state.config.copyWith(selectedTask: event.task);
     emit(
-      BayOptConfigDialogState.updateConfig(
+      ALConfigDialogState.updateConfig(
         availableFeatures: filteredFeatures,
         config: config,
       ),
     );
   }
 
-  void _onConfigUpdated(BayOptTrainingDialogConfigUpdatedEvent event, Emitter<BayOptConfigDialogState> emit) {
+  void _onConfigUpdated(ALTrainingDialogConfigUpdatedEvent event, Emitter<ALConfigDialogState> emit) {
     emit(
-      BayOptConfigDialogState.updateConfig(
+      ALConfigDialogState.updateConfig(
         availableFeatures: state.availableFeatures,
         config: event.config,
       ),

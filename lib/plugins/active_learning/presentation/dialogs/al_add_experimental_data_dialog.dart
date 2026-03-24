@@ -1,23 +1,23 @@
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-class BayOptAddExperimentalDataDialog extends StatefulWidget {
-  final BayOptTrainingResult currentResult;
+class ALAddExperimentalDataDialog extends StatefulWidget {
+  final ALTrainingResult currentResult;
   final void Function(Map<String, dynamic>? experimentalData) onFinishedAddingData;
 
-  const BayOptAddExperimentalDataDialog({
+  const ALAddExperimentalDataDialog({
     required this.currentResult,
     required this.onFinishedAddingData,
     super.key,
   });
 
   @override
-  State<BayOptAddExperimentalDataDialog> createState() => _BayOptAddExperimentalDataDialogState();
+  State<ALAddExperimentalDataDialog> createState() => _ALAddExperimentalDataDialogState();
 }
 
-class _BayOptAddExperimentalDataDialogState extends State<BayOptAddExperimentalDataDialog>
+class _ALAddExperimentalDataDialogState extends State<ALAddExperimentalDataDialog>
     with BiocentralDialogCloseMixin {
   late PlutoGridStateManager stateManager;
 

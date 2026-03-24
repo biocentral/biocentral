@@ -1,18 +1,18 @@
-import 'package:biocentral/plugins/bay_opt/bloc/bay_opt_hub_bloc.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_iteration_result_view.dart';
-import 'package:biocentral/plugins/bay_opt/presentation/views/bay_opt_iterations_list_view.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_iteration_result_view.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_iterations_list_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BayOptHubView extends StatefulWidget {
-  const BayOptHubView({super.key});
+class ALHubView extends StatefulWidget {
+  const ALHubView({super.key});
 
   @override
-  State<BayOptHubView> createState() => _BayOptHubViewState();
+  State<ALHubView> createState() => _ALHubViewState();
 }
 
-class _BayOptHubViewState extends State<BayOptHubView> with AutomaticKeepAliveClientMixin {
+class _ALHubViewState extends State<ALHubView> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -35,12 +35,12 @@ class _BayOptHubViewState extends State<BayOptHubView> with AutomaticKeepAliveCl
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Flexible(
               flex: 5,
-              child: BlocBuilder<BayOptHubBloc, BayOptHubState>(
+              child: BlocBuilder<ALHubBloc, ALHubState>(
                 builder: (context, state) {
                   return const TabBarView(
                     children: [
-                      BayOptIterationsListView(),
-                      BayOptIterationResultView(),
+                      ALIterationsListView(),
+                      ALIterationResultView(),
                     ],
                   );
                 },

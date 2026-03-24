@@ -1,28 +1,28 @@
-import 'package:biocentral/plugins/bay_opt/model/bay_opt_training_result.dart';
+import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-/// A command to transfer Bayesian Optimization training configuration and manage the training process.
+/// A command to transfer Active Learning training configuration and manage the training process.
 ///
 /// This command handles the following:
 /// - Transfers training files (sequences, labels, masks) to the server.
 /// - Starts the training process on the server.
 /// - Monitors the training process and retrieves the results.
 ///
-/// Returns a [BayOptTrainingResult] upon successful completion.
-class BayOptIterationCommand extends BiocentralCommand<BayOptTrainingResult> {
+/// Returns a [ALTrainingResult] upon successful completion.
+class ALIterationCommand extends BiocentralCommand<ALTrainingResult> {
   final BiocentralDatabase _biocentralDatabase;
   final BiocentralAPIRepository _apiRepository;
   final Map<String, dynamic> _trainingConfiguration;
   final String _targetFeature;
 
-  /// Constructor for [BayOptIterationCommand].
+  /// Constructor for [ALIterationCommand].
   ///
   /// - [biocentralDatabase]: The database containing the training data.
-  /// - [client]: The Bayesian Optimization client for server communication.
+  /// - [client]: The Active Learning client for server communication.
   /// - [trainingConfiguration]: The configuration for the training process.
   /// - [targetFeature]: The feature to optimize during training.
-  BayOptIterationCommand({
+  ALIterationCommand({
     required BiocentralDatabase biocentralDatabase,
     required BiocentralAPIRepository apiRepository,
     required Map<String, dynamic> trainingConfiguration,
@@ -38,9 +38,9 @@ class BayOptIterationCommand extends BiocentralCommand<BayOptTrainingResult> {
   ///
   /// Returns a stream of [Either] objects:
   /// - [Left]: Indicates an error or intermediate state.
-  /// - [Right]: Contains the [BayOptTrainingResult] upon successful completion.
+  /// - [Right]: Contains the [ALTrainingResult] upon successful completion.
   @override
-  Stream<Either<T, BayOptTrainingResult>> execute<T extends BiocentralCommandState<T>>(
+  Stream<Either<T, ALTrainingResult>> execute<T extends BiocentralCommandState<T>>(
     T state,
   ) async* {
     throw UnimplementedError();
@@ -68,8 +68,8 @@ class BayOptIterationCommand extends BiocentralCommand<BayOptTrainingResult> {
           state.setOperating(information: 'Training model..').copyWith(copyMap: {'trainingModel': initialModel});
       yield left(trainingState);
 
-      var trainingResult = BayOptTrainingResult(
-          results: [], trainingConfig: BayOptConfig.fromMap(_trainingConfiguration), taskID: taskID);
+      var trainingResult = ALTrainingResult(
+          results: [], trainingConfig: ALConfig.fromMap(_trainingConfiguration), taskID: taskID);
       await for (final (dto, currentResult) in _boClient.boTrainingTaskStream(taskID, trainingResult)) {
         if (currentResult != null) {
           trainingResult = currentResult;
