@@ -49,7 +49,6 @@ class BiocentralPluginManager extends Equatable {
     //final PpiPlugin ppiPlugin = PpiPlugin(eventBus);
     final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
     final CustomModelsPlugin customModelsPlugin = CustomModelsPlugin(eventBus);
-    //final PLMEvalPlugin plmEvalPlugin = PLMEvalPlugin(eventBus);
     // final BayOptPlugin bayOptPlugin = BayOptPlugin(eventBus);
     return (
       {proteinPlugin, embeddingsPlugin, customModelsPlugin}, // All
