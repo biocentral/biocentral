@@ -2,6 +2,14 @@
 
 Compute functionality for biocentral. Provided via a dockerized FastAPI server.
 
+## Usage
+
+Learn how to best use the *biocentral_server* functionality for your use case
+by taking the [tour](https://tour.biocentral.cloud/)!
+
+Or check out the [API](https://github.com/biocentral/biocentral_api) or [Frontend](https://app.biocentral.cloud)
+directly.
+
 ## Features and modules
 
 These are the currently provided modules:
