@@ -139,7 +139,8 @@ def compute_embeddings(
     :param embeddings_db: Embeddings database
     :return: Yields embedding progress
     """
-
+    # Currently triton is not available for half precision
+    force_biotrainer = True if use_half_precision else False
     try:
         yield from _compute_embeddings_implementation(
             embedder_name,
@@ -148,7 +149,7 @@ def compute_embeddings(
             use_half_precision,
             custom_tokenizer_config,
             embeddings_db,
-            force_biotrainer=False,
+            force_biotrainer=force_biotrainer,
         )
     except TritonError as e:
         logger.error(
