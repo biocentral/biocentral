@@ -3,7 +3,7 @@ from typing import Callable, Dict, List
 from biotrainer.embedders import get_predefined_embedder_names
 from biotrainer.input_files import BiotrainerSequenceRecord
 
-from .embed import compute_embeddings, compute_memory_encodings
+from .embed import compute_embeddings, compute_memory_encodings, get_embedder_name_db
 
 from ..server_management import (
     TaskInterface,
@@ -96,9 +96,6 @@ class LoadEmbeddingsTask(TaskInterface):
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
     ):
-        if use_half_precision:
-            embedder_name += "-half"
-
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
@@ -171,10 +168,13 @@ class LoadEmbeddingsTask(TaskInterface):
 
         embedded_sequences = calculate_dto.embedded_sequences
 
+        embedder_name_db = get_embedder_name_db(
+            embedder_name=self.embedder_name, use_half_precision=self.use_half_precision
+        )
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
         embd_records = embeddings_db.get_embeddings(
             sequences=embedded_sequences,
-            embedder_name=self.embedder_name,
+            embedder_name=embedder_name_db,
             reduced=self.reduced,
         )
         return self._postprocess_embeddings(
@@ -193,10 +193,6 @@ class ExportEmbeddingsTask(TaskInterface):
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
     ):
-        # TODO [Refactoring] Maybe completely remove use_half_precision and default to False
-        if use_half_precision:
-            embedder_name += "-half"
-
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced

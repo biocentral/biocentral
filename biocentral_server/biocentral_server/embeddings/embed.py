@@ -15,6 +15,11 @@ from ..server_management import (
 logger = get_logger(__name__)
 
 
+def get_embedder_name_db(embedder_name: str, use_half_precision: bool) -> str:
+    """Get the embedder name for database storage, appending '-half' if using half precision."""
+    return embedder_name + "-half" if use_half_precision else embedder_name
+
+
 def compute_memory_encodings(
     embedder_name: str, all_seqs: Dict[str, str], reduced: bool
 ) -> List[BiotrainerSequenceRecord]:
@@ -51,9 +56,13 @@ def _compute_embeddings_implementation(
     # TODO [Optimization] Ensure that sequences are actually unique at this step?
     # TODO [Optimization] If per-residue embeddings exist, but per-sequence embeddings not and are required,
     #  directly calculate them
+
+    # Use half as suffix for half precision embeddings in database but not for model execution
+    embedder_name_db = get_embedder_name_db(embedder_name, use_half_precision)
+
     existing_embds_seqs, non_existing_embds_seqs = (
         embeddings_db.filter_existing_embeddings(
-            sequences=all_seqs, embedder_name=embedder_name, reduced=reduced
+            sequences=all_seqs, embedder_name=embedder_name_db, reduced=reduced
         )
     )
     n_non_existing = len(non_existing_embds_seqs)
@@ -98,7 +107,7 @@ def _compute_embeddings_implementation(
         # Save remaining embeddings
         if batch:
             embeddings_db.save_embeddings(
-                embd_records=batch, embedder_name=embedder_name, reduced=reduced
+                embd_records=batch, embedder_name=embedder_name_db, reduced=reduced
             )
             progress += len(batch)
 
