@@ -36,6 +36,7 @@ def get_biotrainer_embedding_service(
         )
 
     if BiotrainerTritonEmbedder.is_triton_embedding_available(embedder_name):
+        logger.info(f"Using Triton for running {embedder_name}..")
         embedder = BiotrainerTritonEmbedder(embedder_name=embedder_name)
         return EmbeddingService(
             embedder=embedder, use_half_precision=use_half_precision
@@ -136,7 +137,6 @@ class BiotrainerTritonEmbedder(EmbedderInterface):
         return embd
 
     def _embed_batch(self, batch: List[str]) -> Generator[torch.Tensor, None, None]:
-        print(f"embedding triton {self.triton_model_name}..")
         batch_size = self.config.triton_max_batch_size
         for i in range(0, len(batch), batch_size):
             current_batch = batch[i : i + batch_size]
