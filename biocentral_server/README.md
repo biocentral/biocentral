@@ -45,7 +45,6 @@ Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are us
   month     = jan,
   pages     = {169673},
   doi       = {10.1016/j.jmb.2026.169673},
-  groups    = {[JMB] biocentral: embedding-based protein predictions, swc_bo_engineering},
   publisher = {Elsevier BV},
 }
 ```
