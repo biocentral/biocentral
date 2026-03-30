@@ -1,5 +1,14 @@
 # biocentral_server Changelog
 
+## v1.1.2
+
+- Resolved half precision embedding issues by standardizing terminology in the database and modifying handling to use
+  only `biotrainer`.
+- Replaced print statements with proper logging in the Triton Embedder for better debugging and readability.
+- Updated the README to include a usage section.
+- Fixed citation formatting errors.
+- Refined Docker configuration to use proper volumes instead of copying assets, improving build practices.
+
 ## v1.1.1
 
 - Fixed embedding deduplication, simplification, and dict creation for various tasks.
