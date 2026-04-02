@@ -35,3 +35,17 @@ class SplitRatio {
 
   (double, double) get subsplit => (r1, r2 ?? 1 - r1);
 }
+
+class SplitResult {
+  final Map<String, SplitSet> splits;
+  final String newColumnName;
+
+  SplitResult(this.splits, this.newColumnName);
+
+  Map<String, dynamic> serialize() {
+    return {
+      'splits': splits,
+      'newColumnName': newColumnName,
+    };
+  }
+}

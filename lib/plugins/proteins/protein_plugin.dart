@@ -1,13 +1,19 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/proteins/bloc/protein_database_grid_bloc.dart';
-import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
+import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
+import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/plugins/proteins/model/analyze_example_dataset_tutorial.dart';
 import 'package:biocentral/plugins/proteins/model/sequence_column_wizard.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_export_command_display.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_load_asset_dataset_command_display.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_load_commands_display.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_predict_command_display.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_taxonomy_command_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/displays/sequence_column_wizard_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/protein_hub_view.dart';
-import 'package:biocentral/plugins/proteins/presentation/views/proteins_command_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +38,8 @@ class ProteinPlugin extends BiocentralPlugin
   }
 
   @override
-  ProteinRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+  ProteinRepository createListeningDatabase(
+      BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion) {
     final proteinRepository = ProteinRepository(projectRepository);
     eventBus.on<BiocentralDatabaseSyncEvent>().listen((event) {
       proteinRepository.syncFromDatabase(event.updatedEntities, event.importMode);
@@ -41,41 +48,25 @@ class ProteinPlugin extends BiocentralPlugin
   }
 
   @override
-  Widget getCommandView(BuildContext context) {
-    return const ProteinsCommandView();
+  List<Widget> getCommandWidgets() {
+    return [
+      const ProteinLoadCommandDisplay(),
+      const ProteinTaxonomyCommandDisplay(),
+      const ProteinPredictCommandDisplay(),
+      const ProteinExportCommandDisplay(),
+      ProteinLoadAssetDatasetCommandDisplay(assetDatasets: AssetProteinDatasetContainer.assetProteinDatasets()),
+    ];
   }
 
   @override
   Map<BlocProvider, Bloc> getListeningBlocs(BuildContext context) {
     cancelSubscriptions();
 
-    final proteinCommandBloc = ProteinsCommandBloc(
-      getDatabase(context),
-      getBiocentralAPIRepository(context),
-      getBiocentralProjectRepository(context),
-      eventBus,
-    );
     final proteinDatabaseGridBloc = ProteinDatabaseGridBloc(getDatabase(context))..add(ProteinDatabaseGridLoadEvent());
-    final proteinColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
-      ..add(ColumnWizardLoadEvent());
-
-    eventBusSubscriptions.add(
-      eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-        proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
-        proteinColumnWizardBloc.add(ColumnWizardLoadEvent());
-      }),
-    );
-
-    eventBusSubscriptions.add(
-      eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
-        if (event.switchedTab == getTab()) {
-          proteinDatabaseGridBloc.add(ProteinDatabaseGridLoadEvent());
-        }
-      }),
-    );
+    final proteinColumnWizardBloc =
+        ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context));
 
     return {
-      BlocProvider<ProteinsCommandBloc>.value(value: proteinCommandBloc): proteinCommandBloc,
       BlocProvider<ProteinDatabaseGridBloc>.value(value: proteinDatabaseGridBloc): proteinDatabaseGridBloc,
       BlocProvider<ColumnWizardBloc>.value(value: proteinColumnWizardBloc): proteinColumnWizardBloc,
     };
@@ -83,7 +74,9 @@ class ProteinPlugin extends BiocentralPlugin
 
   @override
   Widget getScreenView(BuildContext context) {
-    return const ProteinHubView();
+    return ProteinHubView(
+      commandWidgets: getCommandWidgets(),
+    );
   }
 
   @override
@@ -110,20 +103,24 @@ class ProteinPlugin extends BiocentralPlugin
       BiocentralPluginDirectory(
         path: 'proteins',
         saveType: Protein,
-        commandBlocType: ProteinsCommandBloc,
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
-          List<BiocentralCommandLog> commandLogs,
-          dynamic commandBloc,
         ) {
-          final List<void Function()> loadingFunctions = [];
+          final List<void Function(BuildContext context)> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('protein.') && scannedFile.extension == 'fasta') {
-              void loadingFunction() => commandBloc?.add(
-                    ProteinsCommandLoadProteinsFromFileEvent(
-                      xFile: scannedFile,
-                      importMode: DatabaseImportMode.overwrite,
+              void loadingFunction(context) => getBiocentralCommandBloc(context).add(
+                    BiocentralCommandExecuteEvent(
+                      command: LoadProteinsFromFileCommand(
+                        biocentralProjectRepository: getBiocentralProjectRepository(context),
+                        proteinRepository: getDatabase(context),
+                        xFile: scannedFile,
+                        assetDataset: null,
+                        importMode: DatabaseImportMode.overwrite,
+                      ),
+                      visualizeResult: null,
+                      autoAccept: true,
                     ),
                   );
               loadingFunctions.add(loadingFunction);

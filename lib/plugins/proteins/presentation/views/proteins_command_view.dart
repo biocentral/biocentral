@@ -1,13 +1,16 @@
+/*
+import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
 import 'package:biocentral/plugins/proteins/bloc/protein_predict_dialog_bloc.dart';
 import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
 import 'package:biocentral/plugins/proteins/data/asset_protein_datasets.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/plugins/proteins/model/analyze_example_dataset_tutorial.dart';
+import 'package:biocentral/plugins/proteins/presentation/analyze/protein_load_commands.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_asset_datasets_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_column_wizard_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_predict_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/biocentral/presentation/widgets/biocentral_explainable_widget.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -138,70 +141,77 @@ class _ProteinsCommandViewState extends State<ProteinsCommandView> with Tutorial
     final ProteinsCommandBloc proteinCommandBloc = BlocProvider.of<ProteinsCommandBloc>(context);
 
     return BlocBuilder<ProteinsCommandBloc, ProteinsCommandState>(
-      builder: (context, state) => BiocentralCommandBar(
-        commands: [
-          BiocentralTooltip(
-            message: 'Load proteins from file..',
-            child: BiocentralButton(
-              iconData: Icons.file_open,
-              onTap: () => loadProteinFile(proteinCommandBloc),
+      builder: (context, state) => SingleChildScrollView(
+        child: Column(
+          children: [
+            BiocentralCommandBar(
+              commands: [
+                BiocentralTooltip(
+                  message: 'Load proteins from file..',
+                  child: BiocentralButton(
+                    iconData: Icons.file_open,
+                    onTap: () => loadProteinFile(proteinCommandBloc),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Load protein attributes from file..',
+                  child: BiocentralExplainableWidget(
+                    explain: 'TEST',
+                    child: BiocentralButton(
+                      iconData: Icons.file_present_rounded,
+                      onTap: () => loadCustomAttributesFile(proteinCommandBloc),
+                    ),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Save proteins to file..',
+                  child: BiocentralButton(
+                    iconData: Icons.save,
+                    onTap: () => saveProteins(proteinCommandBloc),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Analyze and modify the columns in your dataset',
+                  child: BiocentralButton(
+                    key: showProteinsColumnWizardButtonKey,
+                    iconData: Icons.view_column_outlined,
+                    onTap: () => openColumnWizardDialog(proteinCommandBloc, null),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Get missing taxonomy data from the server for your proteins',
+                  child: BiocentralButton(
+                    iconData: Icons.nature_people_rounded,
+                    onTap: () => retrieveTaxonomy(proteinCommandBloc),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Predict missing protein features',
+                  child: BiocentralButton(
+                    iconData: Icons.batch_prediction_outlined,
+                    onTap: () => openProteinPredictDialog(proteinCommandBloc),
+                  ),
+                ),
+                BiocentralTooltip(
+                  message: 'Load a predefined dataset to learn and explore',
+                  child: BiocentralButton(
+                    key: loadProteinsExampleDatasetsButtonKey,
+                    iconData: Icons.bubble_chart_sharp,
+                    onTap: () => openProteinAssetDatasetsDialog(proteinCommandBloc),
+                  ),
+                ),
+              ],
             ),
-          ),
-          BiocentralTooltip(
-            message: 'Load protein attributes from file..',
-            child: BiocentralExplainableWidget(
-              explain: "TEST",
-              child: BiocentralButton(
-                iconData: Icons.file_present_rounded,
-                onTap: () => loadCustomAttributesFile(proteinCommandBloc),
-              ),
-            ),
-          ),
-          BiocentralTooltip(
-            message: 'Save proteins to file..',
-            child: BiocentralButton(
-              iconData: Icons.save,
-              onTap: () => saveProteins(proteinCommandBloc),
-            ),
-          ),
-          BiocentralTooltip(
-            message: 'Analyze and modify the columns in your dataset',
-            child: BiocentralButton(
-              key: showProteinsColumnWizardButtonKey,
-              iconData: Icons.view_column_outlined,
-              onTap: () => openColumnWizardDialog(proteinCommandBloc, null),
-            ),
-          ),
-          BiocentralTooltip(
-            message: 'Get missing taxonomy data from the server for your proteins',
-            child: BiocentralButton(
-              iconData: Icons.nature_people_rounded,
-              onTap: () => retrieveTaxonomy(proteinCommandBloc),
-            ),
-          ),
-          BiocentralTooltip(
-            message: 'Predict missing protein features',
-            child: BiocentralButton(
-              iconData: Icons.batch_prediction_outlined,
-              onTap: () => openProteinPredictDialog(proteinCommandBloc),
-            ),
-          ),
-          BiocentralTooltip(
-            message: 'Load a predefined dataset to learn and explore',
-            child: BiocentralButton(
-              key: loadProteinsExampleDatasetsButtonKey,
-              iconData: Icons.bubble_chart_sharp,
-              onTap: () => openProteinAssetDatasetsDialog(proteinCommandBloc),
-            ),
-          ),
-        ],
+            const ProteinLoadCommand(),
+          ],
+        ),
       ),
     );
   }
 }
 
 extension TutorialExtCommand on ProteinsCommandView {
-  ProteinsCommandBloc? getProteinsCommandBloc(dynamic state) =>
+  BiocentralCommandBloc? getCommandBloc(dynamic state) =>
       state is _ProteinsCommandViewState ? BlocProvider.of(state.context) : null;
 
   GlobalKey? getLoadProteinsExampleDatasetsButtonKey(dynamic state) =>
@@ -210,3 +220,4 @@ extension TutorialExtCommand on ProteinsCommandView {
   GlobalKey? getShowProteinsColumnWizardButtonKey(dynamic state) =>
       state is _ProteinsCommandViewState ? state.showProteinsColumnWizardButtonKey : null;
 }
+*/

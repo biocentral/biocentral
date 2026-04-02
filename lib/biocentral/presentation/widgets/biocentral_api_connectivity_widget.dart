@@ -12,8 +12,8 @@ class BiocentralAPIConnectivityWidget extends StatelessWidget {
     final apiRepository = context.read<BiocentralAPIRepository>();
 
     return StreamBuilder(
+      initialData: apiRepository.currentHealth,
       stream: apiRepository.healthStatusStream,
-      initialData: apiRepository.initialAPIHealthData,
       builder: (context, snapshot) {
         final healthStatusList = snapshot.data ?? [];
         final connectionStatusAny =

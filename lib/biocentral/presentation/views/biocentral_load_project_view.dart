@@ -39,7 +39,7 @@ class _BiocentralLoadProjectViewState extends State<BiocentralLoadProjectView> {
     return Scaffold(
       body: BlocConsumer<BiocentralLoadProjectBloc, BiocentralLoadProjectState>(
         listener: (context, state) {
-          if (state.isFinished()) {
+          if (state.status == BiocentralLoadProjectStatus.done) {
             switchToProjectView();
           }
         },
@@ -60,7 +60,7 @@ class _BiocentralLoadProjectViewState extends State<BiocentralLoadProjectView> {
                   SizedBox(
                       width: SizeConfig.screenWidth(context) * 0.2,
                       height: SizeConfig.screenHeight(context) * 0.2,
-                      child: BiocentralStatusIndicator(state: state, center: true,),),
+                      child: BiocentralStatusIndicator(metaData: state.metaData, center: true,),),
                 ],
               ),
             ],

@@ -11,7 +11,7 @@ class ModelComparisonView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (modelsToCompare.isEmpty) {
-      return const Text('Drag models to the comparison tab to compare models!');
+      return const Center(child: Text('Drag models to the comparison tab to compare models!'));
     }
     return compareMetricsDisplay();
   }

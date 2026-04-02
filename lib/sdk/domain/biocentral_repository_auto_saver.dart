@@ -6,7 +6,7 @@ import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/logging.dart';
 
 class BiocentralRepositoryAutoSaver {
-  final BiocentralProjectRepository _biocentralProjectRepository;
+  final BiocentralProjectRepository _projectRepository;
   final String _fileName;
   final Type _fileType;
   final Future<String?> Function()? _saveFunctionString;
@@ -17,12 +17,12 @@ class BiocentralRepositoryAutoSaver {
   bool _saveScheduled = false;
 
   BiocentralRepositoryAutoSaver({
-    required BiocentralProjectRepository biocentralProjectRepository,
+    required BiocentralProjectRepository projectRepository,
     required String fileName,
     required Type fileType,
     Future<String?> Function()? saveFunctionString,
     Future<Uint8List?> Function()? saveFunctionBytes,
-  })  : _biocentralProjectRepository = biocentralProjectRepository,
+  })  : _projectRepository = projectRepository,
         _fileName = fileName,
         _fileType = fileType,
         _saveFunctionString = saveFunctionString,
@@ -38,7 +38,7 @@ class BiocentralRepositoryAutoSaver {
     if (!_saveScheduled) return;
 
     try {
-      await _biocentralProjectRepository.handleProjectInternalSave(
+      await _projectRepository.handleProjectInternalSave(
         fileName: _fileName,
         type: _fileType,
         contentFunction: _saveFunctionString,
@@ -55,11 +55,15 @@ class BiocentralRepositoryAutoSaver {
 mixin AutoSaving {
   BiocentralRepositoryAutoSaver get autoSaver;
 
+  void autosave() {
+    autoSaver.scheduleSave();
+  }
+
   T withAutoSave<T>(T Function() operation) {
     try {
       return operation();
     } finally {
-      autoSaver.scheduleSave();
+      autosave();
     }
   }
 }

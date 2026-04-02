@@ -33,7 +33,7 @@ class _HistogramKDEPainter extends CustomPainter {
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
   final colorKDE = Colors.orange;
-  final colorNormalDist = Colors.white;
+  final colorNormalDist = Colors.black;
 
   _HistogramKDEPainter(this.data, this.bins, this.bandwidth);
 

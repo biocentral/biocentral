@@ -1,10 +1,7 @@
-import 'package:biocentral/plugins/custom_models/bloc/biotrainer_inference_bloc.dart';
-import 'package:biocentral/plugins/custom_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/custom_models/bloc/model_hub_bloc.dart';
 import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/plugins/custom_models/presentation/displays/prediction_model_display.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,14 +22,16 @@ class _ModelListViewState extends State<ModelListView> with AutomaticKeepAliveCl
     final ModelHubBloc predictionModelsBloc = BlocProvider.of<ModelHubBloc>(context);
     return BlocBuilder<ModelHubBloc, ModelHubState>(
       builder: (context, state) {
+        if (state.predictionModels.isEmpty) {
+          return const Center(
+            child: Text('No models available yet!'),
+          );
+        }
         return Scaffold(
           body: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                buildTrainingModel(predictionModelsBloc),
-                buildInferenceView(predictionModelsBloc),
-                ...buildResumablePredictionModels(state),
                 ...buildPredictionModels(state),
               ],
             ),
@@ -40,61 +39,6 @@ class _ModelListViewState extends State<ModelListView> with AutomaticKeepAliveCl
         );
       },
     );
-  }
-
-  Widget buildTrainingModel(ModelHubBloc predictionModelsBloc) {
-    return BlocBuilder<BiotrainerTrainingBloc, BiotrainerTrainingState>(
-      builder: (context, state) {
-        if (state.isOperating() && state.trainingModel != null) {
-          return PredictionModelDisplay(
-            predictionModel: state.trainingModel!,
-            trainingState: state,
-          );
-        } else {
-          return Container();
-        }
-      },
-    );
-  }
-
-  Widget buildInferenceView(ModelHubBloc predictionModelsBloc) {
-    return BlocBuilder<BiotrainerInferenceBloc, BiotrainerInferenceState>(
-      builder: (context, state) {
-        if (state.isOperating() && state.predictingModel != null) {
-          final predictions = state.predictions ?? {};
-          return BiocentralTaskDisplay(
-            title: state.stateInformation.information,
-            subtitle: Text('Model ID:${state.predictingModel!.getReadableModelID()}'),
-            leadingIcon: const CircularProgressIndicator(),
-            trailing: BiocentralStatusIndicator(state: state),
-            children: [
-              ExpansionTile(
-                title: const Text('Predictions'),
-                children: [
-                  ...predictions.entries.map((entry) => Text(entry.key + (entry.value ?? 'Predicting...').toString())),
-                ],
-              ),
-            ],
-          );
-        } else {
-          return Container();
-        }
-      },
-    );
-  }
-
-  List<Widget> buildResumablePredictionModels(ModelHubState state) {
-    final BiotrainerTrainingBloc biotrainerTrainingBloc = BlocProvider.of<BiotrainerTrainingBloc>(context);
-
-    // TODO [Optimization] Disable resumed command
-    return state.resumableCommands
-        .map(
-          (commandLog) => BiocentralTaskDisplay.resumable(
-            commandLog,
-            () => biotrainerTrainingBloc.add(BiotrainerTrainingResumeTrainingEvent(commandLog)),
-          ),
-        )
-        .toList();
   }
 
   List<Widget> buildPredictionModels(ModelHubState state) {

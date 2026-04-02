@@ -9,14 +9,14 @@ import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/wiki_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
-class BiocentralCommandView extends StatefulWidget {
-  const BiocentralCommandView({super.key});
+class BiocentralInternalCommandView extends StatefulWidget {
+  const BiocentralInternalCommandView({super.key});
 
   @override
-  State<BiocentralCommandView> createState() => _BiocentralCommandViewState();
+  State<BiocentralInternalCommandView> createState() => _BiocentralInternalCommandViewState();
 }
 
-class _BiocentralCommandViewState extends State<BiocentralCommandView> {
+class _BiocentralInternalCommandViewState extends State<BiocentralInternalCommandView> {
   @override
   void initState() {
     super.initState();

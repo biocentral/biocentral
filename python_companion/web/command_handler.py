@@ -5,7 +5,9 @@ _command_functions = {
     "setup": lambda _: "Success",
     "test_normal": lambda data: functionality.test_normal(data),
     "read_h5": lambda data: functionality.read_h5(data),
-    "write_h5": lambda data: functionality.write_h5(data)
+    "write_h5": lambda data: functionality.write_h5(data),
+    "get_h5_info": lambda data: functionality.get_h5_info(data),
+    "get_embedding": lambda data: functionality.get_embedding(data),
 }
 
 

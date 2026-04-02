@@ -1,74 +1,61 @@
 import 'dart:convert';
 
-import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
+import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
+import 'package:biocentral/sdk/domain/streamable_database.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 
-/// Repository for managing Active Learning training results.
-///
-/// This repository handles the following:
-/// - Storing and retrieving current and previous training results.
-/// - Saving training results to JSON files.
-/// - Loading training results from JSON files.
-class ALRepository with AutoSaving {
-  final BiocentralProjectRepository _projectRepository;
+/// Repository for managing Active Learning campaigns.
+class ALRepository with AutoSaving, StreamableDatabase<List<ALCampaign>> {
 
   @override
   late final BiocentralRepositoryAutoSaver autoSaver;
 
-  final List<ALTrainingResult> _trainingResults = [];
+  final Map<String, ALCampaign> _campaigns = {};
 
   /// Constructor for [ALRepository].
   ///
   /// - [_projectRepository]: The project repository for handling external file operations.
-  ALRepository(this._projectRepository) {
+  ALRepository(BiocentralProjectRepository projectRepository) {
     autoSaver = BiocentralRepositoryAutoSaver(
-      biocentralProjectRepository: _projectRepository,
+      projectRepository: projectRepository,
       fileName: 'al_results.json',
-      fileType: ALTrainingResult,
-      saveFunctionString: saveTrainingResults,
+      fileType: ALCampaign,
+      saveFunctionString: saveDBInfo,
     );
   }
 
-  List<ALTrainingResult> addTrainingResult(ALTrainingResult? result) =>
-      withAutoSave(() {
-        if (result != null) {
-          _trainingResults.add(result);
-        }
-        return trainingResultsToList();
-      });
-
-  List<ALTrainingResult> updateLatestResult(ALTrainingResult updatedResult) =>
-      withAutoSave(() {
-        final updatedResults = [updatedResult, ..._trainingResults.sublist(1)];
-        _trainingResults.clear();
-        _trainingResults.addAll(updatedResults);
-        return trainingResultsToList();
-      });
-
-  List<ALTrainingResult> loadTrainingResults(String fileContent) {
-    // TODO CHECK THIS FUNCTION
-    final resultMaps = jsonDecode(fileContent);
-
-    _trainingResults.clear();
-
-    for (final map in resultMaps) {
-      final ALTrainingResult result = ALTrainingResult.fromMap(map);
-      _trainingResults.add(result);
-    }
-
-    return trainingResultsToList();
+  void addNewCampaign(ALCampaign campaign) {
+    final internalName = campaign.internalName();
+    _campaigns[internalName] = campaign;
+    autosave();
+    updateStream();
   }
 
-  /// Converts the current training results as json
-  Future<String> saveTrainingResults() async {
-    if (_trainingResults.isEmpty) {
-      return '';
+  void addNewCampaigns(List<ALCampaign> campaigns) {
+    for(final campaign in campaigns) {
+      final internalName = campaign.internalName();
+      _campaigns[internalName] = campaign;
     }
-
-    final trainingResultMaps = _trainingResults.map((result) => result.toMap()).toList();
-    return jsonEncode(trainingResultMaps);
+    autosave();
+    updateStream();
   }
 
-  List<ALTrainingResult> trainingResultsToList() => List.from(_trainingResults);
+  void addNewResult(ALCampaign campaign, ActiveLearningIterationConfig config, ActiveLearningIterationResult result) {
+    campaign.addIterationResult(config, result);
+    addNewCampaign(campaign); // Simply overwrite existing campaign
+  }
+
+  Map<String, dynamic> serialize() => {'campaigns': _campaigns.values.map((campaign) => campaign.serialize()).toList()};
+
+  Future<String> saveDBInfo() async {
+    final jsonMap = serialize();
+    return jsonEncode(jsonMap);
+  }
+
+  List<ALCampaign> campaignsToList() => List.from(_campaigns.values);
+
+  @override
+  List<ALCampaign> toStreamable() => campaignsToList();
 }

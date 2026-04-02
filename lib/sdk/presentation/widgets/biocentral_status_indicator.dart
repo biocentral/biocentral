@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:biocentral/sdk/bloc/biocentral_command.dart';
+import 'package:biocentral/sdk/bloc/biocentral_command_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -9,11 +11,12 @@ import 'package:biocentral/sdk/util/format_util.dart';
 import 'package:biocentral/sdk/util/size_config.dart';
 
 class BiocentralStatusIndicator extends StatefulWidget {
-  final BiocentralCommandState state;
+  final BiocentralCommandMetaData? metaData;
   final bool center;
 
   const BiocentralStatusIndicator({
-    required this.state, super.key,
+    required this.metaData,
+    super.key,
     this.center = false,
   });
 
@@ -42,7 +45,8 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   @override
   void didUpdateWidget(covariant BiocentralStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(oldWidget.state.runtimeType != widget.state.runtimeType) {
+    // TODO Can be deleted?
+    if(oldWidget.metaData.runtimeType != widget.metaData.runtimeType) {
       _setInitialLogo();
       _startLogoAnimation();
     }
@@ -62,13 +66,13 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
     _logoTimer = Timer.periodic(_switchDuration, (timer) {
       if (mounted) {
         setState(() {
-          if (widget.state.isOperating()) {
-            _currentShownLogo = (_currentShownLogo % _numberAnimatedLogos) + 1;
-            _currentLogoPath = '$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat';
-          } else {
+          if (widget.metaData!.endTime != null || widget.metaData?.error != null) {
             _currentLogoPath = fullLogo();
             _shimmer = false;
             timer.cancel();
+          } else {
+            _currentShownLogo = (_currentShownLogo % _numberAnimatedLogos) + 1;
+            _currentLogoPath = '$_animatedLogoBaseUrl$_currentShownLogo$_animatedLogoFileFormat';
           }
         });
       }
@@ -81,13 +85,19 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
 
   @override
   Widget build(BuildContext context) {
+    if(widget.metaData == null) {
+      return Container();
+    }
+    final BiocentralCommandMetaData metaData = widget.metaData!;
+
     Color shimmerHighlightColor = Theme.of(context).primaryColor;
-    if (widget.state.isErrored()) {
+    if (metaData.error != null) {
       shimmerHighlightColor = Colors.red;
-    } else if (widget.state.isFinished()) {
+    } else if (metaData.endTime != null) {
       shimmerHighlightColor = Colors.green;
     }
 
+    final logo = _logoTimer.isActive ? _currentLogoPath : fullLogo();
     return Row(
       mainAxisAlignment: widget.center ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
@@ -97,13 +107,11 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
             highlightColor: shimmerHighlightColor,
             period: const Duration(seconds: 3),
             enabled: _shimmer,
-            child: widget.state.isIdle()
-                ? Container()
-                : AnimatedSwitcher(
+            child: AnimatedSwitcher(
                     duration: _switchDuration,
                     child: Image.asset(
-                      _currentLogoPath,
-                      key: ValueKey(_currentLogoPath),
+                      logo,
+                      key: ValueKey(logo),
                       fit: BoxFit.contain,
                       height: SizeConfig.screenWidth(context) * 0.04,
                       width: SizeConfig.screenWidth(context) * 0.04,
@@ -114,21 +122,21 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
         SizedBox(
           width: SizeConfig.safeBlockHorizontal(context) * 1,
         ),
-        Flexible(flex: 2, child: buildStateInformation(widget.state.stateInformation)),
+        Flexible(flex: 2, child: buildStateInformation(metaData)),
       ],
     );
   }
 
-  Widget buildStateInformation(BiocentralCommandStateInformation stateInformation) {
+  Widget buildStateInformation(BiocentralCommandMetaData metaData) {
+    final progress = metaData.progressLog.lastOrNull;
     final stateInformationText = Text(
-      stateInformation.information,
+      metaData.error ?? progress?.information ?? '',
       maxLines: 2,
       style: Theme.of(context).textTheme.labelSmall,
     );
-    if (stateInformation.commandProgress == null || stateInformation.commandProgress!.total == 0) {
+    if (progress?.total == null || progress?.total == 0) {
       return stateInformationText;
     }
-    final progress = stateInformation.commandProgress!;
 
     return Column(
       children: [
@@ -137,7 +145,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
         SizedBox(
           width: min(SizeConfig.screenWidth(context) * 0.125, 125),
           child: LinearProgressIndicator(
-            value: progress.progress,
+            value: progress!.progress(),
             backgroundColor: Colors.grey[300],
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
@@ -157,7 +165,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
     final String hint = progress.hint?.trim() ?? '';
     if (progress.total != null) {
       final String totalString = progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
-      final percent = (progress.progress ?? 0) * 100;
+      final percent = (progress.progress() ?? 0) * 100;
       return '$hint $currentString / $totalString (${percent.toStringAsFixed(0)}%)';
     } else {
       return '$hint $currentString';

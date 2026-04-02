@@ -1,4 +1,4 @@
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 
 class TokenizerConfig {
   final BiocentralConfigOption eosToken;

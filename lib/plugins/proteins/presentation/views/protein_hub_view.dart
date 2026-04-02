@@ -1,11 +1,14 @@
 import 'package:biocentral/plugins/proteins/presentation/views/protein_database_view.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
 import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:flutter/material.dart';
 
 import 'package:biocentral/plugins/proteins/presentation/views/protein_insights_view.dart';
 
 class ProteinHubView extends StatefulWidget {
-  const ProteinHubView({super.key});
+  final List<Widget> commandWidgets;
+
+  const ProteinHubView({required this.commandWidgets, super.key});
 
   @override
   State<ProteinHubView> createState() => _ProteinHubViewState();
@@ -18,7 +21,7 @@ class _ProteinHubViewState extends State<ProteinHubView> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     super.build(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -30,6 +33,7 @@ class _ProteinHubViewState extends State<ProteinHubView> with AutomaticKeepAlive
                 tabs: const [
                   Tab(icon: Icon(Icons.list_alt), text: 'Database'),
                   Tab(icon: Icon(Icons.auto_graph), text: 'Insights'),
+                  Tab(icon: Icon(Icons.insert_chart), text: 'Commands'),
                 ],
               ),
             ),
@@ -40,6 +44,7 @@ class _ProteinHubViewState extends State<ProteinHubView> with AutomaticKeepAlive
                 children: [
                   ProteinDatabaseView(key: _proteinDatabaseViewState, onProteinSelected: (protein) => null), // TODO
                   const ProteinInsightsView(),
+                  BiocentralCommandView(commandWidgets: widget.commandWidgets),
                 ],
               ),
             ),

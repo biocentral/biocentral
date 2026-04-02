@@ -1,7 +1,7 @@
 /// Abstract classes and widgets for the biocentral application
 library;
 
-export 'bloc/biocentral_bloc.dart';
+export 'bloc/biocentral_command_bloc.dart';
 export 'bloc/biocentral_command.dart';
 export 'bloc/biocentral_events.dart';
 export 'bloc/biocentral_state.dart';

@@ -1,4 +1,5 @@
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_database_grid_view.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_plot_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -14,6 +15,9 @@ class ALIterationResultView extends StatefulWidget {
 
 class _ALIterationResultViewState extends State<ALIterationResultView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+
+  int _selectedResultIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -29,34 +33,68 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   }
 
   Widget buildResult(ALHubState hubState) {
-    if (hubState.selectedResult == null) {
-      return const Text('No results yet!');
+    if (hubState.campaigns.isEmpty) {
+      return const Center(child: Text('No active learning campaigns yet!'));
     }
+    // TODO Make campaign selectable
+    final campaign = hubState.campaigns.first;
     return LayoutBuilder(
       builder: (context, constraints) {
         final widgetWidth = (constraints.maxWidth * 0.8); // 90% of available width
         final widgetHeight = widgetWidth * 0.4; // Maintain aspect ratio
+        final totalIterations = campaign.iterationResults.length;
+        if (totalIterations == 0) {
+          return const Center(child: Text('No iteration results available.'));
+        }
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // TODO Use index Center(child: Text('Results for iteration: ${hubState.selectedResultIndex + 1}')),
-            Center(child: Text('Results for iteration: ${hubState.trainingResults.length}')),
+            Text(campaign.config.name),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_left),
+                  onPressed: _selectedResultIndex > 0
+                      ? () {
+                          setState(() {
+                            _selectedResultIndex--;
+                          });
+                        }
+                      : null,
+                ),
+                Text('Results for iteration: ${_selectedResultIndex + 1}'),
+                IconButton(
+                  icon: const Icon(Icons.arrow_right),
+                  onPressed: _selectedResultIndex < totalIterations - 1
+                      ? () {
+                          setState(() {
+                            _selectedResultIndex++;
+                          });
+                        }
+                      : null,
+                ),
+              ],
+            ),
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
               child: ALPlotView(
                 yLabel: 'Score',
-                data: hubState.selectedResult,
+                data: campaign.iterationResults[_selectedResultIndex].$2,
               ),
             ),
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,
-              child: const ALDatabaseGridView(),
+              child: ALDatabaseGridView(
+                campaign: campaign,
+                displayedResult: campaign.iterationResults[_selectedResultIndex].$2,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildPredictionErrorDisplay(hubState),
+              child: buildPredictionErrorDisplay(campaign),
             ),
           ],
         );
@@ -64,8 +102,8 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
     );
   }
 
-  Widget buildPredictionErrorDisplay(ALHubState hubState) {
-    final predictionError = hubState.selectedResult?.getAveragePredictionError();
+  Widget buildPredictionErrorDisplay(ALCampaign campaign) {
+    final predictionError = null; // TODO
     if (predictionError == null) {
       return Container();
     }
@@ -75,3 +113,24 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   @override
   bool get wantKeepAlive => true;
 }
+
+// TODO
+/*
+  double? getAveragePredictionError() {
+    // TODO Add accuracy for binary predictions, maybe include in BiocentralMLMetric
+    if(experimentalData.isEmpty) {
+      return null;
+    }
+    final predictionErrors = <double>[];
+    for(final result in results) {
+      final experimentalValue = double.tryParse(experimentalData[result.id].toString());
+      if(experimentalValue != null) {
+        final prediction = result.prediction;
+        final predictionError = (experimentalValue.abs() - prediction.abs()).abs();
+        predictionErrors.add(predictionError);
+      }
+    }
+    final predictionErrorSum = predictionErrors.reduce((e1, e2) => e1 + e2);
+    return predictionErrorSum / predictionErrors.length;
+  }
+ */

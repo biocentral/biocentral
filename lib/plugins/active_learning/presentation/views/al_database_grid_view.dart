@@ -1,5 +1,8 @@
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -7,7 +10,12 @@ import 'package:pluto_grid/pluto_grid.dart';
 /// A widget that displays Active Learning results in a grid format.
 /// Shows protein sequences, scores, uncertainties, and other metrics in a sortable and filterable table.
 class ALDatabaseGridView extends StatefulWidget {
+  final ALCampaign campaign;
+  final ActiveLearningIterationResult? displayedResult;
+
   const ALDatabaseGridView({
+    required this.campaign,
+    required this.displayedResult,
     super.key,
   });
 
@@ -17,7 +25,7 @@ class ALDatabaseGridView extends StatefulWidget {
 
 class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   /// Default columns configuration for the grid
-  final List<PlutoColumn> _boColumns = <PlutoColumn>[
+  final List<PlutoColumn> _alColumns = <PlutoColumn>[
     PlutoColumn(
       title: 'Ranking',
       field: 'ranking',
@@ -35,12 +43,6 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
       field: 'score',
       readOnly: true,
       type: PlutoColumnType.number(format: '#,###.############'),
-    ),
-    PlutoColumn(
-      title: 'Sequence',
-      field: 'sequence',
-      readOnly: true,
-      type: PlutoColumnType.text(),
     ),
     PlutoColumn(
       title: 'Uncertainty',
@@ -68,28 +70,24 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<ALHubBloc, ALHubState>(
-        builder: (context, hubState) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final double columnWidth = (constraints.maxWidth - 100) / _boColumns.length - 1;
-              return _buildGrid(hubState, columnWidth);
-            },
-          );
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double columnWidth = (constraints.maxWidth - 100) / _alColumns.length - 1;
+          return _buildGrid(columnWidth);
         },
       ),
     );
   }
 
   /// Builds the main grid widget with configured columns and rows
-  Widget _buildGrid(ALHubState hubState, double columnWidth) {
+  Widget _buildGrid(double columnWidth) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: PlutoGrid(
         key: UniqueKey(),
         mode: plutoGridMode,
         columns: buildColumns(columnWidth),
-        rows: buildRows(hubState),
+        rows: buildRows(),
       ),
     );
   }
@@ -97,7 +95,7 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   /// Builds and configures columns with the specified width
   List<PlutoColumn> buildColumns(double columnWidth) {
     var index = 0;
-    final List<PlutoColumn> result = List.from(_boColumns);
+    final List<PlutoColumn> result = List.from(_alColumns);
     for (PlutoColumn column in result) {
       if (index++ == 0) {
         column.width = 100;
@@ -111,23 +109,24 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   }
 
   /// Builds rows from the training results data
-  List<PlutoRow> buildRows(ALHubState hubState) {
-    final selectedResult = hubState.selectedResult;
-    if (selectedResult == null || selectedResult.results.isEmpty) {
+  List<PlutoRow> buildRows() {
+    final lastIterationResult = widget.displayedResult?.results.toList() ?? [];
+    if (lastIterationResult.isEmpty) {
       return [];
     }
     int index = 0;
-    final experimentalData = selectedResult.experimentalData;
-    return selectedResult.results.map((data) {
+    return lastIterationResult.map((alResult) {
+      // TODO Bad ad hoc solution here, use bloc instead
+      final experimentalValue = context.read<ProteinRepository>().databaseToMap()[alResult.entityId]?.attributes[widget
+          .campaign.columnName];
       return PlutoRow(
         cells: {
           'ranking': PlutoCell(value: ++index),
-          'proteinId': PlutoCell(value: data.id),
-          'score': PlutoCell(value: data.score.toStringAsFixed(Constants.maxDoublePrecision)),
-          'sequence': PlutoCell(value: ''), // TODO Get sequence from database
-          'uncertainty': PlutoCell(value: data.uncertainty.toStringAsFixed(Constants.maxDoublePrecision)),
-          'prediction': PlutoCell(value: data.prediction.toStringAsFixed(Constants.maxDoublePrecision)),
-          'experiment': PlutoCell(value: experimentalData[data.id] ?? 'N/A'),
+          'proteinId': PlutoCell(value: alResult.entityId),
+          'score': PlutoCell(value: alResult.score.toStringAsFixed(Constants.maxDoublePrecision)),
+          'uncertainty': PlutoCell(value: alResult.uncertainty.toStringAsFixed(Constants.maxDoublePrecision)),
+          'prediction': PlutoCell(value: alResult.prediction),
+          'experiment': PlutoCell(value: experimentalValue ?? ''),
         },
       );
     }).toList();

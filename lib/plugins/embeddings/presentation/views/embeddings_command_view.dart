@@ -4,16 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:biocentral/plugins/embeddings/bloc/calculate_embeddings_dialog_bloc.dart';
 import 'package:biocentral/plugins/embeddings/bloc/calculate_projections_dialog_bloc.dart';
-import 'package:biocentral/plugins/embeddings/bloc/embeddings_command_bloc.dart';
-import 'package:biocentral/plugins/embeddings/data/predefined_embedders.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
-import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_embeddings_dialog.dart';
-import 'package:biocentral/plugins/embeddings/presentation/dialogs/calculate_projections_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 
+/*
 class EmbeddingsCommandView extends StatefulWidget {
   const EmbeddingsCommandView({super.key});
 
@@ -68,7 +64,7 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
         return BlocProvider(
           create: (context) => CalculateProjectionsDialogBloc(
             context.read<BiocentralAPIRepository>(),
-            context.read<EmbeddingsRepository>(),
+            context.read<EmbeddingsRepositoryOLD>(),
           )..add(CalculateProjectionsDialogGetConfigEvent()),
           child: CalculateProjectionsDialog(
             calculateUMAPCallback: (String embedderName,
@@ -122,3 +118,4 @@ class _EmbeddingsCommandViewState extends State<EmbeddingsCommandView> {
     );
   }
 }
+*/

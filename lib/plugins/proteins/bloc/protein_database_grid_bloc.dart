@@ -1,10 +1,9 @@
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-
-import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 
 sealed class ProteinDatabaseGridEvent {
   PlutoGridOnSelectedEvent? selectedEvent;
@@ -18,6 +17,12 @@ final class ProteinDatabaseGridLoadEvent extends ProteinDatabaseGridEvent {
 
 final class ProteinDatabaseGridSelectionEvent extends ProteinDatabaseGridEvent {
   ProteinDatabaseGridSelectionEvent({required super.selectedEvent});
+}
+
+class _ProteinDatabaseUpdatedInternalEvent extends ProteinDatabaseGridEvent {
+  final Map<String, Protein> proteins;
+
+  _ProteinDatabaseUpdatedInternalEvent(this.proteins);
 }
 
 @immutable
@@ -54,12 +59,22 @@ class ProteinDatabaseGridBloc extends Bloc<ProteinDatabaseGridEvent, ProteinData
   final ProteinRepository _proteinRepository;
 
   ProteinDatabaseGridBloc(this._proteinRepository) : super(const ProteinDatabaseGridState.initial()) {
+    on<_ProteinDatabaseUpdatedInternalEvent>((event, emit) {
+      final proteins = event.proteins.values.toList();
+      final additionalColumns = _proteinRepository.getAllCustomAttributeKeys();
+
+      emit(ProteinDatabaseGridState.loaded(
+        proteins,
+        additionalColumns,
+        state.selectedProtein,
+      ),);
+    });
+
+    _setupSubscription();
+
     on<ProteinDatabaseGridLoadEvent>((event, emit) async {
-      emit(ProteinDatabaseGridState.loading(state.proteins, state.additionalColumns, state.selectedProtein));
-      final List<Protein> proteins = _proteinRepository.databaseToList();
-      // TODO Should be extended to all attributes not only those available for all proteins
-      final Set<String> additionalColumns = _proteinRepository.getAllCustomAttributeKeys();
-      emit(ProteinDatabaseGridState.loaded(proteins, additionalColumns, state.selectedProtein));
+      // TODO Event is currently kept - can probably be removed
+      add(_ProteinDatabaseUpdatedInternalEvent(_proteinRepository.databaseToMap()));
     });
 
     on<ProteinDatabaseGridSelectionEvent>((event, emit) async {
@@ -68,6 +83,13 @@ class ProteinDatabaseGridBloc extends Bloc<ProteinDatabaseGridEvent, ProteinData
         final Protein? selectedProtein = _proteinRepository.getEntityByRow(rowIndex);
         emit(ProteinDatabaseGridState.selected(state.proteins, state.additionalColumns, selectedProtein));
       }
+    });
+  }
+
+  void _setupSubscription() {
+    // We use a private event to pipe stream changes back into the Bloc's event loop
+    _proteinRepository.databaseStream.listen((proteins) {
+      add(_ProteinDatabaseUpdatedInternalEvent(proteins));
     });
   }
 }

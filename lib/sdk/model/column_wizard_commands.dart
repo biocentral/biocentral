@@ -2,13 +2,13 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:fpdart/fpdart.dart';
 
-final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, BioEntity>> {
+final class ColumnWizardApplyColumnCommand extends BiocentralCommand<BiocentralDatabaseUpdate<BioEntity>> {
   final BiocentralDatabase _database;
   final String _originalColumnName;
   final String _newColumnName;
   final List<ColumnWizardHistoryEntry> _operationHistory;
 
-  ColumnWizardOperationCommand(
+  ColumnWizardApplyColumnCommand(
       {required BiocentralDatabase database,
       required String originalColumnName,
       required String newColumnName,
@@ -19,12 +19,29 @@ final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, B
         _operationHistory = operationHistory;
 
   @override
-  Stream<Either<T, Map<String, BioEntity>>> execute<T extends BiocentralCommandState<T>>(T state) async* {
-    yield left(state.setOperating(information: 'Applying new column..'));
+  Stream<BiocentralCommandLog<BiocentralDatabaseUpdate<BioEntity>>> execute() async* {
+    BiocentralCommandLog<BiocentralDatabaseUpdate<BioEntity>> log = initLog();
+    yield log = log.logInfo(information: 'Applying new column..');
+
     final lastResult = _operationHistory.last.resultWizard;
-    final Map<String, BioEntity> databaseResult = await _database.addColumnFromColumnWizard(_newColumnName, lastResult);
-    yield right(databaseResult);
-    yield left(state.setFinished(information: 'Finished adding new column!'));
+    final update = await _database.addColumnFromColumnWizard(_newColumnName, lastResult);
+
+    yield log.finish(
+      result: BiocentralCommandResult(update, update.serialize()),
+      finalProgress: BiocentralCommandProgress(
+        information: 'Finished applying new column!',
+        current: update.result.length,
+        total: update.result.length,
+      ),
+    );
+  }
+
+  @override
+  void acceptResult(BiocentralCommandLog? resultLog) {
+    final commandResult = resultLog?.result?.result;
+    if(commandResult != null && commandResult is BiocentralDatabaseUpdate) {
+      _database.acceptDatabaseUpdate(commandResult as BiocentralDatabaseUpdate<BioEntity>);
+    }
   }
 
   @override
@@ -39,5 +56,5 @@ final class ColumnWizardOperationCommand extends BiocentralCommand<Map<String, B
   }
 
   @override
-  String get typeName => 'ColumnWizardOperationCommand';
+  String get typeName => 'ColumnWizardApplyColumnCommand';
 }

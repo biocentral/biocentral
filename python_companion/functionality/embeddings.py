@@ -1,9 +1,39 @@
+import base64
+import h5py
 import io
 import json
-
-import h5py
-import base64
 import numpy as np
+
+
+def get_h5_info(json_data):
+    file_path = json_data.get('file_path')
+    with h5py.File(file_path, 'r') as f:
+        info = {}
+        for key in f.keys():
+            dataset = f[key]
+            shape = dataset.shape
+            # Assuming 2D is per-residue and 1D is per-sequence
+            is_per_residue = len(shape) > 1
+
+            info[key] = {
+                "is_per_residue": is_per_residue,
+                "dimension": shape[-1],
+                "length": shape[0] if is_per_residue else 1,
+                "attributes": dict(dataset.attrs)
+            }
+        return info
+
+
+def get_embedding(json_data):
+    key = json_data.get('key')
+    file_path = json_data.get('file_path')
+    id2emb = {key: None}
+    with h5py.File(file_path, 'r') as f:
+        if key not in f:
+            return id2emb
+        embedding = f[key]
+        id2emb[key] = np.array(embedding).tolist()
+    return id2emb
 
 
 def read_h5(json_data):

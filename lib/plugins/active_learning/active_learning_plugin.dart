@@ -1,11 +1,14 @@
+import 'package:biocentral/plugins/active_learning/bloc/al_commands.dart';
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
-import 'package:biocentral/plugins/active_learning/bloc/al_iteration_bloc.dart';
 import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
-import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
-import 'package:biocentral/plugins/active_learning/presentation/views/al_command_view.dart';
+import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/plugins/active_learning/presentation/commands/add_experimental_data_command_display.dart';
+import 'package:biocentral/plugins/active_learning/presentation/commands/al_iteration_command_display.dart';
+import 'package:biocentral/plugins/active_learning/presentation/commands/new_al_campaign_command_display.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Plugin for integrating Active Learning functionality into the Biocentral platform.
 class ALPlugin extends BiocentralPlugin
-    with
-        BiocentralDatabasePluginMixin<ALRepository>,
-        BiocentralColumnWizardPluginMixin {
+    with BiocentralDatabasePluginMixin<ALRepository>, BiocentralColumnWizardPluginMixin {
   /// Creates a new [ALPlugin] instance.
   ALPlugin(super.eventBus);
 
@@ -28,14 +29,19 @@ class ALPlugin extends BiocentralPlugin
   }
 
   @override
-  ALRepository createListeningDatabase(BiocentralProjectRepository projectRepository) {
+  ALRepository createListeningDatabase(
+      BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion) {
     final repository = ALRepository(projectRepository);
     return repository;
   }
 
   @override
-  Widget getCommandView(BuildContext context) {
-    return const ALCommandView();
+  List<Widget> getCommandWidgets() {
+    return [
+      const NewALCampaignCommandDisplay(),
+      const AddExperimentalDataCommandDisplay(),
+      const ALIterationCommandDisplay()
+    ];
   }
 
   @override
@@ -43,37 +49,22 @@ class ALPlugin extends BiocentralPlugin
     cancelSubscriptions();
 
     final alHubBloc = ALHubBloc(
-      getDatabase(context),
-      getBiocentralProjectRepository(context),
-      getBiocentralAPIRepository(context),
-      eventBus,
-      getBiocentralDatabaseRepository(context),
-    );
-    final alIterationBloc = ALIterationBloc(
       getBiocentralProjectRepository(context),
       getDatabase(context),
-      getBiocentralDatabaseRepository(context),
-      getBiocentralAPIRepository(context),
-      eventBus,
     );
-
-    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      alHubBloc.add(ALHubLoadEvent());
-    }),);
 
     return {
       BlocProvider<ALHubBloc>.value(
         value: alHubBloc,
       ): alHubBloc,
-      BlocProvider<ALIterationBloc>.value(
-        value: alIterationBloc,
-      ): alIterationBloc,
     };
   }
 
   @override
   Widget getScreenView(BuildContext context) {
-    return const ALHubView();
+    return ALHubView(
+      commandWidgets: getCommandWidgets(),
+    );
   }
 
   @override
@@ -96,20 +87,24 @@ class ALPlugin extends BiocentralPlugin
     return [
       BiocentralPluginDirectory(
         path: 'active_learning',
-        saveType: ALTrainingResult,
-        commandBlocType: ALHubBloc,
+        saveType: ALCampaign,
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
-          List<BiocentralCommandLog> commandLogs,
-          dynamic commandBloc,
         ) {
-          final List<void Function()> loadingFunctions = [];
+          final List<void Function(BuildContext)> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('al_results.') && scannedFile.extension == 'json') {
-              void loadingFunction() => commandBloc?.add(
-                    ALHubLoadTrainingsFromFileEvent(
-                      xFile: scannedFile,
+              void loadingFunction(context) => getBiocentralCommandBloc(context).add(
+                    BiocentralCommandExecuteEvent(
+                      command: LoadALDatabaseCommand(
+                        projectRepository: getBiocentralProjectRepository(context),
+                        alRepository: getDatabase(context),
+                        alDBFile: scannedFile,
+                        importMode: DatabaseImportMode.overwrite,
+                      ),
+                      visualizeResult: null,
+                      autoAccept: true,
                     ),
                   );
               loadingFunctions.add(loadingFunction);

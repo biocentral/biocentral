@@ -1,83 +1,51 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
-import 'package:biocentral/plugins/custom_models/data/biotrainer_file_handler.dart';
 import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
+import 'package:biocentral/sdk/domain/streamable_database.dart';
 
-class CustomModelRepository {
-  final BiocentralProjectRepository _projectRepository;
+class CustomModelRepository with AutoSaving, StreamableDatabase<List<PredictionModel>> {
+  @override
+  late final BiocentralRepositoryAutoSaver autoSaver;
 
   final List<PredictionModel> _predictionModels = [];
 
-  CustomModelRepository(this._projectRepository);
+  CustomModelRepository(BiocentralProjectRepository projectRepository) {
+    autoSaver = BiocentralRepositoryAutoSaver(
+      projectRepository: projectRepository,
+      fileName: 'model_db.json',
+      fileType: PredictionModel,
+      saveFunctionString: saveDBInfo,
+    );
+  }
 
   void addModel(PredictionModel predictionModel) {
     // TODO Autosaving without files
     _predictionModels.add(predictionModel);
+    updateStream();
+    autosave();
   }
 
-  Future<List<PredictionModel>> addModelFromBiotrainerFiles({
-    String? configFile,
-    String? outputFile,
-    String? loggingFile,
-    Map<String, Uint8List>? checkpointFiles,
-    DatabaseImportMode databaseImportMode = DatabaseImportMode.overwrite,
-  }) async {
-    final PredictionModel? predictionModel = BiotrainerFileHandler.parsePredictionModelFromRawFiles(
-      biotrainerConfig: configFile,
-      biotrainerOutput: outputFile,
-      biotrainerTrainingLog: loggingFile,
-      biotrainerCheckpoints: checkpointFiles,
-      //TODO Manual setting of failOnConflict?
-      failOnConflict: true,
-    );
-
-    if (predictionModel != null) {
-      addModel(predictionModel);
-      final String modelID =
-          predictionModel.modelHash ?? 'UnknownModelHash-${predictionModel.hashCode.toString().substring(0, 4)}';
-      await save(
-        modelID,
-        {
-          StorageFileType.biotrainer_config: configFile,
-          StorageFileType.biotrainer_result: outputFile,
-          StorageFileType.biotrainer_logging: loggingFile,
-        },
-        checkpointFiles,
-      );
-    }
-    return predictionModelsToList();
+  void addModels(List<PredictionModel> models) {
+    _predictionModels.addAll(models);
+    updateStream();
+    autosave();
   }
 
-  Future<void> save(
-    String modelID,
-    Map<StorageFileType, String?> stringFiles,
-    Map<String, Uint8List>? checkpoints,
-  ) async {
-    // Save files
-    for (MapEntry<StorageFileType, String?> fileEntry in stringFiles.entries) {
-      if (fileEntry.value != null) {
-        await _projectRepository.handleProjectInternalSave(
-          fileName: fileEntry.key.getDefaultFileName(),
-          type: PredictionModel,
-          subDir: modelID,
-          contentFunction: () async => fileEntry.value.toString(),
-        );
-      }
-    }
-    if (checkpoints != null) {
-      for (MapEntry<String, Uint8List> checkpoint in checkpoints.entries) {
-        await _projectRepository.handleProjectInternalSave(
-          fileName: checkpoint.key,
-          type: PredictionModel,
-          subDir: modelID,
-          bytesFunction: () async => checkpoint.value,
-        );
-      }
-    }
+  Map<String, dynamic> serialize() => {'models': _predictionModels.map((model) => model.serialize()).toList()};
+
+  Future<String> saveDBInfo() async {
+    final jsonMap = serialize();
+    return jsonEncode(jsonMap);
   }
 
-  List<PredictionModel> predictionModelsToList() {
+  List<PredictionModel> databaseToList() {
     return List.from(_predictionModels);
+  }
+
+  @override
+  List<PredictionModel> toStreamable() {
+    return databaseToList();
   }
 }

@@ -4,12 +4,9 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/sdk/bloc/biocentral_command.dart';
-import 'package:biocentral/sdk/bloc/biocentral_state.dart';
+import 'package:biocentral/sdk/domain/project_loading_context.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:biocentral/sdk/util/biocentral_exception.dart';
-import 'package:biocentral/sdk/util/constants.dart';
-import 'package:biocentral/sdk/util/logging.dart';
 import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
@@ -18,17 +15,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 
 /// Stores data related to the project, like directory path
-class BiocentralProjectRepository {
+class BiocentralProjectRepository with ProjectLoadingContext {
   static const String _webDownloadDirectoryPath = '#flutter_web_downloads';
 
   final Map<Type, BiocentralPluginDirectory> _registeredPluginDirectories = {};
-  final List<BiocentralCommandLog> _commandLog = [];
 
   /// Map to store paths of downloaded files to clean them up if the download fails
   final Map<String, String> _temporaryPartialFilePaths = {};
 
   String _projectDir;
-  bool _isLoadingProject = false; // If project is loading, no saves should be done
 
   BiocentralProjectRepository(this._projectDir);
 
@@ -64,16 +59,6 @@ class BiocentralProjectRepository {
   }
 
   String getProjectDirectoryPath() => _projectDir;
-
-  void enterProjectLoadingContext() {
-    _isLoadingProject = true;
-  }
-
-  void exitProjectLoadingContext() {
-    // TODO [Refactoring] A bit of a hacky solution here to decouple auto-saving from the project repository
-    final Timer autoSaveDebounce =
-        Timer(Duration(seconds: Constants.autoSaveDebounceTime.inSeconds + 2), () => _isLoadingProject = false);
-  }
 
   Future<Either<BiocentralException, Uint8List?>> handleBytesLoad({
     required XFile? xFile,
@@ -127,7 +112,7 @@ class BiocentralProjectRepository {
     Future<Uint8List?> Function()? bytesFunction,
     String? dirPath,
   }) async {
-    if (_isLoadingProject) {
+    if (isLoading) {
       return right(null);
     }
     final content = contentFunction != null ? await contentFunction() : null;
@@ -189,6 +174,8 @@ class BiocentralProjectRepository {
     return _handleSave(fileName: fileName, bytesFunction: () async => imageBytes, dirPath: path);
   }
 
+  /// Saves a file to the project directory
+  /// Returns the full path to the file on success
   Future<Either<BiocentralException, String?>> handleProjectInternalSave({
     required String fileName,
     required Type type,
@@ -201,9 +188,7 @@ class BiocentralProjectRepository {
     }
 
     final String? pluginDir = _registeredPluginDirectories[type]?.path;
-    if (pluginDir == null) {
-      return left(BiocentralIOException(message: 'Cannot find registered plugin for type $type in autoSave!'));
-    }
+
     final String path = PathResolver.resolve(_projectDir, pluginDir, subDir, null);
     return _handleSave(
       fileName: fileName,
@@ -263,72 +248,6 @@ class BiocentralProjectRepository {
     return right(outFile);
   }
 
-  Future<void> loadCommandLog(XFile? commandLogFile) async {
-    //TODO [Refactoring] Move command log handling to separate repository
-    final loadedEither = await handleLoad(xFile: commandLogFile);
-    final commandLogLoadedEither = loadedEither.flatMap((loadedFile) {
-      final List decodedContent = jsonDecode(loadedFile?.content ?? '[]');
-
-      final List<BiocentralCommandLog> reconstructedCommandLog = [];
-      for (final commandMap in decodedContent) {
-        final reconstructedLog = BiocentralCommandLog.fromJsonMap(commandMap);
-        reconstructedCommandLog.add(reconstructedLog);
-      }
-      return right(reconstructedCommandLog);
-    });
-    _commandLog.clear();
-    _commandLog.addAll(commandLogLoadedEither.getOrElse((_) => []));
-  }
-
-  void logCommand(BiocentralCommandLog newCommand) {
-    if (_isLoadingProject) {
-      return;
-    }
-
-    final indexExisting = _commandLog.indexWhere(
-      (log) =>
-          log.commandStatus == BiocentralCommandStatus.operating &&
-          log.metaData.startTime == newCommand.metaData.startTime,
-    );
-
-    switch (newCommand.commandStatus) {
-      case BiocentralCommandStatus.operating:
-        if (indexExisting != -1) {
-          final existingCommand = _commandLog[indexExisting];
-          if (existingCommand.metaData.serverTaskID == null && newCommand.metaData.serverTaskID != null) {
-            // Replace after retrieving serverTaskID
-            _commandLog[indexExisting] = newCommand;
-          }
-        } else {
-          _commandLog.add(newCommand);
-        }
-        break;
-
-      case BiocentralCommandStatus.finished:
-      case BiocentralCommandStatus.errored:
-        // Try to find and replace existing operating command with result command
-
-        if (indexExisting != -1) {
-          _commandLog[indexExisting] = newCommand;
-        } else {
-          logger.e('Did not find an operating command for finished command: $newCommand!');
-          _commandLog.add(newCommand);
-        }
-        break;
-      default:
-        _commandLog.add(newCommand);
-        break;
-    }
-
-    _handleSave(fileName: 'command_log.json', dirPath: _projectDir, contentFunction: _saveCommandLog);
-  }
-
-  Future<String> _saveCommandLog() async {
-    final commandLogMapped = _commandLog.map((loggedCommand) => loggedCommand.toMap()).toList();
-    final result = jsonEncode(commandLogMapped);
-    return result;
-  }
-
   Future<Map<String, String>> getMatchingFilesInProjectDirectory(String? Function(String) matchingFunction) async {
     if (kIsWeb) {
       return {};
@@ -346,9 +265,6 @@ class BiocentralProjectRepository {
     return result;
   }
 
-  List<BiocentralCommandLog> getCommandLog() {
-    return List.of(_commandLog);
-  }
 }
 
 final class LoadedFileData {

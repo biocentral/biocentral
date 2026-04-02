@@ -2,7 +2,7 @@ import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +114,7 @@ enum CalculateProjectionsDialogStatus { initial, loadedConfig, selected, errored
 class CalculateProjectionsDialogBloc extends Bloc<CalculateProjectionsDialogEvent, CalculateProjectionsDialogState> {
   final BiocentralAPIRepository _apiRepository;
 
-  final EmbeddingsRepository _embeddingsRepository;
+  final EmbeddingsRepositoryOLD _embeddingsRepository;
 
   CalculateProjectionsDialogBloc(this._apiRepository, this._embeddingsRepository)
       : super(const CalculateProjectionsDialogState.initial()) {
@@ -129,7 +129,7 @@ class CalculateProjectionsDialogBloc extends Bloc<CalculateProjectionsDialogEven
               (method, options) => MapEntry(
                   method,
                   List<BiocentralConfigOption>.from(
-                      options.map((option) => BiocentralConfigOption.fromMap(option?.asMap ?? {})),),),
+                      options.map((option) => BiocentralConfigOption.deserialize(option?.asMap ?? {})),),),
             )
             .entries,
       );

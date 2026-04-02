@@ -1,5 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:ml_linalg/vector.dart';
 
 class SequenceColumnWizardFactory extends ColumnWizardFactory {
   @override
@@ -63,5 +64,20 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
     _lengthCount = lengthCount;
 
     return _lengthCount!;
+  }
+
+  double? _meanSeqLength;
+
+  Future<double> meanSequenceLength() async {
+    if (_meanSeqLength != null) {
+      return _meanSeqLength!;
+    }
+    final lengths = <int>[];
+    for (final sequence in valueMap.values) {
+      final length = sequence.seq.length;
+      lengths.add(length);
+    }
+    _meanSeqLength = Vector.fromList(lengths).mean();
+    return _meanSeqLength!;
   }
 }

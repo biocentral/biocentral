@@ -1,7 +1,6 @@
-import sys
-import logging
 import functionality
-
+import logging
+import sys
 from flask import Flask, request, jsonify
 
 
@@ -20,6 +19,7 @@ app = Flask(__name__)
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 
+
 @app.route('/test_normal', methods=['POST'])
 def test_normal():
     result = functionality.test_normal(request.json)
@@ -37,6 +37,17 @@ def write_h5():
     result = functionality.write_h5(request.json)
     return jsonify(result)
 
+
+@app.route('/get_h5_info', methods=['POST'])
+def get_h5_info():
+    result = functionality.get_h5_info(request.json)
+    return jsonify(result)
+
+
+@app.route('/get_embedding', methods=['POST'])
+def get_embedding():
+    result = functionality.get_embedding(request.json)
+    return jsonify(result)
 
 
 @app.route('/terminate', methods=['GET'])

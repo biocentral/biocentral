@@ -29,18 +29,63 @@ class _SequenceColumnWizardDisplayState extends State<SequenceColumnWizardDispla
   }
 
   Widget buildSequenceStats() {
+    final SequenceColumnWizard columnWizard = widget.columnWizard;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const Text('Descriptive Statistics:\n'),
-        textFuture('Number values:', widget.columnWizard.length()),
-        textFuture(
-          'Sequence Type:',
-          Future.value(widget.columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),
+        DataTable(
+          columns: const [
+            DataColumn(label: Text('Statistic')),
+            DataColumn(label: Text('Value')),
+          ],
+          rows: [
+            DataRow(
+              cells: [
+                const DataCell(Text('Number values:')),
+                DataCell(textFuture(future: columnWizard.length())),
+              ],
+            ),
+            DataRow(
+              cells: [
+                const DataCell(Text('Sequence Type:')),
+                DataCell(
+                  textFuture(
+                    future: Future.value(columnWizard.valueMap.values.firstOrNull?.runtimeType ?? 'Unknown'),
+                  ),
+                ),
+              ],
+            ),
+            DataRow(
+              cells: [
+                const DataCell(Text('Mean Sequence Length:')),
+                DataCell(
+                  textFuture(
+                    future: Future.value(
+                      columnWizard.meanSequenceLength().then((mean) => mean.toStringAsFixed(1)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            DataRow(
+              cells: [
+                const DataCell(Text('Number missing values:')),
+                DataCell(textFuture(future: columnWizard.numberMissing())),
+              ],
+            ),
+            DataRow(
+              cells: [
+                const DataCell(Text('Unique sequence lengths found:')),
+                DataCell(
+                  textFuture(
+                    future: columnWizard.lengthCount().then((counts) => counts.keys.length),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        textFuture('Number missing values:', widget.columnWizard.numberMissing()),
-        textFuture('Unique sequence lengths found: ',
-            widget.columnWizard.lengthCount().then((counts) => counts.keys.length),),
       ],
     );
   }

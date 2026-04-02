@@ -87,6 +87,24 @@ extension StringExtension on String {
   }
 }
 
+extension DynamicTimeDisplay on Duration {
+  String dynamicTimeDisplay() {
+    if(inDays > 0) {
+      return '$inDays Days';
+    }
+    if(inHours > 0) {
+      return '$inHours Hours';
+    }
+    if(inMinutes > 0) {
+      return '$inMinutes Minutes';
+    }
+    if(inSeconds > 0) {
+      return '$inSeconds Seconds';
+    }
+    return toString();
+  }
+}
+
 dynamic copyMapExtractor(Map<String, dynamic>? copyMap, String key, dynamic defaultValue) {
   if (copyMap == null) {
     return defaultValue;
