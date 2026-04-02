@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:crypto/crypto.dart';
 
@@ -18,18 +20,27 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
       ),
       taxonomy: const Taxonomy(id: 9606),
     );
-    final Protein p2 = Protein('P17715',
-        sequence: AminoAcidSequence(
-            'MAPWMHLLTVLALLALWGPNSVQAYSSQHLCGSNLVEALYMTCGRSGFYRPHDRRELEDLQVEQAELGLEAGGLQPSALEMILQKRGIVDQCCNNICTFNQLQNYCNVP',),
-        taxonomy: const Taxonomy(id: 10160),);
-    final Protein p3 = Protein('Q56H28',
-        sequence: AminoAcidSequence(
-            'MSGSFWLLLSFAALTAAQSTTEELAKTFLEKFNHEAEELSYQSSLASWNYNTNITDENVQKMNEAGAKWSAFYEEQSKLAKTYPLAEIHNTTVKRQLQALQQSGSSVLSADKSQRLNTILNAMSTIYSTGKACNPNNPQECLLLEPGLDDIMENSKDYNERLWAWEGWRAEVGKQLRPLYEEYVALKNEMARANNYEDYGDYWRGDYEEEWTDGYNYSRSQLIKDVEHTFTQIKPLYQHLHAYVRAKLMDTYPSRISPTGCLPAHLLGDMWGRFWTNLYPLTVPFGQKPNIDVTDAMVNQSWDARRIFKEAEKFFVSVGLPNMTQGFWENSMLTEPGDSRKVVCHPTAWDLGKGDFRIKMCTKVTMDDFLTAHHEMGHIQYDMAYAVQPFLLRNGANEGFHEAVGEIMSLSAATPNHLKTIGLLSPGFSEDSETEINFLLKQALTIVGTLPFTYMLEKWRWMVFKGEIPKEQWMQKWWEMKREIVGVVEPVPHDETYCDPASLFHVANDYSFIRYYTRTIYQFQFQEALCRIAKHEGPLHKCDISNSSEAGKKLLQMLTLGKSKPWTLALEHVVGEKKMNVTPLLKYFEPLFTWLKEQNRNSFVGWNTDWRPYADQSIKVRISLKSALGDEAYEWNDNEMYLFRSSVAYAMREYFSKVKNQTIPFVEDNVWVSNLKPRISFNFFVTASKNVSDVIPRSEVEEAIRMSRSRINDAFRLDDNSLEFLGIQPTLSPPYQPPVTIWLIVFGVVMGVVVVGIVLLIVSGIRNRRKNNQARSEENPYASVDLSKGENNPGFQHADDVQTSF',),
-        taxonomy: const Taxonomy(id: 9685),);
-    final Protein p4 = Protein('Q9SS80',
-        sequence: AminoAcidSequence(
-            'MNPATDPVSAAAAALAPPPQPPQPHRLSTSCNRHPEERFTGFCPSCLCERLSVLDQTNNGGSSSSSKKPPTISAAALKALFKPSGNNGVGGVNTNGNGRVKPGFFPELRRTKSFSASKNNEGFSGVFEPQRRSCDVRLRSSLWNLFSQDEQRNLPSNVTGGEIDVEPRKSSVAEPVLEVNDEGEAESDDEELEEEEEEDYVEAGDFEILNDSGELMREKSDEIVEVREEIEEAVKPTKGLSEEELKPIKDYIDLDSQTKKPSVRRSFWSAASVFSKKLQKWRQNQKMKKRRNGGDHRPGSARLPVEKPIGRQLRDTQSEIADYGYGRRSCDTDPRFSLDAGRFSLDAGRFSVDIGRISLDDPRYSFDEPRASWDGSLIGRTMFPPAARAPPPPSMLSVVEDAPPPVHRHVTRADMQFPVEEPAPPPPVVNQTNGVSDPVIIPGGSIQTRDYYTDSSSRRRKSLDRSSSSMRKTAAAVVADMDEPKLSVSSAISIDAYSGSLRDNNNYAVETADNGSFREPAMMIGDRKVNSNDNNKKSRRWGKWSILGLIYRKSVNKYEEEEEEEEDRYRRLNGGMVERSLSESWPELRNGGGGGGGPRMVRSNSNVSWRSSGGGSARKVNGLDRRNKSSRYSPKNGENGMLKFYLPHMKASRRMSGTGGAGGGGGGGWANSHGHSIARSVMRLY',),
-        taxonomy: const Taxonomy(id: 3702),);
+    final Protein p2 = Protein(
+      'P17715',
+      sequence: AminoAcidSequence(
+        'MAPWMHLLTVLALLALWGPNSVQAYSSQHLCGSNLVEALYMTCGRSGFYRPHDRRELEDLQVEQAELGLEAGGLQPSALEMILQKRGIVDQCCNNICTFNQLQNYCNVP',
+      ),
+      taxonomy: const Taxonomy(id: 10160),
+    );
+    final Protein p3 = Protein(
+      'Q56H28',
+      sequence: AminoAcidSequence(
+        'MSGSFWLLLSFAALTAAQSTTEELAKTFLEKFNHEAEELSYQSSLASWNYNTNITDENVQKMNEAGAKWSAFYEEQSKLAKTYPLAEIHNTTVKRQLQALQQSGSSVLSADKSQRLNTILNAMSTIYSTGKACNPNNPQECLLLEPGLDDIMENSKDYNERLWAWEGWRAEVGKQLRPLYEEYVALKNEMARANNYEDYGDYWRGDYEEEWTDGYNYSRSQLIKDVEHTFTQIKPLYQHLHAYVRAKLMDTYPSRISPTGCLPAHLLGDMWGRFWTNLYPLTVPFGQKPNIDVTDAMVNQSWDARRIFKEAEKFFVSVGLPNMTQGFWENSMLTEPGDSRKVVCHPTAWDLGKGDFRIKMCTKVTMDDFLTAHHEMGHIQYDMAYAVQPFLLRNGANEGFHEAVGEIMSLSAATPNHLKTIGLLSPGFSEDSETEINFLLKQALTIVGTLPFTYMLEKWRWMVFKGEIPKEQWMQKWWEMKREIVGVVEPVPHDETYCDPASLFHVANDYSFIRYYTRTIYQFQFQEALCRIAKHEGPLHKCDISNSSEAGKKLLQMLTLGKSKPWTLALEHVVGEKKMNVTPLLKYFEPLFTWLKEQNRNSFVGWNTDWRPYADQSIKVRISLKSALGDEAYEWNDNEMYLFRSSVAYAMREYFSKVKNQTIPFVEDNVWVSNLKPRISFNFFVTASKNVSDVIPRSEVEEAIRMSRSRINDAFRLDDNSLEFLGIQPTLSPPYQPPVTIWLIVFGVVMGVVVVGIVLLIVSGIRNRRKNNQARSEENPYASVDLSKGENNPGFQHADDVQTSF',
+      ),
+      taxonomy: const Taxonomy(id: 9685),
+    );
+    final Protein p4 = Protein(
+      'Q9SS80',
+      sequence: AminoAcidSequence(
+        'MNPATDPVSAAAAALAPPPQPPQPHRLSTSCNRHPEERFTGFCPSCLCERLSVLDQTNNGGSSSSSKKPPTISAAALKALFKPSGNNGVGGVNTNGNGRVKPGFFPELRRTKSFSASKNNEGFSGVFEPQRRSCDVRLRSSLWNLFSQDEQRNLPSNVTGGEIDVEPRKSSVAEPVLEVNDEGEAESDDEELEEEEEEDYVEAGDFEILNDSGELMREKSDEIVEVREEIEEAVKPTKGLSEEELKPIKDYIDLDSQTKKPSVRRSFWSAASVFSKKLQKWRQNQKMKKRRNGGDHRPGSARLPVEKPIGRQLRDTQSEIADYGYGRRSCDTDPRFSLDAGRFSLDAGRFSVDIGRISLDDPRYSFDEPRASWDGSLIGRTMFPPAARAPPPPSMLSVVEDAPPPVHRHVTRADMQFPVEEPAPPPPVVNQTNGVSDPVIIPGGSIQTRDYYTDSSSRRRKSLDRSSSSMRKTAAAVVADMDEPKLSVSSAISIDAYSGSLRDNNNYAVETADNGSFREPAMMIGDRKVNSNDNNKKSRRWGKWSILGLIYRKSVNKYEEEEEEEEDRYRRLNGGMVERSLSESWPELRNGGGGGGGPRMVRSNSNVSWRSSGGGSARKVNGLDRRNKSSRYSPKNGENGMLKFYLPHMKASRRMSGTGGAGGGGGGGWANSHGHSIARSVMRLY',
+      ),
+      taxonomy: const Taxonomy(id: 3702),
+    );
     _proteins[p1.id] = p1;
     _proteins[p2.id] = p2;
     _proteins[p3.id] = p3;
@@ -38,6 +49,18 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p2.sequence.seq), () => {p2.id});
     _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p3.sequence.seq), () => {p3.id});
     _sequenceHashToIDs.putIfAbsent(calculateSequenceHash(p4.sequence.seq), () => {p4.id});
+  }
+
+  ProteinRepository._virtual(Map<String, Protein> proteins, Map<String, Set<String>> sequenceHashToIDs) : super(null) {
+    _proteins.clear();
+    _sequenceHashToIDs.clear();
+    _proteins.addAll(proteins);
+    _sequenceHashToIDs.addAll(sequenceHashToIDs);
+  }
+
+  @override
+  ProteinRepository virtualize() {
+    return ProteinRepository._virtual(_proteins, _sequenceHashToIDs);
   }
 
   /// Matches biotrainer sequence hash calculation
@@ -56,7 +79,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void addEntityImpl(Protein entity) {
+  void addEntity(Protein entity) {
     _proteins[entity.id] = entity;
     final seqHash = calculateSequenceHash(entity.sequence.seq);
     _sequenceHashToIDs.putIfAbsent(seqHash, () => {});
@@ -64,7 +87,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void addAllEntitiesImpl(Iterable<Protein> entities) {
+  void addAllEntities(Iterable<Protein> entities) {
     final entityMap = Map.fromEntries(entities.map((entity) => MapEntry(entity.getID(), entity)));
     _proteins.addAll(entityMap);
     for (final entity in entities) {
@@ -75,7 +98,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void removeEntityImpl(Protein? entity) {
+  void removeEntity(Protein? entity) {
     if (entity != null) {
       final String interactionID = entity.getID();
       _proteins.remove(interactionID);
@@ -83,7 +106,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void updateEntityImpl(String id, Protein entityUpdated) {
+  void updateEntity(String id, Protein entityUpdated) {
     if (containsEntity(id)) {
       final oldEntity = getEntityById(id)!;
       _proteins[id] = entityUpdated;
@@ -98,7 +121,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  void clearDatabaseImpl() {
+  void clearDatabase() {
     _proteins.clear();
     _sequenceHashToIDs.clear();
   }
@@ -114,18 +137,24 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   List<SequenceTrainingData> getTrainingData({
-    required String targetColumn,
-    required String setColumn,
+    required BiocentralDatabaseColumn targetColumn,
+    BiocentralDatabaseColumn? setColumn,
     String? maskColumn,
   }) {
+    // TODO Improve and check set value handling
+    String? getSetValue(Protein protein) => setColumn != null
+        ? protein.attributes[setColumn.name]
+        : protein.attributes[targetColumn.name] != null
+            ? 'train'
+            : 'pred';
     final result = <SequenceTrainingData>[];
     for (final protein in databaseToList()) {
       final trainingData = SequenceTrainingData(
         (b) => b
           ..seqId = protein.id
           ..sequence = protein.sequence.seq
-          ..label = protein.attributes[targetColumn]
-          ..set_ = protein.attributes[setColumn]
+          ..label = protein.attributes[targetColumn.name] ?? ''
+          ..set_ = getSetValue(protein)
           ..mask = protein.attributes[maskColumn],
       );
       result.add(trainingData);
@@ -174,6 +203,8 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) async {
+    // TODO REFACTOR
+    /*
     if (entities.isEmpty) {
       return;
     }
@@ -190,6 +221,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
         updateEntity(interactor2.getID(), interactor2);
       }
     }
+     */
   }
 
   // *** SEQUENCES ***
@@ -205,19 +237,23 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   // ** TAXONOMY ***
 
-  Future<Map<String, Protein>> addTaxonomyData(Map<int, Taxonomy> taxonomyData) async {
+  Future<BiocentralDatabaseUpdate<Protein>> addTaxonomyData(Map<int, Taxonomy> taxonomyData) async {
+    // TODO ImportMode
+    final updateBuilder = BiocentralDatabaseUpdateBuilder<Protein>(DatabaseImportMode.overwrite);
     for (MapEntry<String, Protein> proteinEntry in _proteins.entries) {
       if (taxonomyData.keys.contains(proteinEntry.value.taxonomy.id)) {
         final updatedEntry = proteinEntry.value.copyWith(taxonomy: taxonomyData[proteinEntry.value.taxonomy.id]);
         updateEntity(proteinEntry.key, updatedEntry);
+        updateBuilder.addUpdate(updatedEntry.id);
       }
     }
-    return Map.from(_proteins);
+    updateBuilder.setResult(databaseToMap());
+    return updateBuilder.collect();
   }
 
-  Set<int> getTaxonomyIDs() {
+  static Set<int> getTaxonomyIDs(Map<String, Protein> proteins) {
     final Set<int> taxonomyIDs = {};
-    for (Protein protein in _proteins.values) {
+    for (Protein protein in proteins.values) {
       if (!protein.taxonomy.isUnknown()) {
         taxonomyIDs.add(protein.taxonomy.id);
       }
@@ -229,7 +265,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
 
   @override
   Map<String, Protein> updateEmbeddings(Map<String, Embedding> newEmbeddings) {
-    // TODO IMPORT MODE
+    // TODO IMPORT MODE / MOVE TO EMBEDDINGS DATABASE
     int numberUnknownProteins = 0;
 
     for (final (seqHash, embedding) in newEmbeddings.entriesRecord) {

@@ -1,9 +1,8 @@
+import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_discrete_selection.dart';
+import 'package:biocentral/sdk/util/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
-import 'package:biocentral/sdk/util/logging.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_discrete_selection.dart';
 
 class BiocentralEntityTypeSelection extends StatefulWidget {
   final void Function(Type? value) onChangedCallback;
@@ -16,31 +15,37 @@ class BiocentralEntityTypeSelection extends StatefulWidget {
 }
 
 class _BiocentralEntityTypeSelectionState extends State<BiocentralEntityTypeSelection> {
-  late final BiocentralDatabaseRepository? biocentralDatabaseRepository;
+  late String? _initialValue;
+  final Map<String, Type> _entityTypes = {};
 
   @override
   void initState() {
     super.initState();
     try {
-      biocentralDatabaseRepository = context.read<BiocentralDatabaseRepository>();
+      final biocentralDatabaseRepository = context.read<BiocentralDatabaseRepository>();
+      final loadedTypes = biocentralDatabaseRepository.getAvailableTypes();
+      _entityTypes.clear();
+      _entityTypes.addAll(loadedTypes);
+      _initialValue =
+          _entityTypes.entries.where((entry) => entry.value == widget.initialValue).firstOrNull?.key ?? 'Protein';
     } catch (e) {
-      biocentralDatabaseRepository = null;
+      print(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (biocentralDatabaseRepository == null || biocentralDatabaseRepository!.getAvailableTypes().isEmpty) {
+    if (_entityTypes.isEmpty) {
       final String errorMessage = 'ERROR: Could not find any databases!';
       logger.e(errorMessage);
       return Text(errorMessage);
     }
-    final Map<String, Type> entityTypes = biocentralDatabaseRepository!.getAvailableTypes();
-    final String? initialValue = entityTypes.entries.where((entry) => entry.value == widget.initialValue).firstOrNull?.key;
+
     return BiocentralDiscreteSelection<String?>(
-        title: 'Type: ',
-        selectableValues: entityTypes.keys.toList(),
-        initialValue: initialValue,
-        onChangedCallback: (String? value) => widget.onChangedCallback(entityTypes[value]),);
+      title: 'Type: ',
+      selectableValues: _entityTypes.keys.toList(),
+      initialValue: _initialValue,
+      onChangedCallback: (String? value) => widget.onChangedCallback(_entityTypes[value]),
+    );
   }
 }

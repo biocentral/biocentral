@@ -1,5 +1,6 @@
 import 'package:biocentral/plugins/embeddings/model/tokenizer_config.dart';
 import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_config_selection.dart';
 import 'package:flutter/material.dart';
 
@@ -18,11 +19,11 @@ class _TokenizerConfigSelectionState extends State<TokenizerConfigSelection> {
   @override
   Widget build(BuildContext context) {
     return BiocentralConfigSelection(
-      optionMap: {'Tokenizer': _tokenizerConfig.allOptions},
-      configHandler: BiocentralGenericConfigHandler(JSONConfigHandlingStrategy()),
+      config: BiocentralConfig(
+          options: _tokenizerConfig.allOptions,
+          configHandler: BiocentralGenericConfigHandler(JSONConfigHandlingStrategy())),
       clusterByCategories: true,
-      onConfigChangedCallback: (_, config) =>
-          widget.onConfigUpdate(config['Tokenizer']?.map((k, v) => MapEntry(k.name, v))),
+      onConfigChanged: (config) => widget.onConfigUpdate(config.asStringMap()),
     );
   }
 }

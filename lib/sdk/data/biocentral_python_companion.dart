@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
@@ -14,7 +15,8 @@ abstract class _BiocentralPythonCompanionUtils {
     if (id2emb == null) {
       return left(
         BiocentralPythonCompanionException(
-            message: 'Parsing of embeddings failed - Could not convert result map from companion!',),
+          message: 'Parsing of embeddings failed - Could not convert result map from companion!',
+        ),
       );
     }
 
@@ -49,6 +51,10 @@ abstract class _BiocentralPythonCompanionUtils {
 abstract class _BiocentralPythonCompanionStrategy {
   bool _companionReady = false;
 
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path);
+
+  Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName);
+
   Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName);
 
   Future<Either<BiocentralException, String>> writeH5File(Map<String, Embedding> embeddings);
@@ -81,7 +87,8 @@ abstract class _BiocentralPythonCompanionStrategy {
   }
 
   Future<Either<BiocentralException, T>> _intercept<T>(
-      Future<Either<BiocentralException, T>> Function() operation,) async {
+    Future<Either<BiocentralException, T>> Function() operation,
+  ) async {
     final companionRunning = await _checkCompanionRunning();
     if (!companionRunning) {
       return left(
@@ -101,6 +108,32 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
   @override
   Either<BiocentralException, String> getBaseURL() {
     return right('http://127.0.0.1:50001/');
+  }
+
+  @override
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path) async {
+    final Map<String, String> body = {'file_path': path ?? ''};
+    final responseEither = await doPostRequest('get_h5_info', body);
+    return responseEither.flatMap((r) => right(EmbeddingsFileInformation.fromCompanion(r as Map<String, dynamic>)));
+  }
+
+  @override
+  Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName) async {
+    final Map<String, String> body = {'key': key, 'file_path': path};
+    final responseEither = await doPostRequest('get_embedding', body);
+    return responseEither.match((l) async {
+      return left(l);
+    }, (r) async {
+      final embedding = await _BiocentralPythonCompanionUtils._fromList(
+        (r['id2emb'][key]),
+        embedderName,
+      );
+      if (embedding == null) {
+        return left(BiocentralPythonCompanionException(
+            message: 'Could not convert to embedding after retrieving companion result!'));
+      }
+      return right(embedding);
+    });
   }
 
   @override
@@ -203,6 +236,18 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
     }
     final decodedResult = jsonDecode(result);
     return right(decodedResult);
+  }
+
+  @override
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path) {
+    // TODO: implement getH5Info
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName) async {
+    // TODO: implement getEmbedding
+    throw UnimplementedError();
   }
 
   @override
@@ -324,7 +369,16 @@ class BiocentralPythonCompanion {
     return _strategy.terminate();
   }
 
-  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) {
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path) async {
+    return _strategy.getH5Info(path);
+  }
+
+  Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName) async {
+    return _strategy.getEmbedding(key, path, embedderName);
+  }
+
+
+    Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) {
     return _strategy.loadH5File(bytes, embedderName);
   }
 

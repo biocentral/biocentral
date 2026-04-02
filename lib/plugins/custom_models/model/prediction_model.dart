@@ -55,7 +55,7 @@ class PredictionModel extends Equatable {
     );
   }
 
-  static PredictionModel? fromMap(Map<String, dynamic> map) {
+  static PredictionModel? deserialize(Map<String, dynamic> map) {
     final config = map['config'];
     final databaseType = map['database_type'] ?? 'Protein';
 
@@ -69,7 +69,7 @@ class PredictionModel extends Equatable {
     final trainingResults = Map<String, dynamic>.from(map['training_results'] ?? {});
     if (trainingResults.isNotEmpty) {
       for (final (splitName, resultMap) in trainingResults.entriesRecord) {
-        final trainingResult = TrainingResult.fromMap(Map<String, dynamic>.from(resultMap));
+        final trainingResult = TrainingResult.deserialize(Map<String, dynamic>.from(resultMap));
         if (trainingResult != null) {
           parsedTrainingResults[splitName] = trainingResult;
         }
@@ -80,14 +80,14 @@ class PredictionModel extends Equatable {
     final testResults = Map<String, dynamic>.from(map['test_results'] ?? {});
     if (testResults.isNotEmpty) {
       for (final (testSetName, testSetMap) in testResults.entriesRecord) {
-        final testResult = TestResult.fromMap(Map<String, dynamic>.from(testSetMap ?? {}));
+        final testResult = TestResult.deserialize(Map<String, dynamic>.from(testSetMap ?? {}));
         if (testResult != null) {
           parsedTestResults[testSetName] = testResult;
         }
       }
     }
 
-    final trainingLogs = map['training_logs'] ?? <String>[];
+    final trainingLogs = map['training_logs'] as List? ?? <String>[];
     final trainingStatus = BiocentralTaskStatus.finished;
     return PredictionModel(
       config: config != null ? Map<String, dynamic>.from(config) : null,
@@ -95,7 +95,7 @@ class PredictionModel extends Equatable {
       derivedValues: parsedDerivedValues,
       trainingResults: parsedTrainingResults,
       testResults: parsedTestResults,
-      trainingLogs: trainingLogs,
+      trainingLogs: trainingLogs.map((l) => l.toString()).toList(),
       checkpoints: {},
       trainingStatus: trainingStatus,
     );
@@ -178,7 +178,7 @@ class PredictionModel extends Equatable {
     final updatedTestResults = Map<String, TestResult>.from(this.testResults ?? {});
     if (testResults != null) {
       for (final (testSetName, testSetResult) in testResults.entriesRecord) {
-        final parsedTestSetResult = TestResult.fromMap(testSetResult);
+        final parsedTestSetResult = TestResult.deserialize(testSetResult);
         if (parsedTestSetResult != null) {
           updatedTestResults[testSetName] = parsedTestSetResult;
         }
@@ -230,19 +230,19 @@ class PredictionModel extends Equatable {
     };
   }
 
-  Map<String, dynamic> toMap({bool includeTrainingLogs = true}) {
+  Map<String, dynamic> serialize() {
     // Checkpoints are not included at the moment
     return {
       'config': config,
       'database_type': databaseType,
       'derived_values': derivedValues,
       'training_results': Map<String, dynamic>.from(
-        trainingResults?.map((splitName, result) => MapEntry(splitName, result.toMap())) ?? {},
+        trainingResults?.map((splitName, result) => MapEntry(splitName, result.serialize())) ?? {},
       ),
       'test_results': Map<String, dynamic>.from(
-        testResults?.map((testSetName, result) => MapEntry(testSetName, result.toMap())) ?? {},
+        testResults?.map((testSetName, result) => MapEntry(testSetName, result.serialize())) ?? {},
       ),
-      if (includeTrainingLogs) 'training_logs': trainingLogs,
+      'training_logs': trainingLogs,
       'training_status': trainingStatus?.name,
     };
   }
@@ -276,7 +276,7 @@ class TrainingResult {
         bestEpochMetrics = null,
         metadata = null;
 
-  static TrainingResult? fromMap(Map<String, dynamic> map) {
+  static TrainingResult? deserialize(Map<String, dynamic> map) {
     final trainingLoss = Map<int, double>.from(
       (map['training_loss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)),
     );
@@ -356,7 +356,7 @@ class TrainingResult {
     return trainingLoss.keys.max;
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> serialize() {
     final result = Map<String, dynamic>.of(metadata ?? {});
     result.addAll({
       'training_loss': trainingLoss.map((epoch, loss) => MapEntry(epoch.toString(), loss)),
@@ -379,20 +379,21 @@ class TestResult {
 
   static Set<BiocentralMLMetric> _parseBootstrapping(Map<String, dynamic> bootstrappingMap) {
     final Set<BiocentralMLMetric> result = {};
-    final resultMap = Map<String, dynamic>.from(bootstrappingMap['results'] ?? {});
+    final btResults = bootstrappingMap['results'] as List<dynamic>? ?? [];
 
-    for (final (metricName, metricMap) in resultMap.entriesRecord) {
-      final mean = metricMap?['mean'];
-      if (mean == null) {
+    for (final (btMap) in btResults) {
+      final mean = btMap?['mean'];
+      final name = btMap?['name'];
+      if (mean == null || name == null) {
         continue;
       }
 
       final mlMetric = BiocentralMLMetric(
-        name: metricName,
+        name: name,
         value: mean,
         uncertaintyEstimate: UncertaintyEstimate.fromMap(
           Map.from(bootstrappingMap)
-            ..addAll(Map.from(metricMap))
+            ..addAll(Map.from(btMap ?? {}))
             ..addAll({'method': 'bootstrapping'}),
         ),
       );
@@ -402,7 +403,7 @@ class TestResult {
     return result;
   }
 
-  static TestResult? fromMap(Map<String, dynamic> map) {
+  static TestResult? deserialize(Map<String, dynamic> map) {
     final Set<BiocentralMLMetric> parsedMetrics = {};
     final String defaultUncertaintyMethod = 'bootstrapping';
     final bootstrappingMap = Map<String, dynamic>.from(map[defaultUncertaintyMethod] ?? {});
@@ -458,21 +459,20 @@ class TestResult {
         'sample_size': uncertaintyEstimate.sampleSize,
         'confidence_level': uncertaintyEstimate.confidenceLevel,
       };
-      bootstrapping['results'] = Map<String, dynamic>.fromEntries(
-        metrics.map(
-          (metric) => MapEntry(metric.name, {
-            'mean': metric.uncertaintyEstimate?.mean,
-            'lower': metric.uncertaintyEstimate?.lower,
-            'upper': metric.uncertaintyEstimate?.upper,
-          }),
-        ),
-      );
+      bootstrapping['results'] = metrics.map(
+        (metric) => {
+          'name': metric.name,
+          'mean': metric.uncertaintyEstimate?.mean,
+          'lower': metric.uncertaintyEstimate?.lower,
+          'upper': metric.uncertaintyEstimate?.upper,
+        },
+      ).toList();
       bootstrapping.addAll(bootstrappingParameters);
     }
     return bootstrapping;
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> serialize() {
     return {
       'metrics': Map<String, dynamic>.fromEntries(metrics.map((metric) => MapEntry(metric.name, metric.value))),
       'bootstrapping': _convertToBootstrapping(metrics),

@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
-import 'package:biocentral/biocentral/bloc/biocentral_display_mode_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
@@ -14,6 +13,7 @@ import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/domain/biocentral_command_log_repository.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +40,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   final List<Widget> _tabs = [];
 
-  late final BiocentralCommandLogBloc biocentralCommandLogBloc;
+  late final BiocentralCommandLogBloc biocentralCommandLogBloc; // TODO Move to main?
 
   late final AppLifecycleListener _exitListener;
 
@@ -109,11 +109,13 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   void createBlocs() {
     final BiocentralProjectRepository biocentralProjectRepository = context.read<BiocentralProjectRepository>();
 
-    biocentralCommandLogBloc = BiocentralCommandLogBloc(biocentralProjectRepository)
-      ..add(BiocentralCommandLogLoadEvent());
-    widget.eventBus.on<BiocentralCommandStateChangedEvent>().listen((event) {
-      biocentralCommandLogBloc.add(BiocentralCommandLogLoadEvent());
-    });
+    biocentralCommandLogBloc = BiocentralCommandLogBloc(context.read<BiocentralCommandLogRepository>());
+    // TODO ENSURE LOADED?
+
+    // TODO REFACTOR SYNC
+    //widget.eventBus.on<BiocentralCommandStateChangedEvent>().listen((event) {
+    //  biocentralCommandLogBloc.add(BiocentralCommandLogLoadEvent());
+    //});
   }
 
   void addTabListeners() {
@@ -163,29 +165,15 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
       }
 
       // No explainable widget focused, handle globally
-      _toggleSideBar();
-      return true;
-    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit1) {
-      _toggleDisplayMode(0); // Visualize
-      return true;
-    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit2) {
-      _toggleDisplayMode(1); // Analyze
-      return true;
-    } else if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.digit3) {
-      _toggleSideBar(); // Contextualize
-      return true;
+      _toggleSideBar(BiocentralSideBarDisplayMode.help);
+      return false;
     }
     return false;
   }
 
-  void _toggleSideBar() {
+  void _toggleSideBar(BiocentralSideBarDisplayMode displayMode) {
     final sideBarBloc = BlocProvider.of<BiocentralSideBarBloc>(context);
-    sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent());
-  }
-
-  void _toggleDisplayMode(int index) {
-    final displayModeBloc = BlocProvider.of<BiocentralDisplayModeBloc>(context);
-    displayModeBloc.add(BiocentralDisplayModeChangedEvent(newMode: BiocentralDisplayMode.values[index]));
+    sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent(displayMode: displayMode));
   }
 
   bool _hasExplainableAncestor(BuildContext context) {
@@ -203,25 +191,57 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
-      builder: (context, pluginState) {
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final useDrawer = constraints.maxWidth < 775;
-            return Scaffold(
-              key: _scaffoldKey,
-              appBar: _buildAppBar(useDrawer, context),
-              drawer: useDrawer ? _buildDrawer(context) : null,
-              body: Row(
-                children: [
-                  Expanded(child: _buildBody(pluginState, context)),
-                  const BiocentralSideBar(),
-                ],
-              ),
-            );
-          },
-        );
-      },
+    return MultiBlocProvider(
+      providers: [BlocProvider.value(value: biocentralCommandLogBloc)],
+      child: BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
+        builder: (context, pluginState) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final useDrawer = constraints.maxWidth < 775;
+              return Scaffold(
+                key: _scaffoldKey,
+                appBar: _buildAppBar(useDrawer, context),
+                drawer: useDrawer ? _buildDrawer(context) : null,
+                body: Row(
+                  children: [
+                    Expanded(child: _buildBody(pluginState, context)),
+                    const BiocentralSideBar(),
+                    BlocBuilder<BiocentralSideBarBloc, BiocentralSideBarState>(
+                      builder: (context, sideBarState) {
+                        return NavigationRail(
+                          destinations: [
+                            NavigationRailDestination(
+                              icon: BiocentralTooltip(
+                                message: 'Help',
+                                child: IconButton(
+                                  icon: const Icon(Icons.help),
+                                  onPressed: () => _toggleSideBar(BiocentralSideBarDisplayMode.help),
+                                ),
+                              ),
+                              label: const Text('Help'),
+                            ),
+                            NavigationRailDestination(
+                              icon: BiocentralTooltip(
+                                message: 'Show command log',
+                                child: IconButton(
+                                  icon: const Icon(Icons.insert_drive_file_sharp),
+                                  onPressed: () => _toggleSideBar(BiocentralSideBarDisplayMode.commandLog),
+                                ),
+                              ),
+                              label: const Text('Command Log'),
+                            ),
+                          ],
+                          selectedIndex: sideBarState.selectionIndex(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -250,7 +270,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
   }
 
   Widget _buildAppBarTitle() {
-    List<bool> _selections = [true, false, false]; // [option1, option2, option3]
     return Row(
       children: [
         // App Name and Version
@@ -267,31 +286,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
               );
             }
             return const CircularProgressIndicator();
-          },
-        ),
-        const Spacer(),
-        BlocBuilder<BiocentralSideBarBloc, BiocentralSideBarState>(
-          builder: (context, sideBarState) {
-            return BlocBuilder<BiocentralDisplayModeBloc, BiocentralDisplayModeState>(
-              builder: (context, displayModeState) {
-                return ToggleButtons(
-                  isSelected: displayModeState.toSelection..add(sideBarState.showSidebar),
-                  onPressed: (int index) {
-                    if (index < BiocentralDisplayMode.values.length) {
-                      _toggleDisplayMode(index);
-                    } else {
-                      // Option 3 toggles independently
-                      _toggleSideBar();
-                    }
-                  },
-                  children: [
-                    const BiocentralTooltip(message: 'Visualize data', child: Icon(Icons.visibility)),
-                    const BiocentralTooltip(message: 'Analyze data', child: Icon(Icons.analytics)),
-                    const BiocentralTooltip(message: 'Information & Settings', child: Icon(Icons.lightbulb))
-                  ],
-                );
-              },
-            );
           },
         ),
         const Spacer(),
@@ -376,45 +370,37 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
       children: [
         Flexible(
           flex: 50,
-          child: TabBarView(
-            controller: _tabController,
-            children: buildTabBarViews(pluginState),
-          ),
+          child: buildTabBarView(pluginState),
         ),
         Expanded(flex: 4, child: buildStatusBar()),
       ],
     );
   }
 
+  Widget buildTabBarView(BiocentralPluginState pluginState) {
+    final tabBarView = TabBarView(
+      controller: _tabController,
+      children: buildTabBarViews(pluginState),
+    );
+    return tabBarView;
+  }
+
   List<Widget> buildTabBarViews(BiocentralPluginState pluginState) {
     final List<Widget> tabBarViews = [];
-
     tabBarViews.addAll(
-      pluginState.pluginManager.activePlugins.map((plugin) => plugin.build(context)),
+      pluginState.pluginManager.activePlugins.map((plugin) => plugin.getScreenView(context)),
     );
-
     tabBarViews.add(
-      MultiBlocProvider(
-        providers: [BlocProvider.value(value: biocentralCommandLogBloc)],
-        child: const BiocentralTabView(),
-      ),
+      const BiocentralTabView(),
     );
 
     return tabBarViews;
   }
 
   Widget buildStatusBar() {
-    return BiocentralStatusBar(eventBus: widget.eventBus);
+    return const BiocentralStatusBar();
   }
 
   @override
   bool get wantKeepAlive => true;
-}
-
-class TestAction extends Action<ActivateIntent> {
-  @override
-  Object? invoke(ActivateIntent intent) {
-    print(intent);
-    return null;
-  }
 }

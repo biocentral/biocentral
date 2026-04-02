@@ -1,4 +1,6 @@
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 sealed class ColumnWizardEvent {}
 
-final class ColumnWizardLoadEvent extends ColumnWizardEvent {}
+final class _ColumnWizardUpdateDatabaseEvent extends ColumnWizardEvent {
+  final List<BiocentralDatabaseColumn> columns;
+
+  _ColumnWizardUpdateDatabaseEvent(this.columns);
+}
 
 final class ColumnWizardSelectColumnEvent extends ColumnWizardEvent {
   final String selectedColumn;
@@ -36,7 +42,7 @@ final class ColumnWizardHistoryEntry {
 
 @immutable
 final class ColumnWizardBlocState extends Equatable {
-  final Map<String, Map<String, dynamic>> columns;
+  final Map<String, BiocentralDatabaseColumn> columns;
 
   final Map<String, List<ColumnWizardHistoryEntry>>? columnWizardHistory;
 
@@ -90,11 +96,13 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
 
   ColumnWizardBloc(this._biocentralDatabase, this._columnWizardRepository)
       : super(const ColumnWizardBlocState.initial()) {
-    on<ColumnWizardLoadEvent>((event, emit) async {
+    on<_ColumnWizardUpdateDatabaseEvent>((event, emit) async {
       emit(const ColumnWizardBlocState.initial().copyWith(copyMap: {'status': ColumnWizardBlocStatus.loading}));
-      final Map<String, Map<String, dynamic>> columns = _biocentralDatabase.getColumns();
+      final columns = Map.fromEntries(event.columns.map((c) => MapEntry(c.name, c)));
       emit(state.copyWith(copyMap: {'columns': columns, 'status': ColumnWizardBlocStatus.loaded}));
     });
+    _setupSubscription();
+
     on<ColumnWizardSelectColumnEvent>((event, emit) async {
       emit(
         state.copyWith(
@@ -106,10 +114,7 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
 
       ColumnWizard? columnWizard = state.columnWizard;
       if (columnWizard == null) {
-        columnWizard = await _columnWizardRepository.getColumnWizardForColumn(
-          columnName: event.selectedColumn,
-          valueMap: state.columns[event.selectedColumn] ?? {},
-        );
+        columnWizard = await state.columns[event.selectedColumn]!.toColumnWizard(_columnWizardRepository);
         final (columnWizardHistory, customBuildFunctions) = _addNewColumnWizard(columnWizard, null);
         emit(
           state.copyWith(
@@ -148,8 +153,8 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
 
       // TODO Should type be added here?
       // TODO columnName
-      final updatedColumnWizard = await _columnWizardRepository.getColumnWizardForColumn(
-          columnName: state.selectedColumn ?? '', valueMap: result.newColumnValues,);
+      final newColumn = BiocentralDatabaseColumn(name: state.selectedColumn ?? 'New-From-Wizard', values: result.newColumnValues);
+      final updatedColumnWizard = await newColumn.toColumnWizard(_columnWizardRepository);
 
       final (columnWizardHistory, customBuildFunctions) =
           _addNewColumnWizard(updatedColumnWizard, event.columnWizardOperation);
@@ -179,5 +184,13 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
         _columnWizardRepository.getCustomBuildFunctionForColumnWizard(columnWizard);
 
     return (columnWizardHistory, customBuildFunctions);
+  }
+
+  void _setupSubscription() {
+    _biocentralDatabase.databaseStream.listen((entities) {
+      add(_ColumnWizardUpdateDatabaseEvent(_biocentralDatabase.getColumns()));
+    });
+    // Initial event
+    add(_ColumnWizardUpdateDatabaseEvent(_biocentralDatabase.getColumns()));
   }
 }

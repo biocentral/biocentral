@@ -1,54 +1,62 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
-import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
-import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
-import 'package:biocentral/sdk/util/logging.dart';
+import 'package:biocentral/sdk/domain/streamable_database.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
-abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
+abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving, StreamableDatabase<Map<String, T>> {
   @override
   late final BiocentralRepositoryAutoSaver autoSaver;
 
-  BiocentralDatabase(BiocentralProjectRepository biocentralProjectRepository) {
-    autoSaver = BiocentralRepositoryAutoSaver(
-      biocentralProjectRepository: biocentralProjectRepository,
-      fileName: '${getEntityTypeName().toLowerCase()}.fasta',
-      fileType: T,
-      saveFunctionString: () async {
-        final String content = await convertToString('fasta');
-        return content; // TODO Make file extension customizable
-      },
-    );
+  BiocentralDatabase(BiocentralProjectRepository? biocentralProjectRepository) {
+    if (biocentralProjectRepository != null) {
+      autoSaver = BiocentralRepositoryAutoSaver(
+        projectRepository: biocentralProjectRepository,
+        fileName: '${getEntityTypeName().toLowerCase()}.fasta',
+        fileType: T,
+        saveFunctionString: () async {
+          final String content = await convertToString('fasta');
+          return content; // TODO Make file extension customizable
+        },
+      );
+    }
+    // Virtual databases do not use autoSaving
   }
 
+  // Create virtual database for database updates
+  BiocentralDatabase<T> virtualize();
+
+  // Accept database update: This is the only function that should actually change the employed database
+  void acceptDatabaseUpdate(BiocentralDatabaseUpdate<T> update) {
+    _acceptDatabaseUpdateImpl(update);
+    updateStream();
+    autosave();
+  }
+
+  void _acceptDatabaseUpdateImpl(BiocentralDatabaseUpdate<T> update) {
+    clearDatabase();
+    addAllEntities(update.result.values);
+  }
+
+  @override
+  Map<String, T> toStreamable() => databaseToMap();
+
   // *** READ/WRITE/UPDATE ***
-  // ** AUTOSAVING **
-  void addEntity(T entity) => withAutoSave(() => addEntityImpl(entity));
+  void addEntity(T entity);
 
-  void addEntityImpl(T entity);
+  void addAllEntities(Iterable<T> entities);
 
-  void addAllEntities(Iterable<T> entities) => withAutoSave(() => addAllEntitiesImpl(entities));
+  void removeEntity(T? entity);
 
-  void addAllEntitiesImpl(Iterable<T> entities);
+  void updateEntity(String id, T entityUpdated);
 
-  void removeEntity(T? entity) => withAutoSave(() => removeEntityImpl(entity));
-
-  void removeEntityImpl(T? entity);
-
-  void updateEntity(String id, T entityUpdated) => withAutoSave(() => updateEntityImpl(id, entityUpdated));
-
-  void updateEntityImpl(String id, T entityUpdated);
-
-  void clearDatabase() => withAutoSave(() => clearDatabaseImpl());
-
-  void clearDatabaseImpl();
-
-  // ** AUTOSAVING **
+  void clearDatabase();
 
   bool containsEntity(String id);
 
@@ -66,8 +74,11 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
   Map<String, String>? getSequences();
 
-  List<SequenceTrainingData> getTrainingData(
-      {required String targetColumn, required String setColumn, String? maskColumn,});
+  List<SequenceTrainingData> getTrainingData({
+    required BiocentralDatabaseColumn targetColumn,
+    BiocentralDatabaseColumn setColumn,
+    String? maskColumn,
+  });
 
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode);
 
@@ -77,42 +88,33 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   /// These are typically system columns like ID, embeddings, etc.
   Set<String> getSystemColumns();
 
-  Map<String, Map<String, dynamic>> getColumns() {
+  List<BiocentralDatabaseColumn> getColumns() {
     final List<Map<String, dynamic>> entityMaps = entitiesAsMaps();
+    final Set<String> encounteredIDs = {};
     final Map<String, Map<String, dynamic>> result = {};
     for (Map<String, dynamic> entityMap in entityMaps) {
       final String entityID = entityMap['id'] ?? '';
       if (entityID.isEmpty) {
         logger.w('Encountered entity without an ID!');
       }
+      encounteredIDs.add(entityID);
       for (MapEntry<String, dynamic> entry in entityMap.entries) {
         result.putIfAbsent(entry.key, () => {});
         result[entry.key]?[entityID] = entry.value;
       }
     }
-    return result;
+    // Add null values
+    for (final (columnMap) in result.values) {
+      for (final entityID in encounteredIDs) {
+        columnMap.putIfAbsent(entityID, () => null);
+      }
+    }
+    return result.entries.map((entry) => BiocentralDatabaseColumn(name: entry.key, values: entry.value)).toList();
   }
 
-  bool isNumeric(Map<String, dynamic> columnValues) {
-    final nonNullValues = columnValues.values.where((value) => value != null && value.toString() != 'Unknown').toList();
-
-    if (nonNullValues.isEmpty) return false;
-
-    // To prevent the case where 0/1 only is tagged as numeric column
-    return !isBinary(columnValues) &&
-        nonNullValues.every((value) {
-          final String strValue = value.toString().trim();
-          return num.tryParse(strValue) != null;
-        });
-  }
-
-  bool isBinary(Map<String, dynamic> columnValues) {
-    final nonNullValues = columnValues.values
-        .where((value) => value != null && value.toString() != 'Unknown')
-        .map((value) => value.toString().trim())
-        .toSet();
-
-    return nonNullValues.length == 2;
+  BiocentralDatabaseColumn? getColumn(String? columnName) {
+    // TODO This is not very efficient
+    return getColumns().where((c) => c.name == columnName).toSet().firstOrNull;
   }
 
   /// Get the trainable column names, optionally filtered by type
@@ -122,43 +124,43 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   /// - [binaryTypes]: If true, only include binary columns
   /// - [numericTypes]: If true, only include numeric columns
   /// Add more types here as needed
-  List<String> getPartiallyUnlabeledColumnNames({bool? binaryTypes, bool? numericTypes}) {
-    final Map<String, Map<String, dynamic>> allColumns = getColumns();
+  Set<BiocentralDatabaseColumn> getPartiallyUnlabeledColumnNames({
+    required bool numericOnly,
+    required bool binaryOnly,
+  }) {
+    final allColumns = getColumns();
     final Set<String> systemColumns = getSystemColumns();
 
-    int numberOfEntries = 0;
-    if (allColumns.isNotEmpty) {
-      numberOfEntries =
-          allColumns.values.map((valueMap) => valueMap.length).reduce((max, current) => max > current ? max : current);
-    }
+    return allColumns.where((column) {
+      if (systemColumns.contains(column.name)) {
+        return false;
+      }
+      final bool isColumnBinary = column.isBinary;
+      final bool isColumnNumeric = column.isNumeric;
 
-    return allColumns.keys.where((column) {
-      if (systemColumns.contains(column)) return false;
+      if (binaryOnly && isColumnBinary) return true;
+      if (numericOnly && isColumnNumeric) return true;
 
-      final Map<String, dynamic> columnValues = allColumns[column] ?? {};
+      if (binaryOnly && numericOnly) return false;
 
-      final bool isTrainable = columnValues.length < numberOfEntries ||
-          columnValues.values.any((value) {
-            return value == null || value.toString() == '' || value.toString() == 'Unknown';
-          });
+      if (binaryOnly && numericOnly) return isColumnBinary;
+      if (numericOnly && binaryOnly) return isColumnNumeric;
 
-      if (!isTrainable) return false;
+      return column.isPartiallyUnlabeled();
+    }).toSet();
+  }
 
-      if (binaryTypes == null && numericTypes == null) return true;
-
-      final bool isColumnBinary = isBinary(columnValues);
-      final bool isColumnNumeric = isNumeric(columnValues);
-
-      if (binaryTypes == true && isColumnBinary) return true;
-      if (numericTypes == true && isColumnNumeric) return true;
-
-      if (binaryTypes == false && numericTypes == false) return false;
-
-      if (binaryTypes == true && numericTypes == null) return isColumnBinary;
-      if (numericTypes == true && binaryTypes == null) return isColumnNumeric;
-
-      return false;
-    }).toList();
+  Set<BiocentralDatabaseColumn> getTrainableColumns() {
+    // TODO Maybe add reason why column is not trainable
+    final systemColumns = getSystemColumns();
+    final availableKeys = _getKeysWhereDataIsAvailableForAllEntries(
+      entitiesAsMaps()
+          .expand((element) => element.entries.where((entry) => !systemColumns.contains(entry.key)))
+          .toList(),
+      databaseToList().length,
+    );
+    final allColumns = getColumns();
+    return allColumns.where((column) => availableKeys.contains(column.name)).toSet();
   }
 
   Type getType() {
@@ -170,10 +172,12 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     return handler.convertToString(databaseToMap()).then((val) => val ?? '');
   }
 
-  Future<Map<String, T>> importEntities(Map<String, T> entities, DatabaseImportMode databaseImportMode) async {
-    switch (databaseImportMode) {
+  Future<BiocentralDatabaseUpdate<T>> _importEntities(Map<String, T> entities, DatabaseImportMode importMode) async {
+    final updateBuilder = BiocentralDatabaseUpdateBuilder<T>(importMode);
+    switch (importMode) {
       case DatabaseImportMode.overwrite:
         {
+          updateBuilder.setDelete(databaseToMap().keys.toSet());
           clearDatabase();
           addAllEntities(entities.values);
           break;
@@ -183,7 +187,9 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
           for (MapEntry<String, T> entry in entities.entries) {
             final T? existingEntity = getEntityById(entry.key);
             if (existingEntity != null) {
-              updateEntity(existingEntity.getID(), entry.value.merge(existingEntity, failOnConflict: false) as T);
+              final entityID = existingEntity.getID();
+              updateBuilder.addUpdate(entityID);
+              updateEntity(entityID, entry.value.merge(existingEntity, failOnConflict: false) as T);
             } else {
               addEntity(entry.value);
             }
@@ -191,12 +197,8 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
           break;
         }
     }
-    return databaseToMap();
-  }
-
-  Future<Map<String, T>> importEntitiesFromFile(LoadedFileData fileData, DatabaseImportMode databaseImportMode) async {
-    final Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
-    return importEntities(loadedEntities, databaseImportMode);
+    updateBuilder.setResult(databaseToMap());
+    return updateBuilder.collect();
   }
 
   static Future<Map<String, T>> _loadEntitiesFromFile<T>(LoadedFileData fileData) async {
@@ -218,13 +220,26 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     }
   }
 
-  Future<Map<String, T>> addColumnFromColumnWizard(String newColumnName, ColumnWizard columnWizard) async {
+  Future<BiocentralDatabaseUpdate<T>> importEntitiesFromFile(
+    LoadedFileData fileData,
+    DatabaseImportMode databaseImportMode,
+  ) async {
+    final Map<String, T> loadedEntities = await compute(_loadEntitiesFromFile, fileData);
+    return virtualize()._importEntities(loadedEntities, databaseImportMode);
+  }
+
+  Future<BiocentralDatabaseUpdate<T>> _addColumnFromColumnWizardImpl(
+    String newColumnName,
+    ColumnWizard columnWizard,
+  ) async {
+    final updateBuilder = BiocentralDatabaseUpdateBuilder<T>(DatabaseImportMode.overwrite);
+
     final Map<String, dynamic> newValues = columnWizard.valueMap;
-    final existingColumns = getColumns().keys;
+    final existingColumnNames = getColumns().map((c) => c.name).toSet();
 
     // Update existing column
     // TODO Check and make this work for non-custom columns as well
-    if (existingColumns.contains(newColumnName)) {
+    if (existingColumnNames.contains(newColumnName)) {
       final Map<String, T> currentDatabase = databaseToMap();
       final Set<T?> entitiesToRemove = {};
       for (var entity in currentDatabase.values) {
@@ -233,22 +248,31 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
           final updatedEntity = entity.updateFromCustomAttributes(
             CustomAttributes({newColumnName: newValues[entityID].toString()}),
           ) as T;
-          updateEntityImpl(entityID, updatedEntity);
+          updateEntity(entityID, updatedEntity);
+          updateBuilder.addUpdate(entityID);
         } else {
           entitiesToRemove.add(currentDatabase[entityID]);
+          updateBuilder.addDelete(entityID);
         }
       }
       for (final entity in entitiesToRemove) {
-        removeEntityImpl(entity);
+        removeEntity(entity);
       }
-      autoSaver.scheduleSave();
-      return databaseToMap();
+      updateBuilder.setResult(databaseToMap());
+      return updateBuilder.collect();
     } else {
       // Add new column
       final Map<String, String> attributeMap =
           Map.fromEntries(newValues.entries.map((entry) => MapEntry(entry.key, entry.value.toString())));
-      return addCustomAttribute(newColumnName, attributeMap);
+      return addCustomAttributes(newColumnName, attributeMap);
     }
+  }
+
+  Future<BiocentralDatabaseUpdate<T>> addColumnFromColumnWizard(
+    String newColumnName,
+    ColumnWizard columnWizard,
+  ) {
+    return virtualize()._addColumnFromColumnWizardImpl(newColumnName, columnWizard);
   }
 
   // *** HASHING ***
@@ -262,22 +286,27 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
 
   // *** ATTRIBUTES ***
 
-  Future<Map<String, T>> addCustomAttribute(String attributeName, Map<String, dynamic> attributeMap) {
+  Future<BiocentralDatabaseUpdate<T>> addCustomAttributes(String attributeName, Map<String, dynamic> attributeMap) {
     final Map<String, CustomAttributes> customAttributes = attributeMap
         .map((entityID, attributeValue) => MapEntry(entityID, CustomAttributes({attributeName: attributeValue})));
-    return _updateEntitiesFromCustomAttributes(customAttributes);
+    return virtualize()._updateEntitiesFromCustomAttributes(customAttributes);
   }
 
-  Future<Map<String, T>> importCustomAttributesFromFile(LoadedFileData fileData) async {
+  Future<BiocentralDatabaseUpdate<T>> importCustomAttributesFromFile(LoadedFileData fileData) async {
     final Map<String, CustomAttributes> customAttributes =
         await _loadCustomAttributesFromFile(fileData.content, fileData.extension);
-    return _updateEntitiesFromCustomAttributes(customAttributes);
+    return virtualize()._updateEntitiesFromCustomAttributes(customAttributes);
   }
 
-  Future<Map<String, T>> _updateEntitiesFromCustomAttributes(Map<String, CustomAttributes>? customAttributes) async {
+  Future<BiocentralDatabaseUpdate<T>> _updateEntitiesFromCustomAttributes(
+    Map<String, CustomAttributes>? customAttributes,
+  ) async {
+    final updateBuilder = BiocentralDatabaseUpdateBuilder<T>(DatabaseImportMode.overwrite);
     if (customAttributes == null) {
-      return databaseToMap();
+      updateBuilder.setResult(databaseToMap());
+      return updateBuilder.collect(); // TODO The if can maybe be deleted
     }
+
     int numberUnknownEntities = 0;
     for (MapEntry<String, CustomAttributes> entityIDToAttributes in customAttributes.entries) {
       final T? entityToUpdate = getEntityById(entityIDToAttributes.key);
@@ -288,6 +317,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
           continue;
         }
         updateEntity(entityUpdated.getID(), entityUpdated);
+        updateBuilder.addUpdate(entityUpdated.getID());
       } else {
         numberUnknownEntities++;
       }
@@ -295,7 +325,8 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     if (numberUnknownEntities > 0) {
       logger.i('Number unknown entities during update: $numberUnknownEntities');
     }
-    return databaseToMap();
+    updateBuilder.setResult(databaseToMap());
+    return updateBuilder.collect();
   }
 
   static Future<Map<String, CustomAttributes>> _loadCustomAttributesFromFile(
@@ -327,15 +358,19 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
     );
   }
 
-  Set<BiocentralDatabaseColumn> getAvailableSetColumnsForAllEntities() {
+  Set<BiocentralDatabaseColumn> getSetColumns() {
     final availableKeys = _getKeysWhereDataIsAvailableForAllEntries(
       entitiesAsMaps()
-          .expand((element) => element.entries.where((entry) => entry.key.toLowerCase().contains('set')))
+          .expand(
+            (element) => element.entries.where(
+              (entry) => entry.key.toLowerCase().contains('set'),
+            ),
+          )
           .toList(),
       databaseToList().length,
     );
-    final columns = getColumns();
-    return availableKeys.map((key) => BiocentralDatabaseColumn(name: key, values: columns[key] ?? {})).toSet();
+    final allColumns = getColumns();
+    return allColumns.where((column) => availableKeys.contains(column.name)).toSet();
   }
 
   static Set<String> _getKeysWhereDataIsAvailableForAllEntries(
@@ -363,6 +398,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving {
   }
 
   Map<String, EmbeddingManager> getAllEmbeddings() {
+    // TODO REMOVE THIS FUNCTION
     return Map.fromEntries(databaseToMap().entries.map((entry) => MapEntry(entry.key, entry.value.getEmbeddings())));
   }
 }
@@ -372,4 +408,93 @@ enum DatabaseImportMode {
   merge;
 
   static const DatabaseImportMode defaultMode = DatabaseImportMode.overwrite;
+}
+
+class BiocentralDatabaseUpdate<R extends TypeNameMixin> {
+  final Map<String, R> result; // Loaded/computed entities
+  final Set<String> toUpdate; // Existing entity ids to update
+  final Set<String> toDelete; // Existing entity ids to delete
+  final DatabaseImportMode importMode;
+
+  BiocentralDatabaseUpdate({
+    required this.result,
+    required this.toUpdate,
+    required this.toDelete,
+    required this.importMode,
+  });
+
+  factory BiocentralDatabaseUpdate.empty(DatabaseImportMode importMode) {
+    return BiocentralDatabaseUpdate(result: {}, toUpdate: {}, toDelete: {}, importMode: importMode);
+  }
+
+  Map<String, dynamic> info() {
+    return {
+      'ResultType': result.values.firstOrNull?.typeName,
+      'DatabaseLengthAfterUpdate': result.length,
+      'OldEntriesToUpdate': toUpdate.length,
+      'OldEntriesToDelete': toDelete.length,
+      'ImportMode': importMode.name,
+    };
+  }
+
+  Map<String, dynamic> serialize() {
+    return {
+      'resultName': typeName,
+      'resultType': result.values.firstOrNull?.typeName,
+      'result': result,
+      'toUpdate': toUpdate,
+      'toDelete': toDelete,
+      'importMode': importMode,
+    };
+  }
+
+  static String get typeName => 'BiocentralDatabaseUpdate';
+
+  // TODO NOT SURE IF THAT WORKS / IS NECESSARY
+  static BiocentralCommandResult<BiocentralDatabaseUpdate<R>>? reconstruct<R extends TypeNameMixin>(
+    Map<String, dynamic> resultMap,
+  ) {
+    final resultName = resultMap['resultName'] ?? '';
+    if (resultName == typeName) {
+      final databaseUpdate = BiocentralDatabaseUpdate<R>(
+        result: resultMap['result'],
+        toUpdate: resultMap['toUpdate'],
+        toDelete: resultMap['toDelete'],
+        importMode: resultMap['importMode'],
+      );
+      return BiocentralCommandResult<BiocentralDatabaseUpdate<R>>(databaseUpdate, resultMap);
+    }
+    return null;
+  }
+}
+
+final class BiocentralDatabaseUpdateBuilder<R extends TypeNameMixin> {
+  final Map<String, R> _result = {}; // Loaded/computed entities
+  final Set<String> _toUpdate = {}; // Existing entity ids to update
+  final Set<String> _toDelete = {}; // Existing entity ids to delete
+  final DatabaseImportMode _importMode;
+
+  BiocentralDatabaseUpdateBuilder(this._importMode);
+
+  void addResult(String id, R res) {
+    _result[id] = res;
+  }
+
+  void setResult(Map<String, R> result) {
+    _result.clear();
+    _result.addAll(result);
+  }
+
+  void addUpdate(String id) => _toUpdate.add(id);
+
+  void addDelete(String id) => _toDelete.add(id);
+
+  void setDelete(Set<String> toDelete) {
+    _toDelete.clear();
+    _toDelete.addAll(toDelete);
+  }
+
+  BiocentralDatabaseUpdate<R> collect() {
+    return BiocentralDatabaseUpdate(result: _result, toUpdate: _toUpdate, toDelete: _toDelete, importMode: _importMode);
+  }
 }

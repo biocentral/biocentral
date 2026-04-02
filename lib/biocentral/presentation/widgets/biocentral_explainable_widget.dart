@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,7 +68,12 @@ class _BiocentralExplainableWidgetState extends State<BiocentralExplainableWidge
         onKeyEvent: (node, event) {
           if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyT) {
             final sideBarBloc = BlocProvider.of<BiocentralSideBarBloc>(context);
-            sideBarBloc.add(BiocentralSideBarChangeVisibilityEvent(showSidebar: true, showHelp: widget.explain));
+            sideBarBloc.add(
+              BiocentralSideBarChangeVisibilityEvent(
+                displayMode: BiocentralSideBarDisplayMode.help,
+                showHelp: widget.explain,
+              ),
+            );
             return KeyEventResult.handled;
           }
           return KeyEventResult.ignored;

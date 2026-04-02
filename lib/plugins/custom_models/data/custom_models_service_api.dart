@@ -1,6 +1,6 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 import 'package:collection/collection.dart';
 
 
@@ -12,8 +12,9 @@ List<BiocentralConfigOption> filterBiotrainerOptionsForBiocentral(List<Biocentra
     'ignore_file_inconsistencies',
     'pretrained_model',
     'auto_resume',
+    'custom_tokenizer_config',
+    'output_dir',
     'embedder_name', // Handled separately
-    'model_choice', // Handled separately
   };
   return options
       .where((option) => !ignoreCategories.contains(option.category) && !ignoreNames.contains(option.name))

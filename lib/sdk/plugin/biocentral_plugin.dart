@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/sdk/bloc/biocentral_command_bloc.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/domain/biocentral_api_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_column_wizard_repository.dart';
@@ -8,6 +9,7 @@ import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
 import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,7 @@ abstract class BiocentralPlugin with TypeNameMixin {
 
   Widget getTab();
 
-  Widget getCommandView(BuildContext context);
+  List<Widget> getCommandWidgets();
 
   Widget getScreenView(BuildContext context);
 
@@ -41,6 +43,10 @@ abstract class BiocentralPlugin with TypeNameMixin {
 
   BiocentralAPIRepository getBiocentralAPIRepository(BuildContext context) {
     return context.read<BiocentralAPIRepository>();
+  }
+
+  BiocentralCommandBloc getBiocentralCommandBloc(BuildContext context) {
+    return context.read<BiocentralCommandBloc>();
   }
 
   BiocentralProjectRepository getBiocentralProjectRepository(BuildContext context) {
@@ -59,24 +65,9 @@ abstract class BiocentralPlugin with TypeNameMixin {
     return context.read<BiocentralColumnWizardRepository>();
   }
 
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        getCommandView(context),
-        Expanded(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: SizeConfig.safeBlockHorizontal(context) * 0.75, vertical: 1),
-            child: getScreenView(context),
-          ),
-        ),
-      ],
-    );
-  }
-
   void cancelSubscriptions() {
     // TODO [Refactoring] Workaround solution (see eventBusSubscriptions above)
-    for(final subscription in eventBusSubscriptions) {
+    for (final subscription in eventBusSubscriptions) {
       subscription.cancel();
     }
     eventBusSubscriptions.clear();
@@ -84,7 +75,7 @@ abstract class BiocentralPlugin with TypeNameMixin {
 }
 
 mixin BiocentralDatabasePluginMixin<T> on BiocentralPlugin {
-  T createListeningDatabase(BiocentralProjectRepository projectRepository);
+  T createListeningDatabase(BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion);
 
   List<BiocentralPluginDirectory> getPluginDirectories();
 
@@ -102,6 +93,20 @@ mixin BiocentralDatabasePluginMixin<T> on BiocentralPlugin {
     } on FlutterError {
       return null;
     }
+  }
+}
+
+mixin BiocentralMultiDatabasePluginMixin on BiocentralPlugin {
+  List<dynamic> createDatabases(BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion);
+
+  List<BiocentralPluginDirectory> getPluginDirectories();
+
+  List<RepositoryProvider> createRepositoryProviders(List<dynamic> databases);
+
+  List<dynamic>? getDatabasesIfAvailable(BuildContext context);
+
+  T getDatabase<T>(BuildContext context) {
+    return RepositoryProvider.of<T>(context);
   }
 }
 

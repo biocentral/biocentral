@@ -1,12 +1,12 @@
-import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_iteration_result_view.dart';
-import 'package:biocentral/plugins/active_learning/presentation/views/al_iterations_list_view.dart';
-import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
+import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ALHubView extends StatefulWidget {
-  const ALHubView({super.key});
+  final List<Widget> commandWidgets;
+
+  const ALHubView({required this.commandWidgets, super.key});
 
   @override
   State<ALHubView> createState() => _ALHubViewState();
@@ -26,24 +26,20 @@ class _ALHubViewState extends State<ALHubView> with AutomaticKeepAliveClientMixi
               child: TabBar(
                 labelColor: Theme.of(context).colorScheme.onSurface,
                 unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                tabs: [
-                  const Tab(icon: Icon(Icons.list_alt), text: 'Iterations'),
-                  const Tab(icon: Icon(Icons.graphic_eq), text: 'Iteration Results'),
+                tabs: const [
+                  Tab(icon: Icon(Icons.list_alt), text: 'Campaigns'),
+                  Tab(icon: Icon(Icons.insert_chart), text: 'Commands'),
                 ],
               ),
             ),
             SizedBox(height: SizeConfig.safeBlockVertical(context) * 2),
             Flexible(
               flex: 5,
-              child: BlocBuilder<ALHubBloc, ALHubState>(
-                builder: (context, state) {
-                  return const TabBarView(
-                    children: [
-                      ALIterationsListView(),
-                      ALIterationResultView(),
-                    ],
-                  );
-                },
+              child: TabBarView(
+                children: [
+                  const ALIterationResultView(), // TODO
+                  BiocentralCommandView(commandWidgets: widget.commandWidgets),
+                ],
               ),
             ),
           ],

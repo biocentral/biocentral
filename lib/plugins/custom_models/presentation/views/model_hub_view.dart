@@ -3,10 +3,13 @@ import 'package:biocentral/plugins/custom_models/presentation/views/model_compar
 import 'package:biocentral/plugins/custom_models/presentation/views/model_list_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/animations/biocentral_blinking_animation.dart';
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
 import 'package:flutter/material.dart';
 
 class ModelHubView extends StatefulWidget {
-  const ModelHubView({super.key});
+  final List<Widget> commandWidgets;
+
+  const ModelHubView({required this.commandWidgets, super.key});
 
   @override
   State<ModelHubView> createState() => _ModelHubViewState();
@@ -33,7 +36,7 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
   Widget build(BuildContext context) {
     super.build(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -55,6 +58,7 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
                       return buildComparisonTab();
                     },
                   ),
+                  const Tab(icon: Icon(Icons.insert_chart), text: 'Commands'),
                 ],
               ),
             ),
@@ -70,6 +74,7 @@ class _ModelHubViewState extends State<ModelHubView> with AutomaticKeepAliveClie
                   ModelComparisonView(
                     modelsToCompare: modelsToCompare,
                   ),
+                  BiocentralCommandView(commandWidgets: widget.commandWidgets),
                 ],
               ),
             ),

@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/domain/biocentral_command_log_repository.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
 import 'package:biocentral/sdk/util/path_util.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,38 +13,48 @@ sealed class BiocentralLoadProjectEvent {}
 
 final class BiocentralLoadProjectFromDirectoryEvent extends BiocentralLoadProjectEvent {
   final String projectDir;
+  final BuildContext context;
 
-  BiocentralLoadProjectFromDirectoryEvent(this.projectDir);
+  BiocentralLoadProjectFromDirectoryEvent(this.projectDir, this.context);
 }
 
 @immutable
-final class BiocentralLoadProjectState extends BiocentralCommandState<BiocentralLoadProjectState> {
-  const BiocentralLoadProjectState(super.stateInformation, super.status);
+final class BiocentralLoadProjectState extends Equatable {
+  final BiocentralCommandMetaData metaData; // MetaData to log load progress
+  final BiocentralLoadProjectStatus status;
 
-  const BiocentralLoadProjectState.idle() : super.idle();
+  const BiocentralLoadProjectState(this.metaData, this.status);
+
+  BiocentralLoadProjectState.idle()
+      : metaData = BiocentralCommandMetaData.initialize(),
+        status = BiocentralLoadProjectStatus.idle;
 
   @override
-  BiocentralLoadProjectState newState(
-      BiocentralCommandStateInformation stateInformation, BiocentralCommandStatus status,) {
-    return BiocentralLoadProjectState(stateInformation, status);
-  }
-
-  @override
-  List<Object?> get props => [stateInformation, status];
+  List<Object?> get props => [metaData, status];
 }
+
+enum BiocentralLoadProjectStatus { idle, loading, errored, done }
 
 class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, BiocentralLoadProjectState> {
   final BiocentralProjectRepository _projectRepository;
-  final List<Bloc> _loadProjectBlocs;
+  final BiocentralCommandLogRepository _commandLogRepository;
+  final BiocentralCommandBloc _commandBloc;
   final List<BiocentralPluginDirectory> _pluginDirectories;
 
   String? lastProjectDir;
 
-  BiocentralLoadProjectBloc(this._projectRepository, this._loadProjectBlocs, this._pluginDirectories)
-      : super(const BiocentralLoadProjectState.idle()) {
+  BiocentralLoadProjectBloc(
+      this._projectRepository, this._commandLogRepository, this._commandBloc, this._pluginDirectories)
+      : super(BiocentralLoadProjectState.idle()) {
     on<BiocentralLoadProjectFromDirectoryEvent>((event, emit) async {
       if (kIsWeb) {
-        return emit(state.setFinished(information: 'Web - nothing to load'));
+        return emit(
+          BiocentralLoadProjectState(
+            state.metaData
+                .finish(const BiocentralCommandProgress(information: 'Web - nothing to load', current: 0, total: 0)),
+            BiocentralLoadProjectStatus.done,
+          ),
+        );
       }
 
       if (lastProjectDir == event.projectDir) {
@@ -50,9 +63,15 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
 
       try {
         _projectRepository.enterProjectLoadingContext();
+        _commandLogRepository.enterProjectLoadingContext();
         lastProjectDir = event.projectDir;
 
-        emit(state.setOperating(information: 'Scanning project directory..'));
+        emit(
+          BiocentralLoadProjectState(
+            state.metaData.logInfo('Scanning project directory..'),
+            BiocentralLoadProjectStatus.loading,
+          ),
+        );
         final PathScanResult scanResult = PathScanner.scanDirectory(event.projectDir);
 
         // Handle top-level files
@@ -60,31 +79,33 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
             .where((file) => file.name.contains('command_log') && file.extension == 'json')
             .firstOrNull;
         if (commandLogFile != null) {
-          emit(state.setOperating(information: 'Loading command log..'));
-          await _projectRepository.loadCommandLog(commandLogFile);
-        }
-        final commandLogs = _projectRepository.getCommandLog();
+          emit(
+            BiocentralLoadProjectState(
+              state.metaData.logInfo('Loading command log..'),
+              BiocentralLoadProjectStatus.loading,
+            ),
+          );
+          final commandLogLoadedEither = await _projectRepository.handleLoad(xFile: commandLogFile);
 
-        final typedCommandBlocMap = convertListToTypeMap(_loadProjectBlocs);
+          await _commandLogRepository.loadCommandLog(commandLogLoadedEither);
+        }
 
         for (final pluginDirectory in _pluginDirectories) {
-          emit(state.setOperating(information: 'Loading ${pluginDirectory.path}..'));
+          emit(
+            BiocentralLoadProjectState(
+              state.metaData.logInfo('Loading ${pluginDirectory.path}..'),
+              BiocentralLoadProjectStatus.loading,
+            ),
+          );
           await Future.delayed(const Duration(milliseconds: 50)); // For visual purposes
 
           final pluginScanResult = scanResult.subdirectoryResults[pluginDirectory.path];
 
-          final commandBloc = typedCommandBlocMap[pluginDirectory.commandBlocType];
-          if (commandBloc == null) {
-            throw Exception(
-              'Could not find correct way to handle loading for directory ${pluginDirectory.path}!',
-            );
-          }
-
           final pluginFiles = pluginScanResult?.baseFiles ?? [];
           final pluginSubdirs = pluginScanResult?.getAllSubdirectoryFiles() ?? {};
 
-          final List<void Function()> loadFunctions =
-              pluginDirectory.createDirectoryLoadingEvents(pluginFiles, pluginSubdirs, commandLogs, commandBloc);
+          final List<void Function(BuildContext)> loadFunctions =
+              pluginDirectory.createDirectoryLoadingEvents(pluginFiles, pluginSubdirs);
 
           if (loadFunctions.isNotEmpty) {
             int completedLoads = 0;
@@ -92,33 +113,61 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
 
             for (final function in loadFunctions) {
               try {
-                await _executeLoadingFunction(function, commandBloc);
+                if (!event.context.mounted) {
+                  // Error
+                  throw Exception('Error loading file in ${pluginDirectory.path}: Context not mounted!');
+                }
+                await _executeLoadingFunction(function, event.context);
                 completedLoads++;
-                emit(state.setOperating(
-                    information: 'Loading progress for ${pluginDirectory.path}: $completedLoads/$totalLoads',),);
+                emit(
+                  BiocentralLoadProjectState(
+                    state.metaData.logInfo('Loading progress for ${pluginDirectory.path}: $completedLoads/$totalLoads'),
+                    BiocentralLoadProjectStatus.loading,
+                  ),
+                );
               } catch (e) {
                 throw Exception('Error loading file in ${pluginDirectory.path}: ${e.toString()}');
               }
             }
-
-            emit(state.setOperating(information: 'Loaded all files in ${pluginDirectory.path}!'));
+            emit(
+              BiocentralLoadProjectState(
+                state.metaData.logInfo('Loaded all files in ${pluginDirectory.path}!'),
+                BiocentralLoadProjectStatus.loading,
+              ),
+            );
           }
         }
-
-        emit(state.setFinished(information: 'Project loading completed successfully!'));
+        return emit(
+          BiocentralLoadProjectState(
+            state.metaData.finish(
+              const BiocentralCommandProgress(
+                information: 'Project loading completed successfully!',
+                current: 0,
+                total: 0,
+              ),
+            ),
+            BiocentralLoadProjectStatus.done,
+          ),
+        );
       } catch (e) {
-        emit(state.setErrored(information: e.toString()));
+        return emit(
+          BiocentralLoadProjectState(
+            state.metaData.logError(e.toString()),
+            BiocentralLoadProjectStatus.errored,
+          ),
+        );
       } finally {
         _projectRepository.exitProjectLoadingContext();
+        _commandLogRepository.exitProjectLoadingContext();
       }
     });
   }
 
-  Future<void> _executeLoadingFunction(Function() loadFunction, Bloc commandBloc) async {
+  Future<void> _executeLoadingFunction(void Function(BuildContext) loadFunction, BuildContext context) async {
     final completer = Completer<void>();
     late StreamSubscription subscription;
 
-    subscription = commandBloc.stream.listen(
+    subscription = _commandBloc.stream.listen(
       (commandBlocState) {
         if (commandBlocState.isFinished()) {
           if (!completer.isCompleted) {
@@ -126,7 +175,9 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
           }
         } else if (commandBlocState.isErrored()) {
           if (!completer.isCompleted) {
-            completer.completeError(commandBlocState.stateInformation);
+            completer.completeError(
+              commandBlocState.currentCommandLog?.metaData.error ?? 'Loading failed with unknown error',
+            );
           }
         }
       },
@@ -138,7 +189,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
     );
 
     try {
-      loadFunction();
+      loadFunction(context);
       await completer.future;
     } finally {
       await subscription.cancel();

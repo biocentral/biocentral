@@ -9,12 +9,6 @@ class BiocentralDatabaseUpdatedEvent extends BiocentralEvent {
   BiocentralDatabaseUpdatedEvent();
 }
 
-class BiocentralCommandStateChangedEvent extends BiocentralEvent {
-  final BiocentralCommandState state;
-
-  BiocentralCommandStateChangedEvent(this.state);
-}
-
 class BiocentralResumableCommandFinishedEvent extends BiocentralEvent {
   final BiocentralCommandLog finishedCommand;
 

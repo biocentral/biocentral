@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/embeddings/data/embeddings_service_api.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
-import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
+import 'package:biocentral/plugins/embeddings/domain/projections_repository.dart';
+import 'package:biocentral/plugins/embeddings/model/projection.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -9,31 +9,31 @@ import 'package:flutter/foundation.dart';
 
 sealed class EmbeddingsHubEvent {}
 
-final class EmbeddingsHubLoadEvent extends EmbeddingsHubEvent {
+final class _EmbeddingsHubUpdateEmbeddingsInternalEvent extends EmbeddingsHubEvent {
+  final EmbeddingsDatabaseDTO dto;
+
+  _EmbeddingsHubUpdateEmbeddingsInternalEvent(this.dto);
+}
+
+final class _EmbeddingsHubUpdateProjectionsInternalEvent extends EmbeddingsHubEvent {
+  final List<Projection> projections;
+
+  _EmbeddingsHubUpdateProjectionsInternalEvent(this.projections);
+}
+
+final class _EmbeddingsHubUpdateEntityDatabaseInternalEvent extends EmbeddingsHubEvent {
+  final Map<String, BioEntity> entityMap;
+
+  _EmbeddingsHubUpdateEntityDatabaseInternalEvent(this.entityMap);
+}
+
+final class EmbeddingsHubSelectEntityTypeEvent extends EmbeddingsHubEvent {
   final Type? entityType;
 
-  EmbeddingsHubLoadEvent(this.entityType);
+  EmbeddingsHubSelectEntityTypeEvent(this.entityType);
 }
 
 final class EmbeddingsHubReloadEvent extends EmbeddingsHubEvent {}
-
-final class EmbeddingsHubSelectEmbedderEvent extends EmbeddingsHubEvent {
-  final String? embedderName;
-
-  EmbeddingsHubSelectEmbedderEvent(this.embedderName);
-}
-
-final class EmbeddingsHubSelectEmbeddingTypeEvent extends EmbeddingsHubEvent {
-  final EmbeddingType? embeddingType;
-
-  EmbeddingsHubSelectEmbeddingTypeEvent(this.embeddingType);
-}
-
-final class EmbeddingsHubSelectEntityIDEvent extends EmbeddingsHubEvent {
-  final String? entityID;
-
-  EmbeddingsHubSelectEntityIDEvent(this.entityID);
-}
 
 final class EmbeddingsHubVisualizeOnProtspaceEvent extends EmbeddingsHubEvent {
   final Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
@@ -50,108 +50,88 @@ final class EmbeddingsHubSaveProjectionPlotEvent extends EmbeddingsHubEvent {
 @immutable
 final class EmbeddingsHubState extends Equatable {
   final Type? selectedEntityType;
-
-  final EmbeddingsColumnWizard? embeddingsColumnWizard;
-  final String? selectedEmbedderName;
-  final EmbeddingType? selectedEmbeddingType;
-
-  final String? selectedEntityID;
-
-  final Map<ProjectionData, List<Map<String, dynamic>>>? projectionData;
-
-  final String? protspaceURL;
+  final EmbeddingsDatabaseDTO? dto;
+  final List<Projection> projections;
+  final Map<String, BioEntity> entityMap;
 
   final EmbeddingsHubStatus status;
 
   const EmbeddingsHubState(
     this.status,
-    this.embeddingsColumnWizard,
-    this.selectedEmbedderName,
-    this.selectedEmbeddingType,
+    this.dto,
     this.selectedEntityType,
-    this.selectedEntityID,
-    this.projectionData,
-    this.protspaceURL,
+    this.projections,
+    this.entityMap,
   );
 
   const EmbeddingsHubState.initial()
       : status = EmbeddingsHubStatus.initial,
         selectedEntityType = null,
-        selectedEmbedderName = null,
-        selectedEmbeddingType = null,
-        selectedEntityID = null,
-        projectionData = null,
-        embeddingsColumnWizard = null,
-        protspaceURL = null;
-
-  const EmbeddingsHubState.loading(
-    this.selectedEntityType,
-    this.embeddingsColumnWizard,
-    this.selectedEmbedderName,
-    this.selectedEmbeddingType,
-    this.selectedEntityID,
-    this.protspaceURL,
-  )   : projectionData = null,
-        status = EmbeddingsHubStatus.loading;
+        dto = null,
+        projections = const [],
+        entityMap = const {};
 
   const EmbeddingsHubState.loaded(
     this.selectedEntityType,
-    this.embeddingsColumnWizard,
-    this.selectedEmbedderName,
-    this.selectedEmbeddingType,
-    this.selectedEntityID,
-    this.projectionData,
-    this.protspaceURL,
+    this.dto,
+    this.projections,
+    this.entityMap,
   ) : status = EmbeddingsHubStatus.loaded;
 
-  EmbeddingsHubState copyWith({
-    Type? selectedEntityType,
-    EmbeddingsColumnWizard? embeddingsColumnWizard,
-    String? selectedEmbedderName,
-    EmbeddingType? selectedEmbeddingType,
-    String? selectedEntityID,
-    Map<ProjectionData, List<Map<String, dynamic>>>? projectionData,
-    String? protspaceURL,
-    EmbeddingsHubStatus? status,
-  }) {
-    return EmbeddingsHubState(
-      status ?? this.status,
-      embeddingsColumnWizard ?? this.embeddingsColumnWizard,
-      selectedEmbedderName ?? this.selectedEmbedderName,
-      selectedEmbeddingType ?? this.selectedEmbeddingType,
-      selectedEntityType ?? this.selectedEntityType,
-      selectedEntityID ?? this.selectedEntityID,
-      projectionData ?? this.projectionData,
-      protspaceURL ?? this.protspaceURL,
-    );
-  }
+  List<Map<String, String>> getPointData() =>
+      entityMap.values.map((entity) => entity.toMap().map((k, v) => MapEntry(k.toString(), v.toString()))).toList();
 
   @override
   List<Object?> get props => [
-        embeddingsColumnWizard,
         selectedEntityType,
-        selectedEmbedderName,
-        selectedEmbeddingType,
-        selectedEntityID,
-        protspaceURL,
+        dto,
+        projections,
+        entityMap,
         status,
       ];
 }
 
-enum EmbeddingsHubStatus { initial, loading, loaded }
+enum EmbeddingsHubStatus { initial, loaded }
 
 class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralColumnWizardRepository _biocentralColumnWizardRepository;
   final BiocentralDatabaseRepository _biocentralDatabaseRepository;
   final EmbeddingsRepository _embeddingsRepository;
+  final ProjectionsRepository _projectionsRepository;
 
   EmbeddingsHubBloc(
     this._biocentralProjectRepository,
     this._biocentralColumnWizardRepository,
     this._biocentralDatabaseRepository,
     this._embeddingsRepository,
+    this._projectionsRepository,
   ) : super(const EmbeddingsHubState.initial()) {
+    on<_EmbeddingsHubUpdateEmbeddingsInternalEvent>((event, emit) {
+      emit(EmbeddingsHubState.loaded(state.selectedEntityType, event.dto, state.projections, state.entityMap));
+    });
+    on<_EmbeddingsHubUpdateProjectionsInternalEvent>((event, emit) {
+      emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.dto, event.projections, state.entityMap));
+    });
+    on<_EmbeddingsHubUpdateEntityDatabaseInternalEvent>((event, emit) {
+      emit(EmbeddingsHubState.loaded(state.selectedEntityType, state.dto, state.projections, event.entityMap));
+    });
+    on<EmbeddingsHubSelectEntityTypeEvent>((event, emit) {
+      // TODO Make generic for selected entity type (current only protein)
+      emit(EmbeddingsHubState.loaded(event.entityType, state.dto, state.projections, state.entityMap));
+    });
+
+    on<EmbeddingsHubSaveProjectionPlotEvent>((event, emit) async {
+      if (event.imageBytes != null) {
+        // TODO Error handling, State handling, Custom File name
+        final saveEither = await _biocentralProjectRepository.handleImageSave(imageBytes: event.imageBytes!);
+        saveEither.match((saveError) {}, (fullPath) {});
+      }
+    });
+
+    _setupSubscriptions();
+
+    /*
     on<EmbeddingsHubLoadEvent>((event, emit) async {
       if (event.entityType != null) {
         emit(const EmbeddingsHubState.initial());
@@ -174,7 +154,8 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
           columnType: EmbeddingManager,
         );
 
-        _embeddingsRepository.updateEmbeddingsColumnWizardForType(event.entityType!, embeddingsColumnWizard);
+        // TODO
+        //_embeddingsRepository.updateEmbeddingsColumnWizardForType(event.entityType!, embeddingsColumnWizard);
 
         emit(
           EmbeddingsHubState.loaded(
@@ -210,16 +191,18 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
           columnType: EmbeddingManager,
         );
 
-        _embeddingsRepository.updateEmbeddingsColumnWizardForType(state.selectedEntityType!, embeddingsColumnWizard);
+        // TODO
+        //_embeddingsRepository.updateEmbeddingsColumnWizardForType(state.selectedEntityType!, embeddingsColumnWizard);
         emit(
           EmbeddingsHubState.loaded(
-              state.selectedEntityType,
-              embeddingsColumnWizard,
-              state.selectedEmbedderName,
-              state.selectedEmbeddingType,
-              state.selectedEntityID,
-              _loadProjectionData(state.selectedEmbedderName, state.selectedEmbeddingType),
-              state.protspaceURL,),
+            state.selectedEntityType,
+            embeddingsColumnWizard,
+            state.selectedEmbedderName,
+            state.selectedEmbeddingType,
+            state.selectedEntityID,
+            _loadProjectionData(state.selectedEmbedderName, state.selectedEmbeddingType),
+            state.protspaceURL,
+          ),
         );
       }
     });
@@ -269,9 +252,10 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
       if (event.projectionData != null) {
         // TODO Error handling, File name
         final saveEither = await _biocentralProjectRepository.handleProjectInternalSave(
-            fileName: 'protspace.html',
-            type: ProjectionData,
-            contentFunction: () async => ProtspaceFileHandler.createProtspaceHTML(event.projectionData!),);
+          fileName: 'protspace.html',
+          type: ProjectionData,
+          contentFunction: () async => ProtspaceFileHandler.createProtspaceHTML(event.projectionData!),
+        );
         saveEither.match((saveError) {}, (fullPath) {
           final url = 'file://$fullPath';
           emit(state.copyWith(protspaceURL: url));
@@ -279,20 +263,20 @@ class EmbeddingsHubBloc extends Bloc<EmbeddingsHubEvent, EmbeddingsHubState> {
       }
     });
 
-    on<EmbeddingsHubSaveProjectionPlotEvent>((event, emit) async {
-      if (event.imageBytes != null) {
-        // TODO Error handling, State handling, Custom File name
-        final saveEither = await _biocentralProjectRepository.handleImageSave(imageBytes: event.imageBytes!);
-        saveEither.match((saveError) {}, (fullPath) {});
-      }
-    });
+     */
   }
 
-  Map<ProjectionData, List<Map<String, dynamic>>>? _loadProjectionData(
-      String? embedderName, EmbeddingType? embeddingType,) {
-    if (embedderName != null && embeddingType != null && embeddingType == EmbeddingType.perSequence) {
-      return _embeddingsRepository.getProjectionDataMap(embedderName);
-    }
-    return null;
+  void _setupSubscriptions() {
+    _embeddingsRepository.databaseStream.listen((dto) {
+      add(_EmbeddingsHubUpdateEmbeddingsInternalEvent(dto));
+    });
+    _projectionsRepository.databaseStream.listen((projections) {
+      add(_EmbeddingsHubUpdateProjectionsInternalEvent(projections));
+    });
+    // TODO Generic
+    final proteinRepository = _biocentralDatabaseRepository.getFromType(Protein);
+    proteinRepository?.databaseStream.listen((entityMap) {
+      add(_EmbeddingsHubUpdateEntityDatabaseInternalEvent(entityMap));
+    });
   }
 }

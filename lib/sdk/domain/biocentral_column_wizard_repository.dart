@@ -1,3 +1,4 @@
+import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/model/column_wizard_defaults.dart';
 import 'package:flutter/material.dart';
@@ -33,13 +34,12 @@ class BiocentralColumnWizardRepository {
   }
 
   Future<T> getColumnWizardForColumn<T extends ColumnWizard>({
-    required String columnName,
-    required Map<String, dynamic> valueMap,
+    required BiocentralDatabaseColumn column,
     Type? columnType,
   }) async {
-    columnType ??= await _detectColumnType(valueMap.values);
+    columnType ??= await _detectColumnType(column.values.values);
     if (_factories.containsKey(columnType)) {
-      final columnWizard = _factories[columnType]!.create(columnName: columnName, valueMap: valueMap) as T;
+      final columnWizard = _factories[columnType]!.create(columnName: column.name, valueMap: column.values) as T;
       return columnWizard;
     }
     // TODO Exception handling

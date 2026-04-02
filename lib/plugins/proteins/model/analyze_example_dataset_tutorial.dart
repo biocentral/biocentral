@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:biocentral/plugins/proteins/bloc/proteins_command_bloc.dart';
-import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_asset_datasets_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_column_wizard_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/proteins_command_view.dart';
 import 'package:biocentral/plugins/proteins/protein_plugin.dart';
+import 'package:biocentral/sdk/bloc/biocentral_command_bloc.dart';
 import 'package:biocentral/sdk/bloc/biocentral_events.dart';
 import 'package:biocentral/sdk/bloc/column_wizard_bloc.dart';
 import 'package:flutter/material.dart';
@@ -38,45 +37,46 @@ class AnalyzeExampleDatasetTutorial implements Tutorial {
           );
           break;
         }
-      case final ProteinsCommandView proteinsCommandView:
-        {
-          final ProteinsCommandBloc? proteinsCommandBloc = proteinsCommandView.getProteinsCommandBloc(state);
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.showProteinAssetDatasetsButton,
-            proteinsCommandView.getLoadProteinsExampleDatasetsButtonKey(state),
-          );
-          tutorialRepository.registerCondition(
-            AnalyzeExampleDatasetTutorialID.amylaseDatasetImported,
-            (timeout) => TutorialStepWithWaiting.conditionWithTimeout(
-              timeout,
-              () => proteinsCommandBloc?.state.isFinished() ?? false,
-            ),
-          );
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.showProteinsColumnWizardButton,
-            proteinsCommandView.getShowProteinsColumnWizardButtonKey(state),
-          );
-          break;
-        }
-      case final ProteinAssetDatasetsDialog proteinAssetDatasetDialog:
-        {
-          tutorialRepository.registerContext(
-            AnalyzeExampleDatasetTutorialID.proteinAssetDatasetsDialogContext,
-            proteinAssetDatasetDialog.getDialogContext(state),
-          );
-          tutorialRepository.registerKeys(proteinAssetDatasetDialog.getAssetDatasetKeys(state));
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.proteinAssetDatasetsDialogImportButton,
-            proteinAssetDatasetDialog.getImportButtonKey(state),
-          );
-          tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.amylaseDatasetSelected, (timeout) async {
-            bool condition() =>
-                proteinAssetDatasetDialog.getSelectedAssetDataset(state)?.tutorialID ==
-                AnalyzeExampleDatasetTutorialID.amylaseDatasetSelector;
-            return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
-          });
-          break;
-        }
+      // TODO
+      //case final ProteinsCommandView proteinsCommandView:
+      //  {
+      //    final BiocentralCommandBloc? commandBloc = proteinsCommandView.getCommandBloc(state);
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.showProteinAssetDatasetsButton,
+      //      proteinsCommandView.getLoadProteinsExampleDatasetsButtonKey(state),
+      //    );
+      //    tutorialRepository.registerCondition(
+      //      AnalyzeExampleDatasetTutorialID.amylaseDatasetImported,
+      //      (timeout) => TutorialStepWithWaiting.conditionWithTimeout(
+      //        timeout,
+      //        () => commandBloc?.state.isFinished() ?? false,
+      //      ),
+      //    );
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.showProteinsColumnWizardButton,
+      //      proteinsCommandView.getShowProteinsColumnWizardButtonKey(state),
+      //    );
+      //    break;
+      //  }
+      //case final ProteinAssetDatasetsDialog proteinAssetDatasetDialog:
+      //  {
+      //    tutorialRepository.registerContext(
+      //      AnalyzeExampleDatasetTutorialID.proteinAssetDatasetsDialogContext,
+      //      proteinAssetDatasetDialog.getDialogContext(state),
+      //    );
+      //    tutorialRepository.registerKeys(proteinAssetDatasetDialog.getAssetDatasetKeys(state));
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.proteinAssetDatasetsDialogImportButton,
+      //      proteinAssetDatasetDialog.getImportButtonKey(state),
+      //    );
+      //    tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.amylaseDatasetSelected, (timeout) async {
+      //      bool condition() =>
+      //          proteinAssetDatasetDialog.getSelectedAssetDataset(state)?.tutorialID ==
+      //          AnalyzeExampleDatasetTutorialID.amylaseDatasetSelector;
+      //      return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
+      //    });
+      //    break;
+      //  }
       case final ProteinColumnWizardDialog proteinColumnWizardDialog:
         {
           final ColumnWizardBloc? columnWizardBloc = proteinColumnWizardDialog.getColumnWizardBloc(state);

@@ -101,7 +101,7 @@ class BiotrainerFileHandler {
     PredictionModel? result = const PredictionModel.empty();
     // Output file should have the highest authority => Loaded first
     if (biotrainerOutput != null) {
-      result = PredictionModel.fromMap(biotrainerOutput);
+      result = PredictionModel.deserialize(biotrainerOutput);
     }
     // Output file and config file should have no contradictions => failOnConflict always true
     if (biotrainerConfig != null) {

@@ -11,8 +11,10 @@ dependencies:
   archive: ^3.6.1
   async: ^2.11.0
   auto_size_text: ^3.0.0
-  bio_flutter: ^0.0.10
-  biocentral_api: ^1.1.0
+  bio_flutter:
+    path: ../bio_flutter
+  biocentral_api:
+    path: ../../PycharmProjects/biocentral_api/dart
   bloc: ^8.1.3
   bloc_effects: ^1.0.4
   collection: ^1.18.0

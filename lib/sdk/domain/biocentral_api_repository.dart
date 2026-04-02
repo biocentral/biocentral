@@ -11,11 +11,11 @@ class BiocentralAPIRepository {
 
   Stream<List<BiocentralAPIHealth>> get healthStatusStream => _healthStatusController.stream;
 
-  final List<BiocentralAPIHealth> initialAPIHealthData;
+  List<BiocentralAPIHealth>? _currentAPIHealth;
 
   final BiocentralHubServerClient _hubServerClient = BiocentralHubServerClient('https://hub.biocentral.cloud');
 
-  BiocentralAPIRepository(this._biocentralAPI) : initialAPIHealthData = _biocentralAPI.getHealthStatus();
+  BiocentralAPIRepository(this._biocentralAPI) : _currentAPIHealth = _biocentralAPI.getHealthStatus();
 
   BiocentralAPI getBiocentralAPI() {
     return _biocentralAPI;
@@ -28,8 +28,11 @@ class BiocentralAPIRepository {
   void checkHealth() async {
     _biocentralAPI = await _biocentralAPI.updateHealthStatus();
     final List<BiocentralAPIHealth> healthInformationToStream = _biocentralAPI.getHealthStatus();
+    _currentAPIHealth = healthInformationToStream;
     _healthStatusController.add(healthInformationToStream);
   }
+
+  List<BiocentralAPIHealth> get currentHealth => _currentAPIHealth ?? [];
 
 //BiocentralAPIRepository.withReload(BiocentralAPIRepository? old) {
 //  _clientManager.setServer(old?._clientManager._server);

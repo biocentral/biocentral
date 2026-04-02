@@ -55,7 +55,7 @@ class BiocentralTaskDisplay extends StatefulWidget {
       children: [
         Table(
           children: metaData
-              .toMap()
+              .serialize()
               .entries
               .map((entry) => TableRow(children: [Text(entry.key.toString()), Text(entry.value.toString())]))
               .toList(),

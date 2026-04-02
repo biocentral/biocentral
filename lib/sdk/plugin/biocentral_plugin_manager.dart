@@ -1,7 +1,10 @@
 import 'dart:collection';
 
+import 'package:biocentral/plugins/active_learning/active_learning_plugin.dart';
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
+import 'package:biocentral/plugins/custom_models/custom_models_plugin.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:equatable/equatable.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -10,20 +13,21 @@ import 'package:tutorial_system/tutorial_system.dart';
 
 @immutable
 class BiocentralPluginManager extends Equatable {
-  static final EventBus eventBus = EventBus();
-
-  final Set<BiocentralPlugin> activePlugins;
+  final EventBus eventBus;
+  final List<BiocentralPlugin> activePlugins;
   final Set<BiocentralPlugin> allAvailablePlugins;
 
   final _BiocentralPluginProperties _biocentralPluginProperties;
 
   factory BiocentralPluginManager({
+    required EventBus eventBus,
     required BiocentralProjectRepository projectRepository,
+    required BiocentralPythonCompanion companion,
     BuildContext? context,
     Set<BiocentralPlugin>? availablePlugins,
     Set<BiocentralPlugin>? selectedPlugins,
   }) {
-    final allPluginsAndDefaultSelected = _loadCorePlugins();
+    final allPluginsAndDefaultSelected = _loadCorePlugins(eventBus);
 
     final Set<BiocentralPlugin> allAvailablePlugins = availablePlugins ?? allPluginsAndDefaultSelected.$1;
     final Set<BiocentralPlugin> allSelectedPlugins = selectedPlugins ?? allPluginsAndDefaultSelected.$2;
@@ -37,22 +41,24 @@ class BiocentralPluginManager extends Equatable {
     );
 
     final _BiocentralPluginProperties biocentralPluginProperties =
-        _BiocentralPluginProperties(activePlugins, context, projectRepository);
-    return BiocentralPluginManager._(Set.from(activePlugins), allAvailablePlugins, biocentralPluginProperties);
+        _BiocentralPluginProperties(activePlugins, context, projectRepository, companion);
+    return BiocentralPluginManager._(
+        eventBus, List.from(activePlugins), allAvailablePlugins, biocentralPluginProperties);
   }
 
-  const BiocentralPluginManager._(this.activePlugins, this.allAvailablePlugins, this._biocentralPluginProperties);
+  const BiocentralPluginManager._(
+      this.eventBus, this.activePlugins, this.allAvailablePlugins, this._biocentralPluginProperties);
 
-  static (Set<BiocentralPlugin>, Set<BiocentralPlugin>) _loadCorePlugins() {
+  static (Set<BiocentralPlugin>, Set<BiocentralPlugin>) _loadCorePlugins(EventBus eventBus) {
     final ProteinPlugin proteinPlugin = ProteinPlugin(eventBus);
     // TODO PPI Plugin and ALPlugin Temporarily disabled
     //final PpiPlugin ppiPlugin = PpiPlugin(eventBus);
     final EmbeddingsPlugin embeddingsPlugin = EmbeddingsPlugin(eventBus);
     final CustomModelsPlugin customModelsPlugin = CustomModelsPlugin(eventBus);
-    // final ALPlugin alPlugin = ALPlugin(eventBus);
+    final ALPlugin alPlugin = ALPlugin(eventBus);
     return (
-      {proteinPlugin, embeddingsPlugin, customModelsPlugin}, // All
-      {proteinPlugin, embeddingsPlugin, customModelsPlugin}, // Default Selected
+      {proteinPlugin, embeddingsPlugin, customModelsPlugin, alPlugin}, // All
+      {proteinPlugin, embeddingsPlugin, customModelsPlugin, alPlugin}, // Default Selected
     );
   }
 
@@ -102,6 +108,7 @@ class _BiocentralPluginProperties {
     Set<BiocentralPlugin> activePlugins,
     BuildContext? context,
     BiocentralProjectRepository projectRepository,
+    BiocentralPythonCompanion companion,
   ) {
     final List<BiocentralDatabase> availableDatabases = [];
     final List<RepositoryProvider> pluginRepositories = [];
@@ -118,7 +125,7 @@ class _BiocentralPluginProperties {
           }
         } finally {
           // TODO [BUG] Create empty database without example data or sync
-          database ??= plugin.createListeningDatabase(projectRepository);
+          database ??= plugin.createListeningDatabase(projectRepository, companion);
         }
 
         if (database is BiocentralDatabase) {
@@ -126,6 +133,29 @@ class _BiocentralPluginProperties {
         }
         pluginRepositories.add(plugin.createRepositoryProvider(database));
 
+        // Directory
+        final pluginDirectories = plugin.getPluginDirectories();
+        for (final pluginDirectory in pluginDirectories) {
+          projectRepository.registerPluginDirectory(pluginDirectory.saveType, pluginDirectory);
+        }
+      }
+      if (plugin is BiocentralMultiDatabasePluginMixin) {
+        // Multiple databases
+        List<dynamic> databases = [];
+        try {
+          if (context != null) {
+            databases = plugin.getDatabasesIfAvailable(context) ?? [];
+          }
+        } finally {
+          // TODO [BUG] Create empty database without example data or sync
+          databases = plugin.createDatabases(projectRepository, companion);
+        }
+        for (dynamic database in databases) {
+          if (database is BiocentralDatabase) {
+            availableDatabases.add(database);
+          }
+        }
+        pluginRepositories.addAll(plugin.createRepositoryProviders(databases));
         // Directory
         final pluginDirectories = plugin.getPluginDirectories();
         for (final pluginDirectory in pluginDirectories) {

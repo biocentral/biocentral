@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 import 'package:yaml/yaml.dart';
 
 class BiocentralGenericConfigHandler {
@@ -8,14 +8,13 @@ class BiocentralGenericConfigHandler {
 
   BiocentralGenericConfigHandler(this._handlingStrategy);
 
-  Future<Map<BiocentralConfigOption, dynamic>> parse(
-      String? fileContent, Map<BiocentralConfigOption, dynamic> configMap,) async {
+  Future<Map<String, dynamic>> parse(String? fileContent, Map<String, dynamic> configMap,) async {
     final resultMap = Map.of(configMap);
     final configFileMap = await _handlingStrategy.parse(fileContent);
 
     for (final key in configMap.keys) {
-      if (configFileMap.containsKey(key.name)) {
-        resultMap[key] = configFileMap[key.name];
+      if (configFileMap.containsKey(key)) {
+        resultMap[key] = configFileMap[key];
       }
     }
     return resultMap;

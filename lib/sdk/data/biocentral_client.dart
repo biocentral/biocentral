@@ -12,15 +12,15 @@ import 'package:http/http.dart';
 class DownloadProgress {
   final int bytesReceived;
   final int? totalBytes;
-  final double? progress;
   final Uint8List bytes;
 
-  const DownloadProgress(this.bytesReceived, this.totalBytes, this.bytes)
-      : progress = totalBytes != null ? bytesReceived / totalBytes : null;
+  const DownloadProgress(this.bytesReceived, this.totalBytes, this.bytes);
 
   bool isDone() {
     return totalBytes == null ? false : bytesReceived == totalBytes;
   }
+
+  double? progress() => totalBytes != null ? (bytesReceived / totalBytes!) : null;
 }
 
 final class _ClientSandbox {

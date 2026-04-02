@@ -1,8 +1,8 @@
-import 'package:biocentral/plugins/active_learning/model/al_training_result.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
+/*
 class ALAddExperimentalDataDialog extends StatefulWidget {
   final ALTrainingResult currentResult;
   final void Function(Map<String, dynamic>? experimentalData) onFinishedAddingData;
@@ -169,3 +169,4 @@ class _ALAddExperimentalDataDialogState extends State<ALAddExperimentalDataDialo
     );
   }
 }
+*/

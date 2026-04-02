@@ -1,24 +1,20 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
-import 'package:biocentral/sdk/data/biocentral_generic_config_parser.dart';
-import 'package:biocentral/sdk/model/biocentral_config_option.dart';
+import 'package:biocentral/sdk/model/biocentral_config.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BiocentralConfigSelection extends StatefulWidget {
-  final Map<String, List<BiocentralConfigOption>> optionMap;
-  final void Function(String? selectedKey, Map<String, Map<BiocentralConfigOption, dynamic>> config)
-      onConfigChangedCallback;
-  final BiocentralGenericConfigHandler? configHandler;
+  final BiocentralConfig config;
+  final void Function(BiocentralConfig config) onConfigChanged;
   final String? label;
   final bool initiallyExpanded;
   final bool clusterByCategories;
 
   const BiocentralConfigSelection({
-    required this.optionMap,
-    required this.onConfigChangedCallback,
-    this.configHandler,
+    required this.config,
+    required this.onConfigChanged,
     this.label,
     this.initiallyExpanded = true,
     this.clusterByCategories = false,
@@ -32,38 +28,38 @@ class BiocentralConfigSelection extends StatefulWidget {
 class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   final GlobalKey<FormState> _optionsFormKey = GlobalKey<FormState>();
 
-  String? _selectedKey;
-  final Map<String, Map<BiocentralConfigOption, dynamic>> _chosenOptions = {};
+  BiocentralConfig _config = const BiocentralConfig.empty();
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    for (final entry in widget.optionMap.entries) {
-      _chosenOptions.putIfAbsent(
-          entry.key, () => Map.fromEntries(entry.value.map((option) => MapEntry(option, option.defaultValue))),);
-    }
-    if (widget.optionMap.keys.length == 1) {
-      _selectedKey = widget.optionMap.keys.first;
-    }
+    _config = widget.config;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _config = widget.config;
+  }
+
+  @override
+  void didUpdateWidget(covariant BiocentralConfigSelection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _config = widget.config;
   }
 
   void updateConfig(VoidCallback fn) {
-    final oldSelectedKey = _selectedKey;
     fn();
-    if (oldSelectedKey != _selectedKey) {
-      widget.onConfigChangedCallback(_selectedKey, _chosenOptions);
-    } else {
-      if (_optionsFormKey.currentState != null && _optionsFormKey.currentState!.validate()) {
-        widget.onConfigChangedCallback(_selectedKey, _chosenOptions);
-      }
+    if (_optionsFormKey.currentState != null && _optionsFormKey.currentState!.validate()) {
+      widget.onConfigChanged(_config);
     }
     setState(() {});
   }
 
-  Future<void> loadConfigFromFile(XFile configFile, BiocentralProjectRepository projectRepository) async {
-    if (widget.configHandler == null) {
+  Future<void> loadConfigFromFile(XFile? configFile, BiocentralProjectRepository projectRepository) async {
+    if (_config.configHandler == null || configFile == null) {
       return;
     }
     setState(() {
@@ -77,40 +73,24 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
               _isLoading = false;
             }), (loadedFileData) async {
       final configContent = loadedFileData?.content;
-      final Map<String, Map<BiocentralConfigOption, dynamic>> updatedOptions = {};
-      for (final (key, configMap) in _chosenOptions.entriesRecord) {
-        final updatedConfigMap = await widget.configHandler!.parse(configContent, configMap);
-        updatedOptions[key] = updatedConfigMap;
-      }
-      setState(() {
-        _chosenOptions.clear();
-        _chosenOptions.addAll(updatedOptions);
-        _isLoading = false;
-      });
-      updateConfig(() {});
+      _config = await _config.load(configContent);
+
+      updateConfig(
+        () => setState(() {
+          _isLoading = false;
+        }),
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final Widget discreteSelection = widget.optionMap.keys.length > 1
-        ? BiocentralDiscreteSelection(
-            title: widget.label ?? '',
-            selectableValues: widget.optionMap.keys.toList(),
-            onChangedCallback: (String? value) {
-              updateConfig(() {
-                _selectedKey = value;
-              });
-            },
-          )
-        : Container();
     if (_isLoading) {
       return const CircularProgressIndicator();
     }
     return Column(
       children: [
         buildConfigLoading(),
-        discreteSelection,
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: buildConfigOptionsTable(),
@@ -120,33 +100,20 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildConfigLoading() {
-    if (widget.configHandler == null) {
+    if (_config.configHandler == null) {
       return Container();
     }
     final projectRepository = RepositoryProvider.of<BiocentralProjectRepository>(context);
     return BiocentralFilePathSelection(
       defaultName: 'Select existing config file..',
-      fileSelectedCallback: (xFile) => loadConfigFromFile(xFile, projectRepository),
-      allowedExtensions: widget.configHandler?.supportedFileExtensions().toList(),
+      fileSelectedCallback: (xFile, path) => loadConfigFromFile(xFile, projectRepository),
+      allowedExtensions: _config.configHandler?.supportedFileExtensions().toList(),
     );
   }
 
   int _getNumberOfColumns(int numberOfOptions) {
     // TODO [Refactoring] Adjust dynamically also based on window size
-    if (numberOfOptions % 4 == 0) return 4;
-    if (numberOfOptions % 3 == 0) return 3;
     return 2;
-  }
-
-  Map<String, List<BiocentralConfigOption>> _clusterByCategory(List<BiocentralConfigOption> options) {
-    final String fallbackName = 'other';
-    final Map<String, List<BiocentralConfigOption>> result = {};
-    for (final option in options) {
-      final optionCategory = option.category ?? fallbackName;
-      result.putIfAbsent(optionCategory, () => []);
-      result[optionCategory]?.add(option);
-    }
-    return result;
   }
 
   Widget _buildTable(List<BiocentralConfigOption> options) {
@@ -175,17 +142,17 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
 
   Widget buildConfigOptionsTable() {
     final String placeholder = '%placeholder%Key%!';
-    var options = {placeholder: widget.optionMap[_selectedKey] ?? []};
-    if (_selectedKey == null || options.isEmpty) {
+    var options = {placeholder: _config.options};
+    if (options.isEmpty) {
       return Container();
     }
     if (widget.clusterByCategories) {
-      options = _clusterByCategory(options[placeholder]?.toList() ?? []);
+      options = _config.clusterByCategory();
     }
     return Form(
       key: _optionsFormKey,
       child: ExpansionTile(
-        title: Text('$_selectedKey-specific Configuration:'),
+        title: Text('${widget.label}-specific Configuration:'),
         initiallyExpanded: widget.initiallyExpanded,
         children: [
           if (options.length == 1)
@@ -244,7 +211,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: TextFormField(
-          initialValue: _chosenOptions[_selectedKey]?[option].toString() ?? defaultValue,
+          initialValue: _config.currentValueForKey(option.name).toString() ?? defaultValue,
           textAlign: TextAlign.center,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: option.constraints?.validator,
@@ -253,12 +220,12 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
               final (valid, error, parsedValue) = option.constraints!.validate(newValue);
               if (valid) {
                 updateConfig(() {
-                  _chosenOptions[_selectedKey]?[option] = parsedValue;
+                  _config.update(option.name, parsedValue);
                 });
               }
             } else {
               updateConfig(() {
-                _chosenOptions[_selectedKey]?[option] = newValue;
+                _config.update(option.name, newValue);
               });
             }
           },
@@ -270,11 +237,11 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   Widget buildSelectionOption(BiocentralConfigOption option) {
     final allowedValues = option.constraints?.allowedValues ?? {};
     final dynamic defaultValue = option.defaultValue.toString();
-    var chosenOption = _chosenOptions[_selectedKey]?[option];
+    var currentValue = _config.currentValueForKey(option.name);
 
-    if (chosenOption == null || chosenOption == '') {
-      chosenOption = defaultValue != '' ? defaultValue : allowedValues.first;
-      _chosenOptions[_selectedKey]?[option] = chosenOption;
+    if (currentValue == null || currentValue.toString().isEmpty) {
+      currentValue = defaultValue != '' ? defaultValue : allowedValues.first;
+      _config.update(option.name, currentValue);
     }
 
     return _buildOptionDecoration(
@@ -282,13 +249,12 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
       child: Center(
         child: BiocentralDiscreteSelection(
           title: '',
-          initialValue: chosenOption,
+          initialValue: currentValue,
           selectableValues: allowedValues.toList(),
           onChangedCallback: (dynamic value) {
-            if (value != _chosenOptions[_selectedKey]?[option]) {
+            if (value != currentValue) {
               updateConfig(() {
-                chosenOption = value;
-                _chosenOptions[_selectedKey]?[option] = chosenOption;
+                _config.update(option.name, value);
               });
             }
           },
@@ -298,7 +264,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildMapOption(BiocentralConfigOption option) {
-    final Map<dynamic, dynamic> value = _chosenOptions[_selectedKey]?[option] ?? option.defaultValue;
+    final Map<dynamic, dynamic> value = _config.currentValueForKey(option.name) ?? option.defaultValue;
     final int columnsPerRow = 4; // Adjust this number to change the number of columns
 
     return _buildOptionDecoration(
@@ -331,10 +297,10 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
   }
 
   Widget buildMapEntry(
-      BiocentralConfigOption option,
-      MapEntry entry,
-      Map<dynamic, dynamic> value,
-      ) {
+    BiocentralConfigOption option,
+    MapEntry entry,
+    Map<dynamic, dynamic> value,
+  ) {
     return SizedBox(
       width: 120,
       child: InputDecorator(
@@ -352,7 +318,7 @@ class _BiocentralConfigSelectionState extends State<BiocentralConfigSelection> {
             updateConfig(() {
               final newMap = Map.of(value);
               newMap[entry.key] = int.tryParse(newValue) ?? entry.value;
-              _chosenOptions[_selectedKey]?[option] = newMap;
+              _config.update(option.name, newMap);
             });
           },
         ),

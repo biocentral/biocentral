@@ -1,18 +1,29 @@
-import 'package:biocentral/plugins/custom_models/bloc/biotrainer_training_bloc.dart';
 import 'package:biocentral/plugins/custom_models/model/prediction_model.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/displays/biocentral_metrics_display.dart';
+import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
-import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 
 class PredictionModelDisplay extends StatefulWidget {
   final PredictionModel predictionModel;
-  final BiotrainerTrainingState? trainingState;
+  final BiocentralCommandMetaData? metaData;
 
-  const PredictionModelDisplay({required this.predictionModel, this.trainingState, super.key});
+  const PredictionModelDisplay({required this.predictionModel, this.metaData, super.key});
+
+  static Widget visualizePredictionModelResult(BiocentralCommandLog result) {
+    final commandResult = result.result?.result;
+    if (commandResult == null || commandResult is! PredictionModel) {
+      // TODO ERROR HANDLING
+      return BiocentralStatusIndicator(metaData: result.metaData);
+    }
+    return PredictionModelDisplay(
+      predictionModel: commandResult,
+      metaData: result.metaData,
+    );
+  }
 
   @override
   State<PredictionModelDisplay> createState() => _PredictionModelDisplayState();
@@ -23,7 +34,8 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isTraining = widget.trainingState != null;
+    // TODO
+    final bool isTraining = widget.metaData?.endTime != null;
     return isTraining ? buildTrainingModel() : buildTrainedModel();
   }
 
@@ -61,8 +73,8 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
     return buildModelCard(
       title: title,
       leadingIcon: const CircularProgressIndicator(),
-      trailing: widget.trainingState == null ? Container() : BiocentralStatusIndicator(state: widget.trainingState!),
-      subtitle: Text("Task-ID: ${widget.trainingState?.stateInformation.serverTaskID ?? 'Pending..'}"),
+      trailing: widget.metaData == null ? Container() : BiocentralStatusIndicator(metaData: widget.metaData),
+      subtitle: Text("Task-ID: ${widget.metaData?.serverTaskID ?? 'Pending..'}"),
       childrenWithTitles: {
         'Loss Curves': buildLossCurves(widget.predictionModel.holdOutResult),
         'Training Logs': buildLogResult(),
@@ -89,12 +101,11 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
       subtitle: subtitle,
       children: childrenWithTitles.entries
           .map(
-            (entry) =>
-            ExpansionTile(
+            (entry) => ExpansionTile(
               title: Text(entry.key),
               children: [
                 if (childrenNeedIntrinsicHeight[entry.key] ?? true)
-                // Use IntrinsicHeight for text and other simple content
+                  // Use IntrinsicHeight for text and other simple content
                   ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: SizeConfig.screenHeight(context) * 0.7,
@@ -104,7 +115,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
                     ),
                   )
                 else
-                // Use fixed SizedBox for logs, plots, etc.
+                  // Use fixed SizedBox for logs, plots, etc.
                   SizedBox(
                     height: SizeConfig.screenHeight(context) * 0.7,
                     child: entry.value,
@@ -115,7 +126,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
                 ),
               ),
             ),
-      )
+          )
           .toList(),
     );
   }
@@ -136,14 +147,13 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   Widget buildModelInformation() {
     final Map<String, String> modelInformation = widget.predictionModel.getModelInformationMap();
     final List<TableRow> rows =
-    modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
+        modelInformation.entries.map((entry) => TableRow(children: [Text(entry.key), Text(entry.value)])).toList();
     return Table(children: rows);
   }
 
   Widget buildMetricsDisplay(TestResult? testResult) {
     if (testResult == null) return Container();
-    final metrics = {'Test Set Metrics': testResult.metrics}
-      ..addAll(testResult.baselineMetrics);
+    final metrics = {'Test Set Metrics': testResult.metrics}..addAll(testResult.baselineMetrics);
     return BiocentralMetricsDisplay(metrics: metrics);
   }
 
