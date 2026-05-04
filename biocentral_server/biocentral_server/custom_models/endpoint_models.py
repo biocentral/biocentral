@@ -32,7 +32,10 @@ class SequenceTrainingData(BaseModel):
         return self
 
     def to_biotrainer_seq_record(self) -> BiotrainerSequenceRecord:
-        attributes = {"TARGET": self.label, "SET": self.set}
+        label = self.label
+        if isinstance(label, str) and len(label) == 0:
+            label = None
+        attributes = {"TARGET": label, "SET": self.set}
         if self.mask is not None:
             attributes["MASK"] = self.mask
         return BiotrainerSequenceRecord(
