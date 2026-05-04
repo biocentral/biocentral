@@ -2,7 +2,7 @@ from biotrainer.utilities import seed_all
 from typing import Callable, List, Optional
 from biotrainer.input_files import BiotrainerSequenceRecord
 
-from .al_iteration_pipeline import al_pipeline
+from .pipelines import al_screening_pipeline
 from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
 
 from ..utils import get_logger
@@ -65,7 +65,7 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
         # Seed all random generators for reproducibility
         seed_all(self.al_campaign_config.seed)
 
-        al_iteration_result = al_pipeline(
+        al_iteration_result = al_screening_pipeline(
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=self.al_iteration_config,
             embeddings=embeddings,

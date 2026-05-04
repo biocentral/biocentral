@@ -232,6 +232,7 @@ dependencies = [
     { name = "fastapi-limiter" },
     { name = "httpx" },
     { name = "hvi-toolkit" },
+    { name = "junban" },
     { name = "onnxruntime", marker = "sys_platform != 'linux'" },
     { name = "onnxruntime-gpu", marker = "sys_platform == 'linux'" },
     { name = "protspace" },
@@ -273,6 +274,7 @@ requires-dist = [
     { name = "fastapi-limiter", specifier = ">=0.1.6,<0.2.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "hvi-toolkit", git = "https://github.com/SebieF/hvi_toolkit.git?rev=maintenance%2Fupdate-biotrainer" },
+    { name = "junban", specifier = ">=1.0.2" },
     { name = "onnxruntime", marker = "sys_platform != 'linux'", specifier = ">=1.24.3,<2.0.0" },
     { name = "onnxruntime-gpu", marker = "sys_platform == 'linux'", specifier = ">=1.24.3,<2.0.0" },
     { name = "protspace", git = "https://github.com/tsenoner/protspace.git?rev=v3.1.1" },
@@ -1149,6 +1151,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/41/f2/d34e8b3a08a9cc79a50b2208a93dce981fe615b64d5a4d4abee421d898df/joblib-1.5.3.tar.gz", hash = "sha256:8561a3269e6801106863fd0d6d84bb737be9e7631e33aaed3fb9ce5953688da3", size = 331603, upload-time = "2025-12-15T08:41:46.427Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7b/91/984aca2ec129e2757d1e4e3c81c3fcda9d0f85b74670a094cc443d9ee949/joblib-1.5.3-py3-none-any.whl", hash = "sha256:5fc3c5039fc5ca8c0276333a188bbd59d6b7ab37fe6632daa76bc7f9ec18e713", size = 309071, upload-time = "2025-12-15T08:41:44.973Z" },
+]
+
+[[package]]
+name = "junban"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/68/1807384a5907a2c0772d8c9de063af158987541d61b846fca7c23607d198/junban-1.0.2.tar.gz", hash = "sha256:e9aec3f5942ac87950a191369c761f6c569d7f8fb1f65a5762d386aaab55cab0", size = 3735, upload-time = "2026-05-04T10:34:58.474Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8a/6a/bfc6ce239a0fc57ecb499d0a78671e19d3bd7a762c59fa350e1c4e7a91fb/junban-1.0.2-py3-none-any.whl", hash = "sha256:fc5ea66b78a7afe2072a0bf574cdb7e54dfda21f4c3a09038629885dd1d21c66", size = 4648, upload-time = "2026-05-04T10:34:57.467Z" },
 ]
 
 [[package]]
