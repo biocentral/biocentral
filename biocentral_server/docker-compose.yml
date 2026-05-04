@@ -5,7 +5,6 @@ services:
       - "9540:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
-      - autoeval_storage:/app/autoeval
       - assets_data:/app/assets
     environment:
       - MAX_FILE_SIZE=${MAX_FILE_SIZE}
@@ -14,7 +13,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
-      - AUTOEVAL_DATA_DIR=/app/autoeval
       - ASSETS_DIR=/app/assets
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
@@ -51,7 +49,6 @@ services:
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 1
     volumes:
       - huggingface_models_cache:/app/huggingface_models
-      - autoeval_storage:/app/autoeval
       - assets_data:/app/assets
     environment:
       - POSTGRES_HOST=embeddings-db
@@ -59,7 +56,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - HF_HOME=/app/huggingface_models
-      - AUTOEVAL_DATA_DIR=/app/autoeval
       - ASSETS_DIR=/app/assets
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
@@ -235,12 +231,6 @@ volumes:
       type: none
       o: bind
       device: ${HUGGINGFACE_MODELS_DIR}
-  autoeval_storage:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${AUTOEVAL_DATA_DIR}
   triton_models:
     driver: local
     driver_opts:

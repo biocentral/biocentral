@@ -57,7 +57,7 @@ services:
       - seaweedfs-volume
     networks:
       - storage
-      - backend 
+      - backend
     healthcheck:
       test: [ "CMD", "wget", "--spider", "--quiet", "-Y", "off", "http://seaweedfs-filer:8888/" ]
       interval: 5s
@@ -75,7 +75,6 @@ services:
       - "${SERVER_PORT:-9540}:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
-      - autoeval_storage:/app/autoeval
       - assets_data:/app/assets
     environment:
       - MAX_FILE_SIZE=${MAX_FILE_SIZE:-50000000}
@@ -124,7 +123,6 @@ services:
       - USE_TRITON=${USE_TRITON:-false}
     volumes:
       - huggingface_models_cache:/app/huggingface_models
-      - autoeval_storage:/app/autoeval
       - assets_data:/app/assets
     depends_on:
       biocentral-server:
@@ -164,12 +162,6 @@ volumes:
       type: none
       o: bind
       device: ${HUGGINGFACE_MODELS_DIR}
-  autoeval_storage:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${AUTOEVAL_DATA_DIR}
   triton_models:
     driver: local
     driver_opts:

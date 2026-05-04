@@ -113,9 +113,6 @@ class FileManager:
     def get_biotrainer_model_path(self, model_hash: str) -> Path:
         return self.path_manager.get_biotrainer_model_path(model_hash=model_hash)
 
-    def get_autoeval_path(self, embedder_name: str) -> Path:
-        return self.path_manager.base_path / "autoeval" / embedder_name
-
     def get_file_path_for_training(self, database_hash: str) -> Path:
         input_file = self.get_file_path(
             file_type=StorageFileType.INPUT, database_hash=database_hash
