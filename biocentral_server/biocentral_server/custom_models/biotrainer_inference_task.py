@@ -2,24 +2,24 @@ from pathlib import Path
 
 from biotrainer.protocols import Protocol
 from biotrainer.inference import Inferencer
-from typing import Callable, Optional, List, Tuple
+from typing import Callable, List
 from biotrainer.output_files import InferenceOutputManager
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from ..server_management.shared_endpoint_models import Prediction
 from ..utils import get_logger
-from ..embeddings import LoadEmbeddingsTask
 from ..server_management import (
     TaskInterface,
     TaskDTO,
     FileContextManager,
     TaskStatus,
+    PreEmbedMixin,
 )
 
 logger = get_logger(__name__)
 
 
-class BiotrainerInferenceTask(TaskInterface):
+class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self, model_out_path: Path, sequence_input: List[BiotrainerSequenceRecord]
     ):
@@ -57,7 +57,7 @@ class BiotrainerInferenceTask(TaskInterface):
             reduced = iom.protocol() in Protocol.using_per_sequence_embeddings()
             error_dto, embeddings = self._pre_embed_with_db(
                 embedder_name=embedder_name,
-                all_seqs=self.sequence_input,
+                sequence_input=self.sequence_input,
                 reduced=reduced,
                 update_dto_callback=update_dto_callback,
             )
@@ -72,32 +72,3 @@ class BiotrainerInferenceTask(TaskInterface):
             predictions = self._to_prediction_model(iom=iom, predictions=predictions)
 
             return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
-
-    def _pre_embed_with_db(
-        self,
-        embedder_name: str,
-        all_seqs: List[BiotrainerSequenceRecord],
-        reduced: bool,
-        update_dto_callback: Callable,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
-        load_embedding_task = LoadEmbeddingsTask(
-            embedder_name=embedder_name,
-            custom_tokenizer_config=None,  # TODO
-            sequence_input=all_seqs,
-            reduced=reduced,
-            use_half_precision=False,
-        )
-        load_dto: Optional[TaskDTO] = None
-        for current_dto in self.run_subtask(load_embedding_task):
-            load_dto = current_dto
-            if load_dto.embedding_progress is not None:
-                update_dto_callback(load_dto)
-
-        if not load_dto:
-            return TaskDTO.errored("Could not compute embeddings!"), []
-
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
-        if len(embeddings) == 0:
-            return TaskDTO.errored("Did not receive embeddings for training!"), []
-
-        return None, embeddings

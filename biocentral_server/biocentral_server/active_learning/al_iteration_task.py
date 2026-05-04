@@ -1,19 +1,18 @@
 from biotrainer.utilities import seed_all
-from typing import Callable, Tuple, List, Optional
+from typing import Callable, List, Optional
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .al_iteration_pipeline import al_pipeline
 from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
 
 from ..utils import get_logger
-from ..embeddings import LoadEmbeddingsTask
 from ..custom_models import BiotrainerTempTask
-from ..server_management import TaskInterface, TaskDTO, TaskStatus
+from ..server_management import TaskInterface, TaskDTO, TaskStatus, PreEmbedMixin
 
 logger = get_logger(__name__)
 
 
-class ActiveLearningIterationTask(TaskInterface):
+class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
         al_campaign_config: ActiveLearningCampaignConfig,
@@ -47,7 +46,17 @@ class ActiveLearningIterationTask(TaskInterface):
         if self.embeddings is not None:
             embeddings = self.embeddings
         else:
-            error_dto, embeddings = self._pre_embed_with_db()
+            iteration_data = [
+                data_point.to_biotrainer_seq_record()
+                for data_point in self.al_iteration_config.iteration_data
+            ]
+            embedder_name = self.al_campaign_config.embedder_name
+            error_dto, embeddings = self._pre_embed_with_db(
+                embedder_name=embedder_name,
+                sequence_input=iteration_data,
+                reduced=True,
+                update_dto_callback=update_dto_callback,
+            )
             if error_dto:
                 return error_dto
         assert embeddings is not None and len(embeddings) > 0, (
@@ -75,33 +84,3 @@ class ActiveLearningIterationTask(TaskInterface):
         return TaskDTO(
             status=TaskStatus.FINISHED, al_iteration_result=al_iteration_result
         )
-
-    def _pre_embed_with_db(
-        self,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
-        # TODO [Refactoring] Duplicated code in biotrainer(_inference_)task
-        iteration_data = [
-            data_point.to_biotrainer_seq_record()
-            for data_point in self.al_iteration_config.iteration_data
-        ]
-        embedder_name = self.al_campaign_config.embedder_name
-
-        load_embeddings_task = LoadEmbeddingsTask(
-            embedder_name=embedder_name,
-            sequence_input=iteration_data,
-            reduced=True,
-            use_half_precision=False,
-            custom_tokenizer_config=None,
-        )
-        load_dto = None
-        for dto in self.run_subtask(load_embeddings_task):
-            load_dto = dto
-
-        if not load_dto:
-            return TaskDTO.errored("Could not compute embeddings!"), []
-
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
-        if len(embeddings) == 0:
-            return TaskDTO.errored("Did not receive embeddings for training!"), []
-
-        return None, embeddings

@@ -8,15 +8,13 @@ from typing import Callable, Dict, List
 from protspace.data.processors import BaseProcessor
 from biotrainer.input_files import BiotrainerSequenceRecord
 
-from .embedding_task import LoadEmbeddingsTask
-
 from ..utils import get_logger
-from ..server_management import TaskInterface, TaskDTO, TaskStatus
+from ..server_management import TaskInterface, TaskDTO, TaskStatus, PreEmbedMixin
 
 logger = get_logger(__name__)
 
 
-class ProtSpaceTask(TaskInterface):
+class ProtSpaceTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
         embedder_name: str,
@@ -31,20 +29,15 @@ class ProtSpaceTask(TaskInterface):
         self.config = config
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        load_embeddings_task = LoadEmbeddingsTask(
+        error_dto, embeddings = self._pre_embed_with_db(
             embedder_name=self.embedder_name,
             sequence_input=self.sequences,
             reduced=True,
-            use_half_precision=False,
+            update_dto_callback=update_dto_callback,
         )
-        load_dto = None
-        for dto in self.run_subtask(load_embeddings_task):
-            load_dto = dto
 
-        if not load_dto or load_dto.embeddings is None:
-            return TaskDTO.errored("Loading of embeddings failed before projection!")
-
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
+        if error_dto:
+            return error_dto
 
         embedding_dict = {
             embd_record.seq_id: embd_record.embedding for embd_record in embeddings

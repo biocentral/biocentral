@@ -1,17 +1,16 @@
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List
 from biotrainer.protocols import Protocol
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from .models.base_model import BaseModel
 
 from ..utils import get_logger
-from ..embeddings import LoadEmbeddingsTask
-from ..server_management import TaskInterface, TaskDTO, TaskStatus
+from ..server_management import TaskInterface, TaskDTO, TaskStatus, PreEmbedMixin
 
 logger = get_logger(__name__)
 
 
-class SinglePredictionTask(TaskInterface):
+class SinglePredictionTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self, model: BaseModel, sequence_input: List[BiotrainerSequenceRecord]
     ):
@@ -42,7 +41,17 @@ class SinglePredictionTask(TaskInterface):
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # TODO CHECK SEQUENCE RECORDS
-        error_dto, embed_records = self._embed_sequences()
+        reduced = (
+            True
+            if self.model_metadata.protocol in Protocol.using_per_sequence_embeddings()
+            else False
+        )
+        error_dto, embed_records = self._pre_embed_with_db(
+            embedder_name=self.model_metadata.embedder,
+            sequence_input=self.sequence_input,
+            reduced=reduced,
+            update_dto_callback=update_dto_callback,
+        )
         if error_dto:
             return error_dto
 
@@ -59,26 +68,3 @@ class SinglePredictionTask(TaskInterface):
         )
         predictions = self._remap_predictions(predictions=predictions)
         return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
-
-    def _embed_sequences(
-        self,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
-        reduced = (
-            True
-            if self.model_metadata.protocol in Protocol.using_per_sequence_embeddings()
-            else False
-        )
-        load_embeddings_task = LoadEmbeddingsTask(
-            embedder_name=self.model_metadata.embedder,
-            sequence_input=self.sequence_input,
-            reduced=reduced,
-            use_half_precision=False,
-        )
-        load_dto = None
-        for dto in self.run_subtask(load_embeddings_task):
-            load_dto = dto
-
-        if not load_dto or load_dto.embeddings is None:
-            return TaskDTO.errored("Loading of embeddings failed before export!"), []
-
-        return None, load_dto.embeddings

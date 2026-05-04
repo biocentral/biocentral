@@ -16,7 +16,6 @@ from .al_config import (
 )
 
 from ..utils import get_logger
-from ..embeddings import LoadEmbeddingsTask
 from ..custom_models import SequenceTrainingData
 from ..server_management import (
     TaskInterface,
@@ -24,6 +23,7 @@ from ..server_management import (
     TaskStatus,
     ActiveLearningIterationResult,
     ActiveLearningSimulationResult,
+    PreEmbedMixin,
 )
 
 logger = get_logger(__name__)
@@ -43,7 +43,7 @@ class _ActiveLearningSimulationFixedParameters:
         return 100
 
 
-class ActiveLearningSimulationTask(TaskInterface):
+class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
         al_campaign_config: ActiveLearningCampaignConfig,
@@ -438,7 +438,17 @@ class ActiveLearningSimulationTask(TaskInterface):
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Embed all simulation data
-        error_dto, embeddings = self._pre_embed_with_db()
+        simulation_data = [
+            data_point.to_biotrainer_seq_record()
+            for data_point in self.al_simulation_config.simulation_data
+        ]
+        embedder_name = self.al_campaign_config.embedder_name
+        error_dto, embeddings = self._pre_embed_with_db(
+            embedder_name=embedder_name,
+            sequence_input=simulation_data,
+            reduced=True,
+            update_dto_callback=update_dto_callback,
+        )
         if error_dto:
             return error_dto
         assert embeddings is not None, (
@@ -446,33 +456,3 @@ class ActiveLearningSimulationTask(TaskInterface):
         )
 
         return self._run_simulation(embeddings, update_dto_callback)
-
-    def _pre_embed_with_db(
-        self,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
-        # TODO [Refactoring] Duplicated code in biotrainer(_inference_)task
-        simulation_data = [
-            data_point.to_biotrainer_seq_record()
-            for data_point in self.al_simulation_config.simulation_data
-        ]
-        embedder_name = self.al_campaign_config.embedder_name
-
-        load_embeddings_task = LoadEmbeddingsTask(
-            embedder_name=embedder_name,
-            sequence_input=simulation_data,
-            reduced=True,
-            use_half_precision=False,
-            custom_tokenizer_config=None,
-        )
-        load_dto = None
-        for dto in self.run_subtask(load_embeddings_task):
-            load_dto = dto
-
-        if not load_dto:
-            return TaskDTO.errored("Could not compute embeddings!"), []
-
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
-        if embeddings is None or len(embeddings) == 0:
-            return TaskDTO.errored("Did not receive embeddings for training!"), []
-
-        return None, embeddings

@@ -17,7 +17,13 @@ from .shared_endpoint_models import (
 )
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
-from .task_management import TaskInterface, TaskStatus, TaskManager, TaskDTO
+from .task_management import (
+    TaskInterface,
+    TaskStatus,
+    TaskManager,
+    TaskDTO,
+    PreEmbedMixin,
+)
 from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 from .library_adapters import (
     TrainingDTOObserver,
@@ -40,6 +46,7 @@ __all__ = [
     "TaskInterface",
     "TaskStatus",
     "TaskDTO",
+    "PreEmbedMixin",
     "TaskManager",
     "EmbeddingDatabaseFactory",
     "EmbeddingsDatabase",
