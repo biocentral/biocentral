@@ -34,19 +34,6 @@ services:
     ports:
       - "${SEAWEEDFS_FILER_PORT}:8888"
 
-  triton:
-    extends:
-      file: docker-compose.yml
-      service: triton
-    command: >
-      tritonserver
-      --model-repository=/app/models
-      --model-control-mode=explicit
-      --load-model=prott5_sec
-      --load-model=seth
-      --load-model=bind_embed
-      --load-model=tmbed
-
   triton-model-init:
     extends:
       file: docker-compose.yml
