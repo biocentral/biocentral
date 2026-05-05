@@ -156,7 +156,20 @@ jobs:
           COMPOSE_DOCKER_CLI_BUILD: 1
           BUILDKIT_STEP_LOG_MAX_SIZE: 10000000
           CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
-        timeout-minutes: 10
+          MODEL_DOWNLOADS: |  # Subset of models to avoid large downloads
+            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+            _bind_embed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
+          timeout-minutes: 10
 
       - name: Run integration tests
         run: uv run pytest tests/integration/ -v -m "not triton" --reruns 1 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning"  --capture=tee-sys
@@ -173,9 +186,6 @@ jobs:
 
   property-oracle-test:
     runs-on: ubuntu-latest
-
-    env:
-      ONNX_MODELS_PATH: ${{ github.workspace }}/onnx_models
 
     steps:
       - name: Maximize build disk space

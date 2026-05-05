@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple
@@ -8,12 +7,12 @@ import pytest
 import torch
 from pydantic import BaseModel, Field
 
-from biocentral_server.predict.models.secondary_structure import ProtT5SecondaryStructure
+from biocentral_server.predict.models.secondary_structure import (
+    ProtT5SecondaryStructure,
+)
 from biocentral_server.predict.models.binding.bind_embed import BindEmbed
 from biocentral_server.predict.models.membrane.tmbed import TMbed
 from biocentral_server.predict.models.disorder.seth import Seth
-from biocentral_server.predict.predict_initializer import PredictInitializer
-from biocentral_server.server_management import ServerModuleInitializer
 from tests.fixtures.test_dataset import CANONICAL_TEST_DATASET
 from tests.fixtures.fixed_embedder import FixedEmbedder
 
@@ -41,7 +40,8 @@ class PredictionOracleConfig(BaseModel):
         description="Type of output: 'per_residue' or 'per_sequence'"
     )
     is_classification: bool = Field(
-        default=True, description="Whether the model performs classification vs regression"
+        default=True,
+        description="Whether the model performs classification vs regression",
     )
     num_classes: Optional[int] = Field(
         default=None, description="Number of output classes for classification models"
@@ -256,30 +256,25 @@ def get_onnx_models_path() -> Path:
     Checks ONNX_MODELS_PATH env var first, then falls back to
     default location, downloading if necessary.
     """
+    from biocentral_server.predict.model_utils.utils import MODEL_REPOSITORY_PATH
 
     def models_exist(p: Path) -> bool:
+        expected_dirs = ["prott5secondarystructure", "seth", "bindembed", "tmbed"]
         for model_name in expected_dirs:
             model_dir = p / model_name
             if model_dir.exists() and any(model_dir.glob("*.onnx")):
                 return True
         return False
 
-    expected_dirs = ["prott5secondarystructure", "seth", "bindembed", "tmbed"]
-
     # Check environment variable first
-    path_str = os.environ.get("ONNX_MODELS_PATH")
-    target_path = Path(path_str) if path_str else Path("onnx_models")
+    target_path = MODEL_REPOSITORY_PATH
 
     if target_path.exists() and models_exist(target_path):
         return target_path
-
-    # Download models to target path
-    target_path.mkdir(parents=True, exist_ok=True)
-    ServerModuleInitializer._download_data(
-        urls=PredictInitializer.DOWNLOAD_URLS,
-        data_dir=target_path,
+    raise ValueError(
+        f"Expected ONNX models not found in initializing onnx environment. "
+        f"Target Path: {target_path}"
     )
-    return target_path
 
 
 class DirectPredictor:

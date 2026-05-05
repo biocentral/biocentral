@@ -122,7 +122,6 @@ class TestPredictEndpoint:
         poll_task,
         prediction_sequences,
         precache_prott5_embeddings,
-        load_bindembed_onnx,
     ):
         request_data = {
             "model_names": ["BindEmbed"],

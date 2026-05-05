@@ -11,7 +11,9 @@ from typing import Any, Dict, Generator
 from biotrainer.input_files import BiotrainerSequenceRecord
 
 from biocentral_server.server_management.embedding_database import EmbeddingsDatabase
-from biocentral_server.server_management.task_management.task_interface import TaskStatus
+from biocentral_server.server_management.task_management.task_interface import (
+    TaskStatus,
+)
 from tests.fixtures.test_dataset import CANONICAL_TEST_DATASET
 
 
@@ -28,7 +30,6 @@ EMBEDDER_MAP = {
     "esm2_t6_8m": EMBEDDER_ESM2_T6_8M,
     "fixed": EMBEDDER_FIXED,
 }
-
 
 
 def get_redis_port() -> int:
@@ -86,7 +87,7 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
         pytest.fail(f"Cannot connect to server at {server_url}: {e}")
 
     # Fixed embedder mode: bypass GPU compute while still testing real server behavior.
-    # 
+    #
     # What's STILL tested (real server):
     #   - Validation logic (empty sequences → 422, missing embedder → 422, invalid method → 400)
     #   - Configuration endpoints (/common_embedders, /projection_config)
@@ -142,7 +143,9 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
                     BiotrainerSequenceRecord(
                         seq_id=seq_id,
                         seq=sequence,
-                        embedding=fe.embed_pooled(sequence) if reduced else fe.embed(sequence),
+                        embedding=fe.embed_pooled(sequence)
+                        if reduced
+                        else fe.embed(sequence),
                     )
                     for seq_id, sequence in sequences.items()
                 ]
@@ -201,6 +204,7 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
                 n_components = data.get("config", {}).get("n_components", 2)
 
                 from protspace.utils import REDUCERS
+
                 if method.lower() not in REDUCERS:
                     return FakeResponse(400, {"detail": f"Unknown method: {method}"})
 
@@ -269,9 +273,13 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
         for attempt in range(max_retries):
             try:
                 return method_fn(*args, **kwargs)
-            except (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadTimeout) as e:
+            except (
+                httpx.RemoteProtocolError,
+                httpx.ConnectError,
+                httpx.ReadTimeout,
+            ) as e:
                 last_error = e
-                wait_time = min(2 ** attempt, 10)
+                wait_time = min(2**attempt, 10)
                 logging.warning(
                     f"[CLIENT] {type(e).__name__} on attempt {attempt + 1}/{max_retries}, "
                     f"retrying in {wait_time}s: {e}"
@@ -280,7 +288,9 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
                     time.sleep(wait_time)
         raise last_error
 
-    http_client.post = lambda *args, **kwargs: _resilient_call(_raw_post, *args, **kwargs)
+    http_client.post = lambda *args, **kwargs: _resilient_call(
+        _raw_post, *args, **kwargs
+    )
     http_client.get = lambda *args, **kwargs: _resilient_call(_raw_get, *args, **kwargs)
 
     yield http_client
@@ -290,7 +300,7 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
 def _make_request_with_retry(
     client, method: str, url: str, max_retries: int = 5, **kwargs
 ) -> httpx.Response:
-    #Retry requests on 5xx server errors.
+    # Retry requests on 5xx server errors.
     for attempt in range(max_retries):
         if method.upper() == "GET":
             response = client.get(url, **kwargs)
@@ -443,6 +453,7 @@ def poll_task(client):
         )
 
     return _poll
+
 
 def get_embedder_name() -> str:
     ci_embedder = os.environ.get("CI_EMBEDDER", "esm2_t6_8m").lower()
@@ -604,32 +615,11 @@ def precache_prott5_embeddings(shared_embedding_sequences):
         ]
         db.save_embeddings(per_sequence_records, embedder_name, reduced=True)
 
-        print(f"\n[PRECACHE] Inserted {len(shared_embedding_sequences)} fake ProtT5 embeddings")
+        print(
+            f"\n[PRECACHE] Inserted {len(shared_embedding_sequences)} fake ProtT5 embeddings"
+        )
         return True
 
     except Exception as e:
         print(f"\n[PRECACHE] Failed to insert fake ProtT5 embeddings: {e}")
         return False
-
-
-@pytest.fixture(scope="session")
-def load_bindembed_onnx():
-    from biocentral_server.predict import PredictInitializer
-
-    try:
-        initializer = PredictInitializer()
-
-        if not initializer.check_one_time_setup_is_done():
-            initializer.one_time_setup()
-            print("\n[ONNX] Downloaded and uploaded prediction models via PredictInitializer")
-        else:
-            print("\n[ONNX] Prediction models already present")
-
-        return True
-
-    except Exception as e:
-        print(f"\n[ONNX] Failed to load models: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
