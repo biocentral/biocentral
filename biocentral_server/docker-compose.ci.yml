@@ -44,6 +44,11 @@ services:
       file: docker-compose.yml
       service: biocentral-server
     image: ${CI_IMAGE:-biocentral-server:ci}
+    depends_on: # Overwrite because triton is not used in CI
+      biocentral-worker: { condition: service_started }
+      redis-jobs: { condition: service_healthy }
+      embeddings-db: { condition: service_healthy }
+      seaweedfs-filer: { condition: service_healthy }
     build:
       context: .
       dockerfile: Dockerfile
@@ -58,6 +63,10 @@ services:
       file: docker-compose.yml
       service: biocentral-worker
     image: ${CI_IMAGE:-biocentral-server:ci}
+    depends_on:  # Overwrite because triton is not used in CI
+      redis-jobs: { condition: service_healthy }
+      embeddings-db: { condition: service_healthy }
+      seaweedfs-filer: { condition: service_healthy }
     deploy:
       resources:
         limits:
