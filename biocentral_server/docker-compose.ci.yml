@@ -76,6 +76,7 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
+      - triton_models:/app/models:ro
     environment:
       - MAX_FILE_SIZE=${MAX_FILE_SIZE:-50000000}
       - POSTGRES_HOST=embeddings-db
@@ -88,6 +89,7 @@ services:
       - SEAWEEDFS_FILER_URL=http://seaweedfs-filer:8888
       - USE_TRITON=${USE_TRITON:-false}
       - SERVER_DEBUG=${SERVER_DEBUG:-true}
+      - MODEL_REPOSITORY_PATH=/app/models
     depends_on:
       redis-jobs:
         condition: service_healthy
@@ -121,9 +123,11 @@ services:
       - REDIS_JOBS_PORT=6379
       - SEAWEEDFS_FILER_URL=http://seaweedfs-filer:8888
       - USE_TRITON=${USE_TRITON:-false}
+      - MODEL_REPOSITORY_PATH=/app/models
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
+      - triton_models:/app/models:ro
     depends_on:
       biocentral-server:
         condition: service_started

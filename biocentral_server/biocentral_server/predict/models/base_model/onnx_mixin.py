@@ -5,7 +5,7 @@ from onnxruntime import InferenceSession
 from typing import List, Dict, Any
 
 from biocentral_server.server_management import FileContextManager
-from ...model_utils import MODEL_BASE_PATH
+from ...model_utils import MODEL_REPOSITORY_PATH
 
 
 class LocalOnnxInferenceMixin:
@@ -51,7 +51,7 @@ class LocalOnnxInferenceMixin:
             Exception: If model cannot be loaded
         """
         file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.value.lower()}"
+        model_dir = f"{MODEL_REPOSITORY_PATH}/{model_name.value.lower()}"
 
         with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
             for onnx_file in onnx_path.iterdir():
@@ -77,7 +77,7 @@ class LocalOnnxInferenceMixin:
             Exception: If models cannot be loaded
         """
         file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_BASE_PATH}/{model_name.value.lower()}"
+        model_dir = f"{MODEL_REPOSITORY_PATH}/{model_name.value.lower()}"
         models = []
 
         with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:

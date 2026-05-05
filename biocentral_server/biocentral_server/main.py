@@ -11,9 +11,7 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from .predict import PredictInitializer
 from .server_management import (
-    ServerInitializationManager,
     BodySizeLimitMiddleware,
     UserManager,
     EmbeddingDatabaseFactory,
@@ -86,8 +84,7 @@ async def lifespan(app: FastAPI):
 
     logger = get_logger(__name__)
     # Initialize modules
-    initialization_manager = ServerInitializationManager()
-    initialization_manager.register_initializer(PredictInitializer())
+    # initialization_manager = ServerInitializationManager()
     # initialization_manager.run_all()
 
     # Scheduled tasks

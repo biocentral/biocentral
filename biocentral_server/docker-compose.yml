@@ -6,6 +6,7 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
+      - triton_models:/app/models:ro
     environment:
       - MAX_FILE_SIZE=${MAX_FILE_SIZE}
       - POSTGRES_HOST=embeddings-db
@@ -17,6 +18,7 @@ services:
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
       - USE_TRITON=true
+      - MODEL_REPOSITORY_PATH=/app/models
     deploy:
       resources:
         reservations:
@@ -50,6 +52,7 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
+      - triton_models:/app/models:ro
     environment:
       - POSTGRES_HOST=embeddings-db
       - POSTGRES_DB=${POSTGRES_DB}
@@ -60,6 +63,7 @@ services:
       - TRITON_GRPC_URL=http://triton:8001
       - TRITON_HTTP_URL=http://triton:8000
       - USE_TRITON=true
+      - MODEL_REPOSITORY_PATH=/app/models
     deploy:
       resources:
         reservations:
@@ -148,9 +152,9 @@ services:
       context: ./storage/model-repository
       dockerfile: Dockerfile.init
     volumes:
-      - triton_models:/models
+      - triton_models:/app/models
     environment:
-      - MODEL_REPOSITORY_PATH=/models
+      - MODEL_REPOSITORY_PATH=/app/models
       - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
     networks:
       - biocentral-network
@@ -172,7 +176,7 @@ services:
           memory: 16G
     command: >
       tritonserver
-      --model-repository=/models
+      --model-repository=/app/models
       --model-control-mode=explicit
       --load-model=prot_t5_pipeline
       --load-model=esm2_t33_pipeline
@@ -194,7 +198,7 @@ services:
       - "8001:8001"  # gRPC
       - "8002:8002"  # Metrics
     volumes:
-      - triton_models:/models:ro
+      - triton_models:/app/models:ro
     depends_on:
       triton-model-init:
         condition: service_completed_successfully

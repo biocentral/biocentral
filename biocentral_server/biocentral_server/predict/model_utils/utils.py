@@ -1,8 +1,10 @@
+import os
 import numpy as np
 
+from pathlib import Path
 from biotrainer.protocols import Protocol
 
-MODEL_BASE_PATH = "PREDICT"
+MODEL_REPOSITORY_PATH = Path(os.getenv("MODEL_REPOSITORY_PATH", "/app/models"))
 
 
 def get_batched_data(

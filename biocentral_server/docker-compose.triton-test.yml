@@ -16,7 +16,7 @@ services:
           memory: 16G
     command: >
       tritonserver
-      --model-repository=/models
+      --model-repository=/app/models
       --model-control-mode=explicit
       --load-model=prot_t5_pipeline
       --load-model=esm2_t33_pipeline

@@ -78,9 +78,9 @@ services:
       context: ./storage/model-repository
       dockerfile: Dockerfile.init
     volumes:
-      - triton_models:/models
+      - triton_models:/app/models
     environment:
-      - MODEL_REPOSITORY_PATH=/models
+      - MODEL_REPOSITORY_PATH=/app/models
       - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
 
   triton:
@@ -100,7 +100,7 @@ services:
           memory: 16G
     command: >
       tritonserver
-      --model-repository=/models
+      --model-repository=/app/models
       --model-control-mode=explicit
       --load-model=prot_t5_pipeline
       --load-model=esm2_t33_pipeline
@@ -122,7 +122,7 @@ services:
       - "8001:8001"  # gRPC
       - "8002:8002"  # Metrics
     volumes:
-      - triton_models:/models:ro
+      - triton_models:/app/models:ro
     depends_on:
       triton-model-init:
         condition: service_completed_successfully
