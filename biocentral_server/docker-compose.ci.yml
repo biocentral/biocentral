@@ -52,6 +52,7 @@ services:
     environment:
       USE_TRITON: ${USE_TRITON:-false}
       SERVER_DEBUG: ${SERVER_DEBUG:-true}
+    deploy: !reset []
 
   biocentral-worker:
     extends:
@@ -62,6 +63,8 @@ services:
       resources:
         limits:
           memory: 8G
+        reservations:
+          devices: !reset []  # Empty array to override GPU requirement
     environment:
       USE_TRITON: ${USE_TRITON:-false}
 
