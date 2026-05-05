@@ -13,3 +13,4 @@ class BiocentralPredictionModel(Enum):
     ProtT5SecondaryStructure = "ProtT5SecondaryStructure"
     ExoTox = "ExoTox"
     VespaG = "VespaG"
+    UdonPred = "UdonPred"

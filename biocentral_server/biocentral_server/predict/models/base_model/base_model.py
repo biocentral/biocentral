@@ -175,6 +175,23 @@ class BaseModel(ABC):
         return result
 
     @staticmethod
+    def _format_prediction_value(value: Any) -> str:
+        """
+        Format prediction value to string with max 3 significant digits for floats.
+
+        Args:
+            value: The prediction value to format
+
+        Returns:
+            Formatted string representation
+        """
+        if isinstance(value, int):
+            return str(value)
+        if isinstance(value, float):
+            return f"{value:.3g}"
+        return str(value)
+
+    @staticmethod
     def _finalize_raw_prediction(tensor: torch.tensor, dtype=None) -> List:
         """
         Do conversions on the raw onnx model predictions to finalize the model output.
@@ -262,7 +279,11 @@ class BaseModel(ABC):
                     # Undo padding and join with delimiter
                     formatted_value = delimiter.join(
                         [
-                            (label_map[y_hat] if label_map else str(y_hat))
+                            (
+                                label_map[y_hat]
+                                if label_map
+                                else self._format_prediction_value(y_hat)
+                            )
                             for pred_idx, y_hat in enumerate(prediction)
                             if pred_idx
                             < self.non_padded_embedding_lengths[embedding_id]
@@ -271,7 +292,9 @@ class BaseModel(ABC):
                 else:
                     # Process per-sequence prediction (single value)
                     formatted_value = (
-                        label_map[prediction] if label_map else str(prediction)
+                        label_map[prediction]
+                        if label_map
+                        else self._format_prediction_value(prediction)
                     )
 
                 # Create and add the prediction
