@@ -35,7 +35,7 @@ services:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
       seaweedfs-filer: { condition: service_healthy }
-      triton: { condition: service_healthy }
+      triton-model-init: { condition: service_completed_successfully }
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
       interval: 10s
@@ -55,7 +55,7 @@ services:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
       seaweedfs-filer: { condition: service_healthy }
-      triton: { condition: service_healthy }
+      triton-model-init: { condition: service_completed_successfully }
 
   redis-jobs:
     image: redis:alpine

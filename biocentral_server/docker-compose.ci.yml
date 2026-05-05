@@ -39,10 +39,6 @@ services:
       file: docker-compose.yml
       service: triton-model-init
 
-  triton: # Mock triton server for testing in CI
-    image: busybox
-    command: "true"
-
   biocentral-server:
     extends:
       file: docker-compose.yml
