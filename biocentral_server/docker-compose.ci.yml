@@ -1,144 +1,74 @@
-# CI-specific Docker Compose with proper network isolation
-# - backend: app services (postgres, redis, biocentral)
-# - storage: seaweedfs internal communication
+# CI-specific Docker Compose
+# Extends the base docker-compose.yml with CI-specific overrides
 
 services:
   embeddings-db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    extends:
+      file: docker-compose.yml
+      service: embeddings-db
     ports:
       - "${POSTGRES_PORT}:5432"
-    networks:
-      - backend
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   redis-jobs:
-    image: redis:alpine
+    extends:
+      file: docker-compose.yml
+      service: redis-jobs
     command: redis-server --save "" --appendonly no
     ports:
       - "${REDIS_JOBS_PORT}:6379"
-    networks:
-      - backend
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
-  # SeaweedFS storage stack (internal network)
   seaweedfs-master:
-    image: chrislusf/seaweedfs
-    command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
-    networks:
-      - storage
+    extends:
+      file: docker-compose.yml
+      service: seaweedfs-master
 
   seaweedfs-volume:
-    image: chrislusf/seaweedfs
-    command: 'volume -mserver="seaweedfs-master:9333" -port=8080 -port.grpc=18080 -ip=seaweedfs-volume'
-    depends_on:
-      - seaweedfs-master
-    networks:
-      - storage
+    extends:
+      file: docker-compose.yml
+      service: seaweedfs-volume
 
   seaweedfs-filer:
-    image: chrislusf/seaweedfs
+    extends:
+      file: docker-compose.yml
+      service: seaweedfs-filer
     ports:
       - "${SEAWEEDFS_FILER_PORT}:8888"
-    command: 'filer -master="seaweedfs-master:9333" -port=8888 -port.grpc=18888 -ip=seaweedfs-filer'
-    depends_on:
-      - seaweedfs-master
-      - seaweedfs-volume
-    networks:
-      - storage
-      - backend
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "-Y", "off", "http://seaweedfs-filer:8888/" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
 
-  # Biocentral application stack
+  triton:
+    extends:
+      file: docker-compose.yml
+      service: triton
+
+  triton-model-init:
+    extends:
+      file: docker-compose.yml
+      service: triton-model-init
+
   biocentral-server:
+    extends:
+      file: docker-compose.yml
+      service: biocentral-server
     image: ${CI_IMAGE:-biocentral-server:ci}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "${SERVER_PORT:-9540}:9540"
-    volumes:
-      - huggingface_models_cache:/app/huggingface_models
-      - assets_data:/app/assets
-      - triton_models:/app/models:ro
     environment:
-      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-50000000}
-      - POSTGRES_HOST=embeddings-db
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_JOBS_HOST=redis-jobs
-      - REDIS_JOBS_PORT=6379
-      - SEAWEEDFS_FILER_URL=http://seaweedfs-filer:8888
-      - USE_TRITON=${USE_TRITON:-false}
-      - SERVER_DEBUG=${SERVER_DEBUG:-true}
-      - MODEL_REPOSITORY_PATH=/app/models
-    depends_on:
-      redis-jobs:
-        condition: service_healthy
-      embeddings-db:
-        condition: service_healthy
-      seaweedfs-filer:
-        condition: service_healthy
-    networks:
-      - backend
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      USE_TRITON: ${USE_TRITON:-false}
+      SERVER_DEBUG: ${SERVER_DEBUG:-true}
 
   biocentral-worker:
+    extends:
+      file: docker-compose.yml
+      service: biocentral-worker
     image: ${CI_IMAGE:-biocentral-server:ci}
-    command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 1
     deploy:
       resources:
         limits:
           memory: 8G
     environment:
-      - POSTGRES_HOST=embeddings-db
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_JOBS_HOST=redis-jobs
-      - REDIS_JOBS_PORT=6379
-      - SEAWEEDFS_FILER_URL=http://seaweedfs-filer:8888
-      - USE_TRITON=${USE_TRITON:-false}
-      - MODEL_REPOSITORY_PATH=/app/models
-    volumes:
-      - huggingface_models_cache:/app/huggingface_models
-      - assets_data:/app/assets
-      - triton_models:/app/models:ro
-    depends_on:
-      biocentral-server:
-        condition: service_started
-      redis-jobs:
-        condition: service_healthy
-      embeddings-db:
-        condition: service_healthy
-      seaweedfs-filer:
-        condition: service_healthy
-    networks:
-      - backend
+      USE_TRITON: ${USE_TRITON:-false}
 
 
 volumes:
@@ -185,7 +115,5 @@ volumes:
       o: bind
       device: ${ASSETS_DIR:-./assets}
 networks:
-  backend:
-    driver: bridge
-  storage:
+  biocentral-network:
     driver: bridge

@@ -49,7 +49,7 @@ directories.*
 Now run the entire setup, including the embedding database, prediction models and the server via docker compose:
 
 ```shell
-docker compose up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 ## Update the server

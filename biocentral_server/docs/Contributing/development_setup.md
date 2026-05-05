@@ -35,10 +35,11 @@ Copy the local environment file and check that it matches your requirements:
 cp .env.local .env
 ```
 
-Run the additional containers (database, redis, triton etc.) via docker compose:
+Run the additional containers (database, redis, triton etc.) via docker compose
+(automatically uses the `docker-compose.override.yml` file with appropriate overrides for local development):
 
 ```shell
-docker compose -f docker-compose.dev.yml up -d
+docker compose up -d
 ```
 
 Run the server locally with workers:
