@@ -49,7 +49,6 @@ class ExoTox(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
-            model_dir_name="exotox",
         )
         self.class2label_mem = {0: "NOT_EXOTOXIN", 1: "EXOTOXIN"}
 

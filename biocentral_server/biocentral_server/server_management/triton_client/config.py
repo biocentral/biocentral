@@ -1,7 +1,11 @@
 """Configuration for Triton Inference Server client."""
 
 import os
+import time
 import struct
+import urllib.error
+import urllib.request
+
 from typing import Optional
 
 # Calculate INT32_MAX for gRPC message size limits (matches official Triton client)
@@ -71,7 +75,9 @@ class TritonClientConfig:
             )
         )
         self.triton_circuit_breaker_timeout = int(
-            os.getenv("TRITON_CIRCUIT_BREAKER_TIMEOUT", str(triton_circuit_breaker_timeout))
+            os.getenv(
+                "TRITON_CIRCUIT_BREAKER_TIMEOUT", str(triton_circuit_breaker_timeout)
+            )
         )
         self.triton_max_batch_size = int(
             os.getenv("TRITON_MAX_BATCH_SIZE", str(triton_max_batch_size))
@@ -119,6 +125,23 @@ class TritonClientConfig:
         elif url.startswith("https://"):
             return url[8:]
         return url
+
+    def is_healthy(self) -> bool:
+        max_retries = 2
+        timeout = 1
+        health_url = f"{self.triton_http_url}/v2/health/ready"
+
+        for attempt in range(max_retries + 1):
+            try:
+                with urllib.request.urlopen(health_url, timeout=timeout) as response:
+                    if response.status == 200:
+                        return True
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError):
+                if attempt < max_retries:
+                    time.sleep(timeout / max_retries)
+                continue
+
+        return False
 
     def __repr__(self) -> str:
         return (

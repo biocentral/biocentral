@@ -21,6 +21,12 @@ def _is_triton_prediction_available(model_name: BiocentralPredictionModel) -> bo
         if not config.is_enabled():
             return False
 
+        if not config.is_healthy():
+            logger.warning(
+                "Triton server is not healthy. Skipping Triton Prediction Model check."
+            )
+            return False
+
         # Get model class from registry
         model_class = MODEL_REGISTRY.get(model_name)
         if not model_class:

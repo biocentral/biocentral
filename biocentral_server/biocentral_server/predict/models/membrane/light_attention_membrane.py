@@ -51,7 +51,6 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
             uses_ensemble=False,
             requires_mask=True,
             requires_transpose=True,
-            model_dir_name="la_mem",
         )
         self.class2label_mem = {0: "Membrane", 1: "Soluble"}
 

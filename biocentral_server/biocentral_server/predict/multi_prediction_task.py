@@ -41,7 +41,7 @@ class MultiPredictionTask(TaskInterface):
             predict_dto = None
             for dto in self.run_subtask(single_pred_task):
                 predict_dto = dto
-            if not predict_dto:
+            if not predict_dto or predict_dto.status != TaskStatus.FINISHED:
                 return TaskDTO.errored(
                     f"Model prediction with the {model_name} model failed."
                 )

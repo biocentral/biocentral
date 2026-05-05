@@ -1,10 +1,9 @@
 """ONNX inference mixin for local model execution."""
 
 import onnxruntime as ort
-from onnxruntime import InferenceSession
 from typing import List, Dict, Any
+from onnxruntime import InferenceSession
 
-from biocentral_server.server_management import FileContextManager
 from ...model_utils import MODEL_REPOSITORY_PATH
 
 
@@ -16,33 +15,30 @@ class LocalOnnxInferenceMixin:
 
     Expected attributes from BaseModel:
         - uses_ensemble: bool
-        - model_dir_name: Optional[str]
     """
 
-    def _init_onnx_backend(self, model_dir_name: str = None):
-        """Initialize ONNX backend by loading model(s).
-
-        Args:
-            model_dir_name: Optional directory name, defaults to metadata name
-        """
+    def _init_onnx_backend(self):
+        """Initialize ONNX backend by loading model(s)."""
         if not hasattr(self, "uses_ensemble"):
             raise AttributeError(
                 "OnnxInferenceMixin requires 'uses_ensemble' attribute"
             )
 
-        model_name = model_dir_name if model_dir_name else self.get_metadata().name
+        model_name_for_dir = self.get_metadata().name.to_onnx_dir_name()
 
         if self.uses_ensemble:
-            self.models = self._load_multiple_onnx_models(model_name=model_name)
+            self.models = self._load_multiple_onnx_models(
+                model_name_for_dir=model_name_for_dir
+            )
         else:
-            self.model = self._load_onnx_model(model_name=model_name)
+            self.model = self._load_onnx_model(model_name_for_dir=model_name_for_dir)
 
     @staticmethod
-    def _load_onnx_model(model_name: str) -> InferenceSession:
+    def _load_onnx_model(model_name_for_dir: str) -> InferenceSession:
         """Load a single ONNX model from storage.
 
         Args:
-            model_name: Name of the model directory
+            model_name_for_dir: Name of the model directory
 
         Returns:
             Loaded ONNX inference session
@@ -50,25 +46,30 @@ class LocalOnnxInferenceMixin:
         Raises:
             Exception: If model cannot be loaded
         """
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_REPOSITORY_PATH}/{model_name.value.lower()}"
+        model_repo_path = MODEL_REPOSITORY_PATH
+        for directory in model_repo_path.iterdir():
+            if directory.is_file():
+                continue
 
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    return onnx_model
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
+            if model_name_for_dir in directory.name.lower():
+                onnx_file = directory / "1" / "model.onnx"
+                if onnx_file.exists() and onnx_file.is_file():
+                    try:
+                        onnx_model = ort.InferenceSession(onnx_file)
+                        return onnx_model
+                    except Exception:
+                        raise Exception(f"Model {onnx_file} could not be loaded!")
 
-        raise Exception(f"Model could not be found in model directory {model_dir}!")
+        raise Exception(
+            f"Model {model_name_for_dir} could not be found in model directory {model_repo_path}!"
+        )
 
     @staticmethod
-    def _load_multiple_onnx_models(model_name: str) -> List[InferenceSession]:
+    def _load_multiple_onnx_models(model_name_for_dir: str) -> List[InferenceSession]:
         """Load multiple ONNX models for ensemble inference.
 
         Args:
-            model_name: Name of the model directory
+            model_name_for_dir: Name of the model directory
 
         Returns:
             List of loaded ONNX inference sessions
@@ -76,22 +77,29 @@ class LocalOnnxInferenceMixin:
         Raises:
             Exception: If models cannot be loaded
         """
-        file_context_manager = FileContextManager()
-        model_dir = f"{MODEL_REPOSITORY_PATH}/{model_name.value.lower()}"
+        model_repo_path = MODEL_REPOSITORY_PATH
         models = []
 
-        with file_context_manager.storage_dir_read(dir_path=model_dir) as onnx_path:
-            for onnx_file in onnx_path.iterdir():
-                try:
-                    onnx_model = ort.InferenceSession(onnx_file)
-                    models.append((onnx_file.name, onnx_model))
-                except Exception:
-                    raise Exception(f"Model {onnx_file} could not be loaded!")
+        for directory in model_repo_path.iterdir():
+            if directory.is_file():
+                continue
+
+            if (
+                model_name_for_dir in directory.name.lower()
+                and "_cv" in directory.name.lower()
+            ):
+                onnx_file = directory / "1" / "model.onnx"
+                if onnx_file.exists() and onnx_file.is_file():
+                    try:
+                        onnx_model = ort.InferenceSession(onnx_file)
+                        model_cv = int(directory.name.split("_cv")[-1])
+                        models.append((model_cv, onnx_model))
+                    except Exception:
+                        raise Exception(f"Model {onnx_file} could not be loaded!")
 
         if len(models) == 0:
-            raise Exception(f"Model {model_name.value} could not be loaded!")
+            raise Exception(f"Model {model_name_for_dir} could not be loaded!")
 
-        # TODO [Refactoring] Sorting for cv_index does not work with temp files
         models = [model[1] for model in sorted(models, key=lambda x: x[0])]
         return models
 

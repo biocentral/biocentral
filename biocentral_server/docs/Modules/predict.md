@@ -9,3 +9,5 @@ Existing prediction models:
 * [LightAttentionSubcellularLocalization](https://github.com/hefeda/PGP/)
 * [LightAttentionMembrane](https://github.com/hefeda/PGP/)
 * [ProtT5SecondaryStructure](https://github.com/hefeda/PGP/)
+* [ExoTox](https://link.springer.com/article/10.1186/s13040-025-00469-2)
+* [UdonPred](https://github.com/davidwagemann/udonpred)

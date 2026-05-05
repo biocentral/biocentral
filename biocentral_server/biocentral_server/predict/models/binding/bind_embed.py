@@ -165,7 +165,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                 # ONNX: Run ensemble manually
                 batch_transposed = self._transpose_batch(batch)
                 ensemble_container = torch.zeros(
-                    (B, len(self.binding_classes.keys()), L),
+                    (B, L, len(self.binding_classes.keys())),
                     device="cpu",
                     dtype=torch.float16,
                 )
@@ -179,8 +179,6 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
                     ensemble_container = ensemble_container + pred
                 # normalize
                 bind_Yhat = ensemble_container / len(self.models)
-                # B x 3 x L --> B x L x 3
-                bind_Yhat = torch.permute(bind_Yhat, (0, 2, 1))
                 bind_Yhat = self._finalize_raw_prediction(
                     bind_Yhat > 0.5, dtype=np.byte
                 )

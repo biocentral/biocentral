@@ -112,6 +112,12 @@ class BiotrainerTritonEmbedder(EmbedderInterface):
             if not config.is_enabled():
                 return False
 
+            if not config.is_healthy():
+                logger.warning(
+                    "Triton server is not healthy. Triton embedding is not available."
+                )
+                return False
+
             # Check if embedder has a Triton model mapping
             triton_model = BiotrainerTritonEmbedder._get_triton_model_name(
                 embedder_name

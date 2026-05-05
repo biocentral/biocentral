@@ -54,7 +54,6 @@ class LightAttentionSubcellularLocalization(
             uses_ensemble=False,
             requires_mask=True,
             requires_transpose=True,
-            model_dir_name="la_subcell",
         )
         self.class2label_subcell = {
             0: "Cell_membrane",

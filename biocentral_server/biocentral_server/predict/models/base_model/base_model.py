@@ -30,7 +30,6 @@ class BaseModel(ABC):
         uses_ensemble: bool = False,
         requires_mask: bool = False,
         requires_transpose: bool = False,
-        model_dir_name: str = None,
     ):
         """
         Initialize the model.
@@ -41,7 +40,6 @@ class BaseModel(ABC):
             uses_ensemble: Whether the model uses multiple models (ensemble)
             requires_mask: Whether inputs need masking
             requires_transpose: Whether inputs need transposition
-            model_dir_name: Optional directory name, defaults to meta_data.name if not provided
         """
         self.batch_size = batch_size
         self.backend = backend
@@ -49,7 +47,6 @@ class BaseModel(ABC):
         self.requires_mask = requires_mask
         self.requires_transpose = requires_transpose
         self.non_padded_embedding_lengths = {}  # Undo padding after predictions
-        self.model_dir_name = model_dir_name
 
         # Lazy initialization flag - backend initialized on first use
         self._backend_initialized = False
@@ -72,7 +69,7 @@ class BaseModel(ABC):
                     f"{self.__class__.__name__} must inherit from OnnxInferenceMixin "
                     "to use ONNX backend"
                 )
-            self._init_onnx_backend(model_dir_name=self.model_dir_name)
+            self._init_onnx_backend()
 
         elif self.backend == "triton":
             if not hasattr(self, "_init_triton_backend"):

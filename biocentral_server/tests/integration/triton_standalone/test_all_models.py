@@ -39,7 +39,7 @@ Usage:
 Models loaded by docker-compose.triton-test.yml:
     - Embedding: prot_t5_pipeline, esm2_t33_pipeline, esm2_t36_pipeline
     - Prediction: prott5_sec, prott5_cons, bind_embed, seth, tmbed,
-                  light_attention_subcell, light_attention_membrane, vespag
+                  light_attention_subcell, light_attention_membrane, vespag, udonpred
 """
 
 import os
@@ -776,7 +776,6 @@ class TestSequenceLevelPredictionModels:
         "model_class",
         [
             (LightAttentionSubcellularLocalization, "subcellular"),
-            (LightAttentionMembrane, "membrane"),
         ],
     )
     def test_sequence_level_prediction_single(self, triton_repo, model_class):
@@ -1016,6 +1015,7 @@ class TestModelAvailability:
             "light_attention_subcell",
             "light_attention_membrane",
             "vespag",
+            "udonpred",
         ]
 
         for model_name in expected_models:

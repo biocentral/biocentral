@@ -14,3 +14,20 @@ class BiocentralPredictionModel(Enum):
     ExoTox = "ExoTox"
     VespaG = "VespaG"
     UdonPred = "UdonPred"
+
+    def to_onnx_dir_name(self):
+        match self:
+            case BiocentralPredictionModel.BindEmbed:
+                return "bind_embed"
+            case BiocentralPredictionModel.ProtT5Conservation:
+                return "prott5_cons"
+            case BiocentralPredictionModel.ProtT5SecondaryStructure:
+                return "prott5_sec"
+            case BiocentralPredictionModel.LightAttentionSubcellularLocalization:
+                return "light_attention_subcell"
+            case BiocentralPredictionModel.LightAttentionMembrane:
+                return "light_attention_membrane"
+            case BiocentralPredictionModel.TMbed:
+                return "tmbed"
+            case _:
+                return self.name.lower()

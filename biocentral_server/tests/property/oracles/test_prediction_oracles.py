@@ -304,44 +304,12 @@ class DirectPredictor:
         if self._initialized:
             return
 
-        import onnxruntime as ort
-
         model_cls = self.MODEL_CLASSES.get(self.model_name)
         if not model_cls:
             raise ValueError(f"Unknown model: {self.model_name}")
 
         # Instantiate the production model with ONNX backend
         self._model = model_cls(batch_size=1, backend="onnx")
-
-        # Load ONNX sessions from local filesystem, bypassing SeaweedFS
-        models_path = get_onnx_models_path()
-        model_dir_name = MODEL_DIRECTORIES.get(self.model_name)
-        if not model_dir_name:
-            raise ValueError(f"No directory configured for model: {self.model_name}")
-
-        model_dir = models_path / model_dir_name
-        if not model_dir.exists():
-            raise FileNotFoundError(
-                f"Model directory not found: {model_dir}. "
-                f"Models may not have downloaded correctly."
-            )
-
-        onnx_files = sorted(model_dir.glob("*.onnx"))
-        if not onnx_files:
-            raise FileNotFoundError(
-                f"No .onnx files found in {model_dir}. "
-                f"Ensure models are properly extracted."
-            )
-
-        sessions = [ort.InferenceSession(str(f)) for f in onnx_files]
-
-        if self._model.uses_ensemble:
-            self._model.models = sessions
-        else:
-            self._model.model = sessions[0]
-
-        # Mark backend as initialized so predict() skips SeaweedFS loading
-        self._model._backend_initialized = True
 
         self._embedder = FixedEmbedder(
             model_name="prot_t5",
@@ -381,7 +349,7 @@ class DirectPredictor:
 
 
 @pytest.fixture(scope="module")
-def ss_oracle_config() -> PredictionOracleConfig:
+def secstruct_oracle_config() -> PredictionOracleConfig:
     return PREDICTION_ORACLE_CONFIGS["ProtT5SecondaryStructure"]
 
 
@@ -419,11 +387,11 @@ def varied_length_sequences() -> List[str]:
 
 
 @pytest.fixture(scope="module")
-def direct_ss_predictor(ss_oracle_config):
+def direct_secstruct_predictor(secstruct_oracle_config):
     try:
         predictor = DirectPredictor(
             model_name="ProtT5SecondaryStructure",
-            config=ss_oracle_config,
+            config=secstruct_oracle_config,
         )
         predictor._ensure_initialized()
         return predictor
@@ -501,14 +469,14 @@ def direct_predictor(request):
 class TestPredictionDeterminism:
     def test_secondary_structure_determinism(
         self,
-        direct_ss_predictor: DirectPredictor,
-        ss_oracle_config: PredictionOracleConfig,
+        direct_secstruct_predictor: DirectPredictor,
+        secstruct_oracle_config: PredictionOracleConfig,
         standard_test_sequences: List[str],
     ):
         # Verify secondary structure predictions are deterministic via ONNX
         oracle = PredictionDeterminismOracle(
-            predictor=direct_ss_predictor,
-            config=ss_oracle_config,
+            predictor=direct_secstruct_predictor,
+            config=secstruct_oracle_config,
         )
 
         for seq in standard_test_sequences:
@@ -562,14 +530,14 @@ class TestPredictionDeterminism:
 class TestOutputValidity:
     def test_secondary_structure_output_validity(
         self,
-        direct_ss_predictor: DirectPredictor,
-        ss_oracle_config: PredictionOracleConfig,
+        direct_secstruct_predictor: DirectPredictor,
+        secstruct_oracle_config: PredictionOracleConfig,
         standard_test_sequences: List[str],
     ):
         # Verify secondary structure outputs are valid via ONNX
         oracle = OutputValidityOracle(
-            predictor=direct_ss_predictor,
-            config=ss_oracle_config,
+            predictor=direct_secstruct_predictor,
+            config=secstruct_oracle_config,
         )
 
         for seq in standard_test_sequences:
@@ -623,14 +591,14 @@ class TestOutputValidity:
 class TestShapeInvariance:
     def test_secondary_structure_shape_invariance(
         self,
-        direct_ss_predictor: DirectPredictor,
-        ss_oracle_config: PredictionOracleConfig,
+        direct_secstruct_predictor: DirectPredictor,
+        secstruct_oracle_config: PredictionOracleConfig,
         varied_length_sequences: List[str],
     ):
         # Verify secondary structure output shapes match sequence lengths via ONNX
         oracle = ShapeInvarianceOracle(
-            predictor=direct_ss_predictor,
-            config=ss_oracle_config,
+            predictor=direct_secstruct_predictor,
+            config=secstruct_oracle_config,
         )
 
         result = oracle.verify(varied_length_sequences)
