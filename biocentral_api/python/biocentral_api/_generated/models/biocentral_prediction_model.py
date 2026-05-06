@@ -35,6 +35,7 @@ class BiocentralPredictionModel(str, Enum):
     PROTT5SECONDARYSTRUCTURE = 'ProtT5SecondaryStructure'
     EXOTOX = 'ExoTox'
     VESPAG = 'VespaG'
+    UDONPRED = 'UdonPred'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
