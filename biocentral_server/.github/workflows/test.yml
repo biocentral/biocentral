@@ -153,6 +153,19 @@ jobs:
           docker compose -f docker-compose.ci.yml --env-file .env.ci --env-file .env.local up -d --wait
         env:
           CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
+          MODEL_DOWNLOADS: |
+            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+            _bind_embed_cv3:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
           timeout-minutes: 10
 
       - name: Run integration tests
@@ -221,6 +234,19 @@ jobs:
         run: |
           docker compose -f docker-compose.ci.yml --env-file .env.ci up triton-model-init
         env:
+          MODEL_DOWNLOADS: |
+            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+            _bind_embed_cv3:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
           timeout-minutes: 10
 
       - name: Run property oracle tests
