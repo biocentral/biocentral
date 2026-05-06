@@ -24,6 +24,8 @@ const BiocentralPredictionModel _$exoTox =
     const BiocentralPredictionModel._('exoTox');
 const BiocentralPredictionModel _$vespaG =
     const BiocentralPredictionModel._('vespaG');
+const BiocentralPredictionModel _$udonPred =
+    const BiocentralPredictionModel._('udonPred');
 
 BiocentralPredictionModel _$valueOf(String name) {
   switch (name) {
@@ -45,6 +47,8 @@ BiocentralPredictionModel _$valueOf(String name) {
       return _$exoTox;
     case 'vespaG':
       return _$vespaG;
+    case 'udonPred':
+      return _$udonPred;
     default:
       throw ArgumentError(name);
   }
@@ -61,6 +65,7 @@ final BuiltSet<BiocentralPredictionModel> _$values =
   _$protT5SecondaryStructure,
   _$exoTox,
   _$vespaG,
+  _$udonPred,
 ]);
 
 class _$BiocentralPredictionModelMeta {
@@ -77,6 +82,7 @@ class _$BiocentralPredictionModelMeta {
       _$protT5SecondaryStructure;
   BiocentralPredictionModel get exoTox => _$exoTox;
   BiocentralPredictionModel get vespaG => _$vespaG;
+  BiocentralPredictionModel get udonPred => _$udonPred;
   BiocentralPredictionModel valueOf(String name) => _$valueOf(name);
   BuiltSet<BiocentralPredictionModel> get values => _$values;
 }
@@ -103,6 +109,7 @@ class _$BiocentralPredictionModelSerializer
     'protT5SecondaryStructure': 'ProtT5SecondaryStructure',
     'exoTox': 'ExoTox',
     'vespaG': 'VespaG',
+    'udonPred': 'UdonPred',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
     'BindEmbed': 'bindEmbed',
@@ -115,6 +122,7 @@ class _$BiocentralPredictionModelSerializer
     'ProtT5SecondaryStructure': 'protT5SecondaryStructure',
     'ExoTox': 'exoTox',
     'VespaG': 'vespaG',
+    'UdonPred': 'udonPred',
   };
 
   @override

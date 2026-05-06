@@ -38,6 +38,9 @@ class BiocentralPredictionModel extends EnumClass {
   /// Biocentral prediction model names (for usage in APIs)
   @BuiltValueEnumConst(wireName: r'VespaG')
   static const BiocentralPredictionModel vespaG = _$vespaG;
+  /// Biocentral prediction model names (for usage in APIs)
+  @BuiltValueEnumConst(wireName: r'UdonPred')
+  static const BiocentralPredictionModel udonPred = _$udonPred;
 
   static Serializer<BiocentralPredictionModel> get serializer => _$biocentralPredictionModelSerializer;
 

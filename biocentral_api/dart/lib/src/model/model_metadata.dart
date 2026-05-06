@@ -31,7 +31,7 @@ abstract class ModelMetadata implements Built<ModelMetadata, ModelMetadataBuilde
   /// Model name
   @BuiltValueField(wireName: r'name')
   BiocentralPredictionModel get name;
-  // enum nameEnum {  BindEmbed,  ProtT5Conservation,  Seth,  LightAttentionSubcellularLocalization,  LightAttentionMembrane,  TMbed,  ProtT5SecondaryStructure,  ExoTox,  VespaG,  };
+  // enum nameEnum {  BindEmbed,  ProtT5Conservation,  Seth,  LightAttentionSubcellularLocalization,  LightAttentionMembrane,  TMbed,  ProtT5SecondaryStructure,  ExoTox,  VespaG,  UdonPred,  };
 
   /// Protocol of model predictions
   @BuiltValueField(wireName: r'protocol')
