@@ -67,6 +67,19 @@ class TestEmbeddings(unittest.TestCase):
         for v in res2.values():
             self.assertIsNotNone(v)
 
+        # Test half precision
+        res3 = self.api.embed(
+            embedder_name=CommonEmbedder.ESM2_650M,
+            reduce=True,
+            sequence_data=sequence_data,
+            use_half_precision=True,
+        ).run_with_progress()
+        res3 = res3.to_dict()
+
+        self.assertEqual(set(res3.keys()), set(sequence_data.keys()))
+        for v in res3.values():
+            self.assertIsNotNone(v)
+
 
 class TestPredict(unittest.TestCase):
     @classmethod
