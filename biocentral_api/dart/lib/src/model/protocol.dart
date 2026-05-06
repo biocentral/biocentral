@@ -30,6 +30,9 @@ class Protocol extends EnumClass {
 
   static BuiltSet<Protocol> get values => _$values;
   static Protocol valueOf(String name) => _$valueOf(name);
+
+  String get wireName =>
+      (_$protocolSerializer as _$ProtocolSerializer).serialize(Serializers(), this) as String;
 }
 
 /// Optionally, enum_class can generate a mixin to go with your enum for use

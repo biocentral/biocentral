@@ -1,17 +1,12 @@
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
-import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
-import 'package:biocentral_api/src/model/model_metadata.dart';
-import 'package:biocentral_api/src/model/research_stats.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
 import 'clients/predict_client.dart';
 import 'clients/proteins_client.dart';
-import 'clients/tasks/biocentral_server_task.dart';
-import 'model/prediction.dart';
-import 'model/sequence_training_data.dart';
-import 'model/taxonomy_item.dart';
 
 final class BiocentralAPIHealth {
   final String url;
@@ -242,5 +237,15 @@ extension ProteinsAPI on BiocentralAPI {
   }) async {
     final result = await ProteinsClient().taxonomy(api: _getAPI(), taxonomyIds: taxonomyIds);
     return result?.toList();
+  }
+}
+
+extension ActiveLearningAPI on BiocentralAPI {
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> activeLearningIteration({
+    required ActiveLearningCampaignConfig campaignConfig,
+    required ActiveLearningIterationConfig iterationConfig,
+  }) async {
+    return ActiveLearningClient()
+        .activeLearningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
   }
 }

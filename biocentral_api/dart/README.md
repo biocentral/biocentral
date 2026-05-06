@@ -20,7 +20,17 @@ The openapi specification can be found [here](https://biocentral.rostlab.org/doc
         () => MapBuilder<String, BuiltList<Prediction>>(),
       )
 ```
-4. Run `dart run build_runner build --delete-conflicting-outputs`
+3. Add the following to `common_embedder.dart`:
+```dart
+  String get wireName =>
+      (_$commonEmbedderSerializer as _$CommonEmbedderSerializer).serialize(Serializers(), this) as String;
+```
+4. Add the following to `protocol.dart`:
+```dart
+  String get wireName =>
+      (_$protocolSerializer as _$ProtocolSerializer).serialize(Serializers(), this) as String;
+```
+5. Run `dart run build_runner build --delete-conflicting-outputs`
 
 ## Citation
 
