@@ -68,12 +68,9 @@ markers = [
     "property: marks property-based/oracle tests",
     "triton: marks tests that require Triton server",
 ]
-
-[tool.pytest.benchmark]
 min_rounds = 5
 disable_gc = true
 warmup = true
-
 
 [tool.uv]
 override-dependencies = [
