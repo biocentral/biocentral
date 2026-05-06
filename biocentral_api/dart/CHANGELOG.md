@@ -1,3 +1,8 @@
+## 1.2.0
+
+* Adding support for UdonPred model
+* Improving active learning API handling and enum support
+
 ## 1.1.2
 
 * Upgrading to biocentral_server version 1.1.1
