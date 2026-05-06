@@ -240,16 +240,6 @@ class ShapeInvarianceOracle:
         return result
 
 
-# Model name mapping to ONNX directory names (uses model_name.value.lower())
-# Files are auto-discovered within each directory
-MODEL_DIRECTORIES = {
-    "ProtT5SecondaryStructure": "prott5secondarystructure",
-    "Seth": "seth",
-    "BindEmbed": "bindembed",
-    "TMbed": "tmbed",
-}
-
-
 def get_onnx_models_path() -> Path:
     """Get or download ONNX models path.
 
@@ -258,18 +248,10 @@ def get_onnx_models_path() -> Path:
     """
     from biocentral_server.predict.model_utils.utils import MODEL_REPOSITORY_PATH
 
-    def models_exist(p: Path) -> bool:
-        expected_dirs = ["prott5secondarystructure", "seth", "bindembed", "tmbed"]
-        for model_name in expected_dirs:
-            model_dir = p / model_name
-            if model_dir.exists() and any(model_dir.glob("*.onnx")):
-                return True
-        return False
-
     # Check environment variable first
     target_path = MODEL_REPOSITORY_PATH
 
-    if target_path.exists() and models_exist(target_path):
+    if target_path.exists():
         return target_path
     raise ValueError(
         f"Expected ONNX models not found in initializing onnx environment. "

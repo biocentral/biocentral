@@ -38,6 +38,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -68,12 +71,6 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
 
-    env:
-      CI_SERVER_URL: http://localhost:9540
-      SEAWEEDFS_FILER_HOST: localhost
-      SEAWEEDFS_FILER_PORT: 8888
-      #CI_EMBEDDER: fixed
-
     steps:
       - name: Maximize build disk space
         uses: easimon/maximize-build-space@v10
@@ -88,6 +85,14 @@ jobs:
           remove-docker-images: 'true'
           overprovision-lvm: 'true'
 
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
       - name: Move Docker storage to large partition
         run: |
           sudo systemctl stop docker.service
@@ -96,11 +101,6 @@ jobs:
           sudo mv /var/lib/docker /home/runner/work/docker
           sudo ln -s /home/runner/work/docker /var/lib/docker
           sudo systemctl start docker.service
-
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
@@ -150,25 +150,9 @@ jobs:
 
       - name: Start services with Docker Compose
         run: |
-          docker compose -f docker-compose.ci.yml --env-file .env.local up -d --wait
+          docker compose -f docker-compose.ci.yml --env-file .env.ci --env-file .env.local up -d --wait
         env:
-          DOCKER_BUILDKIT: 1
-          COMPOSE_DOCKER_CLI_BUILD: 1
-          BUILDKIT_STEP_LOG_MAX_SIZE: 10000000
           CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
-          MODEL_DOWNLOADS: |  # Subset of models to avoid large downloads
-            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
-            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
-            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
-            _bind_embed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
-            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
-            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
-            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
-            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
-            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
-            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
-            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
-            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
           timeout-minutes: 10
 
       - name: Run integration tests
@@ -177,12 +161,12 @@ jobs:
       - name: Show logs
         if: always()
         run: |
-          docker compose -f docker-compose.ci.yml --env-file .env.local logs
+          docker compose -f docker-compose.ci.yml --env-file .env.ci logs
 
       - name: Stop services
         if: always()
         run: |
-          docker compose -f docker-compose.ci.yml --env-file .env.local down -v
+          docker compose -f docker-compose.ci.yml --env-file .env.ci down -v
 
   property-oracle-test:
     runs-on: ubuntu-latest
@@ -206,6 +190,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
         with:
@@ -226,6 +213,15 @@ jobs:
         run: uv sync --no-install-project --index-strategy unsafe-best-match
         env:
           UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run setup container with Docker Compose
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.ci up triton-model-init
+        env:
+          timeout-minutes: 10
 
       - name: Run property oracle tests
         run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"
