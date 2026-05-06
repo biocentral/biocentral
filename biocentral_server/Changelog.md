@@ -1,5 +1,14 @@
 # biocentral_server Changelog
 
+## v.1.2.0
+
+- Added new UdonPred model (https://github.com/davidwagemann/udonpred) for TriZOD disorder predictions
+- Refactored bay_opt module name to active_learning
+- Refactored al_pipeline to use `junban` scientific workflow management
+- Removed code duplication for embedding by adding a `PreEmbedMixin` for tasks
+- Removed redundant declarations in docker compose files by using the `override` pattern
+- Updating dependencies
+
 ## v1.1.2
 
 - Resolved half precision embedding issues by standardizing terminology in the database and modifying handling to use
