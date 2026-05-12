@@ -26,6 +26,8 @@ services:
   biocentral-server:
     <<: *app-defaults
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
+    ports:
+      - "${SERVER_PORT:-9540}:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
