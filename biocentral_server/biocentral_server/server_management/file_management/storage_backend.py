@@ -38,6 +38,13 @@ class StorageBackend(ABC):
     def get_disk_usage(self) -> str:
         raise NotImplementedError
 
+    def get_local_path(self, path: str) -> Optional[Path]:
+        """
+        Returns a local Path to the file if it exists directly on the local filesystem.
+        Returns None if the backend does not support direct local access (e.g. SeaweedFS).
+        """
+        return None
+
 
 class StorageFileReader:
     def __init__(
@@ -52,9 +59,14 @@ class StorageFileReader:
         self.temp_file = None
 
     def __enter__(self) -> Path:
-        # Create a temporary file
+        # Check if backend provides direct local path
+        local_path = self.storage_backend.get_local_path(self.file_path)
+        if local_path and local_path.exists() and local_path.is_file():
+            return local_path
+
+        # Create a temporary file if no direct access
         self.temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=self.suffix)
-        # Get content from SeaweedFS
+        # Get content from storage backend
         content = self.storage_backend.get_file(self.file_path)
         # Write content to temporary file
         self.temp_file.write(content)
@@ -81,16 +93,22 @@ class StorageDirectoryReader:
         """
         Downloads the entire directory from storage and returns the local temp directory path
         """
+        # Check if backend provides direct local path
+        local_path = self.storage_backend.get_local_path(self.directory_path)
+        if local_path and local_path.exists() and local_path.is_dir():
+            return local_path
+
         # Create temporary directory
         self.temp_dir = Path(tempfile.mkdtemp())
 
-        # Download the directory contents recursively
+        # Download the directory contents recursively for distributed backends
         self._download_directory(self.directory_path, self.temp_dir)
 
         return self.temp_dir
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Clean up the temporary directory when exiting context"""
+        # Only cleanup if we actually created a temp directory
         if self.temp_dir and self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
@@ -159,13 +177,26 @@ class StorageFileWriter:
             if self.file_path is None:
                 self._cleanup()
                 raise StorageError("File path not set in StorageFileWriter!")
-            # Sync all files in temp directory to SeaweedFS
-            for file_path in self.temp_dir.rglob("*"):
-                if file_path.is_file():
-                    relative_path = file_path.relative_to(self.temp_dir)
-                    target_path = Path(self.file_path) / relative_path
-                    with open(file_path, "rb") as f:
-                        self.storage_backend.save_file(str(target_path), f)
+
+            # Check if backend provides direct local path
+            local_path = self.storage_backend.get_local_path(self.file_path)
+            if local_path:
+                # If the backend has direct local access, we can move or copy the files directly
+                local_path.mkdir(parents=True, exist_ok=True)
+                for file_path in self.temp_dir.rglob("*"):
+                    if file_path.is_file():
+                        relative_path = file_path.relative_to(self.temp_dir)
+                        target_path = local_path / relative_path
+                        target_path.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(file_path, target_path)
+            else:
+                # Sync all files in temp directory to storage backend
+                for file_path in self.temp_dir.rglob("*"):
+                    if file_path.is_file():
+                        relative_path = file_path.relative_to(self.temp_dir)
+                        target_path = Path(self.file_path) / relative_path
+                        with open(file_path, "rb") as f:
+                            self.storage_backend.save_file(str(target_path), f)
 
         self._cleanup()
 

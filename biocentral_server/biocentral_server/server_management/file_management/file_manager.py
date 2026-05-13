@@ -15,14 +15,14 @@ from .storage_backend import (
     StorageDirectoryReader,
 )
 
-from .seaweedfs_backend import SeaweedFSStorageBackend
+from .local_storage_backend import LocalStorageBackend
 
 
 class FileManager:
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.path_manager = PathManager(user_id)
-        self.storage_backend: StorageBackend = SeaweedFSStorageBackend()
+        self.storage_backend: StorageBackend = LocalStorageBackend()
 
     def get_disk_usage(self) -> str:
         return self.storage_backend.get_disk_usage()
@@ -190,7 +190,7 @@ class FileManager:
 
 class FileContextManager:
     def __init__(self):
-        self.storage_backend = SeaweedFSStorageBackend()
+        self.storage_backend = LocalStorageBackend()
 
     def save_file_temporarily(
         self, temp_path: Union[str, Path], file_path: Union[str, Path]
