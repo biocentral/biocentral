@@ -1,5 +1,14 @@
 # biocentral_server Changelog
 
+## v1.2.1
+
+- Updated file management to use a local storage backend, removing SeaweedFS container dependency.
+- Added verification of file management at application startup.
+- Enhanced the landing page with a link to the tour and an icon for better user experience.
+- Suppressed unnecessary FAISS Info log messages.
+- Set assets data to read-only for improved security.
+- Added missing server port to `.env` files for consistency and clarified usage of profiles for local debugging.
+
 ## v.1.2.0
 
 - Added new UdonPred model (https://github.com/davidwagemann/udonpred) for TriZOD disorder predictions
