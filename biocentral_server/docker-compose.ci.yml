@@ -17,23 +17,6 @@ services:
     ports:
       - "${REDIS_JOBS_PORT}:6379"
 
-  seaweedfs-master:
-    extends:
-      file: docker-compose.yml
-      service: seaweedfs-master
-
-  seaweedfs-volume:
-    extends:
-      file: docker-compose.yml
-      service: seaweedfs-volume
-
-  seaweedfs-filer:
-    extends:
-      file: docker-compose.yml
-      service: seaweedfs-filer
-    ports:
-      - "${SEAWEEDFS_FILER_PORT}:8888"
-
   triton-model-init:  # Necessary to download local onnx files
     extends:
       file: docker-compose.yml
@@ -76,12 +59,12 @@ volumes:
       type: none
       o: bind
       device: ${EMBEDDINGS_DATA_DIR}
-  seaweedfs_data:
+  file_storage:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${FILES_DATA_DIR:-./storage/seaweedfs}
+      device: ${FILES_DATA_DIR:-./storage/files}
   temp_server_storage:
     driver: local
     driver_opts:

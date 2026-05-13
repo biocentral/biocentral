@@ -32,10 +32,6 @@ services:
       - biocentral-network
     restart: unless-stopped
 
-  seaweedfs-filer:
-    ports:
-      - "${SEAWEEDFS_FILER_PORT}:8888"
-
   triton:
     ports:
       - "8000:8000"

@@ -15,6 +15,7 @@ x-app-defaults: &app-defaults
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     REDIS_JOBS_HOST: redis-jobs
     HF_HOME: /app/huggingface_models
+    FILES_DATA_DIR: /app/storage/files
     ASSETS_DIR: /app/assets
     TRITON_GRPC_URL: http://triton:8001
     TRITON_HTTP_URL: http://triton:8000
@@ -31,12 +32,12 @@ services:
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
+      - file_storage:/app/storage/files
       - triton_models:/app/models:ro
     depends_on:
       biocentral-worker: { condition: service_started }
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
-      seaweedfs-filer: { condition: service_healthy }
       triton-model-init: { condition: service_completed_successfully }
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
@@ -56,7 +57,6 @@ services:
     depends_on:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
-      seaweedfs-filer: { condition: service_healthy }
       triton-model-init: { condition: service_completed_successfully }
 
   redis-jobs:
@@ -87,37 +87,6 @@ services:
       retries: 5
     networks:
       - biocentral-network
-
-  seaweedfs-master:
-    image: chrislusf/seaweedfs
-    command: "master -ip=seaweedfs-master -port=9333 -port.grpc=19333"
-    networks:
-      - biocentral-network
-
-  seaweedfs-volume:
-    image: chrislusf/seaweedfs
-    command: 'volume -dir="/data" -max=5 -mserver="seaweedfs-master:9333" -port=8080 -port.grpc=18080 -ip=seaweedfs-volume'
-    volumes:
-      - seaweedfs_data:/data
-    depends_on:
-      - seaweedfs-master
-    networks:
-      - biocentral-network
-
-  seaweedfs-filer:
-    image: chrislusf/seaweedfs
-    command: 'filer -master="seaweedfs-master:9333" -port=8888 -port.grpc=18888 -ip=seaweedfs-filer'
-    depends_on:
-      - seaweedfs-master
-      - seaweedfs-volume
-    networks:
-      - biocentral-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "--quiet", "-Y", "off", "http://seaweedfs-filer:8888/" ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
 
   triton-model-init:
     build:
@@ -186,12 +155,12 @@ volumes:
       type: none
       o: bind
       device: ${EMBEDDINGS_DATA_DIR}
-  seaweedfs_data:
+  file_storage:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${FILES_DATA_DIR:-./storage/seaweedfs}
+      device: ${FILES_DATA_DIR:-./storage/files}
   temp_server_storage:
     driver: local
     driver_opts:
