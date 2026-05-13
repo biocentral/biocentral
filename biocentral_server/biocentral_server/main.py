@@ -15,6 +15,7 @@ from .server_management import (
     BodySizeLimitMiddleware,
     UserManager,
     EmbeddingDatabaseFactory,
+    FileManager,
 )
 
 # Import module routers
@@ -28,6 +29,8 @@ from .biocentral_service import router as biocentral_service_router
 
 from .utils import str2bool, Constants, get_logger
 
+logger = get_logger(__name__)
+
 
 def _setup_directories():
     required_directories = ["logs", "storage"]
@@ -38,7 +41,6 @@ def _setup_directories():
 
 def cleanup_database_task():
     """Scheduled task to cleanup old embeddings"""
-    logger = get_logger(__name__)
 
     try:
         logger.info("[SCHEDULED] Running database cleanup...")
@@ -82,10 +84,17 @@ async def lifespan(app: FastAPI):
     # Directories
     _setup_directories()
 
-    logger = get_logger(__name__)
     # Initialize modules
     # initialization_manager = ServerInitializationManager()
     # initialization_manager.run_all()
+
+    # Verify file management works
+    file_manager = FileManager("startup_test")
+
+    logger.info("Running file management verification...")
+    if not file_manager.verify_storage_backend():
+        raise Exception("File management verification failed!")
+    logger.info("File management verification successful!")
 
     # Scheduled tasks
     # Start background scheduler

@@ -17,12 +17,35 @@ from .storage_backend import (
 
 from .local_storage_backend import LocalStorageBackend
 
+from ...utils import get_logger
+
+logger = get_logger(__name__)
+
 
 class FileManager:
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.path_manager = PathManager(user_id)
         self.storage_backend: StorageBackend = LocalStorageBackend()
+
+    def verify_storage_backend(self) -> bool:
+        test_file_path = f"{self.user_id}/.backend_test/test.txt"
+        test_content = b"backend_test"
+
+        try:
+            self.storage_backend.save_file(test_file_path, test_content)
+            success_get = self.storage_backend.get_file(test_file_path) == test_content
+            success_delete = self.storage_backend.delete_file(test_file_path)
+            success = success_get and success_delete
+            if not success:
+                logger.error(
+                    f"Storage backend verification failed!"
+                    f"Get: {success_get}, Delete: {success_delete}"
+                )
+            return success
+        except Exception as e:
+            logger.error(f"Storage backend verification failed!Error: {e}")
+            return False
 
     def get_disk_usage(self) -> str:
         return self.storage_backend.get_disk_usage()

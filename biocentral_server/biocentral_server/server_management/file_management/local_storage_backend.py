@@ -82,6 +82,7 @@ class LocalStorageBackend(StorageBackend):
                     full_path.unlink()
                 elif full_path.is_dir():
                     shutil.rmtree(full_path)
+                logger.info(f"Deleted file from local storage: {full_path}")
                 return True
             return False
         except Exception:
