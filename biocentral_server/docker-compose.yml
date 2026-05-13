@@ -31,7 +31,7 @@ services:
       - "${SERVER_PORT:-9540}:9540"
     volumes:
       - huggingface_models_cache:/app/huggingface_models
-      - assets_data:/app/assets
+      - assets_data:/app/assets:ro
       - file_storage:/app/storage/files
       - triton_models:/app/models:ro
     depends_on:
