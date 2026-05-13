@@ -1,6 +1,6 @@
 services:
   biocentral-server:
-    profiles: ["app"]
+    profiles: ["app"]  # Only runs this service with the app profile (for local debug of the docker container)
     build: .
     ports:
       - "9540:9540"
