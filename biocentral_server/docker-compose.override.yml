@@ -1,4 +1,5 @@
 services:
+  # Run via docker compose --profile app up --build --pull never
   biocentral-server:
     profiles: ["app"]  # Only runs this service with the app profile (for local debug of the docker container)
     build: .
@@ -19,6 +20,7 @@ services:
 
   biocentral-worker:
     profiles: ["app"]
+    build: .
 
   redis-commander:
     image: rediscommander/redis-commander:latest
