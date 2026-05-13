@@ -3,6 +3,10 @@ import logging
 
 from .constants import Constants
 
+# Suppress faiss INFO Loggings
+logging.getLogger("faiss").setLevel(logging.WARNING)
+logging.getLogger("faiss.loader").setLevel(logging.WARNING)
+
 logging_setup = False
 
 
