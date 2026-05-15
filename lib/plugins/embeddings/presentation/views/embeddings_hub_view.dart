@@ -132,6 +132,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
   }
 
   Widget buildEmbeddingDetailView(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
+    final selected = state.dto?.byType(_selectedType)[_selectedEmbedder]?[_selectedKey];
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -144,8 +145,8 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
           const SizedBox(
             height: 8,
           ),
-          buildEmbeddingMetaDataDisplay(state.dto?.byType(_selectedType)[_selectedEmbedder]?[_selectedKey]),
-          //Flexible(child: buildSingleEmbedding(embeddingsHubBloc, state)),
+          buildEmbeddingMetaDataDisplay(selected?.metaData),
+          Flexible(child: buildSingleEmbedding(selected)),
           const SizedBox(
             height: 8,
           ),
@@ -239,8 +240,8 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
     final rows = [
       DataRow(
         cells: [
-          const DataCell(Text('Is Per Residue')),
-          DataCell(Text(metaData.isPerResidue.toString())),
+          const DataCell(Text('Embedding Type')),
+          DataCell(Text(metaData.embeddingType.name)),
         ],
       ),
       DataRow(
@@ -249,47 +250,49 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
           DataCell(Text(metaData.dimension.toString())),
         ],
       ),
-      DataRow(
-        cells: [
-          const DataCell(Text('Length')),
-          DataCell(Text(metaData.length.toString())),
-        ],
-      ),
+      if (metaData.embeddingType == EmbeddingType.perResidue)
+        DataRow(
+          cells: [
+            const DataCell(Text('Length')),
+            DataCell(Text(metaData.length.toString())),
+          ],
+        ),
       ...attributesRows,
     ];
 
     return DataTable(columns: columns, rows: rows);
   }
 
-  /*
-  Widget buildSingleEmbedding(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
-    if (state.embeddingsColumnWizard == null ||
-        state.selectedEmbedderName == null ||
-        state.selectedEmbeddingType == null ||
-        state.selectedEntityID == null ||
-        state.selectedEntityID!.isEmpty) {
+  Widget buildSingleEmbedding(LazyEmbedding? embedding) {
+    if (embedding == null) {
       return Container();
     }
-    final List<dynamic>? rawEmbeddingValues = state.embeddingsColumnWizard!.valueMap[state.selectedEntityID!]
-        ?.getEmbedding(state.selectedEmbeddingType!, embedderName: state.selectedEmbedderName)
-        ?.rawValues();
 
-    // TODO Visualizations based on embedding type
-    if (rawEmbeddingValues == null || rawEmbeddingValues is! List<double>) {
-      return Text(rawEmbeddingValues.toString());
-    }
     return SizedBox(
       width: SizeConfig.screenWidth(context),
       height: SizeConfig.screenHeight(context) * 0.1,
-      child: VectorVisualizer(
-        vector: rawEmbeddingValues,
-        name: '${state.selectedEntityID} - PerSequenceEmbedding',
-        // TODO Remove -1 in the future once visualization is improved
-        decimalPlaces: Constants.maxDoublePrecision - 1,
+      child: FutureBuilder(
+        future: embedding.getEmbedding(),
+        builder: (context, asyncSnapshot) {
+          if(asyncSnapshot.data == null) {
+            return const CircularProgressIndicator();
+          }
+          final rawEmbeddingValues = asyncSnapshot.data?.rawValues();
+          // TODO Visualizations based on embedding type / Error Handling
+          if (rawEmbeddingValues == null || rawEmbeddingValues is! List<double>) {
+            return Text(rawEmbeddingValues.toString());
+          }
+          return VectorVisualizer(
+            vector: rawEmbeddingValues,
+            name: '${embedding.key} - ${embedding.metaData.embeddingType.name}',
+            // TODO Remove -1 in the future once visualization is improved
+            decimalPlaces: Constants.maxDoublePrecision - 1,
+          );
+        },
       ),
     );
   }
-*/
+
   /*
   Widget buildBasicEmbeddingStats(EmbeddingsHubBloc embeddingsHubBloc, EmbeddingsHubState state) {
     if (state.embeddingsColumnWizard == null ||

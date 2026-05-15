@@ -16,7 +16,7 @@ def get_h5_info(json_data):
             is_per_residue = len(shape) > 1
 
             info[key] = {
-                "is_per_residue": is_per_residue,
+                "embeddingType": is_per_residue,
                 "dimension": shape[-1],
                 "length": shape[0] if is_per_residue else 1,
                 "attributes": dict(dataset.attrs)
@@ -33,7 +33,7 @@ def get_embedding(json_data):
             return id2emb
         embedding = f[key]
         id2emb[key] = np.array(embedding).tolist()
-    return id2emb
+    return {"id2emb": id2emb}
 
 
 def read_h5(json_data):
@@ -51,6 +51,30 @@ def read_h5(json_data):
 
     embeddings_file.close()
     return {"id2emb": id2emb}
+
+
+def sync_internal_h5(json_data):
+    external_file_path = json_data.get('external_file_path')
+    internal_file_path = json_data.get('internal_file_path')
+
+    # Open external file and read all datasets
+    with h5py.File(external_file_path, 'r') as external_f:
+        # Create or open internal file in write mode (will overwrite existing content)
+        with h5py.File(internal_file_path, 'w') as internal_f:
+            # Copy all datasets from external to internal
+            for key in external_f.keys():
+                # Read dataset from external file
+                dataset = external_f[key]
+                data = np.array(dataset)
+
+                # Create dataset in internal file with same data and compression
+                internal_f.create_dataset(key, data=data, compression="gzip", chunks=True)
+
+                # Copy all attributes
+                for attr_name, attr_value in dataset.attrs.items():
+                    internal_f[key].attrs[attr_name] = attr_value
+
+    return get_h5_info({"file_path": internal_file_path})
 
 
 def write_h5(json_data):

@@ -134,29 +134,26 @@ class EmbeddingsPlugin extends BiocentralPlugin
     return [
       BiocentralPluginDirectory(
         path: 'embeddings',
-        saveType: Embedding,
+        saveType: EmbeddingsFile,
         createDirectoryLoadingEvents: (
           List<XFile> scannedFiles,
           Map<String, List<XFile>> scannedSubDirectories,
         ) {
           final List<void Function(BuildContext)> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
-            if (scannedFile.extension == 'h5') {
-              // TODO
-              //void loadingFunction(context) => getBiocentralCommandBloc(context).add(
-              //    BiocentralCommandExecuteEvent(
-              //      command: LoadEmbeddingsFromFileCommand(
-              //        biocentralProjectRepository: getBiocentralProjectRepository(context),
-              //        embeddingsRepository: getDatabase(context),
-              //        xFile: scannedFile,
-              //        assetDataset: null,
-              //        importMode: DatabaseImportMode.overwrite,
-              //      ),
-              //      visualizeResult: null,
-              //      autoAccept: true,
-              //    ),,
-              //    );
-              //loadingFunctions.add(loadingFunction);
+            if (scannedFile.name.contains('embedding_db_info') && scannedFile.extension == 'json') {
+              void loadingFunction(context) => getBiocentralCommandBloc(context).add(
+                BiocentralCommandExecuteEvent(
+                  command: LoadEmbeddingsDatabaseCommand(
+                    projectRepository: getBiocentralProjectRepository(context),
+                    embeddingsRepository: getDatabase(context),
+                    embeddingsDBInfo: scannedFile,
+                  ),
+                  visualizeResult: null,
+                  autoAccept: true,
+                ),
+              );
+              loadingFunctions.add(loadingFunction);
             }
           }
           return loadingFunctions;
