@@ -137,7 +137,7 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
       mainAxisSize: MainAxisSize.min,
       children: [
         BiocentralDiscreteSelection(
-          title: 'Select campaign to add data to',
+          title: 'Select campaign',
           initialValue: _selectedCampaign,
           selectableValues: campaigns,
           displayConversion: (campaign) => campaign.config.name,

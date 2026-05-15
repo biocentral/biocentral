@@ -30,9 +30,6 @@ class _BiocentralDropdownMenuState<T> extends State<BiocentralDropdownMenu<T>> {
     _textEditingController = widget.controller ?? TextEditingController();
     if(widget.initialSelection != null) {
       _textEditingController?.text = widget.initialSelection.toString();
-      if(widget.onSelected != null) {
-        widget.onSelected!(widget.initialSelection);
-      }
     }
   }
 
