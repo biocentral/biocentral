@@ -50,6 +50,12 @@ def get_embedding():
     return jsonify(result)
 
 
+@app.route('/sync_internal_h5', methods=['POST'])
+def sync_internal_h5():
+    result = functionality.sync_internal_h5(request.json)
+    return jsonify(result)
+
+
 @app.route('/terminate', methods=['GET'])
 def terminate():
     print("Terminating server from terminate request")

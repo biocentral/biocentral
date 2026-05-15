@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
@@ -17,27 +16,33 @@ class LazyEmbedding {
 
   final Future<Embedding?> Function() _getFunction;
 
-  LazyEmbedding(
-      {required this.key,
-      required this.path,
-      required this.embedderName,
-      required this.metaData,
-      required Future<Embedding?> Function() getFunction})
-      : _getFunction = getFunction;
+  LazyEmbedding({
+    required this.key,
+    required this.path,
+    required this.embedderName,
+    required this.metaData,
+    required Future<Embedding?> Function() getFunction,
+  }) : _getFunction = getFunction;
 
-  factory LazyEmbedding.lazy(
-      {required String key,
-      required String path,
-      required String embedderName,
-      required EmbeddingMetadata metaData,
-      required BiocentralPythonCompanion companion}) {
+  factory LazyEmbedding.lazy({
+    required String key,
+    required String path,
+    required String embedderName,
+    required EmbeddingMetadata metaData,
+    required BiocentralPythonCompanion companion,
+  }) {
     Future<Embedding?> getFunction() async {
       final embeddingEither = await companion.getEmbedding(key, path, embedderName);
       return embeddingEither.match((l) => null, (r) => r);
     }
 
     return LazyEmbedding(
-        key: key, path: path, embedderName: embedderName, metaData: metaData, getFunction: getFunction);
+      key: key,
+      path: path,
+      embedderName: embedderName,
+      metaData: metaData,
+      getFunction: getFunction,
+    );
   }
 
   Embedding? _embedding;
@@ -59,21 +64,25 @@ class LazyEmbedding {
 }
 
 class EmbeddingMetadata {
-  final bool isPerResidue; // TODO Use EmbeddingType
+  final EmbeddingType embeddingType;
   final int dimension; // Embedding dimension
   final int length; // Length of per Residue embedding (usually matches sequence length)
   final Map<String, dynamic> attributes;
 
   EmbeddingMetadata({
-    required this.isPerResidue,
+    required this.embeddingType,
     required this.dimension,
     required this.length,
     this.attributes = const {},
   });
 
   factory EmbeddingMetadata.deserialize(Map<String, dynamic> jsonMap) {
+    EmbeddingType? embeddingType = enumFromString(jsonMap['embeddingType'].toString(), EmbeddingType.values);
+    embeddingType ??= str2bool(jsonMap['embeddingType'].toString())
+        ? EmbeddingType.perResidue
+        : EmbeddingType.perSequence; // Companion API
     return EmbeddingMetadata(
-      isPerResidue: jsonMap['is_per_residue'] as bool,
+      embeddingType: embeddingType,
       dimension: jsonMap['dimension'] as int,
       length: jsonMap['length'] as int,
       attributes: jsonMap['attributes'] as Map<String, dynamic>? ?? const {},
@@ -100,7 +109,7 @@ class EmbeddingsFileInformation {
   }
 
   List<EmbeddingMetadata> _getPerResidue() {
-    return metadata.values.filter((v) => v.isPerResidue).toList();
+    return metadata.values.filter((v) => v.embeddingType == EmbeddingType.perResidue).toList();
   }
 
   Set<int> _getAvailableDimensions() {
@@ -111,7 +120,7 @@ class EmbeddingsFileInformation {
     final perResidue = _getPerResidue();
     final lengths = perResidue.map((embd) => embd.length).toList();
     if (lengths.isEmpty) {
-      lengths.add(0); // Mitigate "vector is empty error by linalg library
+      lengths.add(0); // Mitigate "vector is empty error" by linalg library
     }
     return Vector.fromList(lengths).mean();
   }
@@ -131,15 +140,17 @@ class EmbeddingsFileInformation {
 }
 
 class EmbeddingsFile {
-  final String? path;
+  final String path; // TODO Path in Web
   final String embedderName;
   final EmbeddingsFileInformation fileInformation;
 
   EmbeddingsFile({required this.path, required this.embedderName, required this.fileInformation});
 
   static Future<Either<BiocentralException, EmbeddingsFile>> deserialize(
-      Map<String, dynamic> jsonMap, BiocentralPythonCompanion companion) async {
-    final path = jsonMap['path'] as String?;
+    Map<String, dynamic> jsonMap,
+    BiocentralPythonCompanion companion,
+  ) async {
+    final path = jsonMap['path'] as String;
     final embedderName = jsonMap['embedderName'] as String;
     final fileInformation = await companion.getH5Info(path);
     return fileInformation.flatMap(
@@ -148,7 +159,7 @@ class EmbeddingsFile {
   }
 
   Map<String, String> serialize() {
-    return {'path': path ?? '', 'embedderName': embedderName};
+    return {'path': path, 'embedderName': embedderName};
   }
 }
 
@@ -160,16 +171,16 @@ enum EmbeddingsFileLoadMode {
 }
 
 final class EmbeddingsDatabaseDTO {
-  final Map<String, Map<String, EmbeddingMetadata>> perResidue; // EmbedderName -> Key -> MetaData
-  final Map<String, Map<String, EmbeddingMetadata>> perSequence;
+  final Map<String, Map<String, LazyEmbedding>> perResidue; // EmbedderName -> Key -> MetaData
+  final Map<String, Map<String, LazyEmbedding>> perSequence;
 
   EmbeddingsDatabaseDTO({required this.perResidue, required this.perSequence});
 
   /// Filter to only contain available keys
   /// TODO Apply in Hub Bloc
   EmbeddingsDatabaseDTO filtered(List<String> keys) {
-    final pR = <String, Map<String, EmbeddingMetadata>>{};
-    final pS = <String, Map<String, EmbeddingMetadata>>{};
+    final pR = <String, Map<String, LazyEmbedding>>{};
+    final pS = <String, Map<String, LazyEmbedding>>{};
     for (final key in keys) {
       for (final embedderName in perResidue.keys) {
         if (perResidue[embedderName]!.containsKey(key)) {
@@ -194,7 +205,7 @@ final class EmbeddingsDatabaseDTO {
     return allEmbedders.toList();
   }
 
-  Map<String, Map<String, EmbeddingMetadata>> byType(EmbeddingType type) =>
+  Map<String, Map<String, LazyEmbedding>> byType(EmbeddingType type) =>
       type == EmbeddingType.perResidue ? perResidue : perSequence;
 
   Set<EmbeddingType> getAvailableTypesByEmbedder(String? embedderName) {
@@ -214,7 +225,7 @@ class _EmbeddingsDatabase {
   final Map<String, Map<String, LazyEmbedding>> _perResidueEmbeddings = {}; // PerResidue Embeddings already in memory
   final Map<String, Map<String, LazyEmbedding>> _perSequenceEmbeddings = {}; // PerSequence Embeddings already in memory
 
-  final List<EmbeddingsFile> _embeddingFiles = [];
+  final Map<String, EmbeddingsFile> _embeddingFiles = {}; // Path -> EmbeddingsFile
 
   final BiocentralPythonCompanion companion;
 
@@ -234,50 +245,61 @@ class _EmbeddingsDatabase {
   }
 
   void _addFile(EmbeddingsFile file) {
-    _embeddingFiles.add(file);
+    _embeddingFiles[file.path] = file;
+    final path = file.path;
     final embedderName = file.embedderName;
-    final path = file.path ?? ''; // TODO Path in Web
     final metaData = file.fileInformation.metadata;
     for (final (key, data) in metaData.entriesRecord) {
-      _addEmbedding(embedderName: embedderName, key: key, path: path, metaData: data, isPerResidue: data.isPerResidue);
+      _addEmbedding(
+        embedderName: embedderName,
+        key: key,
+        path: path,
+        metaData: data,
+        embeddingType: data.embeddingType,
+      );
     }
   }
 
-  Map<String, Map<String, LazyEmbedding>> _getEmbeddingMapByType(bool isPerResidue) {
-    return isPerResidue ? _perResidueEmbeddings : _perSequenceEmbeddings;
+  Map<String, Map<String, LazyEmbedding>> _getEmbeddingMapByType(EmbeddingType embeddingType) {
+    return embeddingType == EmbeddingType.perResidue ? _perResidueEmbeddings : _perSequenceEmbeddings;
   }
 
-  void _addEmbedding(
-      {required String embedderName,
-      required String key,
-      required String path,
-      required EmbeddingMetadata metaData,
-      required bool isPerResidue}) {
-    final embeddingsMap = isPerResidue ? _perResidueEmbeddings : _perSequenceEmbeddings;
+  void _addEmbedding({
+    required String embedderName,
+    required String key,
+    required String path,
+    required EmbeddingMetadata metaData,
+    required EmbeddingType embeddingType,
+  }) {
+    final embeddingsMap = embeddingType == EmbeddingType.perResidue ? _perResidueEmbeddings : _perSequenceEmbeddings;
     embeddingsMap.putIfAbsent(embedderName, () => {});
     final lazyEmbedding =
         LazyEmbedding.lazy(key: key, path: path, embedderName: embedderName, metaData: metaData, companion: companion);
     embeddingsMap[embedderName]![key] = lazyEmbedding;
   }
 
-  Future<Embedding?> getEmbedding(
-      {required String embedderName, required String key, required bool isPerResidue}) async {
-    final embeddingsMap = _getEmbeddingMapByType(isPerResidue);
+  Future<Embedding?> getEmbedding({
+    required String embedderName,
+    required String key,
+    required EmbeddingType embeddingType,
+  }) async {
+    final embeddingsMap = _getEmbeddingMapByType(embeddingType);
     final lazyEmbedding = embeddingsMap[embedderName]?[key];
     return lazyEmbedding?.getEmbedding();
   }
 
   Map<String, List<Map<String, dynamic>>> serialize() {
-    return {'embeddingsDatabase': _embeddingFiles.map((f) => f.serialize()).toList()};
+    return {'embeddingsDatabase': _embeddingFiles.values.map((f) => f.serialize()).toList()};
   }
 
   EmbeddingsDatabaseDTO toDTO() {
-    final perResidue = _perResidueEmbeddings
-        .map((name, embds) => MapEntry(name, embds.map((key, emb) => MapEntry(key, emb.metaData))));
-    final perSequence = _perSequenceEmbeddings
-        .map((name, embds) => MapEntry(name, embds.map((key, emb) => MapEntry(key, emb.metaData))));
-    return EmbeddingsDatabaseDTO(perResidue: perResidue, perSequence: perSequence);
+    return EmbeddingsDatabaseDTO(
+      perResidue: Map.from(_perResidueEmbeddings),
+      perSequence: Map.from(_perSequenceEmbeddings),
+    );
   }
+
+  int get numberOfFiles => _embeddingFiles.length;
 }
 
 class EmbeddingsRepository with AutoSaving, StreamableDatabase<EmbeddingsDatabaseDTO> {
@@ -301,8 +323,10 @@ class EmbeddingsRepository with AutoSaving, StreamableDatabase<EmbeddingsDatabas
     updateStream();
   }
 
-  void deserializedLoad(Map<String, dynamic> jsonMap) {
-    _database.deserialize(jsonMap);
+  Future<int> deserializedLoad(Map<String, dynamic> jsonMap) async {
+    await _database.deserialize(jsonMap);
+    updateStream();
+    return _database.numberOfFiles;
   }
 
   Future<String> saveDBInfo() async {
@@ -314,39 +338,4 @@ class EmbeddingsRepository with AutoSaving, StreamableDatabase<EmbeddingsDatabas
 
   @override
   EmbeddingsDatabaseDTO toStreamable() => _database.toDTO();
-}
-
-class EmbeddingsRepositoryOLD {
-  final Map<Type, EmbeddingsColumnWizard> _embeddingsColumnWizards = {};
-
-  // Embedder Name -> Map<ProjectionData, List>
-  final Map<String, Map<ProjectionData, List<Map<String, dynamic>>>> _projectionDataToPointData = {};
-
-  EmbeddingsRepositoryOLD();
-
-  Map<ProjectionData, List<Map<String, dynamic>>> updateProjectionData(
-    String embedderName,
-    ProjectionData projectionData,
-    List<Map<String, String>> pointData,
-  ) {
-    _projectionDataToPointData.putIfAbsent(embedderName, () => {});
-    _projectionDataToPointData[embedderName]![projectionData] = pointData;
-    return getProjectionDataMap(embedderName)!;
-  }
-
-  Map<ProjectionData, List<Map<String, dynamic>>>? getProjectionDataMap(String embedderName) {
-    return _projectionDataToPointData[embedderName];
-  }
-
-  Map<Type, EmbeddingsColumnWizard> updateEmbeddingsColumnWizardForType(
-    Type type,
-    EmbeddingsColumnWizard embeddingsColumnWizard,
-  ) {
-    _embeddingsColumnWizards[type] = embeddingsColumnWizard;
-    return Map.from(_embeddingsColumnWizards);
-  }
-
-  EmbeddingsColumnWizard? getEmbeddingsColumnWizardByType(Type? type) {
-    return _embeddingsColumnWizards[type];
-  }
 }

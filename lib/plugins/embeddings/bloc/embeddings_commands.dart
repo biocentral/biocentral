@@ -10,6 +10,66 @@ import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 
+final class LoadEmbeddingsDatabaseCommand extends BiocentralCommand<int> {
+  final BiocentralProjectRepository _projectRepository;
+  final EmbeddingsRepository _embeddingsRepository;
+
+  final XFile _embeddingsDBInfo;
+
+  LoadEmbeddingsDatabaseCommand({
+    required BiocentralProjectRepository projectRepository,
+    required EmbeddingsRepository embeddingsRepository,
+    required XFile embeddingsDBInfo,
+  })  : _projectRepository = projectRepository,
+        _embeddingsRepository = embeddingsRepository,
+        _embeddingsDBInfo = embeddingsDBInfo;
+
+  @override
+  Stream<BiocentralCommandLog<int>> execute() async* {
+    BiocentralCommandLog<int> log = initLog();
+    yield log = log.logInfo(information: 'Loading embeddings databases..');
+
+    final fileDataEither = await _projectRepository.handleLoad(xFile: _embeddingsDBInfo);
+    yield* fileDataEither.match((l) async* {
+      yield log.errored(error: l.message);
+    }, (fileData) async* {
+      if (fileData == null) {
+        yield log.errored(error: 'No file data could be loaded!');
+        return;
+      }
+      final jsonMap = jsonDecode(fileData.content);
+      final numberOfLoadedFiles = await _embeddingsRepository.deserializedLoad(jsonMap);
+      yield log.finish(
+        result: BiocentralCommandResult(
+          numberOfLoadedFiles,
+          {'loadedFiles': numberOfLoadedFiles},
+        ),
+        finalProgress: BiocentralCommandProgress(
+          information: 'Finished loading projections!',
+          current: numberOfLoadedFiles,
+          total: numberOfLoadedFiles,
+        ),
+      );
+    });
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {
+      'fileName': _embeddingsDBInfo.name,
+      'fileExtension': _embeddingsDBInfo.extension,
+    };
+  }
+
+  @override
+  String get typeName => 'LoadEmbeddingsFromFileCommand';
+
+  @override
+  void acceptResult(BiocentralCommandLog<dynamic>? resultLog) {
+    // Nothing to do
+  }
+}
+
 final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<EmbeddingsFile> {
   final BiocentralProjectRepository _biocentralProjectRepository;
   final BiocentralPythonCompanion _pythonCompanion;
@@ -63,36 +123,27 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<EmbeddingsFi
 
   /// Import external h5 file to internal h5 files and save
   Stream<BiocentralCommandLog<EmbeddingsFile>> syncInternal(BiocentralCommandLog<EmbeddingsFile> log) async* {
-    /*
-    OLD IMPLEMENTATION
-        final embeddingsFileBytesEither = await _biocentralProjectRepository.handleBytesLoad(xFile: _xFile);
+    // TODO Hard coded here
+    final externalPath = _xFile.path;
+    final internalPath = _biocentralProjectRepository.getProjectDirectoryPath() + "embeddings/embeddings_db.h5";
+    final fileInformationEither = await _pythonCompanion.syncInternalH5(externalPath, internalPath);
 
-    yield* embeddingsFileBytesEither.match((error) async* {
-      yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
-    }, (embeddingsFileBytes) async* {
-      if (embeddingsFileBytes == null) {
-        yield left(state.setErrored(information: 'Embeddings file could not be parsed!'));
-        return;
-      }
-      final embeddingsData = await _pythonCompanion.loadH5File(
-        embeddingsFileBytes,
-        _xFile.name.split('.').firstOrNull ?? 'loaded_embeddings',
+    yield* fileInformationEither.match((error) async* {
+      yield log.errored(error: 'Embeddings files could not be synced! Error: ${error.message}');
+    }, (embeddingsFileInfo) async* {
+      // TODO EmbedderName
+      final embeddingsFile =
+          EmbeddingsFile(path: internalPath, embedderName: 'Any', fileInformation: embeddingsFileInfo);
+      final syncedKeys = embeddingsFileInfo.metadata.keys.length;
+      yield log.finish(
+        result: BiocentralCommandResult(embeddingsFile, embeddingsFile.serialize()),
+        finalProgress: BiocentralCommandProgress(
+          information: 'Finished syncing external embeddings file!',
+          current: syncedKeys,
+          total: syncedKeys,
+        ),
       );
-      yield* embeddingsData.match((error) async* {
-        yield left(state.setErrored(information: 'Embeddings file could not be parsed! Error: ${error.message}'));
-      }, (embeddingsMap) async* {
-        final entities = _biocentralDatabase.updateEmbeddings(embeddingsMap);
-        yield right(entities);
-        yield left(
-          state.setFinished(
-            information: 'Finished loading embeddings from file!',
-            commandProgress:
-                BiocentralCommandProgress(current: embeddingsMap.values.length, total: embeddingsMap.values.length),
-          ),
-        );
-      });
     });
-     */
   }
 
   @override
@@ -214,7 +265,7 @@ final class CalculateEmbeddingsCommand extends BiocentralCommand<EmbeddingsFile>
         yield log.errored(error: 'Could not load embeddings from received file! Error: $error');
       }, (embeddingsFileInformation) async* {
         final EmbeddingsFile embeddingsFile =
-            EmbeddingsFile(path: path, embedderName: _embedderName, fileInformation: embeddingsFileInformation);
+            EmbeddingsFile(path: path ?? '', embedderName: _embedderName, fileInformation: embeddingsFileInformation);
         yield log.finish(
           result: BiocentralCommandResult(embeddingsFile, embeddingsFile.serialize()),
           finalProgress: BiocentralCommandProgress(
