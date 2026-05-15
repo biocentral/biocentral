@@ -53,6 +53,7 @@ services:
     command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 1
     volumes:
       - huggingface_models_cache:/app/huggingface_models
+      - file_storage:/app/storage/files
       - assets_data:/app/assets
       - triton_models:/app/models:ro
     restart: always
