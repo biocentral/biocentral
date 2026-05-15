@@ -14,8 +14,5 @@ class UserManager:
 
     @staticmethod
     async def get_user_id_from_request(req: Request) -> str:
-        forwarded = req.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0]
-        client = req.client.host if req.client else "unknown"
-        return client
+        # This forces all requests to share the same storage sub-folder, as long as there is no API key handling
+        return "public"
