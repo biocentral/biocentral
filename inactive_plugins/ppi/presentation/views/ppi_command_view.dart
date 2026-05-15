@@ -81,7 +81,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
                 PPICommandImportWithHVIToolkitEvent(
                   fileData: selectedFile,
                   databaseFormat: format,
-                  importMode: importMode,
+                  _importMode: importMode,
                 ),
               );
             },
@@ -138,7 +138,7 @@ class _PPICommandViewState extends State<PPICommandView> with AutomaticKeepAlive
           assetDatasets: PPIAssetDatasetContainer.assetInteractionDatasets(),
           loadDatasetCallback: (LoadedFileData fileData, DatabaseImportMode importMode) {
             // TODO FILE / STRING
-            interactionsCommandBloc.add(PPICommandLoadFromFileEvent(fileData: fileData, importMode: importMode));
+            interactionsCommandBloc.add(PPICommandLoadFromFileEvent(fileData: fileData, _importMode: importMode));
           },
         );
       },

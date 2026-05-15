@@ -85,7 +85,7 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
         ppiRepository: _ppiRepository,
         xFile: event.xFile,
         fileData: event.fileData,
-        importMode: event.importMode,
+        _importMode: event._importMode,
       );
       await loadPPIsFromFileCommand
           .executeWithLogging<PPICommandState>(_biocentralProjectRepository, state)
@@ -125,7 +125,7 @@ class PPICommandBloc extends BiocentralBloc<PPICommandEvent, PPICommandState> wi
       );
       importPPIsCommand.executeWithLogging(_biocentralProjectRepository, state).forEach((either) {
         either.match((l) => emit(l), (r) {
-          syncWithDatabases(r, importMode: event.importMode);
+          syncWithDatabases(r, _importMode: event._importMode);
         });
       });
     });
