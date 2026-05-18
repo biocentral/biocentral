@@ -25,7 +25,7 @@ final class BiocentralLoadProjectState extends Equatable {
 
   const BiocentralLoadProjectState(this.metaData, this.status);
 
-  BiocentralLoadProjectState.idle()
+  BiocentralLoadProjectState.initial()
       : metaData = BiocentralCommandMetaData.initialize(),
         status = BiocentralLoadProjectStatus.idle;
 
@@ -45,7 +45,7 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
 
   BiocentralLoadProjectBloc(
       this._projectRepository, this._commandLogRepository, this._commandBloc, this._pluginDirectories)
-      : super(BiocentralLoadProjectState.idle()) {
+      : super(BiocentralLoadProjectState.initial()) {
     on<BiocentralLoadProjectFromDirectoryEvent>((event, emit) async {
       if (kIsWeb) {
         return emit(

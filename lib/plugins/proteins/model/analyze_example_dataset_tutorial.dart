@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:biocentral/plugins/proteins/presentation/dialogs/protein_column_wizard_dialog.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/proteins_command_view.dart';
 import 'package:biocentral/plugins/proteins/protein_plugin.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command_bloc.dart';
@@ -77,44 +76,44 @@ class AnalyzeExampleDatasetTutorial implements Tutorial {
       //    });
       //    break;
       //  }
-      case final ProteinColumnWizardDialog proteinColumnWizardDialog:
-        {
-          final ColumnWizardBloc? columnWizardBloc = proteinColumnWizardDialog.getColumnWizardBloc(state);
-          tutorialRepository.registerContext(
-            AnalyzeExampleDatasetTutorialID.proteinColumnWizardDialogContext,
-            proteinColumnWizardDialog.getDialogContext(state),
-          );
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.columnWizardColumnSelection,
-            proteinColumnWizardDialog.getColumnSelectionKey(state),
-          );
-          tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.targetColumnSelected, (timeout) async {
-            bool condition() => columnWizardBloc?.state.selectedColumn == 'TARGET';
-            return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
-          });
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.columnWizardOperationSelection,
-            proteinColumnWizardDialog.getOperationSelectionKey(state),
-          );
-          tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.removeOutliersOperationSelected,
-              (timeout) async {
-            bool condition() =>
-                proteinColumnWizardDialog.getCalculateButtonKey(state)?.currentContext?.mounted ?? false;
-            return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
-          });
-          tutorialRepository.registerKey(
-            AnalyzeExampleDatasetTutorialID.columnWizardCalculateButton,
-            proteinColumnWizardDialog.getCalculateButtonKey(state),
-          );
-          tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.removeOutliersOperationPerformed,
-                  (timeout) async {
-                bool condition() {
-                  final historyLength = columnWizardBloc?.state.columnWizardHistory?['TARGET']?.length ?? 0;
-                  return historyLength > 1;
-                };
-                return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
-              });
-        }
+      //case final ProteinColumnWizardDialog proteinColumnWizardDialog:
+      //  {
+      //    final ColumnWizardBloc? columnWizardBloc = proteinColumnWizardDialog.getColumnWizardBloc(state);
+      //    tutorialRepository.registerContext(
+      //      AnalyzeExampleDatasetTutorialID.proteinColumnWizardDialogContext,
+      //      proteinColumnWizardDialog.getDialogContext(state),
+      //    );
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.columnWizardColumnSelection,
+      //      proteinColumnWizardDialog.getColumnSelectionKey(state),
+      //    );
+      //    tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.targetColumnSelected, (timeout) async {
+      //      bool condition() => columnWizardBloc?.state.selectedColumn == 'TARGET';
+      //      return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
+      //    });
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.columnWizardOperationSelection,
+      //      proteinColumnWizardDialog.getOperationSelectionKey(state),
+      //    );
+      //    tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.removeOutliersOperationSelected,
+      //        (timeout) async {
+      //      bool condition() =>
+      //          proteinColumnWizardDialog.getCalculateButtonKey(state)?.currentContext?.mounted ?? false;
+      //      return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
+      //    });
+      //    tutorialRepository.registerKey(
+      //      AnalyzeExampleDatasetTutorialID.columnWizardCalculateButton,
+      //      proteinColumnWizardDialog.getCalculateButtonKey(state),
+      //    );
+      //    tutorialRepository.registerCondition(AnalyzeExampleDatasetTutorialID.removeOutliersOperationPerformed,
+      //            (timeout) async {
+      //          bool condition() {
+      //            final historyLength = columnWizardBloc?.state.columnWizardHistory?['TARGET']?.length ?? 0;
+      //            return historyLength > 1;
+      //          };
+      //          return TutorialStepWithWaiting.conditionWithTimeout(timeout, condition);
+      //        });
+      //  }
     }
   }
 
