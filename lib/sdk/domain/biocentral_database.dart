@@ -396,11 +396,6 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving, Streamab
     }
     return result;
   }
-
-  Map<String, EmbeddingManager> getAllEmbeddings() {
-    // TODO REMOVE THIS FUNCTION
-    return Map.fromEntries(databaseToMap().entries.map((entry) => MapEntry(entry.key, entry.value.getEmbeddings())));
-  }
 }
 
 enum DatabaseImportMode {

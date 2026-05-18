@@ -24,7 +24,7 @@ void main() async {
   final EventBus eventBus = EventBus();
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralCommandLogRepository commandLogRepository = BiocentralCommandLogRepository(projectRepository);
-  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: true);
+  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: false);
   final BiocentralAPIRepository apiRepository = BiocentralAPIRepository(biocentralAPI);
   final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
   healthService.startMonitoring();

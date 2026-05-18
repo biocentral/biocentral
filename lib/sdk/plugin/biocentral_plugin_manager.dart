@@ -1,8 +1,6 @@
 import 'dart:collection';
 
-import 'package:biocentral/plugins/active_learning/active_learning_plugin.dart';
 import 'package:biocentral/plugins/biocentral_core_plugins.dart';
-import 'package:biocentral/plugins/custom_models/custom_models_plugin.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:equatable/equatable.dart';
@@ -141,14 +139,14 @@ class _BiocentralPluginProperties {
       }
       if (plugin is BiocentralMultiDatabasePluginMixin) {
         // Multiple databases
-        List<dynamic> databases = [];
+        List<dynamic>? databases;
         try {
           if (context != null) {
             databases = plugin.getDatabasesIfAvailable(context) ?? [];
           }
         } finally {
           // TODO [BUG] Create empty database without example data or sync
-          databases = plugin.createDatabases(projectRepository, companion);
+          databases ??= plugin.createDatabases(projectRepository, companion);
         }
         for (dynamic database in databases) {
           if (database is BiocentralDatabase) {

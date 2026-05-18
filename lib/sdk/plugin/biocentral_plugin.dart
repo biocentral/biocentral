@@ -9,8 +9,6 @@ import 'package:biocentral/sdk/domain/biocentral_database_repository.dart';
 import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
-import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
