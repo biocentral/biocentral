@@ -1,0 +1,55 @@
+---
+title: BindEmbed
+description: Per-residue ligand-binding propensity prediction across ligand classes.
+---
+
+### Summary
+
+- **Model name:** `BindEmbed`
+- **Task:** Binding residue prediction for multiple ligand classes
+- **Protocol:** `residue_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `2.6 MB`
+
+### Outputs
+
+#### metal
+
+- **Description:** Per-residue binding affinity for metal
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `M` | Residue binds to metal |
+| `-` | Residue does not bind to metal |
+
+#### nucleic
+
+- **Description:** Per-residue binding affinity for nucleic acids
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `N` | Residue binds to nucleic acids |
+| `-` | Residue does not bind to nucleic acids |
+
+#### small
+
+- **Description:** Per-residue binding affinity for small organic molecules
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `S` | Residue binds to small organic molecules |
+| `-` | Residue does not bind to small organic molecules |
+
+### References
+
+- **Authors:** Littmann, Maria; Heinzinger, Michael; Dallago, Christian; Weissenow, Konstantin; Rost, Burkhard
+- **Model link:** [github.com/Rostlab/bindPredict](https://github.com/Rostlab/bindPredict)
+- **Citation:** [doi.org/10.1038/s41598-021-03431-4](https://doi.org/10.1038/s41598-021-03431-4)
+- **License:** `MIT`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

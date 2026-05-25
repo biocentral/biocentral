@@ -1,0 +1,28 @@
+---
+title: UdonPred
+description: Residue-level intrinsic disorder scoring using TriZOD outputs.
+---
+
+### Summary
+
+- **Model name:** `UdonPred`
+- **Task:** Intrinsic disorder prediction
+- **Protocol:** `residue_to_value`
+- **Embedder:** `Rostlab/ProstT5`
+- **Model size:** `1.1 MB`
+
+### Outputs
+
+#### disorder_trizod
+
+- **Description:** Disorder scores (TriZOD)
+- **Output type:** `per_residue`
+- **Value type:** `float`
+
+### References
+
+- **Authors:** Julius Schlensok; David Wagemann; Tobias Senoner; Markus Haak; Burkhard Rost
+- **Model link:** [github.com/DavidWagemann/UdonPred](https://github.com/DavidWagemann/UdonPred)
+- **Citation:** [doi.org/10.64898/2026.01.26.701679](https://doi.org/10.64898/2026.01.26.701679)
+- **License:** `GPL-3.0`
+- **Training data:** [figshare.com/articles/dataset/UdonPred/31444642](https://figshare.com/articles/dataset/UdonPred/31444642)

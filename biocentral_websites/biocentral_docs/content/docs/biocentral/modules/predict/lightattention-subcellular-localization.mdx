@@ -1,0 +1,41 @@
+---
+title: LightAttentionSubcellularLocalization
+description: Sequence-level prediction of protein subcellular localization classes.
+---
+
+### Summary
+
+- **Model name:** `LightAttentionSubcellularLocalization`
+- **Task:** Protein subcellular localization prediction
+- **Protocol:** `residues_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `75.8 MB`
+
+### Outputs
+
+#### subcellular_localization
+
+- **Description:** Protein subcellular localization
+- **Output type:** `per_sequence`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `Cell_membrane` | Protein is localized to the cell membrane |
+| `Cytoplasm` | Protein is localized to the cytoplasm |
+| `Endoplasmatic_reticulum` | Protein is localized to the endoplasmic reticulum |
+| `Golgi_apparatus` | Protein is localized to the Golgi apparatus |
+| `Lysosome_or_Vacuole` | Protein is localized to lysosomes or vacuoles |
+| `Mitochondrion` | Protein is localized to mitochondria |
+| `Nucleus` | Protein is localized to the nucleus |
+| `Peroxisome` | Protein is localized to peroxisomes |
+| `Plastid` | Protein is localized to plastids |
+| `Extracellular` | Protein is secreted outside the cell |
+
+### References
+
+- **Authors:** Stärk, Hannes; Dallago, Christian; Heinzinger, Michael; Rost, Burkhard
+- **Model link:** [github.com/HannesStark/protein-localization](https://github.com/HannesStark/protein-localization)
+- **Citation:** [doi.org/10.1093/bioadv/vbab035](https://doi.org/10.1093/bioadv/vbab035)
+- **License:** `MIT`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

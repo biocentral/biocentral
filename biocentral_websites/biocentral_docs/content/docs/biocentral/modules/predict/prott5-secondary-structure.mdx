@@ -1,0 +1,51 @@
+---
+title: ProtT5SecondaryStructure
+description: Per-residue secondary-structure prediction in 3-state and DSSP 8-state formats.
+---
+
+### Summary
+
+- **Model name:** `ProtT5SecondaryStructure`
+- **Task:** Protein secondary-structure prediction
+- **Protocol:** `residue_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `929.0 KB`
+
+### Outputs
+
+#### d3_Yhat
+
+- **Description:** 3-state secondary structure prediction
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `H` | Residue is part of an alpha helix |
+| `E` | Residue is part of a beta sheet |
+| `L` | Residue is part of a loop or coil |
+
+#### d8_Yhat
+
+- **Description:** 8-state DSSP secondary structure prediction
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `G` | 3-10 helix |
+| `H` | Alpha helix |
+| `I` | Pi helix |
+| `B` | Beta bridge |
+| `E` | Extended strand |
+| `S` | Bend |
+| `T` | Turn |
+| `C` | Coil |
+
+### References
+
+- **Authors:** Elnaggar, Ahmed; Heinzinger, Michael; Dallago, Christian; Rehawi, Ghalia; Yu, Wang; Jones, Llion; Gibbs, Tom; Feher, Tamas; Angerer, Christoph; Steinegger, Martin; Bhowmik, Debsindhu; Rost, Burkhard
+- **Model link:** [github.com/agemagician/ProtTrans](https://github.com/agemagician/ProtTrans)
+- **Citation:** [doi.org/10.1109/TPAMI.2021.3095381](https://doi.org/10.1109/TPAMI.2021.3095381)
+- **License:** `MIT`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

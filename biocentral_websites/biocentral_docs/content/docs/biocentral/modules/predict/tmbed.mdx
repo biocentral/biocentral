@@ -1,0 +1,38 @@
+---
+title: TMbed
+description: Transmembrane protein and topology prediction at residue level.
+---
+
+### Summary
+
+- **Model name:** `TMbed`
+- **Task:** Prediction of transmembrane proteins and topology
+- **Protocol:** `residue_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `1.4 MB`
+
+### Outputs
+
+#### trans_membrane
+
+- **Description:** Per-residue transmembrane topology prediction
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Shortcut | Label | Meaning |
+| --- | --- | --- |
+| `B` | Transmembrane beta strand | Residue is part of a transmembrane beta strand (IN → OUT orientation) |
+| `b` | Transmembrane beta strand | Residue is part of a transmembrane beta strand (OUT → IN orientation) |
+| `H` | Transmembrane alpha helix | Residue is part of a transmembrane helix (IN → OUT orientation) |
+| `h` | Transmembrane alpha helix | Residue is part of a transmembrane helix (OUT → IN orientation) |
+| `S` | Signal peptide | Residue is part of a signal peptide |
+| `i` | Non-transmembrane, inside | Residue is on the cytoplasmic side |
+| `o` | Non-transmembrane, outside | Residue is on the extracellular side |
+
+### References
+
+- **Authors:** Bernhofer, Michael; Rost, Burkhard
+- **Model link:** [github.com/BernhoferM/TMbed](https://github.com/BernhoferM/TMbed)
+- **Citation:** [doi.org/10.1186/s12859-022-04873-x](https://doi.org/10.1186/s12859-022-04873-x)
+- **License:** `Apache-2.0`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

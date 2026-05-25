@@ -1,0 +1,29 @@
+---
+title: Seth
+description: Residue-level disorder scoring with CheZOD-compatible interpretation.
+---
+
+### Summary
+
+- **Model name:** `Seth`
+- **Task:** Predict nuances of residue disorder in proteins
+- **Protocol:** `residue_to_value`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `575.1 KB`
+
+### Outputs
+
+#### disorder_chezod
+
+- **Description:** Disorder scores based on CheZOD Z-score interpretation
+- **Output type:** `per_residue`
+- **Value type:** `float`
+- **Interpretation:** Values below `8` indicate disorder; values above `8` indicate order
+
+### References
+
+- **Authors:** Dagmar Ilzhoefer; Michael Heinzinger; Burkhard Rost
+- **Model link:** [github.com/DagmarIlz/SETH](https://github.com/DagmarIlz/SETH)
+- **Citation:** [doi.org/10.1101/2022.06.23.497276](https://doi.org/10.1101/2022.06.23.497276)
+- **License:** `GPL-3.0`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)
