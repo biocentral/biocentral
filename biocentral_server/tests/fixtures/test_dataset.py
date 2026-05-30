@@ -46,7 +46,7 @@ class TestDataset(BaseModel):
     @classmethod
     def from_fasta(cls, fasta_path: Path) -> "TestDataset":
         """Load test dataset from a FASTA file."""
-        from biotrainer.input_files import read_FASTA
+        from biotrainer_core.input_files import read_FASTA
 
         records = read_FASTA(fasta_path)
         sequences = [

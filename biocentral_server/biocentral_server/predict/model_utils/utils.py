@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from pathlib import Path
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 
 MODEL_REPOSITORY_PATH = Path(os.getenv("MODEL_REPOSITORY_PATH", "/app/models"))
 

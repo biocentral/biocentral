@@ -1,8 +1,8 @@
 import torch
 
-from biotrainer.embedders import get_embedding_service
-from biotrainer.embedders.services import EmbeddingService
-from biotrainer.embedders.interfaces import EmbedderInterface
+from biotrainer.embedding import get_embedding_service
+from biotrainer.embedding.services import EmbeddingService
+from biotrainer.embedding.interfaces import EmbedderInterface
 from typing import List, Generator, Optional, Union, Dict, Any, Iterable
 
 from ..utils import get_logger

@@ -6,7 +6,7 @@ import numpy as np
 
 from typing import Annotated
 from fastapi_limiter.depends import RateLimiter
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 
 from .endpoint_models import (
@@ -68,7 +68,7 @@ async def embed(
     reduced = str2bool(str(request_data.reduce))
     use_half_precision = str2bool(str(request_data.use_half_precision))
     sequence_data = [
-        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        SequenceData(seq_id=seq_id, seq=seq)
         for seq_id, seq in request_data.sequence_data.items()
     ]
 
@@ -158,7 +158,7 @@ def add_embeddings(request_data: AddEmbeddingsRequest):
 
         # Create embedding records from H5 data
         embd_records = [
-            BiotrainerSequenceRecord(
+            SequenceData(
                 seq_id=embeddings_file[idx].attrs["original_id"],
                 seq=sequences[embeddings_file[idx].attrs["original_id"]],
                 embedding=np.array(embedding),

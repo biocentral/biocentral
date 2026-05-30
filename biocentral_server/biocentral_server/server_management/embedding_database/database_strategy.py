@@ -1,7 +1,7 @@
 import torch
 
 from typing import Union, Dict, Tuple, List, Any
-from biotrainer.utilities import calculate_sequence_hash
+from biotrainer_core.functions.hashing import calculate_sequence_hash
 
 
 class DatabaseStrategy:

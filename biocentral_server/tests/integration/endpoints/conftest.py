@@ -8,7 +8,7 @@ import redis
 from urllib.parse import urlparse
 from typing import Any, Dict, Generator
 
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from biocentral_server.server_management.embedding_database import EmbeddingsDatabase
 from biocentral_server.server_management.task_management.task_interface import (
@@ -140,7 +140,7 @@ def client(server_url) -> Generator[httpx.Client, None, None]:
             try:
                 db = EmbeddingsDatabase(postgres_config)
                 records = [
-                    BiotrainerSequenceRecord(
+                    SequenceData(
                         seq_id=seq_id,
                         seq=sequence,
                         embedding=fe.embed_pooled(sequence)
@@ -599,16 +599,14 @@ def precache_prott5_embeddings(shared_embedding_sequences):
 
         # Save per-residue embeddings
         per_residue_records = [
-            BiotrainerSequenceRecord(
-                seq_id=seq_id, seq=sequence, embedding=fe.embed(sequence)
-            )
+            SequenceData(seq_id=seq_id, seq=sequence, embedding=fe.embed(sequence))
             for seq_id, sequence in shared_embedding_sequences.items()
         ]
         db.save_embeddings(per_residue_records, embedder_name, reduced=False)
 
         # Save per-sequence (pooled) embeddings
         per_sequence_records = [
-            BiotrainerSequenceRecord(
+            SequenceData(
                 seq_id=seq_id, seq=sequence, embedding=fe.embed_pooled(sequence)
             )
             for seq_id, sequence in shared_embedding_sequences.items()

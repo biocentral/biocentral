@@ -6,7 +6,7 @@ import pandas as pd
 from protspace.utils import REDUCERS
 from typing import Callable, Dict, List
 from protspace.data.processors import BaseProcessor
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from ..utils import get_logger
 from ..server_management import TaskInterface, TaskDTO, TaskStatus, PreEmbedMixin
@@ -18,7 +18,7 @@ class ProtSpaceTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
         embedder_name: str,
-        sequences: List[BiotrainerSequenceRecord],
+        sequences: List[SequenceData],
         method: str,
         config: Dict,
     ):

@@ -5,7 +5,7 @@ import base64
 
 from tqdm import tqdm
 from datetime import datetime
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 from typing import List, Dict, Tuple, Any, Optional, Generator
 
 from .database_strategy import DatabaseStrategy
@@ -38,11 +38,9 @@ class EmbeddingsDatabase:
     @staticmethod
     def unify_seqs_with_embeddings(
         seqs: Dict[str, str], embds: Dict[str, Any]
-    ) -> List[BiotrainerSequenceRecord]:
+    ) -> List[SequenceData]:
         return [
-            BiotrainerSequenceRecord(
-                seq_id=seq_id, seq=seq, embedding=embds.get(seq_id)
-            )
+            SequenceData(seq_id=seq_id, seq=seq, embedding=embds.get(seq_id))
             for seq_id, seq in seqs.items()
             if embds.get(seq_id) is not None
         ]
@@ -63,7 +61,7 @@ class EmbeddingsDatabase:
         )
 
     def save_embeddings(
-        self, embd_records: List[BiotrainerSequenceRecord], embedder_name, reduced: bool
+        self, embd_records: List[SequenceData], embedder_name, reduced: bool
     ):
         # TODO [Refactoring] Improve .onnx handling
         if self.is_onnx_model(embedder_name):
@@ -116,7 +114,7 @@ class EmbeddingsDatabase:
 
     def get_embeddings(
         self, sequences: Dict[str, str], embedder_name: str, reduced: bool
-    ) -> List[BiotrainerSequenceRecord]:
+    ) -> List[SequenceData]:
         if ".onnx" in embedder_name:
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
@@ -127,7 +125,7 @@ class EmbeddingsDatabase:
                 sequences=sequences, embedder_name=embedder_name
             )
             return [
-                BiotrainerSequenceRecord(
+                SequenceData(
                     seq_id=seq_id,
                     seq=sequences[seq_id],
                     embedding=embd.get("per_sequence" if reduced else "per_residue"),
@@ -145,7 +143,7 @@ class EmbeddingsDatabase:
             )
             result.extend(
                 [
-                    BiotrainerSequenceRecord(
+                    SequenceData(
                         seq_id=seq_id,
                         seq=sequences[seq_id],
                         embedding=embd.get(
@@ -164,7 +162,7 @@ class EmbeddingsDatabase:
 
     @staticmethod
     def export_embeddings_task_result_to_h5_bytes_string(
-        embd_records: List[BiotrainerSequenceRecord],
+        embd_records: List[SequenceData],
     ) -> str:
         h5_io = io.BytesIO()
         with h5py.File(h5_io, "w") as embeddings_file:

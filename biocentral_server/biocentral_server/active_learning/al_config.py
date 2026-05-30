@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List, Optional
+from biotrainer_core.data_classes import SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
-
-from ..custom_models import SequenceTrainingData
 
 
 class ActiveLearningModelType(str, Enum):
@@ -89,7 +88,7 @@ class ActiveLearningIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
     iteration: int = Field(description="Iteration number")
-    iteration_data: List[SequenceTrainingData] = Field(
+    iteration_data: List[SequenceData] = Field(
         description="List of sequence training data for this iteration", min_length=2
     )
     coefficient: float = Field(
@@ -106,7 +105,7 @@ class ActiveLearningIterationConfig(BaseModel):
 
     @field_validator("iteration_data")
     @classmethod
-    def validate_iteration_data(cls, v: List[SequenceTrainingData]):
+    def validate_iteration_data(cls, v: List[SequenceData]):
         iteration_ids = [data_point.seq_id for data_point in v]
         if len(iteration_ids) != len(set(iteration_ids)):
             raise ValueError("iteration_data contains duplicate entries!")
@@ -155,7 +154,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
 class ActiveLearningSimulationConfig(BaseModel):
     """Configuration for a simulation of active learning on a complete dataset"""
 
-    simulation_data: List[SequenceTrainingData] = Field(
+    simulation_data: List[SequenceData] = Field(
         description="List of all sequence data for the simulation", min_length=3
     )
     n_start: Optional[int] = Field(
@@ -178,7 +177,7 @@ class ActiveLearningSimulationConfig(BaseModel):
 
     @field_validator("simulation_data")
     @classmethod
-    def validate_simulation_data(cls, v: List[SequenceTrainingData]):
+    def validate_simulation_data(cls, v: List[SequenceData]):
         simulation_ids = []
         for seq_data in v:
             label = seq_data.label

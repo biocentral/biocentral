@@ -1,10 +1,9 @@
 from pathlib import Path
 
-from biotrainer.protocols import Protocol
-from biotrainer.inference import Inferencer
 from typing import Callable, List
-from biotrainer.output_files import InferenceOutputManager
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer.training import BiotrainerModel
+from biotrainer.training.output_files import InferenceOutputManager
+from biotrainer_core.data_classes import SequenceData, Protocol
 
 from ..server_management.shared_endpoint_models import Prediction
 from ..utils import get_logger
@@ -20,9 +19,7 @@ logger = get_logger(__name__)
 
 
 class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
-    def __init__(
-        self, model_out_path: Path, sequence_input: List[BiotrainerSequenceRecord]
-    ):
+    def __init__(self, model_out_path: Path, sequence_input: List[SequenceData]):
         super().__init__()
         self.model_out_path = model_out_path
         self.sequence_input = sequence_input
@@ -49,10 +46,10 @@ class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
         with file_context_manager.storage_dir_read(
             self.model_out_path
         ) as model_out_path:
-            inferencer, iom = Inferencer.create_from_out_file(
-                out_file_path=str(model_out_path / "out.yml"),
-                automatic_path_correction=True,
-            )
+            biotrainer_model = BiotrainerModel.from_training_result(model_out_path)
+            inferencer = biotrainer_model.inferencer()
+            iom = biotrainer_model.inference_output_manager()
+
             embedder_name = iom.embedder_name()
             reduced = iom.protocol() in Protocol.using_per_sequence_embeddings()
             error_dto, embeddings = self._pre_embed_with_db(
@@ -69,6 +66,8 @@ class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
                 for embd_record in embeddings
             }
             predictions = inferencer.from_embeddings(embeddings=embeddings)
-            predictions = self._to_prediction_model(iom=iom, predictions=predictions)
+            predictions = self._to_prediction_model(
+                iom=iom, predictions=predictions
+            )  # TODO Deprecate
 
             return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)

@@ -4,9 +4,12 @@ from enum import Enum
 
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
-from biotrainer.output_files import OutputData
-from biotrainer.input_files import BiotrainerSequenceRecord
-from typing import Any, Dict, Callable, Generator, Optional, List, Tuple, Union
+from biotrainer_core.data_classes import (
+    SequenceData,
+    BiotrainerModelUpdate,
+    BiotrainerModelResult,
+)
+from typing import Any, Dict, Callable, Generator, Optional, List, Tuple
 
 from .task_utils import run_subtask_util
 
@@ -49,14 +52,13 @@ class TaskDTO(BaseModel):
     predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions
 
     # custom_models
-    # TODO Pydantic class
-    biotrainer_update: Optional[OutputData] = None
-    biotrainer_result: Optional[Dict[str, Any]] = None
+    biotrainer_update: Optional[BiotrainerModelUpdate] = None
+    biotrainer_result: Optional[BiotrainerModelResult] = None
 
     # embeddings
     embedding_progress: Optional[EmbeddingProgress] = None
     embedded_sequences: Optional[Dict[str, str]] = None
-    embeddings: Optional[List[BiotrainerSequenceRecord]] = None
+    embeddings: Optional[List[SequenceData]] = None
     embeddings_file: Optional[str] = None
 
     #clustering
@@ -84,11 +86,11 @@ class PreEmbedMixin:
     def _pre_embed_with_db(
         self,
         embedder_name: str,
-        sequence_input: List[BiotrainerSequenceRecord],
+        sequence_input: List[SequenceData],
         reduced: bool,
         update_dto_callback: Optional[Callable] = None,
         custom_tokenizer_config: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
+    ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
         from ...embeddings import (
             LoadEmbeddingsTask,
         )  # Local import to avoid circular dependency
@@ -110,7 +112,7 @@ class PreEmbedMixin:
         if not load_dto:
             return TaskDTO.errored("Could not compute embeddings!"), []
 
-        embeddings: List[BiotrainerSequenceRecord] = load_dto.embeddings
+        embeddings: List[SequenceData] = load_dto.embeddings
         if embeddings is None or len(embeddings) == 0:
             return TaskDTO.errored("Did not receive embeddings for training!"), []
 

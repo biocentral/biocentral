@@ -1,7 +1,6 @@
 import torch.multiprocessing as torch_mp
 
 from .custom_models_endpoint import router
-from .endpoint_models import SequenceTrainingData
 from .biotrainer_task import BiotrainerTask, BiotrainerTempTask
 
 # Spawn new cuda contexts instead of forking:
@@ -10,7 +9,6 @@ torch_mp.set_start_method("spawn", force=True)
 
 __all__ = [
     "router",
-    "SequenceTrainingData",
     "BiotrainerTask",
     "BiotrainerTempTask",
 ]

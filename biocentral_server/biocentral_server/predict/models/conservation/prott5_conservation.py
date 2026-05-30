@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from typing import List, Dict
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 
 from ..base_model import (
     BaseModel,

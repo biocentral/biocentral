@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional, List, Tuple
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 
 from ..biocentral_prediction_model import BiocentralPredictionModel
 

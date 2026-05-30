@@ -3,9 +3,9 @@ import random
 import numpy as np
 import torchmetrics
 
-from biotrainer.utilities import seed_all
 from typing import Callable, Tuple, List, Optional
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.functions.seeding import seed_all
 
 from .al_iteration_task import ActiveLearningIterationTask
 from .al_config import (
@@ -16,7 +16,6 @@ from .al_config import (
 )
 
 from ..utils import get_logger
-from ..custom_models import SequenceTrainingData
 from ..server_management import (
     TaskInterface,
     TaskDTO,
@@ -70,7 +69,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             campaign_name=self.al_campaign_config.name
         )
 
-    def _get_start_data(self) -> Tuple[List[SequenceTrainingData], int]:
+    def _get_start_data(self) -> Tuple[List[SequenceData], int]:
         start_ids_set: set[str]
         if self.al_simulation_config.start_ids:
             start_ids_set = set(self.al_simulation_config.start_ids)
@@ -82,9 +81,9 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             )
             start_ids_set = set([data_point.seq_id for data_point in random_sample])
         return [
-            data_point.set_label(data_point.label)  # Set "train"
+            data_point.copy_with_label(label=data_point.label, set_name="train")
             if data_point.seq_id in start_ids_set
-            else data_point.delete_label()
+            else data_point.copy_without_label()
             for data_point in self.al_simulation_config.simulation_data
         ], len(start_ids_set)
 
@@ -92,8 +91,8 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         self,
         iteration_number: int,
         n_total_suggestions: int,
-        current_training_data: List[SequenceTrainingData],
-        embeddings: List[BiotrainerSequenceRecord],
+        current_training_data: List[SequenceData],
+        embeddings: List[SequenceData],
         update_dto_callback: Callable,
     ) -> ActiveLearningIterationResult:
         # Limit number of suggestions per iteration to budget if applicable
@@ -349,7 +348,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             self._update_regression_metrics(al_iteration_result)
 
     def _run_simulation(
-        self, embeddings: List[BiotrainerSequenceRecord], update_dto_callback: Callable
+        self, embeddings: List[SequenceData], update_dto_callback: Callable
     ):
         # Set seed for simulation reproducibility
         seed_all(self.al_campaign_config.seed)
@@ -418,8 +417,9 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
             # Next iteration with updated training data
             current_data_with_masking = [
-                data_point.set_label(
-                    self.all_simulation_data_dict[data_point.seq_id].label
+                data_point.copy_with_label(
+                    label=self.all_simulation_data_dict[data_point.seq_id].label,
+                    set_name="train",
                 )
                 if data_point.seq_id in iteration_suggestions
                 else data_point
@@ -438,10 +438,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Embed all simulation data
-        simulation_data = [
-            data_point.to_biotrainer_seq_record()
-            for data_point in self.al_simulation_config.simulation_data
-        ]
+        simulation_data = self.al_simulation_config.simulation_data
         embedder_name = self.al_campaign_config.embedder_name
         error_dto, embeddings = self._pre_embed_with_db(
             embedder_name=embedder_name,

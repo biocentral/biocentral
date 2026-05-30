@@ -1,6 +1,6 @@
-from biotrainer.utilities import seed_all
 from typing import Callable, List, Optional
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.functions.seeding import seed_all
 
 from .pipelines import al_screening_pipeline
 from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
@@ -17,7 +17,7 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
         self,
         al_campaign_config: ActiveLearningCampaignConfig,
         al_iteration_config: ActiveLearningIterationConfig,
-        embeddings: Optional[List[BiotrainerSequenceRecord]] = None,
+        embeddings: Optional[List[SequenceData]] = None,
         all_target_classes: Optional[List[str]] = None,
     ):
         super().__init__()
@@ -46,10 +46,7 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
         if self.embeddings is not None:
             embeddings = self.embeddings
         else:
-            iteration_data = [
-                data_point.to_biotrainer_seq_record()
-                for data_point in self.al_iteration_config.iteration_data
-            ]
+            iteration_data = self.al_iteration_config.iteration_data
             embedder_name = self.al_campaign_config.embedder_name
             error_dto, embeddings = self._pre_embed_with_db(
                 embedder_name=embedder_name,

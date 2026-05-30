@@ -1,7 +1,7 @@
 from typing import Callable, Dict, List
 
-from biotrainer.embedders import get_predefined_embedder_names
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer.embedding import get_predefined_embedder_names
+from biotrainer_core.data_classes import SequenceData
 
 from .embed import compute_embeddings, compute_memory_encodings, get_embedder_name_db
 
@@ -21,7 +21,7 @@ class CalculateEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: List[BiotrainerSequenceRecord],
+        sequence_input: List[SequenceData],
         reduced: bool,
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
@@ -91,7 +91,7 @@ class LoadEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: List[BiotrainerSequenceRecord],
+        sequence_input: List[SequenceData],
         reduced: bool,
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
@@ -121,7 +121,7 @@ class LoadEmbeddingsTask(TaskInterface):
         )
 
     def _postprocess_embeddings(
-        self, embd_records: List[BiotrainerSequenceRecord], expected_length: int
+        self, embd_records: List[SequenceData], expected_length: int
     ) -> TaskDTO:
         record_ids2embd = {
             embd_record.get_hash(): embd_record.embedding
@@ -188,7 +188,7 @@ class ExportEmbeddingsTask(TaskInterface):
     def __init__(
         self,
         embedder_name: str,
-        sequence_input: List[BiotrainerSequenceRecord],
+        sequence_input: List[SequenceData],
         reduced: bool,
         use_half_precision: bool,
         custom_tokenizer_config: str = None,

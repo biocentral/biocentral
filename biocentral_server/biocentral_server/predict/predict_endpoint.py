@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 from fastapi_limiter.depends import RateLimiter
 
 from .multi_prediction_task import MultiPredictionTask
@@ -69,9 +69,9 @@ async def predict(
             error_code=404,
         )
 
-    # Convert sequence input to BiotrainerSequenceRecord objects
+    # Convert sequence input to SequenceData objects
     sequence_input = [
-        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        SequenceData(seq_id=seq_id, seq=seq)
         for seq_id, seq in request_data.sequence_input.items()
     ]
 

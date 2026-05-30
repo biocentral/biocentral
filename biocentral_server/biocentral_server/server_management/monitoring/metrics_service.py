@@ -3,7 +3,7 @@ import os
 from typing import List
 from redis import Redis
 from datetime import datetime
-from biotrainer.utilities import AMINO_ACIDS
+from biotrainer_core.utils.constants import AMINO_ACIDS
 
 from .research_stats import ResearchStats
 

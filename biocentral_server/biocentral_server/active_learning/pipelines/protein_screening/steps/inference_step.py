@@ -2,7 +2,7 @@ import torch
 
 from junban import PipelineStep
 from typing import Dict, Optional, Tuple, Literal
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from ....al_config import (
     ActiveLearningOptimizationMode,
@@ -44,7 +44,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
     @staticmethod
     def _random_classification_predictions(
-        train_data: Dict[str, BiotrainerSequenceRecord],
+        train_data: Dict[str, SequenceData],
         n_inference: int,
         al_campaign_config: ActiveLearningCampaignConfig,
         al_iteration_config: ActiveLearningIterationConfig,
@@ -80,7 +80,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
     @staticmethod
     def _random_regression_predictions(
-        train_data: Dict[str, BiotrainerSequenceRecord],
+        train_data: Dict[str, SequenceData],
         n_inference: int,
         al_campaign_config: ActiveLearningCampaignConfig,
         uncertainty_strategy: str,

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 import httpx
 import numpy as np
 from biotrainer.utilities import calculate_sequence_hash
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from biocentral_server.server_management.embedding_database import EmbeddingsDatabase
 
@@ -80,7 +80,9 @@ class ServerEmbedder:
         return response.json()["task_id"]
 
     def _poll_task(self, task_id: str) -> Dict:
-        from biocentral_server.server_management.task_management.task_interface import TaskStatus
+        from biocentral_server.server_management.task_management.task_interface import (
+            TaskStatus,
+        )
 
         start = time.time()
 
@@ -139,9 +141,7 @@ class ServerEmbedder:
         else:
             embedding = self._fixed_embedder.embed(sequence)
 
-        record = BiotrainerSequenceRecord(
-            seq_id="fixed", seq=sequence, embedding=embedding
-        )
+        record = SequenceData(seq_id="fixed", seq=sequence, embedding=embedding)
         self._db.save_embeddings([record], self.embedder_name, reduced=reduce)
 
         return embedding

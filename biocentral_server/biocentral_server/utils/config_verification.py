@@ -1,4 +1,4 @@
-from biotrainer.config import Configurator, ConfigurationException
+from biotrainer.training.config import Configurator, ConfigurationException
 
 from .format_utils import str2bool
 

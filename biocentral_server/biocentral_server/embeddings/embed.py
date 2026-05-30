@@ -1,6 +1,6 @@
-from biotrainer.embedders import EmbeddingService
+from biotrainer.embedding import EmbeddingService
 from typing import Dict, List, Optional, Generator
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from .biotrainer_triton_embedder import get_biotrainer_embedding_service
 
@@ -22,7 +22,7 @@ def get_embedder_name_db(embedder_name: str, use_half_precision: bool) -> str:
 
 def compute_memory_encodings(
     embedder_name: str, all_seqs: Dict[str, str], reduced: bool
-) -> List[BiotrainerSequenceRecord]:
+) -> List[SequenceData]:
     """Compute encodings (e.g. one_hot_encoding) that are not stored in the database."""
 
     embedding_service: EmbeddingService = get_biotrainer_embedding_service(
@@ -32,14 +32,12 @@ def compute_memory_encodings(
         device=DeviceService.embedding_device(embedder_name=embedder_name),
         force_biotrainer=True,
     )
-    embd_record_tuples = list(
+    emb_records = list(
         embedding_service.generate_embeddings(
             input_data=list(all_seqs.values()), reduce=reduced
         )
     )
-    return [
-        seq_record.copy_with_embedding(embd) for seq_record, embd in embd_record_tuples
-    ]
+    return emb_records
 
 
 def _compute_embeddings_implementation(
@@ -82,7 +80,7 @@ def _compute_embeddings_implementation(
             force_biotrainer=force_biotrainer,
         )
         non_existing_records = [
-            BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+            SequenceData(seq_id=seq_id, seq=seq)
             for seq_id, seq in non_existing_embds_seqs.items()
         ]
 
@@ -90,10 +88,10 @@ def _compute_embeddings_implementation(
         batch = []
         max_batch_size = 50
 
-        for seq_record, embedding in embedding_service.generate_embeddings(
+        for embd_record in embedding_service.generate_embeddings(
             non_existing_records, reduced
         ):
-            batch.append(seq_record.copy_with_embedding(embedding))
+            batch.append(embd_record)
             if len(batch) >= max_batch_size:
                 embeddings_db.save_embeddings(
                     embd_records=batch, embedder_name=embedder_name, reduced=reduced

@@ -1,7 +1,7 @@
 import torch
 
-from biotrainer.utilities import get_device
-from biotrainer.embedders import get_predefined_embedder_names
+from biotrainer.shared import get_device
+from biotrainer.embedding import get_predefined_embedder_names
 
 
 class DeviceService:

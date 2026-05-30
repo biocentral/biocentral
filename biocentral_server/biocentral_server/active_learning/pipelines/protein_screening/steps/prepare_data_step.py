@@ -27,18 +27,13 @@ class PrepareDataStep(PipelineStep[ScreeningPipelineContext]):
         train_data = {}
         inference_data = {}
         for data_point in context.al_iteration_config.iteration_data:
-            biotrainer_seq_record = data_point.to_biotrainer_seq_record()
             if data_point.set == "pred":
-                inference_data[biotrainer_seq_record.seq_id] = (
-                    biotrainer_seq_record.copy_with_embedding(
-                        id2emb[biotrainer_seq_record.get_hash()]
-                    )
+                inference_data[data_point.seq_id] = data_point.copy_with_embedding(
+                    id2emb[data_point.get_hash()]
                 )
             else:
-                train_data[biotrainer_seq_record.seq_id] = (
-                    biotrainer_seq_record.copy_with_embedding(
-                        id2emb[biotrainer_seq_record.get_hash()]
-                    )
+                train_data[data_point.seq_id] = data_point.copy_with_embedding(
+                    id2emb[data_point.get_hash()]
                 )
         context.training_data = train_data
         context.inference_data = inference_data

@@ -4,8 +4,7 @@ import torch
 
 from junban import PipelineStep
 from typing import List, Tuple, Literal
-from biotrainer.protocols import Protocol
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData, Protocol
 
 from ....al_config import ActiveLearningOptimizationMode, ActiveLearningModelType
 
@@ -91,7 +90,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
                 "all_target_classes must be provided for discrete optimization"
             )
             test_data = [
-                BiotrainerSequenceRecord(
+                SequenceData(
                     seq_id=f"DummyTestSeq{idx}",
                     seq="DUMMY" * idx,
                     embedding=torch.zeros_like(first_embedding),
@@ -101,7 +100,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
             ]
         else:  # a single sequence is sufficient for regression
             test_data = [
-                BiotrainerSequenceRecord(
+                SequenceData(
                     seq_id="DummyTestSeq",
                     seq="DUMMY",
                     embedding=torch.zeros_like(first_embedding),
@@ -111,11 +110,11 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
 
         # Create validation set: Assign random seqs from train to validation
         val_data_k = max(1, len(context.training_data) // 10)
-        val_data: List[BiotrainerSequenceRecord] = random.sample(
+        val_data: List[SequenceData] = random.sample(
             list(context.training_data.values()), k=val_data_k
         )
         val_data = [
-            BiotrainerSequenceRecord(
+            SequenceData(
                 seq_id=data_point.seq_id,
                 seq=data_point.seq,
                 attributes={

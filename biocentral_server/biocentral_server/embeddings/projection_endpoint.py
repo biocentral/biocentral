@@ -1,5 +1,5 @@
 from typing import Annotated
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 from fastapi_limiter.depends import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 
@@ -75,7 +75,7 @@ async def project(
     protspace_task = ProtSpaceTask(
         embedder_name=embedder_name,
         sequences=[
-            BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+            SequenceData(seq_id=seq_id, seq=seq)
             for seq_id, seq in sequence_data.items()
         ],
         method=method,

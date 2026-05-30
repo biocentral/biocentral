@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from typing import Dict, List
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 from scipy.ndimage import gaussian_filter1d
 
 from ..base_model import (

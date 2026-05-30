@@ -1,9 +1,8 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status, Request, Depends
-from biotrainer.input_files import BiotrainerSequenceRecord
-from biotrainer.protocols import Protocol
-from biotrainer.config import Configurator
 from fastapi_limiter.depends import RateLimiter
+from biotrainer.training.config import Configurator
+from biotrainer_core.data_classes import SequenceData, Protocol
+from fastapi import APIRouter, HTTPException, status, Request, Depends
 
 from .endpoint_models import (
     ConfigVerificationRequest,
@@ -113,7 +112,7 @@ async def start_training(
     # Record metrics
     metrics_service.record_training_data(
         sequences={
-            data_point.seq_id: data_point.sequence
+            data_point.seq_id: data_point.seq
             for data_point in request_data.training_data
         }
     )
@@ -171,9 +170,9 @@ async def start_inference(
 ):
     """Do inference from trained models"""
 
-    # Convert sequence_data to BiotrainerSequenceRecord objects
+    # Convert sequence_data to SequenceData objects
     seq_records = [
-        BiotrainerSequenceRecord(seq_id=seq_id, seq=seq)
+        SequenceData(seq_id=seq_id, seq=seq)
         for seq_id, seq in request_data.sequence_data.items()
     ]
 

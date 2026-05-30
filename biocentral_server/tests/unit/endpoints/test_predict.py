@@ -39,7 +39,7 @@ class TestModelMetadataEndpoint:
             OutputType,
         )
         from biocentral_server.predict.models import BiocentralPredictionModel
-        from biotrainer.protocols import Protocol
+        from biotrainer_core.data_classes import Protocol
 
         mock_metadata = ModelMetadata(
             name=BiocentralPredictionModel.BindEmbed,

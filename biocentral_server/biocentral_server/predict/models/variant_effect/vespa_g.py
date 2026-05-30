@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from typing import List, Any, Dict
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 from vespag import (
     ScoreNormalizer,
     compute_mutation_score,

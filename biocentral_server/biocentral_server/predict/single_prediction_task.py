@@ -1,6 +1,5 @@
 from typing import Callable, Dict, List
-from biotrainer.protocols import Protocol
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData, Protocol
 
 from .models.base_model import BaseModel
 
@@ -11,9 +10,7 @@ logger = get_logger(__name__)
 
 
 class SinglePredictionTask(TaskInterface, PreEmbedMixin):
-    def __init__(
-        self, model: BaseModel, sequence_input: List[BiotrainerSequenceRecord]
-    ):
+    def __init__(self, model: BaseModel, sequence_input: List[SequenceData]):
         self.model = model
         self.model_metadata = model.get_metadata()
         self.sequence_input = sequence_input

@@ -1,11 +1,9 @@
 from pathlib import Path
 from copy import deepcopy
-from biotrainer.protocols import Protocol
+from biotrainer.training import BiotrainerModel
 from typing import Any, Dict, Callable, Optional, List, Tuple
-from biotrainer.input_files import BiotrainerSequenceRecord
-from biotrainer.utilities.executer import parse_config_file_and_execute_run
+from biotrainer_core.data_classes import SequenceData, Protocol
 
-from .endpoint_models import SequenceTrainingData
 from ..server_management import (
     TaskInterface,
     TaskDTO,
@@ -44,7 +42,7 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
         self,
         model_path: Path,
         config_dict: dict,
-        training_data: List[SequenceTrainingData],
+        training_data: List[SequenceData],
     ):
         super().__init__()
         self.model_path = model_path
@@ -52,11 +50,6 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
         self.training_data = training_data
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
-        sequence_records = [
-            seq_train_data.to_biotrainer_seq_record()
-            for seq_train_data in self.training_data
-        ]
-
         protocol = Protocol.from_string(self.config_dict["protocol"])
         reduced = protocol in Protocol.using_per_sequence_embeddings()
 
@@ -67,7 +60,7 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             self.config_dict["output_dir"] = str(biotrainer_out_path)
 
             error_dto, embeddings = self._pre_embed_with_db(
-                sequence_input=sequence_records,
+                sequence_input=self.training_data,
                 reduced=reduced,
                 update_dto_callback=update_dto_callback,
             )
@@ -82,12 +75,12 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
                 update_dto_callback=update_dto_callback
             )
 
-            result_dict = parse_config_file_and_execute_run(
+            biotrainer_result = BiotrainerModel().train(
                 config=config,
                 custom_output_observers=[custom_observer],
             )
 
-            model_hash = result_dict.get("derived_values", {}).get("model_hash", None)
+            model_hash = biotrainer_result.derived_values.model_hash
             if model_hash is None:
                 return TaskDTO.errored("Model hash not found after training!")
 
@@ -95,15 +88,15 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             new_path = self.model_path.parent / model_hash
             storage_writer.set_file_path(file_path=new_path)
 
-        return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=result_dict)
+        return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=biotrainer_result)
 
     def _pre_embed_with_db(
         self,
-        sequence_input: List[BiotrainerSequenceRecord],
+        sequence_input: List[SequenceData],
         reduced: bool,
         update_dto_callback: Optional[Callable] = None,
         custom_tokenizer_config: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Optional[TaskDTO], List[BiotrainerSequenceRecord]]:
+    ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
         embedder_name = self.config_dict["embedder_name"]
         if custom_tokenizer_config is None:
             custom_tokenizer_config = self.config_dict.get(
@@ -137,7 +130,7 @@ class BiotrainerTempTask(TaskInterface):
     def __init__(
         self,
         config_dict: dict,
-        training_data_with_embeddings: List[BiotrainerSequenceRecord],
+        training_data_with_embeddings: List[SequenceData],
     ):
         super().__init__()
         self.config_dict = _config_with_presets(config_dict)
@@ -155,10 +148,10 @@ class BiotrainerTempTask(TaskInterface):
                 update_dto_callback=update_dto_callback
             )
 
-            result_dict = parse_config_file_and_execute_run(
+            biotrainer_result = BiotrainerModel().train(
                 config=config,
                 custom_output_observers=[custom_observer],
                 write_to_file=False,
             )
 
-        return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=result_dict)
+        return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=biotrainer_result)

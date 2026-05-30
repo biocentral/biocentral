@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from abc import ABC, abstractmethod
-from biotrainer.protocols import Protocol
+from biotrainer_core.data_classes import Protocol
 from typing import List, Dict, Union, Any, Literal, Iterable
 
 from .model_metadata import ModelMetadata

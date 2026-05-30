@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict, List
+from biotrainer_core.data_classes import SequenceData
 
-from biocentral_server.custom_models.endpoint_models import SequenceTrainingData
 from tests.fixtures.test_dataset import CANONICAL_TEST_DATASET
 from tests.integration.endpoints.conftest import (
     assert_task_success,
@@ -15,9 +15,9 @@ STANDARD_SEQUENCES = {
 
 
 def _assert_not_immediate_terminal_failure(client, task_id: str) -> None:
-    #Some tasks fail on purpose instantly (e.g. invalid config that passes HTTP validation
-    #but is rejected by the worker). This catch-early check avoids waiting for
-    #the full poll timeout only to discover the task was already aborted.
+    # Some tasks fail on purpose instantly (e.g. invalid config that passes HTTP validation
+    # but is rejected by the worker). This catch-early check avoids waiting for
+    # the full poll timeout only to discover the task was already aborted.
 
     status_response = client.get(f"/biocentral_service/task_status/{task_id}")
     assert status_response.status_code == 200, (
@@ -36,19 +36,19 @@ def _assert_not_immediate_terminal_failure(client, task_id: str) -> None:
 @pytest.fixture
 def classification_training_data() -> List[Dict]:
     return [
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_001",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_001").sequence,
             label="membrane",
             set="train",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_002",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_002").sequence,
             label="membrane",
             set="val",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_003",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_003").sequence,
             label="membrane",
@@ -61,19 +61,19 @@ def classification_training_data() -> List[Dict]:
 def real_world_training_data() -> List[Dict]:
     # biotrainer requires at least one sequence per split (train/val/test)
     return [
-        SequenceTrainingData(
+        SequenceData(
             seq_id="insulin_b",
             sequence=CANONICAL_TEST_DATASET.get_by_id("real_insulin_b").sequence,
             label="hormone",
             set="train",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="ubiquitin",
             sequence=CANONICAL_TEST_DATASET.get_by_id("real_ubiquitin").sequence,
             label="signaling",
             set="val",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="gfp_core",
             sequence=CANONICAL_TEST_DATASET.get_by_id("real_gfp_core").sequence,
             label="fluorescence",
@@ -86,19 +86,19 @@ def real_world_training_data() -> List[Dict]:
 def regression_training_data() -> List[Dict]:
     # biotrainer requires at least one sequence per split (train/val/test)
     return [
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_001",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_001").sequence,
             label="0.75",
             set="train",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_002",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_002").sequence,
             label="0.50",
             set="val",
         ).model_dump(),
-        SequenceTrainingData(
+        SequenceData(
             seq_id="standard_003",
             sequence=CANONICAL_TEST_DATASET.get_by_id("standard_003").sequence,
             label="0.25",
@@ -285,6 +285,7 @@ class TestStartTrainingEndpoint:
 
         assert response.status_code in [400, 422]
 
+
 @pytest.mark.order(3)
 class TestStartInferenceEndpoint:
     @pytest.mark.integration
@@ -298,6 +299,7 @@ class TestStartInferenceEndpoint:
         )
 
         assert response.status_code == 422
+
 
 @pytest.mark.order(4)
 class TestModelFilesEndpoint:

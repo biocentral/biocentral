@@ -2,71 +2,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Any, Dict
 
-from biotrainer.input_files import BiotrainerSequenceRecord
-from pydantic import BaseModel, Field, model_validator
-
-
-class SequenceTrainingData(BaseModel):
-    seq_id: str = Field(description="Sequence identifier", min_length=1)
-    sequence: str = Field(description="AA Sequence", min_length=1)
-    set: str = Field(
-        description="Set", examples=["train", "val", "test", "casp12", "pred"]
-    )
-    label: Optional[str] = Field(
-        default=None,
-        description="Label to predict. "
-        "Mandatory for all sets except for prediction data.",
-    )
-    mask: Optional[str] = Field(default=None, description="MASK for per-residue tasks")
-
-    @model_validator(mode="after")
-    def validate_training_data(self):
-        if self.mask is not None:
-            if len(self.mask) != len(self.sequence):
-                raise ValueError("Length of mask must match length of sequence")
-        if self.set.lower() != "pred":
-            if self.label is None:
-                raise ValueError(
-                    "Label must be specified for all sets except prediction data!"
-                )
-        return self
-
-    def to_biotrainer_seq_record(self) -> BiotrainerSequenceRecord:
-        label = self.label
-        if isinstance(label, str) and len(label) == 0:
-            label = None
-        attributes = {"TARGET": label, "SET": self.set}
-        if self.mask is not None:
-            attributes["MASK"] = self.mask
-        return BiotrainerSequenceRecord(
-            seq_id=self.seq_id, seq=self.sequence, attributes=attributes
-        )
-
-    def to_fasta(self):
-        fasta_str = f">{self.seq_id} TARGET={self.label} SET={self.set}"
-        fasta_str += "\n" if self.mask is None else f"MASK={self.mask}\n"
-        fasta_str += self.sequence
-        return fasta_str
-
-    def delete_label(self) -> SequenceTrainingData:
-        """Delete label for active learning simulations"""
-        return SequenceTrainingData(
-            seq_id=self.seq_id,
-            sequence=self.sequence,
-            label=None,
-            set="pred",
-            mask=self.mask,
-        )
-
-    def set_label(self, label: str) -> SequenceTrainingData:
-        """Set label for active learning simulations"""
-        return SequenceTrainingData(
-            seq_id=self.seq_id,
-            sequence=self.sequence,
-            label=label,
-            set="train",
-            mask=self.mask,
-        )
+from biotrainer_core.data_classes import SequenceData
+from pydantic import BaseModel, Field
 
 
 class ErrorResponse(BaseModel):
@@ -101,7 +38,7 @@ class StartTrainingRequest(BaseModel):
     config_dict: Dict[str, Any] = Field(
         description="Biotrainer configuration", min_length=1
     )
-    training_data: List[SequenceTrainingData] = Field(
+    training_data: List[SequenceData] = Field(
         description="List of sequence training data", min_length=1
     )
 

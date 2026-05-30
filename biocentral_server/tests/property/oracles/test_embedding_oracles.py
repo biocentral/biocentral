@@ -7,7 +7,7 @@ import csv
 import numpy as np
 import pytest
 from pydantic import BaseModel, Field
-from biotrainer.input_files import BiotrainerSequenceRecord
+from biotrainer_core.data_classes import SequenceData
 
 from tests.fixtures.test_dataset import (
     get_test_sequences,
@@ -18,9 +18,7 @@ pytestmark = pytest.mark.property
 
 
 def _stable_sort_key(row: Dict[str, Any]) -> tuple:
-    seq_idx = (
-        row.get("parameter", "").split("_")[0]
-    )
+    seq_idx = row.get("parameter", "").split("_")[0]
     return (
         str(row.get("embedder", "")),
         str(row.get("model", "")),
@@ -163,6 +161,7 @@ def write_metrics_csv(
 def get_default_report_path() -> Path:
     return Path(__file__).parent.parent.parent / "reports" / "oracle_metrics.csv"
 
+
 def get_oracle_results() -> List[Dict[str, Any]]:
     return _oracle_results
 
@@ -196,7 +195,6 @@ class OracleConfig(BaseModel):
         default=[1, 5, 10],
         description="List of batch sizes to test for batch invariance",
     )
-  
 
 
 ORACLE_CONFIGS = {
@@ -279,6 +277,7 @@ class BatchInvarianceOracle:
 
         return batch
 
+
 @pytest.fixture(scope="module")
 def esm2_t6_8m_oracle_config() -> OracleConfig:
     return ORACLE_CONFIGS["esm2_t6_8m"]
@@ -289,7 +288,7 @@ def esm2_t6_8m_embedder():
     # Load real ESM2-T6-8M embedder.
     try:
         import torch
-        from biotrainer.embedders import get_embedding_service
+        from biotrainer.embedding import get_embedding_service
 
         embedding_service = get_embedding_service(
             embedder_name="facebook/esm2_t6_8M_UR50D",
@@ -318,10 +317,9 @@ class ESM2EmbedderWrapper:
     def __init__(self, embedding_service):
         self.embedding_service = embedding_service
 
-    def _to_records(self, sequences: List[str]) -> List[BiotrainerSequenceRecord]:
+    def _to_records(self, sequences: List[str]) -> List[SequenceData]:
         return [
-            BiotrainerSequenceRecord(seq_id=f"seq_{i}", seq=seq)
-            for i, seq in enumerate(sequences)
+            SequenceData(seq_id=f"seq_{i}", seq=seq) for i, seq in enumerate(sequences)
         ]
 
     def embed(self, sequence: str) -> np.ndarray:
@@ -330,7 +328,7 @@ class ESM2EmbedderWrapper:
             self.embedding_service.generate_embeddings(records, reduce=False)
         )
         if results:
-            _, embedding = results[0]
+            embedding = results
             return np.array(embedding)
         return np.array([])
 
@@ -338,7 +336,7 @@ class ESM2EmbedderWrapper:
         records = self._to_records([sequence])
         results = list(self.embedding_service.generate_embeddings(records, reduce=True))
         if results:
-            _, embedding = results[0]
+            embedding = results
             return np.array(embedding)
         return np.array([])
 
@@ -349,7 +347,7 @@ class ESM2EmbedderWrapper:
         results = list(
             self.embedding_service.generate_embeddings(records, reduce=pooled)
         )
-        return [np.array(embedding) for _, embedding in results]
+        return [np.array(embedding) for embedding in results]
 
 
 @pytest.fixture(scope="module")
