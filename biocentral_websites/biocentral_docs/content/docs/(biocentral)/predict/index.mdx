@@ -19,22 +19,3 @@ The `predict` module provides sequence-level, residue-level, and mutation-level 
 | [ProtT5SecondaryStructure](/docs/predict/prott5-secondary-structure)                           | Secondary structure prediction (3-state and 8-state) | `residue_to_class`  | Per residue        |
 | [VespaG](/docs/predict/vespag)                                                                 | Variant effect prediction                            | `residue_to_class`  | Mutation           |
 | [ExoTox](/docs/predict/exotox)                                                                  | Exotoxin classification                              | `sequence_to_class` | Per sequence       |
-
-### Capability groups
-
-- **Membrane and localization:** TMbed, LightAttentionMembrane, LightAttentionSubcellularLocalization
-- **Disorder and conservation:** Seth, UdonPred, ProtT5Conservation
-- **Structure and binding:** ProtT5SecondaryStructure, BindEmbed
-- **Variant and functional phenotype:** VespaG, ExoTox
-
-### Common metadata fields
-
-Each model page includes:
-
-- scientific scope and prediction target,
-- protocol and output schema,
-- class legend or numeric value ranges,
-- model and training data references,
-- licensing and citation links.
-
-Use the pages in this section for model-specific interpretation guidance and output semantics.

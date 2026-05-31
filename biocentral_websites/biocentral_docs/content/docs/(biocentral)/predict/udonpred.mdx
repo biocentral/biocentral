@@ -11,6 +11,40 @@ description: Residue-level intrinsic disorder scoring using TriZOD outputs.
 - **Embedder:** `Rostlab/ProstT5`
 - **Model size:** `1.1 MB`
 
+### Usage
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+<Tabs items={['API', 'Desktop']}>
+    <Tab value="API">
+        Using the [biocentral Python API](https://github.com/biocentral/biocentral_api):
+
+        ```python
+        from biocentral_api import BiocentralAPI, BiocentralPredictionModel
+
+        biocentral_api = BiocentralAPI().wait_until_healthy(max_wait_seconds=10)
+
+        model_names = [BiocentralPredictionModel.UDONPRED]
+        sequence_data = {
+            "Seq1": "MMALSLALMM",
+            "Seq2": "PRTEINMMALM",
+            "Seq3": "PRTSSSLAMAM",
+            "Seq4": "SEQWENCEAWMMWW",
+        }
+        result = biocentral_api.predict(model_names=model_names, sequence_data=sequence_data).run()
+        print(result)
+        ```
+    </Tab>
+
+    <Tab value="Desktop">
+        Using the [biocentral IRE](https://app.biocentral.cloud):
+
+        ![UdonPred Placeholder](/docs/udonpred_placebolder.png)
+    </Tab>
+</Tabs>
+
+
+
 ### Outputs
 
 #### disorder_trizod
