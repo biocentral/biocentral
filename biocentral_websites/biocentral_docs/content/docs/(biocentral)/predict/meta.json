@@ -1,7 +1,7 @@
 {
-  "title": "Predict",
+  "title": "predict",
+  "pagesIndex": "index",
   "pages": [
-    "index",
     "tmbed",
     "lightattention-membrane",
     "lightattention-subcellular-localization",

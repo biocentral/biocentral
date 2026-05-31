@@ -1,4 +1,4 @@
-export const appName = 'My App';
+export const appName = 'Biocentral Documentation';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
