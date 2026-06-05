@@ -16,7 +16,7 @@ class RunTestRequest(BaseModel):
     test: str
 
 
-class TestResult(BaseModel):
+class PPITestResult(BaseModel):
     success: str
     information: str
     test_metrics: str
@@ -26,7 +26,7 @@ class TestResult(BaseModel):
 
 
 class RunTestResponse(BaseModel):
-    test_result: TestResult
+    test_result: PPITestResult
 
 
 class ImportDatasetRequest(BaseModel):

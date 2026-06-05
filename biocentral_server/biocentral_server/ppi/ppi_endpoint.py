@@ -16,7 +16,7 @@ from .endpoint_models import (
     AutoDetectFormatRequest,
     RunTestResponse,
     RunTestRequest,
-    TestResult,
+    PPITestResult,
     ImportDatasetResponse,
     ImportDatasetRequest,
 )
@@ -194,7 +194,7 @@ async def run_test(body: RunTestRequest, request: Request):
         )
 
         return RunTestResponse(
-            test_result=TestResult(
+            test_result=PPITestResult(
                 success=success,
                 information=information,
                 test_metrics=test_metrics,
