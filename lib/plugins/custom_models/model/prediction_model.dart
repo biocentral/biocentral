@@ -1,57 +1,63 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 import 'package:biocentral_api/biocentral_api.dart';
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fpdart/fpdart.dart';
 
-@immutable
 class PredictionModel extends Equatable {
-  final Map<String, dynamic>? config;
+  final Map<String, dynamic>? _config;
+  final BiotrainerModelResult? modelResult;
   final String? databaseType;
-  final Map<String, dynamic>? derivedValues;
-  final Map<String, TrainingResult>? trainingResults;
-  final Map<String, TestResult>? testResults;
 
   final List<String> trainingLogs;
   final Map<String, Uint8List> checkpoints;
 
   final BiocentralTaskStatus? trainingStatus;
 
-  // TODO final Map<String, dynamic>? predictions;
-
   const PredictionModel({
-    required this.config,
+    required this.modelResult,
     required this.databaseType,
-    required this.derivedValues,
-    required this.trainingResults,
-    required this.testResults,
     required this.trainingLogs,
     required this.checkpoints,
     required this.trainingStatus,
-  });
-
-  const PredictionModel.empty()
-      : config = null,
-        databaseType = null,
-        derivedValues = null,
-        trainingResults = null,
-        testResults = null,
-        trainingLogs = const [],
-        checkpoints = const {},
-        trainingStatus = null;
+    Map<String, dynamic>? config,
+  }) : _config = config;
 
   static PredictionModel fromTrainingConfig(Map<String, dynamic> trainingConfig) {
     return PredictionModel(
       config: trainingConfig,
       databaseType: null,
-      derivedValues: null,
-      trainingResults: null,
-      testResults: null,
+      modelResult: null,
       trainingLogs: const [],
       checkpoints: const {},
       trainingStatus: null,
+    );
+  }
+
+  const PredictionModel.empty()
+      : _config = null,
+        modelResult = null,
+        databaseType = null,
+        trainingLogs = const [],
+        checkpoints = const {},
+        trainingStatus = null;
+
+  PredictionModel copyWith({
+    config,
+    databaseType,
+    modelResult,
+    testResults,
+    trainingLogs,
+    checkpoints,
+    trainingStatus,
+  }) {
+    return PredictionModel(
+      config: config ?? _config,
+      databaseType: databaseType ?? this.databaseType,
+      modelResult: modelResult ?? this.modelResult,
+      trainingLogs: trainingLogs ?? this.trainingLogs,
+      checkpoints: checkpoints ?? this.checkpoints,
+      trainingStatus: trainingStatus ?? this.trainingStatus,
     );
   }
 
@@ -59,47 +65,20 @@ class PredictionModel extends Equatable {
     final config = map['config'];
     final databaseType = map['database_type'] ?? 'Protein';
 
-    final derivedValues = map['derived_values'];
-    Map<String, dynamic>? parsedDerivedValues;
-    if (derivedValues != null) {
-      parsedDerivedValues = Map<String, dynamic>.from(derivedValues);
-    }
-
-    final Map<String, TrainingResult> parsedTrainingResults = {};
-    final trainingResults = Map<String, dynamic>.from(map['training_results'] ?? {});
-    if (trainingResults.isNotEmpty) {
-      for (final (splitName, resultMap) in trainingResults.entriesRecord) {
-        final trainingResult = TrainingResult.deserialize(Map<String, dynamic>.from(resultMap));
-        if (trainingResult != null) {
-          parsedTrainingResults[splitName] = trainingResult;
-        }
-      }
-    }
-
-    final Map<String, TestResult> parsedTestResults = {};
-    final testResults = Map<String, dynamic>.from(map['test_results'] ?? {});
-    if (testResults.isNotEmpty) {
-      for (final (testSetName, testSetMap) in testResults.entriesRecord) {
-        final testResult = TestResult.deserialize(Map<String, dynamic>.from(testSetMap ?? {}));
-        if (testResult != null) {
-          parsedTestResults[testSetName] = testResult;
-        }
-      }
-    }
+    final modelResult = BiotrainerModelResultSerial.deserialize(map['model_result']);
 
     final trainingLogs = map['training_logs'] as List? ?? <String>[];
     final trainingStatus = BiocentralTaskStatus.finished;
     return PredictionModel(
       config: config != null ? Map<String, dynamic>.from(config) : null,
       databaseType: databaseType,
-      derivedValues: parsedDerivedValues,
-      trainingResults: parsedTrainingResults,
-      testResults: parsedTestResults,
+      modelResult: modelResult,
       trainingLogs: trainingLogs.map((l) => l.toString()).toList(),
       checkpoints: {},
       trainingStatus: trainingStatus,
     );
   }
+
 
   PredictionModel addLogs(List<String> logs) {
     return copyWith(trainingLogs: Set<String>.from(List.of(trainingLogs)..addAll(logs)).toList());
@@ -111,97 +90,45 @@ class PredictionModel extends Equatable {
     );
   }
 
-  PredictionModel copyWith({
-    config,
-    databaseType,
-    derivedValues,
-    trainingResults,
-    testResults,
-    trainingLogs,
-    checkpoints,
-    trainingStatus,
-  }) {
-    return PredictionModel(
-      config: config ?? this.config,
-      databaseType: databaseType ?? this.databaseType,
-      derivedValues: derivedValues ?? this.derivedValues,
-      trainingResults: trainingResults ?? this.trainingResults,
-      testResults: testResults ?? this.testResults,
-      trainingLogs: trainingLogs ?? this.trainingLogs,
-      checkpoints: checkpoints ?? this.checkpoints,
-      trainingStatus: trainingStatus ?? this.trainingStatus,
-    );
-  }
-
   PredictionModel updateFromDTO(TaskDTO taskDTO) {
-    final outputData = taskDTO.biotrainerUpdate;
-    if (outputData == null) {
+    final biotrainerUpdate = taskDTO.biotrainerUpdate;
+    if (biotrainerUpdate == null) {
       return this;
     }
 
-    PredictionModel updatedModel = this;
-    final config = outputData.config?.toMap().map((k, v) => MapEntry(k, v.toString()));
-    if (config != null) {
-      updatedModel = updatedModel.copyWith(config: this.config?.merge<String, String>(config) ?? config);
-    }
-    final derivedValues = outputData.derivedValues?.toMap().map((k, v) => MapEntry(k, v.toString()));
-    if (derivedValues != null) {
-      updatedModel = updatedModel.copyWith(
-        derivedValues: this.derivedValues?.merge<String, dynamic>(derivedValues) ?? derivedValues,
-      );
+    final updatedModel = this;
+    return updatedModel.copyWith(modelResult: biotrainerUpdate.currentModelResult);
+  }
+
+  PredictionModel finishFromResult(BiotrainerModelResult? biotrainerResult) {
+    if (biotrainerResult == null) {
+      return this;
     }
 
-    // TODO Not included in DTO yet
-    final databaseType = 'Protein';
-    updatedModel = updatedModel.copyWith(databaseType: databaseType);
-
-    final trainingIterations = outputData.trainingIteration?.toList();
-    if (trainingIterations != null && trainingIterations.isNotEmpty) {
-      final splitName = trainingIterations[0].toString();
-      final epochMetrics = trainingIterations[1];
-
-      // TODO Parse EpochMetrics
-
-      final existingTrainingResult = trainingResults?[splitName] ?? TrainingResult.empty();
-      final updatedTrainingResult =
-          existingTrainingResult.update(epochMetrics?.asMap.map((k, v) => MapEntry(k.toString(), v)) ?? {});
-      if (updatedTrainingResult != null) {
-        // TODO Error handling
-        final newTrainingResults = Map<String, TrainingResult>.from(trainingResults ?? {});
-        newTrainingResults[splitName] = updatedTrainingResult;
-        updatedModel = updatedModel.copyWith(trainingResults: newTrainingResults);
-      }
-    }
-
-    final testResults =
-        outputData.testResults?.toMap().map((k, v) => MapEntry(k, Map<String, dynamic>.from(v?.asMap ?? {})));
-    final updatedTestResults = Map<String, TestResult>.from(this.testResults ?? {});
-    if (testResults != null) {
-      for (final (testSetName, testSetResult) in testResults.entriesRecord) {
-        final parsedTestSetResult = TestResult.deserialize(testSetResult);
-        if (parsedTestSetResult != null) {
-          updatedTestResults[testSetName] = parsedTestSetResult;
-        }
-      }
-    }
-    updatedModel = updatedModel.copyWith(testResults: updatedTestResults);
-
-    return updatedModel;
+    return PredictionModel(
+        config: biotrainerResult.configMap() ?? _config,
+        modelResult: biotrainerResult,
+        databaseType: databaseType,
+        trainingLogs: trainingLogs,
+        checkpoints: checkpoints,
+        trainingStatus: trainingStatus);
   }
 
   // Getters for commonly used values
+  Map<String, dynamic>? get config => _config ?? modelResult?.configMap();
+
   String? get embedderName => config?['embedder_name'];
 
   String? get modelChoice => config?['model_choice'];
 
-  String? get modelHash => derivedValues?['model_hash'];
+  String? get modelHash => modelResult?.derivedValues?.modelHash;
 
-  TrainingResult? get holdOutResult => trainingResults?['hold_out'];
+  TrainingResult? get holdOutResult => modelResult?.trainingResults?['hold_out'];
 
-  TestResult? get defaultTestResult => testResults?['test'];
+  TestResult? get defaultTestResult => modelResult?.testResults?['test'];
 
   Protocol? get protocol => enumFromString<Protocol>(
-      config?['protocol'].toString().replaceAll('_', '').toLowerCase(), Protocol.values.toList());
+      _config?['protocol'].toString().replaceAll('_', '').toLowerCase(), Protocol.values.toList());
 
   String getReadableModelID() {
     String modelID = '';
@@ -233,255 +160,14 @@ class PredictionModel extends Equatable {
   Map<String, dynamic> serialize() {
     // Checkpoints are not included at the moment
     return {
-      'config': config,
+      'config': _config,
       'database_type': databaseType,
-      'derived_values': derivedValues,
-      'training_results': Map<String, dynamic>.from(
-        trainingResults?.map((splitName, result) => MapEntry(splitName, result.serialize())) ?? {},
-      ),
-      'test_results': Map<String, dynamic>.from(
-        testResults?.map((testSetName, result) => MapEntry(testSetName, result.serialize())) ?? {},
-      ),
+      'model_result': modelResult?.serialize(),
       'training_logs': trainingLogs,
       'training_status': trainingStatus?.name,
     };
   }
 
   @override
-  List<Object?> get props =>
-      [config, databaseType, derivedValues, trainingResults, testResults, trainingLogs, trainingStatus];
-}
-
-class TrainingResult {
-  final Map<int, double> trainingLoss;
-  final Map<int, double> validationLoss;
-
-  final int? bestEpoch;
-  final Map<String, Set<BiocentralMLMetric>>? bestEpochMetrics; // Training + Validation
-
-  final Map<String, dynamic>? metadata;
-
-  TrainingResult({
-    required this.trainingLoss,
-    required this.validationLoss,
-    required this.bestEpoch,
-    required this.bestEpochMetrics,
-    required this.metadata,
-  });
-
-  TrainingResult.empty()
-      : trainingLoss = {},
-        validationLoss = {},
-        bestEpoch = null,
-        bestEpochMetrics = null,
-        metadata = null;
-
-  static TrainingResult? deserialize(Map<String, dynamic> map) {
-    final trainingLoss = Map<int, double>.from(
-      (map['training_loss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)),
-    );
-    if (trainingLoss.isEmpty) {
-      return null;
-    }
-    final Map<int, double> validationLoss = Map<int, double>.from(
-      (map['validation_loss'] ?? {}).map((k, v) => MapEntry(int.parse(k), v)),
-    );
-    if (validationLoss.isEmpty) {
-      return null;
-    }
-    final Map<String, dynamic> bestTrainingEpochMetrics =
-        Map<String, dynamic>.from(map['best_training_epoch_metrics'] ?? {});
-    if (bestTrainingEpochMetrics.isEmpty) {
-      return null;
-    }
-    final int? bestEpoch = int.tryParse(bestTrainingEpochMetrics['epoch'].toString() ?? '');
-    if (bestEpoch == null) {
-      return null;
-    }
-    final bestEpochMetrics = {'training': <BiocentralMLMetric>{}, 'validation': <BiocentralMLMetric>{}};
-    for (final splitType in ['training', 'validation']) {
-      final splitMap = Map<String, dynamic>.from(bestTrainingEpochMetrics[splitType] ?? {});
-      for (final (metricName, metricValue) in splitMap.entriesRecord) {
-        final mlMetric = BiocentralMLMetric.tryParse(metricName, metricValue.toString());
-        if (mlMetric == null) {
-          return null;
-        }
-        bestEpochMetrics[splitType]?.add(mlMetric);
-      }
-    }
-
-    final metadata =
-        map.filterWithKey((k, v) => !['training_loss', 'validation_loss', 'best_training_epoch_metrics'].contains(k));
-
-    return TrainingResult(
-      trainingLoss: trainingLoss,
-      validationLoss: validationLoss,
-      bestEpoch: bestEpoch,
-      bestEpochMetrics: bestEpochMetrics,
-      metadata: metadata,
-    );
-  }
-
-  TrainingResult? update(Map<String, dynamic> epochMetrics) {
-    final epoch = int.tryParse(epochMetrics['epoch'].toString());
-    final trainingLossUpdate = epochMetrics['training']?['loss'];
-    final validationLossUpdate = epochMetrics['validation']?['loss'];
-
-    if (epoch == null || trainingLossUpdate == null || validationLossUpdate == null) {
-      return null;
-    }
-    return copyWith(
-      trainingLoss: trainingLoss..addAll({epoch: trainingLossUpdate}),
-      validationLoss: validationLoss..addAll({epoch: validationLossUpdate}),
-    );
-  }
-
-  TrainingResult copyWith({
-    trainingLoss,
-    validationLoss,
-    bestEpoch,
-    bestEpochMetrics,
-    metadata,
-  }) {
-    return TrainingResult(
-      trainingLoss: trainingLoss ?? this.trainingLoss,
-      validationLoss: validationLoss ?? this.validationLoss,
-      bestEpoch: bestEpoch ?? this.bestEpoch,
-      bestEpochMetrics: bestEpochMetrics ?? this.bestEpochMetrics,
-      metadata: metadata ?? this.metadata,
-    );
-  }
-
-  int getLastEpoch() {
-    return trainingLoss.keys.max;
-  }
-
-  Map<String, dynamic> serialize() {
-    final result = Map<String, dynamic>.of(metadata ?? {});
-    result.addAll({
-      'training_loss': trainingLoss.map((epoch, loss) => MapEntry(epoch.toString(), loss)),
-      'validation_loss': validationLoss.map((epoch, loss) => MapEntry(epoch.toString(), loss)),
-    });
-    return result;
-  }
-}
-
-class TestResult {
-  final Set<BiocentralMLMetric> metrics;
-  final Set<String> sanityCheckWarnings;
-  final Map<String, Set<BiocentralMLMetric>> baselineMetrics;
-
-  TestResult({
-    required this.metrics,
-    required this.sanityCheckWarnings,
-    required this.baselineMetrics,
-  });
-
-  static Set<BiocentralMLMetric> _parseBootstrapping(Map<String, dynamic> bootstrappingMap) {
-    final Set<BiocentralMLMetric> result = {};
-    final btResults = bootstrappingMap['results'] as List<dynamic>? ?? [];
-
-    for (final (btMap) in btResults) {
-      final mean = btMap?['mean'];
-      final name = btMap?['name'];
-      if (mean == null || name == null) {
-        continue;
-      }
-
-      final mlMetric = BiocentralMLMetric(
-        name: name,
-        value: mean,
-        uncertaintyEstimate: UncertaintyEstimate.fromMap(
-          Map.from(bootstrappingMap)
-            ..addAll(Map.from(btMap ?? {}))
-            ..addAll({'method': 'bootstrapping'}),
-        ),
-      );
-      result.add(mlMetric);
-    }
-
-    return result;
-  }
-
-  static TestResult? deserialize(Map<String, dynamic> map) {
-    final Set<BiocentralMLMetric> parsedMetrics = {};
-    final String defaultUncertaintyMethod = 'bootstrapping';
-    final bootstrappingMap = Map<String, dynamic>.from(map[defaultUncertaintyMethod] ?? {});
-
-    if (bootstrappingMap.isNotEmpty) {
-      final bootstrappingResult = TestResult._parseBootstrapping(bootstrappingMap);
-      parsedMetrics.addAll(bootstrappingResult);
-    } else {
-      final Map<String, dynamic> testSetMetrics = map['metrics'] ?? {};
-      for (final (metricName, metricValue) in testSetMetrics.entriesRecord) {
-        final mlMetric = BiocentralMLMetric.tryParse(metricName, metricValue.toString());
-        if (mlMetric == null) {
-          continue;
-        }
-        parsedMetrics.add(mlMetric);
-      }
-    }
-
-    if (parsedMetrics.isEmpty) {
-      return null;
-    }
-
-    final Set<String> sanityCheckWarnings = Set<String>.from(map['sanity_check_warnings'] ?? []);
-
-    final Map<String, Set<BiocentralMLMetric>> parsedBaselineMetrics = {};
-
-    final baselinesMap = Map<String, dynamic>.from(map['test_baselines'] ?? {});
-
-    if (baselinesMap.isNotEmpty) {
-      for (final (baselineName, baselineResultMap) in baselinesMap.entriesRecord) {
-        final bootstrappingResult = TestResult._parseBootstrapping(Map<String, dynamic>.from(baselineResultMap ?? {}));
-        if (bootstrappingResult.isNotEmpty) {
-          parsedBaselineMetrics[baselineName] = bootstrappingResult;
-        }
-      }
-    }
-
-    return TestResult(
-      metrics: parsedMetrics,
-      sanityCheckWarnings: sanityCheckWarnings,
-      baselineMetrics: parsedBaselineMetrics,
-    );
-  }
-
-  static Map<String, dynamic> _convertToBootstrapping(Set<BiocentralMLMetric> metrics) {
-    // TODO Simplify with uncertaintyEstimate toMap()
-    final Map<String, dynamic> bootstrapping = {};
-    final uncertaintyEstimate =
-        metrics.firstWhereOrNull((metric) => metric.uncertaintyEstimate != null)?.uncertaintyEstimate;
-    if (uncertaintyEstimate != null) {
-      final bootstrappingParameters = {
-        'iterations': uncertaintyEstimate.iterations,
-        'sample_size': uncertaintyEstimate.sampleSize,
-        'confidence_level': uncertaintyEstimate.confidenceLevel,
-      };
-      bootstrapping['results'] = metrics.map(
-        (metric) => {
-          'name': metric.name,
-          'mean': metric.uncertaintyEstimate?.mean,
-          'lower': metric.uncertaintyEstimate?.lower,
-          'upper': metric.uncertaintyEstimate?.upper,
-        },
-      ).toList();
-      bootstrapping.addAll(bootstrappingParameters);
-    }
-    return bootstrapping;
-  }
-
-  Map<String, dynamic> serialize() {
-    return {
-      'metrics': Map<String, dynamic>.fromEntries(metrics.map((metric) => MapEntry(metric.name, metric.value))),
-      'bootstrapping': _convertToBootstrapping(metrics),
-      'test_baselines': Map<String, dynamic>.from(
-        baselineMetrics.map(
-          (baselineName, baselineMetricSet) => MapEntry(baselineName, _convertToBootstrapping(baselineMetricSet)),
-        ),
-      ),
-      'sanity_check_warnings': sanityCheckWarnings.toList(),
-    };
-  }
+  List<Object?> get props => [_config, databaseType, modelResult, trainingLogs, trainingStatus];
 }

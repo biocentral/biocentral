@@ -346,7 +346,7 @@ final class TrainModelCommand extends BiocentralCommand<PredictionModel> {
   }
 
   Stream<BiocentralCommandLog<PredictionModel>> doTraining(
-    BiocentralServerTask<Map<String, dynamic>?> task,
+    BiocentralServerTask<BiotrainerModelResult?> task,
     BiocentralCommandLog<PredictionModel> log,
     PredictionModel initialModel,
   ) async* {
@@ -390,12 +390,14 @@ final class TrainModelCommand extends BiocentralCommand<PredictionModel> {
             );
           }
         }
-      } else if (biotrainerResult != null) {
-        currentModel = PredictionModel.deserialize(biotrainerResult) ?? currentModel;
+      } else {
+        currentModel = currentModel.finishFromResult(biotrainerResult);
         yield log.finish(
           result: BiocentralCommandResult(currentModel, currentModel.getModelInformationMap()),
-          // TODO Epochs instead of 1 1
-          finalProgress: const BiocentralCommandProgress(information: 'Finished training model!', current: 1, total: 1),
+          finalProgress: BiocentralCommandProgress(information: 'Finished training model!',
+              current: currentModel.holdOutResult?.getLastEpoch() ?? 1,
+              total: currentModel.holdOutResult?.getLastEpoch() ?? 1,
+          ),
         );
         return;
       }

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class AlIterationConfigDisplay extends StatefulWidget {
   final int iteration;
   final int maxNumberPossibleSuggestions;
-  final List<SequenceTrainingData> iterationData;
+  final List<SequenceData> iterationData;
 
   final void Function(ActiveLearningIterationConfig?) onChanged;
 
@@ -46,7 +46,7 @@ class _AlIterationConfigDisplayState extends State<AlIterationConfigDisplay> {
           ..iteration = widget.iteration
           ..coefficient = _exploitationExplorationValue
           ..nSuggestions = _nSuggestions
-          ..iterationData = ListBuilder<SequenceTrainingData>(widget.iterationData),
+          ..iterationData = ListBuilder<SequenceData>(widget.iterationData),
       );
     }
     return null;

@@ -15,7 +15,6 @@ export 'domain/biocentral_database.dart';
 export 'domain/biocentral_database_repository.dart';
 export 'domain/biocentral_project_repository.dart';
 export 'model/biocentral_asset_dataset.dart';
-export 'model/biocentral_ml_metrics.dart';
 export 'model/biocentral_test_result.dart';
 export 'model/column_wizard_abstract.dart';
 export 'model/column_wizard_commands.dart';

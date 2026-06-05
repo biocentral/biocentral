@@ -7,6 +7,7 @@ import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

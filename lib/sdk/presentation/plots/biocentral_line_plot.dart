@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class BiocentralLinePlot extends StatelessWidget {
-  final Map<String, Map<int, double>> data;
+  final Map<String, List<double>> data;
   final List<Color> colors;
 
   const BiocentralLinePlot({
@@ -28,7 +28,7 @@ class BiocentralLinePlot extends StatelessWidget {
 class _LinePlotPainter extends CustomPainter {
   static const double padding = 60;
 
-  final Map<String, Map<int, double>> data;
+  final Map<String, List<double>> data;
   final List<Color> colors;
   final TextStyle plotTextStyle = const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold);
 
@@ -45,9 +45,9 @@ class _LinePlotPainter extends CustomPainter {
     double maxValue = double.negativeInfinity;
 
     data.forEach((key, values) {
-      maxEpoch = math.max(maxEpoch, values.keys.reduce(math.max));
-      minValue = math.min(minValue, values.values.reduce(math.min));
-      maxValue = math.max(maxValue, values.values.reduce(math.max));
+      maxEpoch = math.max(maxEpoch, values.length);
+      minValue = math.min(minValue, values.reduce(math.min));
+      maxValue = math.max(maxValue, values.reduce(math.max));
     });
 
     // Draw lines
@@ -84,7 +84,7 @@ class _LinePlotPainter extends CustomPainter {
     Canvas canvas,
     Size plotSize,
     Offset plotOffset,
-    Map<int, double> values,
+    List<double> values,
     int maxEpoch,
     double minValue,
     double maxValue,
@@ -98,7 +98,9 @@ class _LinePlotPainter extends CustomPainter {
     final Path path = Path();
     bool isFirst = true;
 
-    values.forEach((epoch, value) {
+    for (final rec in values.indexed) {
+      final int epoch = rec.$1;
+      final double value = rec.$2;
       final double x = plotOffset.dx + (epoch / maxEpoch) * plotSize.width;
       final double y = plotSize.height - ((value - minValue) / (maxValue - minValue)) * plotSize.height;
 
@@ -108,7 +110,7 @@ class _LinePlotPainter extends CustomPainter {
       } else {
         path.lineTo(x, y);
       }
-    });
+    }
 
     canvas.drawPath(path, linePaint);
   }

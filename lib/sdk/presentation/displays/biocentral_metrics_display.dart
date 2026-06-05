@@ -1,10 +1,11 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_metrics_plot.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralMetricsDisplay extends StatefulWidget {
-  final Map<String, Set<BiocentralMLMetric>> metrics;
+  final Map<String, Set<BootstrappedMetric>> metrics;
 
   const BiocentralMetricsDisplay({required this.metrics, super.key});
 

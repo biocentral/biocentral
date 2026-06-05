@@ -60,7 +60,7 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
     return null;
   }
 
-  List<SequenceTrainingData> collectIterationData() {
+  List<SequenceData> collectIterationData() {
     final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
     final column = database?.getColumn(_selectedCampaign?.columnName);
     if (database == null || column == null) {

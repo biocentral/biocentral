@@ -1,10 +1,13 @@
 import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralMetricsTable extends StatefulWidget {
-  final Map<String, Set<BiocentralMLMetric>> metrics;
+  final Map<String, Set<BootstrappedMetric>> metrics;
 
   final String? initialSortingMetric;
   final String? prominentMetric;
@@ -51,7 +54,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
   void _sortTableByMetricInitial(String metric) {
     setState(() {
       _sortedMetric = metric;
-      _ascending = BiocentralMLMetric.isAscending(metric);
+      _ascending = BootstrappedMetricExt.isAscending(metric);
       _isExpanded = false;
     });
   }
@@ -132,7 +135,7 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
   }
 
   TableRow _buildHeaderRow(Set<String> metricNames) {
-    final List<Widget> cells = [_buildCell('Dataset', isHeader: true)];
+    final List<Widget> cells = [_buildCell(text: 'Dataset', isHeader: true)];
 
     if (_prominentMetric != null) {
       cells.add(_buildHeaderCell(_prominentMetric!));
@@ -218,17 +221,17 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
       // TODO [Feature] Improve sorting with uncertainty estimate
       entries.sort((a, b) {
         final valueA = a.value
-            .firstWhere(
-              (m) => m.name == _sortedMetric,
-              orElse: () => BiocentralMLMetric(name: _sortedMetric!, value: double.nan),
-            )
-            .value;
+                .firstWhereOrNull(
+                  (m) => m.name == _sortedMetric,
+                )
+                ?.mean ??
+            double.nan;
         final valueB = b.value
-            .firstWhere(
-              (m) => m.name == _sortedMetric,
-              orElse: () => BiocentralMLMetric(name: _sortedMetric!, value: double.nan),
-            )
-            .value;
+                .firstWhereOrNull(
+                  (m) => m.name == _sortedMetric,
+                )
+                ?.mean ??
+            double.nan;
 
         if (valueA.isNaN && valueB.isNaN) return 0;
         if (valueA.isNaN) return _ascending ? -1 : 1;
@@ -241,64 +244,61 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
     return entries.map((entry) => _buildDataRow(entry.key, entry.value, allMetricNames)).toList();
   }
 
-  TableRow _buildDataRow(String datasetName, Set<BiocentralMLMetric> datasetMetrics, Set<String> allMetricNames) {
-    final List<Widget> cells = [_buildCell(datasetName)];
+  TableRow _buildDataRow(String datasetName, Set<BootstrappedMetric> datasetMetrics, Set<String> allMetricNames) {
+    final List<Widget> cells = [_buildCell(text: datasetName)];
 
     if (_prominentMetric != null) {
       final prominentMetric = datasetMetrics.firstWhere(
         (m) => m.name == _prominentMetric,
-        orElse: () => BiocentralMLMetric(name: _prominentMetric!, value: double.nan),
       );
-      cells.add(_buildCell(
-        prominentMetric.value.isNaN ? 'N/A' : prominentMetric.value.toStringAsPrecision(Constants.maxDoublePrecision),
-        estimate: prominentMetric.uncertaintyEstimate,
-      ),);
+      cells.add(
+        _buildCell(metric: prominentMetric),
+      );
 
       if (_isExpanded) {
-        cells.addAll(allMetricNames.where((m) => m != _prominentMetric).map((metricName) {
-          final metric = datasetMetrics.firstWhere(
-            (m) => m.name == metricName,
-            orElse: () => BiocentralMLMetric(name: metricName, value: double.nan),
-          );
-          return _buildCell(
-            metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
-            estimate: metric.uncertaintyEstimate,
-          );
-        }),);
+        cells.addAll(
+          allMetricNames.where((m) => m != _prominentMetric).map((metricName) {
+            final metric = datasetMetrics.firstWhere(
+              (m) => m.name == metricName,
+            );
+            return _buildCell(metric: metric);
+          }),
+        );
       } else {
-        cells.add(_buildCell('')); // Empty cell for collapsed state
+        cells.add(_buildCell(text: '')); // Empty cell for collapsed state
       }
     } else {
-      cells.addAll(allMetricNames.map((metricName) {
-        final metric = datasetMetrics.firstWhere(
-          (m) => m.name == metricName,
-          orElse: () => BiocentralMLMetric(name: metricName, value: double.nan),
-        );
-        return _buildCell(
-          metric.value.isNaN ? 'N/A' : metric.value.toStringAsPrecision(Constants.maxDoublePrecision),
-          estimate: metric.uncertaintyEstimate,
-        );
-      }),);
+      cells.addAll(
+        allMetricNames.map((metricName) {
+          final metric = datasetMetrics.firstWhere(
+            (m) => m.name == metricName,
+          );
+          return _buildCell(metric: metric,);
+        }),
+      );
     }
 
     return TableRow(children: cells);
   }
 
-  Widget _buildCell(String text, {bool isHeader = false, UncertaintyEstimate? estimate}) {
+  Widget _buildCell({String? text, BootstrappedMetric? metric, bool isHeader = false}) {
     final cell = Container(
       padding: const EdgeInsets.all(8.0),
       alignment: Alignment.center,
       height: _cellHeight,
       child: AutoSizeText(
-        text,
+        text ?? metric?.mean.toStringAsPrecision(Constants.maxDoublePrecision) ?? '',
         style: isHeader ? headerTextStyle() : cellTextStyle(),
         maxLines: isHeader ? 3 : 1,
         minFontSize: 8,
         textAlign: TextAlign.center,
       ),
     );
-    if(estimate != null) {
-      return BiocentralTooltip(message: estimate.toString(), child: cell);
+    if (metric != null) {
+      return BiocentralTooltip(
+        message: metric.rangeString(maxDoublePrecision: Constants.maxDoublePrecision),
+        child: cell,
+      );
     }
     return cell;
   }

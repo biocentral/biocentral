@@ -74,7 +74,7 @@ abstract class BiocentralDatabase<T extends BioEntity> with AutoSaving, Streamab
 
   Map<String, String>? getSequences();
 
-  List<SequenceTrainingData> getTrainingData({
+  List<SequenceData> getTrainingData({
     required BiocentralDatabaseColumn targetColumn,
     BiocentralDatabaseColumn setColumn,
     String? maskColumn,
