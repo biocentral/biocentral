@@ -116,7 +116,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
     return existingPartiallyLabeledColumns;
   }
 
-  List<SequenceTrainingData> collectIterationData() {
+  List<SequenceData> collectIterationData() {
     final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
     if (database == null || _selectedFeatureColumn == null) {
       return [];

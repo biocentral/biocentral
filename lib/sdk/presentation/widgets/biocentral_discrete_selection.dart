@@ -1,4 +1,5 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralDiscreteSelection<T> extends StatefulWidget {

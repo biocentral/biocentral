@@ -45,8 +45,8 @@ extension RecordEntries<K, V> on Map<K, V> {
 extension FilterNull on Map {
   Map<K, V> filterNull<K, V>() {
     final Map<K, V> result = {};
-    for(final entry in entries) {
-      if(entry.key != null && entry.value != null) {
+    for (final entry in entries) {
+      if (entry.key != null && entry.value != null) {
         result[entry.key] = entry.value;
       }
     }
@@ -57,10 +57,10 @@ extension FilterNull on Map {
 extension MergeMap on Map {
   Map merge<K, V>(Map<K, V> other, {bool failOnConflict = false}) {
     final merged = Map<K, V>.from(this);
-    for(final (key, value) in other.entriesRecord) {
+    for (final (key, value) in other.entriesRecord) {
       final newValue = merged[key];
-      final updatedValue = nullableMerge(value, newValue, 'Could not merge config key $key' , failOnConflict);
-      if(updatedValue != null) {
+      final updatedValue = nullableMerge(value, newValue, 'Could not merge config key $key', failOnConflict);
+      if (updatedValue != null) {
         merged[key] = updatedValue;
       }
     }
@@ -81,24 +81,18 @@ mixin ComparableEnum on Enum implements Comparable<Enum> {
   }
 }
 
-extension StringExtension on String {
-  String capitalize() {
-    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
-  }
-}
-
 extension DynamicTimeDisplay on Duration {
   String dynamicTimeDisplay() {
-    if(inDays > 0) {
+    if (inDays > 0) {
       return '$inDays Days';
     }
-    if(inHours > 0) {
+    if (inHours > 0) {
       return '$inHours Hours';
     }
-    if(inMinutes > 0) {
+    if (inMinutes > 0) {
       return '$inMinutes Minutes';
     }
-    if(inSeconds > 0) {
+    if (inSeconds > 0) {
       return '$inSeconds Seconds';
     }
     return toString();

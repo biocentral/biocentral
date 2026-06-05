@@ -5,6 +5,7 @@ import 'package:biocentral/sdk/presentation/displays/biocentral_task_display.dar
 import 'package:biocentral/sdk/presentation/plots/biocentral_line_plot.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_lazy_logs_viewer.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 
 class PredictionModelDisplay extends StatefulWidget {
@@ -132,7 +133,7 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
   }
 
   Widget buildSanityCheckIcon(TestResult? testResult) {
-    final Set<String> sanityCheckWarnings = testResult?.sanityCheckWarnings ?? {};
+    final Set<String> sanityCheckWarnings = testResult?.sanityCheckWarnings?.toSet() ?? {};
     final String tooltipMessage = sanityCheckWarnings.isEmpty
         ? 'All sanity checks passed!'
         : 'Your model has the following sanity check warnings:\n${sanityCheckWarnings.join('\n')}';
@@ -153,17 +154,21 @@ class _PredictionModelDisplayState extends State<PredictionModelDisplay> {
 
   Widget buildMetricsDisplay(TestResult? testResult) {
     if (testResult == null) return Container();
-    final metrics = {'Test Set Metrics': testResult.metrics}..addAll(testResult.baselineMetrics);
+    final metrics = {'Test Set Metrics': testResult.bootstrappedMetrics?.toSet() ?? {}}
+      ..addAll(testResult.baselines?.asMap().map((k, v) => MapEntry(k, v.toSet())) ?? {});
     return BiocentralMetricsDisplay(metrics: metrics);
   }
 
   Widget buildLossCurves(TrainingResult? trainingResult) {
-    if (trainingResult == null || (trainingResult.trainingLoss.isEmpty && trainingResult.validationLoss.isEmpty)) {
+    if (trainingResult == null || trainingResult.trainingLosses == null || trainingResult.validationLosses == null) {
       return Container();
     }
-    final Map<String, Map<int, double>> linePlotData = {
-      'Training': trainingResult.trainingLoss,
-      'Validation': trainingResult.validationLoss,
+    if (trainingResult.trainingLosses!.isEmpty && trainingResult.validationLosses!.isEmpty) {
+      return Container();
+    }
+    final Map<String, List<double>> linePlotData = {
+      'Training': trainingResult.trainingLosses!.map((l) => l.toDouble()).toList(),
+      'Validation': trainingResult.validationLosses!.map((l) => l.toDouble()).toList(),
     };
     return LayoutBuilder(
       builder: (context, constraints) {

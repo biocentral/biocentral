@@ -1,10 +1,11 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralMetricsPlot extends StatefulWidget {
-  final Map<String, Set<BiocentralMLMetric>> metrics;
+  final Map<String, Set<BootstrappedMetric>> metrics;
 
   const BiocentralMetricsPlot({required this.metrics, super.key});
 
@@ -48,7 +49,7 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
     for (final entry in widget.metrics.entries) {
       final metric = entry.value.firstWhereOrNull((m) => m.name == _selectedMetric);
       if(metric != null) {
-        result.add((entry.key, metric.value, metric.uncertaintyEstimate?.lower, metric.uncertaintyEstimate?.upper));
+        result.add((entry.key, metric.mean.toDouble(), metric.lower.toDouble(), metric.upper.toDouble()));
       }
     }
     return result;
@@ -78,7 +79,7 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
               flex: 5,
               child: BiocentralBarPlot(
                 data: BiocentralBarPlotData.withErrors(_getBarPlotData()),
-                bounds: BiocentralMLMetric.getBounds(_selectedMetric!),
+                bounds: BootstrappedMetricExt.getBounds(_selectedMetric!),
                 maxLabelLength: 30,
               ),
             ),

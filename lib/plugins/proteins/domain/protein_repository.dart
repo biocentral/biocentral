@@ -136,7 +136,7 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
   }
 
   @override
-  List<SequenceTrainingData> getTrainingData({
+  List<SequenceData> getTrainingData({
     required BiocentralDatabaseColumn targetColumn,
     BiocentralDatabaseColumn? setColumn,
     String? maskColumn,
@@ -147,12 +147,12 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
         : protein.attributes[targetColumn.name] != null
             ? 'train'
             : 'pred';
-    final result = <SequenceTrainingData>[];
+    final result = <SequenceData>[];
     for (final protein in databaseToList()) {
-      final trainingData = SequenceTrainingData(
+      final trainingData = SequenceData(
         (b) => b
           ..seqId = protein.id
-          ..sequence = protein.sequence.seq
+          ..seq = protein.sequence.seq
           ..label = protein.attributes[targetColumn.name] ?? ''
           ..set_ = getSetValue(protein)
           ..mask = protein.attributes[maskColumn],
