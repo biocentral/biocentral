@@ -214,32 +214,30 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
     def _handle_biotrainer_result(self, context: ScreeningPipelineContext):
         # Extract predictions and uncertainties
         result = context.biotrainer_result
-        predictions = result["predictions"]
+        predictions_dict = {pred.seq_id: pred for pred in result.predictions}
         ordered_predictions = [
-            predictions[key] for key in context.inference_data.keys()
+            predictions_dict[key] for key in context.inference_data.keys()
         ]
         assert (
-            len(ordered_predictions) == len(context.inference_data) == len(predictions)
+            len(ordered_predictions)
+            == len(context.inference_data)
+            == len(result.predictions)
         )
-        means = torch.tensor(
-            [pred_dict["mcd_mean"] for pred_dict in ordered_predictions]
-        )
-        preds = [pred_dict["prediction"] for pred_dict in ordered_predictions]
+        means = torch.tensor([pred.mcd_mean for pred in ordered_predictions])
+        preds = [pred.prediction for pred in ordered_predictions]
         if (
             context.al_campaign_config.optimization_mode
             == ActiveLearningOptimizationMode.DISCRETE
         ):
             uncertainty = torch.tensor(
-                [pred_dict["bald_score"] for pred_dict in ordered_predictions]
+                [pred.bald_score for pred in ordered_predictions]
             )
         else:  # mcd_std for regression
-            uncertainty = torch.tensor(
-                [pred_dict["mcd_std"] for pred_dict in ordered_predictions]
-            )
+            uncertainty = torch.tensor([pred.mcd_std for pred in ordered_predictions])
         desirability = self._calculate_desirability(
             means,
             context.al_campaign_config,
-            class_str2int=result["derived_values"].get("class_str2int"),
+            class_str2int=result.derived_values.class_str2int,
         )
 
         return preds, uncertainty, desirability

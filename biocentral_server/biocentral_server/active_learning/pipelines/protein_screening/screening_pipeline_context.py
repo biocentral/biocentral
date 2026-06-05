@@ -1,6 +1,6 @@
 from junban import PipelineContext
 from typing import List, Callable, Optional
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from ...al_config import (
     ActiveLearningCampaignConfig,
@@ -32,7 +32,7 @@ class ScreeningPipelineContext(PipelineContext):
         self.inference_data = None
 
         # Training step
-        self.biotrainer_result = None
+        self.biotrainer_result: Optional[BiotrainerModelResult] = None
 
         # Inference step
         self.predictions = None

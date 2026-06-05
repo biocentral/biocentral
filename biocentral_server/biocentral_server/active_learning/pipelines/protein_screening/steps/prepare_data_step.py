@@ -27,7 +27,7 @@ class PrepareDataStep(PipelineStep[ScreeningPipelineContext]):
         train_data = {}
         inference_data = {}
         for data_point in context.al_iteration_config.iteration_data:
-            if data_point.set == "pred":
+            if data_point.get_set() == "pred":
                 inference_data[data_point.seq_id] = data_point.copy_with_embedding(
                     id2emb[data_point.get_hash()]
                 )

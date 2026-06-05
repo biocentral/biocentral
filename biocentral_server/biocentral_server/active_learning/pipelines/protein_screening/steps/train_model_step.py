@@ -1,10 +1,9 @@
+import torch
 import random
 
-import torch
-
 from junban import PipelineStep
-from typing import List, Tuple, Literal
-from biotrainer_core.data_classes import SequenceData, Protocol
+from typing import List, Literal
+from biotrainer_core.data_classes import SequenceData, Protocol, BiotrainerModelResult
 
 from ....al_config import ActiveLearningOptimizationMode, ActiveLearningModelType
 
@@ -65,7 +64,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
         self,
         context: ScreeningPipelineContext,
         task_type: Literal["classification", "regression"],
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> BiotrainerModelResult:
         """
         Unified training and inference for GP models.
 

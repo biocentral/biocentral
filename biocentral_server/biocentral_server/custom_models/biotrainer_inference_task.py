@@ -2,10 +2,8 @@ from pathlib import Path
 
 from typing import Callable, List
 from biotrainer.training import BiotrainerModel
-from biotrainer.training.output_files import InferenceOutputManager
 from biotrainer_core.data_classes import SequenceData, Protocol
 
-from ..server_management.shared_endpoint_models import Prediction
 from ..utils import get_logger
 from ..server_management import (
     TaskInterface,
@@ -24,29 +22,14 @@ class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
         self.model_out_path = model_out_path
         self.sequence_input = sequence_input
 
-    def _to_prediction_model(self, iom: InferenceOutputManager, predictions: dict):
-        seq_hash_to_ids = {
-            seq_record.get_hash(): seq_record.seq_id
-            for seq_record in self.sequence_input
-        }
-        return {
-            seq_hash_to_ids[seq_hash]: [
-                Prediction(
-                    model_name=iom._derived_values["model_hash"],  # TODO
-                    prediction_name="inference",
-                    protocol=iom.protocol().name,
-                    value=pred,
-                )
-            ]
-            for seq_hash, pred in predictions["mapped_predictions"].items()
-        }
-
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         file_context_manager = FileContextManager()
         with file_context_manager.storage_dir_read(
             self.model_out_path
         ) as model_out_path:
-            biotrainer_model = BiotrainerModel.from_training_result(model_out_path)
+            biotrainer_model = BiotrainerModel.from_training_result(
+                model_out_path / "out.yml"
+            )
             inferencer = biotrainer_model.inferencer()
             iom = biotrainer_model.inference_output_manager()
 
@@ -65,9 +48,13 @@ class BiotrainerInferenceTask(TaskInterface, PreEmbedMixin):
                 embd_record.get_hash(): embd_record.embedding
                 for embd_record in embeddings
             }
-            predictions = inferencer.from_embeddings(embeddings=embeddings)
-            predictions = self._to_prediction_model(
-                iom=iom, predictions=predictions
-            )  # TODO Deprecate
+            inference_result = inferencer.from_embeddings(embeddings=embeddings)
 
-            return TaskDTO(status=TaskStatus.FINISHED, predictions=predictions)
+            hash2id = {
+                seq_record.get_hash(): seq_record.seq_id
+                for seq_record in self.sequence_input
+            }
+            inference_result = inference_result.replace_seq_ids(hash2id=hash2id)
+            return TaskDTO(
+                status=TaskStatus.FINISHED, biotrainer_inference_result=inference_result
+            )

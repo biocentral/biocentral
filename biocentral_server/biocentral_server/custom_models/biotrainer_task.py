@@ -14,6 +14,9 @@ from ..server_management import (
     DeviceService,
     PreEmbedMixin,
 )
+from ..utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def _config_with_presets(config_dict: dict):
@@ -58,8 +61,10 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             biotrainer_out_path = storage_writer.temp_dir
             # Set output dirs to temp dir
             self.config_dict["output_dir"] = str(biotrainer_out_path)
+            embedder_name = self.config_dict["embedder_name"]
 
             error_dto, embeddings = self._pre_embed_with_db(
+                embedder_name=embedder_name,
                 sequence_input=self.training_data,
                 reduced=reduced,
                 update_dto_callback=update_dto_callback,
@@ -85,19 +90,20 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
                 return TaskDTO.errored("Model hash not found after training!")
 
             # Save tmp dir to model hash directory
-            new_path = self.model_path.parent / model_hash
+            new_path = self.model_path.parent
             storage_writer.set_file_path(file_path=new_path)
+            logger.info(f"Saved trained model {model_hash} to {new_path}!")
 
         return TaskDTO(status=TaskStatus.FINISHED, biotrainer_result=biotrainer_result)
 
     def _pre_embed_with_db(
         self,
+        embedder_name: str,
         sequence_input: List[SequenceData],
         reduced: bool,
         update_dto_callback: Optional[Callable] = None,
         custom_tokenizer_config: Optional[Dict[str, Any]] = None,
     ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
-        embedder_name = self.config_dict["embedder_name"]
         if custom_tokenizer_config is None:
             custom_tokenizer_config = self.config_dict.get(
                 "custom_tokenizer_config", None

@@ -8,7 +8,9 @@ from biotrainer_core.data_classes import (
     SequenceData,
     BiotrainerModelUpdate,
     BiotrainerModelResult,
+    BiotrainerInferenceResult,
 )
+
 from typing import Any, Dict, Callable, Generator, Optional, List, Tuple
 
 from .task_utils import run_subtask_util
@@ -48,12 +50,13 @@ class TaskDTO(BaseModel):
     status: TaskStatus
     error: Optional[str] = None
 
-    # predict/inference
+    # predict
     predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions
 
     # custom_models
     biotrainer_update: Optional[BiotrainerModelUpdate] = None
     biotrainer_result: Optional[BiotrainerModelResult] = None
+    biotrainer_inference_result: Optional[BiotrainerInferenceResult] = None
 
     # embeddings
     embedding_progress: Optional[EmbeddingProgress] = None
@@ -115,5 +118,11 @@ class PreEmbedMixin:
         embeddings: List[SequenceData] = load_dto.embeddings
         if embeddings is None or len(embeddings) == 0:
             return TaskDTO.errored("Did not receive embeddings for training!"), []
+
+        if len(embeddings) != len(sequence_input):
+            return TaskDTO.errored(
+                f"Number of embeddings ({len(embeddings)}) does not match "
+                f"number of input sequences ({len(sequence_input)})!"
+            ), []
 
         return None, embeddings

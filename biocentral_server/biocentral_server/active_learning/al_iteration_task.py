@@ -1,6 +1,6 @@
 from typing import Callable, List, Optional
-from biotrainer_core.data_classes import SequenceData
 from biotrainer_core.functions.seeding import seed_all
+from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from .pipelines import al_screening_pipeline
 from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
@@ -29,7 +29,7 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
     @staticmethod
     def _biotrainer_subtask_wrapper(
         run_subtask: Callable, update_dto_callback: Callable, config, input_data
-    ):
+    ) -> BiotrainerModelResult:
         biotrainer_temp_task = BiotrainerTempTask(
             config_dict=config, training_data_with_embeddings=input_data
         )
