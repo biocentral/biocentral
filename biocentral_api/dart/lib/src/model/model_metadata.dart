@@ -25,7 +25,7 @@ part 'model_metadata.g.dart';
 /// * [outputs] - List of descriptions of model outputs
 /// * [modelSize] - Size of the model in MB
 /// * [embedder] - Name of the embedder used for the model
-/// * [trainingDataLink] 
+/// * [trainingDataLink] - Link to the training data used for training the model
 @BuiltValue()
 abstract class ModelMetadata implements Built<ModelMetadata, ModelMetadataBuilder> {
   /// Model name
@@ -70,6 +70,7 @@ abstract class ModelMetadata implements Built<ModelMetadata, ModelMetadataBuilde
   @BuiltValueField(wireName: r'embedder')
   String get embedder;
 
+  /// Link to the training data used for training the model
   @BuiltValueField(wireName: r'training_data_link')
   String? get trainingDataLink;
 

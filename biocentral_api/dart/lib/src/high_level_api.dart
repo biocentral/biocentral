@@ -2,6 +2,7 @@ import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
@@ -160,9 +161,9 @@ extension CustomModelsAPI on BiocentralAPI {
     return CustomModelsClient().verifyTrainingConfig(api: _getAPI(), config: config);
   }
 
-  Future<BiocentralServerTask<Map<String, dynamic>?>> train({
+  Future<BiocentralServerTask<BiotrainerModelResult?>> train({
     required Map<String, dynamic> config,
-    required List<SequenceTrainingData> trainingData,
+    required List<SequenceData> trainingData,
   }) async {
     return CustomModelsClient().train(api: _getAPI(), config: config, trainingData: trainingData);
   }

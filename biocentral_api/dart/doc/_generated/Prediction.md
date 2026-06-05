@@ -12,8 +12,8 @@ Name | Type | Description | Notes
 **predictionName** | **String** | Name of the prediction | 
 **protocol** | **String** | Protocol name | 
 **value** | [**JsonObject**](.md) |  | 
-**valueLower** | **num** |  | [optional] 
-**valueUpper** | **num** |  | [optional] 
+**valueLower** | **num** | Lower bound of the prediction | [optional] 
+**valueUpper** | **num** | Upper bound of the prediction | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

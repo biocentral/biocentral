@@ -5,12 +5,14 @@
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
+import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
+import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
 import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
-import 'package:biocentral_api/src/model/output_data.dart';
+import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
-import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -25,11 +27,12 @@ part 'task_dto.g.dart';
 /// * [predictions] 
 /// * [biotrainerUpdate] 
 /// * [biotrainerResult] 
+/// * [biotrainerInferenceResult] 
 /// * [embeddingProgress] 
 /// * [embeddedSequences] 
 /// * [embeddings] 
 /// * [embeddingsFile] 
-/// * [projectionResult] 
+/// * [projectionResult] - Hyperparameters used for this split
 /// * [alIterationResult] 
 /// * [alSimulationResult] 
 @BuiltValue()
@@ -45,10 +48,13 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   BuiltMap<String, BuiltList<Prediction>>? get predictions;
 
   @BuiltValueField(wireName: r'biotrainer_update')
-  OutputData? get biotrainerUpdate;
+  BiotrainerModelUpdate? get biotrainerUpdate;
 
   @BuiltValueField(wireName: r'biotrainer_result')
-  BuiltMap<String, JsonObject?>? get biotrainerResult;
+  BiotrainerModelResult? get biotrainerResult;
+
+  @BuiltValueField(wireName: r'biotrainer_inference_result')
+  BiotrainerInferenceResult? get biotrainerInferenceResult;
 
   @BuiltValueField(wireName: r'embedding_progress')
   EmbeddingProgress? get embeddingProgress;
@@ -57,11 +63,12 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   BuiltMap<String, String>? get embeddedSequences;
 
   @BuiltValueField(wireName: r'embeddings')
-  BuiltList<BiotrainerSequenceRecord>? get embeddings;
+  BuiltList<SequenceData>? get embeddings;
 
   @BuiltValueField(wireName: r'embeddings_file')
   String? get embeddingsFile;
 
+  /// Hyperparameters used for this split
   @BuiltValueField(wireName: r'projection_result')
   BuiltMap<String, JsonObject?>? get projectionResult;
 
@@ -117,14 +124,21 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield r'biotrainer_update';
       yield serializers.serialize(
         object.biotrainerUpdate,
-        specifiedType: const FullType.nullable(OutputData),
+        specifiedType: const FullType.nullable(BiotrainerModelUpdate),
       );
     }
     if (object.biotrainerResult != null) {
       yield r'biotrainer_result';
       yield serializers.serialize(
         object.biotrainerResult,
-        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+        specifiedType: const FullType.nullable(BiotrainerModelResult),
+      );
+    }
+    if (object.biotrainerInferenceResult != null) {
+      yield r'biotrainer_inference_result';
+      yield serializers.serialize(
+        object.biotrainerInferenceResult,
+        specifiedType: const FullType.nullable(BiotrainerInferenceResult),
       );
     }
     if (object.embeddingProgress != null) {
@@ -145,7 +159,7 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield r'embeddings';
       yield serializers.serialize(
         object.embeddings,
-        specifiedType: const FullType.nullable(BuiltList, [FullType(BiotrainerSequenceRecord)]),
+        specifiedType: const FullType.nullable(BuiltList, [FullType(SequenceData)]),
       );
     }
     if (object.embeddingsFile != null) {
@@ -225,18 +239,26 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         case r'biotrainer_update':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(OutputData),
-          ) as OutputData?;
+            specifiedType: const FullType.nullable(BiotrainerModelUpdate),
+          ) as BiotrainerModelUpdate?;
           if (valueDes == null) continue;
           result.biotrainerUpdate.replace(valueDes);
           break;
         case r'biotrainer_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-          ) as BuiltMap<String, JsonObject?>?;
+            specifiedType: const FullType.nullable(BiotrainerModelResult),
+          ) as BiotrainerModelResult?;
           if (valueDes == null) continue;
           result.biotrainerResult.replace(valueDes);
+          break;
+        case r'biotrainer_inference_result':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BiotrainerInferenceResult),
+          ) as BiotrainerInferenceResult?;
+          if (valueDes == null) continue;
+          result.biotrainerInferenceResult.replace(valueDes);
           break;
         case r'embedding_progress':
           final valueDes = serializers.deserialize(
@@ -257,8 +279,8 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         case r'embeddings':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltList, [FullType(BiotrainerSequenceRecord)]),
-          ) as BuiltList<BiotrainerSequenceRecord>?;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(SequenceData)]),
+          ) as BuiltList<SequenceData>?;
           if (valueDes == null) continue;
           result.embeddings.replace(valueDes);
           break;

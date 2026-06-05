@@ -29,7 +29,7 @@ final TaxonomyRequest taxonomyRequest = ; // TaxonomyRequest |
 try {
     final response = api.taxonomyApiV1ProteinServiceTaxonomyPost(taxonomyRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ProteinsApi->taxonomyApiV1ProteinServiceTaxonomyPost: $e\n');
 }
 ```

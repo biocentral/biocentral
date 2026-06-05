@@ -3,40 +3,42 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
+import 'package:built_value/json_object.dart';
 import 'dart:core';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:one_of/any_of.dart';
 
-part 'validation_error_loc_inner.g.dart';
+part 'raw_prediction.g.dart';
 
-/// ValidationErrorLocInner
+/// Raw prediction of the model
 @BuiltValue()
-abstract class ValidationErrorLocInner implements Built<ValidationErrorLocInner, ValidationErrorLocInnerBuilder> {
-  /// Any Of [String], [int]
+abstract class RawPrediction implements Built<RawPrediction, RawPredictionBuilder> {
+  /// Any Of [BuiltList<JsonObject>], [String], [num]
   AnyOf get anyOf;
 
-  ValidationErrorLocInner._();
+  RawPrediction._();
 
-  factory ValidationErrorLocInner([void updates(ValidationErrorLocInnerBuilder b)]) = _$ValidationErrorLocInner;
+  factory RawPrediction([void updates(RawPredictionBuilder b)]) = _$RawPrediction;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ValidationErrorLocInnerBuilder b) => b;
+  static void _defaults(RawPredictionBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ValidationErrorLocInner> get serializer => _$ValidationErrorLocInnerSerializer();
+  static Serializer<RawPrediction> get serializer => _$RawPredictionSerializer();
 }
 
-class _$ValidationErrorLocInnerSerializer implements PrimitiveSerializer<ValidationErrorLocInner> {
+class _$RawPredictionSerializer implements PrimitiveSerializer<RawPrediction> {
   @override
-  final Iterable<Type> types = const [ValidationErrorLocInner, _$ValidationErrorLocInner];
+  final Iterable<Type> types = const [RawPrediction, _$RawPrediction];
 
   @override
-  final String wireName = r'ValidationErrorLocInner';
+  final String wireName = r'RawPrediction';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ValidationErrorLocInner object, {
+    RawPrediction object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
   }
@@ -44,7 +46,7 @@ class _$ValidationErrorLocInnerSerializer implements PrimitiveSerializer<Validat
   @override
   Object serialize(
     Serializers serializers,
-    ValidationErrorLocInner object, {
+    RawPrediction object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     final anyOf = object.anyOf;
@@ -52,14 +54,14 @@ class _$ValidationErrorLocInnerSerializer implements PrimitiveSerializer<Validat
   }
 
   @override
-  ValidationErrorLocInner deserialize(
+  RawPrediction deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ValidationErrorLocInnerBuilder();
+    final result = RawPredictionBuilder();
     Object? anyOfDataSrc;
-    final targetType = const FullType(AnyOf, [FullType(String), FullType(int), ]);
+    final targetType = const FullType(AnyOf, [FullType(String), FullType(num), FullType(BuiltList, [FullType.nullable(JsonObject)]), ]);
     anyOfDataSrc = serialized;
     result.anyOf = serializers.deserialize(anyOfDataSrc, specifiedType: targetType) as AnyOf;
     return result.build();

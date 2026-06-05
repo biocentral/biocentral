@@ -30,7 +30,7 @@ final ActiveLearningIterationRequest activeLearningIterationRequest = ; // Activ
 try {
     final response = api.activeLearningIterationApiV1ActiveLearningServiceIterationPost(activeLearningIterationRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ActiveLearningApi->activeLearningIterationApiV1ActiveLearningServiceIterationPost: $e\n');
 }
 ```
@@ -73,7 +73,7 @@ final ActiveLearningSimulationRequest activeLearningSimulationRequest = ; // Act
 try {
     final response = api.activeLearningSimulationApiV1ActiveLearningServiceSimulationPost(activeLearningSimulationRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ActiveLearningApi->activeLearningSimulationApiV1ActiveLearningServiceSimulationPost: $e\n');
 }
 ```

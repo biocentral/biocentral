@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/sequence_training_data.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -24,7 +24,7 @@ abstract class StartTrainingRequest implements Built<StartTrainingRequest, Start
 
   /// List of sequence training data
   @BuiltValueField(wireName: r'training_data')
-  BuiltList<SequenceTrainingData> get trainingData;
+  BuiltList<SequenceData> get trainingData;
 
   StartTrainingRequest._();
 
@@ -57,7 +57,7 @@ class _$StartTrainingRequestSerializer implements PrimitiveSerializer<StartTrain
     yield r'training_data';
     yield serializers.serialize(
       object.trainingData,
-      specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
+      specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
     );
   }
 
@@ -92,8 +92,8 @@ class _$StartTrainingRequestSerializer implements PrimitiveSerializer<StartTrain
         case r'training_data':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
-          ) as BuiltList<SequenceTrainingData>;
+            specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
+          ) as BuiltList<SequenceData>;
           result.trainingData.replace(valueDes);
           break;
         default:

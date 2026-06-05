@@ -16,8 +16,8 @@ part 'prediction.g.dart';
 /// * [predictionName] - Name of the prediction
 /// * [protocol] - Protocol name
 /// * [value] 
-/// * [valueLower] 
-/// * [valueUpper] 
+/// * [valueLower] - Lower bound of the prediction
+/// * [valueUpper] - Upper bound of the prediction
 @BuiltValue()
 abstract class Prediction implements Built<Prediction, PredictionBuilder> {
   /// Name of the model
@@ -35,9 +35,11 @@ abstract class Prediction implements Built<Prediction, PredictionBuilder> {
   @BuiltValueField(wireName: r'value')
   JsonObject? get value;
 
+  /// Lower bound of the prediction
   @BuiltValueField(wireName: r'value_lower')
   num? get valueLower;
 
+  /// Upper bound of the prediction
   @BuiltValueField(wireName: r'value_upper')
   num? get valueUpper;
 

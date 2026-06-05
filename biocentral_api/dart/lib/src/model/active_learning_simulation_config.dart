@@ -4,8 +4,8 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/sequence_training_data.dart';
 import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -15,19 +15,21 @@ part 'active_learning_simulation_config.g.dart';
 ///
 /// Properties:
 /// * [simulationData] - List of all sequence data for the simulation
-/// * [nStart] 
-/// * [startIds] 
+/// * [nStart] - Number of initial sequences to use for training (chosen randomly, seed from campaign config used)
+/// * [startIds] - List of sequence IDs to start the simulated campaign
 /// * [nSuggestionsPerIteration] - Number of suggestions to propose per iteration
 /// * [convergenceConfig] - Convergence criteria for the simulation
 @BuiltValue()
 abstract class ActiveLearningSimulationConfig implements Built<ActiveLearningSimulationConfig, ActiveLearningSimulationConfigBuilder> {
   /// List of all sequence data for the simulation
   @BuiltValueField(wireName: r'simulation_data')
-  BuiltList<SequenceTrainingData> get simulationData;
+  BuiltList<SequenceData> get simulationData;
 
+  /// Number of initial sequences to use for training (chosen randomly, seed from campaign config used)
   @BuiltValueField(wireName: r'n_start')
   int? get nStart;
 
+  /// List of sequence IDs to start the simulated campaign
   @BuiltValueField(wireName: r'start_ids')
   BuiltList<String>? get startIds;
 
@@ -65,7 +67,7 @@ class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<
     yield r'simulation_data';
     yield serializers.serialize(
       object.simulationData,
-      specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
+      specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
     );
     if (object.nStart != null) {
       yield r'n_start';
@@ -117,8 +119,8 @@ class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<
         case r'simulation_data':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
-          ) as BuiltList<SequenceTrainingData>;
+            specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
+          ) as BuiltList<SequenceData>;
           result.simulationData.replace(valueDes);
           break;
         case r'n_start':

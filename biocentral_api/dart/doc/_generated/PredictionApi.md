@@ -29,7 +29,7 @@ final api = BiocentralApi().getPredictionApi();
 try {
     final response = api.modelMetadataApiV1PredictionServiceModelMetadataGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PredictionApi->modelMetadataApiV1PredictionServiceModelMetadataGet: $e\n');
 }
 ```
@@ -69,7 +69,7 @@ final PredictionRequest predictionRequest = ; // PredictionRequest |
 try {
     final response = api.predictApiV1PredictionServicePredictPost(predictionRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PredictionApi->predictApiV1PredictionServicePredictPost: $e\n');
 }
 ```

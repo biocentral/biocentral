@@ -3,14 +3,24 @@
 //
 
 // Convenience exports for custom clients built atop the generated API
+
 export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask;
 export 'src/high_level_api.dart'
     show BiocentralAPI, BiocentralAPIHealth, CustomModelsAPI, EmbeddingAPI, PredictAPI, ProteinsAPI, ActiveLearningAPI;
 export 'src/model/model_metadata.dart' show ModelMetadata;
-export 'src/model/output_data.dart' show OutputData;
+export 'src/model/bootstrapped_metric.dart' show BootstrappedMetric;
+export 'src/extensions/serialization_extensions.dart';
+export 'src/extensions/bootstrapped_metric_ext.dart';
+export 'src/extensions/string_extensions.dart';
+export 'src/extensions/biotrainer_model_result_ext.dart';
+export 'src/model/training_result.dart' show TrainingResult;
+export 'src/model/test_result.dart' show TestResult;
+export 'src/model/biotrainer_model_result.dart' show BiotrainerModelResult;  // TODO: .config()
+export 'src/model/biotrainer_inference_result.dart' show BiotrainerInferenceResult;
+export 'src/model/biotrainer_model_update.dart' show BiotrainerModelUpdate;
 export 'src/model/prediction.dart' show Prediction;
 export 'src/model/protocol.dart' show Protocol;
-export 'src/model/sequence_training_data.dart' show SequenceTrainingData;
+export 'src/model/sequence_data.dart' show SequenceData;
 export 'src/model/task_dto.dart' show TaskDTO;
 export 'src/model/task_status.dart' show TaskStatus;
 export 'src/model/taxonomy_item.dart' show TaxonomyItem;

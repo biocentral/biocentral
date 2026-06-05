@@ -4,21 +4,24 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:built_value/built_value.dart';
 import 'package:built_value/json_object.dart';
+import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'biotrainer_sequence_record.g.dart';
+part 'sequence_data.g.dart';
 
-/// BiotrainerSequenceRecord
+/// SequenceData
 ///
 /// Properties:
 /// * [seqId] - Sequence id
 /// * [seq] - Sequence
-/// * [attributes] 
-/// * [embedding] - Embedding
+/// * [label] - Shortcut for TARGET attribute
+/// * [set_] - Shortcut for SET attribute
+/// * [mask] - Shortcut for MASK attribute
+/// * [attributes] - Attributes such as TARGET, SET or MASK
+/// * [embedding] - Embedding (should be a list or torch.tensor or numpy array)
 @BuiltValue()
-abstract class BiotrainerSequenceRecord implements Built<BiotrainerSequenceRecord, BiotrainerSequenceRecordBuilder> {
+abstract class SequenceData implements Built<SequenceData, SequenceDataBuilder> {
   /// Sequence id
   @BuiltValueField(wireName: r'seq_id')
   String get seqId;
@@ -27,34 +30,47 @@ abstract class BiotrainerSequenceRecord implements Built<BiotrainerSequenceRecor
   @BuiltValueField(wireName: r'seq')
   String get seq;
 
+  /// Shortcut for TARGET attribute
+  @BuiltValueField(wireName: r'label')
+  String? get label;
+
+  /// Shortcut for SET attribute
+  @BuiltValueField(wireName: r'set')
+  String? get set_;
+
+  /// Shortcut for MASK attribute
+  @BuiltValueField(wireName: r'mask')
+  String? get mask;
+
+  /// Attributes such as TARGET, SET or MASK
   @BuiltValueField(wireName: r'attributes')
   BuiltMap<String, JsonObject?>? get attributes;
 
-  /// Embedding
+  /// Embedding (should be a list or torch.tensor or numpy array)
   @BuiltValueField(wireName: r'embedding')
-  BuiltMap? get embedding;
+  BuiltList<JsonObject?>? get embedding;
 
-  BiotrainerSequenceRecord._();
+  SequenceData._();
 
-  factory BiotrainerSequenceRecord([void updates(BiotrainerSequenceRecordBuilder b)]) = _$BiotrainerSequenceRecord;
+  factory SequenceData([void updates(SequenceDataBuilder b)]) = _$SequenceData;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(BiotrainerSequenceRecordBuilder b) => b;
+  static void _defaults(SequenceDataBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<BiotrainerSequenceRecord> get serializer => _$BiotrainerSequenceRecordSerializer();
+  static Serializer<SequenceData> get serializer => _$SequenceDataSerializer();
 }
 
-class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<BiotrainerSequenceRecord> {
+class _$SequenceDataSerializer implements PrimitiveSerializer<SequenceData> {
   @override
-  final Iterable<Type> types = const [BiotrainerSequenceRecord, _$BiotrainerSequenceRecord];
+  final Iterable<Type> types = const [SequenceData, _$SequenceData];
 
   @override
-  final String wireName = r'BiotrainerSequenceRecord';
+  final String wireName = r'SequenceData';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    BiotrainerSequenceRecord object, {
+    SequenceData object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'seq_id';
@@ -67,6 +83,27 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
       object.seq,
       specifiedType: const FullType(String),
     );
+    if (object.label != null) {
+      yield r'label';
+      yield serializers.serialize(
+        object.label,
+        specifiedType: const FullType.nullable(String),
+      );
+    }
+    if (object.set_ != null) {
+      yield r'set';
+      yield serializers.serialize(
+        object.set_,
+        specifiedType: const FullType.nullable(String),
+      );
+    }
+    if (object.mask != null) {
+      yield r'mask';
+      yield serializers.serialize(
+        object.mask,
+        specifiedType: const FullType.nullable(String),
+      );
+    }
     if (object.attributes != null) {
       yield r'attributes';
       yield serializers.serialize(
@@ -78,7 +115,7 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
       yield r'embedding';
       yield serializers.serialize(
         object.embedding,
-        specifiedType: const FullType.nullable(BuiltMap),
+        specifiedType: const FullType.nullable(BuiltList, [FullType.nullable(JsonObject)]),
       );
     }
   }
@@ -86,7 +123,7 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
   @override
   Object serialize(
     Serializers serializers,
-    BiotrainerSequenceRecord object, {
+    SequenceData object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -97,7 +134,7 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required BiotrainerSequenceRecordBuilder result,
+    required SequenceDataBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -118,6 +155,30 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
           ) as String;
           result.seq = valueDes;
           break;
+        case r'label':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.label = valueDes;
+          break;
+        case r'set':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.set_ = valueDes;
+          break;
+        case r'mask':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.mask = valueDes;
+          break;
         case r'attributes':
           final valueDes = serializers.deserialize(
             value,
@@ -129,8 +190,8 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
         case r'embedding':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltMap),
-          ) as BuiltMap?;
+            specifiedType: const FullType.nullable(BuiltList, [FullType.nullable(JsonObject)]),
+          ) as BuiltList<JsonObject?>?;
           if (valueDes == null) continue;
           result.embedding.replace(valueDes);
           break;
@@ -143,12 +204,12 @@ class _$BiotrainerSequenceRecordSerializer implements PrimitiveSerializer<Biotra
   }
 
   @override
-  BiotrainerSequenceRecord deserialize(
+  SequenceData deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = BiotrainerSequenceRecordBuilder();
+    final result = SequenceDataBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

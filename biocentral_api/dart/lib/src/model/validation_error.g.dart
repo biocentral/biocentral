@@ -8,7 +8,7 @@ part of 'validation_error.dart';
 
 class _$ValidationError extends ValidationError {
   @override
-  final BuiltList<ValidationErrorLocInner> loc;
+  final BuiltList<LocationInner> loc;
   @override
   final String msg;
   @override
@@ -74,10 +74,10 @@ class ValidationErrorBuilder
     implements Builder<ValidationError, ValidationErrorBuilder> {
   _$ValidationError? _$v;
 
-  ListBuilder<ValidationErrorLocInner>? _loc;
-  ListBuilder<ValidationErrorLocInner> get loc =>
-      _$this._loc ??= ListBuilder<ValidationErrorLocInner>();
-  set loc(ListBuilder<ValidationErrorLocInner>? loc) => _$this._loc = loc;
+  ListBuilder<LocationInner>? _loc;
+  ListBuilder<LocationInner> get loc =>
+      _$this._loc ??= ListBuilder<LocationInner>();
+  set loc(ListBuilder<LocationInner>? loc) => _$this._loc = loc;
 
   String? _msg;
   String? get msg => _$this._msg;

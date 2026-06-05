@@ -26,7 +26,7 @@ final api = BiocentralApi().getDefaultApi();
 try {
     final response = api.healthCheckHealthGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling DefaultApi->healthCheckHealthGet: $e\n');
 }
 ```

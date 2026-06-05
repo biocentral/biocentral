@@ -31,7 +31,7 @@ final AutoDetectFormatRequest autoDetectFormatRequest = ; // AutoDetectFormatReq
 try {
     final response = api.autoDetectFormatByHeaderApiV1PpiServiceAutoDetectFormatPost(autoDetectFormatRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PpiApi->autoDetectFormatByHeaderApiV1PpiServiceAutoDetectFormatPost: $e\n');
 }
 ```
@@ -71,7 +71,7 @@ final api = BiocentralApi().getPpiApi();
 try {
     final response = api.formatsApiV1PpiServiceFormatsGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PpiApi->formatsApiV1PpiServiceFormatsGet: $e\n');
 }
 ```
@@ -109,7 +109,7 @@ final ImportDatasetRequest importDatasetRequest = ; // ImportDatasetRequest |
 try {
     final response = api.importDatasetApiV1PpiServiceImportPost(importDatasetRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PpiApi->importDatasetApiV1PpiServiceImportPost: $e\n');
 }
 ```
@@ -150,7 +150,7 @@ final RunTestRequest runTestRequest = ; // RunTestRequest |
 try {
     final response = api.runTestApiV1PpiServiceDatasetTestsRunTestPost(runTestRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PpiApi->runTestApiV1PpiServiceDatasetTestsRunTestPost: $e\n');
 }
 ```
@@ -190,7 +190,7 @@ final api = BiocentralApi().getPpiApi();
 try {
     final response = api.testsApiV1PpiServiceDatasetTestsTestsGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling PpiApi->testsApiV1PpiServiceDatasetTestsTestsGet: $e\n');
 }
 ```

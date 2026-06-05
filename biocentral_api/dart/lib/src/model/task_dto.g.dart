@@ -14,15 +14,17 @@ class _$TaskDTO extends TaskDTO {
   @override
   final BuiltMap<String, BuiltList<Prediction>>? predictions;
   @override
-  final OutputData? biotrainerUpdate;
+  final BiotrainerModelUpdate? biotrainerUpdate;
   @override
-  final BuiltMap<String, JsonObject?>? biotrainerResult;
+  final BiotrainerModelResult? biotrainerResult;
+  @override
+  final BiotrainerInferenceResult? biotrainerInferenceResult;
   @override
   final EmbeddingProgress? embeddingProgress;
   @override
   final BuiltMap<String, String>? embeddedSequences;
   @override
-  final BuiltList<BiotrainerSequenceRecord>? embeddings;
+  final BuiltList<SequenceData>? embeddings;
   @override
   final String? embeddingsFile;
   @override
@@ -41,6 +43,7 @@ class _$TaskDTO extends TaskDTO {
       this.predictions,
       this.biotrainerUpdate,
       this.biotrainerResult,
+      this.biotrainerInferenceResult,
       this.embeddingProgress,
       this.embeddedSequences,
       this.embeddings,
@@ -65,6 +68,7 @@ class _$TaskDTO extends TaskDTO {
         predictions == other.predictions &&
         biotrainerUpdate == other.biotrainerUpdate &&
         biotrainerResult == other.biotrainerResult &&
+        biotrainerInferenceResult == other.biotrainerInferenceResult &&
         embeddingProgress == other.embeddingProgress &&
         embeddedSequences == other.embeddedSequences &&
         embeddings == other.embeddings &&
@@ -82,6 +86,7 @@ class _$TaskDTO extends TaskDTO {
     _$hash = $jc(_$hash, predictions.hashCode);
     _$hash = $jc(_$hash, biotrainerUpdate.hashCode);
     _$hash = $jc(_$hash, biotrainerResult.hashCode);
+    _$hash = $jc(_$hash, biotrainerInferenceResult.hashCode);
     _$hash = $jc(_$hash, embeddingProgress.hashCode);
     _$hash = $jc(_$hash, embeddedSequences.hashCode);
     _$hash = $jc(_$hash, embeddings.hashCode);
@@ -101,6 +106,7 @@ class _$TaskDTO extends TaskDTO {
           ..add('predictions', predictions)
           ..add('biotrainerUpdate', biotrainerUpdate)
           ..add('biotrainerResult', biotrainerResult)
+          ..add('biotrainerInferenceResult', biotrainerInferenceResult)
           ..add('embeddingProgress', embeddingProgress)
           ..add('embeddedSequences', embeddedSequences)
           ..add('embeddings', embeddings)
@@ -129,17 +135,24 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set predictions(MapBuilder<String, BuiltList<Prediction>>? predictions) =>
       _$this._predictions = predictions;
 
-  OutputDataBuilder? _biotrainerUpdate;
-  OutputDataBuilder get biotrainerUpdate =>
-      _$this._biotrainerUpdate ??= OutputDataBuilder();
-  set biotrainerUpdate(OutputDataBuilder? biotrainerUpdate) =>
+  BiotrainerModelUpdateBuilder? _biotrainerUpdate;
+  BiotrainerModelUpdateBuilder get biotrainerUpdate =>
+      _$this._biotrainerUpdate ??= BiotrainerModelUpdateBuilder();
+  set biotrainerUpdate(BiotrainerModelUpdateBuilder? biotrainerUpdate) =>
       _$this._biotrainerUpdate = biotrainerUpdate;
 
-  MapBuilder<String, JsonObject?>? _biotrainerResult;
-  MapBuilder<String, JsonObject?> get biotrainerResult =>
-      _$this._biotrainerResult ??= MapBuilder<String, JsonObject?>();
-  set biotrainerResult(MapBuilder<String, JsonObject?>? biotrainerResult) =>
+  BiotrainerModelResultBuilder? _biotrainerResult;
+  BiotrainerModelResultBuilder get biotrainerResult =>
+      _$this._biotrainerResult ??= BiotrainerModelResultBuilder();
+  set biotrainerResult(BiotrainerModelResultBuilder? biotrainerResult) =>
       _$this._biotrainerResult = biotrainerResult;
+
+  BiotrainerInferenceResultBuilder? _biotrainerInferenceResult;
+  BiotrainerInferenceResultBuilder get biotrainerInferenceResult =>
+      _$this._biotrainerInferenceResult ??= BiotrainerInferenceResultBuilder();
+  set biotrainerInferenceResult(
+          BiotrainerInferenceResultBuilder? biotrainerInferenceResult) =>
+      _$this._biotrainerInferenceResult = biotrainerInferenceResult;
 
   EmbeddingProgressBuilder? _embeddingProgress;
   EmbeddingProgressBuilder get embeddingProgress =>
@@ -153,10 +166,10 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set embeddedSequences(MapBuilder<String, String>? embeddedSequences) =>
       _$this._embeddedSequences = embeddedSequences;
 
-  ListBuilder<BiotrainerSequenceRecord>? _embeddings;
-  ListBuilder<BiotrainerSequenceRecord> get embeddings =>
-      _$this._embeddings ??= ListBuilder<BiotrainerSequenceRecord>();
-  set embeddings(ListBuilder<BiotrainerSequenceRecord>? embeddings) =>
+  ListBuilder<SequenceData>? _embeddings;
+  ListBuilder<SequenceData> get embeddings =>
+      _$this._embeddings ??= ListBuilder<SequenceData>();
+  set embeddings(ListBuilder<SequenceData>? embeddings) =>
       _$this._embeddings = embeddings;
 
   String? _embeddingsFile;
@@ -196,6 +209,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
       _predictions = $v.predictions?.toBuilder();
       _biotrainerUpdate = $v.biotrainerUpdate?.toBuilder();
       _biotrainerResult = $v.biotrainerResult?.toBuilder();
+      _biotrainerInferenceResult = $v.biotrainerInferenceResult?.toBuilder();
       _embeddingProgress = $v.embeddingProgress?.toBuilder();
       _embeddedSequences = $v.embeddedSequences?.toBuilder();
       _embeddings = $v.embeddings?.toBuilder();
@@ -232,6 +246,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             predictions: _predictions?.build(),
             biotrainerUpdate: _biotrainerUpdate?.build(),
             biotrainerResult: _biotrainerResult?.build(),
+            biotrainerInferenceResult: _biotrainerInferenceResult?.build(),
             embeddingProgress: _embeddingProgress?.build(),
             embeddedSequences: _embeddedSequences?.build(),
             embeddings: _embeddings?.build(),
@@ -249,6 +264,8 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
         _biotrainerUpdate?.build();
         _$failedField = 'biotrainerResult';
         _biotrainerResult?.build();
+        _$failedField = 'biotrainerInferenceResult';
+        _biotrainerInferenceResult?.build();
         _$failedField = 'embeddingProgress';
         _embeddingProgress?.build();
         _$failedField = 'embeddedSequences';

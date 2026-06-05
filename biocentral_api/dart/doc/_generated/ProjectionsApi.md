@@ -30,7 +30,7 @@ final ProjectionRequest projectionRequest = ; // ProjectionRequest |
 try {
     final response = api.projectApiV1ProjectionServiceProjectPost(projectionRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ProjectionsApi->projectApiV1ProjectionServiceProjectPost: $e\n');
 }
 ```
@@ -72,7 +72,7 @@ final api = BiocentralApi().getProjectionsApi();
 try {
     final response = api.projectionConfigApiV1ProjectionServiceProjectionConfigGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling ProjectionsApi->projectionConfigApiV1ProjectionServiceProjectionConfigGet: $e\n');
 }
 ```

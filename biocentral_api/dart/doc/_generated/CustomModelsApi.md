@@ -33,7 +33,7 @@ final String protocol = protocol_example; // String |
 try {
     final response = api.configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet(protocol);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling CustomModelsApi->configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet: $e\n');
 }
 ```
@@ -76,7 +76,7 @@ final ModelFilesRequest modelFilesRequest = ; // ModelFilesRequest |
 try {
     final response = api.modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling CustomModelsApi->modelFilesApiV1CustomModelsServiceModelFilesPost: $e\n');
 }
 ```
@@ -119,7 +119,7 @@ final StartInferenceRequest startInferenceRequest = ; // StartInferenceRequest |
 try {
     final response = api.startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling CustomModelsApi->startInferenceApiV1CustomModelsServiceStartInferencePost: $e\n');
 }
 ```
@@ -162,7 +162,7 @@ final StartTrainingRequest startTrainingRequest = ; // StartTrainingRequest |
 try {
     final response = api.startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling CustomModelsApi->startTrainingApiV1CustomModelsServiceStartTrainingPost: $e\n');
 }
 ```
@@ -205,7 +205,7 @@ final ConfigVerificationRequest configVerificationRequest = ; // ConfigVerificat
 try {
     final response = api.verifyConfigApiV1CustomModelsServiceVerifyConfigPost(configVerificationRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling CustomModelsApi->verifyConfigApiV1CustomModelsServiceVerifyConfigPost: $e\n');
 }
 ```

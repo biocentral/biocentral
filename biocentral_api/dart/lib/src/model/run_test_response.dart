@@ -3,7 +3,7 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:biocentral_api/src/model/test_result.dart';
+import 'package:biocentral_api/src/model/ppi_test_result.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -16,7 +16,7 @@ part 'run_test_response.g.dart';
 @BuiltValue()
 abstract class RunTestResponse implements Built<RunTestResponse, RunTestResponseBuilder> {
   @BuiltValueField(wireName: r'test_result')
-  TestResult get testResult;
+  PPITestResult get testResult;
 
   RunTestResponse._();
 
@@ -44,7 +44,7 @@ class _$RunTestResponseSerializer implements PrimitiveSerializer<RunTestResponse
     yield r'test_result';
     yield serializers.serialize(
       object.testResult,
-      specifiedType: const FullType(TestResult),
+      specifiedType: const FullType(PPITestResult),
     );
   }
 
@@ -72,8 +72,8 @@ class _$RunTestResponseSerializer implements PrimitiveSerializer<RunTestResponse
         case r'test_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(TestResult),
-          ) as TestResult;
+            specifiedType: const FullType(PPITestResult),
+          ) as PPITestResult;
           result.testResult.replace(valueDes);
           break;
         default:

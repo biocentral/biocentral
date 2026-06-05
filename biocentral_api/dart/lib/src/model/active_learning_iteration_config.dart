@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/sequence_training_data.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -25,7 +25,7 @@ abstract class ActiveLearningIterationConfig implements Built<ActiveLearningIter
 
   /// List of sequence training data for this iteration
   @BuiltValueField(wireName: r'iteration_data')
-  BuiltList<SequenceTrainingData> get iterationData;
+  BuiltList<SequenceData> get iterationData;
 
   /// Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
   @BuiltValueField(wireName: r'coefficient')
@@ -66,7 +66,7 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
     yield r'iteration_data';
     yield serializers.serialize(
       object.iterationData,
-      specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
+      specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
     );
     yield r'coefficient';
     yield serializers.serialize(
@@ -111,8 +111,8 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
         case r'iteration_data':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(SequenceTrainingData)]),
-          ) as BuiltList<SequenceTrainingData>;
+            specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
+          ) as BuiltList<SequenceData>;
           result.iterationData.replace(valueDes);
           break;
         case r'coefficient':

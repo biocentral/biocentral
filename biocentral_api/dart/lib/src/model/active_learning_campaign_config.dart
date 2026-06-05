@@ -18,11 +18,11 @@ part 'active_learning_campaign_config.g.dart';
 /// * [modelType] - Type of model to use
 /// * [embedderName] - Name of embedder to use
 /// * [optimizationMode] - Optimization mode selection
-/// * [seed] 
-/// * [targetLb] 
-/// * [targetUb] 
-/// * [targetValue] 
-/// * [discreteTargets] 
+/// * [seed] - Random seed for reproducibility.
+/// * [targetLb] - Lower bound of the target value to optimize (mode: INTERVAL)
+/// * [targetUb] - Upper bound of the target value to optimize (mode: INTERVAL)
+/// * [targetValue] - Target value to optimize (mode: VALUE)
+/// * [discreteTargets] - List of target labels (must be subset of all labels)
 @BuiltValue()
 abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampaignConfig, ActiveLearningCampaignConfigBuilder> {
   /// Name of the active learning campaign
@@ -43,18 +43,23 @@ abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampa
   ActiveLearningOptimizationMode get optimizationMode;
   // enum optimizationModeEnum {  INTERVAL,  VALUE,  MAXIMIZE,  MINIMIZE,  DISCRETE,  };
 
+  /// Random seed for reproducibility.
   @BuiltValueField(wireName: r'seed')
   int? get seed;
 
+  /// Lower bound of the target value to optimize (mode: INTERVAL)
   @BuiltValueField(wireName: r'target_lb')
   num? get targetLb;
 
+  /// Upper bound of the target value to optimize (mode: INTERVAL)
   @BuiltValueField(wireName: r'target_ub')
   num? get targetUb;
 
+  /// Target value to optimize (mode: VALUE)
   @BuiltValueField(wireName: r'target_value')
   num? get targetValue;
 
+  /// List of target labels (must be subset of all labels)
   @BuiltValueField(wireName: r'discrete_targets')
   BuiltList<String>? get discreteTargets;
 

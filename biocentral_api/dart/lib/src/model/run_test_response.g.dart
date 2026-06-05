@@ -8,7 +8,7 @@ part of 'run_test_response.dart';
 
 class _$RunTestResponse extends RunTestResponse {
   @override
-  final TestResult testResult;
+  final PPITestResult testResult;
 
   factory _$RunTestResponse([void Function(RunTestResponseBuilder)? updates]) =>
       (RunTestResponseBuilder()..update(updates))._build();
@@ -47,10 +47,10 @@ class RunTestResponseBuilder
     implements Builder<RunTestResponse, RunTestResponseBuilder> {
   _$RunTestResponse? _$v;
 
-  TestResultBuilder? _testResult;
-  TestResultBuilder get testResult =>
-      _$this._testResult ??= TestResultBuilder();
-  set testResult(TestResultBuilder? testResult) =>
+  PPITestResultBuilder? _testResult;
+  PPITestResultBuilder get testResult =>
+      _$this._testResult ??= PPITestResultBuilder();
+  set testResult(PPITestResultBuilder? testResult) =>
       _$this._testResult = testResult;
 
   RunTestResponseBuilder() {

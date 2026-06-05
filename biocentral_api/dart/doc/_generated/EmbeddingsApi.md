@@ -32,7 +32,7 @@ final AddEmbeddingsRequest addEmbeddingsRequest = ; // AddEmbeddingsRequest |
 try {
     final response = api.addEmbeddingsApiV1EmbeddingsServiceAddEmbeddingsPost(addEmbeddingsRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling EmbeddingsApi->addEmbeddingsApiV1EmbeddingsServiceAddEmbeddingsPost: $e\n');
 }
 ```
@@ -74,7 +74,7 @@ final api = BiocentralApi().getEmbeddingsApi();
 try {
     final response = api.commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling EmbeddingsApi->commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet: $e\n');
 }
 ```
@@ -114,7 +114,7 @@ final EmbedRequest embedRequest = ; // EmbedRequest |
 try {
     final response = api.embedApiV1EmbeddingsServiceEmbedPost(embedRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling EmbeddingsApi->embedApiV1EmbeddingsServiceEmbedPost: $e\n');
 }
 ```
@@ -157,7 +157,7 @@ final GetMissingEmbeddingsRequest getMissingEmbeddingsRequest = ; // GetMissingE
 try {
     final response = api.getMissingEmbeddingsApiV1EmbeddingsServiceGetMissingEmbeddingsPost(getMissingEmbeddingsRequest);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling EmbeddingsApi->getMissingEmbeddingsApiV1EmbeddingsServiceGetMissingEmbeddingsPost: $e\n');
 }
 ```

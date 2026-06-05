@@ -1,43 +1,55 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'biotrainer_sequence_record.dart';
+part of 'sequence_data.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$BiotrainerSequenceRecord extends BiotrainerSequenceRecord {
+class _$SequenceData extends SequenceData {
   @override
   final String seqId;
   @override
   final String seq;
   @override
+  final String? label;
+  @override
+  final String? set_;
+  @override
+  final String? mask;
+  @override
   final BuiltMap<String, JsonObject?>? attributes;
   @override
-  final BuiltMap<dynamic, dynamic>? embedding;
+  final BuiltList<JsonObject?>? embedding;
 
-  factory _$BiotrainerSequenceRecord(
-          [void Function(BiotrainerSequenceRecordBuilder)? updates]) =>
-      (BiotrainerSequenceRecordBuilder()..update(updates))._build();
+  factory _$SequenceData([void Function(SequenceDataBuilder)? updates]) =>
+      (SequenceDataBuilder()..update(updates))._build();
 
-  _$BiotrainerSequenceRecord._(
-      {required this.seqId, required this.seq, this.attributes, this.embedding})
+  _$SequenceData._(
+      {required this.seqId,
+      required this.seq,
+      this.label,
+      this.set_,
+      this.mask,
+      this.attributes,
+      this.embedding})
       : super._();
   @override
-  BiotrainerSequenceRecord rebuild(
-          void Function(BiotrainerSequenceRecordBuilder) updates) =>
+  SequenceData rebuild(void Function(SequenceDataBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  BiotrainerSequenceRecordBuilder toBuilder() =>
-      BiotrainerSequenceRecordBuilder()..replace(this);
+  SequenceDataBuilder toBuilder() => SequenceDataBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is BiotrainerSequenceRecord &&
+    return other is SequenceData &&
         seqId == other.seqId &&
         seq == other.seq &&
+        label == other.label &&
+        set_ == other.set_ &&
+        mask == other.mask &&
         attributes == other.attributes &&
         embedding == other.embedding;
   }
@@ -47,6 +59,9 @@ class _$BiotrainerSequenceRecord extends BiotrainerSequenceRecord {
     var _$hash = 0;
     _$hash = $jc(_$hash, seqId.hashCode);
     _$hash = $jc(_$hash, seq.hashCode);
+    _$hash = $jc(_$hash, label.hashCode);
+    _$hash = $jc(_$hash, set_.hashCode);
+    _$hash = $jc(_$hash, mask.hashCode);
     _$hash = $jc(_$hash, attributes.hashCode);
     _$hash = $jc(_$hash, embedding.hashCode);
     _$hash = $jf(_$hash);
@@ -55,19 +70,21 @@ class _$BiotrainerSequenceRecord extends BiotrainerSequenceRecord {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'BiotrainerSequenceRecord')
+    return (newBuiltValueToStringHelper(r'SequenceData')
           ..add('seqId', seqId)
           ..add('seq', seq)
+          ..add('label', label)
+          ..add('set_', set_)
+          ..add('mask', mask)
           ..add('attributes', attributes)
           ..add('embedding', embedding))
         .toString();
   }
 }
 
-class BiotrainerSequenceRecordBuilder
-    implements
-        Builder<BiotrainerSequenceRecord, BiotrainerSequenceRecordBuilder> {
-  _$BiotrainerSequenceRecord? _$v;
+class SequenceDataBuilder
+    implements Builder<SequenceData, SequenceDataBuilder> {
+  _$SequenceData? _$v;
 
   String? _seqId;
   String? get seqId => _$this._seqId;
@@ -77,27 +94,42 @@ class BiotrainerSequenceRecordBuilder
   String? get seq => _$this._seq;
   set seq(String? seq) => _$this._seq = seq;
 
+  String? _label;
+  String? get label => _$this._label;
+  set label(String? label) => _$this._label = label;
+
+  String? _set_;
+  String? get set_ => _$this._set_;
+  set set_(String? set_) => _$this._set_ = set_;
+
+  String? _mask;
+  String? get mask => _$this._mask;
+  set mask(String? mask) => _$this._mask = mask;
+
   MapBuilder<String, JsonObject?>? _attributes;
   MapBuilder<String, JsonObject?> get attributes =>
       _$this._attributes ??= MapBuilder<String, JsonObject?>();
   set attributes(MapBuilder<String, JsonObject?>? attributes) =>
       _$this._attributes = attributes;
 
-  MapBuilder<dynamic, dynamic>? _embedding;
-  MapBuilder<dynamic, dynamic> get embedding =>
-      _$this._embedding ??= MapBuilder<dynamic, dynamic>();
-  set embedding(MapBuilder<dynamic, dynamic>? embedding) =>
+  ListBuilder<JsonObject?>? _embedding;
+  ListBuilder<JsonObject?> get embedding =>
+      _$this._embedding ??= ListBuilder<JsonObject?>();
+  set embedding(ListBuilder<JsonObject?>? embedding) =>
       _$this._embedding = embedding;
 
-  BiotrainerSequenceRecordBuilder() {
-    BiotrainerSequenceRecord._defaults(this);
+  SequenceDataBuilder() {
+    SequenceData._defaults(this);
   }
 
-  BiotrainerSequenceRecordBuilder get _$this {
+  SequenceDataBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _seqId = $v.seqId;
       _seq = $v.seq;
+      _label = $v.label;
+      _set_ = $v.set_;
+      _mask = $v.mask;
       _attributes = $v.attributes?.toBuilder();
       _embedding = $v.embedding?.toBuilder();
       _$v = null;
@@ -106,27 +138,30 @@ class BiotrainerSequenceRecordBuilder
   }
 
   @override
-  void replace(BiotrainerSequenceRecord other) {
-    _$v = other as _$BiotrainerSequenceRecord;
+  void replace(SequenceData other) {
+    _$v = other as _$SequenceData;
   }
 
   @override
-  void update(void Function(BiotrainerSequenceRecordBuilder)? updates) {
+  void update(void Function(SequenceDataBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  BiotrainerSequenceRecord build() => _build();
+  SequenceData build() => _build();
 
-  _$BiotrainerSequenceRecord _build() {
-    _$BiotrainerSequenceRecord _$result;
+  _$SequenceData _build() {
+    _$SequenceData _$result;
     try {
       _$result = _$v ??
-          _$BiotrainerSequenceRecord._(
+          _$SequenceData._(
             seqId: BuiltValueNullFieldError.checkNotNull(
-                seqId, r'BiotrainerSequenceRecord', 'seqId'),
+                seqId, r'SequenceData', 'seqId'),
             seq: BuiltValueNullFieldError.checkNotNull(
-                seq, r'BiotrainerSequenceRecord', 'seq'),
+                seq, r'SequenceData', 'seq'),
+            label: label,
+            set_: set_,
+            mask: mask,
             attributes: _attributes?.build(),
             embedding: _embedding?.build(),
           );
@@ -139,7 +174,7 @@ class BiotrainerSequenceRecordBuilder
         _embedding?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-            r'BiotrainerSequenceRecord', _$failedField, e.toString());
+            r'SequenceData', _$failedField, e.toString());
       }
       rethrow;
     }

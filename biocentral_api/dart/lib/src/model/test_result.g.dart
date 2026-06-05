@@ -8,28 +8,22 @@ part of 'test_result.dart';
 
 class _$TestResult extends TestResult {
   @override
-  final String success;
+  final BiotrainerInferenceResult? inferenceResult;
   @override
-  final String information;
+  final BuiltList<BootstrappedMetric>? bootstrappedMetrics;
   @override
-  final String testMetrics;
+  final BuiltMap<String, BuiltList<BootstrappedMetric>>? baselines;
   @override
-  final String testStatistic;
-  @override
-  final String pValue;
-  @override
-  final num? significanceLevel;
+  final BuiltList<String>? sanityCheckWarnings;
 
   factory _$TestResult([void Function(TestResultBuilder)? updates]) =>
       (TestResultBuilder()..update(updates))._build();
 
   _$TestResult._(
-      {required this.success,
-      required this.information,
-      required this.testMetrics,
-      required this.testStatistic,
-      required this.pValue,
-      this.significanceLevel})
+      {this.inferenceResult,
+      this.bootstrappedMetrics,
+      this.baselines,
+      this.sanityCheckWarnings})
       : super._();
   @override
   TestResult rebuild(void Function(TestResultBuilder) updates) =>
@@ -42,23 +36,19 @@ class _$TestResult extends TestResult {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is TestResult &&
-        success == other.success &&
-        information == other.information &&
-        testMetrics == other.testMetrics &&
-        testStatistic == other.testStatistic &&
-        pValue == other.pValue &&
-        significanceLevel == other.significanceLevel;
+        inferenceResult == other.inferenceResult &&
+        bootstrappedMetrics == other.bootstrappedMetrics &&
+        baselines == other.baselines &&
+        sanityCheckWarnings == other.sanityCheckWarnings;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, success.hashCode);
-    _$hash = $jc(_$hash, information.hashCode);
-    _$hash = $jc(_$hash, testMetrics.hashCode);
-    _$hash = $jc(_$hash, testStatistic.hashCode);
-    _$hash = $jc(_$hash, pValue.hashCode);
-    _$hash = $jc(_$hash, significanceLevel.hashCode);
+    _$hash = $jc(_$hash, inferenceResult.hashCode);
+    _$hash = $jc(_$hash, bootstrappedMetrics.hashCode);
+    _$hash = $jc(_$hash, baselines.hashCode);
+    _$hash = $jc(_$hash, sanityCheckWarnings.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -66,12 +56,10 @@ class _$TestResult extends TestResult {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'TestResult')
-          ..add('success', success)
-          ..add('information', information)
-          ..add('testMetrics', testMetrics)
-          ..add('testStatistic', testStatistic)
-          ..add('pValue', pValue)
-          ..add('significanceLevel', significanceLevel))
+          ..add('inferenceResult', inferenceResult)
+          ..add('bootstrappedMetrics', bootstrappedMetrics)
+          ..add('baselines', baselines)
+          ..add('sanityCheckWarnings', sanityCheckWarnings))
         .toString();
   }
 }
@@ -79,31 +67,30 @@ class _$TestResult extends TestResult {
 class TestResultBuilder implements Builder<TestResult, TestResultBuilder> {
   _$TestResult? _$v;
 
-  String? _success;
-  String? get success => _$this._success;
-  set success(String? success) => _$this._success = success;
+  BiotrainerInferenceResultBuilder? _inferenceResult;
+  BiotrainerInferenceResultBuilder get inferenceResult =>
+      _$this._inferenceResult ??= BiotrainerInferenceResultBuilder();
+  set inferenceResult(BiotrainerInferenceResultBuilder? inferenceResult) =>
+      _$this._inferenceResult = inferenceResult;
 
-  String? _information;
-  String? get information => _$this._information;
-  set information(String? information) => _$this._information = information;
+  ListBuilder<BootstrappedMetric>? _bootstrappedMetrics;
+  ListBuilder<BootstrappedMetric> get bootstrappedMetrics =>
+      _$this._bootstrappedMetrics ??= ListBuilder<BootstrappedMetric>();
+  set bootstrappedMetrics(
+          ListBuilder<BootstrappedMetric>? bootstrappedMetrics) =>
+      _$this._bootstrappedMetrics = bootstrappedMetrics;
 
-  String? _testMetrics;
-  String? get testMetrics => _$this._testMetrics;
-  set testMetrics(String? testMetrics) => _$this._testMetrics = testMetrics;
+  MapBuilder<String, BuiltList<BootstrappedMetric>>? _baselines;
+  MapBuilder<String, BuiltList<BootstrappedMetric>> get baselines =>
+      _$this._baselines ??= MapBuilder<String, BuiltList<BootstrappedMetric>>();
+  set baselines(MapBuilder<String, BuiltList<BootstrappedMetric>>? baselines) =>
+      _$this._baselines = baselines;
 
-  String? _testStatistic;
-  String? get testStatistic => _$this._testStatistic;
-  set testStatistic(String? testStatistic) =>
-      _$this._testStatistic = testStatistic;
-
-  String? _pValue;
-  String? get pValue => _$this._pValue;
-  set pValue(String? pValue) => _$this._pValue = pValue;
-
-  num? _significanceLevel;
-  num? get significanceLevel => _$this._significanceLevel;
-  set significanceLevel(num? significanceLevel) =>
-      _$this._significanceLevel = significanceLevel;
+  ListBuilder<String>? _sanityCheckWarnings;
+  ListBuilder<String> get sanityCheckWarnings =>
+      _$this._sanityCheckWarnings ??= ListBuilder<String>();
+  set sanityCheckWarnings(ListBuilder<String>? sanityCheckWarnings) =>
+      _$this._sanityCheckWarnings = sanityCheckWarnings;
 
   TestResultBuilder() {
     TestResult._defaults(this);
@@ -112,12 +99,10 @@ class TestResultBuilder implements Builder<TestResult, TestResultBuilder> {
   TestResultBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _success = $v.success;
-      _information = $v.information;
-      _testMetrics = $v.testMetrics;
-      _testStatistic = $v.testStatistic;
-      _pValue = $v.pValue;
-      _significanceLevel = $v.significanceLevel;
+      _inferenceResult = $v.inferenceResult?.toBuilder();
+      _bootstrappedMetrics = $v.bootstrappedMetrics?.toBuilder();
+      _baselines = $v.baselines?.toBuilder();
+      _sanityCheckWarnings = $v.sanityCheckWarnings?.toBuilder();
       _$v = null;
     }
     return this;
@@ -137,20 +122,32 @@ class TestResultBuilder implements Builder<TestResult, TestResultBuilder> {
   TestResult build() => _build();
 
   _$TestResult _build() {
-    final _$result = _$v ??
-        _$TestResult._(
-          success: BuiltValueNullFieldError.checkNotNull(
-              success, r'TestResult', 'success'),
-          information: BuiltValueNullFieldError.checkNotNull(
-              information, r'TestResult', 'information'),
-          testMetrics: BuiltValueNullFieldError.checkNotNull(
-              testMetrics, r'TestResult', 'testMetrics'),
-          testStatistic: BuiltValueNullFieldError.checkNotNull(
-              testStatistic, r'TestResult', 'testStatistic'),
-          pValue: BuiltValueNullFieldError.checkNotNull(
-              pValue, r'TestResult', 'pValue'),
-          significanceLevel: significanceLevel,
-        );
+    _$TestResult _$result;
+    try {
+      _$result = _$v ??
+          _$TestResult._(
+            inferenceResult: _inferenceResult?.build(),
+            bootstrappedMetrics: _bootstrappedMetrics?.build(),
+            baselines: _baselines?.build(),
+            sanityCheckWarnings: _sanityCheckWarnings?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'inferenceResult';
+        _inferenceResult?.build();
+        _$failedField = 'bootstrappedMetrics';
+        _bootstrappedMetrics?.build();
+        _$failedField = 'baselines';
+        _baselines?.build();
+        _$failedField = 'sanityCheckWarnings';
+        _sanityCheckWarnings?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+            r'TestResult', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

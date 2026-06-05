@@ -12,11 +12,11 @@ Name | Type | Description | Notes
 **modelType** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
 **embedderName** | **String** | Name of embedder to use | 
 **optimizationMode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
-**seed** | **int** |  | [optional] 
-**targetLb** | **num** |  | [optional] 
-**targetUb** | **num** |  | [optional] 
-**targetValue** | **num** |  | [optional] 
-**discreteTargets** | **BuiltList&lt;String&gt;** |  | [optional] 
+**seed** | **int** | Random seed for reproducibility. | [optional] 
+**targetLb** | **num** | Lower bound of the target value to optimize (mode: INTERVAL) | [optional] 
+**targetUb** | **num** | Upper bound of the target value to optimize (mode: INTERVAL) | [optional] 
+**targetValue** | **num** | Target value to optimize (mode: VALUE) | [optional] 
+**discreteTargets** | **BuiltList&lt;String&gt;** | List of target labels (must be subset of all labels) | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

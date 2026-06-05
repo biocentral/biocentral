@@ -10,7 +10,7 @@ class _$ActiveLearningIterationConfig extends ActiveLearningIterationConfig {
   @override
   final int iteration;
   @override
-  final BuiltList<SequenceTrainingData> iterationData;
+  final BuiltList<SequenceData> iterationData;
   @override
   final num coefficient;
   @override
@@ -77,10 +77,10 @@ class ActiveLearningIterationConfigBuilder
   int? get iteration => _$this._iteration;
   set iteration(int? iteration) => _$this._iteration = iteration;
 
-  ListBuilder<SequenceTrainingData>? _iterationData;
-  ListBuilder<SequenceTrainingData> get iterationData =>
-      _$this._iterationData ??= ListBuilder<SequenceTrainingData>();
-  set iterationData(ListBuilder<SequenceTrainingData>? iterationData) =>
+  ListBuilder<SequenceData>? _iterationData;
+  ListBuilder<SequenceData> get iterationData =>
+      _$this._iterationData ??= ListBuilder<SequenceData>();
+  set iterationData(ListBuilder<SequenceData>? iterationData) =>
       _$this._iterationData = iterationData;
 
   num? _coefficient;

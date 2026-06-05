@@ -27,14 +27,20 @@ Serializers _$serializers = (Serializers().toBuilder()
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
       ..add(BiocentralServiceStats.serializer)
-      ..add(BiotrainerSequenceRecord.serializer)
+      ..add(BiotrainerInferenceResult.serializer)
+      ..add(BiotrainerModelResult.serializer)
+      ..add(BiotrainerModelUpdate.serializer)
+      ..add(BiotrainerPrediction.serializer)
+      ..add(BootstrappedMetric.serializer)
       ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
       ..add(ConfigVerificationRequest.serializer)
       ..add(ConfigVerificationResponse.serializer)
+      ..add(DerivedValues.serializer)
       ..add(DetectedFormatResponse.serializer)
       ..add(EmbedRequest.serializer)
       ..add(EmbeddingProgress.serializer)
+      ..add(EmbeddingStats.serializer)
       ..add(EpochMetrics.serializer)
       ..add(GetMissingEmbeddingsRequest.serializer)
       ..add(GetMissingEmbeddingsResponse.serializer)
@@ -42,23 +48,30 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(HTTPValidationError.serializer)
       ..add(ImportDatasetRequest.serializer)
       ..add(ImportDatasetResponse.serializer)
+      ..add(LocationInner.serializer)
+      ..add(McdLowerBound.serializer)
+      ..add(McdMean.serializer)
+      ..add(McdStd.serializer)
+      ..add(McdUpperBound.serializer)
       ..add(ModelFilesRequest.serializer)
       ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
       ..add(ModelOutput.serializer)
       ..add(NotFoundErrorResponse.serializer)
       ..add(OutputClass.serializer)
-      ..add(OutputData.serializer)
       ..add(OutputType.serializer)
+      ..add(PPITestResult.serializer)
       ..add(Prediction.serializer)
+      ..add(Prediction1.serializer)
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
       ..add(Protocol.serializer)
+      ..add(RawPrediction.serializer)
       ..add(ResearchStats.serializer)
       ..add(ResearchStatsResponse.serializer)
       ..add(RunTestRequest.serializer)
       ..add(RunTestResponse.serializer)
-      ..add(SequenceTrainingData.serializer)
+      ..add(SequenceData.serializer)
       ..add(ServiceStatsResponse.serializer)
       ..add(StartInferenceRequest.serializer)
       ..add(StartTaskResponse.serializer)
@@ -70,8 +83,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(TaxonomyRequest.serializer)
       ..add(TaxonomyResponse.serializer)
       ..add(TestResult.serializer)
+      ..add(TrainingResult.serializer)
       ..add(ValidationError.serializer)
-      ..add(ValidationErrorLocInner.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ActiveLearningResult)]),
@@ -88,6 +101,30 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(BiotrainerPrediction)]),
+          () => ListBuilder<BiotrainerPrediction>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType(
+                BuiltList, const [const FullType(BootstrappedMetric)])
+          ]),
+          () => MapBuilder<String, BuiltList<BootstrappedMetric>>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(LocationInner)]),
+          () => ListBuilder<LocationInner>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ModelMetadata)]),
           () => ListBuilder<ModelMetadata>())
       ..addBuilderFactory(
@@ -101,13 +138,11 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltList, const [const FullType.nullable(JsonObject)]),
           () => ListBuilder<JsonObject?>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(SequenceTrainingData)]),
-          () => ListBuilder<SequenceTrainingData>())
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(SequenceTrainingData)]),
-          () => ListBuilder<SequenceTrainingData>())
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
@@ -120,6 +155,24 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TaskDTO)]),
           () => ListBuilder<TaskDTO>())
@@ -129,10 +182,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ValidationError)]),
           () => ListBuilder<ValidationError>())
-      ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(ValidationErrorLocInner)]),
-          () => ListBuilder<ValidationErrorLocInner>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(int)]),
           () => ListBuilder<int>())
@@ -160,25 +209,26 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltList, const [const FullType.nullable(JsonObject)]),
           () => ListBuilder<JsonObject?>())
       ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType.nullable(JsonObject)]),
+          () => ListBuilder<JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType.nullable(JsonObject)]),
+          () => ListBuilder<JsonObject?>())
+      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
             const FullType(BuiltList, const [const FullType(Prediction)])
           ]),
           () => MapBuilder<String, BuiltList<Prediction>>())
       ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
-      ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(BiotrainerSequenceRecord)]),
-          () => ListBuilder<BiotrainerSequenceRecord>())
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
@@ -200,6 +250,18 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(int)]),
+          () => MapBuilder<String, int>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
@@ -241,33 +303,8 @@ Serializers _$serializers = (Serializers().toBuilder()
           ]),
           () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(SequenceTrainingData)]),
-          () => ListBuilder<SequenceTrainingData>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
@@ -285,21 +322,29 @@ Serializers _$serializers = (Serializers().toBuilder()
           ]),
           () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
+          const FullType(BuiltMap,
+              const [const FullType(String), const FullType(TrainingResult)]),
+          () => MapBuilder<String, TrainingResult>())
       ..addBuilderFactory(
           const FullType(BuiltMap,
-              const [const FullType(dynamic), const FullType(dynamic)]),
-          () => MapBuilder<dynamic, dynamic>()))
+              const [const FullType(String), const FullType(TestResult)]),
+          () => MapBuilder<String, TestResult>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(BiotrainerPrediction)]),
+          () => ListBuilder<BiotrainerPrediction>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

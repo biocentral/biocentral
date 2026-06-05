@@ -32,14 +32,20 @@ import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
-import 'package:biocentral_api/src/model/biotrainer_sequence_record.dart';
+import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
+import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
+import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
+import 'package:biocentral_api/src/model/biotrainer_prediction.dart';
+import 'package:biocentral_api/src/model/bootstrapped_metric.dart';
 import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
+import 'package:biocentral_api/src/model/derived_values.dart';
 import 'package:biocentral_api/src/model/detected_format_response.dart';
 import 'package:biocentral_api/src/model/embed_request.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
+import 'package:biocentral_api/src/model/embedding_stats.dart';
 import 'package:biocentral_api/src/model/epoch_metrics.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_request.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_response.dart';
@@ -47,23 +53,30 @@ import 'package:biocentral_api/src/model/get_projection_config_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
 import 'package:biocentral_api/src/model/import_dataset_request.dart';
 import 'package:biocentral_api/src/model/import_dataset_response.dart';
+import 'package:biocentral_api/src/model/location_inner.dart';
+import 'package:biocentral_api/src/model/mcd_lower_bound.dart';
+import 'package:biocentral_api/src/model/mcd_mean.dart';
+import 'package:biocentral_api/src/model/mcd_std.dart';
+import 'package:biocentral_api/src/model/mcd_upper_bound.dart';
 import 'package:biocentral_api/src/model/model_files_request.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/model_metadata_response.dart';
 import 'package:biocentral_api/src/model/model_output.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/output_class.dart';
-import 'package:biocentral_api/src/model/output_data.dart';
 import 'package:biocentral_api/src/model/output_type.dart';
+import 'package:biocentral_api/src/model/ppi_test_result.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
+import 'package:biocentral_api/src/model/prediction1.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
 import 'package:biocentral_api/src/model/protocol.dart';
+import 'package:biocentral_api/src/model/raw_prediction.dart';
 import 'package:biocentral_api/src/model/research_stats.dart';
 import 'package:biocentral_api/src/model/research_stats_response.dart';
 import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
-import 'package:biocentral_api/src/model/sequence_training_data.dart';
+import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:biocentral_api/src/model/service_stats_response.dart';
 import 'package:biocentral_api/src/model/start_inference_request.dart';
 import 'package:biocentral_api/src/model/start_task_response.dart';
@@ -75,8 +88,8 @@ import 'package:biocentral_api/src/model/taxonomy_item.dart';
 import 'package:biocentral_api/src/model/taxonomy_request.dart';
 import 'package:biocentral_api/src/model/taxonomy_response.dart';
 import 'package:biocentral_api/src/model/test_result.dart';
+import 'package:biocentral_api/src/model/training_result.dart';
 import 'package:biocentral_api/src/model/validation_error.dart';
-import 'package:biocentral_api/src/model/validation_error_loc_inner.dart';
 
 part 'serializers.g.dart';
 
@@ -99,14 +112,20 @@ part 'serializers.g.dart';
   BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
   BiocentralServiceStats,
-  BiotrainerSequenceRecord,
+  BiotrainerInferenceResult,
+  BiotrainerModelResult,
+  BiotrainerModelUpdate,
+  BiotrainerPrediction,
+  BootstrappedMetric,
   CommonEmbedder,
   ConfigOptionsResponse,
   ConfigVerificationRequest,
   ConfigVerificationResponse,
+  DerivedValues,
   DetectedFormatResponse,
   EmbedRequest,
   EmbeddingProgress,
+  EmbeddingStats,
   EpochMetrics,
   GetMissingEmbeddingsRequest,
   GetMissingEmbeddingsResponse,
@@ -114,23 +133,30 @@ part 'serializers.g.dart';
   HTTPValidationError,
   ImportDatasetRequest,
   ImportDatasetResponse,
+  LocationInner,
+  McdLowerBound,
+  McdMean,
+  McdStd,
+  McdUpperBound,
   ModelFilesRequest,
   ModelMetadata,
   ModelMetadataResponse,
   ModelOutput,
   NotFoundErrorResponse,
   OutputClass,
-  OutputData,
   OutputType,
+  PPITestResult,
   Prediction,
+  Prediction1,
   PredictionRequest,
   ProjectionRequest,
   Protocol,
+  RawPrediction,
   ResearchStats,
   ResearchStatsResponse,
   RunTestRequest,
   RunTestResponse,
-  SequenceTrainingData,
+  SequenceData,
   ServiceStatsResponse,
   StartInferenceRequest,
   StartTaskResponse,
@@ -142,29 +168,13 @@ part 'serializers.g.dart';
   TaxonomyRequest,
   TaxonomyResponse,
   TestResult,
+  TrainingResult,
   ValidationError,
-  ValidationErrorLocInner,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(Prediction)])]),
-        () => MapBuilder<String, BuiltList<Prediction>>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(Prediction)]),
-        () => ListBuilder<Prediction>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(CommonEmbedder)]),
         () => ListBuilder<CommonEmbedder>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-        () => MapBuilder<String, JsonObject>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(num)]),
-        () => MapBuilder<String, num>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),

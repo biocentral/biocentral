@@ -3,39 +3,38 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
+import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
+import 'package:biocentral_api/src/model/bootstrapped_metric.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'test_result.g.dart';
 
-/// TestResult
+/// Test results after training. 
 ///
 /// Properties:
-/// * [success] 
-/// * [information] 
-/// * [testMetrics] 
-/// * [testStatistic] 
-/// * [pValue] 
-/// * [significanceLevel] 
+/// * [inferenceResult] - Plain test inference result
+/// * [bootstrappedMetrics] - Bootstrapped test metrics
+/// * [baselines] - Bootstrapped baselines by method name
+/// * [sanityCheckWarnings] - Warnings from sanity checks
 @BuiltValue()
 abstract class TestResult implements Built<TestResult, TestResultBuilder> {
-  @BuiltValueField(wireName: r'success')
-  String get success;
+  /// Plain test inference result
+  @BuiltValueField(wireName: r'inference_result')
+  BiotrainerInferenceResult? get inferenceResult;
 
-  @BuiltValueField(wireName: r'information')
-  String get information;
+  /// Bootstrapped test metrics
+  @BuiltValueField(wireName: r'bootstrapped_metrics')
+  BuiltList<BootstrappedMetric>? get bootstrappedMetrics;
 
-  @BuiltValueField(wireName: r'test_metrics')
-  String get testMetrics;
+  /// Bootstrapped baselines by method name
+  @BuiltValueField(wireName: r'baselines')
+  BuiltMap<String, BuiltList<BootstrappedMetric>>? get baselines;
 
-  @BuiltValueField(wireName: r'test_statistic')
-  String get testStatistic;
-
-  @BuiltValueField(wireName: r'p_value')
-  String get pValue;
-
-  @BuiltValueField(wireName: r'significance_level')
-  num? get significanceLevel;
+  /// Warnings from sanity checks
+  @BuiltValueField(wireName: r'sanity_check_warnings')
+  BuiltList<String>? get sanityCheckWarnings;
 
   TestResult._();
 
@@ -60,36 +59,34 @@ class _$TestResultSerializer implements PrimitiveSerializer<TestResult> {
     TestResult object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'success';
-    yield serializers.serialize(
-      object.success,
-      specifiedType: const FullType(String),
-    );
-    yield r'information';
-    yield serializers.serialize(
-      object.information,
-      specifiedType: const FullType(String),
-    );
-    yield r'test_metrics';
-    yield serializers.serialize(
-      object.testMetrics,
-      specifiedType: const FullType(String),
-    );
-    yield r'test_statistic';
-    yield serializers.serialize(
-      object.testStatistic,
-      specifiedType: const FullType(String),
-    );
-    yield r'p_value';
-    yield serializers.serialize(
-      object.pValue,
-      specifiedType: const FullType(String),
-    );
-    yield r'significance_level';
-    yield object.significanceLevel == null ? null : serializers.serialize(
-      object.significanceLevel,
-      specifiedType: const FullType.nullable(num),
-    );
+    if (object.inferenceResult != null) {
+      yield r'inference_result';
+      yield serializers.serialize(
+        object.inferenceResult,
+        specifiedType: const FullType.nullable(BiotrainerInferenceResult),
+      );
+    }
+    if (object.bootstrappedMetrics != null) {
+      yield r'bootstrapped_metrics';
+      yield serializers.serialize(
+        object.bootstrappedMetrics,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(BootstrappedMetric)]),
+      );
+    }
+    if (object.baselines != null) {
+      yield r'baselines';
+      yield serializers.serialize(
+        object.baselines,
+        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(BootstrappedMetric)])]),
+      );
+    }
+    if (object.sanityCheckWarnings != null) {
+      yield r'sanity_check_warnings';
+      yield serializers.serialize(
+        object.sanityCheckWarnings,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+      );
+    }
   }
 
   @override
@@ -113,48 +110,37 @@ class _$TestResultSerializer implements PrimitiveSerializer<TestResult> {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'success':
+        case r'inference_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.success = valueDes;
-          break;
-        case r'information':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.information = valueDes;
-          break;
-        case r'test_metrics':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.testMetrics = valueDes;
-          break;
-        case r'test_statistic':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.testStatistic = valueDes;
-          break;
-        case r'p_value':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.pValue = valueDes;
-          break;
-        case r'significance_level':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(num),
-          ) as num?;
+            specifiedType: const FullType.nullable(BiotrainerInferenceResult),
+          ) as BiotrainerInferenceResult?;
           if (valueDes == null) continue;
-          result.significanceLevel = valueDes;
+          result.inferenceResult.replace(valueDes);
+          break;
+        case r'bootstrapped_metrics':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(BootstrappedMetric)]),
+          ) as BuiltList<BootstrappedMetric>?;
+          if (valueDes == null) continue;
+          result.bootstrappedMetrics.replace(valueDes);
+          break;
+        case r'baselines':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(BootstrappedMetric)])]),
+          ) as BuiltMap<String, BuiltList<BootstrappedMetric>>?;
+          if (valueDes == null) continue;
+          result.baselines.replace(valueDes);
+          break;
+        case r'sanity_check_warnings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
+          result.sanityCheckWarnings.replace(valueDes);
           break;
         default:
           unhandled.add(key);

@@ -18,7 +18,7 @@ Name | Type | Description | Notes
 **outputs** | [**BuiltList&lt;ModelOutput&gt;**](ModelOutput.md) | List of descriptions of model outputs | 
 **modelSize** | **String** | Size of the model in MB | 
 **embedder** | **String** | Name of the embedder used for the model | 
-**trainingDataLink** | **String** |  | [optional] 
+**trainingDataLink** | **String** | Link to the training data used for training the model | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

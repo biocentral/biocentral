@@ -8,7 +8,7 @@ part of 'active_learning_simulation_config.dart';
 
 class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
   @override
-  final BuiltList<SequenceTrainingData> simulationData;
+  final BuiltList<SequenceData> simulationData;
   @override
   final int? nStart;
   @override
@@ -79,10 +79,10 @@ class ActiveLearningSimulationConfigBuilder
             ActiveLearningSimulationConfigBuilder> {
   _$ActiveLearningSimulationConfig? _$v;
 
-  ListBuilder<SequenceTrainingData>? _simulationData;
-  ListBuilder<SequenceTrainingData> get simulationData =>
-      _$this._simulationData ??= ListBuilder<SequenceTrainingData>();
-  set simulationData(ListBuilder<SequenceTrainingData>? simulationData) =>
+  ListBuilder<SequenceData>? _simulationData;
+  ListBuilder<SequenceData> get simulationData =>
+      _$this._simulationData ??= ListBuilder<SequenceData>();
+  set simulationData(ListBuilder<SequenceData>? simulationData) =>
       _$this._simulationData = simulationData;
 
   int? _nStart;

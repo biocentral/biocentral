@@ -11,17 +11,20 @@ part 'active_learning_convergence_config.g.dart';
 /// Configuration for convergence criteria for active learning campaigns
 ///
 /// Properties:
-/// * [maxLabelsBudget] 
-/// * [targetSuccesses] 
-/// * [maxConsecutiveFailures] 
+/// * [maxLabelsBudget] - Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')
+/// * [targetSuccesses] - Number of positive targets found before stopping ('Stop when we find 10 good proteins')
+/// * [maxConsecutiveFailures] - Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')
 @BuiltValue()
 abstract class ActiveLearningConvergenceConfig implements Built<ActiveLearningConvergenceConfig, ActiveLearningConvergenceConfigBuilder> {
+  /// Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')
   @BuiltValueField(wireName: r'max_labels_budget')
   int? get maxLabelsBudget;
 
+  /// Number of positive targets found before stopping ('Stop when we find 10 good proteins')
   @BuiltValueField(wireName: r'target_successes')
   int? get targetSuccesses;
 
+  /// Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')
   @BuiltValueField(wireName: r'max_consecutive_failures')
   int? get maxConsecutiveFailures;
 

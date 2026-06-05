@@ -11,13 +11,14 @@ Name | Type | Description | Notes
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **String** |  | [optional] 
 **predictions** | [**BuiltMap&lt;String, BuiltList&lt;Prediction&gt;&gt;**](BuiltList.md) |  | [optional] 
-**biotrainerUpdate** | [**OutputData**](OutputData.md) |  | [optional] 
-**biotrainerResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) |  | [optional] 
+**biotrainerUpdate** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
+**biotrainerResult** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 
+**biotrainerInferenceResult** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) |  | [optional] 
 **embeddingProgress** | [**EmbeddingProgress**](EmbeddingProgress.md) |  | [optional] 
 **embeddedSequences** | **BuiltMap&lt;String, String&gt;** |  | [optional] 
-**embeddings** | [**BuiltList&lt;BiotrainerSequenceRecord&gt;**](BiotrainerSequenceRecord.md) |  | [optional] 
+**embeddings** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) |  | [optional] 
 **embeddingsFile** | **String** |  | [optional] 
-**projectionResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) |  | [optional] 
+**projectionResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) | Hyperparameters used for this split | [optional] 
 **alIterationResult** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 **alSimulationResult** | [**ActiveLearningSimulationResult**](ActiveLearningSimulationResult.md) |  | [optional] 
 

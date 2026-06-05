@@ -10,7 +10,7 @@ class _$StartTrainingRequest extends StartTrainingRequest {
   @override
   final BuiltMap<String, JsonObject?> configDict;
   @override
-  final BuiltList<SequenceTrainingData> trainingData;
+  final BuiltList<SequenceData> trainingData;
 
   factory _$StartTrainingRequest(
           [void Function(StartTrainingRequestBuilder)? updates]) =>
@@ -64,10 +64,10 @@ class StartTrainingRequestBuilder
   set configDict(MapBuilder<String, JsonObject?>? configDict) =>
       _$this._configDict = configDict;
 
-  ListBuilder<SequenceTrainingData>? _trainingData;
-  ListBuilder<SequenceTrainingData> get trainingData =>
-      _$this._trainingData ??= ListBuilder<SequenceTrainingData>();
-  set trainingData(ListBuilder<SequenceTrainingData>? trainingData) =>
+  ListBuilder<SequenceData>? _trainingData;
+  ListBuilder<SequenceData> get trainingData =>
+      _$this._trainingData ??= ListBuilder<SequenceData>();
+  set trainingData(ListBuilder<SequenceData>? trainingData) =>
       _$this._trainingData = trainingData;
 
   StartTrainingRequestBuilder() {

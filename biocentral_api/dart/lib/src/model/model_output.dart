@@ -19,9 +19,9 @@ part 'model_output.g.dart';
 /// * [description] - Description of the output
 /// * [outputType] - Type of output
 /// * [valueType] - Type of output values
-/// * [classes] 
-/// * [valueRange] 
-/// * [unit] 
+/// * [classes] - List of output classes for categorical outputs
+/// * [valueRange] - Value range of predictions for continous outputs
+/// * [unit] - Optional unit for numerical outputs
 @BuiltValue()
 abstract class ModelOutput implements Built<ModelOutput, ModelOutputBuilder> {
   /// Name of the output
@@ -41,12 +41,15 @@ abstract class ModelOutput implements Built<ModelOutput, ModelOutputBuilder> {
   @BuiltValueField(wireName: r'value_type')
   String get valueType;
 
+  /// List of output classes for categorical outputs
   @BuiltValueField(wireName: r'classes')
   BuiltList<OutputClass>? get classes;
 
+  /// Value range of predictions for continous outputs
   @BuiltValueField(wireName: r'value_range')
   BuiltList<JsonObject?>? get valueRange;
 
+  /// Optional unit for numerical outputs
   @BuiltValueField(wireName: r'unit')
   String? get unit;
 

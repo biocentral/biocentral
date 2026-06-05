@@ -30,7 +30,7 @@ final api = BiocentralApi().getBiocentralServiceApi();
 try {
     final response = api.researchStatsApiV1BiocentralServiceResearchStatsGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling BiocentralServiceApi->researchStatsApiV1BiocentralServiceResearchStatsGet: $e\n');
 }
 ```
@@ -67,7 +67,7 @@ final api = BiocentralApi().getBiocentralServiceApi();
 try {
     final response = api.statsApiV1BiocentralServiceStatsGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling BiocentralServiceApi->statsApiV1BiocentralServiceStatsGet: $e\n');
 }
 ```
@@ -105,7 +105,7 @@ final String taskId = taskId_example; // String |
 try {
     final response = api.taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet(taskId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling BiocentralServiceApi->taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet: $e\n');
 }
 ```
@@ -146,7 +146,7 @@ final String taskId = taskId_example; // String |
 try {
     final response = api.taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet(taskId);
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling BiocentralServiceApi->taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet: $e\n');
 }
 ```
@@ -186,7 +186,7 @@ final api = BiocentralApi().getBiocentralServiceApi();
 try {
     final response = api.welcomeMessageApiV1BiocentralServiceWelcomeMessageGet();
     print(response);
-} catch on DioException (e) {
+} on DioException catch (e) {
     print('Exception when calling BiocentralServiceApi->welcomeMessageApiV1BiocentralServiceWelcomeMessageGet: $e\n');
 }
 ```
