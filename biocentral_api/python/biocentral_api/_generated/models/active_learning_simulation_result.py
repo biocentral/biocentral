@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Union
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ActiveLearningSimulationResult(BaseModel):
     """
@@ -32,12 +33,13 @@ class ActiveLearningSimulationResult(BaseModel):
     iteration_metrics_suggestions: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
     iteration_target_successes: Optional[List[StrictInt]] = Field(default=None, description="Number of successful targets found in each iteration")
     iteration_consecutive_failures: Optional[List[StrictInt]] = Field(default=None, description="Number of consecutive failures since the last successful target was found")
-    stop_reasons: Optional[List[StrictStr]] = None
+    stop_reasons: Optional[List[StrictStr]] = Field(default=None, description="Reason(s) for stopping the simulation (convergence criteria reached)")
     iteration_results: Optional[List[ActiveLearningIterationResult]] = Field(default=None, description="List of active learning iteration results")
     __properties: ClassVar[List[str]] = ["campaign_name", "iteration_metrics_total", "iteration_metrics_suggestions", "iteration_target_successes", "iteration_consecutive_failures", "stop_reasons", "iteration_results"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -49,8 +51,7 @@ class ActiveLearningSimulationResult(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

@@ -23,6 +23,7 @@ from biocentral_api._generated.models.active_learning_model_type import ActiveLe
 from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ActiveLearningCampaignConfig(BaseModel):
     """
@@ -32,15 +33,16 @@ class ActiveLearningCampaignConfig(BaseModel):
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
     embedder_name: StrictStr = Field(description="Name of embedder to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
-    seed: Optional[StrictInt] = None
-    target_lb: Optional[Union[StrictFloat, StrictInt]] = None
-    target_ub: Optional[Union[StrictFloat, StrictInt]] = None
-    target_value: Optional[Union[StrictFloat, StrictInt]] = None
-    discrete_targets: Optional[List[StrictStr]] = None
+    seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
+    target_lb: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Lower bound of the target value to optimize (mode: INTERVAL)")
+    target_ub: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Upper bound of the target value to optimize (mode: INTERVAL)")
+    target_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Target value to optimize (mode: VALUE)")
+    discrete_targets: Optional[List[StrictStr]] = Field(default=None, description="List of target labels (must be subset of all labels)")
     __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "seed", "target_lb", "target_ub", "target_value", "discrete_targets"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -52,8 +54,7 @@ class ActiveLearningCampaignConfig(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

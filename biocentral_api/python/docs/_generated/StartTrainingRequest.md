@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **config_dict** | **Dict[str, object]** | Biotrainer configuration | 
-**training_data** | [**List[SequenceTrainingData]**](SequenceTrainingData.md) | List of sequence training data | 
+**training_data** | [**List[SequenceData]**](SequenceData.md) | List of sequence training data | 
 
 ## Example
 

@@ -89,7 +89,8 @@ class BiocentralServerTask(Generic[T]):
                     consecutive_failures += 1
                     if consecutive_failures >= self.MAX_CONSECUTIVE_FAILURES:
                         error_message = (f"Task failed due to exceeding max consecutive "
-                                         f"failures ({self.MAX_CONSECUTIVE_FAILURES})!")
+                                         f"failures ({self.MAX_CONSECUTIVE_FAILURES})!"
+                                         f"Last error: {e}")
                         break
 
                 time.sleep(self.TIMEOUT)

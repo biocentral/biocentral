@@ -8,13 +8,14 @@ Name | Type | Description | Notes
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **str** |  | [optional] 
 **predictions** | **Dict[str, List[Prediction]]** |  | [optional] 
-**biotrainer_update** | [**OutputData**](OutputData.md) |  | [optional] 
-**biotrainer_result** | **Dict[str, object]** |  | [optional] 
+**biotrainer_update** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
+**biotrainer_result** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 
+**biotrainer_inference_result** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) |  | [optional] 
 **embedding_progress** | [**EmbeddingProgress**](EmbeddingProgress.md) |  | [optional] 
 **embedded_sequences** | **Dict[str, str]** |  | [optional] 
-**embeddings** | [**List[BiotrainerSequenceRecord]**](BiotrainerSequenceRecord.md) |  | [optional] 
+**embeddings** | [**List[SequenceData]**](SequenceData.md) |  | [optional] 
 **embeddings_file** | **str** |  | [optional] 
-**projection_result** | **Dict[str, object]** |  | [optional] 
+**projection_result** | **Dict[str, object]** | Hyperparameters used for this split | [optional] 
 **al_iteration_result** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 **al_simulation_result** | [**ActiveLearningSimulationResult**](ActiveLearningSimulationResult.md) |  | [optional] 
 

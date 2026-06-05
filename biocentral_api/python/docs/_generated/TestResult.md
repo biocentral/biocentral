@@ -1,16 +1,15 @@
 # TestResult
 
+Test results after training. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **str** |  | 
-**information** | **str** |  | 
-**test_metrics** | **str** |  | 
-**test_statistic** | **str** |  | 
-**p_value** | **str** |  | 
-**significance_level** | **float** |  | 
+**inference_result** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) | Plain test inference result | [optional] 
+**bootstrapped_metrics** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Bootstrapped test metrics | [optional] 
+**baselines** | **Dict[str, List[BootstrappedMetric]]** | Bootstrapped baselines by method name | [optional] 
+**sanity_check_warnings** | **List[str]** | Warnings from sanity checks | [optional] 
 
 ## Example
 

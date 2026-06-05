@@ -10,11 +10,11 @@ Name | Type | Description | Notes
 **model_type** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
 **embedder_name** | **str** | Name of embedder to use | 
 **optimization_mode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
-**seed** | **int** |  | [optional] 
-**target_lb** | **float** |  | [optional] 
-**target_ub** | **float** |  | [optional] 
-**target_value** | **float** |  | [optional] 
-**discrete_targets** | **List[str]** |  | [optional] 
+**seed** | **int** | Random seed for reproducibility. | [optional] 
+**target_lb** | **float** | Lower bound of the target value to optimize (mode: INTERVAL) | [optional] 
+**target_ub** | **float** | Upper bound of the target value to optimize (mode: INTERVAL) | [optional] 
+**target_value** | **float** | Target value to optimize (mode: VALUE) | [optional] 
+**discrete_targets** | **List[str]** | List of target labels (must be subset of all labels) | [optional] 
 
 ## Example
 

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**test_result** | [**TestResult**](TestResult.md) |  | 
+**test_result** | [**PPITestResult**](PPITestResult.md) |  | 
 
 ## Example
 

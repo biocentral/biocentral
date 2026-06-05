@@ -17,17 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult
-from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord
+from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult
+from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult
+from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
-from biocentral_api._generated.models.output_data import OutputData
 from biocentral_api._generated.models.prediction import Prediction
+from biocentral_api._generated.models.sequence_data import SequenceData
 from biocentral_api._generated.models.task_status import TaskStatus
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class TaskDTO(BaseModel):
     """
@@ -36,19 +39,21 @@ class TaskDTO(BaseModel):
     status: TaskStatus
     error: Optional[StrictStr] = None
     predictions: Optional[Dict[str, List[Prediction]]] = None
-    biotrainer_update: Optional[OutputData] = None
-    biotrainer_result: Optional[Dict[str, Any]] = None
+    biotrainer_update: Optional[BiotrainerModelUpdate] = None
+    biotrainer_result: Optional[BiotrainerModelResult] = None
+    biotrainer_inference_result: Optional[BiotrainerInferenceResult] = None
     embedding_progress: Optional[EmbeddingProgress] = None
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
-    embeddings: Optional[List[BiotrainerSequenceRecord]] = None
+    embeddings: Optional[List[SequenceData]] = None
     embeddings_file: Optional[StrictStr] = None
-    projection_result: Optional[Dict[str, Any]] = None
+    projection_result: Optional[Dict[str, Any]] = Field(default=None, description="Hyperparameters used for this split")
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -60,8 +65,7 @@ class TaskDTO(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -98,6 +102,12 @@ class TaskDTO(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of biotrainer_update
         if self.biotrainer_update:
             _dict['biotrainer_update'] = self.biotrainer_update.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of biotrainer_result
+        if self.biotrainer_result:
+            _dict['biotrainer_result'] = self.biotrainer_result.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of biotrainer_inference_result
+        if self.biotrainer_inference_result:
+            _dict['biotrainer_inference_result'] = self.biotrainer_inference_result.to_dict()
         # override the default output from pydantic by calling `to_dict()` of embedding_progress
         if self.embedding_progress:
             _dict['embedding_progress'] = self.embedding_progress.to_dict()
@@ -133,6 +143,11 @@ class TaskDTO(BaseModel):
         # and model_fields_set contains the field
         if self.biotrainer_result is None and "biotrainer_result" in self.model_fields_set:
             _dict['biotrainer_result'] = None
+
+        # set to None if biotrainer_inference_result (nullable) is None
+        # and model_fields_set contains the field
+        if self.biotrainer_inference_result is None and "biotrainer_inference_result" in self.model_fields_set:
+            _dict['biotrainer_inference_result'] = None
 
         # set to None if embedding_progress (nullable) is None
         # and model_fields_set contains the field
@@ -183,19 +198,18 @@ class TaskDTO(BaseModel):
         _obj = cls.model_validate({
             "status": obj.get("status"),
             "error": obj.get("error"),
-            "predictions": dict(
-                (_k,
-                        [Prediction.from_dict(_item) for _item in _v]
-                        if _v is not None
-                        else None
-                )
-                for _k, _v in obj.get("predictions", {}).items()
-            ),
-            "biotrainer_update": OutputData.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
-            "biotrainer_result": obj.get("biotrainer_result"),
+            "predictions": {
+                _k: [Prediction.from_dict(_item) for _item in _v] if _v is not None else None
+                for _k, _v in obj["predictions"].items()
+            }
+            if obj.get("predictions") is not None
+            else None,
+            "biotrainer_update": BiotrainerModelUpdate.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
+            "biotrainer_result": BiotrainerModelResult.from_dict(obj["biotrainer_result"]) if obj.get("biotrainer_result") is not None else None,
+            "biotrainer_inference_result": BiotrainerInferenceResult.from_dict(obj["biotrainer_inference_result"]) if obj.get("biotrainer_inference_result") is not None else None,
             "embedding_progress": EmbeddingProgress.from_dict(obj["embedding_progress"]) if obj.get("embedding_progress") is not None else None,
             "embedded_sequences": obj.get("embedded_sequences"),
-            "embeddings": [BiotrainerSequenceRecord.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
+            "embeddings": [SequenceData.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
             "projection_result": obj.get("projection_result"),
             "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,

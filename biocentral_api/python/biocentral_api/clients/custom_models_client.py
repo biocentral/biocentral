@@ -5,7 +5,7 @@ from .client_interface import ClientInterface
 from .tasks import BiocentralServerTask, DTOHandler
 
 from .._generated import ApiClient, StartTrainingRequest, ConfigVerificationRequest, CustomModelsApi, \
-    SequenceTrainingData, TaskDTO, TaskStatus, StartInferenceRequest
+    SequenceData, TaskDTO, TaskStatus, StartInferenceRequest, BiotrainerModelResult, BiotrainerInferenceResult
 
 
 class _TrainingDTOHandler(DTOHandler):
@@ -48,7 +48,7 @@ class _InferenceDTOHandler(DTOHandler):
             status = dto.status
             if status == TaskStatus.FINISHED:
                 # TODO Error handling
-                return dto.predictions
+                return dto.biotrainer_inference_result
         return None
 
     def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
@@ -73,7 +73,7 @@ class _InferenceDTOHandler(DTOHandler):
 
 class CustomModelsClient(ClientInterface):
     def train(self, api_client: ApiClient, config: Dict[str, Any],
-              training_data: List[SequenceTrainingData]) -> BiocentralServerTask:
+              training_data: List[SequenceData]) -> BiocentralServerTask[BiotrainerModelResult]:
         custom_models_api = CustomModelsApi(api_client)
         config_verification_request = ConfigVerificationRequest(config_dict=config)
 
@@ -96,7 +96,7 @@ class CustomModelsClient(ClientInterface):
         )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=training_dto_handler)
 
-    def inference(self, api_client: ApiClient, model_hash: str, inference_data: Dict[str, str]):
+    def inference(self, api_client: ApiClient, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[BiotrainerInferenceResult]:
         custom_models_api = CustomModelsApi(api_client)
         start_inference_request = StartInferenceRequest(model_hash=model_hash, sequence_data=inference_data)
         task_id = self._submit_task(

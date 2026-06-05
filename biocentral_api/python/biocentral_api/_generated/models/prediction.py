@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, Stric
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class Prediction(BaseModel):
     """
@@ -30,12 +31,13 @@ class Prediction(BaseModel):
     prediction_name: StrictStr = Field(description="Name of the prediction")
     protocol: StrictStr = Field(description="Protocol name")
     value: Optional[Any]
-    value_lower: Optional[Union[StrictFloat, StrictInt]] = None
-    value_upper: Optional[Union[StrictFloat, StrictInt]] = None
+    value_lower: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Lower bound of the prediction")
+    value_upper: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Upper bound of the prediction")
     __properties: ClassVar[List[str]] = ["model_name", "prediction_name", "protocol", "value", "value_lower", "value_upper"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,8 +49,7 @@ class Prediction(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

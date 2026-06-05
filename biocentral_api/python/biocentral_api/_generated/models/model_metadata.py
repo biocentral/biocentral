@@ -24,6 +24,7 @@ from biocentral_api._generated.models.model_output import ModelOutput
 from biocentral_api._generated.models.protocol import Protocol
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ModelMetadata(BaseModel):
     """
@@ -39,11 +40,12 @@ class ModelMetadata(BaseModel):
     outputs: List[ModelOutput] = Field(description="List of descriptions of model outputs")
     model_size: StrictStr = Field(description="Size of the model in MB")
     embedder: StrictStr = Field(description="Name of the embedder used for the model")
-    training_data_link: Optional[StrictStr] = None
+    training_data_link: Optional[StrictStr] = Field(default=None, description="Link to the training data used for training the model")
     __properties: ClassVar[List[str]] = ["name", "protocol", "description", "authors", "model_link", "citation", "licence", "outputs", "model_size", "embedder", "training_data_link"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -55,8 +57,7 @@ class ModelMetadata(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

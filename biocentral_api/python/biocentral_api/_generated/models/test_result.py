@@ -17,25 +17,27 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult
+from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class TestResult(BaseModel):
     """
-    TestResult
+    Test results after training. 
     """ # noqa: E501
-    success: StrictStr
-    information: StrictStr
-    test_metrics: StrictStr
-    test_statistic: StrictStr
-    p_value: StrictStr
-    significance_level: Optional[Union[StrictFloat, StrictInt]]
-    __properties: ClassVar[List[str]] = ["success", "information", "test_metrics", "test_statistic", "p_value", "significance_level"]
+    inference_result: Optional[BiotrainerInferenceResult] = Field(default=None, description="Plain test inference result")
+    bootstrapped_metrics: Optional[List[BootstrappedMetric]] = Field(default=None, description="Bootstrapped test metrics")
+    baselines: Optional[Dict[str, List[BootstrappedMetric]]] = Field(default=None, description="Bootstrapped baselines by method name")
+    sanity_check_warnings: Optional[List[StrictStr]] = Field(default=None, description="Warnings from sanity checks")
+    __properties: ClassVar[List[str]] = ["inference_result", "bootstrapped_metrics", "baselines", "sanity_check_warnings"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,8 +49,7 @@ class TestResult(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -73,10 +74,44 @@ class TestResult(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if significance_level (nullable) is None
+        # override the default output from pydantic by calling `to_dict()` of inference_result
+        if self.inference_result:
+            _dict['inference_result'] = self.inference_result.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in bootstrapped_metrics (list)
+        _items = []
+        if self.bootstrapped_metrics:
+            for _item_bootstrapped_metrics in self.bootstrapped_metrics:
+                if _item_bootstrapped_metrics:
+                    _items.append(_item_bootstrapped_metrics.to_dict())
+            _dict['bootstrapped_metrics'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each value in baselines (dict of array)
+        _field_dict_of_array = {}
+        if self.baselines:
+            for _key_baselines in self.baselines:
+                if self.baselines[_key_baselines] is not None:
+                    _field_dict_of_array[_key_baselines] = [
+                        _item.to_dict() for _item in self.baselines[_key_baselines]
+                    ]
+            _dict['baselines'] = _field_dict_of_array
+        # set to None if inference_result (nullable) is None
         # and model_fields_set contains the field
-        if self.significance_level is None and "significance_level" in self.model_fields_set:
-            _dict['significance_level'] = None
+        if self.inference_result is None and "inference_result" in self.model_fields_set:
+            _dict['inference_result'] = None
+
+        # set to None if bootstrapped_metrics (nullable) is None
+        # and model_fields_set contains the field
+        if self.bootstrapped_metrics is None and "bootstrapped_metrics" in self.model_fields_set:
+            _dict['bootstrapped_metrics'] = None
+
+        # set to None if baselines (nullable) is None
+        # and model_fields_set contains the field
+        if self.baselines is None and "baselines" in self.model_fields_set:
+            _dict['baselines'] = None
+
+        # set to None if sanity_check_warnings (nullable) is None
+        # and model_fields_set contains the field
+        if self.sanity_check_warnings is None and "sanity_check_warnings" in self.model_fields_set:
+            _dict['sanity_check_warnings'] = None
 
         return _dict
 
@@ -90,12 +125,15 @@ class TestResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "success": obj.get("success"),
-            "information": obj.get("information"),
-            "test_metrics": obj.get("test_metrics"),
-            "test_statistic": obj.get("test_statistic"),
-            "p_value": obj.get("p_value"),
-            "significance_level": obj.get("significance_level")
+            "inference_result": BiotrainerInferenceResult.from_dict(obj["inference_result"]) if obj.get("inference_result") is not None else None,
+            "bootstrapped_metrics": [BootstrappedMetric.from_dict(_item) for _item in obj["bootstrapped_metrics"]] if obj.get("bootstrapped_metrics") is not None else None,
+            "baselines": {
+                _k: [BootstrappedMetric.from_dict(_item) for _item in _v] if _v is not None else None
+                for _k, _v in obj["baselines"].items()
+            }
+            if obj.get("baselines") is not None
+            else None,
+            "sanity_check_warnings": obj.get("sanity_check_warnings")
         })
         return _obj
 

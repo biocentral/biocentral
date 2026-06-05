@@ -19,19 +19,21 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.test_result import TestResult
+from biocentral_api._generated.models.ppi_test_result import PPITestResult
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class RunTestResponse(BaseModel):
     """
     RunTestResponse
     """ # noqa: E501
-    test_result: TestResult
+    test_result: PPITestResult
     __properties: ClassVar[List[str]] = ["test_result"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -43,8 +45,7 @@ class RunTestResponse(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -84,7 +85,7 @@ class RunTestResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "test_result": TestResult.from_dict(obj["test_result"]) if obj.get("test_result") is not None else None
+            "test_result": PPITestResult.from_dict(obj["test_result"]) if obj.get("test_result") is not None else None
         })
         return _obj
 

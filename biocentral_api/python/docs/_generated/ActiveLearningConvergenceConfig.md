@@ -6,9 +6,9 @@ Configuration for convergence criteria for active learning campaigns
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**max_labels_budget** | **int** |  | [optional] 
-**target_successes** | **int** |  | [optional] 
-**max_consecutive_failures** | **int** |  | [optional] 
+**max_labels_budget** | **int** | Maximum number of labels that can be tested in the lab (&#39;We can afford to test 100 proteins total&#39;) | [optional] 
+**target_successes** | **int** | Number of positive targets found before stopping (&#39;Stop when we find 10 good proteins&#39;) | [optional] 
+**max_consecutive_failures** | **int** | Maximum number of iterations in a row that do not yield a new target (&#39;Stop if 3 rounds yield nothing&#39;) | [optional] 
 
 ## Example
 

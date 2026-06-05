@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **iteration_metrics_suggestions** | **List[float]** | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
 **iteration_target_successes** | **List[int]** | Number of successful targets found in each iteration | [optional] 
 **iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
-**stop_reasons** | **List[str]** |  | [optional] 
+**stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (convergence criteria reached) | [optional] 
 **iteration_results** | [**List[ActiveLearningIterationResult]**](ActiveLearningIterationResult.md) | List of active learning iteration results | [optional] 
 
 ## Example

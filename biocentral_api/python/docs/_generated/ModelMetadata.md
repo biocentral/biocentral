@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 **outputs** | [**List[ModelOutput]**](ModelOutput.md) | List of descriptions of model outputs | 
 **model_size** | **str** | Size of the model in MB | 
 **embedder** | **str** | Name of the embedder used for the model | 
-**training_data_link** | **str** |  | [optional] 
+**training_data_link** | **str** | Link to the training data used for training the model | [optional] 
 
 ## Example
 

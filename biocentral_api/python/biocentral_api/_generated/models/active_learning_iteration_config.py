@@ -20,22 +20,24 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Union
 from typing_extensions import Annotated
-from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
+from biocentral_api._generated.models.sequence_data import SequenceData
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ActiveLearningIterationConfig(BaseModel):
     """
     Configuration for a single iteration of active learning
     """ # noqa: E501
     iteration: StrictInt = Field(description="Iteration number")
-    iteration_data: Annotated[List[SequenceTrainingData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
+    iteration_data: Annotated[List[SequenceData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
     coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
     n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
     __properties: ClassVar[List[str]] = ["iteration", "iteration_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,8 +49,7 @@ class ActiveLearningIterationConfig(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -93,7 +94,7 @@ class ActiveLearningIterationConfig(BaseModel):
 
         _obj = cls.model_validate({
             "iteration": obj.get("iteration"),
-            "iteration_data": [SequenceTrainingData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
+            "iteration_data": [SequenceData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
             "coefficient": obj.get("coefficient"),
             "n_suggestions": obj.get("n_suggestions")
         })

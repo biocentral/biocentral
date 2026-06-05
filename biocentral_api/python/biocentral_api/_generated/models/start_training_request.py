@@ -20,20 +20,22 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
+from biocentral_api._generated.models.sequence_data import SequenceData
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class StartTrainingRequest(BaseModel):
     """
     StartTrainingRequest
     """ # noqa: E501
     config_dict: Dict[str, Any] = Field(description="Biotrainer configuration")
-    training_data: Annotated[List[SequenceTrainingData], Field(min_length=1)] = Field(description="List of sequence training data")
+    training_data: Annotated[List[SequenceData], Field(min_length=1)] = Field(description="List of sequence training data")
     __properties: ClassVar[List[str]] = ["config_dict", "training_data"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +47,7 @@ class StartTrainingRequest(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -91,7 +92,7 @@ class StartTrainingRequest(BaseModel):
 
         _obj = cls.model_validate({
             "config_dict": obj.get("config_dict"),
-            "training_data": [SequenceTrainingData.from_dict(_item) for _item in obj["training_data"]] if obj.get("training_data") is not None else None
+            "training_data": [SequenceData.from_dict(_item) for _item in obj["training_data"]] if obj.get("training_data") is not None else None
         })
         return _obj
 

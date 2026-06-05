@@ -54,14 +54,20 @@ __all__ = [
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
     "BiocentralServiceStats",
-    "BiotrainerSequenceRecord",
+    "BiotrainerInferenceResult",
+    "BiotrainerModelResult",
+    "BiotrainerModelUpdate",
+    "BiotrainerPrediction",
+    "BootstrappedMetric",
     "CommonEmbedder",
     "ConfigOptionsResponse",
     "ConfigVerificationRequest",
     "ConfigVerificationResponse",
+    "DerivedValues",
     "DetectedFormatResponse",
     "EmbedRequest",
     "EmbeddingProgress",
+    "EmbeddingStats",
     "EpochMetrics",
     "GetMissingEmbeddingsRequest",
     "GetMissingEmbeddingsResponse",
@@ -69,23 +75,30 @@ __all__ = [
     "HTTPValidationError",
     "ImportDatasetRequest",
     "ImportDatasetResponse",
+    "LocationInner",
+    "McdLowerBound",
+    "McdMean",
+    "McdStd",
+    "McdUpperBound",
     "ModelFilesRequest",
     "ModelMetadata",
     "ModelMetadataResponse",
     "ModelOutput",
     "NotFoundErrorResponse",
     "OutputClass",
-    "OutputData",
     "OutputType",
+    "PPITestResult",
     "Prediction",
+    "Prediction1",
     "PredictionRequest",
     "ProjectionRequest",
     "Protocol",
+    "RawPrediction",
     "ResearchStats",
     "ResearchStatsResponse",
     "RunTestRequest",
     "RunTestResponse",
-    "SequenceTrainingData",
+    "SequenceData",
     "ServiceStatsResponse",
     "StartInferenceRequest",
     "StartTaskResponse",
@@ -97,8 +110,8 @@ __all__ = [
     "TaxonomyRequest",
     "TaxonomyResponse",
     "TestResult",
+    "TrainingResult",
     "ValidationError",
-    "ValidationErrorLocInner",
 ]
 
 # import apis into sdk package
@@ -142,14 +155,20 @@ from biocentral_api._generated.models.biocentral_prediction_model import Biocent
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biocentral_service_stats import BiocentralServiceStats as BiocentralServiceStats
-from biocentral_api._generated.models.biotrainer_sequence_record import BiotrainerSequenceRecord as BiotrainerSequenceRecord
+from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult as BiotrainerInferenceResult
+from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult as BiotrainerModelResult
+from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate as BiotrainerModelUpdate
+from biocentral_api._generated.models.biotrainer_prediction import BiotrainerPrediction as BiotrainerPrediction
+from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric as BootstrappedMetric
 from biocentral_api._generated.models.common_embedder import CommonEmbedder as CommonEmbedder
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest as ConfigVerificationRequest
 from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse as ConfigVerificationResponse
+from biocentral_api._generated.models.derived_values import DerivedValues as DerivedValues
 from biocentral_api._generated.models.detected_format_response import DetectedFormatResponse as DetectedFormatResponse
 from biocentral_api._generated.models.embed_request import EmbedRequest as EmbedRequest
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress as EmbeddingProgress
+from biocentral_api._generated.models.embedding_stats import EmbeddingStats as EmbeddingStats
 from biocentral_api._generated.models.epoch_metrics import EpochMetrics as EpochMetrics
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse
@@ -157,23 +176,30 @@ from biocentral_api._generated.models.get_projection_config_response import GetP
 from biocentral_api._generated.models.http_validation_error import HTTPValidationError as HTTPValidationError
 from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest as ImportDatasetRequest
 from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse as ImportDatasetResponse
+from biocentral_api._generated.models.location_inner import LocationInner as LocationInner
+from biocentral_api._generated.models.mcd_lower_bound import McdLowerBound as McdLowerBound
+from biocentral_api._generated.models.mcd_mean import McdMean as McdMean
+from biocentral_api._generated.models.mcd_std import McdStd as McdStd
+from biocentral_api._generated.models.mcd_upper_bound import McdUpperBound as McdUpperBound
 from biocentral_api._generated.models.model_files_request import ModelFilesRequest as ModelFilesRequest
 from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
 from biocentral_api._generated.models.model_output import ModelOutput as ModelOutput
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse as NotFoundErrorResponse
 from biocentral_api._generated.models.output_class import OutputClass as OutputClass
-from biocentral_api._generated.models.output_data import OutputData as OutputData
 from biocentral_api._generated.models.output_type import OutputType as OutputType
+from biocentral_api._generated.models.ppi_test_result import PPITestResult as PPITestResult
 from biocentral_api._generated.models.prediction import Prediction as Prediction
+from biocentral_api._generated.models.prediction1 import Prediction1 as Prediction1
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
 from biocentral_api._generated.models.protocol import Protocol as Protocol
+from biocentral_api._generated.models.raw_prediction import RawPrediction as RawPrediction
 from biocentral_api._generated.models.research_stats import ResearchStats as ResearchStats
 from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse as ResearchStatsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse
-from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData as SequenceTrainingData
+from biocentral_api._generated.models.sequence_data import SequenceData as SequenceData
 from biocentral_api._generated.models.service_stats_response import ServiceStatsResponse as ServiceStatsResponse
 from biocentral_api._generated.models.start_inference_request import StartInferenceRequest as StartInferenceRequest
 from biocentral_api._generated.models.start_task_response import StartTaskResponse as StartTaskResponse
@@ -185,6 +211,6 @@ from biocentral_api._generated.models.taxonomy_item import TaxonomyItem as Taxon
 from biocentral_api._generated.models.taxonomy_request import TaxonomyRequest as TaxonomyRequest
 from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse as TaxonomyResponse
 from biocentral_api._generated.models.test_result import TestResult as TestResult
+from biocentral_api._generated.models.training_result import TrainingResult as TrainingResult
 from biocentral_api._generated.models.validation_error import ValidationError as ValidationError
-from biocentral_api._generated.models.validation_error_loc_inner import ValidationErrorLocInner as ValidationErrorLocInner
 

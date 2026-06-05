@@ -24,6 +24,7 @@ from biocentral_api._generated.models.output_class import OutputClass
 from biocentral_api._generated.models.output_type import OutputType
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ModelOutput(BaseModel):
     """
@@ -33,13 +34,14 @@ class ModelOutput(BaseModel):
     description: StrictStr = Field(description="Description of the output")
     output_type: OutputType = Field(description="Type of output")
     value_type: StrictStr = Field(description="Type of output values")
-    classes: Optional[List[OutputClass]] = None
-    value_range: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = None
-    unit: Optional[StrictStr] = None
+    classes: Optional[List[OutputClass]] = Field(default=None, description="List of output classes for categorical outputs")
+    value_range: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = Field(default=None, description="Value range of predictions for continous outputs")
+    unit: Optional[StrictStr] = Field(default=None, description="Optional unit for numerical outputs")
     __properties: ClassVar[List[str]] = ["name", "description", "output_type", "value_type", "classes", "value_range", "unit"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -51,8 +53,7 @@ class ModelOutput(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

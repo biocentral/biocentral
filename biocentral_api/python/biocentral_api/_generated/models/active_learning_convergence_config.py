@@ -22,18 +22,20 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ActiveLearningConvergenceConfig(BaseModel):
     """
     Configuration for convergence criteria for active learning campaigns
     """ # noqa: E501
-    max_labels_budget: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
-    target_successes: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
-    max_consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
+    max_labels_budget: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')")
+    target_successes: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Number of positive targets found before stopping ('Stop when we find 10 good proteins')")
+    max_consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')")
     __properties: ClassVar[List[str]] = ["max_labels_budget", "target_successes", "max_consecutive_failures"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +47,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

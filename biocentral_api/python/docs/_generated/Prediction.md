@@ -10,8 +10,8 @@ Name | Type | Description | Notes
 **prediction_name** | **str** | Name of the prediction | 
 **protocol** | **str** | Protocol name | 
 **value** | **object** |  | 
-**value_lower** | **float** |  | [optional] 
-**value_upper** | **float** |  | [optional] 
+**value_lower** | **float** | Lower bound of the prediction | [optional] 
+**value_upper** | **float** | Upper bound of the prediction | [optional] 
 
 ## Example
 

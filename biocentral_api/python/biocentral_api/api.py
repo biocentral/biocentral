@@ -9,8 +9,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
-from ._generated.models import Prediction
-from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceTrainingData, DefaultApi, \
+from ._generated.models import Prediction, BiotrainerModelResult, BiotrainerInferenceResult
+from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceData, DefaultApi, \
     ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
     ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
@@ -239,7 +239,7 @@ class BiocentralAPI:
             return taxonomy_data
 
     def train(self, config: Dict[str, Any],
-              training_data: List[SequenceTrainingData]) -> BiocentralServerTask[Dict[str, Any]]:
+              training_data: List[SequenceData]) -> BiocentralServerTask[BiotrainerModelResult]:
         """
         Trains a deep learning model using the provided configuration and training data via biotrainer.
 
@@ -261,7 +261,7 @@ class BiocentralAPI:
             raise ValueError("No training data provided.")
         if not isinstance(training_data, list):
             raise ValueError("Training data must be a list.")
-        BiocentralAPI._check_sequence_lengths([train_data_point.sequence for train_data_point in training_data])
+        BiocentralAPI._check_sequence_lengths([train_data_point.seq for train_data_point in training_data])
 
         if "embedder_name" in config:
             embedder_name = config["embedder_name"]
@@ -282,7 +282,7 @@ class BiocentralAPI:
             biocentral_server_task = custom_models_client.train(api_client, config, training_data)
             return biocentral_server_task
 
-    def inference(self, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, Any]]:
+    def inference(self, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[BiotrainerInferenceResult]:
         """
         Run inference on a model trained via biocentral_server using given input data.
 
@@ -349,7 +349,7 @@ class BiocentralAPI:
         if len(iteration_config.iteration_data) < 2:
             raise ValueError("Not enough data provided for an active learning iteration.")
         BiocentralAPI._check_sequence_lengths(
-            [iteration_data_point.sequence for iteration_data_point in iteration_config.iteration_data])
+            [iteration_data_point.seq for iteration_data_point in iteration_config.iteration_data])
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
@@ -362,7 +362,7 @@ class BiocentralAPI:
         if len(simulation_config.simulation_data) < 2:
             raise ValueError("Not enough data provided for an active learning simulation.")
         BiocentralAPI._check_sequence_lengths(
-            [simulation_data_point.sequence for simulation_data_point in simulation_config.simulation_data])
+            [simulation_data_point.seq for simulation_data_point in simulation_config.simulation_data])
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:

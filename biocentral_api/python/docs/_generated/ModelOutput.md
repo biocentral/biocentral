@@ -9,9 +9,9 @@ Name | Type | Description | Notes
 **description** | **str** | Description of the output | 
 **output_type** | [**OutputType**](OutputType.md) | Type of output | 
 **value_type** | **str** | Type of output values | 
-**classes** | [**List[OutputClass]**](OutputClass.md) |  | [optional] 
-**value_range** | **List[object]** |  | [optional] 
-**unit** | **str** |  | [optional] 
+**classes** | [**List[OutputClass]**](OutputClass.md) | List of output classes for categorical outputs | [optional] 
+**value_range** | **List[object]** | Value range of predictions for continous outputs | [optional] 
+**unit** | **str** | Optional unit for numerical outputs | [optional] 
 
 ## Example
 

@@ -22,20 +22,24 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
-class SequenceTrainingData(BaseModel):
+class SequenceData(BaseModel):
     """
-    SequenceTrainingData
+    SequenceData
     """ # noqa: E501
-    seq_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Sequence identifier")
-    sequence: Annotated[str, Field(min_length=1, strict=True)] = Field(description="AA Sequence")
-    set: StrictStr = Field(description="Set")
-    label: Optional[StrictStr] = None
-    mask: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["seq_id", "sequence", "set", "label", "mask"]
+    seq_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Sequence id")
+    seq: StrictStr = Field(description="Sequence")
+    label: Optional[StrictStr] = Field(default=None, description="Shortcut for TARGET attribute")
+    set: Optional[StrictStr] = Field(default=None, description="Shortcut for SET attribute")
+    mask: Optional[StrictStr] = Field(default=None, description="Shortcut for MASK attribute")
+    attributes: Optional[Dict[str, Any]] = Field(default=None, description="Attributes such as TARGET, SET or MASK")
+    embedding: Optional[List[Any]] = Field(default=None, description="Embedding (should be a list or torch.tensor or numpy array)")
+    __properties: ClassVar[List[str]] = ["seq_id", "seq", "label", "set", "mask", "attributes", "embedding"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,12 +51,11 @@ class SequenceTrainingData(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SequenceTrainingData from a JSON string"""
+        """Create an instance of SequenceData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,16 +81,31 @@ class SequenceTrainingData(BaseModel):
         if self.label is None and "label" in self.model_fields_set:
             _dict['label'] = None
 
+        # set to None if set (nullable) is None
+        # and model_fields_set contains the field
+        if self.set is None and "set" in self.model_fields_set:
+            _dict['set'] = None
+
         # set to None if mask (nullable) is None
         # and model_fields_set contains the field
         if self.mask is None and "mask" in self.model_fields_set:
             _dict['mask'] = None
 
+        # set to None if attributes (nullable) is None
+        # and model_fields_set contains the field
+        if self.attributes is None and "attributes" in self.model_fields_set:
+            _dict['attributes'] = None
+
+        # set to None if embedding (nullable) is None
+        # and model_fields_set contains the field
+        if self.embedding is None and "embedding" in self.model_fields_set:
+            _dict['embedding'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SequenceTrainingData from a dict"""
+        """Create an instance of SequenceData from a dict"""
         if obj is None:
             return None
 
@@ -96,10 +114,12 @@ class SequenceTrainingData(BaseModel):
 
         _obj = cls.model_validate({
             "seq_id": obj.get("seq_id"),
-            "sequence": obj.get("sequence"),
-            "set": obj.get("set"),
+            "seq": obj.get("seq"),
             "label": obj.get("label"),
-            "mask": obj.get("mask")
+            "set": obj.get("set"),
+            "mask": obj.get("mask"),
+            "attributes": obj.get("attributes"),
+            "embedding": obj.get("embedding")
         })
         return _obj
 

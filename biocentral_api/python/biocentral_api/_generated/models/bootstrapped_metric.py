@@ -17,24 +17,28 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Union
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
-class BiotrainerSequenceRecord(BaseModel):
+class BootstrappedMetric(BaseModel):
     """
-    BiotrainerSequenceRecord
+    BootstrappedMetric
     """ # noqa: E501
-    seq_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Sequence id")
-    seq: StrictStr = Field(description="Sequence")
-    attributes: Optional[Dict[str, Any]] = None
-    embedding: Optional[Any] = Field(default=None, description="Embedding")
-    __properties: ClassVar[List[str]] = ["seq_id", "seq", "attributes", "embedding"]
+    name: StrictStr = Field(description="Name of the metric")
+    mean: Union[StrictFloat, StrictInt] = Field(description="Mean of the metric values")
+    lower: Union[StrictFloat, StrictInt] = Field(description="Lower bound of the metric values")
+    upper: Union[StrictFloat, StrictInt] = Field(description="Upper bound of the metric values")
+    iterations: StrictInt = Field(description="Number of iterations used for bootstrapping")
+    sample_size: StrictInt = Field(description="Sample size used for bootstrapping")
+    confidence_level: Union[StrictFloat, StrictInt] = Field(description="Confidence level used for bootstrapping")
+    __properties: ClassVar[List[str]] = ["name", "mean", "lower", "upper", "iterations", "sample_size", "confidence_level"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,12 +50,11 @@ class BiotrainerSequenceRecord(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of BiotrainerSequenceRecord from a JSON string"""
+        """Create an instance of BootstrappedMetric from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,24 +75,11 @@ class BiotrainerSequenceRecord(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of embedding
-        if self.embedding:
-            _dict['embedding'] = self.embedding.to_dict()
-        # set to None if attributes (nullable) is None
-        # and model_fields_set contains the field
-        if self.attributes is None and "attributes" in self.model_fields_set:
-            _dict['attributes'] = None
-
-        # set to None if embedding (nullable) is None
-        # and model_fields_set contains the field
-        if self.embedding is None and "embedding" in self.model_fields_set:
-            _dict['embedding'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of BiotrainerSequenceRecord from a dict"""
+        """Create an instance of BootstrappedMetric from a dict"""
         if obj is None:
             return None
 
@@ -97,10 +87,13 @@ class BiotrainerSequenceRecord(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "seq_id": obj.get("seq_id"),
-            "seq": obj.get("seq"),
-            "attributes": obj.get("attributes"),
-            "embedding": AnyOf.from_dict(obj["embedding"]) if obj.get("embedding") is not None else None
+            "name": obj.get("name"),
+            "mean": obj.get("mean"),
+            "lower": obj.get("lower"),
+            "upper": obj.get("upper"),
+            "iterations": obj.get("iterations"),
+            "sample_size": obj.get("sample_size"),
+            "confidence_level": obj.get("confidence_level")
         })
         return _obj
 

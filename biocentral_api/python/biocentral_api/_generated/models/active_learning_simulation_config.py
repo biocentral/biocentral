@@ -21,23 +21,25 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_convergence_config import ActiveLearningConvergenceConfig
-from biocentral_api._generated.models.sequence_training_data import SequenceTrainingData
+from biocentral_api._generated.models.sequence_data import SequenceData
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ActiveLearningSimulationConfig(BaseModel):
     """
     Configuration for a simulation of active learning on a complete dataset
     """ # noqa: E501
-    simulation_data: Annotated[List[SequenceTrainingData], Field(min_length=3)] = Field(description="List of all sequence data for the simulation")
-    n_start: Optional[Annotated[int, Field(strict=True, ge=2)]] = None
-    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=2)]] = None
+    simulation_data: Annotated[List[SequenceData], Field(min_length=3)] = Field(description="List of all sequence data for the simulation")
+    n_start: Optional[Annotated[int, Field(strict=True, ge=2)]] = Field(default=None, description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)")
+    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=2)]] = Field(default=None, description="List of sequence IDs to start the simulated campaign")
     n_suggestions_per_iteration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose per iteration")
     convergence_config: ActiveLearningConvergenceConfig = Field(description="Convergence criteria for the simulation")
     __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "convergence_config"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -49,8 +51,7 @@ class ActiveLearningSimulationConfig(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -107,7 +108,7 @@ class ActiveLearningSimulationConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "simulation_data": [SequenceTrainingData.from_dict(_item) for _item in obj["simulation_data"]] if obj.get("simulation_data") is not None else None,
+            "simulation_data": [SequenceData.from_dict(_item) for _item in obj["simulation_data"]] if obj.get("simulation_data") is not None else None,
             "n_start": obj.get("n_start"),
             "start_ids": obj.get("start_ids"),
             "n_suggestions_per_iteration": obj.get("n_suggestions_per_iteration"),
