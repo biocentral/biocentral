@@ -39,6 +39,7 @@ services:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
       triton-model-init: { condition: service_completed_successfully }
+    restart: always
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
       interval: 10s
@@ -54,6 +55,7 @@ services:
       - huggingface_models_cache:/app/huggingface_models
       - assets_data:/app/assets
       - triton_models:/app/models:ro
+    restart: always
     depends_on:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
@@ -64,6 +66,7 @@ services:
     command: redis-server --save 60 1 --appendonly yes
     volumes:
       - redis_data:/data
+    restart: always
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -80,6 +83,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
@@ -136,6 +140,7 @@ services:
       --log-verbose=1
     volumes:
       - triton_models:/app/models:ro
+    restart: always
     depends_on:
       triton-model-init:
         condition: service_completed_successfully
