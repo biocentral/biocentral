@@ -36,7 +36,6 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
         biotrainer_dto: Optional[TaskDTO] = None
         for current_dto in run_subtask(biotrainer_temp_task):
             biotrainer_dto = current_dto
-            update_dto_callback(biotrainer_dto)
         if not biotrainer_dto or biotrainer_dto.biotrainer_result is None:
             update_dto_callback(TaskDTO.errored("Biotrainer failed!"))
             raise Exception("No biotrainer result received!")

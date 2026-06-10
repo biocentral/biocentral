@@ -150,13 +150,9 @@ class BiotrainerTempTask(TaskInterface):
             self.config_dict["input_data"] = self.training_data_with_embeddings
             config = deepcopy(self.config_dict)
 
-            custom_observer = TrainingDTOObserver(
-                update_dto_callback=update_dto_callback
-            )
-
+            # No custom observer for temp task (not necessary for AL at the moment)
             biotrainer_result = BiotrainerModel().train(
                 config=config,
-                custom_output_observers=[custom_observer],
                 write_to_file=False,
             )
 
