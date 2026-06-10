@@ -73,17 +73,16 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
 
         for dto in dtos:
             status = dto.status
-            if status == TaskStatus.RUNNING:
-                pbar.set_description(f"Running active learning simulation (max: {self._n_max_iterations})..")
-                if dto.al_iteration_result is not None:
-                    it_idx = dto.al_iteration_result.iteration
-                    if it_idx not in self._counted_iterations:
-                        self._counted_iterations.add(it_idx)
-                        pbar.update(1)
-                        # Optionally show n/total in postfix to make progress explicit
-                        if pbar.total:
-                            pbar.set_postfix_str(f"{pbar.n}/{pbar.total}")
-            if status == TaskStatus.FINISHED:
+            if dto.al_iteration_result is not None:
+                it_idx = dto.al_iteration_result.iteration
+                if it_idx not in self._counted_iterations:
+                    self._counted_iterations.add(it_idx)
+                    pbar.set_description(f"Running active learning simulation (max: {self._n_max_iterations})..")
+                    pbar.update(1)
+                    # Optionally show n/total in postfix to make progress explicit
+                    if pbar.total:
+                        pbar.set_postfix_str(f"{pbar.n}/{pbar.total}")
+            if status == TaskStatus.FINISHED and dto.al_simulation_result is not None:
                 pbar.set_description(f"Finished active learning simulation!")
                 break
             if status == TaskStatus.FAILED:
