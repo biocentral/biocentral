@@ -4,9 +4,22 @@ from time import sleep
 from typing import Callable
 
 from .._generated import StartTaskResponse, ApiException
-
+from .._generated.exceptions import UnprocessableEntityException
 
 class ClientInterface(ABC):
+    @staticmethod
+    def _handle_error(e) -> None:
+        match e:
+            case UnprocessableEntityException():
+                if not e.data or not e.data.detail:
+                    raise e
+                first_detail = e.data.detail[0]
+                if first_detail is None:
+                    raise e  # Fallback
+                msg = first_detail.msg
+                raise UnprocessableEntityException(f"Unprocessable entity: {msg}") from e
+        raise e
+
     @staticmethod
     def _submit_task(endpoint_caller: Callable) -> str:
         max_retries = 2
@@ -19,7 +32,7 @@ class ClientInterface(ABC):
             except ApiException as e:
                 retry_after = e.headers.get("retry-after", None)
                 if retry_after is None:
-                    raise e
+                    ClientInterface._handle_error(e)
                 wait_seconds = int(retry_after) + 1
 
                 # Progress bar
