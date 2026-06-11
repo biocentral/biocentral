@@ -63,7 +63,7 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             self.config_dict["output_dir"] = str(biotrainer_out_path)
             embedder_name = self.config_dict["embedder_name"]
 
-            error_dto, embeddings = self._pre_embed_with_db(
+            error_dto, embd_records = self._pre_embed_with_db(
                 embedder_name=embedder_name,
                 sequence_input=self.training_data,
                 reduced=reduced,
@@ -72,8 +72,6 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             if error_dto:
                 return error_dto
 
-            # Add embeddings to input data (are read in biotrainer instead of embedding there)
-            self.config_dict["input_data"] = embeddings
             config = deepcopy(self.config_dict)
 
             custom_observer = TrainingDTOObserver(
@@ -82,6 +80,7 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
 
             biotrainer_result = BiotrainerModel().train(
                 config=config,
+                input_data=embd_records,
                 custom_output_observers=[custom_observer],
             )
 
@@ -147,12 +146,12 @@ class BiotrainerTempTask(TaskInterface):
         with file_context_manager.temp_dir() as temp_dir:
             # Set output dirs to temp dir
             self.config_dict["output_dir"] = temp_dir
-            self.config_dict["input_data"] = self.training_data_with_embeddings
             config = deepcopy(self.config_dict)
 
             # No custom observer for temp task (not necessary for AL at the moment)
             biotrainer_result = BiotrainerModel().train(
                 config=config,
+                input_data=self.training_data_with_embeddings,
                 write_to_file=False,
             )
 
