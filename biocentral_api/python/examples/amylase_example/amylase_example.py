@@ -1,44 +1,22 @@
 from typing import List
-from biocentral_api import BiocentralAPI, SequenceTrainingData, CommonEmbedder, BiocentralPredictionModel, batched
+from biocentral_api import BiocentralAPI, SequenceData, CommonEmbedder, BiocentralPredictionModel, batched, \
+    BiotrainerModelResult
+from biotrainer_core.input_files import read_FASTA
 
 
-def read_fasta(path: str) -> List[SequenceTrainingData]:
-    result = []
-    with open(path, "r") as f:
-        lines = f.readlines()
-        current_record = {}
-        for line in lines:
-            if line.startswith(">"):
-                current_record = {
-                    "id": line.strip().split(" ")[0][1:],
-                    "label": line.strip().split("TARGET=")[1].split(" ")[0],
-                    "set": line.strip().split("SET=")[1].split(" ")[0]
-                }
-            else:
-                sequence = line.strip()
-                result.append(SequenceTrainingData(seq_id=current_record["id"],
-                                                   sequence=sequence,
-                                                   label=current_record["label"],
-                                                   set=current_record["set"],
-                                                   mask=None))
-                current_record = {}
-    assert len(result) == 7848 / 2
-    return result
-
-
-def print_test_result(result: dict):
-    embedder_name = result["config"]["embedder_name"]
-    scc = result["test_results"]["test"]["bootstrapping"]["results"]["spearmans-corr-coeff"]
-    scc_mean = round(scc["mean"], 3)
-    scc_lower = round(scc["lower"], 3)
-    scc_upper = round(scc["upper"], 3)
+def print_test_result(result: BiotrainerModelResult):
+    embedder_name = result.config["embedder_name"]
+    scc = [metric for metric in result.test_results["test"].bootstrapped_metrics or [] if metric.name == "spearmans-corr-coeff"][0]
+    scc_mean = round(scc.mean, 3)
+    scc_lower = round(scc.lower, 3)
+    scc_upper = round(scc.upper, 3)
     print(f"SCC Result for {embedder_name}: {scc_mean} ({scc_lower} - {scc_upper})")
     return scc_mean, scc_lower, scc_upper
 
 
 def main():
     # 1. Read data
-    amylase_data: List[SequenceTrainingData] = read_fasta("amylase_pet.fasta")
+    amylase_data: List[SequenceData] = read_FASTA("amylase_pet.fasta")
 
     # 2. Connect to biocentral API
     biocentral_api = BiocentralAPI().wait_until_healthy()
@@ -50,7 +28,7 @@ def main():
     current_embeddings_result = None
     batch_idx = 1
     for batch in batched(amylase_data, 1000):
-        sequence_data = {data_point.seq_id: data_point.sequence for data_point in batch}
+        sequence_data = {data_point.seq_id: data_point.seq for data_point in batch}
 
         embeddings = biocentral_api.embed(embedder_name=embedder_name,
                                           reduce=True,
@@ -93,7 +71,7 @@ def main():
     best_variant = max(amylase_data, key=lambda data_point: float(data_point.label))
     prediction_result = biocentral_api.predict(model_names=prediction_models,
                                                sequence_data={
-                                                   best_variant.seq_id: best_variant.sequence}).run_with_progress()
+                                                   best_variant.seq_id: best_variant.seq}).run_with_progress()
     print(prediction_result)
 
 
