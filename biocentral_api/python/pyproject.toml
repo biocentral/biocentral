@@ -3,11 +3,11 @@ name = "biocentral_api"
 version = "1.2.1"
 description = "Programmatic access to the biocentral ecosystem."
 authors = [
-  {name = "Sebastian Franz", email = "sebastian.franz@tum.de"},
+    { name = "Sebastian Franz", email = "sebastian.franz@tum.de" },
 ]
 readme = "README.md"
 keywords = ["OpenAPI", "OpenAPI-Generator", "Biocentral Server", "Biocentral"]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 dependencies = [
     "urllib3>=2.1.0,<3.0.0",
@@ -43,9 +43,9 @@ extension-pkg-whitelist = "pydantic"
 
 [tool.mypy]
 files = [
-  "biocentral_api._generated",
-  #"test",  # auto-generated tests
-  "tests", # hand-written tests
+    "biocentral_api._generated",
+    #"test",  # auto-generated tests
+    "tests", # hand-written tests
 ]
 warn_unused_configs = true
 warn_redundant_casts = true
@@ -59,7 +59,7 @@ disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = [
-  "biocentral_server._generated.configuration",
+    "biocentral_server._generated.configuration",
 ]
 warn_unused_ignores = true
 strict_equality = true
