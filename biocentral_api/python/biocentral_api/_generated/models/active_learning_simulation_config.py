@@ -21,10 +21,10 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_convergence_config import ActiveLearningConvergenceConfig
-from biocentral_api._generated.models.sequence_data import SequenceData
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import SequenceData
 
 class ActiveLearningSimulationConfig(BaseModel):
     """

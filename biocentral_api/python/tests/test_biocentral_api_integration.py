@@ -9,7 +9,7 @@ from biocentral_api import (
     BiocentralAPI,
     BiocentralPredictionModel,
     CommonEmbedder,
-    SequenceTrainingData,
+    SequenceData,
     ActiveLearningCampaignConfig,
     ActiveLearningIterationConfig,
     ActiveLearningOptimizationMode,

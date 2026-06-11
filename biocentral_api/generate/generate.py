@@ -10,6 +10,7 @@ import os
 import shutil
 import subprocess
 import sys
+import biotrainer_core
 from pathlib import Path
 
 
@@ -240,6 +241,75 @@ def git_add_generated_files(lang_root: Path, language: str):
     return success
 
 
+def post_process_imports(output_dir: Path):
+    """Add missing imports for mapped types to generated Python files."""
+    import re
+
+    generated_models_dir = output_dir / "biocentral_api" / "_generated" / "models"
+
+    if not generated_models_dir.exists():
+        print(f"Models directory not found: {generated_models_dir}")
+        return
+
+    import_statement = "from biotrainer_core.data_classes import SequenceData\n"
+
+    # Process all Python files in the models directory
+    for py_file in generated_models_dir.glob("*.py"):
+        if py_file.name == "__init__.py":
+            continue
+
+        content = py_file.read_text()
+
+        # Check if the file references SequenceData
+        if "biotrainer_core.data_classes.SequenceData" in content:
+            # Check if import already exists
+            if "from biotrainer_core.data_classes import SequenceData" not in content:
+                # Find the last import statement
+                lines = content.split("\n")
+                last_import_idx = 0
+
+                for i, line in enumerate(lines):
+                    if line.startswith("from ") or line.startswith("import "):
+                        last_import_idx = i
+
+                # Insert the import after the last import
+                lines.insert(last_import_idx + 1, import_statement.rstrip())
+                content = "\n".join(lines)
+
+                # Replace the fully qualified name with just SequenceData
+                content = content.replace("biotrainer_core.data_classes.SequenceData", "SequenceData")
+
+                py_file.write_text(content)
+                print(f"Added SequenceData import to {py_file.name}")
+
+    # Also update __init__.py to not export SequenceData model
+    init_file = generated_models_dir / "__init__.py"
+    if init_file.exists():
+        content = init_file.read_text()
+
+        # Remove any line that imports/exports the generated SequenceData
+        lines = content.split("\n")
+        filtered_lines = [
+            line for line in lines
+            if not (
+                    "sequence_data import SequenceData" in line or
+                    "'SequenceData': SequenceData" in line
+            )
+        ]
+
+        # Add import from biotrainer_core if SequenceData is referenced
+        if "SequenceData" in content and "from biotrainer_core.data_classes import SequenceData" not in content:
+            # Find where to insert (after other imports)
+            insert_idx = 0
+            for i, line in enumerate(filtered_lines):
+                if line.startswith("from ") or line.startswith("import "):
+                    insert_idx = i + 1
+
+            filtered_lines.insert(insert_idx, "from biotrainer_core.data_classes import SequenceData")
+
+        init_file.write_text("\n".join(filtered_lines))
+        print("Updated models __init__.py")
+
 def generate_python():
     # Define paths
     script_dir = Path(__file__).parent
@@ -265,6 +335,9 @@ def generate_python():
         "-g", "python",
         "--package-name", "biocentral_api._generated",
         "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
+        "--type-mappings", "SequenceData=biotrainer_core.data_classes.SequenceData",
+        "--import-mappings", "SequenceData=biotrainer_core.data_classes.SequenceData",
+        "--language-specific-primitives=SequenceData",
         "-i", str(openapi_spec),
         "-o", str(output_dir)
     ]
@@ -277,6 +350,10 @@ def generate_python():
         sys.exit(1)
 
     print("OpenAPI client generated successfully!")
+
+    # Post-process to add missing imports
+    print("Post-processing imports...")
+    post_process_imports(output_dir)
 
     # Check if docs were generated and need to be moved
     if temp_docs_dir.exists() and any(temp_docs_dir.iterdir()):

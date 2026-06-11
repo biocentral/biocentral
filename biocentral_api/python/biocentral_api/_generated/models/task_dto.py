@@ -26,11 +26,11 @@ from biocentral_api._generated.models.biotrainer_model_result import BiotrainerM
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.prediction import Prediction
-from biocentral_api._generated.models.sequence_data import SequenceData
 from biocentral_api._generated.models.task_status import TaskStatus
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import SequenceData
 
 class TaskDTO(BaseModel):
     """

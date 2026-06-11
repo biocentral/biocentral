@@ -77,7 +77,6 @@ biocentral_api/_generated/models/research_stats.py
 biocentral_api/_generated/models/research_stats_response.py
 biocentral_api/_generated/models/run_test_request.py
 biocentral_api/_generated/models/run_test_response.py
-biocentral_api/_generated/models/sequence_data.py
 biocentral_api/_generated/models/service_stats_response.py
 biocentral_api/_generated/models/start_inference_request.py
 biocentral_api/_generated/models/start_task_response.py

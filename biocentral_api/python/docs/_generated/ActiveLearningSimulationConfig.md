@@ -6,7 +6,7 @@ Configuration for a simulation of active learning on a complete dataset
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**simulation_data** | [**List[SequenceData]**](SequenceData.md) | List of all sequence data for the simulation | 
+**simulation_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of all sequence data for the simulation | 
 **n_start** | **int** | Number of initial sequences to use for training (chosen randomly, seed from campaign config used) | [optional] 
 **start_ids** | **List[str]** | List of sequence IDs to start the simulated campaign | [optional] 
 **n_suggestions_per_iteration** | **int** | Number of suggestions to propose per iteration | 

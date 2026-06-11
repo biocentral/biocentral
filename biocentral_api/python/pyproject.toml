@@ -10,13 +10,13 @@ keywords = ["OpenAPI", "OpenAPI-Generator", "Biocentral Server", "Biocentral"]
 requires-python = ">=3.9"
 
 dependencies = [
-  "urllib3>=2.1.0,<3.0.0",
-  "python-dateutil>=2.8.2",
-  "pydantic>=2",
-  "typing-extensions>=4.7.1",
-  "h5py>=3.14.0",
-  "tqdm>=4.67.1",
-  "biopython>=1.85",
+    "urllib3>=2.1.0,<3.0.0",
+    "python-dateutil>=2.8.2,<3.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "typing-extensions>=4.7.1,<5.0.0",
+    "tqdm>=4.68.0,<5.0.0",
+    "biopython>=1.85,<1.90",
+    "biotrainer-core @ git+https://github.com/biocentral/biotrainer.git@1a4ed0d5de537881bd9ce1c02c8d359ef6a5122e#subdirectory=biotrainer-core"
 ]
 
 [project.urls]

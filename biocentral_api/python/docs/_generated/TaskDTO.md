@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **biotrainer_inference_result** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) |  | [optional] 
 **embedding_progress** | [**EmbeddingProgress**](EmbeddingProgress.md) |  | [optional] 
 **embedded_sequences** | **Dict[str, str]** |  | [optional] 
-**embeddings** | [**List[SequenceData]**](SequenceData.md) |  | [optional] 
+**embeddings** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) |  | [optional] 
 **embeddings_file** | **str** |  | [optional] 
 **projection_result** | **Dict[str, object]** | Hyperparameters used for this split | [optional] 
 **al_iteration_result** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 

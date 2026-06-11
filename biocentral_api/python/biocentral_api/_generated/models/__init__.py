@@ -75,7 +75,6 @@ from biocentral_api._generated.models.research_stats import ResearchStats
 from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse
 from biocentral_api._generated.models.run_test_request import RunTestRequest
 from biocentral_api._generated.models.run_test_response import RunTestResponse
-from biocentral_api._generated.models.sequence_data import SequenceData
 from biocentral_api._generated.models.service_stats_response import ServiceStatsResponse
 from biocentral_api._generated.models.start_inference_request import StartInferenceRequest
 from biocentral_api._generated.models.start_task_response import StartTaskResponse
@@ -89,4 +88,5 @@ from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse
 from biocentral_api._generated.models.test_result import TestResult
 from biocentral_api._generated.models.training_result import TrainingResult
 from biocentral_api._generated.models.validation_error import ValidationError
+from biotrainer_core.data_classes import SequenceData
 
