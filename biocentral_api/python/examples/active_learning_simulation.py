@@ -3,7 +3,7 @@ BETA
 
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
-from biocentral_api import BiocentralAPI, SequenceTrainingData, ActiveLearningCampaignConfig, \
+from biocentral_api import BiocentralAPI, SequenceData, ActiveLearningCampaignConfig, \
     ActiveLearningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType, \
     ActiveLearningConvergenceConfig
 
@@ -20,18 +20,18 @@ campaign_config = ActiveLearningCampaignConfig(name="Example_Simulation_Campaign
 
 # Define simulation data - every sequence must have a label. Labels will be masked during training
 simulation_data = [
-    SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="5.4", set="train", mask=None),
-    SequenceTrainingData(seq_id="Seq2", sequence="PRTEIN", label="1.1", set="train", mask=None),
-    SequenceTrainingData(seq_id="Seq3", sequence="PRT", label="2.2", set="train", mask=None),
-    SequenceTrainingData(seq_id="Seq4", sequence="SEQWENCE", label="3.3", set="pred", mask=None),
-    SequenceTrainingData(seq_id="Seq5", sequence="PRTE", label="9.9", set="pred", mask=None),
-    SequenceTrainingData(seq_id="Seq6", sequence="MMALSM", label="4.0", set="pred", mask=None),
-    SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", label="0.5", set="pred", mask=None),
+    SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4"),
+    SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1"),
+    SequenceData(seq_id="Seq3", seq="PRT", label="2.2"),
+    SequenceData(seq_id="Seq4", seq="SEQWENCE", label="3.3"),
+    SequenceData(seq_id="Seq5", seq="PRTE", label="9.9"),
+    SequenceData(seq_id="Seq6", seq="MMALSM", label="4.0"),
+    SequenceData(seq_id="Seq7", seq="PRSEQ", label="0.5"),
 ]
 
 # Define simulation config
 simulation_config = ActiveLearningSimulationConfig(simulation_data=simulation_data,
-                                                   n_start=1,
+                                                   n_start=2,
                                                    n_suggestions_per_iteration=1, # Will be higher for most campaigns
                                                    convergence_config=ActiveLearningConvergenceConfig(
                                                        max_labels_budget=3,

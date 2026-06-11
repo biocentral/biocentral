@@ -3,7 +3,7 @@ BETA
 
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
-from biocentral_api import BiocentralAPI, SequenceTrainingData, ActiveLearningCampaignConfig, \
+from biocentral_api import BiocentralAPI, SequenceData, ActiveLearningCampaignConfig, \
     ActiveLearningIterationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType
 
 # TODO REMOVE LOCAL ONLY
@@ -19,13 +19,13 @@ campaign_config = ActiveLearningCampaignConfig(name="Example_Campaign",
 
 # Define initial data
 iteration_data = [
-    SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="5.4", set="train", mask=None), # Labeled start data
-    SequenceTrainingData(seq_id="Seq2", sequence="PRTEIN", label="1.1", set="train", mask=None),
-    SequenceTrainingData(seq_id="Seq3", sequence="PRT", label="2.2", set="train", mask=None),
-    SequenceTrainingData(seq_id="Seq4", sequence="SEQWENCE", set="pred", mask=None), # Unlabeled data
-    SequenceTrainingData(seq_id="Seq5", sequence="PRTE", set="pred", mask=None),
-    SequenceTrainingData(seq_id="Seq6", sequence="MMALSM", set="pred", mask=None),
-    SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", set="pred", mask=None),
+    SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None), # Labeled start data
+    SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
+    SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
+    SequenceData(seq_id="Seq4", seq="SEQWENCE", set="pred", mask=None), # Unlabeled data
+    SequenceData(seq_id="Seq5", seq="PRTE", set="pred", mask=None),
+    SequenceData(seq_id="Seq6", seq="MMALSM", set="pred", mask=None),
+    SequenceData(seq_id="Seq7", seq="PRSEQ", set="pred", mask=None),
 ]
 
 # Define iteration config
