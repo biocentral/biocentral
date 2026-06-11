@@ -22,6 +22,35 @@ def server():
     pass
 
 
+def _copy_initial_content_if_empty(env_vars, env_key, source_subpath, project_root):
+    """Check if a directory specified by an env variable is empty and prompt to copy initial content."""
+    dir_val = env_vars.get(env_key)
+    if not dir_val:
+        return
+
+    dir_path = Path(dir_val).expanduser()
+    if not dir_path.is_absolute():
+        dir_path = project_root / dir_path
+
+    if dir_path.exists() and not any(dir_path.iterdir()):
+        source_path = project_root / source_subpath
+        if source_path.exists() and any(source_path.iterdir()):
+            if click.confirm(
+                f"{env_key} ({dir_path}) is empty. Copy initial content from ./{source_subpath}/?",
+                default=True,
+            ):
+                try:
+                    subprocess.run(
+                        ["cp", "-r", f"{source_path}/*", str(dir_path)],
+                        shell=True,
+                        check=True,
+                        cwd=str(project_root),
+                    )
+                    click.echo(f"Copied initial content to {dir_path}")
+                except subprocess.CalledProcessError as e:
+                    click.echo(f"Error copying content: {e}")
+
+
 @server.command()
 @click.option(
     "--mode",
@@ -57,6 +86,7 @@ def up(mode):
         "MODEL_REPOSITORY_PATH",
         "HUGGINGFACE_MODELS_DIR",
         "REDIS_DATA_DIR",
+        "ASSETS_DIR",
     ]
 
     # Also include these by default if not in .env (though they should be)
@@ -85,6 +115,10 @@ def up(mode):
                 click.echo(f"Created {path}")
         else:
             click.echo(f"Using {path}..")
+
+    for key, d in dirs_to_check:
+        if key in ["MODEL_REPOSITORY_PATH", "ASSETS_DIR"]:
+            _copy_initial_content_if_empty(env_vars, key, d, project_root)
 
     if mode == "dev":
         click.echo("Starting server in dev mode via docker compose...")
