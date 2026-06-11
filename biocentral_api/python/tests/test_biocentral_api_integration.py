@@ -198,19 +198,18 @@ class TestTrainAndInference(unittest.TestCase):
         }
 
         training_data = [
-            SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="Membrane", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq2", sequence="PRTEIN", label="Membrane", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq3", sequence="PRT", label="Soluble", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq4", sequence="SEQWENCE", label="Membrane", set="val", mask=None),
-            SequenceTrainingData(seq_id="Seq5", sequence="PRTE", label="Soluble", set="val", mask=None),
-            SequenceTrainingData(seq_id="Seq6", sequence="MMALSM", label="Membrane", set="test", mask=None),
-            SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", label="Soluble", set="test", mask=None),
+            SequenceData(seq_id="Seq1", seq="MMALSLALM", label="Membrane", set="train", mask=None),
+            SequenceData(seq_id="Seq2", seq="PRTEIN", label="Membrane", set="train", mask=None),
+            SequenceData(seq_id="Seq3", seq="PRT", label="Soluble", set="train", mask=None),
+            SequenceData(seq_id="Seq4", seq="SEQWENCE", label="Membrane", set="val", mask=None),
+            SequenceData(seq_id="Seq5", seq="PRTE", label="Soluble", set="val", mask=None),
+            SequenceData(seq_id="Seq6", seq="MMALSM", label="Membrane", set="test", mask=None),
+            SequenceData(seq_id="Seq7", seq="PRSEQ", label="Soluble", set="test", mask=None),
         ]
 
         training_result = self.api.train(config=config, training_data=training_data).run_with_progress()
-        self.assertIsInstance(training_result, dict)
-        model_hash = training_result.get("derived_values", {}).get("model_hash")
-        self.assertTrue(model_hash, "Training did not return a model hash")
+        model_hash = training_result.derived_values.model_hash
+        self.assertTrue(len(model_hash) > 0, "Training did not return a model hash")
 
         inference_data = {
             "Seq8": "PRTPRT",
@@ -218,10 +217,11 @@ class TestTrainAndInference(unittest.TestCase):
         }
 
         inference_result = self.api.inference(model_hash=model_hash, inference_data=inference_data).run_with_progress()
-        self.assertEqual(set(inference_result.keys()), set(inference_data.keys()))
-        for v in inference_result.values():
-            self.assertIsInstance(v, list)
-            self.assertGreaterEqual(len(v), 1)
+        prediction_keys = [pred.seq_id for pred in inference_result.predictions]
+        self.assertEqual(set(prediction_keys), set(inference_data.keys()))
+        for pred in inference_result.predictions:
+            self.assertTrue(len(pred.seq_id) > 0)
+            self.assertTrue(pred.prediction is not None)
 
 
 class TestTaxonomy(unittest.TestCase):
@@ -255,13 +255,13 @@ class TestActiveLearning(unittest.TestCase):
         )
 
         iteration_data = [
-            SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="5.4", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq2", sequence="PRTEIN", label="1.1", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq3", sequence="PRT", label="2.2", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq4", sequence="SEQWENCE", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq5", sequence="PRTE", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq6", sequence="MMALSM", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", set="pred", mask=None),
+            SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None),
+            SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
+            SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
+            SequenceData(seq_id="Seq4", seq="SEQWENCE", set="pred", mask=None),
+            SequenceData(seq_id="Seq5", seq="PRTE", set="pred", mask=None),
+            SequenceData(seq_id="Seq6", seq="MMALSM", set="pred", mask=None),
+            SequenceData(seq_id="Seq7", seq="PRSEQ", set="pred", mask=None),
         ]
 
         iteration_config = ActiveLearningIterationConfig(
@@ -286,13 +286,13 @@ class TestActiveLearning(unittest.TestCase):
         )
 
         simulation_data = [
-            SequenceTrainingData(seq_id="Seq1", sequence="MMALSLALM", label="5.4", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq2", sequence="PRTEIN", label="1.1", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq3", sequence="PRT", label="2.2", set="train", mask=None),
-            SequenceTrainingData(seq_id="Seq4", sequence="SEQWENCE", label="3.3", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq5", sequence="PRTE", label="9.9", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq6", sequence="MMALSM", label="4.0", set="pred", mask=None),
-            SequenceTrainingData(seq_id="Seq7", sequence="PRSEQ", label="0.5", set="pred", mask=None),
+            SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None),
+            SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
+            SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
+            SequenceData(seq_id="Seq4", seq="SEQWENCE", label="3.3", set="pred", mask=None),
+            SequenceData(seq_id="Seq5", seq="PRTE", label="9.9", set="pred", mask=None),
+            SequenceData(seq_id="Seq6", seq="MMALSM", label="4.0", set="pred", mask=None),
+            SequenceData(seq_id="Seq7", seq="PRSEQ", label="0.5", set="pred", mask=None),
         ]
 
         simulation_config = ActiveLearningSimulationConfig(
