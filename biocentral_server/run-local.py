@@ -43,7 +43,7 @@ def run_worker(worker_id):
     worker.work()
 
 
-def start_workers(num_workers=4):
+def start_workers(num_workers: int = 1):
     """Start multiple worker processes"""
     worker_processes = []
     for i in range(num_workers):
@@ -56,10 +56,7 @@ def start_workers(num_workers=4):
 
 
 if __name__ == "__main__":
-    # Determine number of workers based on CPU count
-    cpu_count = multiprocessing.cpu_count()
-
-    num_workers = 4
+    num_workers = 1
 
     print(f"Starting {num_workers} RQ worker processes")
     worker_processes = start_workers(num_workers)
