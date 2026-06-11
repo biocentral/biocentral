@@ -34,6 +34,7 @@ dependencies = [
     "apscheduler>=3.11.2",
     "junban>=1.0.2",
     "pyrefly>=0.45.0",
+    "click>=8.1.8",
 ]
 
 [dependency-groups]
@@ -52,6 +53,9 @@ dev = [
     "mutmut>=3.5.0",
     "psutil>=7.2.2",
 ]
+
+[project.scripts]
+biocentral-cli = "biocentral_server.cli:cli"
 
 [build-system]
 requires = ["hatchling"]
