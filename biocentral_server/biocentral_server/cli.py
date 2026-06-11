@@ -89,17 +89,11 @@ def up(mode):
         "ASSETS_DIR",
     ]
 
-    # Also include these by default if not in .env (though they should be)
-    default_dirs = ["logs", "models"]
-
     dirs_to_check = []
     for key in dir_env_keys:
         val = env_vars.get(key)
         if val:
             dirs_to_check.append((key, val))
-
-    for d in default_dirs:
-        dirs_to_check.append((d.upper(), d))
 
     for key, d in dirs_to_check:
         # Expand ~ and handle absolute/relative paths
