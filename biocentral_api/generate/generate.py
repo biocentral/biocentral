@@ -251,7 +251,7 @@ def post_process_imports(output_dir: Path):
         print(f"Models directory not found: {generated_models_dir}")
         return
 
-    import_statement = "from biotrainer_core.data_classes import SequenceData\n"
+    import_statement = "from biotrainer_core.data_classes import SequenceData"
 
     # Process all Python files in the models directory
     for py_file in generated_models_dir.glob("*.py"):
@@ -263,7 +263,7 @@ def post_process_imports(output_dir: Path):
         # Check if the file references SequenceData
         if "biotrainer_core.data_classes.SequenceData" in content:
             # Check if import already exists
-            if "from biotrainer_core.data_classes import SequenceData" not in content:
+            if import_statement not in content:
                 # Find the last import statement
                 lines = content.split("\n")
                 last_import_idx = 0
@@ -273,7 +273,7 @@ def post_process_imports(output_dir: Path):
                         last_import_idx = i
 
                 # Insert the import after the last import
-                lines.insert(last_import_idx + 1, import_statement.rstrip())
+                lines.insert(last_import_idx + 1, import_statement)
                 content = "\n".join(lines)
 
                 # Replace the fully qualified name with just SequenceData
@@ -283,32 +283,35 @@ def post_process_imports(output_dir: Path):
                 print(f"Added SequenceData import to {py_file.name}")
 
     # Also update __init__.py to not export SequenceData model
-    init_file = generated_models_dir / "__init__.py"
-    if init_file.exists():
-        content = init_file.read_text()
+    init_files = [generated_models_dir / "__init__.py",
+                  generated_models_dir.parent / "__init__.py"]
+    for init_file in init_files:
+        if init_file.exists():
+            content = init_file.read_text()
 
-        # Remove any line that imports/exports the generated SequenceData
-        lines = content.split("\n")
-        filtered_lines = [
-            line for line in lines
-            if not (
-                    "sequence_data import SequenceData" in line or
-                    "'SequenceData': SequenceData" in line
-            )
-        ]
+            # Remove any line that imports/exports the generated SequenceData
+            lines = content.split("\n")
+            filtered_lines = [
+                line for line in lines
+                if not (
+                        "sequence_data import SequenceData" in line or
+                        "'SequenceData': SequenceData" in line
+                )
+            ]
 
-        # Add import from biotrainer_core if SequenceData is referenced
-        if "SequenceData" in content and "from biotrainer_core.data_classes import SequenceData" not in content:
-            # Find where to insert (after other imports)
-            insert_idx = 0
-            for i, line in enumerate(filtered_lines):
-                if line.startswith("from ") or line.startswith("import "):
-                    insert_idx = i + 1
+            # Add import from biotrainer_core if SequenceData is referenced
+            if "SequenceData" in content and import_statement not in content:
+                # Find where to insert (after other imports)
+                insert_idx = 0
+                for i, line in enumerate(filtered_lines):
+                    if line.startswith("from ") or line.startswith("import "):
+                        insert_idx = i + 1
 
-            filtered_lines.insert(insert_idx, "from biotrainer_core.data_classes import SequenceData")
+                comment = "  # Intentional export of biotrainer-core model to keep compatibility"
+                filtered_lines.insert(insert_idx, import_statement + comment)
 
-        init_file.write_text("\n".join(filtered_lines))
-        print("Updated models __init__.py")
+            init_file.write_text("\n".join(filtered_lines))
+            print("Updated __init__.py")
 
 def generate_python():
     # Define paths

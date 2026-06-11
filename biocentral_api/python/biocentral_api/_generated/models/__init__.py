@@ -88,5 +88,5 @@ from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse
 from biocentral_api._generated.models.test_result import TestResult
 from biocentral_api._generated.models.training_result import TrainingResult
 from biocentral_api._generated.models.validation_error import ValidationError
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import SequenceData  # Intentional export of biotrainer-core model to keep compatibility
 

@@ -1,6 +1,6 @@
 from .api import BiocentralAPI
-from ._generated import SequenceData, ActiveLearningCampaignConfig, ActiveLearningIterationConfig, \
-    ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningSimulationConfig, \
+from ._generated import ActiveLearningCampaignConfig, ActiveLearningIterationConfig, \
+    SequenceData, ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningSimulationConfig, \
     ActiveLearningIterationResult, ActiveLearningSimulationResult, ActiveLearningConvergenceConfig, \
     BiocentralPredictionModel, CommonEmbedder, Protocol
 from .utils import batched
