@@ -4,7 +4,8 @@ import psycopg
 import numpy as np
 
 from contextlib import contextmanager
-from typing import Dict, Tuple, List, Any
+from biotrainer_core.h5_files import EmbeddingDatabaseDTO
+from typing import Dict, Tuple, List, Any, Generator, Optional
 
 from .database_strategy import DatabaseStrategy
 
@@ -33,10 +34,19 @@ class PostgreSQLStrategy(DatabaseStrategy):
                                     embedder_name   TEXT,
                                     per_sequence    BYTEA,
                                     per_residue     BYTEA,
+                                    keep            BOOLEAN   DEFAULT TRUE,
                                     PRIMARY KEY (sequence_hash, embedder_name)
                                 )
                                 """)
                 except psycopg.errors.UniqueViolation:
+                    conn.rollback()
+
+                # Migration for existing databases
+                try:
+                    cur.execute(
+                        "ALTER TABLE embeddings ADD COLUMN IF NOT EXISTS keep BOOLEAN DEFAULT FALSE"
+                    )
+                except Exception:
                     conn.rollback()
 
                 # Create index for efficient cleanup queries
@@ -69,24 +79,29 @@ class PostgreSQLStrategy(DatabaseStrategy):
         return blosc2.pack_array(embedding)
 
     @staticmethod
-    def _decompress_embedding(compressed):
+    def _decompress_embedding(compressed) -> Optional[torch.Tensor]:
         if not compressed:
             return None
         numpy_array = blosc2.unpack_array(compressed)
         return torch.from_numpy(numpy_array)
 
-    def save_embeddings(self, embeddings_data: List[Tuple]):
+    def save_embeddings(self, embeddings_data: List[EmbeddingDatabaseDTO]):
+        embeddings_data = [
+            embd_data.compressed(self.compress_embedding).to_tuple()
+            for embd_data in embeddings_data
+        ]
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
                     cur.executemany(
                         """
                         INSERT INTO embeddings
-                        (sequence_hash, sequence_length, last_accessed, embedder_name, per_sequence, per_residue)
-                        VALUES (%s, %s, %s, %s, %s, %s)
+                        (sequence_hash, sequence_length, access_count, created_at, last_accessed, embedder_name, per_sequence, per_residue, keep)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (sequence_hash, embedder_name) DO UPDATE SET last_accessed = EXCLUDED.last_accessed,
                                                                                  per_sequence  = COALESCE(EXCLUDED.per_sequence, embeddings.per_sequence),
-                                                                                 per_residue   = COALESCE(EXCLUDED.per_residue, embeddings.per_residue)
+                                                                                 per_residue   = COALESCE(EXCLUDED.per_residue, embeddings.per_residue),
+                                                                                 keep          = EXCLUDED.keep
                         """,
                         embeddings_data,
                     )
@@ -234,12 +249,13 @@ class PostgreSQLStrategy(DatabaseStrategy):
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cur:
-                    # Delete least recently accessed
+                    # Delete least recently accessed, but only if keep is False
                     cur.execute(
                         """
                         DELETE
                         FROM embeddings
                         WHERE last_accessed < CURRENT_TIMESTAMP - make_interval(days => %s)
+                          AND keep = FALSE
                         RETURNING sequence_hash
                         """,
                         [older_than_days],
@@ -277,6 +293,32 @@ class PostgreSQLStrategy(DatabaseStrategy):
         except Exception as e:
             logger.error(f"Error retrieving database size: {e}")
             return 0
+
+    def get_all_embeddings(self) -> Generator[EmbeddingDatabaseDTO, None, None]:
+        """Yield all embeddings from the database."""
+        try:
+            with self._get_connection() as conn:
+                with conn.cursor(
+                    name="dump_cursor"
+                ) as cur:  # Use server-side cursor for large datasets
+                    cur.execute("""
+                        SELECT sequence_hash, sequence_length, access_count, created_at, last_accessed, embedder_name, per_sequence, per_residue, keep
+                        FROM embeddings
+                    """)
+                    for row in cur:
+                        yield EmbeddingDatabaseDTO(
+                            hash_key=row[0],
+                            seq_len=row[1],
+                            access_count=row[2],
+                            created_at=row[3],
+                            last_accessed=row[4],
+                            embedder_name=row[5],
+                            embd_per_sequence=row[6],
+                            embd_per_residue=row[7],
+                            keep=row[8],
+                        ).decompressed(self._decompress_embedding)
+        except Exception as e:
+            logger.error(f"Error getting all embeddings: {e}")
 
     def get_database_statistics(self) -> Dict[str, Any]:
         """Get statistics about database."""

@@ -1,7 +1,7 @@
 import torch
 
-from typing import Union, Dict, Tuple, List, Any
-from biotrainer_core.functions.hashing import calculate_sequence_hash
+from typing import Optional, Dict, Tuple, List, Any, Generator
+from biotrainer_core.h5_files import EmbeddingDatabaseDTO
 
 
 class DatabaseStrategy:
@@ -11,7 +11,7 @@ class DatabaseStrategy:
     def db_lookup(self, hash_key):
         raise NotImplementedError
 
-    def save_embeddings(self, embeddings_data: List[Tuple]):
+    def save_embeddings(self, embeddings_data: List[EmbeddingDatabaseDTO]):
         raise NotImplementedError
 
     def get_embeddings(
@@ -43,17 +43,12 @@ class DatabaseStrategy:
             )
 
     @staticmethod
-    def compress_embedding(embedding) -> Union[str, bytes, None]:
+    def compress_embedding(embedding):
         raise NotImplementedError
 
     @staticmethod
-    def _decompress_embedding(compressed) -> Union[None, torch.Tensor]:
+    def _decompress_embedding(compressed) -> Optional[torch.Tensor]:
         raise NotImplementedError
-
-    @staticmethod
-    def generate_sequence_hash(sequence):
-        """DelegateS to biotrainer sequence hashing"""
-        return calculate_sequence_hash(sequence)
 
     def get_database_size(self) -> int:
         """
@@ -69,4 +64,7 @@ class DatabaseStrategy:
         raise NotImplementedError
 
     def get_database_statistics(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def get_all_embeddings(self) -> Generator[EmbeddingDatabaseDTO, None, None]:
         raise NotImplementedError

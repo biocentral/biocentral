@@ -1,12 +1,11 @@
-import io
 import hashlib
-import h5py
-import base64
 
 from tqdm import tqdm
 from datetime import datetime
+from typing import List, Dict, Tuple, Any, Generator
 from biotrainer_core.data_classes import SequenceData
-from typing import List, Dict, Tuple, Any, Optional, Generator
+from biotrainer_core.h5_files import EmbeddingDatabaseDTO
+
 
 from .database_strategy import DatabaseStrategy
 from .postgresql_strategy import PostgreSQLStrategy
@@ -26,8 +25,7 @@ def dict_chunks(dct: Dict[str, str], n) -> Generator[Dict[str, str], None, None]
 
 class EmbeddingsDatabase:
     def __init__(self, postgres_config):
-        self.strategy: Optional[DatabaseStrategy] = None
-        self.strategy = PostgreSQLStrategy()
+        self.strategy: DatabaseStrategy = PostgreSQLStrategy()
         self.strategy.init_db(postgres_config)
 
         logger.info("Using database: PostgreSQL")
@@ -36,47 +34,54 @@ class EmbeddingsDatabase:
         return self.strategy.clear_embeddings(sequence, model_name)
 
     @staticmethod
-    def unify_seqs_with_embeddings(
-        seqs: Dict[str, str], embds: Dict[str, Any]
-    ) -> List[SequenceData]:
-        return [
-            SequenceData(seq_id=seq_id, seq=seq, embedding=embds.get(seq_id))
-            for seq_id, seq in seqs.items()
-            if embds.get(seq_id) is not None
-        ]
-
     def _prepare_embedding_data(
-        self, sequence, embedder_name, per_sequence, per_residue
-    ):
-        hash_key = self.strategy.generate_sequence_hash(sequence)
-        compressed_per_sequence = self.strategy.compress_embedding(per_sequence)
-        compressed_per_residue = self.strategy.compress_embedding(per_residue)
-        return (
-            hash_key,
-            len(sequence),
-            datetime.utcnow(),
-            embedder_name,
-            compressed_per_sequence,
-            compressed_per_residue,
+        hash_key: str,
+        seq_len: int,
+        embedder_name,
+        embd_per_sequence,
+        embd_per_residue,
+        keep: bool,
+    ) -> EmbeddingDatabaseDTO:
+        return EmbeddingDatabaseDTO(
+            hash_key=hash_key,
+            seq_len=seq_len,
+            access_count=1,
+            created_at=datetime.utcnow(),
+            last_accessed=datetime.utcnow(),
+            embedder_name=embedder_name,
+            embd_per_sequence=embd_per_sequence,
+            embd_per_residue=embd_per_residue,
+            keep=keep,
         )
 
     def save_embeddings(
-        self, embd_records: List[SequenceData], embedder_name, reduced: bool
+        self,
+        embd_records: List[SequenceData],
+        embedder_name: str,
+        reduced: bool,
+        keep: bool = False,
     ):
+        """Save calculated embeddings to database."""
         # TODO [Refactoring] Improve .onnx handling
         if self.is_onnx_model(embedder_name):
             embedder_name = self.get_onnx_model_hash(embedder_name)
 
         embedding_data = [
             self._prepare_embedding_data(
-                sequence=embd_record.seq,
+                hash_key=embd_record.get_hash(),
+                seq_len=len(embd_record.seq),
                 embedder_name=embedder_name,
-                per_sequence=embd_record.embedding if reduced else None,
-                per_residue=embd_record.embedding if not reduced else None,
+                embd_per_sequence=embd_record.embedding if reduced else None,
+                embd_per_residue=embd_record.embedding if not reduced else None,
+                keep=keep,
             )
             for embd_record in embd_records
         ]
         self.strategy.save_embeddings(embedding_data)
+
+    def snack_embeddings(self, embedding_dtos: List[EmbeddingDatabaseDTO]):
+        """Save embedding dtos as is directly to database."""
+        self.strategy.save_embeddings(embedding_dtos)
 
     def filter_existing_embeddings(
         self, sequences: Dict[str, str], embedder_name: str, reduced: bool
@@ -161,27 +166,6 @@ class EmbeddingsDatabase:
         return self.strategy.delete_embeddings_by_model(embedder_name)
 
     @staticmethod
-    def export_embeddings_task_result_to_h5_bytes_string(
-        embd_records: List[SequenceData],
-    ) -> str:
-        h5_io = io.BytesIO()
-        with h5py.File(h5_io, "w") as embeddings_file:
-            for embd_record in embd_records:
-                seq_hash = embd_record.get_hash()
-                embeddings_file.create_dataset(
-                    seq_hash,
-                    data=embd_record.embedding,
-                    compression="gzip",
-                    chunks=True,
-                )
-                embeddings_file[seq_hash].attrs["original_id"] = embd_record.seq_id
-
-        h5_io.seek(0)
-        h5_base64 = base64.b64encode(h5_io.getvalue()).decode("utf-8")
-        h5_io.close()
-        return h5_base64
-
-    @staticmethod
     def is_onnx_model(embedder_name: str) -> bool:
         return ".onnx" in embedder_name or "onnx/" in embedder_name
 
@@ -201,3 +185,7 @@ class EmbeddingsDatabase:
 
     def get_database_statistics(self) -> Dict[str, Any]:
         return self.strategy.get_database_statistics()
+
+    def get_all_embeddings(self) -> Generator[EmbeddingDatabaseDTO, None, None]:
+        """Yield all embeddings from the database."""
+        yield from self.strategy.get_all_embeddings()

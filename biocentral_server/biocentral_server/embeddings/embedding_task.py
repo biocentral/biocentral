@@ -1,14 +1,14 @@
 from typing import Callable, Dict, List
 
-from biotrainer.embedding import get_predefined_embedder_names
 from biotrainer_core.data_classes import SequenceData
+from biotrainer.embedding import get_predefined_embedder_names
+from biotrainer_core.h5_files import export_sequence_data_with_embeddings
 
 from .embed import compute_embeddings, compute_memory_encodings, get_embedder_name_db
 
 from ..server_management import (
     TaskInterface,
     TaskDTO,
-    EmbeddingsDatabase,
     EmbeddingDatabaseFactory,
     TaskStatus,
     EmbeddingProgress,
@@ -217,7 +217,9 @@ class ExportEmbeddingsTask(TaskInterface):
         if not load_dto or load_dto.embeddings is None:
             return TaskDTO.errored("Loading of embeddings failed before export!")
 
-        h5_string = EmbeddingsDatabase.export_embeddings_task_result_to_h5_bytes_string(
-            load_dto.embeddings
-        )
+        try:
+            h5_string = export_sequence_data_with_embeddings(load_dto.embeddings)
+        except Exception as e:
+            return TaskDTO.errored(f"Could not export embeddings: {e}")
+
         return TaskDTO(status=TaskStatus.FINISHED, embeddings_file=h5_string)
