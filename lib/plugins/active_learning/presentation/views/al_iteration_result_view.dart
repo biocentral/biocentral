@@ -2,6 +2,7 @@ import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_database_grid_view.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_plot_view.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_prediction_comparison_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,6 +105,14 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
                 displayedResult: campaign.iterationResults[_selectedResultIndex].$2,
               ),
             ),
+            SizedBox(
+              width: widgetWidth,
+              child: ALPredictionComparisonView(
+                yLabel: campaign.columnName,
+                campaign: campaign,
+                result: campaign.iterationResults[_selectedResultIndex].$2,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: buildPredictionErrorDisplay(campaign),
@@ -115,7 +124,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   }
 
   Widget buildPredictionErrorDisplay(ALCampaign campaign) {
-    final predictionError = null; // TODO
+    final double? predictionError = null; // TODO
     if (predictionError == null) {
       return Container();
     }
