@@ -25,7 +25,7 @@ class NewALCampaignCommandDisplay extends StatefulWidget {
 class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDisplay> {
   final Set<BiocentralDatabaseColumn> _availableFeatureColumns = {}; // Need to be partially unlabeled
 
-  String? _campaignName = 'AL-Campaign'; // TODO
+  String _campaignName = 'AL-Campaign';
   Type? _selectedDatabaseType = Protein;
 
   // TODO Maybe refactor to separate campaign config selection
@@ -144,6 +144,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
+          withCondition(condition: true, childFunction: buildCampaignNameInput),
           withCondition(condition: true, childFunction: buildDatasetSelection),
           withCondition(condition: _selectedDatabaseType != null, childFunction: buildOptimizationModeSelection),
           withCondition(condition: _selectedOptimizationMode != null, childFunction: buildFeatureSelection),
@@ -162,6 +163,21 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
         ),
       ),
     );
+  }
+
+  Widget buildCampaignNameInput() {
+    return TextFormField(
+          initialValue: _campaignName,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Campaign name',
+          ),
+          onChanged: (value) {
+            setState(() {
+              _campaignName = value.trim().isEmpty ? 'AL-Campaign' : value.trim();
+            });
+          },
+        );
   }
 
   Widget buildDatasetSelection() {
