@@ -1,7 +1,7 @@
 import torch
 
 from junban import PipelineStep
-from typing import Dict, Optional, Tuple, Literal
+from typing import Dict, Optional, Tuple, Literal, List
 from biotrainer_core.data_classes import SequenceData
 
 from ....al_config import (
@@ -49,7 +49,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         al_campaign_config: ActiveLearningCampaignConfig,
         al_iteration_config: ActiveLearningIterationConfig,
         uncertainty_strategy: str,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[List, torch.Tensor]:
         """Generate random predictions for classification."""
         # Get target index
         tgt_idx = InferenceStep._get_target_index(
@@ -66,7 +66,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         # Sample predictions based on training distribution
         # Probability that each inference sample belongs to target class
         means = torch.rand(n_inference) < target_prob
-        means = means.float()
+        means = [m.item() for m in means.float()]
 
         # Generate uncertainties
         uncertainty = InferenceStep._generate_uncertainty(
@@ -84,7 +84,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         n_inference: int,
         al_campaign_config: ActiveLearningCampaignConfig,
         uncertainty_strategy: str,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[List, torch.Tensor]:
         """Generate random predictions for regression."""
         train_labels = torch.tensor(
             [float(data_point.get_target()) for data_point in train_data.values()]
@@ -93,7 +93,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         y_max = train_labels.max().item()
 
         # Sample uniformly between min and max
-        means = torch.rand(n_inference) * (y_max - y_min) + y_min
+        means = [m.item() for m in torch.rand(n_inference) * (y_max - y_min) + y_min]
 
         # Generate uncertainties
         uncertainty = InferenceStep._generate_uncertainty(
@@ -168,7 +168,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         task_type: Literal["classification", "regression"],
         uncertainty_strategy: Literal["constant", "random", "uniform"] = "constant",
         seed: Optional[int] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[List, torch.Tensor, torch.Tensor]:
         """
         Random baseline that mimics the train_and_inference interface.
 
@@ -201,12 +201,14 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
                 al_iteration_config,
                 uncertainty_strategy,
             )
-            desirability = means
+            desirability = torch.tensor(means)
         else:  # regression
             means, uncertainty = self._random_regression_predictions(
                 train_data, n_inference, al_campaign_config, uncertainty_strategy
             )
-            desirability = self._calculate_desirability(means, al_campaign_config)
+            desirability = self._calculate_desirability(
+                torch.tensor(means), al_campaign_config
+            )
 
         # Predictions are means here
         return means, uncertainty, desirability
