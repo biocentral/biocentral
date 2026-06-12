@@ -54,7 +54,7 @@ class _ProteinLoadCommandDisplayState extends State<ProteinLoadCommandDisplay> {
         children: [
           BiocentralFilePathSelection(
             defaultName: _result?.name ?? '/path/to/fasta',
-            allowedExtensions: ['fasta'],
+            allowedExtensions: ['fasta', 'faa', 'fa', 'fas', 'fsa'],
             fileSelectedCallback: (xFile, path) => setState(() {
               _result = xFile;
             }),
