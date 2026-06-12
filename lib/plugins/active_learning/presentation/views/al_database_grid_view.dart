@@ -1,4 +1,4 @@
-import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
+import 'dart:async';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/util/constants.dart';
@@ -24,6 +24,22 @@ class ALDatabaseGridView extends StatefulWidget {
 }
 
 class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
+  StreamSubscription? _proteinSubscription;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _proteinSubscription ??= context.read<ProteinRepository>().databaseStream.listen((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _proteinSubscription?.cancel();
+    super.dispose();
+  }
+
   /// Default columns configuration for the grid
   final List<PlutoColumn> _alColumns = <PlutoColumn>[
     PlutoColumn(
