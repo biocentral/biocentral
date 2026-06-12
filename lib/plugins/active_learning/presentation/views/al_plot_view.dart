@@ -213,7 +213,7 @@ class ALPlotView extends StatelessWidget {
 
     double counterX = 1;
     for (var result in results) {
-      final double scoreRatio = (result.score - minScore) / (maxScore - minScore);
+      final double scoreRatio = maxScore == minScore ? 0.5 : (result.score - minScore) / (maxScore - minScore);
       final Color pointColor = getColorBasedOnScore(scoreRatio);
 
       scatterSpots.add(
@@ -266,9 +266,13 @@ class MinMaxValues {
     required this.maxY,
   });
 
-  /// Returns the minimum y-value with 10% padding
-  double get getMinY => minY - (maxY - minY) * 0.1;
+  double get getMinY {
+    if (minY == maxY) return minY - 1;
+    return minY - (maxY - minY) * 0.1;
+  }
 
-  /// Returns the maximum y-value with 10% padding
-  double get getMaxY => maxY + (maxY - minY) * 0.1;
+  double get getMaxY {
+    if (minY == maxY) return maxY + 1;
+    return maxY + (maxY - minY) * 0.1;
+  }
 }
