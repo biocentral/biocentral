@@ -1,0 +1,239 @@
+import 'dart:async';
+import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
+import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class ALPredictionComparisonView extends StatefulWidget {
+  final String yLabel;
+  final ALCampaign campaign;
+  final ActiveLearningIterationResult result;
+
+  const ALPredictionComparisonView({
+    required this.yLabel,
+    required this.campaign,
+    required this.result,
+    super.key,
+  });
+
+  @override
+  State<ALPredictionComparisonView> createState() => _ALPredictionComparisonViewState();
+}
+
+class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView> {
+  StreamSubscription? _proteinSubscription;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _proteinSubscription ??= context.read<ProteinRepository>().databaseStream.listen((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _proteinSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Returns suggestions that have both a numeric prediction and an experimental value.
+  List<(ActiveLearningResult, double, double)> _plottableData() {
+    final proteinDb = context.read<ProteinRepository>().databaseToMap();
+    final suggestionSet = widget.result.suggestions.toSet();
+    final entries = <(ActiveLearningResult, double, double)>[];
+    for (final r in widget.result.results) {
+      if (!suggestionSet.contains(r.entityId)) continue;
+      final prediction = double.tryParse(r.prediction);
+      if (prediction == null) continue;
+      final rawExperimental = proteinDb[r.entityId]?.attributes[widget.campaign.columnName];
+      final experimental = double.tryParse(rawExperimental?.toString() ?? '');
+      if (experimental == null) continue;
+      entries.add((r, prediction, experimental));
+    }
+    return entries;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = _plottableData();
+    if (data.isEmpty) return const SizedBox.shrink();
+
+    return ExpansionTile(
+      title: const Text('Predictions vs. Experiments'),
+      leading: const Icon(Icons.compare_arrows),
+      children: [
+        SizedBox(
+          height: 500,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 35, 16, 24),
+            child: LineChart(_buildChartData(data)),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _legendDot(Colors.blue),
+              const SizedBox(width: 4),
+              const Text('Prediction', style: TextStyle(fontSize: 12)),
+              const SizedBox(width: 16),
+              _legendDot(Colors.orange),
+              const SizedBox(width: 4),
+              const Text('Experiment', style: TextStyle(fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color, {bool stroke = false}) {
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: stroke ? Colors.white : color,
+        border: Border.all(color: color, width: stroke ? 2 : 0),
+      ),
+    );
+  }
+
+  LineChartData _buildChartData(List<(ActiveLearningResult, double, double)> data) {
+    double minY = double.infinity;
+    double maxY = double.negativeInfinity;
+    for (final (_, pred, exp) in data) {
+      if (pred < minY) minY = pred;
+      if (pred > maxY) maxY = pred;
+      if (exp < minY) minY = exp;
+      if (exp > maxY) maxY = exp;
+    }
+    final range = maxY - minY;
+    final padding = range == 0 ? 1.0 : range * 0.15;
+
+    final predictionSeries = LineChartBarData(
+      spots: data.asMap().entries.map((e) => FlSpot(e.key + 1.0, e.value.$2)).toList(),
+      barWidth: 0,
+      color: Colors.blue,
+      dotData: FlDotData(
+        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: Colors.blue),
+      ),
+    );
+
+    final experimentalSeries = LineChartBarData(
+      spots: data.asMap().entries.map((e) => FlSpot(e.key + 1.0, e.value.$3)).toList(),
+      barWidth: 0,
+      color: Colors.orange,
+      dotData: FlDotData(
+        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: Colors.orange),
+      ),
+    );
+
+    final connectors = data.asMap().entries.map((e) {
+      final (_, pred, exp) = e.value;
+      return LineChartBarData(
+        spots: [FlSpot(e.key + 1.0, pred), FlSpot(e.key + 1.0, exp)],
+        barWidth: 1.5,
+        color: const Color.fromRGBO(120, 120, 120, 0.55),
+        dotData: const FlDotData(show: false),
+      );
+    }).toList();
+
+    final allSeries = [...connectors, predictionSeries, experimentalSeries];
+
+    return LineChartData(
+      minX: 0,
+      maxX: data.length + 1.0,
+      minY: minY - padding,
+      maxY: maxY + padding,
+      lineBarsData: allSeries,
+      titlesData: _buildTitlesData(data),
+      borderData: FlBorderData(show: true),
+      lineTouchData: _buildTouchData(data, predictionSeries, experimentalSeries),
+    );
+  }
+
+  FlTitlesData _buildTitlesData(List<(ActiveLearningResult, double, double)> data) {
+    return FlTitlesData(
+      rightTitles: const AxisTitles(),
+      topTitles: const AxisTitles(sideTitles: SideTitles(reservedSize: 40)),
+      leftTitles: AxisTitles(
+        axisNameWidget: Align(
+          alignment: Alignment.bottomCenter,
+          child: Text(widget.yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        ),
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 50,
+          getTitlesWidget: (value, meta) => Text(
+            value.toStringAsFixed(Constants.maxDoublePrecision),
+            style: const TextStyle(fontSize: 11),
+          ),
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          interval: 1,
+          reservedSize: 80,
+          getTitlesWidget: (value, meta) {
+            final index = value.toInt();
+            if (index < 1 || index > data.length) return const SizedBox.shrink();
+            return RotatedBox(
+              quarterTurns: 3,
+              child: Text(
+                data[index - 1].$1.entityId,
+                style: const TextStyle(fontSize: 11),
+                textAlign: TextAlign.center,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  LineTouchData _buildTouchData(
+    List<(ActiveLearningResult, double, double)> data,
+    LineChartBarData predictionSeries,
+    LineChartBarData experimentalSeries,
+  ) {
+    return LineTouchData(
+      getTouchedSpotIndicator: (barData, spotIndexes) {
+        if (barData == predictionSeries || barData == experimentalSeries) {
+          return spotIndexes.map((_) => const TouchedSpotIndicatorData(
+            FlLine(color: Colors.transparent),
+            FlDotData(show: false),
+          ),).toList();
+        }
+        // Hide indicators on connector segments
+        return spotIndexes.map((_) => null).toList();
+      },
+      touchTooltipData: LineTouchTooltipData(
+        getTooltipItems: (spots) {
+          return spots.map((spot) {
+            // connectors occupy barIndex 0..data.length-1; prediction is at data.length
+            if (spot.barIndex != data.length) return null;
+            final index = spot.x.toInt() - 1;
+            if (index < 0 || index >= data.length) return null;
+            final (result, prediction, experimental) = data[index];
+            final delta = experimental - prediction;
+            final sign = delta >= 0 ? '+' : '';
+            return LineTooltipItem(
+              '${result.entityId}\n'
+              'Prediction: ${prediction.toStringAsFixed(Constants.maxDoublePrecision)}\n'
+              'Experiment: ${experimental.toStringAsFixed(Constants.maxDoublePrecision)}\n'
+              'Δ: $sign${delta.toStringAsFixed(Constants.maxDoublePrecision)}',
+              const TextStyle(color: Colors.white, fontSize: 10),
+            );
+          }).toList();
+        },
+      ),
+    );
+  }
+}
