@@ -1,6 +1,7 @@
 import sys
 import click
 import subprocess
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 from tqdm import tqdm
@@ -278,6 +279,191 @@ def stats():
     except Exception as e:
         click.echo(f"Error fetching statistics: {e}")
         sys.exit(1)
+
+
+@server.command()
+@click.option(
+    "--interactive", is_flag=True, help="Interactive mode (next/previous error)"
+)
+def errors(interactive):
+    """Analyze errors in logs."""
+    error_list = []
+
+    # 1. Collect from docker compose logs
+    click.echo("Collecting logs from docker compose...")
+    try:
+        # We try to get logs for biocentral-server and biocentral-worker
+        result = subprocess.run(
+            [
+                "docker",
+                "compose",
+                "logs",
+                "biocentral-server",
+                "biocentral-worker",
+                "--no-color",
+                "--timestamps",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=str(project_root),
+        )
+        if result.returncode == 0:
+            error_list.extend(_parse_logs(result.stdout, "docker"))
+    except Exception as e:
+        click.echo(f"Warning: Could not collect docker logs: {e}")
+
+    # 2. Collect from ./logs directory
+    logs_dir = project_root / "logs"
+    if logs_dir.exists():
+        click.echo("Collecting logs from ./logs directory...")
+        for log_file in logs_dir.glob("*.log"):
+            try:
+                content = log_file.read_text()
+                error_list.extend(_parse_logs(content, str(log_file.name)))
+            except Exception as e:
+                click.echo(f"Warning: Could not read {log_file.name}: {e}")
+
+    if not error_list:
+        click.echo("No errors found.")
+        return
+
+    # Deduplicate
+    unique_errors = _deduplicate_errors(error_list)
+    # Sort by timestamp
+    unique_errors.sort(key=lambda x: x["timestamp"] or "", reverse=True)
+
+    if interactive:
+        _interactive_mode(unique_errors)
+    else:
+        for err in unique_errors:
+            click.echo("-" * 40)
+            click.echo(f"Timestamp: {err['timestamp']}")
+            click.echo(f"Source: {err['source']}")
+            click.echo(f"Message: {err['message']}")
+            if err["context"]:
+                click.echo("Context:")
+                click.echo(err["context"])
+
+
+def _parse_logs(content, source):
+    errors = []
+    lines = content.splitlines()
+
+    # Simple regex to match timestamps and ERROR level
+    # Format 1 (Docker with --timestamps): 2026-06-12T13:45:01.123456789Z message
+    # Format 2 (File): 2026-05-13 16:33:36,937 ERROR ...
+
+    current_error = None
+
+    for line in lines:
+        # Check for new error start
+        # File format: 2026-05-13 16:33:36,937 ERROR
+        file_match = re.match(
+            r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) ERROR (.*)", line
+        )
+        # Docker format: 2026-06-12T13:45:01.123456789Z biocentral-server-1 | 2026-06-12 13:45:01,123 ERROR ...
+        # Or just Docker timestamp: 2026-06-12T13:45:01.123456789Z ERROR ...
+        docker_match = re.match(
+            r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (.*ERROR.*)", line
+        )
+
+        if file_match:
+            if current_error:
+                errors.append(current_error)
+            current_error = {
+                "timestamp": file_match.group(1),
+                "message": file_match.group(2),
+                "context": "",
+                "source": source,
+            }
+        elif docker_match:
+            if current_error:
+                errors.append(current_error)
+            current_error = {
+                "timestamp": docker_match.group(1),
+                "message": docker_match.group(2),
+                "context": "",
+                "source": source,
+            }
+        elif current_error:
+            # Check if this line is part of a traceback or just a message continuation
+            if (
+                line.strip() == ""
+                or line.startswith(" ")
+                or line.startswith("\t")
+                or "Traceback" in line
+                or line.startswith("  File")
+            ):
+                current_error["context"] += line + "\n"
+            else:
+                # If it doesn't look like context and we encounter a new timestamp/INFO/WARNING,
+                # we might be at the end of the error.
+                if re.match(r"^(\d{4}-\d{2}-\d{2})", line):
+                    errors.append(current_error)
+                    current_error = None
+                else:
+                    current_error["context"] += line + "\n"
+
+    if current_error:
+        errors.append(current_error)
+
+    return errors
+
+
+def _deduplicate_errors(errors):
+    seen = set()
+    deduped = []
+    for err in errors:
+        # Deduplicate based on message and context (stripping some variable parts if needed)
+        # For now, exact match on message and context
+        key = (err["message"], err["context"])
+        if key not in seen:
+            seen.add(key)
+            deduped.append(err)
+    return deduped
+
+
+def _interactive_mode(errors):
+    idx = 0
+    total = len(errors)
+
+    while True:
+        err = errors[idx]
+        click.clear()
+
+        # Header with navigation info
+        click.secho(f"Error {idx + 1} of {total}", fg="cyan", bold=True)
+        click.echo("-" * 40)
+
+        # Error Details
+        click.echo(f"Timestamp: {err['timestamp']}")
+        click.echo(f"Source:    {err['source']}")
+        click.secho(f"Message:   {err['message']}", fg="red", bold=True)
+
+        if err["context"]:
+            click.echo("\nContext:")
+            # Strip trailing/leading whitespace from context for cleaner display
+            click.echo(err["context"].strip())
+
+        click.echo("-" * 40)
+        # Commands
+        nav_hint = []
+        if idx > 0:
+            nav_hint.append("[p]revious")
+        if idx < total - 1:
+            nav_hint.append("[n]ext")
+        nav_hint.append("[q]uit")
+
+        click.secho(f"Commands: {', '.join(nav_hint)}", fg="bright_white")
+
+        char = click.getchar()
+        if char.lower() == "n" and idx < total - 1:
+            idx += 1
+        elif char.lower() == "p" and idx > 0:
+            idx -= 1
+        elif char.lower() == "q":
+            click.clear()
+            break
 
 
 if __name__ == "__main__":
