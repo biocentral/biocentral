@@ -73,7 +73,13 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ALHubBloc, ALHubState>(
+    return BlocConsumer<ALHubBloc, ALHubState>(
+      listenWhen: (previous, current) => previous.selectedCampaign != current.selectedCampaign,
+      listener: (context, state) {
+        setState(() {
+          _selectedCampaign = state.selectedCampaign;
+        });
+      },
       builder: (context, state) {
         final availability = BiocentralCommandAvailability(
           available: state.campaigns.isNotEmpty,

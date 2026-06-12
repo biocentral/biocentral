@@ -49,7 +49,19 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ALHubBloc, ALHubState>(
+    return BlocConsumer<ALHubBloc, ALHubState>(
+      listenWhen: (previous, current) => previous.selectedCampaign != current.selectedCampaign,
+      listener: (context, state) {
+        setState(() {
+          _selectedCampaign = state.selectedCampaign;
+          _addedData.clear();
+          if (_selectedCampaign != null) {
+            final iterationSuggestions =
+                _selectedCampaign!.iterationResults.lastOrNull?.$2.suggestions.toList() ?? [];
+            _addedData.addEntries(iterationSuggestions.map((suggestion) => MapEntry(suggestion, '')));
+          }
+        });
+      },
       builder: (context, state) {
         final availability = BiocentralCommandAvailability(
           available: state.campaigns.isNotEmpty,
