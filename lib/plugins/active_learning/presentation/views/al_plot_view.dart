@@ -20,7 +20,16 @@ class ALPlotView extends StatelessWidget {
     required this.yLabel,
     this.data,
     super.key,
-  }) : minMaxValues = _calculateMinMax(data?.results.toList());
+  }) : _suggestedResults = _buildSuggestedResults(data),
+       minMaxValues = _calculateMinMax(_buildSuggestedResults(data));
+
+  final List<ActiveLearningResult> _suggestedResults;
+
+  static List<ActiveLearningResult> _buildSuggestedResults(ActiveLearningIterationResult? data) {
+    if (data == null) return [];
+    final suggestionSet = data.suggestions.toSet();
+    return data.results.where((r) => suggestionSet.contains(r.entityId)).toList();
+  }
 
   /// Gets the x-axis label from the training config
   String get xLabel {
@@ -69,9 +78,9 @@ class ALPlotView extends StatelessWidget {
           ScatterChartData(
             titlesData: _buildTitlesData(),
             gridData: const FlGridData(),
-            scatterSpots: getData(data!),
+            scatterSpots: getData(_suggestedResults),
             minX: 0,
-            maxX: data!.results.length.toDouble() + 1,
+            maxX: _suggestedResults.length.toDouble() + 1,
             minY: minMaxValues.getMinY,
             maxY: minMaxValues.getMaxY,
             borderData: FlBorderData(show: true),
@@ -160,13 +169,17 @@ class ALPlotView extends StatelessWidget {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
+          interval: 1,
           reservedSize: 50,
           getTitlesWidget: (value, meta) {
             final int index = value.toInt();
+            if (index < 1 || index > _suggestedResults.length) {
+              return const SizedBox.shrink();
+            }
             return RotatedBox(
               quarterTurns: 3,
               child: Text(
-                index == 0 || index > data!.results.length ? value.toString() : data!.results[index - 1].entityId,
+                _suggestedResults[index - 1].entityId,
                 style: const TextStyle(fontSize: 12),
                 textAlign: TextAlign.center,
               ),
@@ -183,7 +196,7 @@ class ALPlotView extends StatelessWidget {
       touchTooltipData: ScatterTouchTooltipData(
         getTooltipItems: (ScatterSpot touchedSpot) {
           return ScatterTooltipItem(
-            '${data!.results[touchedSpot.x.toInt() - 1].entityId}\n '
+            '${_suggestedResults[touchedSpot.x.toInt() - 1].entityId}\n '
             'Score: ${touchedSpot.y.toStringAsFixed(Constants.maxDoublePrecision)}',
             textStyle: const TextStyle(color: Colors.white, fontSize: 10),
           );
@@ -194,19 +207,19 @@ class ALPlotView extends StatelessWidget {
   }
 
   /// Converts the training results into scatter plot data points
-  List<ScatterSpot> getData(ActiveLearningIterationResult plotData) {
+  List<ScatterSpot> getData(List<ActiveLearningResult> results) {
     final List<ScatterSpot> scatterSpots = [];
-    final (minScore, maxScore) = _calculateScoreRange(plotData);
+    final (minScore, maxScore) = _calculateScoreRange(results);
 
     double counterX = 1;
-    for (var data in plotData.results) {
-      final double scoreRatio = (data.score - minScore) / (maxScore - minScore);
+    for (var result in results) {
+      final double scoreRatio = (result.score - minScore) / (maxScore - minScore);
       final Color pointColor = getColorBasedOnScore(scoreRatio);
 
       scatterSpots.add(
         ScatterSpot(
           counterX++,
-          data.score.toDouble(),
+          result.score.toDouble(),
           show: true,
           dotPainter: FlDotCirclePainter(
             radius: 8,
@@ -220,13 +233,13 @@ class ALPlotView extends StatelessWidget {
   }
 
   /// Calculates the minimum and maximum score values from the training results
-  (double, double) _calculateScoreRange(ActiveLearningIterationResult plotData) {
+  (double, double) _calculateScoreRange(List<ActiveLearningResult> results) {
     double minScore = double.infinity;
     double maxScore = double.negativeInfinity;
 
-    for (var data in plotData.results) {
-      if (data.score < minScore) minScore = data.score.toDouble();
-      if (data.score > maxScore) maxScore = data.score.toDouble();
+    for (var result in results) {
+      if (result.score < minScore) minScore = result.score.toDouble();
+      if (result.score > maxScore) maxScore = result.score.toDouble();
     }
 
     return (minScore, maxScore);

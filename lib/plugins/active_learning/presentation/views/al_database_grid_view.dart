@@ -115,7 +115,10 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
 
   /// Builds rows from the training results data
   List<PlutoRow> buildRows(Map<String, Protein> proteinDatabase) {
-    final lastIterationResult = widget.displayedResult?.results.toList() ?? [];
+    final suggestionSet = widget.displayedResult?.suggestions.toSet() ?? {};
+    final lastIterationResult = widget.displayedResult?.results
+        .where((r) => suggestionSet.contains(r.entityId))
+        .toList() ?? [];
     if (lastIterationResult.isEmpty) {
       return [];
     }
