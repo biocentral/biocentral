@@ -116,9 +116,6 @@ class ActiveLearningIterationConfig(BaseModel):
         description="Number of suggestions to propose from this iteration", ge=1
     )
 
-    def get_all_labels(self):
-        return set([data_point.label for data_point in self.iteration_data])
-
     @field_validator("iteration_data")
     @classmethod
     def validate_iteration_data(cls, v: List[SequenceData]):

@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Set
 from biotrainer_core.functions.seeding import seed_all
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
@@ -18,13 +18,13 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
         al_campaign_config: ActiveLearningCampaignConfig,
         al_iteration_config: ActiveLearningIterationConfig,
         embeddings: Optional[List[SequenceData]] = None,
-        all_target_classes: Optional[List[str]] = None,
+        all_labels_in_data: Optional[Set[str]] = None,
     ):
         super().__init__()
         self.al_campaign_config = al_campaign_config
         self.al_iteration_config = al_iteration_config
         self.embeddings = embeddings
-        self.all_target_classes = all_target_classes
+        self.all_labels_in_data = all_labels_in_data
 
     @staticmethod
     def _biotrainer_subtask_wrapper(
@@ -72,7 +72,7 @@ class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
                 config=config,
                 input_data=input_data,
             ),
-            all_target_classes=self.all_target_classes,
+            all_labels_in_data=self.all_labels_in_data,
         )
 
         logger.info(f"AL - Suggestions: {al_iteration_result.suggestions}")

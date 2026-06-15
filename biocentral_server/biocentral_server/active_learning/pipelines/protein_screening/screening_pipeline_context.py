@@ -1,5 +1,5 @@
 from junban import PipelineContext
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Set
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from ...al_config import (
@@ -19,13 +19,13 @@ class ScreeningPipelineContext(PipelineContext):
         al_iteration_config: ActiveLearningIterationConfig,
         embeddings: List[SequenceData],
         biotrainer_subtask_wrapper: Callable,
-        all_target_classes: Optional[List[str]] = None,
+        all_labels_in_data: Optional[Set[str]] = None,
     ):
         self.al_campaign_config = al_campaign_config
         self.al_iteration_config = al_iteration_config
         self.embeddings = embeddings
         self.biotrainer_subtask_wrapper = biotrainer_subtask_wrapper
-        self.all_target_classes = all_target_classes
+        self.all_labels_in_data = all_labels_in_data
 
         # Prepare step
         self.training_data = None

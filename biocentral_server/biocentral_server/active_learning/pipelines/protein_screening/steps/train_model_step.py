@@ -85,7 +85,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
             context.al_campaign_config.optimization_mode
             == ActiveLearningOptimizationMode.DISCRETE
         ):
-            assert context.all_target_classes is not None, (
+            assert context.all_labels_in_data is not None, (
                 "all_target_classes must be provided for discrete optimization"
             )
             test_data = [
@@ -95,7 +95,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
                     embedding=torch.zeros_like(first_embedding),
                     attributes={"set": "test", "target": target},
                 )
-                for idx, target in enumerate(context.all_target_classes)
+                for idx, target in enumerate(context.all_labels_in_data)
             ]
         else:  # a single sequence is sufficient for regression
             test_data = [

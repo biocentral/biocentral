@@ -55,11 +55,12 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             data_point.seq_id: data_point
             for data_point in self.al_simulation_config.simulation_data
         }
-        # Save all target classes for discrete optimization mode to avoid problems with label masking
-        self.all_target_classes = (
+        # Save all labels for discrete optimization mode to avoid problems with label masking
+        self.all_labels_in_data = (
             {
-                data_point.label
+                str(data_point.label).lower()
                 for data_point in self.al_simulation_config.simulation_data
+                if data_point.label is not None
             }
             if self.al_campaign_config.optimization_mode
             == ActiveLearningOptimizationMode.DISCRETE
@@ -115,7 +116,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=al_iteration_config,
             embeddings=embeddings,
-            all_target_classes=self.all_target_classes,
+            all_labels_in_data=self.all_labels_in_data,
         )
         al_iteration_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(al_iteration_task):
@@ -250,8 +251,8 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
     ):
         all_preds_vs_actual = {
             data_point.entity_id: (
-                str(data_point.prediction),
-                str(self.all_simulation_data_dict[data_point.entity_id].label),
+                str(data_point.prediction).lower(),
+                str(self.all_simulation_data_dict[data_point.entity_id].label).lower(),
             )
             for data_point in al_iteration_result.results
         }
@@ -260,33 +261,27 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             for entity_id, p_v_a in all_preds_vs_actual.items()
             if entity_id in set(al_iteration_result.suggestions)
         }
+        all_labels_list = list(self.all_labels_in_data or [])
 
         accuracy_metric = torchmetrics.Accuracy(
-            task="multiclass", num_classes=len(self.all_target_classes)
+            task="multiclass", num_classes=len(all_labels_list)
         )
 
         # Calculate accuracy for all predictions
-        target_classes_list = list(self.all_target_classes)
         all_preds = torch.tensor(
-            [target_classes_list.index(p[0]) for p in all_preds_vs_actual.values()]
+            [all_labels_list.index(p[0]) for p in all_preds_vs_actual.values()]
         )
         all_actuals = torch.tensor(
-            [target_classes_list.index(p[1]) for p in all_preds_vs_actual.values()]
+            [all_labels_list.index(p[1]) for p in all_preds_vs_actual.values()]
         )
         all_accuracy = accuracy_metric(all_preds, all_actuals)
 
         # Calculate accuracy for suggestions only
         sugg_preds = torch.tensor(
-            [
-                target_classes_list.index(p[0])
-                for p in suggestion_preds_vs_actual.values()
-            ]
+            [all_labels_list.index(p[0]) for p in suggestion_preds_vs_actual.values()]
         )
         sugg_actuals = torch.tensor(
-            [
-                target_classes_list.index(p[1])
-                for p in suggestion_preds_vs_actual.values()
-            ]
+            [all_labels_list.index(p[1]) for p in suggestion_preds_vs_actual.values()]
         )
         sugg_accuracy = accuracy_metric(sugg_preds, sugg_actuals)
 

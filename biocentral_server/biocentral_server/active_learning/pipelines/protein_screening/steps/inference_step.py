@@ -7,7 +7,6 @@ from biotrainer_core.data_classes import SequenceData
 from ....al_config import (
     ActiveLearningOptimizationMode,
     ActiveLearningCampaignConfig,
-    ActiveLearningIterationConfig,
 )
 
 from ..screening_pipeline_context import ScreeningPipelineContext
@@ -33,50 +32,71 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         return "Finished inference."
 
     @staticmethod
-    def _get_target_index(discrete_targets, discrete_labels):
-        """Find the index of the target label in the list of discrete labels."""
-        target = discrete_targets[0]
-        labels = discrete_labels
-        for idx, label in enumerate(labels):
-            if label.lower() == target.lower():
-                return idx
-        raise ValueError(f"Target '{target}' not found in discrete labels: {labels}")
-
-    @staticmethod
     def _random_classification_predictions(
         train_data: Dict[str, SequenceData],
         n_inference: int,
         al_campaign_config: ActiveLearningCampaignConfig,
-        al_iteration_config: ActiveLearningIterationConfig,
         uncertainty_strategy: str,
-    ) -> Tuple[List, torch.Tensor]:
-        """Generate random predictions for classification."""
-        # Get target index
-        tgt_idx = InferenceStep._get_target_index(
-            discrete_targets=al_campaign_config.discrete_targets,
-            discrete_labels=al_iteration_config.get_all_labels(),
-        )
+        class_str2int: Dict[str, int],
+    ) -> Tuple[List, List, torch.Tensor]:
+        """Generate random class-probability predictions for classification."""
 
         # Calculate probability of target class in training data
-        train_labels = torch.tensor(
-            [data_point.get_target() for data_point in train_data.values()]
+        al_targets = set([t.lower() for t in al_campaign_config.discrete_targets or []])
+        assert len(al_targets) > 0, (
+            "No target classes given for random classification predictions!"
         )
-        target_prob = (train_labels == tgt_idx).float().mean().item()
+        assert all(t in class_str2int for t in al_targets), (
+            "Target classes must be in class_str2int!"
+        )
 
-        # Sample predictions based on training distribution
-        # Probability that each inference sample belongs to target class
-        means = torch.rand(n_inference) < target_prob
-        means = [m.item() for m in means.float()]
+        train_labels = [
+            str(data_point.get_target()).lower() for data_point in train_data.values()
+        ]
+        train_labels_set = set(train_labels)
+        assert all(t in class_str2int for t in train_labels_set), (
+            "Training labels must be in class_str2int!"
+        )
+        for class_label in class_str2int.keys():
+            if class_label not in train_labels_set:
+                train_labels.append(
+                    class_label
+                )  # Have at least one entry for each class
+
+        train_labels = torch.tensor(
+            [class_str2int[str(t).lower()] for t in train_labels]
+        )
+        class_counts = torch.bincount(train_labels)
+        class_probabilities = class_counts.float() / len(train_labels)
+        mean_al_target_prob = (
+            class_probabilities[[class_str2int[t] for t in al_targets]].mean().item()
+        )
+
+        # Sample one probability distribution over classes per inference sample.
+        # Shape: (n_inference, n_classes), each row sums to 1.
+        concentration = class_counts.float()
+        random_means = (
+            torch.distributions.Dirichlet(concentration).sample((n_inference,)).tolist()
+        )
+        class_int2str = {v: k.lower() for k, v in class_str2int.items()}
+        assert len(class_int2str) == len(class_str2int), (
+            "Found duplicated class labels in class dictionary!"
+        )
+
+        random_predictions = [
+            class_int2str[torch.max(torch.tensor(m), dim=0)[1].item()]
+            for m in random_means
+        ]
 
         # Generate uncertainties
         uncertainty = InferenceStep._generate_uncertainty(
             n_inference,
             uncertainty_strategy,
             task_type="classification",
-            target_prob=target_prob,
+            target_prob=mean_al_target_prob,
         )
 
-        return means, uncertainty
+        return random_means, random_predictions, uncertainty
 
     @staticmethod
     def _random_regression_predictions(
@@ -84,7 +104,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         n_inference: int,
         al_campaign_config: ActiveLearningCampaignConfig,
         uncertainty_strategy: str,
-    ) -> Tuple[List, torch.Tensor]:
+    ) -> Tuple[List, List, torch.Tensor]:
         """Generate random predictions for regression."""
         train_labels = torch.tensor(
             [float(data_point.get_target()) for data_point in train_data.values()]
@@ -94,6 +114,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
         # Sample uniformly between min and max
         means = [m.item() for m in torch.rand(n_inference) * (y_max - y_min) + y_min]
+        preds = list(means)
 
         # Generate uncertainties
         uncertainty = InferenceStep._generate_uncertainty(
@@ -104,7 +125,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
             train_range=y_max - y_min,
         )
 
-        return means, uncertainty
+        return means, preds, uncertainty
 
     @staticmethod
     def _generate_uncertainty(
@@ -129,7 +150,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
                 # Binary entropy: -p*log(p) - (1-p)*log(1-p)
                 p = target_prob
                 if p == 0 or p == 1:
-                    uncertainty_val = 0.0
+                    uncertainty_val = torch.tensor(0.0)
                 else:
                     uncertainty_val = -p * torch.log(torch.tensor(p)) - (
                         1 - p
@@ -190,30 +211,35 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
         train_data = context.training_data
         al_campaign_config = context.al_campaign_config
-        al_iteration_config = context.al_iteration_config
         n_inference = len(context.inference_data)
-
+        class_str2int = {
+            label.lower(): idx
+            for idx, label in enumerate(list(context.all_labels_in_data or {}))
+        }
         if task_type == "classification":
-            means, uncertainty = self._random_classification_predictions(
-                train_data,
-                n_inference,
-                al_campaign_config,
-                al_iteration_config,
-                uncertainty_strategy,
+            means, preds, uncertainty = self._random_classification_predictions(
+                train_data=train_data,
+                n_inference=n_inference,
+                al_campaign_config=al_campaign_config,
+                uncertainty_strategy=uncertainty_strategy,
+                class_str2int=class_str2int,
             )
-            desirability = torch.tensor(means)
         else:  # regression
-            means, uncertainty = self._random_regression_predictions(
-                train_data, n_inference, al_campaign_config, uncertainty_strategy
+            means, preds, uncertainty = self._random_regression_predictions(
+                train_data=train_data,
+                n_inference=n_inference,
+                al_campaign_config=al_campaign_config,
+                uncertainty_strategy=uncertainty_strategy,
             )
-            desirability = self._calculate_desirability(
-                torch.tensor(means), al_campaign_config
-            )
+        desirability = self._calculate_desirability(
+            torch.tensor(means), al_campaign_config, class_str2int=class_str2int
+        )
 
-        # Predictions are means here
-        return means, uncertainty, desirability
+        return preds, uncertainty, desirability
 
-    def _handle_biotrainer_result(self, context: ScreeningPipelineContext):
+    def _handle_biotrainer_result(
+        self, context: ScreeningPipelineContext
+    ) -> Tuple[List, torch.Tensor, torch.Tensor]:
         # Extract predictions and uncertainties
         result = context.biotrainer_result
         predictions_dict = {pred.seq_id: pred for pred in result.predictions}
@@ -290,7 +316,18 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
                 return dist
             case ActiveLearningOptimizationMode.DISCRETE:
                 assert class_str2int is not None
-                target_classes = al_campaign_config.discrete_targets
+                assert len(class_str2int) == means.shape[1], (
+                    f"Mismatch between number of classes and means shape: "
+                    f"{len(class_str2int)} != {means.shape[1]}. "
+                    f"This means that the model did not predict "
+                    f"a value for each possible class!"
+                )
+
+                target_classes = al_campaign_config.discrete_targets or []
+                assert len(target_classes) > 0, (
+                    "No target classes given for discrete optimization!"
+                )
+
                 class_str2int_lower = {
                     cl.lower(): idx for cl, idx in class_str2int.items()
                 }
