@@ -40,7 +40,8 @@ class TrainingResult(BaseModel):
     training_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Training losses for each epoch")
     validation_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Validation losses for each epoch")
     best_epoch_metrics: Optional[EpochMetrics] = Field(default=None, description="Best training epoch metrics")
-    __properties: ClassVar[List[str]] = ["n_training_ids", "n_validation_ids", "training_ids", "validation_ids", "split_hyper_params", "n_free_parameters", "start_time", "end_time", "elapsed_time", "training_losses", "validation_losses", "best_epoch_metrics"]
+    sanity_check_warnings: Optional[List[StrictStr]] = Field(default=None, description="Warnings from sanity checks")
+    __properties: ClassVar[List[str]] = ["n_training_ids", "n_validation_ids", "training_ids", "validation_ids", "split_hyper_params", "n_free_parameters", "start_time", "end_time", "elapsed_time", "training_losses", "validation_losses", "best_epoch_metrics", "sanity_check_warnings"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -134,6 +135,11 @@ class TrainingResult(BaseModel):
         if self.best_epoch_metrics is None and "best_epoch_metrics" in self.model_fields_set:
             _dict['best_epoch_metrics'] = None
 
+        # set to None if sanity_check_warnings (nullable) is None
+        # and model_fields_set contains the field
+        if self.sanity_check_warnings is None and "sanity_check_warnings" in self.model_fields_set:
+            _dict['sanity_check_warnings'] = None
+
         return _dict
 
     @classmethod
@@ -157,7 +163,8 @@ class TrainingResult(BaseModel):
             "elapsed_time": obj.get("elapsed_time"),
             "training_losses": obj.get("training_losses"),
             "validation_losses": obj.get("validation_losses"),
-            "best_epoch_metrics": EpochMetrics.from_dict(obj["best_epoch_metrics"]) if obj.get("best_epoch_metrics") is not None else None
+            "best_epoch_metrics": EpochMetrics.from_dict(obj["best_epoch_metrics"]) if obj.get("best_epoch_metrics") is not None else None,
+            "sanity_check_warnings": obj.get("sanity_check_warnings")
         })
         return _obj
 

@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **training_losses** | **List[float]** | Training losses for each epoch | [optional] 
 **validation_losses** | **List[float]** | Validation losses for each epoch | [optional] 
 **best_epoch_metrics** | [**EpochMetrics**](EpochMetrics.md) | Best training epoch metrics | [optional] 
+**sanity_check_warnings** | **List[str]** | Warnings from sanity checks | [optional] 
 
 ## Example
 

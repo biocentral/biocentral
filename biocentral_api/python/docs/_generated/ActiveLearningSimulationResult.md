@@ -7,8 +7,8 @@ Result of a simulated active learning campaign - used as a mutable object to sto
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **campaign_name** | **str** | Name of the simulated active learning campaign | 
-**iteration_metrics_total** | **List[float]** | Total metrics (rmse/acc) for each iteration on all data | [optional] 
-**iteration_metrics_suggestions** | **List[float]** | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
+**iteration_metrics_total** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Total metrics (rmse/acc) for each iteration on all data | [optional] 
+**iteration_metrics_suggestions** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
 **iteration_target_successes** | **List[int]** | Number of successful targets found in each iteration | [optional] 
 **iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
 **stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (convergence criteria reached) | [optional] 

@@ -17,9 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
+from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,8 +30,8 @@ class ActiveLearningSimulationResult(BaseModel):
     Result of a simulated active learning campaign - used as a mutable object to store intermediate results
     """ # noqa: E501
     campaign_name: StrictStr = Field(description="Name of the simulated active learning campaign")
-    iteration_metrics_total: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Total metrics (rmse/acc) for each iteration on all data")
-    iteration_metrics_suggestions: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
+    iteration_metrics_total: Optional[List[BootstrappedMetric]] = Field(default=None, description="Total metrics (rmse/acc) for each iteration on all data")
+    iteration_metrics_suggestions: Optional[List[BootstrappedMetric]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
     iteration_target_successes: Optional[List[StrictInt]] = Field(default=None, description="Number of successful targets found in each iteration")
     iteration_consecutive_failures: Optional[List[StrictInt]] = Field(default=None, description="Number of consecutive failures since the last successful target was found")
     stop_reasons: Optional[List[StrictStr]] = Field(default=None, description="Reason(s) for stopping the simulation (convergence criteria reached)")
@@ -76,6 +77,20 @@ class ActiveLearningSimulationResult(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in iteration_metrics_total (list)
+        _items = []
+        if self.iteration_metrics_total:
+            for _item_iteration_metrics_total in self.iteration_metrics_total:
+                if _item_iteration_metrics_total:
+                    _items.append(_item_iteration_metrics_total.to_dict())
+            _dict['iteration_metrics_total'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in iteration_metrics_suggestions (list)
+        _items = []
+        if self.iteration_metrics_suggestions:
+            for _item_iteration_metrics_suggestions in self.iteration_metrics_suggestions:
+                if _item_iteration_metrics_suggestions:
+                    _items.append(_item_iteration_metrics_suggestions.to_dict())
+            _dict['iteration_metrics_suggestions'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in iteration_results (list)
         _items = []
         if self.iteration_results:
@@ -101,8 +116,8 @@ class ActiveLearningSimulationResult(BaseModel):
 
         _obj = cls.model_validate({
             "campaign_name": obj.get("campaign_name"),
-            "iteration_metrics_total": obj.get("iteration_metrics_total"),
-            "iteration_metrics_suggestions": obj.get("iteration_metrics_suggestions"),
+            "iteration_metrics_total": [BootstrappedMetric.from_dict(_item) for _item in obj["iteration_metrics_total"]] if obj.get("iteration_metrics_total") is not None else None,
+            "iteration_metrics_suggestions": [BootstrappedMetric.from_dict(_item) for _item in obj["iteration_metrics_suggestions"]] if obj.get("iteration_metrics_suggestions") is not None else None,
             "iteration_target_successes": obj.get("iteration_target_successes"),
             "iteration_consecutive_failures": obj.get("iteration_consecutive_failures"),
             "stop_reasons": obj.get("stop_reasons"),
