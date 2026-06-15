@@ -4,8 +4,9 @@ import numpy as np
 import torchmetrics
 
 from typing import Callable, Tuple, List, Optional
-from biotrainer_core.data_classes import SequenceData
 from biotrainer_core.functions.seeding import seed_all
+from biotrainer_core.data_classes import SequenceData
+from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
 from .al_iteration_task import ActiveLearningIterationTask
 from .al_config import (
@@ -266,28 +267,59 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         accuracy_metric = torchmetrics.Accuracy(
             task="multiclass", num_classes=len(all_labels_list)
         )
-
+        metrics_calculator = SimpleTorchMetricsCalculator(
+            device=torch.device("cpu"), name="accuracy", torch_metric=accuracy_metric
+        )
         # Calculate accuracy for all predictions
-        all_preds = torch.tensor(
-            [all_labels_list.index(p[0]) for p in all_preds_vs_actual.values()]
+        all_preds_dict = {
+            entity_id: torch.tensor(all_labels_list.index(p[0]))
+            for entity_id, p in all_preds_vs_actual.items()
+        }
+
+        all_actuals_dict = {
+            entity_id: torch.tensor(all_labels_list.index(p[1]))
+            for entity_id, p in all_preds_vs_actual.items()
+        }
+        seq_ids = list(all_preds_dict.keys())
+
+        bootstrapped_metrics_all = Bootstrapper._do_bootstrapping(
+            iterations=30,
+            sample_size=-1,
+            confidence_level=0.05,
+            seq_ids=seq_ids,
+            all_predictions_dict=all_preds_dict,
+            all_targets_dict=all_actuals_dict,
+            metrics_calculator=metrics_calculator,
         )
-        all_actuals = torch.tensor(
-            [all_labels_list.index(p[1]) for p in all_preds_vs_actual.values()]
-        )
-        all_accuracy = accuracy_metric(all_preds, all_actuals)
+        metrics_calculator.reset()
 
         # Calculate accuracy for suggestions only
-        sugg_preds = torch.tensor(
-            [all_labels_list.index(p[0]) for p in suggestion_preds_vs_actual.values()]
-        )
-        sugg_actuals = torch.tensor(
-            [all_labels_list.index(p[1]) for p in suggestion_preds_vs_actual.values()]
-        )
-        sugg_accuracy = accuracy_metric(sugg_preds, sugg_actuals)
+        sugg_preds_dict = {
+            entity_id: torch.tensor(all_labels_list.index(p[0]))
+            for entity_id, p in suggestion_preds_vs_actual.items()
+        }
 
-        self.al_simulation_result.iteration_metrics_total.append(float(all_accuracy))
-        self.al_simulation_result.iteration_metrics_suggestions.append(
-            float(sugg_accuracy)
+        sugg_actuals_dict = {
+            entity_id: torch.tensor(all_labels_list.index(p[1]))
+            for entity_id, p in suggestion_preds_vs_actual.items()
+        }
+        seq_ids = list(sugg_preds_dict.keys())
+
+        bootstrapped_metrics_suggs = Bootstrapper._do_bootstrapping(
+            iterations=30,
+            sample_size=-1,
+            confidence_level=0.05,
+            seq_ids=seq_ids,
+            all_predictions_dict=sugg_preds_dict,
+            all_targets_dict=sugg_actuals_dict,
+            metrics_calculator=metrics_calculator,
+        )
+
+        self.al_simulation_result.iteration_metrics_total.extend(
+            bootstrapped_metrics_all
+        )
+        self.al_simulation_result.iteration_metrics_suggestions.extend(
+            bootstrapped_metrics_suggs
         )
 
     def _update_regression_metrics(
@@ -307,19 +339,59 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         }
 
         rmse_metric = torchmetrics.MeanSquaredError(squared=False)
+        metrics_calculator = SimpleTorchMetricsCalculator(
+            device=torch.device("cpu"), name="rmse", torch_metric=rmse_metric
+        )
 
         # Calculate RMSE for all predictions
-        all_preds = torch.tensor([p[0] for p in all_preds_vs_actual.values()])
-        all_actuals = torch.tensor([p[1] for p in all_preds_vs_actual.values()])
-        all_rmse = rmse_metric(all_preds, all_actuals)
+        all_preds_dict = {
+            entity_id: torch.tensor(p[0])
+            for entity_id, p in all_preds_vs_actual.items()
+        }
+        all_actuals_dict = {
+            entity_id: torch.tensor(p[1])
+            for entity_id, p in all_preds_vs_actual.items()
+        }
+        seq_ids = list(all_preds_dict.keys())
+
+        bootstrapped_metrics_all = Bootstrapper._do_bootstrapping(
+            iterations=30,
+            sample_size=-1,
+            confidence_level=0.05,
+            seq_ids=seq_ids,
+            all_predictions_dict=all_preds_dict,
+            all_targets_dict=all_actuals_dict,
+            metrics_calculator=metrics_calculator,
+        )
+        metrics_calculator.reset()
 
         # Calculate RMSE for suggestions only
-        sugg_preds = torch.tensor([p[0] for p in suggestion_preds_vs_actual.values()])
-        sugg_actuals = torch.tensor([p[1] for p in suggestion_preds_vs_actual.values()])
-        sugg_rmse = rmse_metric(sugg_preds, sugg_actuals)
+        sugg_preds_dict = {
+            entity_id: torch.tensor(p[0])
+            for entity_id, p in suggestion_preds_vs_actual.items()
+        }
+        sugg_actuals_dict = {
+            entity_id: torch.tensor(p[1])
+            for entity_id, p in suggestion_preds_vs_actual.items()
+        }
+        sugg_seq_ids = list(sugg_preds_dict.keys())
 
-        self.al_simulation_result.iteration_metrics_total.append(float(all_rmse))
-        self.al_simulation_result.iteration_metrics_suggestions.append(float(sugg_rmse))
+        bootstrapped_metrics_suggs = Bootstrapper._do_bootstrapping(
+            iterations=30,
+            sample_size=-1,
+            confidence_level=0.05,
+            seq_ids=sugg_seq_ids,
+            all_predictions_dict=sugg_preds_dict,
+            all_targets_dict=sugg_actuals_dict,
+            metrics_calculator=metrics_calculator,
+        )
+
+        self.al_simulation_result.iteration_metrics_total.extend(
+            bootstrapped_metrics_all
+        )
+        self.al_simulation_result.iteration_metrics_suggestions.extend(
+            bootstrapped_metrics_suggs
+        )
 
     def _update_metrics(
         self,

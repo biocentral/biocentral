@@ -1,6 +1,8 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+from biotrainer_core.data_classes import BootstrappedMetric
+
 
 class ActiveLearningResult(BaseModel):
     entity_id: str = Field(description="Entity identifier")
@@ -30,11 +32,11 @@ class ActiveLearningSimulationResult(BaseModel):
     campaign_name: str = Field(
         description="Name of the simulated active learning campaign"
     )
-    iteration_metrics_total: List[float] = Field(
+    iteration_metrics_total: List[BootstrappedMetric] = Field(
         default_factory=list,
         description="Total metrics (rmse/acc) for each iteration on all data",
     )
-    iteration_metrics_suggestions: List[float] = Field(
+    iteration_metrics_suggestions: List[BootstrappedMetric] = Field(
         default_factory=list,
         description="Metrics (rmse/acc) for each iteration on suggested data",
     )
