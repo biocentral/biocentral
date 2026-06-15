@@ -26,7 +26,7 @@ dependencies = [
     "uvicorn>=0.46.0",
     "fastapi-limiter>=0.1.6,<0.2.0",
     # Git Dependencies
-    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@a51209234e133310eb5373099cfb1d8cf7ed033a",
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v3.1.1",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",

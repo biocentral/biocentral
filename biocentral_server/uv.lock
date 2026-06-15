@@ -262,7 +262,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.2" },
-    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=a51209234e133310eb5373099cfb1d8cf7ed033a" },
+    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6" },
     { name = "blosc2", specifier = ">=4.2.0,<5.0.0" },
     { name = "circuitbreaker", specifier = ">=2.0.0" },
     { name = "click", specifier = ">=8.4.1,<9.0.0" },
@@ -327,7 +327,7 @@ wheels = [
 [[package]]
 name = "biotrainer"
 version = "1.4.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?rev=a51209234e133310eb5373099cfb1d8cf7ed033a#a51209234e133310eb5373099cfb1d8cf7ed033a" }
+source = { git = "https://github.com/biocentral/biotrainer.git?rev=e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6#e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -361,7 +361,7 @@ dependencies = [
 [[package]]
 name = "biotrainer-core"
 version = "0.1.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-core&rev=a51209234e133310eb5373099cfb1d8cf7ed033a#a51209234e133310eb5373099cfb1d8cf7ed033a" }
+source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-core&rev=e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6#e1d70b6f7f66868cba2e5e3b346e8b71f18dd6c6" }
 dependencies = [
     { name = "h5py" },
     { name = "numpy" },
