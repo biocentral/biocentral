@@ -27,3 +27,4 @@ Committing with `git commit -s` will add the sign-off at the end of the commit m
 ## List of Contributors
 
 - Sebastian Franz <sebastian.franz@tum.de>
+- Aeneas Tews <aeneas.tews@tum.de>
