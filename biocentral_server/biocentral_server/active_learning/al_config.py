@@ -83,6 +83,22 @@ class ActiveLearningCampaignConfig(BaseModel):
         default=None, description="List of target labels (must be subset of all labels)"
     )
 
+    @model_validator(mode="after")
+    def validate_discrete_config(self):
+        if self.optimization_mode == ActiveLearningOptimizationMode.DISCRETE:
+            discrete_targets_list = self.discrete_targets or []
+            if len(discrete_targets_list) == 0:
+                raise ValueError(
+                    "discrete_targets must be specified and "
+                    "contain at least one label for discrete optimization!"
+                )
+
+            discrete_targets_set = set(discrete_targets_list)
+            if len(discrete_targets_set) != len(discrete_targets_list):
+                raise ValueError("discrete_targets must not contain duplicate entries!")
+
+        return self
+
 
 class ActiveLearningIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
