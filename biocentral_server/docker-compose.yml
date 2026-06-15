@@ -50,7 +50,7 @@ services:
   biocentral-worker:
     <<: *app-defaults
     image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
-    command: rq worker-pool --url redis://redis-jobs:6379/0 high default low -n 1
+    command: python3 worker.py
     volumes:
       - huggingface_models_cache:/app/huggingface_models
       - file_storage:/app/storage/files

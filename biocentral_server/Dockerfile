@@ -49,8 +49,9 @@ ENV UV_EXTRA_INDEX_URL=${UV_EXTRA_INDEX_URL}
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project --no-dev
 
-# Copy application files  
+# Copy application files
 COPY --chown=biocentral-server-user:biocentral-server-user ./biocentral_server ./biocentral_server
+COPY --chown=biocentral-server-user:biocentral-server-user worker.py .
 
 # Install project
 RUN --mount=type=cache,target=/root/.cache/uv \

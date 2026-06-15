@@ -1,8 +1,7 @@
 import os
 import multiprocessing
 
-from rq import SpawnWorker
-from redis import Redis
+from worker import run_worker as start_rq_worker
 from dotenv import load_dotenv
 
 from biocentral_server.main import run_server
@@ -13,34 +12,9 @@ load_dotenv(".env")
 
 def run_worker(worker_id):
     """Run a single worker process with a specific name"""
-    import atexit
-    from biocentral_server.server_management import cleanup_repositories
-
-    redis_jobs_host = os.environ.get("REDIS_JOBS_HOST")
-    redis_jobs_port = os.environ.get("REDIS_JOBS_PORT")
-    redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
-
     # Use custom worker name to identify in monitoring
     worker_name = f"biocentral-worker-{worker_id}"
-
-    # Register Triton cleanup on worker shutdown
-    # This ensures connections are properly closed when worker exits
-    atexit.register(cleanup_repositories)
-    print(f"Registered Triton cleanup handler for {worker_name}")
-
-    # Configure worker with appropriate timeouts for long-running tasks
-    worker = SpawnWorker(
-        queues=["high", "default", "low"],  # Process high priority queue first
-        connection=redis_conn,
-        name=worker_name,
-        worker_ttl=600,  # 10 minutes heartbeat
-        default_result_ttl=600,  # Keep results for 10 minutes
-        job_monitoring_interval=2,  # Check job status every 2 seconds
-    )
-
-    print(f"Starting worker {worker_name}")
-    worker.teardown()
-    worker.work()
+    start_rq_worker(name=worker_name)
 
 
 def start_workers(num_workers: int = 1):
