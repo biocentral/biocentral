@@ -7,6 +7,7 @@ import 'package:biocentral/plugins/active_learning/presentation/commands/al_iter
 import 'package:biocentral/plugins/active_learning/presentation/commands/new_al_campaign_command_display.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_hub_view.dart';
 import 'package:biocentral/plugins/embeddings/model/embeddings_column_wizard.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/plugin/biocentral_plugin_directory.dart';
@@ -51,6 +52,7 @@ class ALPlugin extends BiocentralPlugin
     final alHubBloc = ALHubBloc(
       getBiocentralProjectRepository(context),
       getDatabase(context),
+      context.read<ProteinRepository>(),
     );
 
     return {
