@@ -68,11 +68,11 @@ class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
     });
 
     on<_ALHubProteinUpdateInternalEvent>((event, emit) async {
-      emit(ALHubState.loaded(campaigns: state.campaigns, proteinDatabase: event.proteinDatabase));
+      emit(ALHubState.loaded(campaigns: state.campaigns, proteinDatabase: event.proteinDatabase, selectedCampaign: state.selectedCampaign));
     });
 
     on<ALHubSelectCampaignEvent>((event, emit) {
-      emit(ALHubState.loaded(state.campaigns, selectedCampaign: event.campaign));
+      emit(ALHubState.loaded(campaigns: state.campaigns, selectedCampaign: event.campaign, proteinDatabase: state.proteinDatabase));
     });
 
     _setupSubscriptions();
