@@ -4,8 +4,8 @@ import numpy as np
 import torchmetrics
 
 from biotrainer_core.functions.seeding import seed_all
-from typing import Callable, Tuple, List, Optional, Set
 from biotrainer_core.data_classes import SequenceData
+from typing import Callable, Tuple, List, Optional, Set, Dict
 from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
 from .al_iteration_task import ActiveLearningIterationTask
@@ -52,12 +52,13 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         super().__init__()
         self.al_campaign_config = al_campaign_config
         self.al_simulation_config = al_simulation_config
-        self.all_simulation_data_dict = {
-            data_point.seq_id: data_point
+
+        self.all_labels_dict: Dict[str, str] = {
+            data_point.seq_id: str(data_point.label)
             for data_point in self.al_simulation_config.simulation_data
         }
         # Save all labels for discrete optimization mode to avoid problems with label masking
-        self.all_labels_in_data = (
+        self.all_discrete_labels_set: Optional[Set[str]] = (
             {
                 str(data_point.label).lower()
                 for data_point in self.al_simulation_config.simulation_data
@@ -67,20 +68,21 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             == ActiveLearningOptimizationMode.DISCRETE
             else None
         )
+
         self.al_simulation_result = ActiveLearningSimulationResult(
             campaign_name=self.al_campaign_config.name,
-            n_potential_hits=self._get_n_potential_targets(),
+            potential_hits=self._get_potential_hits(),
         )
 
-    def _get_n_potential_targets(self) -> int:
+    def _get_potential_hits(self) -> List[str]:
         sim_data_ids = set(
             [
                 data_point.seq_id
                 for data_point in self.al_simulation_config.simulation_data
             ]
         )
-        # Re-use the target success calculation to calculate all potential targets across the simulation data
-        return self._calculate_target_successes(iteration_suggestions=sim_data_ids)
+        # Re-use the hits calculation to calculate all potential targets across the simulation data
+        return self._calculate_hits(iteration_suggestions=sim_data_ids)
 
     def _get_start_data(self) -> Tuple[List[SequenceData], int]:
         start_ids_set: set[str]
@@ -128,7 +130,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=al_iteration_config,
             embeddings=embeddings,
-            all_labels_in_data=self.all_labels_in_data,
+            all_labels_in_data=self.all_discrete_labels_set,
         )
         al_iteration_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(al_iteration_task):
@@ -141,79 +143,103 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
         return al_iteration_dto.al_iteration_result
 
-    def _calculate_target_successes(self, iteration_suggestions: Set[str]) -> int:
-        """Calculate the number of target successes for the given iteration suggestions (seq_ids)."""
+    def _calculate_hits(self, iteration_suggestions: Set[str]) -> List[str]:
+        """Calculate the number of target successes (hits) for the given iteration suggestions (seq_ids)."""
         min_max_percentile = (
             _ActiveLearningSimulationFixedParameters.min_max_percentile()
         )
         target_delta = _ActiveLearningSimulationFixedParameters.target_delta()
-        all_labels = [
-            data_point.label for data_point in self.al_simulation_config.simulation_data
-        ]
-        suggestion_labels = [
-            data_point.label
-            for data_point in self.al_simulation_config.simulation_data
-            if data_point.seq_id in iteration_suggestions
-        ]
+        suggestion_labels = {
+            seq_id: self.all_labels_dict[seq_id] for seq_id in iteration_suggestions
+        }
 
         mode = self.al_campaign_config.optimization_mode
         match mode:
             case ActiveLearningOptimizationMode.MAXIMIZE:
-                all_labels_float = list(map(float, all_labels))
-                suggestion_labels_float = list(map(float, suggestion_labels))
+                all_labels_float = {
+                    seq_id: float(self.all_labels_dict[seq_id])
+                    for seq_id in self.all_labels_dict
+                }
+                suggestion_labels_float = {
+                    seq_id: float(label) for seq_id, label in suggestion_labels.items()
+                }
                 max_percentile = np.percentile(
-                    all_labels_float, 100 - min_max_percentile
+                    list(all_labels_float.values()), 100 - min_max_percentile
                 )
                 over_percentile = [
-                    sugg_label
-                    for sugg_label in suggestion_labels_float
+                    sugg_id
+                    for sugg_id, sugg_label in suggestion_labels_float.items()
                     if sugg_label >= max_percentile
                 ]
-                return len(over_percentile)
+                assert len(over_percentile) == len(set(over_percentile)), (
+                    f"Found duplicates: {over_percentile}"
+                )
+                return over_percentile
             case ActiveLearningOptimizationMode.MINIMIZE:
-                all_labels_float = list(map(float, all_labels))
-                suggestion_labels_float = list(map(float, suggestion_labels))
-                min_percentile = np.percentile(all_labels_float, min_max_percentile)
+                all_labels_float = {
+                    seq_id: float(self.all_labels_dict[seq_id])
+                    for seq_id in self.all_labels_dict
+                }
+                suggestion_labels_float = {
+                    seq_id: float(label) for seq_id, label in suggestion_labels.items()
+                }
+                min_percentile = np.percentile(
+                    list(all_labels_float.values()), min_max_percentile
+                )
                 under_percentile = [
-                    sugg_label
-                    for sugg_label in suggestion_labels_float
+                    sugg_id
+                    for sugg_id, sugg_label in suggestion_labels_float.items()
                     if sugg_label <= min_percentile
                 ]
-                return len(under_percentile)
+                assert len(under_percentile) == len(set(under_percentile)), (
+                    f"Found duplicates: {under_percentile}"
+                )
+                return under_percentile
             case ActiveLearningOptimizationMode.VALUE:
                 target_value = self.al_campaign_config.target_value
-                suggestion_labels_float = list(map(float, suggestion_labels))
+                suggestion_labels_float = {
+                    seq_id: float(label) for seq_id, label in suggestion_labels.items()
+                }
                 within_delta = [
-                    sugg_label
-                    for sugg_label in suggestion_labels_float
+                    sugg_id
+                    for sugg_id, sugg_label in suggestion_labels_float.items()
                     if abs(sugg_label - target_value) <= target_delta
                 ]
-                return len(within_delta)
+                assert len(within_delta) == len(set(within_delta)), (
+                    f"Found duplicates: {within_delta}"
+                )
+                return within_delta
             case ActiveLearningOptimizationMode.INTERVAL:
                 target_lb, target_ub = (
                     self.al_campaign_config.target_lb,
                     self.al_campaign_config.target_ub,
                 )
-                suggestion_labels_float = list(map(float, suggestion_labels))
+                suggestion_labels_float = {
+                    seq_id: float(label) for seq_id, label in suggestion_labels.items()
+                }
                 within_interval = [
-                    sugg_label
-                    for sugg_label in suggestion_labels_float
+                    sugg_id
+                    for sugg_id, sugg_label in suggestion_labels_float.items()
                     if target_lb <= sugg_label <= target_ub
                 ]
-                return len(within_interval)
+                assert len(within_interval) == len(set(within_interval)), (
+                    f"Found duplicates: {within_interval}"
+                )
+                return within_interval
             case ActiveLearningOptimizationMode.DISCRETE:
                 target_labels = self.al_campaign_config.discrete_targets
                 correct = [
-                    sugg_label
-                    for sugg_label in suggestion_labels
+                    sugg_id
+                    for sugg_id, sugg_label in suggestion_labels.items()
                     if sugg_label in target_labels
                 ]
-                return len(correct)
+                assert len(correct) == len(set(correct)), f"Found duplicates: {correct}"
+                return correct
 
     def _check_convergence(
         self,
         n_total_suggestions: int,
-        n_total_target_successes: int,
+        n_total_hits: int,
         n_consecutive_failures: int,
     ) -> Tuple[bool, List[str]]:
         convergence_config = self.al_simulation_config.convergence_config
@@ -223,7 +249,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             else False
         )
         target_successes_reached = (
-            n_total_target_successes >= convergence_config.target_successes
+            n_total_hits >= convergence_config.target_successes
             if convergence_config.target_successes is not None
             else False
         )
@@ -265,7 +291,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         all_preds_vs_actual = {
             data_point.entity_id: (
                 str(data_point.prediction).lower(),
-                str(self.all_simulation_data_dict[data_point.entity_id].label).lower(),
+                str(self.all_labels_dict[data_point.entity_id]).lower(),
             )
             for data_point in al_iteration_result.results
         }
@@ -274,7 +300,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             for entity_id, p_v_a in all_preds_vs_actual.items()
             if entity_id in set(al_iteration_result.suggestions)
         }
-        all_labels_list = list(self.all_labels_in_data or [])
+        all_labels_list = list(self.all_discrete_labels_set or [])
 
         accuracy_metric = torchmetrics.Accuracy(
             task="multiclass", num_classes=len(all_labels_list)
@@ -340,7 +366,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         all_preds_vs_actual = {
             data_point.entity_id: (
                 float(data_point.prediction),
-                float(self.all_simulation_data_dict[data_point.entity_id].label),
+                float(self.all_labels_dict[data_point.entity_id]),
             )
             for data_point in al_iteration_result.results
         }
@@ -407,13 +433,11 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
     def _update_metrics(
         self,
-        iteration_target_successes: int,
+        iteration_hits: List[str],
         n_consecutive_failures: int,
         al_iteration_result: ActiveLearningIterationResult,
     ):
-        self.al_simulation_result.iteration_target_successes.append(
-            iteration_target_successes
-        )
+        self.al_simulation_result.iteration_hits.append(iteration_hits)
         self.al_simulation_result.iteration_consecutive_failures.append(
             n_consecutive_failures
         )
@@ -434,7 +458,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
         current_data_with_masking, n_start_data = self._get_start_data()
         n_total_suggestions = 0
-        n_total_target_successes = 0
+        n_total_hits = 0
         n_consecutive_failures = 0
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
         for iteration_idx in range(
@@ -464,18 +488,17 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             # Update iteration metrics
             iteration_suggestions = set(al_iteration_result.suggestions)
             n_total_suggestions += len(iteration_suggestions)
-            iteration_target_successes = self._calculate_target_successes(
-                iteration_suggestions
-            )
+            iteration_hits = self._calculate_hits(iteration_suggestions)
+            n_iteration_hits = len(iteration_hits)
             logger.info(
-                f"Target successes for iteration {iteration}: {iteration_target_successes}"
+                f"Hits (target successes) for iteration {iteration}: {n_iteration_hits}"
             )
-            n_total_target_successes += iteration_target_successes
+            n_total_hits += n_iteration_hits
             n_consecutive_failures = (
-                0 if iteration_target_successes > 0 else n_consecutive_failures + 1
+                0 if n_iteration_hits > 0 else n_consecutive_failures + 1
             )
             self._update_metrics(
-                iteration_target_successes=iteration_target_successes,
+                iteration_hits=iteration_hits,
                 n_consecutive_failures=n_consecutive_failures,
                 al_iteration_result=al_iteration_result,
             )
@@ -483,7 +506,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             # Check convergence
             converged, stop_reasons = self._check_convergence(
                 n_total_suggestions=n_total_suggestions,
-                n_total_target_successes=n_total_target_successes,
+                n_total_hits=n_total_hits,
                 n_consecutive_failures=n_consecutive_failures,
             )
             if converged:
@@ -497,7 +520,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             # Next iteration with updated training data
             current_data_with_masking = [
                 data_point.copy_with_label(
-                    label=self.all_simulation_data_dict[data_point.seq_id].label,
+                    label=self.all_labels_dict[data_point.seq_id],
                     set_name="train",
                 )
                 if data_point.seq_id in iteration_suggestions

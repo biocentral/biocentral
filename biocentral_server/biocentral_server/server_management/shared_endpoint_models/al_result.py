@@ -32,8 +32,8 @@ class ActiveLearningSimulationResult(BaseModel):
     campaign_name: str = Field(
         description="Name of the simulated active learning campaign"
     )
-    n_potential_hits: int = Field(
-        description="Number of potential targets (hits) to find in the dataset given the campaign config"
+    potential_hits: List[str] = Field(
+        description="Potential targets (hits) to find in the dataset given the campaign config"
     )
     iteration_metrics_total: List[BootstrappedMetric] = Field(
         default_factory=list,
@@ -43,9 +43,9 @@ class ActiveLearningSimulationResult(BaseModel):
         default_factory=list,
         description="Metrics (rmse/acc) for each iteration on suggested data",
     )
-    iteration_target_successes: List[int] = Field(
+    iteration_hits: List[List[str]] = Field(
         default_factory=list,
-        description="Number of successful targets found in each iteration",
+        description="Successful targets (hits) found in each iteration",
     )
     iteration_consecutive_failures: List[int] = Field(
         default_factory=list,
