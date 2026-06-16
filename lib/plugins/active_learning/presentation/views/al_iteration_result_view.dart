@@ -22,8 +22,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   Widget build(BuildContext context) {
     super.build(context);
     return BlocConsumer<ALHubBloc, ALHubState>(
-      listenWhen: (previous, current) =>
-          previous.selectedCampaign?.internalName() != current.selectedCampaign?.internalName(),
+      listenWhen: (previous, current) => previous.selectedCampaign?.internalName() != current.selectedCampaign?.internalName(),
       listener: (context, state) {
         setState(() {
           _selectedResultIndex = 0;
