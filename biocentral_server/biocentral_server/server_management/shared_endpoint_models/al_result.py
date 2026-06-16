@@ -32,6 +32,9 @@ class ActiveLearningSimulationResult(BaseModel):
     campaign_name: str = Field(
         description="Name of the simulated active learning campaign"
     )
+    n_potential_hits: int = Field(
+        description="Number of potential targets (hits) to find in the dataset given the campaign config"
+    )
     iteration_metrics_total: List[BootstrappedMetric] = Field(
         default_factory=list,
         description="Total metrics (rmse/acc) for each iteration on all data",

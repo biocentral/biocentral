@@ -3,8 +3,8 @@ import random
 import numpy as np
 import torchmetrics
 
-from typing import Callable, Tuple, List, Optional
 from biotrainer_core.functions.seeding import seed_all
+from typing import Callable, Tuple, List, Optional, Set
 from biotrainer_core.data_classes import SequenceData
 from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
@@ -68,8 +68,19 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             else None
         )
         self.al_simulation_result = ActiveLearningSimulationResult(
-            campaign_name=self.al_campaign_config.name
+            campaign_name=self.al_campaign_config.name,
+            n_potential_hits=self._get_n_potential_targets(),
         )
+
+    def _get_n_potential_targets(self) -> int:
+        sim_data_ids = set(
+            [
+                data_point.seq_id
+                for data_point in self.al_simulation_config.simulation_data
+            ]
+        )
+        # Re-use the target success calculation to calculate all potential targets across the simulation data
+        return self._calculate_target_successes(iteration_suggestions=sim_data_ids)
 
     def _get_start_data(self) -> Tuple[List[SequenceData], int]:
         start_ids_set: set[str]
@@ -130,7 +141,8 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
 
         return al_iteration_dto.al_iteration_result
 
-    def _calculate_target_successes(self, iteration_suggestions) -> int:
+    def _calculate_target_successes(self, iteration_suggestions: Set[str]) -> int:
+        """Calculate the number of target successes for the given iteration suggestions (seq_ids)."""
         min_max_percentile = (
             _ActiveLearningSimulationFixedParameters.min_max_percentile()
         )
