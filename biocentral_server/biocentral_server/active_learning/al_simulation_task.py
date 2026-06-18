@@ -248,9 +248,9 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             if convergence_config.max_labels_budget is not None
             else False
         )
-        target_successes_reached = (
-            n_total_hits >= convergence_config.target_successes
-            if convergence_config.target_successes is not None
+        n_hits_reached = (
+            n_total_hits >= convergence_config.n_hits
+            if convergence_config.n_hits is not None
             else False
         )
         consecutive_failures_exceeded = (
@@ -258,19 +258,15 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             if convergence_config.max_consecutive_failures is not None
             else False
         )
-        if (
-            max_labels_exceeded
-            or target_successes_reached
-            or consecutive_failures_exceeded
-        ):
+        if max_labels_exceeded or n_hits_reached or consecutive_failures_exceeded:
             mle_message = (
                 f"Max labels budget ({convergence_config.max_labels_budget}) exceeded!"
                 if max_labels_exceeded
                 else None
             )
-            tsr_message = (
-                f"Target successes ({convergence_config.target_successes}) reached!"
-                if target_successes_reached
+            n_hits_message = (
+                f"Number of hits ({convergence_config.n_hits}) accomplished!"
+                if n_hits_reached
                 else None
             )
             cfe_message = (
@@ -279,7 +275,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
                 else None
             )
             return True, [
-                m for m in [mle_message, tsr_message, cfe_message] if m is not None
+                m for m in [mle_message, n_hits_message, cfe_message] if m is not None
             ]
         else:
             return False, []

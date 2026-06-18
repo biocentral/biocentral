@@ -134,9 +134,9 @@ class ActiveLearningConvergenceConfig(BaseModel):
         " ('We can afford to test 100 proteins total')",
         ge=1,
     )
-    target_successes: Optional[int] = Field(
+    n_hits: Optional[int] = Field(
         default=None,
-        description="Number of positive targets found before stopping"
+        description="Number of positive targets (hits) found before stopping"
         " ('Stop when we find 10 good proteins')",
         ge=1,
     )
@@ -152,13 +152,13 @@ class ActiveLearningConvergenceConfig(BaseModel):
     def validate_convergence_config(self):
         if (
             self.max_labels_budget is None
-            and self.target_successes is None
+            and self.n_hits is None
             and self.max_consecutive_failures is None
         ):
             raise ValueError(
                 "At least one of n_max_iterations, "
-                "max_targets_budget, "
-                "target_successes, "
+                "max_labels_budget, "
+                "n_hits, "
                 "max_consecutive_failures must be specified!"
             )
         return self
