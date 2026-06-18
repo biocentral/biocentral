@@ -16,7 +16,7 @@ dependencies = [
     "typing-extensions>=4.7.1,<5.0.0",
     "tqdm>=4.68.0,<5.0.0",
     "biopython>=1.85,<1.90",
-    "biotrainer-core @ git+https://github.com/biocentral/biotrainer.git@a51209234e133310eb5373099cfb1d8cf7ed033a#subdirectory=biotrainer-core"
+    "biotrainer-core @ git+https://github.com/biocentral/biotrainer.git@dcf0053bb07249cabf030620899c2f7d68b8dbf4#subdirectory=biotrainer-core"
 ]
 
 [project.urls]
