@@ -301,7 +301,7 @@ class TestActiveLearning(unittest.TestCase):
             n_suggestions_per_iteration=1,
             convergence_config=ActiveLearningConvergenceConfig(
                 max_labels_budget=3,
-                target_successes=2,
+                n_hits=2,
                 max_consecutive_failures=2,
             ),
         )
