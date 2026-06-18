@@ -372,12 +372,12 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             if entity_id in set(al_iteration_result.suggestions)
         }
 
-        rmse_metric = torchmetrics.MeanSquaredError(squared=False)
+        mae_metric = torchmetrics.MeanAbsoluteError()
         metrics_calculator = SimpleTorchMetricsCalculator(
-            device=torch.device("cpu"), name="rmse", torch_metric=rmse_metric
+            device=torch.device("cpu"), name="mae", torch_metric=mae_metric
         )
 
-        # Calculate RMSE for all predictions
+        # Calculate MAE for all predictions
         all_preds_dict = {
             entity_id: torch.tensor(p[0])
             for entity_id, p in all_preds_vs_actual.items()
@@ -399,7 +399,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
         )
         metrics_calculator.reset()
 
-        # Calculate RMSE for suggestions only
+        # Calculate MAE for suggestions only
         sugg_preds_dict = {
             entity_id: torch.tensor(p[0])
             for entity_id, p in suggestion_preds_vs_actual.items()

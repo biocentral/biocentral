@@ -37,11 +37,11 @@ class ActiveLearningSimulationResult(BaseModel):
     )
     iteration_metrics_total: List[BootstrappedMetric] = Field(
         default_factory=list,
-        description="Total metrics (rmse/acc) for each iteration on all data",
+        description="Total metrics (mae/acc) for each iteration on all data",
     )
     iteration_metrics_suggestions: List[BootstrappedMetric] = Field(
         default_factory=list,
-        description="Metrics (rmse/acc) for each iteration on suggested data",
+        description="Metrics (mae/acc) for each iteration on suggested data",
     )
     iteration_hits: List[List[str]] = Field(
         default_factory=list,
