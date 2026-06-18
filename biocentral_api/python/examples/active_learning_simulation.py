@@ -35,7 +35,7 @@ simulation_config = ActiveLearningSimulationConfig(simulation_data=simulation_da
                                                    n_suggestions_per_iteration=1, # Will be higher for most campaigns
                                                    convergence_config=ActiveLearningConvergenceConfig(
                                                        max_labels_budget=3,
-                                                       target_successes=2,
+                                                       n_hits=2,
                                                        max_consecutive_failures=2)
                                                    )
 # Run iteration

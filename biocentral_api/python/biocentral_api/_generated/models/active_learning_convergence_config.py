@@ -29,9 +29,9 @@ class ActiveLearningConvergenceConfig(BaseModel):
     Configuration for convergence criteria for active learning campaigns
     """ # noqa: E501
     max_labels_budget: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')")
-    target_successes: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Number of positive targets found before stopping ('Stop when we find 10 good proteins')")
+    n_hits: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')")
     max_consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')")
-    __properties: ClassVar[List[str]] = ["max_labels_budget", "target_successes", "max_consecutive_failures"]
+    __properties: ClassVar[List[str]] = ["max_labels_budget", "n_hits", "max_consecutive_failures"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -77,10 +77,10 @@ class ActiveLearningConvergenceConfig(BaseModel):
         if self.max_labels_budget is None and "max_labels_budget" in self.model_fields_set:
             _dict['max_labels_budget'] = None
 
-        # set to None if target_successes (nullable) is None
+        # set to None if n_hits (nullable) is None
         # and model_fields_set contains the field
-        if self.target_successes is None and "target_successes" in self.model_fields_set:
-            _dict['target_successes'] = None
+        if self.n_hits is None and "n_hits" in self.model_fields_set:
+            _dict['n_hits'] = None
 
         # set to None if max_consecutive_failures (nullable) is None
         # and model_fields_set contains the field
@@ -100,7 +100,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
 
         _obj = cls.model_validate({
             "max_labels_budget": obj.get("max_labels_budget"),
-            "target_successes": obj.get("target_successes"),
+            "n_hits": obj.get("n_hits"),
             "max_consecutive_failures": obj.get("max_consecutive_failures")
         })
         return _obj

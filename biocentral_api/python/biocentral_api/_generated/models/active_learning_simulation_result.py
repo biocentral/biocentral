@@ -30,13 +30,14 @@ class ActiveLearningSimulationResult(BaseModel):
     Result of a simulated active learning campaign - used as a mutable object to store intermediate results
     """ # noqa: E501
     campaign_name: StrictStr = Field(description="Name of the simulated active learning campaign")
+    potential_hits: List[StrictStr] = Field(description="Potential targets (hits) to find in the dataset given the campaign config")
     iteration_metrics_total: Optional[List[BootstrappedMetric]] = Field(default=None, description="Total metrics (rmse/acc) for each iteration on all data")
     iteration_metrics_suggestions: Optional[List[BootstrappedMetric]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
-    iteration_target_successes: Optional[List[StrictInt]] = Field(default=None, description="Number of successful targets found in each iteration")
+    iteration_hits: Optional[List[List[StrictStr]]] = Field(default=None, description="Successful targets (hits) found in each iteration")
     iteration_consecutive_failures: Optional[List[StrictInt]] = Field(default=None, description="Number of consecutive failures since the last successful target was found")
     stop_reasons: Optional[List[StrictStr]] = Field(default=None, description="Reason(s) for stopping the simulation (convergence criteria reached)")
     iteration_results: Optional[List[ActiveLearningIterationResult]] = Field(default=None, description="List of active learning iteration results")
-    __properties: ClassVar[List[str]] = ["campaign_name", "iteration_metrics_total", "iteration_metrics_suggestions", "iteration_target_successes", "iteration_consecutive_failures", "stop_reasons", "iteration_results"]
+    __properties: ClassVar[List[str]] = ["campaign_name", "potential_hits", "iteration_metrics_total", "iteration_metrics_suggestions", "iteration_hits", "iteration_consecutive_failures", "stop_reasons", "iteration_results"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -116,9 +117,10 @@ class ActiveLearningSimulationResult(BaseModel):
 
         _obj = cls.model_validate({
             "campaign_name": obj.get("campaign_name"),
+            "potential_hits": obj.get("potential_hits"),
             "iteration_metrics_total": [BootstrappedMetric.from_dict(_item) for _item in obj["iteration_metrics_total"]] if obj.get("iteration_metrics_total") is not None else None,
             "iteration_metrics_suggestions": [BootstrappedMetric.from_dict(_item) for _item in obj["iteration_metrics_suggestions"]] if obj.get("iteration_metrics_suggestions") is not None else None,
-            "iteration_target_successes": obj.get("iteration_target_successes"),
+            "iteration_hits": obj.get("iteration_hits"),
             "iteration_consecutive_failures": obj.get("iteration_consecutive_failures"),
             "stop_reasons": obj.get("stop_reasons"),
             "iteration_results": [ActiveLearningIterationResult.from_dict(_item) for _item in obj["iteration_results"]] if obj.get("iteration_results") is not None else None
