@@ -8,8 +8,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **campaign_name** | **str** | Name of the simulated active learning campaign | 
 **potential_hits** | **List[str]** | Potential targets (hits) to find in the dataset given the campaign config | 
-**iteration_metrics_total** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Total metrics (rmse/acc) for each iteration on all data | [optional] 
-**iteration_metrics_suggestions** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Metrics (rmse/acc) for each iteration on suggested data | [optional] 
+**iteration_metrics_total** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Total metrics (mae/acc) for each iteration on all data | [optional] 
+**iteration_metrics_suggestions** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Metrics (mae/acc) for each iteration on suggested data | [optional] 
 **iteration_hits** | **List[List[str]]** | Successful targets (hits) found in each iteration | [optional] 
 **iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
 **stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (convergence criteria reached) | [optional] 

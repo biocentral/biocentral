@@ -31,8 +31,8 @@ class ActiveLearningSimulationResult(BaseModel):
     """ # noqa: E501
     campaign_name: StrictStr = Field(description="Name of the simulated active learning campaign")
     potential_hits: List[StrictStr] = Field(description="Potential targets (hits) to find in the dataset given the campaign config")
-    iteration_metrics_total: Optional[List[BootstrappedMetric]] = Field(default=None, description="Total metrics (rmse/acc) for each iteration on all data")
-    iteration_metrics_suggestions: Optional[List[BootstrappedMetric]] = Field(default=None, description="Metrics (rmse/acc) for each iteration on suggested data")
+    iteration_metrics_total: Optional[List[BootstrappedMetric]] = Field(default=None, description="Total metrics (mae/acc) for each iteration on all data")
+    iteration_metrics_suggestions: Optional[List[BootstrappedMetric]] = Field(default=None, description="Metrics (mae/acc) for each iteration on suggested data")
     iteration_hits: Optional[List[List[StrictStr]]] = Field(default=None, description="Successful targets (hits) found in each iteration")
     iteration_consecutive_failures: Optional[List[StrictInt]] = Field(default=None, description="Number of consecutive failures since the last successful target was found")
     stop_reasons: Optional[List[StrictStr]] = Field(default=None, description="Reason(s) for stopping the simulation (convergence criteria reached)")
