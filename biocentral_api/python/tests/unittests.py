@@ -1,6 +1,27 @@
+import os
 import unittest
+from unittest import mock
 
-from biocentral_api import batched
+from biocentral_api import BiocentralAPI, batched
+
+
+class TestProxyConfig(unittest.TestCase):
+    """_make_configuration wires the proxy from the env (the chokepoint both the
+    client and health-check paths use)."""
+
+    PROXY = "http://proxy.example:8080"
+    cases = [
+        ("https from env", {"HTTPS_PROXY": PROXY}, "https://example.org", PROXY),
+        ("no env", {}, "https://example.org", None),
+        ("NO_PROXY bypass", {"HTTPS_PROXY": PROXY, "NO_PROXY": "example.org"}, "https://example.org", None),
+        ("scheme mismatch (https proxy, http url)", {"HTTPS_PROXY": PROXY}, "http://localhost:9540", None),
+    ]
+
+    def test_proxy_from_env(self):
+        for name, env, url, expected in self.cases:
+            with self.subTest(name), mock.patch.dict(os.environ, env, clear=True):
+                self.assertEqual(BiocentralAPI._make_configuration(url).proxy, expected)
+
 
 class TestBatching(unittest.TestCase):
 

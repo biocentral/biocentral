@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 import warnings
 import urllib.parse
+import urllib.request
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -54,14 +55,28 @@ class BiocentralAPI:
 
     def _create_api_client(self) -> ApiClient:
         """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
-        base_url = self._get_base_url()
-        cfg = Configuration(host=base_url)
+        cfg = self._make_configuration(self._get_base_url())
         # Attach API token via default headers if present
         if self.api_token and self.api_token != "":
             api_client = ApiClient(cfg, header_name="Authorization", header_value=f"Bearer {self.api_token}")
         else:
             api_client = ApiClient(cfg)
         return api_client
+
+    @staticmethod
+    def _make_configuration(url: str) -> Configuration:
+        """Configuration for *url*, with the proxy wired from the environment.
+
+        urllib3 (unlike requests) ignores proxy env vars, so set it explicitly,
+        honoring scheme (HTTP_PROXY/HTTPS_PROXY) and NO_PROXY bypass.
+        """
+        cfg = Configuration(host=url)
+        parsed = urllib.parse.urlparse(url)
+        proxies = urllib.request.getproxies_environment()
+        proxy = proxies.get(parsed.scheme)
+        if proxy and not urllib.request.proxy_bypass_environment(parsed.netloc, proxies):
+            cfg.proxy = proxy
+        return cfg
 
     # ----------------------- URL + Health utilities -----------------------
     @staticmethod
@@ -105,7 +120,7 @@ class BiocentralAPI:
     @staticmethod
     def _health_check(url: str, timeout: float = 2.0) -> _BiocentralAPIHealth:
         try:
-            configuration = Configuration(host=url)
+            configuration = BiocentralAPI._make_configuration(url)
             with ApiClient(configuration) as api_client:
                 default_api = DefaultApi(api_client)
                 resp = default_api.health_check_health_get_with_http_info(_request_timeout=timeout)
