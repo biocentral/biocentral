@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/util/constants.dart';
@@ -10,14 +11,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ALPredictionComparisonView extends StatefulWidget {
   final String yLabel;
   final ALCampaign campaign;
-  final ActiveLearningIterationResult result;
+  final ActiveLearningIterationResult? result;
+  final List<ActiveLearningIterationResult>? allResults;
 
   const ALPredictionComparisonView({
     required this.yLabel,
     required this.campaign,
-    required this.result,
+    this.result,
+    this.allResults,
     super.key,
-  });
+  }) : assert(result != null || allResults != null, 'Either result or allResults must be provided');
 
   @override
   State<ALPredictionComparisonView> createState() => _ALPredictionComparisonViewState();
@@ -43,9 +46,17 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
   /// Returns suggestions that have both a numeric prediction and an experimental value.
   List<(ActiveLearningResult, double, double)> _plottableData() {
     final proteinDb = context.read<ProteinRepository>().databaseToMap();
-    final suggestionSet = widget.result.suggestions.toSet();
+
+    if (widget.allResults != null) {
+      return _plottableDataFromAll(proteinDb, widget.allResults!);
+    }
+    return _plottableDataFromSingle(proteinDb, widget.result!);
+  }
+
+  List<(ActiveLearningResult, double, double)> _plottableDataFromSingle(Map<String, Protein> proteinDb, ActiveLearningIterationResult result) {
+    final suggestionSet = result.suggestions.toSet();
     final entries = <(ActiveLearningResult, double, double)>[];
-    for (final r in widget.result.results) {
+    for (final r in result.results) {
       if (!suggestionSet.contains(r.entityId)) continue;
       final prediction = double.tryParse(r.prediction);
       if (prediction == null) continue;
@@ -53,6 +64,14 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
       final experimental = double.tryParse(rawExperimental?.toString() ?? '');
       if (experimental == null) continue;
       entries.add((r, prediction, experimental));
+    }
+    return entries;
+  }
+
+  List<(ActiveLearningResult, double, double)> _plottableDataFromAll(Map<String, Protein> proteinDb, List<ActiveLearningIterationResult> allResults) {
+    final entries = <(ActiveLearningResult, double, double)>[];
+    for (final iterResult in allResults) {
+      entries.addAll(_plottableDataFromSingle(proteinDb, iterResult));
     }
     return entries;
   }
@@ -92,15 +111,11 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
     );
   }
 
-  Widget _legendDot(Color color, {bool stroke = false}) {
+  Widget _legendDot(Color color) {
     return Container(
       width: 12,
       height: 12,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: stroke ? Colors.white : color,
-        border: Border.all(color: color, width: stroke ? 2 : 0),
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 

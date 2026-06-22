@@ -6,12 +6,26 @@ import 'package:flutter/material.dart';
 /// A widget that displays a scatter plot visualization of Active Learning results.
 /// The plot shows protein sequences on the x-axis and their corresponding scores on the y-axis.
 /// Points are color-coded based on their score values, with a gradient legend showing the score range.
+/// Supports single-iteration and combined multi-iteration modes.
 class ALPlotView extends StatelessWidget {
-  /// Label for the y-axis (typically representing the score metric)
+  static const List<Color> _iterationColors = [
+    Colors.blue,
+    Colors.orange,
+    Colors.green,
+    Colors.purple,
+    Colors.red,
+    Colors.teal,
+    Colors.brown,
+    Colors.pink,
+  ];
   final String yLabel;
 
   /// The training results data to be displayed
   final ActiveLearningIterationResult? data;
+  final List<ActiveLearningIterationResult>? allData;
+
+  final List<ActiveLearningResult> _suggestedResults;
+  final List<(int iteration, List<ActiveLearningResult> results)> _iterationData;
 
   /// Cached min/max values for the y-axis range
   final MinMaxValues minMaxValues;
@@ -19,11 +33,12 @@ class ALPlotView extends StatelessWidget {
   ALPlotView({
     required this.yLabel,
     this.data,
+    this.allData,
     super.key,
-  }) : _suggestedResults = _buildSuggestedResults(data),
-       minMaxValues = _calculateMinMax(_buildSuggestedResults(data));
-
-  final List<ActiveLearningResult> _suggestedResults;
+  }) : assert(data != null || allData != null, 'Either data or allData must be provided'),
+        _suggestedResults = allData == null ? _buildSuggestedResults(data) : const [],
+        _iterationData = allData != null ? _groupByIteration(allData) : const [],
+        minMaxValues = allData != null ? _calculateMinMax(_groupByIteration(allData).expand((e) => e.$2).toList(),) : _calculateMinMax(_buildSuggestedResults(data));
 
   static List<ActiveLearningResult> _buildSuggestedResults(ActiveLearningIterationResult? data) {
     if (data == null) return [];
@@ -31,10 +46,15 @@ class ALPlotView extends StatelessWidget {
     return data.results.where((r) => suggestionSet.contains(r.entityId)).toList();
   }
 
-  /// Gets the x-axis label from the training config
-  String get xLabel {
-    return 'Result plot for iteration: ${data?.iteration}';
+  static List<(int, List<ActiveLearningResult>)> _groupByIteration(List<ActiveLearningIterationResult> allData) {
+    return allData.map((r) {
+      final s = r.suggestions.toSet();
+      return (r.iteration, r.results.where((res) => s.contains(res.entityId)).toList());
+    }).toList();
   }
+
+  /// Gets the x-axis label from the training config
+  String get xLabel => 'Result plot for iteration: ${data?.iteration}';
 
   /// Calculates the minimum and maximum values for the y-axis
   /// Adds a 10% padding to both ends of the range
@@ -56,6 +76,9 @@ class ALPlotView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (allData != null) {
+      return _buildCombined();
+    }
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -69,7 +92,153 @@ class ALPlotView extends StatelessWidget {
     );
   }
 
-  /// Builds the main scatter plot visualization
+  Widget _buildCombined() {
+    final allResults = _iterationData.expand((e) => e.$2).toList();
+    if (allResults.isEmpty) return const SizedBox.shrink();
+
+    final List<(int iteration, String entityId, double score)> spotInfo = [];
+    final List<ScatterSpot> spots = [];
+
+    double counterX = 1.0;
+    for (final (iteration, results) in _iterationData) {
+      final color = _iterationColors[iteration % _iterationColors.length];
+      for (final result in results) {
+        spotInfo.add((iteration, result.entityId, result.score.toDouble()));
+        spots.add(ScatterSpot(
+          counterX++,
+          result.score.toDouble(),
+          show: true,
+          dotPainter: FlDotCirclePainter(radius: 8, color: color),
+        ));
+      }
+    }
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Expanded(child: _buildCombinedScatterPlot(spots, spotInfo)),
+            _buildIterationLegend(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCombinedScatterPlot(
+    List<ScatterSpot> spots,
+    List<(int, String, double)> spotInfo,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ScatterChart(
+        ScatterChartData(
+          titlesData: _buildCombinedTitlesData(spotInfo),
+          gridData: const FlGridData(),
+          scatterSpots: spots,
+          minX: 0,
+          maxX: spots.length.toDouble() + 1,
+          minY: minMaxValues.getMinY,
+          maxY: minMaxValues.getMaxY,
+          borderData: FlBorderData(show: true),
+          scatterTouchData: _buildCombinedTouchData(spotInfo),
+        ),
+      ),
+    );
+  }
+
+  FlTitlesData _buildCombinedTitlesData(List<(int, String, double)> spotInfo) {
+    return FlTitlesData(
+      rightTitles: const AxisTitles(),
+      topTitles: const AxisTitles(
+        axisNameWidget: Text(
+          'All Iterations',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ),
+      leftTitles: AxisTitles(
+        axisNameWidget: Align(
+          alignment: Alignment.bottomCenter,
+          child: Text(yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        ),
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 50,
+          getTitlesWidget: (value, meta) => Text(
+            value.toStringAsFixed(Constants.maxDoublePrecision),
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          interval: 1,
+          reservedSize: 50,
+          getTitlesWidget: (value, meta) {
+            final int index = value.toInt();
+            if (index < 1 || index > spotInfo.length) return const SizedBox.shrink();
+            return RotatedBox(
+              quarterTurns: 3,
+              child: Text(
+                spotInfo[index - 1].$2,
+                style: const TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  ScatterTouchData _buildCombinedTouchData(List<(int, String, double)> spotInfo) {
+    return ScatterTouchData(
+      touchTooltipData: ScatterTouchTooltipData(
+        getTooltipItems: (ScatterSpot touchedSpot) {
+          final index = touchedSpot.x.toInt() - 1;
+          if (index < 0 || index >= spotInfo.length) return null;
+          final (iteration, entityId, score) = spotInfo[index];
+          return ScatterTooltipItem(
+            'Iteration $iteration\n$entityId\nScore: ${score.toStringAsFixed(Constants.maxDoublePrecision)}',
+            textStyle: const TextStyle(color: Colors.white, fontSize: 10),
+          );
+        },
+      ),
+      enabled: true,
+    );
+  }
+
+  Widget _buildIterationLegend() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      width: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _iterationData.map((entry) {
+          final (iteration, _) = entry;
+          final color = _iterationColors[iteration % _iterationColors.length];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+                ),
+                const SizedBox(width: 8),
+                Text('Iteration $iteration', style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildScatterPlot() {
     return Expanded(
       child: Padding(

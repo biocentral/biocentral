@@ -18,6 +18,19 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
 
   int _selectedResultIndex = 0;
+  late TabController _subTabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _subTabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _subTabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +44,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
       },
       builder: (context, hubState) {
         return Scaffold(
-          body: SingleChildScrollView(
-            child: buildContent(hubState),
-          ),
+          body: buildContent(hubState),
         );
       },
     );
@@ -44,7 +55,6 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
       return const Center(child: Text('No active learning campaigns yet!'));
     }
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -57,12 +67,31 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
                 context.read<ALHubBloc>().add(ALHubSelectCampaignEvent(campaign)),
           ),
         ),
-        if (hubState.selectedCampaign != null) buildResult(hubState.selectedCampaign!),
+        if (hubState.selectedCampaign != null) ...[
+          TabBar(
+            controller: _subTabController,
+            labelColor: Theme.of(context).colorScheme.onSurface,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            tabs: const [
+              Tab(icon: Icon(Icons.timeline), text: 'Current Iteration'),
+              Tab(icon: Icon(Icons.assessment), text: 'All Iterations'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _subTabController,
+              children: [
+                SingleChildScrollView(child: buildIterationView(hubState.selectedCampaign!)),
+                SingleChildScrollView(child: buildCampaignOverview(hubState.selectedCampaign!)),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget buildResult(ALCampaign campaign) {
+  Widget buildIterationView(ALCampaign campaign) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final widgetWidth = constraints.maxWidth * 0.8; // 90% of available width
@@ -85,7 +114,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
                 Text('Results for iteration: ${_selectedResultIndex + 1}'),
                 IconButton(
                   icon: const Icon(Icons.arrow_right),
-                  onPressed: _selectedResultIndex < totalIterations - 1  ? () => setState(() => _selectedResultIndex++) : null,
+                  onPressed: _selectedResultIndex < totalIterations - 1 ? () => setState(() => _selectedResultIndex++) : null,
                 ),
               ],
             ),
@@ -116,6 +145,49 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: buildPredictionErrorDisplay(campaign),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildCampaignOverview(ALCampaign campaign) {
+    final allResults = campaign.iterationResults.map((r) => r.$2).toList();
+    if (allResults.isEmpty) {
+      return const Center(child: Text('No iteration results available.'));
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final widgetWidth = constraints.maxWidth * 0.8; // 90% of available width
+        final widgetHeight = widgetWidth * 0.4; // Maintain aspect ratio
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(campaign.config.name),
+            SizedBox(
+              width: widgetWidth,
+              height: widgetHeight,
+              child: ALPlotView(
+                yLabel: 'Score',
+                allData: allResults,
+              ),
+            ),
+            SizedBox(
+              width: widgetWidth,
+              height: widgetHeight,
+              child: ALDatabaseGridView(
+                campaign: campaign,
+                displayedResult: null,
+              ),
+            ),
+            SizedBox(
+              width: widgetWidth,
+              child: ALPredictionComparisonView(
+                yLabel: campaign.columnName,
+                campaign: campaign,
+                allResults: allResults,
+              ),
             ),
           ],
         );
