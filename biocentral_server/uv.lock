@@ -278,7 +278,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.2" },
-    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=ad014f92c070111ad665e18ac9b54e45183d652a" },
+    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=5f4ffbab761d899d720f630d508e99f0b9504a24" },
     { name = "blosc2", specifier = ">=4.2.0,<5.0.0" },
     { name = "circuitbreaker", specifier = ">=2.0.0" },
     { name = "click", specifier = ">=8.4.1,<9.0.0" },
@@ -343,7 +343,7 @@ wheels = [
 [[package]]
 name = "biotrainer"
 version = "1.4.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?rev=ad014f92c070111ad665e18ac9b54e45183d652a#ad014f92c070111ad665e18ac9b54e45183d652a" }
+source = { git = "https://github.com/biocentral/biotrainer.git?rev=5f4ffbab761d899d720f630d508e99f0b9504a24#5f4ffbab761d899d720f630d508e99f0b9504a24" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -378,7 +378,7 @@ dependencies = [
 [[package]]
 name = "biotrainer-core"
 version = "0.1.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-core&rev=ad014f92c070111ad665e18ac9b54e45183d652a#ad014f92c070111ad665e18ac9b54e45183d652a" }
+source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-core&rev=5f4ffbab761d899d720f630d508e99f0b9504a24#5f4ffbab761d899d720f630d508e99f0b9504a24" }
 dependencies = [
     { name = "h5py" },
     { name = "numpy" },
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "biotrainer-vis"
 version = "0.1.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-vis&rev=ad014f92c070111ad665e18ac9b54e45183d652a#ad014f92c070111ad665e18ac9b54e45183d652a" }
+source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-vis&rev=5f4ffbab761d899d720f630d508e99f0b9504a24#5f4ffbab761d899d720f630d508e99f0b9504a24" }
 dependencies = [
     { name = "altair" },
     { name = "biotrainer-core" },

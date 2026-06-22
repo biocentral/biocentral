@@ -19,6 +19,7 @@ class CommonEmbedder(str, Enum):
     RANDOM_EMBEDDER = "random_embedder"
     AAOntology = "AAOntology"
     BLOSUM62 = "blosum62"
+    LENGTH_EMBEDDER = "length_embedder"
 
     @classmethod
     def __get_pydantic_json_schema__(cls, core_schema, handler):
