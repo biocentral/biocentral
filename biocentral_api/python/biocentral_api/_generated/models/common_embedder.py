@@ -35,6 +35,7 @@ class CommonEmbedder(str, Enum):
     RANDOM_EMBEDDER = 'random_embedder'
     AAOntology = 'AAOntology'
     BLOSUM62 = 'blosum62'
+    LENGTH_EMBEDDER = 'length_embedder'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

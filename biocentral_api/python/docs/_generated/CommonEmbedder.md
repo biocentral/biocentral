@@ -22,6 +22,8 @@ Common embedder model names
 
 * `BLOSUM62` (value: `'blosum62'`)
 
+* `LENGTH_EMBEDDER` (value: `'length_embedder'`)
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
 
