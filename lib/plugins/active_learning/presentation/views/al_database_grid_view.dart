@@ -9,6 +9,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 /// A widget that displays Active Learning results in a grid format.
 /// Shows protein sequences, scores, uncertainties, and other metrics in a sortable and filterable table.
+/// When [displayedResult] is null, shows all iterations combined with an Iteration column.
 class ALDatabaseGridView extends StatefulWidget {
   final ALCampaign campaign;
   final ActiveLearningIterationResult? displayedResult;
@@ -67,6 +68,8 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   /// Grid mode configuration
   final PlutoGridMode plutoGridMode = PlutoGridMode.selectWithOneTap;
 
+  bool get _showAllIterations => widget.displayedResult == null;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
@@ -75,8 +78,8 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
         return Scaffold(
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final double columnWidth = (constraints.maxWidth - 100) / _alColumns.length - 1;
-              return _buildGrid(columnWidth, state.proteinDatabase);
+              final columns = buildColumns(constraints.maxWidth);
+              return _buildGrid(columns, state.proteinDatabase);
             },
           ),
         );
@@ -85,32 +88,52 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   }
 
   /// Builds the main grid widget with configured columns and rows
-  Widget _buildGrid(double columnWidth, Map<String, Protein> proteinDatabase) {
+  Widget _buildGrid(List<PlutoColumn> columns, Map<String, Protein> proteinDatabase) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: PlutoGrid(
         key: UniqueKey(),
         mode: plutoGridMode,
-        columns: buildColumns(columnWidth),
-        rows: buildRows(proteinDatabase),
+        columns: columns,
+        rows: _showAllIterations ? buildAllRows(proteinDatabase) : buildRows(proteinDatabase),
       ),
     );
   }
 
-  /// Builds and configures columns with the specified width
-  List<PlutoColumn> buildColumns(double columnWidth) {
+  List<PlutoColumn> buildColumns(double availableWidth) {
+    final allCols = <PlutoColumn>[
+      if (_showAllIterations)
+        PlutoColumn(
+          title: 'Iteration',
+          field: 'iteration',
+          readOnly: true,
+          width: 90,
+          minWidth: 90,
+          type: PlutoColumnType.number(),
+        ),
+      ..._alColumns,
+    ];
+
+    final fixedWidth = _showAllIterations ? 90.0 + 100.0 : 100.0; // iteration col + ranking col
+    final remainingCols = allCols.length - (_showAllIterations ? 2 : 1);
+    final columnWidth = (availableWidth - fixedWidth - 100) / remainingCols - 1;
+
     var index = 0;
-    final List<PlutoColumn> result = List.from(_alColumns);
-    for (PlutoColumn column in result) {
-      if (index++ == 0) {
+    for (final column in allCols) {
+      if (column.field == 'iteration') {
+        index++;
+        continue;
+      }
+      if (index == (_showAllIterations ? 1 : 0)) {
         column.width = 100;
         column.minWidth = 100;
       } else {
         column.width = columnWidth;
         column.minWidth = columnWidth;
       }
+      index++;
     }
-    return result;
+    return allCols;
   }
 
   /// Builds rows from the training results data
@@ -136,5 +159,29 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
         },
       );
     }).toList();
+  }
+
+  List<PlutoRow> buildAllRows(Map<String, Protein> proteinDatabase) {
+    final rows = <PlutoRow>[];
+    int index = 0;
+    for (final (_, iterResult) in widget.campaign.iterationResults) {
+      final suggestionSet = iterResult.suggestions.toSet();
+      final suggestions = iterResult.results.where((r) => suggestionSet.contains(r.entityId)).toList();
+      for (final alResult in suggestions) {
+        final experimentalValue = proteinDatabase[alResult.entityId]?.attributes[widget.campaign.columnName];
+        rows.add(PlutoRow(
+          cells: {
+            'iteration': PlutoCell(value: iterResult.iteration),
+            'ranking': PlutoCell(value: ++index),
+            'proteinId': PlutoCell(value: alResult.entityId),
+            'score': PlutoCell(value: alResult.score.toStringAsFixed(Constants.maxDoublePrecision)),
+            'uncertainty': PlutoCell(value: alResult.uncertainty.toStringAsFixed(Constants.maxDoublePrecision)),
+            'prediction': PlutoCell(value: alResult.prediction),
+            'experiment': PlutoCell(value: experimentalValue ?? ''),
+          },
+        ),);
+      }
+    }
+    return rows;
   }
 }
