@@ -3,6 +3,7 @@ import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_database_grid_view.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_plot_view.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_prediction_comparison_view.dart';
+import 'package:biocentral/plugins/active_learning/presentation/views/al_prediction_error_trend_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -188,6 +189,10 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
                 campaign: campaign,
                 allResults: allResults,
               ),
+            ),
+            SizedBox(
+              width: widgetWidth,
+              child: ALPredictionErrorTrendView(campaign: campaign),
             ),
           ],
         );
