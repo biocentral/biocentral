@@ -1,0 +1,1411 @@
+config:
+  device: cuda
+  seed: 42
+  save_split_ids: false
+  sanity_check: true
+  ignore_file_inconsistencies: false
+  external_writer: tensorboard
+  output_dir: 
+    /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output
+  bootstrapping_iterations: 30
+  input_file: 
+    /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/scl.fasta
+  model_choice: FNN
+  optimizer_choice: adam
+  learning_rate: 0.001
+  dropout_rate: 0.25
+  epsilon: 0.001
+  loss_choice: cross_entropy_loss
+  disable_pytorch_compile: false
+  num_epochs: 50
+  batch_size: 128
+  patience: 10
+  shuffle: true
+  use_class_weights: false
+  auto_resume: false
+  limited_sample_size: -1
+  embedder_name: one_hot_encoding
+  use_half_precision: false
+  scaling_method: standard
+  cross_validation_config:
+    method: hold_out
+    choose_by: loss
+  protocol: sequence_to_class
+  log_dir: 
+    /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output/68412c82bf39e729
+derived_values:
+  biotrainer_version: 2.0.0+beta
+  class_int2str:
+    0: Cell_membrane
+    1: Cytoplasm
+    2: Endoplasmic_reticulum
+    3: Extracellular
+    4: Golgi_apparatus
+    5: Lysosome/Vacuole
+    6: Mitochondrion
+    7: Nucleus
+    8: Peroxisome
+    9: Plastid
+  class_str2int:
+    Cell_membrane: 0
+    Cytoplasm: 1
+    Endoplasmic_reticulum: 2
+    Extracellular: 3
+    Golgi_apparatus: 4
+    Lysosome/Vacuole: 5
+    Mitochondrion: 6
+    Nucleus: 7
+    Peroxisome: 8
+    Plastid: 9
+  computed_class_weights:
+    0: 1.0488961935043335
+    1: 0.5103651881217957
+    2: 1.5998317003250122
+    3: 0.7188351154327393
+    4: 3.9928572177886963
+    5: 4.440654277801514
+    6: 0.9474576115608215
+    7: 0.3453125059604645
+    8: 9.408910751342773
+    9: 1.8596868515014648
+  embeddings_file: 
+    /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output/embeddings/one_hot_encoding/reduced_embeddings_file_one_hot_encoding.h5
+  model_hash: 68412c82bf39e729
+  n_classes: 10
+  n_features: 21
+  n_testing_ids: 490
+  pipeline_elapsed_time: 28.647517235999658
+  pipeline_end_time: '2026-06-23T08:40:11.875536'
+  pipeline_start_time: '2026-06-23T08:39:43.228019'
+  training_elapsed_time: 26.248765980999906
+training_results:
+  hold_out:
+    n_training_ids: 9503
+    n_validation_ids: 1678
+    split_hyper_params: {}
+    n_free_parameters: 1034
+    start_time: '2026-06-23T08:39:45.427721'
+    end_time: '2026-06-23T08:40:11.274250'
+    elapsed_time: 25.846511828000075
+    training_losses:
+    - 2.164906897544861
+    - 1.8079751030604045
+    - 1.652676798502604
+    - 1.5928883425394693
+    - 1.5671191104253133
+    - 1.5396849314371746
+    - 1.5224131107330323
+    - 1.5047286780675253
+    - 1.4924376646677653
+    - 1.486498506863912
+    - 1.4721971623102823
+    - 1.4706939458847046
+    - 1.458974714279175
+    - 1.454594734509786
+    - 1.460135768254598
+    - 1.4569743553797403
+    - 1.448980541229248
+    - 1.4437376546859741
+    - 1.4382388512293498
+    - 1.4441392691930135
+    - 1.439851172765096
+    - 1.4418637561798096
+    - 1.429839719136556
+    - 1.4324777444203696
+    - 1.4334310817718505
+    - 1.4265758927663168
+    - 1.4279220819473266
+    - 1.422763180732727
+    - 1.4234590943654377
+    - 1.4193501138687135
+    - 1.4208759546279908
+    - 1.417538283665975
+    - 1.4123960463205973
+    - 1.421171973546346
+    - 1.4259212509791057
+    - 1.4179806009928386
+    - 1.407758323351542
+    - 1.4151144854227702
+    - 1.4152574237187703
+    - 1.4148925526936849
+    - 1.4139787753423054
+    - 1.4144195445378622
+    - 1.4115161720911662
+    - 1.4054049126307169
+    - 1.406478263537089
+    - 1.4035094165802002
+    - 1.4018561124801636
+    - 1.3981366348266602
+    - 1.4021990648905436
+    - 1.40372918287913
+    validation_losses:
+    - 2.4147020237786427
+    - 1.9646756989615304
+    - 1.740721685545785
+    - 1.6832353813307626
+    - 1.6294244187218803
+    - 1.588567657130105
+    - 1.583603058542524
+    - 1.5829862271036421
+    - 1.5542995759419032
+    - 1.55595543554851
+    - 1.5135246685573034
+    - 1.551978383745466
+    - 1.538846152169364
+    - 1.5400347113609314
+    - 1.5473320739609855
+    - 1.5142042466572352
+    - 1.487221590110234
+    - 1.5108828033719743
+    - 1.5366025056157793
+    - 1.5036886845316206
+    - 1.512709072657994
+    - 1.4852235402379717
+    - 1.459952073437827
+    - 1.4739007098334176
+    - 1.4620641299656458
+    - 1.473427219050271
+    - 1.4534852249281747
+    - 1.4740000878061568
+    - 1.4524540305137634
+    - 1.4736384068216597
+    - 1.4861267038754054
+    - 1.4743608917508806
+    - 1.5098473514829363
+    - 1.490658964429583
+    - 1.4742928658212935
+    - 1.4933648364884513
+    - 1.4485977036612374
+    - 1.4794301901544844
+    - 1.4673339213643755
+    - 1.5130883370126997
+    - 1.4501597711018153
+    - 1.4532821433884757
+    - 1.4575434071677071
+    - 1.4634129915918623
+    - 1.4642587474414281
+    - 1.4419273052896773
+    - 1.4416824919836861
+    - 1.471269496849605
+    - 1.4821938191141402
+    - 1.4020148856299264
+    best_epoch_metrics:
+      epoch: 49
+      training:
+        loss: 1.40372918287913
+        accuracy: 0.5096285343170166
+        balanced-accuracy: 0.33478283882141113
+        '- accuracy class 0': 0.4503311216831207
+        '- accuracy class 1': 0.3039742112159729
+        '- accuracy class 2': 0.3400673270225525
+        '- accuracy class 3': 0.6611195206642151
+        '- accuracy class 4': 0.0
+        '- accuracy class 5': 0.014018691144883633
+        '- accuracy class 6': 0.4017946124076843
+        '- accuracy class 7': 0.796875
+        '- accuracy class 8': 0.0
+        '- accuracy class 9': 0.37964776158332825
+        macro-precision: 0.3649718463420868
+        micro-precision: 0.5096285343170166
+        '- precision class 0': 0.4625850319862366
+        '- precision class 1': 0.3765801787376404
+        '- precision class 2': 0.4429824650287628
+        '- precision class 3': 0.7271214723587036
+        '- precision class 4': 0.0
+        '- precision class 5': 0.23076923191547394
+        '- precision class 6': 0.4333333373069763
+        '- precision class 7': 0.5384237766265869
+        '- precision class 8': 0.0
+        '- precision class 9': 0.43792325258255005
+        macro-recall: 0.33478283882141113
+        micro-recall: 0.5096285343170166
+        '- recall class 0': 0.4503311216831207
+        '- recall class 1': 0.3039742112159729
+        '- recall class 2': 0.3400673270225525
+        '- recall class 3': 0.6611195206642151
+        '- recall class 4': 0.0
+        '- recall class 5': 0.014018691144883633
+        '- recall class 6': 0.4017946124076843
+        '- recall class 7': 0.796875
+        '- recall class 8': 0.0
+        '- recall class 9': 0.37964776158332825
+        macro-f1_score: 0.33628395199775696
+        micro-f1_score: 0.5096285343170166
+        '- f1_score class 0': 0.4563758373260498
+        '- f1_score class 1': 0.3364041745662689
+        '- f1_score class 2': 0.38476189970970154
+        '- f1_score class 3': 0.6925514936447144
+        '- f1_score class 4': 0.0
+        '- f1_score class 5': 0.026431718841195107
+        '- f1_score class 6': 0.416968435049057
+        '- f1_score class 7': 0.6426373720169067
+        '- f1_score class 8': 0.0
+        '- f1_score class 9': 0.40670859813690186
+        spearmans-corr-coeff: 0.3447993993759155
+        matthews-corr-coeff: 0.394988089799881
+      validation:
+        loss: 1.4020148856299264
+        accuracy: 0.49940404295921326
+        balanced-accuracy: 0.33035245537757874
+        '- accuracy class 0': 0.44720497727394104
+        '- accuracy class 1': 0.2441471517086029
+        '- accuracy class 2': 0.2947368323802948
+        '- accuracy class 3': 0.654321014881134
+        '- accuracy class 4': 0.0
+        '- accuracy class 5': 0.02380952425301075
+        '- accuracy class 6': 0.41499999165534973
+        '- accuracy class 7': 0.8067227005958557
+        '- accuracy class 8': 0.0
+        '- accuracy class 9': 0.4175824224948883
+        macro-precision: 0.37102773785591125
+        micro-precision: 0.49940404295921326
+        '- precision class 0': 0.4528301954269409
+        '- precision class 1': 0.2919999957084656
+        '- precision class 2': 0.39436620473861694
+        '- precision class 3': 0.7756097316741943
+        '- precision class 4': 0.0
+        '- precision class 5': 0.3333333432674408
+        '- precision class 6': 0.494047611951828
+        '- precision class 7': 0.5210312008857727
+        '- precision class 8': 0.0
+        '- precision class 9': 0.4470588266849518
+        macro-recall: 0.33035245537757874
+        micro-recall: 0.49940404295921326
+        '- recall class 0': 0.44720497727394104
+        '- recall class 1': 0.2441471517086029
+        '- recall class 2': 0.2947368323802948
+        '- recall class 3': 0.654321014881134
+        '- recall class 4': 0.0
+        '- recall class 5': 0.02380952425301075
+        '- recall class 6': 0.41499999165534973
+        '- recall class 7': 0.8067227005958557
+        '- recall class 8': 0.0
+        '- recall class 9': 0.4175824224948883
+        macro-f1_score: 0.3323599696159363
+        micro-f1_score: 0.49940404295921326
+        '- f1_score class 0': 0.44999998807907104
+        '- f1_score class 1': 0.26593807339668274
+        '- f1_score class 2': 0.33734938502311707
+        '- f1_score class 3': 0.7098214030265808
+        '- f1_score class 4': 0.0
+        '- f1_score class 5': 0.04444444552063942
+        '- f1_score class 6': 0.45108696818351746
+        '- f1_score class 7': 0.6331409811973572
+        '- f1_score class 8': 0.0
+        '- f1_score class 9': 0.4318181872367859
+        spearmans-corr-coeff: 0.3355892300605774
+        matthews-corr-coeff: 0.3853345811367035
+    sanity_check_warnings:
+    - Training loss (1.40372918287913) is higher than validation loss (1.4020148856299264)
+      for CV split hold_out!
+test_results:
+  test:
+    inference_result:
+      predictions: []
+      metrics:
+        loss: 1.9915877878665924
+        accuracy: 0.34489795565605164
+        balanced-accuracy: 0.23049092292785645
+        '- accuracy class 0': 0.27551019191741943
+        '- accuracy class 1': 0.21367521584033966
+        '- accuracy class 2': 0.14705882966518402
+        '- accuracy class 3': 0.22826087474822998
+        '- accuracy class 4': 0.0
+        '- accuracy class 5': 0.0
+        '- accuracy class 6': 0.4000000059604645
+        '- accuracy class 7': 0.8585858345031738
+        '- accuracy class 8': 0.0
+        '- accuracy class 9': 0.1818181872367859
+        macro-precision: 0.2415480613708496
+        micro-precision: 0.34489795565605164
+        '- precision class 0': 0.6000000238418579
+        '- precision class 1': 0.3048780560493469
+        '- precision class 2': 0.3571428656578064
+        '- precision class 3': 0.5833333134651184
+        '- precision class 4': 0.0
+        '- precision class 5': 0.0
+        '- precision class 6': 0.095238097012043
+        '- precision class 7': 0.33203125
+        '- precision class 8': 0.0
+        '- precision class 9': 0.1428571492433548
+        macro-recall: 0.23049092292785645
+        micro-recall: 0.34489795565605164
+        '- recall class 0': 0.27551019191741943
+        '- recall class 1': 0.21367521584033966
+        '- recall class 2': 0.14705882966518402
+        '- recall class 3': 0.22826087474822998
+        '- recall class 4': 0.0
+        '- recall class 5': 0.0
+        '- recall class 6': 0.4000000059604645
+        '- recall class 7': 0.8585858345031738
+        '- recall class 8': 0.0
+        '- recall class 9': 0.1818181872367859
+        macro-f1_score: 0.1958056390285492
+        micro-f1_score: 0.34489795565605164
+        '- f1_score class 0': 0.3776223659515381
+        '- f1_score class 1': 0.2512562870979309
+        '- f1_score class 2': 0.2083333283662796
+        '- f1_score class 3': 0.328125
+        '- f1_score class 4': 0.0
+        '- f1_score class 5': 0.0
+        '- f1_score class 6': 0.1538461595773697
+        '- f1_score class 7': 0.47887325286865234
+        '- f1_score class 8': 0.0
+        '- f1_score class 9': 0.1599999964237213
+        spearmans-corr-coeff: 0.16857324540615082
+        matthews-corr-coeff: 0.21865415573120117
+    bootstrapped_metrics:
+    - name: accuracy
+      mean: 0.35161131620407104
+      lower: 0.31199342012405396
+      upper: 0.39848631620407104
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: balanced-accuracy
+      mean: 0.2384846955537796
+      lower: 0.19753722846508026
+      upper: 0.27916261553764343
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 0'
+      mean: 0.2910929322242737
+      lower: 0.20892639458179474
+      upper: 0.36133426427841187
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 1'
+      mean: 0.21123860776424408
+      lower: 0.15160521864891052
+      upper: 0.29123544692993164
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 2'
+      mean: 0.1419881135225296
+      lower: 0.05284576490521431
+      upper: 0.2867187559604645
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 3'
+      mean: 0.23343099653720856
+      lower: 0.16132202744483948
+      upper: 0.32031869888305664
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 4'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 5'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 6'
+      mean: 0.4194498658180237
+      lower: 0.0
+      upper: 0.7838745713233948
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 7'
+      mean: 0.8636881709098816
+      lower: 0.7925170660018921
+      upper: 0.9156860709190369
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 8'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- accuracy class 9'
+      mean: 0.20607300102710724
+      lower: 0.0
+      upper: 0.35591432452201843
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: macro-precision
+      mean: 0.24576009809970856
+      lower: 0.20393066108226776
+      upper: 0.2880798578262329
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: micro-precision
+      mean: 0.35161131620407104
+      lower: 0.31199342012405396
+      upper: 0.39848631620407104
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 0'
+      mean: 0.6026529669761658
+      lower: 0.447998046875
+      upper: 0.7361207008361816
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 1'
+      mean: 0.3055379092693329
+      lower: 0.22420349717140198
+      upper: 0.3555237054824829
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 2'
+      mean: 0.33939820528030396
+      lower: 0.12163543701171875
+      upper: 0.6357667446136475
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 3'
+      mean: 0.5822672247886658
+      lower: 0.47062379121780396
+      upper: 0.7266358137130737
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 4'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 5'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 6'
+      mean: 0.09746551513671875
+      lower: 0.0
+      upper: 0.17728886008262634
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 7'
+      mean: 0.33850911259651184
+      lower: 0.29024046659469604
+      upper: 0.39447021484375
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 8'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- precision class 9'
+      mean: 0.17233988642692566
+      lower: 0.0
+      upper: 0.2987366318702698
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: macro-recall
+      mean: 0.2384846955537796
+      lower: 0.19753722846508026
+      upper: 0.27916261553764343
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: micro-recall
+      mean: 0.35161131620407104
+      lower: 0.31199342012405396
+      upper: 0.39848631620407104
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 0'
+      mean: 0.2910929322242737
+      lower: 0.20892639458179474
+      upper: 0.36133426427841187
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 1'
+      mean: 0.21123860776424408
+      lower: 0.15160521864891052
+      upper: 0.29123544692993164
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 2'
+      mean: 0.1419881135225296
+      lower: 0.05284576490521431
+      upper: 0.2867187559604645
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 3'
+      mean: 0.23343099653720856
+      lower: 0.16132202744483948
+      upper: 0.32031869888305664
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 4'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 5'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 6'
+      mean: 0.4194498658180237
+      lower: 0.0
+      upper: 0.7838745713233948
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 7'
+      mean: 0.8636881709098816
+      lower: 0.7925170660018921
+      upper: 0.9156860709190369
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 8'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- recall class 9'
+      mean: 0.20607300102710724
+      lower: 0.0
+      upper: 0.35591432452201843
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: macro-f1_score
+      mean: 0.20077718794345856
+      lower: 0.1693572998046875
+      upper: 0.23733827471733093
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: micro-f1_score
+      mean: 0.35161131620407104
+      lower: 0.31199342012405396
+      upper: 0.39848631620407104
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 0'
+      mean: 0.3911946713924408
+      lower: 0.29032593965530396
+      upper: 0.47519537806510925
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 1'
+      mean: 0.2484334260225296
+      lower: 0.1847686767578125
+      upper: 0.3087769150733948
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 2'
+      mean: 0.19595235586166382
+      lower: 0.0761619582772255
+      upper: 0.33865979313850403
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 3'
+      mean: 0.33181965351104736
+      lower: 0.24436035752296448
+      upper: 0.4411499500274658
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 4'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 5'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 6'
+      mean: 0.15594075620174408
+      lower: 0.0
+      upper: 0.27714237570762634
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 7'
+      mean: 0.4855712950229645
+      lower: 0.42890626192092896
+      upper: 0.545153796672821
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 8'
+      mean: 0.0
+      lower: 0.0
+      upper: 0.0
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: '- f1_score class 9'
+      mean: 0.18359375
+      lower: 0.0
+      upper: 0.3110412657260895
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: spearmans-corr-coeff
+      mean: 0.17501474916934967
+      lower: 0.07057609409093857
+      upper: 0.2737182676792145
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    - name: matthews-corr-coeff
+      mean: 0.22459310293197632
+      lower: 0.17992249131202698
+      upper: 0.2619873285293579
+      iterations: 30
+      sample_size: 490
+      confidence_level: 0.05
+    baselines:
+      random_model:
+      - name: accuracy
+        mean: 0.112518310546875
+        lower: 0.08530120551586151
+        upper: 0.13547669351100922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: balanced-accuracy
+        mean: 0.12755940854549408
+        lower: 0.09725036472082138
+        upper: 0.16160278022289276
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 0'
+        mean: 0.03965555876493454
+        lower: 0.009173202328383923
+        upper: 0.0842788964509964
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 1'
+        mean: 0.0803375244140625
+        lower: 0.0414581298828125
+        upper: 0.12475281208753586
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 2'
+        mean: 0.416748046875
+        lower: 0.30952149629592896
+        upper: 0.5810913443565369
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 3'
+        mean: 0.2572184205055237
+        lower: 0.16187438368797302
+        upper: 0.3343261778354645
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 4'
+        mean: 0.19964803755283356
+        lower: 0.0
+        upper: 0.36668092012405396
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 6'
+        mean: 0.28191325068473816
+        lower: 0.0
+        upper: 0.6315187215805054
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 7'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 9'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-precision
+        mean: 0.08662617951631546
+        lower: 0.053522489964962006
+        upper: 0.11439666897058487
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-precision
+        mean: 0.112518310546875
+        lower: 0.08530120551586151
+        upper: 0.13547669351100922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 0'
+        mean: 0.3285563290119171
+        lower: 0.09772338718175888
+        upper: 0.5712890625
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 1'
+        mean: 0.12647908926010132
+        lower: 0.06896056979894638
+        upper: 0.1813141107559204
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 2'
+        mean: 0.07915649563074112
+        lower: 0.0485382080078125
+        upper: 0.1124267727136612
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 3'
+        mean: 0.21577554941177368
+        lower: 0.13898925483226776
+        upper: 0.2733520567417145
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 4'
+        mean: 0.05962371826171875
+        lower: 0.0
+        upper: 0.12234194576740265
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 6'
+        mean: 0.05661112442612648
+        lower: 0.0
+        upper: 0.11180879175662994
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 7'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 9'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-recall
+        mean: 0.12755940854549408
+        lower: 0.09725036472082138
+        upper: 0.16160278022289276
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-recall
+        mean: 0.112518310546875
+        lower: 0.08530120551586151
+        upper: 0.13547669351100922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 0'
+        mean: 0.03965555876493454
+        lower: 0.009173202328383923
+        upper: 0.0842788964509964
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 1'
+        mean: 0.0803375244140625
+        lower: 0.0414581298828125
+        upper: 0.12475281208753586
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 2'
+        mean: 0.416748046875
+        lower: 0.30952149629592896
+        upper: 0.5810913443565369
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 3'
+        mean: 0.2572184205055237
+        lower: 0.16187438368797302
+        upper: 0.3343261778354645
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 4'
+        mean: 0.19964803755283356
+        lower: 0.0
+        upper: 0.36668092012405396
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 6'
+        mean: 0.28191325068473816
+        lower: 0.0
+        upper: 0.6315187215805054
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 7'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 9'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-f1_score
+        mean: 0.07182617485523224
+        lower: 0.049419403076171875
+        upper: 0.08861695975065231
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-f1_score
+        mean: 0.112518310546875
+        lower: 0.08530120551586151
+        upper: 0.13547669351100922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 0'
+        mean: 0.07007039338350296
+        lower: 0.016382599249482155
+        upper: 0.14153750240802765
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 1'
+        mean: 0.09788919985294342
+        lower: 0.051717378199100494
+        upper: 0.14225159585475922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 2'
+        mean: 0.13254190981388092
+        lower: 0.08298186957836151
+        upper: 0.1842804104089737
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 3'
+        mean: 0.2337443083524704
+        lower: 0.14982299506664276
+        upper: 0.28392335772514343
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 4'
+        mean: 0.09087829291820526
+        lower: 0.0
+        upper: 0.17929993569850922
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 6'
+        mean: 0.09307149052619934
+        lower: 0.0
+        upper: 0.19180910289287567
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 7'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 9'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: spearmans-corr-coeff
+        mean: 0.09962666779756546
+        lower: 0.02098083682358265
+        upper: 0.16977235674858093
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: matthews-corr-coeff
+        mean: 0.00014006494893692434
+        lower: -0.033873748034238815
+        upper: 0.026673918589949608
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      random_sampling:
+      - name: accuracy
+        mean: 0.16136068105697632
+        lower: 0.130615234375
+        upper: 0.1996765285730362
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: balanced-accuracy
+        mean: 0.10145263373851776
+        lower: 0.06817016750574112
+        upper: 0.13627931475639343
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 0'
+        mean: 0.08392079919576645
+        lower: 0.04268531873822212
+        upper: 0.1392822265625
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 1'
+        mean: 0.2027384489774704
+        lower: 0.149658203125
+        upper: 0.26417240500450134
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 2'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 3'
+        mean: 0.142242431640625
+        lower: 0.08587646484375
+        upper: 0.21249085664749146
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 4'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 6'
+        mean: 0.16174520552158356
+        lower: 0.0
+        upper: 0.34473273158073425
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 7'
+        mean: 0.3130452334880829
+        lower: 0.212615966796875
+        upper: 0.39848631620407104
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- accuracy class 9'
+        mean: 0.1107381209731102
+        lower: 0.0
+        upper: 0.3415772020816803
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-precision
+        mean: 0.09113159030675888
+        lower: 0.07578583061695099
+        upper: 0.11504364758729935
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-precision
+        mean: 0.16136068105697632
+        lower: 0.130615234375
+        upper: 0.1996765285730362
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 0'
+        mean: 0.18840332329273224
+        lower: 0.08534698188304901
+        upper: 0.31463631987571716
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 1'
+        mean: 0.24357910454273224
+        lower: 0.18964233994483948
+        upper: 0.32236331701278687
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 2'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 3'
+        mean: 0.19141845405101776
+        lower: 0.12984618544578552
+        upper: 0.256988525390625
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 4'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 6'
+        mean: 0.03772430494427681
+        lower: 0.0
+        upper: 0.08897858113050461
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 7'
+        mean: 0.20158284902572632
+        lower: 0.14228209853172302
+        upper: 0.25923460721969604
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- precision class 9'
+        mean: 0.04853108897805214
+        lower: 0.0
+        upper: 0.13463445007801056
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-recall
+        mean: 0.10145263373851776
+        lower: 0.06817016750574112
+        upper: 0.13627931475639343
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-recall
+        mean: 0.16136068105697632
+        lower: 0.130615234375
+        upper: 0.1996765285730362
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 0'
+        mean: 0.08392079919576645
+        lower: 0.04268531873822212
+        upper: 0.1392822265625
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 1'
+        mean: 0.2027384489774704
+        lower: 0.149658203125
+        upper: 0.26417240500450134
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 2'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 3'
+        mean: 0.142242431640625
+        lower: 0.08587646484375
+        upper: 0.21249085664749146
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 4'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 6'
+        mean: 0.16174520552158356
+        lower: 0.0
+        upper: 0.34473273158073425
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 7'
+        mean: 0.3130452334880829
+        lower: 0.212615966796875
+        upper: 0.39848631620407104
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- recall class 9'
+        mean: 0.1107381209731102
+        lower: 0.0
+        upper: 0.3415772020816803
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: macro-f1_score
+        mean: 0.08684692531824112
+        lower: 0.06874541938304901
+        upper: 0.11282501369714737
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: micro-f1_score
+        mean: 0.16136068105697632
+        lower: 0.130615234375
+        upper: 0.1996765285730362
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 0'
+        mean: 0.11543680727481842
+        lower: 0.056563567370176315
+        upper: 0.19348450005054474
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 1'
+        mean: 0.22063802182674408
+        lower: 0.17182616889476776
+        upper: 0.27808234095573425
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 2'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 3'
+        mean: 0.16205038130283356
+        lower: 0.10693512111902237
+        upper: 0.21588747203350067
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 4'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 5'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 6'
+        mean: 0.0601399727165699
+        lower: 0.0
+        upper: 0.13813172280788422
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 7'
+        mean: 0.24414876103401184
+        lower: 0.17584839463233948
+        upper: 0.30034181475639343
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 8'
+        mean: 0.0
+        lower: 0.0
+        upper: 0.0
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: '- f1_score class 9'
+        mean: 0.06601054221391678
+        lower: 0.0
+        upper: 0.1853516399860382
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: spearmans-corr-coeff
+        mean: -0.021800868213176727
+        lower: -0.13172607123851776
+        upper: 0.0748993381857872
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+      - name: matthews-corr-coeff
+        mean: -0.004606437869369984
+        lower: -0.03470764309167862
+        upper: 0.03503724932670593
+        iterations: 30
+        sample_size: 490
+        confidence_level: 0.05
+predictions: []

@@ -1,0 +1,16 @@
+[project]
+name = "biocentral-vis"
+version = "0.1.0"
+description = "Cross-Platform Visualizations for the Biocentral Ecosystem"
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+dependencies = [
+    "altair>=6.0.0",
+    "vl-convert-python>=1.9.0.post1",
+    "biocentral-api @ git+https://github.com/biocentral/biocentral_api.git@5c6231080d231c2ab8fb767f3dab9b479c707e03#subdirectory=python",
+
+]
+
+[tool.uv.sources]
+#biotrainer-core = { path = "../../biotrainerFork/biotrainer-core" }
+#biocentral-api = { path = "../../biocentral_api/python"}
