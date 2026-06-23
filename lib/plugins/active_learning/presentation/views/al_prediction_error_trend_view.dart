@@ -7,30 +7,22 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Line chart showing how the average absolute prediction error (MAE) evolves
-/// across iterations for the selected campaign.
-/// Returns [SizedBox.shrink] when no iteration has experimental data to compare.
+/// Candlestick chart showing the distribution of absolute prediction errors per
+/// iteration. Each candle maps: low=min, open=Q1, close=Q3, high=max.
+/// Hides itself when no iteration has experimental data to compare.
 class ALPredictionErrorTrendView extends StatelessWidget {
-  static const Color _plotColor = Colors.pink;
+  static const Color _bodyColor = Color(0xFF673AB7); // deepPurple 500
 
   final ALCampaign campaign;
 
   const ALPredictionErrorTrendView({required this.campaign, super.key});
 
-  /// Computes per-iteration MAE using only suggested proteins that have
-  /// both a numeric prediction and an experimental value in [proteinDatabase].
-  List<(int iteration, double mae)> _computeErrorsPerIteration(Map<String, Protein> proteinDatabase) {
-    final points = <(int, double)>[];
-    for (final (_, iterResult) in campaign.iterationResults) {
-      final mae = _computeMAE(iterResult, proteinDatabase);
-      if (mae != null) {
-        points.add((iterResult.iteration, mae));
-      }
-    }
-    return points;
-  }
-
-  double? _computeMAE(ActiveLearningIterationResult iterResult, Map<String, Protein> proteinDatabase) {
+  /// Returns sorted absolute errors for all suggested proteins in [iterResult]
+  /// that have both a numeric prediction and an experimental value.
+  List<double> _errorsForIteration(
+    ActiveLearningIterationResult iterResult,
+    Map<String, Protein> proteinDatabase,
+  ) {
     final suggestionSet = iterResult.suggestions.toSet();
     final errors = <double>[];
     for (final result in iterResult.results) {
@@ -42,8 +34,36 @@ class ALPredictionErrorTrendView extends StatelessWidget {
       if (experimental == null) continue;
       errors.add((experimental - prediction).abs());
     }
-    if (errors.isEmpty) return null;
-    return errors.reduce((a, b) => a + b) / errors.length;
+    errors.sort();
+    return errors;
+  }
+
+  double _quartile(List<double> sorted, double q) {
+    final pos = (sorted.length - 1) * q;
+    final lower = pos.floor();
+    final upper = pos.ceil();
+    if (lower == upper) return sorted[lower];
+    return sorted[lower] + (sorted[upper] - sorted[lower]) * (pos - lower);
+  }
+
+  /// Builds one record per iteration: (iteration, min, q1, q3, max, mean).
+  List<({int iteration, double min, double q1, double q3, double max, double mean})>
+      _computeStats(Map<String, Protein> proteinDatabase) {
+    final result =
+        <({int iteration, double min, double q1, double q3, double max, double mean})>[];
+    for (final (_, iterResult) in campaign.iterationResults) {
+      final errors = _errorsForIteration(iterResult, proteinDatabase);
+      if (errors.isEmpty) continue;
+      result.add((
+        iteration: iterResult.iteration,
+        min: errors.first,
+        q1: _quartile(errors, 0.25),
+        q3: _quartile(errors, 0.75),
+        max: errors.last,
+        mean: errors.reduce((a, b) => a + b) / errors.length,
+      ),);
+    }
+    return result;
   }
 
   @override
@@ -51,17 +71,28 @@ class ALPredictionErrorTrendView extends StatelessWidget {
     return BlocBuilder<ALHubBloc, ALHubState>(
       buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase,
       builder: (context, state) {
-        final points = _computeErrorsPerIteration(state.proteinDatabase);
-        if (points.isEmpty) return const SizedBox.shrink();
+        final stats = _computeStats(state.proteinDatabase);
+        if (stats.isEmpty) return const SizedBox.shrink();
         return ExpansionTile(
-          title: const Text('Prediction Error Trend'),
-          leading: const Icon(Icons.show_chart),
+          title: const Text('Prediction Error Distribution'),
+          leading: const Icon(Icons.candlestick_chart),
           children: [
             SizedBox(
               height: 300,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 32, 16),
-                child: LineChart(_buildChartData(points)),
+                child: CandlestickChart(_buildChartData(stats)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _legendItem(_bodyColor, 'IQR (body)'),
+                  const SizedBox(width: 16),
+                  _legendItem(_bodyColor, 'Min – Max (wicks)'),
+                ],
               ),
             ),
           ],
@@ -70,44 +101,70 @@ class ALPredictionErrorTrendView extends StatelessWidget {
     );
   }
 
-  LineChartData _buildChartData(List<(int, double)> points) {
+  Widget _legendItem(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+
+  CandlestickChartData _buildChartData(
+    List<({int iteration, double min, double q1, double q3, double max, double mean})> stats,
+  ) {
     double minY = double.infinity;
     double maxY = double.negativeInfinity;
-    for (final (_, mae) in points) {
-      if (mae < minY) minY = mae;
-      if (mae > maxY) maxY = mae;
+    for (final s in stats) {
+      if (s.min < minY) minY = s.min;
+      if (s.max > maxY) maxY = s.max;
     }
     final range = maxY - minY;
     final yPadding = range == 0 ? 1.0 : range * 0.2;
 
-    final spots = points.map((p) => FlSpot(p.$1.toDouble(), p.$2)).toList();
+    final spots = stats
+        .map(
+          (s) => CandlestickSpot(
+            x: s.iteration.toDouble(),
+            open: s.q1,
+            high: s.max,
+            low: s.min,
+            close: s.q3,
+          ),
+        )
+        .toList();
 
-    final series = LineChartBarData(
-      spots: spots,
-      isCurved: points.length > 2,
-      color: _plotColor,
-      dotData: FlDotData(
-        getDotPainter: (_, __, ___, ____) =>
-            FlDotCirclePainter(radius: 5, color: _plotColor),
+    return CandlestickChartData(
+      candlestickSpots: spots,
+      candlestickPainter: DefaultCandlestickPainter(
+        candlestickStyleProvider: (spot, _) => const CandlestickStyle(
+          lineColor: _bodyColor,
+          lineWidth: 1.5,
+          bodyStrokeColor: _bodyColor,
+          bodyStrokeWidth: 0,
+          bodyFillColor: _bodyColor,
+          bodyWidth: 16,
+          bodyRadius: 2,
+        ),
       ),
-      belowBarData: BarAreaData(
-        show: true,
-        color: _plotColor.withAlpha(30),
-      ),
-    );
-
-    return LineChartData(
       minY: minY - yPadding,
       maxY: maxY + yPadding,
-      lineBarsData: [series],
-      titlesData: _buildTitlesData(points),
       borderData: FlBorderData(show: true),
-      lineTouchData: _buildTouchData(),
+      titlesData: _buildTitlesData(stats),
+      candlestickTouchData: _buildTouchData(stats),
     );
   }
 
-  FlTitlesData _buildTitlesData(List<(int, double)> points) {
-    final iterationNumbers = points.map((p) => p.$1).toSet();
+  FlTitlesData _buildTitlesData(
+    List<({int iteration, double min, double q1, double q3, double max, double mean})> stats,
+  ) {
+    final iterNums = stats.map((s) => s.iteration).toSet();
     return FlTitlesData(
       rightTitles: const AxisTitles(),
       topTitles: const AxisTitles(),
@@ -115,7 +172,7 @@ class ALPredictionErrorTrendView extends StatelessWidget {
         axisNameWidget: const Align(
           alignment: Alignment.bottomCenter,
           child: Text(
-            'MAE',
+            'Absolute Error',
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
@@ -139,7 +196,7 @@ class ALPredictionErrorTrendView extends StatelessWidget {
           reservedSize: 32,
           getTitlesWidget: (value, meta) {
             final iter = value.toInt();
-            if (!iterationNumbers.contains(iter)) return const SizedBox.shrink();
+            if (!iterNums.contains(iter)) return const SizedBox.shrink();
             return Text('$iter', style: const TextStyle(fontSize: 11));
           },
         ),
@@ -147,16 +204,32 @@ class ALPredictionErrorTrendView extends StatelessWidget {
     );
   }
 
-  LineTouchData _buildTouchData() {
-    return LineTouchData(
-      touchTooltipData: LineTouchTooltipData(
-        getTooltipItems: (spots) => spots.map((spot) {
-          return LineTooltipItem(
-            'Iteration ${spot.x.toInt()}\n'
-            'MAE: ${spot.y.toStringAsFixed(Constants.maxDoublePrecision)}',
-            const TextStyle(color: Colors.white, fontSize: 10),
+  CandlestickTouchData _buildTouchData(
+    List<({int iteration, double min, double q1, double q3, double max, double mean})> stats,
+  ) {
+    return CandlestickTouchData(
+      touchTooltipData: CandlestickTouchTooltipData(
+        fitInsideHorizontally: true,
+        fitInsideVertically: true,
+        maxContentWidth: 180,
+        getTooltipColor: (_) => Colors.blueGrey.shade800,
+        getTooltipItems: (painter, spot, spotIndex) {
+          if (spotIndex < 0 || spotIndex >= stats.length) return null;
+          final s = stats[spotIndex];
+          String fmt(double v) => v.toStringAsFixed(Constants.maxDoublePrecision);
+          const style = TextStyle(color: Colors.white, fontSize: 11);
+          return CandlestickTooltipItem(
+            'Iteration ${s.iteration}\n',
+            textStyle: style,
+            children: [
+              TextSpan(text: 'MAE: ${fmt(s.mean)}\n', style: style),
+              TextSpan(text: 'Min: ${fmt(s.min)}\n', style: style),
+              TextSpan(text: 'Q1:  ${fmt(s.q1)}\n', style: style),
+              TextSpan(text: 'Q3:  ${fmt(s.q3)}\n', style: style),
+              TextSpan(text: 'Max: ${fmt(s.max)}', style: style),
+            ],
           );
-        }).toList(),
+        },
       ),
     );
   }
