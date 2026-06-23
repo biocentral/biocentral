@@ -69,7 +69,7 @@ class ALPredictionErrorTrendView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
-      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase,
+      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
       builder: (context, state) {
         final stats = _computeStats(state.proteinDatabase);
         if (stats.isEmpty) return const SizedBox.shrink();
@@ -84,35 +84,9 @@ class ALPredictionErrorTrendView extends StatelessWidget {
                 child: CandlestickChart(_buildChartData(stats)),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _legendItem(_bodyColor, 'IQR (body)'),
-                  const SizedBox(width: 16),
-                  _legendItem(_bodyColor, 'Min – Max (wicks)'),
-                ],
-              ),
-            ),
           ],
         );
       },
-    );
-  }
-
-  Widget _legendItem(Color color, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
     );
   }
 
@@ -142,6 +116,8 @@ class ALPredictionErrorTrendView extends StatelessWidget {
 
     return CandlestickChartData(
       candlestickSpots: spots,
+      minX: stats.first.iteration.toDouble() - 1.0,
+      maxX: stats.last.iteration.toDouble() + 1.0,
       candlestickPainter: DefaultCandlestickPainter(
         candlestickStyleProvider: (spot, _) => const CandlestickStyle(
           lineColor: _bodyColor,
@@ -212,7 +188,7 @@ class ALPredictionErrorTrendView extends StatelessWidget {
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         maxContentWidth: 180,
-        getTooltipColor: (_) => Colors.blueGrey.shade800,
+        getTooltipColor: (_) => Colors.blueGrey.shade700,
         getTooltipItems: (painter, spot, spotIndex) {
           if (spotIndex < 0 || spotIndex >= stats.length) return null;
           final s = stats[spotIndex];

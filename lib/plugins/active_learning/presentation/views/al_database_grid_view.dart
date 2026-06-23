@@ -73,7 +73,7 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
-      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase,
+      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
       builder: (context, state) {
         return Scaffold(
           body: LayoutBuilder(
