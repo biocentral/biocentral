@@ -6,7 +6,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 
 sealed class ALHubEvent {}
 
@@ -28,20 +27,24 @@ final class _ALHubProteinUpdateInternalEvent extends ALHubEvent {
   _ALHubProteinUpdateInternalEvent({required this.proteinDatabase});
 }
 
-@immutable
 final class ALHubState extends Equatable {
   final List<ALCampaign> campaigns;
   final ALCampaign? selectedCampaign;
   final Map<String, Protein> proteinDatabase;
+  // Snapshot of selected campaign's iteration count at state-creation time.
+  // ALCampaign is mutable, so including its reference in props would always
+  // compare as equal after an in-place mutation. This int is captured once and
+  // lets Equatable detect that iteration results were added.
+  final int _selectedCampaignIterationCount;
 
-  const ALHubState({required this.campaigns, required this.proteinDatabase, this.selectedCampaign});
+  ALHubState({required this.campaigns, required this.proteinDatabase, this.selectedCampaign}) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
-  const ALHubState.initial() : campaigns = const [], proteinDatabase = const <String, Protein>{}, selectedCampaign = null;
+  ALHubState.initial() : campaigns = const [], proteinDatabase = const <String, Protein>{}, selectedCampaign = null, _selectedCampaignIterationCount = 0;
 
-  const ALHubState.loaded({required this.campaigns, required this.proteinDatabase, this.selectedCampaign});
+  ALHubState.loaded({required this.campaigns, required this.proteinDatabase, this.selectedCampaign}) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
   @override
-  List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign];
+  List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount];
 }
 
 class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
@@ -51,11 +54,10 @@ class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
 
   ALHubBloc(this._projectRepository, this._alRepository, ProteinRepository _proteinRepository)
       : _proteinRepository = _proteinRepository,
-        super(ALHubState(campaigns: const [],
-          proteinDatabase: _proteinRepository.databaseToMap(),),) {
+        super(ALHubState(campaigns: const [], proteinDatabase: _proteinRepository.databaseToMap())) {
     on<_ALHubLoadInternalEvent>((event, emit) async {
       if (event.campaigns.isEmpty) {
-        emit(const ALHubState.initial());
+        emit(ALHubState.initial());
         return;
       }
 

@@ -1,14 +1,13 @@
-import 'dart:async';
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
-import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ALPredictionComparisonView extends StatefulWidget {
+class ALPredictionComparisonView extends StatelessWidget {
   final String yLabel;
   final ALCampaign campaign;
   final ActiveLearningIterationResult? result;
@@ -22,35 +21,11 @@ class ALPredictionComparisonView extends StatefulWidget {
     super.key,
   }) : assert(result != null || allResults != null, 'Either result or allResults must be provided');
 
-  @override
-  State<ALPredictionComparisonView> createState() => _ALPredictionComparisonViewState();
-}
-
-class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView> {
-  StreamSubscription? _proteinSubscription;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _proteinSubscription ??= context.read<ProteinRepository>().databaseStream.listen((_) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _proteinSubscription?.cancel();
-    super.dispose();
-  }
-
-  /// Returns suggestions that have both a numeric prediction and an experimental value.
-  List<(ActiveLearningResult, double, double)> _plottableData() {
-    final proteinDb = context.read<ProteinRepository>().databaseToMap();
-
-    if (widget.allResults != null) {
-      return _plottableDataFromAll(proteinDb, widget.allResults!);
+  List<(ActiveLearningResult, double, double)> _plottableData(Map<String, Protein> proteinDb) {
+    if (allResults != null) {
+      return _plottableDataFromAll(proteinDb, allResults!);
     }
-    return _plottableDataFromSingle(proteinDb, widget.result!);
+    return _plottableDataFromSingle(proteinDb, result!);
   }
 
   List<(ActiveLearningResult, double, double)> _plottableDataFromSingle(Map<String, Protein> proteinDb, ActiveLearningIterationResult result) {
@@ -60,7 +35,7 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
       if (!suggestionSet.contains(r.entityId)) continue;
       final prediction = double.tryParse(r.prediction);
       if (prediction == null) continue;
-      final rawExperimental = proteinDb[r.entityId]?.attributes[widget.campaign.columnName];
+      final rawExperimental = proteinDb[r.entityId]?.attributes[campaign.columnName];
       final experimental = double.tryParse(rawExperimental?.toString() ?? '');
       if (experimental == null) continue;
       entries.add((r, prediction, experimental));
@@ -78,36 +53,41 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
 
   @override
   Widget build(BuildContext context) {
-    final data = _plottableData();
-    if (data.isEmpty) return const SizedBox.shrink();
-
-    return ExpansionTile(
-      title: const Text('Predictions vs. Experiments'),
-      leading: const Icon(Icons.compare_arrows),
-      children: [
-        SizedBox(
-          height: 500,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 35, 16, 24),
-            child: LineChart(_buildChartData(data)),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _legendDot(Colors.blue),
-              const SizedBox(width: 4),
-              const Text('Prediction', style: TextStyle(fontSize: 12)),
-              const SizedBox(width: 16),
-              _legendDot(Colors.orange),
-              const SizedBox(width: 4),
-              const Text('Experiment', style: TextStyle(fontSize: 12)),
-            ],
-          ),
-        ),
-      ],
+    return BlocBuilder<ALHubBloc, ALHubState>(
+      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
+      builder: (context, state) {
+        final data = _plottableData(state.proteinDatabase);
+        if (data.isEmpty) return const SizedBox.shrink();
+        
+        return ExpansionTile(
+          title: const Text('Predictions vs. Experiments'),
+          leading: const Icon(Icons.compare_arrows),
+          children: [
+            SizedBox(
+              height: 500,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 35, 16, 24),
+                child: LineChart(_buildChartData(data)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _legendDot(Colors.blue),
+                  const SizedBox(width: 4),
+                  const Text('Prediction', style: TextStyle(fontSize: 12)),
+                  const SizedBox(width: 16),
+                  _legendDot(Colors.orange),
+                  const SizedBox(width: 4),
+                  const Text('Experiment', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -180,7 +160,7 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
       leftTitles: AxisTitles(
         axisNameWidget: Align(
           alignment: Alignment.bottomCenter,
-          child: Text(widget.yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          child: Text(yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
         ),
         sideTitles: SideTitles(
           showTitles: true,
@@ -230,6 +210,7 @@ class _ALPredictionComparisonViewState extends State<ALPredictionComparisonView>
         return spotIndexes.map((_) => null).toList();
       },
       touchTooltipData: LineTouchTooltipData(
+        getTooltipColor: (_) => Colors.blueGrey.shade700,
         getTooltipItems: (spots) {
           return spots.map((spot) {
             // connectors occupy barIndex 0..data.length-1; prediction is at data.length

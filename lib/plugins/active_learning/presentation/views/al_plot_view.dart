@@ -109,7 +109,7 @@ class ALPlotView extends StatelessWidget {
           result.score.toDouble(),
           show: true,
           dotPainter: FlDotCirclePainter(radius: 8, color: color),
-        ));
+        ),);
       }
     }
 
@@ -196,6 +196,7 @@ class ALPlotView extends StatelessWidget {
   ScatterTouchData _buildCombinedTouchData(List<(int, String, double)> spotInfo) {
     return ScatterTouchData(
       touchTooltipData: ScatterTouchTooltipData(
+        getTooltipColor: (_) => Colors.blueGrey.shade700,
         getTooltipItems: (ScatterSpot touchedSpot) {
           final index = touchedSpot.x.toInt() - 1;
           if (index < 0 || index >= spotInfo.length) return null;
@@ -363,6 +364,7 @@ class ALPlotView extends StatelessWidget {
   ScatterTouchData _buildTouchData() {
     return ScatterTouchData(
       touchTooltipData: ScatterTouchTooltipData(
+        getTooltipColor: (_) => Colors.blueGrey.shade700,
         getTooltipItems: (ScatterSpot touchedSpot) {
           return ScatterTooltipItem(
             '${_suggestedResults[touchedSpot.x.toInt() - 1].entityId}\n '
