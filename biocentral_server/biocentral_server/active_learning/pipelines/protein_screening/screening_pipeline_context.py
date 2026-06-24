@@ -1,66 +1,46 @@
-from junban import PipelineContext
 from typing import List, Callable, Optional, Set
-from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
+from biotrainer_core.data_classes import SequenceData
+
+from ..al_shared import ALContext
 
 from ...al_config import (
-    ActiveLearningCampaignConfig,
-    ActiveLearningIterationConfig,
     ActiveLearningModelType,
+    ActiveLearningOptimizationMode,
 )
-from ....server_management import ActiveLearningIterationResult
 
 
-class ScreeningPipelineContext(PipelineContext):
+class ScreeningPipelineContext(ALContext):
     """Large struct to hold pipeline context during execution"""
 
     def __init__(
         self,
-        al_campaign_config: ActiveLearningCampaignConfig,
-        al_iteration_config: ActiveLearningIterationConfig,
-        embeddings: List[SequenceData],
+        al_optimization_mode: ActiveLearningOptimizationMode,
+        al_model_type: ActiveLearningModelType,
+        al_iteration_data: List[SequenceData],
         biotrainer_subtask_wrapper: Callable,
+        embeddings: List[SequenceData],
+        iteration: int,  # Number of the iteration
+        coefficient: float,
+        n_suggestions: int,
+        al_target_value: Optional[float] = None,
+        al_target_lb: Optional[float] = None,
+        al_target_ub: Optional[float] = None,
+        al_discrete_targets: Optional[List[str]] = None,
         all_labels_in_data: Optional[Set[str]] = None,
     ):
-        self.al_campaign_config = al_campaign_config
-        self.al_iteration_config = al_iteration_config
-        self.embeddings = embeddings
-        self.biotrainer_subtask_wrapper = biotrainer_subtask_wrapper
-        self.all_labels_in_data = all_labels_in_data
-
-        # Prepare step
-        self.training_data = None
-        self.inference_data = None
-
-        # Training step
-        self.biotrainer_result: Optional[BiotrainerModelResult] = None
-
-        # Inference step
-        self.predictions = None
-        self.uncertainty = None
-        self.desirability = None
-
-        # Acquisition step
-        self.scores = None  # Gets sorted in batch_selection step
-        self.al_results = None
-
-        # Batch Selection step
-        self.suggestions = None
-
-    def uses_biotrainer(self) -> bool:
-        model_type = self.al_campaign_config.model_type
-        if (
-            model_type == ActiveLearningModelType.GAUSSIAN_PROCESS
-            or model_type == ActiveLearningModelType.FNN_MCD
-        ):
-            return True
-        return False
-
-    def collect_iteration_result(self) -> ActiveLearningIterationResult:
-        assert self.al_results is not None
-        assert self.suggestions is not None
-        al_iteration_result = ActiveLearningIterationResult(
-            iteration=self.al_iteration_config.iteration,
-            results=self.al_results,
-            suggestions=self.suggestions,
+        super().__init__(
+            al_optimization_mode=al_optimization_mode,
+            al_model_type=al_model_type,
+            biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
+            iteration=iteration,
+            coefficient=coefficient,
+            n_suggestions=n_suggestions,
+            al_target_value=al_target_value,
+            al_target_lb=al_target_lb,
+            al_target_ub=al_target_ub,
+            al_discrete_targets=al_discrete_targets,
+            all_labels_in_data=all_labels_in_data,
         )
-        return al_iteration_result
+
+        self.al_iteration_data = al_iteration_data
+        self.embeddings = embeddings

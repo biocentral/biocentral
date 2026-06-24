@@ -28,8 +28,8 @@ class ActiveLearningOptimizationMode(str, Enum):
         return ActiveLearningOptimizationMode(status.upper())
 
 
-class ActiveLearningCampaignConfig(BaseModel):
-    """Configuration for an active learning campaign"""
+class ActiveLearningScreeningCampaignConfig(BaseModel):
+    """Configuration for an active learning screening campaign"""
 
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
@@ -100,7 +100,7 @@ class ActiveLearningCampaignConfig(BaseModel):
         return self
 
 
-class ActiveLearningIterationConfig(BaseModel):
+class ActiveLearningScreeningIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
     iteration: int = Field(description="Iteration number")
@@ -123,6 +123,68 @@ class ActiveLearningIterationConfig(BaseModel):
         if len(iteration_ids) != len(set(iteration_ids)):
             raise ValueError("iteration_data contains duplicate entries!")
         return v
+
+
+class ActiveLearningEngineeringCampaignConfig(BaseModel):
+    """Configuration for an active learning engineering campaign"""
+
+    name: str = Field(description="Name of the active learning campaign")
+    model_type: ActiveLearningModelType = Field(description="Type of model to use")
+    embedder_name: str = Field(description="Name of embedder to use")
+    optimization_mode: ActiveLearningOptimizationMode = Field(
+        description="Optimization mode selection"
+    )
+    seed: Optional[int] = Field(
+        default=43, description="Random seed for reproducibility."
+    )
+    wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
+
+    @model_validator(mode="after")
+    def validate_config(self):
+        if self.optimization_mode not in [
+            ActiveLearningOptimizationMode.MAXIMIZE,
+            ActiveLearningOptimizationMode.MINIMIZE,
+        ]:
+            raise ValueError(
+                "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
+            )
+
+        return self
+
+
+class ActiveLearningEngineeringIterationConfig(BaseModel):
+    """Configuration for a single iteration of active learning"""
+
+    iteration: int = Field(description="Iteration number")
+    base_sequences: List[str] = Field(
+        description="Sequences used to generate mutations", min_length=1
+    )
+    training_data: List[SequenceData] = Field(
+        description="List of training data for this iteration", min_length=1
+    )
+    coefficient: float = Field(
+        description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)",
+        ge=0.0,
+        le=1.0,
+    )
+    n_suggestions: int = Field(
+        description="Number of suggestions to propose from this iteration", ge=1
+    )
+
+    @field_validator("training_data")
+    @classmethod
+    def validate_training_data(cls, v: List[SequenceData]):
+        iteration_ids = [data_point.seq_id for data_point in v]
+        if len(iteration_ids) != len(set(iteration_ids)):
+            raise ValueError("iteration_data contains duplicate entries!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_config(self):
+        if len(self.base_sequences) != len(set(self.base_sequences)):
+            raise ValueError("base_sequences contains duplicate entries!")
+
+        return self
 
 
 class ActiveLearningConvergenceConfig(BaseModel):

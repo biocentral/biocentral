@@ -1,18 +1,18 @@
 from typing import List
 from junban import PipelineStep
 
-from ..screening_pipeline_context import ScreeningPipelineContext
+from ..al_context import ALContext
 
 from .....server_management import ActiveLearningResult
 
 
-class AcquisitionStep(PipelineStep[ScreeningPipelineContext]):
-    def _check_entry_assumptions(self, context: ScreeningPipelineContext) -> bool:
+class AcquisitionStep(PipelineStep[ALContext]):
+    def _check_entry_assumptions(self, context: ALContext) -> bool:
         assert context.desirability is not None
         assert context.uncertainty is not None
         return True
 
-    def _check_exit_assumptions(self, context: ScreeningPipelineContext) -> bool:
+    def _check_exit_assumptions(self, context: ALContext) -> bool:
         assert context.scores is not None
         return True
 
@@ -28,9 +28,9 @@ class AcquisitionStep(PipelineStep[ScreeningPipelineContext]):
         acquisition = desirability + beta * uncertainty
         return acquisition
 
-    def _execute(self, context: ScreeningPipelineContext) -> ScreeningPipelineContext:
+    def _execute(self, context: ALContext) -> ALContext:
         # Calculate acquisition scores
-        beta = context.al_iteration_config.coefficient
+        beta = context.coefficient
         desirability = context.desirability
         uncertainty = context.uncertainty
         acquisition_scores = self._upper_confidence_bound(

@@ -5,19 +5,19 @@ from junban import PipelineStep
 from typing import List, Literal
 from biotrainer_core.data_classes import SequenceData, Protocol, BiotrainerModelResult
 
+from ..al_context import ALContext
+
 from ....al_config import ActiveLearningOptimizationMode, ActiveLearningModelType
 
-from ..screening_pipeline_context import ScreeningPipelineContext
 
-
-class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
-    def _check_entry_assumptions(self, context: ScreeningPipelineContext) -> bool:
+class TrainModelStep(PipelineStep[ALContext]):
+    def _check_entry_assumptions(self, context: ALContext) -> bool:
         assert len(context.training_data) > 0
         if context.uses_biotrainer():
             assert context.biotrainer_subtask_wrapper is not None
         return True
 
-    def _check_exit_assumptions(self, context: ScreeningPipelineContext) -> bool:
+    def _check_exit_assumptions(self, context: ALContext) -> bool:
         if context.uses_biotrainer():
             assert context.biotrainer_result is not None
         return True
@@ -30,17 +30,17 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
 
     @staticmethod
     def _prepare_biotrainer_config(
-        context: ScreeningPipelineContext,
+        context: ALContext,
         task_type: Literal["classification", "regression"],
     ) -> dict:
         model_choice = None
-        match context.al_campaign_config.model_type:
+        match context.al_model_type:
             case ActiveLearningModelType.GAUSSIAN_PROCESS:
                 model_choice = "GP"
             case ActiveLearningModelType.FNN_MCD:
                 model_choice = "FNN"
         protocol = None
-        match context.al_campaign_config.optimization_mode:
+        match context.al_optimization_mode:
             case ActiveLearningOptimizationMode.DISCRETE:
                 protocol = Protocol.sequence_to_class.value
             case _:
@@ -49,8 +49,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
         num_epochs = 200 if task_type == "classification" else 120
         patience = (
             120
-            if context.al_campaign_config.model_type
-            == ActiveLearningModelType.GAUSSIAN_PROCESS
+            if context.al_model_type == ActiveLearningModelType.GAUSSIAN_PROCESS
             else 50
         )
         return {
@@ -62,14 +61,14 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
 
     def _train_and_inference_biotrainer(
         self,
-        context: ScreeningPipelineContext,
+        context: ALContext,
         task_type: Literal["classification", "regression"],
     ) -> BiotrainerModelResult:
         """
         Unified training and inference for GP models.
 
         Args:
-            context: ScreeningPipelineContext
+            context: ALContext
             task_type: 'classification' or 'regression'
 
         Returns:
@@ -81,10 +80,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
         # Create dummy test set
         # TODO Improve in biotrainer to not need a test set strictly
         first_embedding = next(iter(context.training_data.values())).embedding
-        if (
-            context.al_campaign_config.optimization_mode
-            == ActiveLearningOptimizationMode.DISCRETE
-        ):
+        if context.al_optimization_mode == ActiveLearningOptimizationMode.DISCRETE:
             assert context.all_labels_in_data is not None, (
                 "all_target_classes must be provided for discrete optimization"
             )
@@ -146,14 +142,8 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
 
         return result
 
-    def _execute(self, context: ScreeningPipelineContext) -> ScreeningPipelineContext:
-        mode = context.al_campaign_config.optimization_mode
-        task_type = (
-            "classification"
-            if mode == ActiveLearningOptimizationMode.DISCRETE
-            else "regression"
-        )
-        model_type = context.al_campaign_config.model_type
+    def _execute(self, context: ALContext) -> ALContext:
+        model_type = context.al_model_type
         match model_type:
             case (
                 ActiveLearningModelType.GAUSSIAN_PROCESS
@@ -161,7 +151,7 @@ class TrainModelStep(PipelineStep[ScreeningPipelineContext]):
             ):
                 result = self._train_and_inference_biotrainer(
                     context=context,
-                    task_type=task_type,
+                    task_type=context.al_task_type,
                 )
                 context.biotrainer_result = result
             case ActiveLearningModelType.RANDOM:

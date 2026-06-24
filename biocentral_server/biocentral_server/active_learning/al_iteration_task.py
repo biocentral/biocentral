@@ -3,7 +3,10 @@ from biotrainer_core.functions.seeding import seed_all
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from .pipelines import al_screening_pipeline
-from .al_config import ActiveLearningCampaignConfig, ActiveLearningIterationConfig
+from .al_config import (
+    ActiveLearningScreeningCampaignConfig,
+    ActiveLearningScreeningIterationConfig,
+)
 
 from ..utils import get_logger
 from ..custom_models import BiotrainerTempTask
@@ -15,8 +18,8 @@ logger = get_logger(__name__)
 class ActiveLearningIterationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
-        al_campaign_config: ActiveLearningCampaignConfig,
-        al_iteration_config: ActiveLearningIterationConfig,
+        al_campaign_config: ActiveLearningScreeningCampaignConfig,
+        al_iteration_config: ActiveLearningScreeningIterationConfig,
         embeddings: Optional[List[SequenceData]] = None,
         all_labels_in_data: Optional[Set[str]] = None,
     ):

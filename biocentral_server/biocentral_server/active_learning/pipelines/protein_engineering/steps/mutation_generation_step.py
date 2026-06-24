@@ -1,6 +1,6 @@
 import random
 
-from typing import List
+from typing import List, Set
 from junban import PipelineStep
 from biotrainer_core.utils.constants import STANDARD_AAS
 
@@ -22,7 +22,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
 
     @staticmethod
     def _generate_random_mutations(
-        wildtype_sequence: str, n_mutations: int
+        wildtype_sequence: str, training_data_sequences: Set[str], n_mutations: int
     ) -> List[str]:
         mutations = set()
         n_max_tries = n_mutations * 2
@@ -44,6 +44,8 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
             assert mutated_seq[random_idx] == mutation_aa, (
                 "Mutated sequence does not contain the mutation!"
             )
+            if mutated_seq in training_data_sequences:
+                continue
             mutations.add(mutated_seq)
 
             if len(mutations) == n_mutations:
@@ -53,10 +55,16 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _execute(
         self, context: EngineeringPipelineContext
     ) -> EngineeringPipelineContext:
-        wildtype_sequence = context.wildtype_sequence
-        n_mutations = context.n_mutations
+        base_sequences = context.base_sequences
+        wildtype_sequence = base_sequences[0]  # TODO handle multiple base sequences
 
-        mutations = self._generate_random_mutations(wildtype_sequence, n_mutations)
+        training_data_sequences = {
+            data_point.seq for data_point in context.al_training_data
+        }
+        n_mutations = context.n_mutations
+        mutations = self._generate_random_mutations(
+            wildtype_sequence, training_data_sequences, n_mutations
+        )
         context.mutations = mutations
 
         return context

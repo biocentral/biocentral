@@ -6,20 +6,19 @@ from biotrainer_core.data_classes import SequenceData
 
 from ....al_config import (
     ActiveLearningOptimizationMode,
-    ActiveLearningCampaignConfig,
 )
 
-from ..screening_pipeline_context import ScreeningPipelineContext
+from ..al_context import ALContext
 
 
-class InferenceStep(PipelineStep[ScreeningPipelineContext]):
-    def _check_entry_assumptions(self, context: ScreeningPipelineContext) -> bool:
+class InferenceStep(PipelineStep[ALContext]):
+    def _check_entry_assumptions(self, context: ALContext) -> bool:
         assert len(context.inference_data) > 0
         if context.uses_biotrainer():
             assert context.biotrainer_result is not None
         return True
 
-    def _check_exit_assumptions(self, context: ScreeningPipelineContext) -> bool:
+    def _check_exit_assumptions(self, context: ALContext) -> bool:
         assert len(context.predictions) > 0
         assert context.uncertainty is not None
         assert context.desirability is not None
@@ -35,14 +34,14 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
     def _random_classification_predictions(
         train_data: Dict[str, SequenceData],
         n_inference: int,
-        al_campaign_config: ActiveLearningCampaignConfig,
         uncertainty_strategy: str,
         class_str2int: Dict[str, int],
+        discrete_targets: Optional[List[str]] = None,
     ) -> Tuple[List, List, torch.Tensor]:
         """Generate random class-probability predictions for classification."""
 
         # Calculate probability of target class in training data
-        al_targets = set([t.lower() for t in al_campaign_config.discrete_targets or []])
+        al_targets = set([t.lower() for t in discrete_targets or []])
         assert len(al_targets) > 0, (
             "No target classes given for random classification predictions!"
         )
@@ -102,7 +101,6 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
     def _random_regression_predictions(
         train_data: Dict[str, SequenceData],
         n_inference: int,
-        al_campaign_config: ActiveLearningCampaignConfig,
         uncertainty_strategy: str,
     ) -> Tuple[List, List, torch.Tensor]:
         """Generate random predictions for regression."""
@@ -185,7 +183,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
     def _random_baseline_inference(
         self,
-        context: ScreeningPipelineContext,
+        context: ALContext,
         task_type: Literal["classification", "regression"],
         uncertainty_strategy: Literal["constant", "random", "uniform"] = "constant",
         seed: Optional[int] = None,
@@ -210,7 +208,6 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
             torch.manual_seed(seed)
 
         train_data = context.training_data
-        al_campaign_config = context.al_campaign_config
         n_inference = len(context.inference_data)
         class_str2int = {
             label.lower(): idx
@@ -220,7 +217,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
             means, preds, uncertainty = self._random_classification_predictions(
                 train_data=train_data,
                 n_inference=n_inference,
-                al_campaign_config=al_campaign_config,
+                discrete_targets=context.al_discrete_targets,
                 uncertainty_strategy=uncertainty_strategy,
                 class_str2int=class_str2int,
             )
@@ -228,17 +225,18 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
             means, preds, uncertainty = self._random_regression_predictions(
                 train_data=train_data,
                 n_inference=n_inference,
-                al_campaign_config=al_campaign_config,
                 uncertainty_strategy=uncertainty_strategy,
             )
         desirability = self._calculate_desirability(
-            torch.tensor(means), al_campaign_config, class_str2int=class_str2int
+            context=context,
+            predicted_means=torch.tensor(means),
+            class_str2int=class_str2int,
         )
 
         return preds, uncertainty, desirability
 
     def _handle_biotrainer_result(
-        self, context: ScreeningPipelineContext
+        self, context: ALContext
     ) -> Tuple[List, torch.Tensor, torch.Tensor]:
         # Extract predictions and uncertainties
         result = context.biotrainer_result
@@ -253,18 +251,15 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         )
         means = torch.tensor([pred.mcd_mean for pred in ordered_predictions])
         preds = [pred.prediction for pred in ordered_predictions]
-        if (
-            context.al_campaign_config.optimization_mode
-            == ActiveLearningOptimizationMode.DISCRETE
-        ):
+        if context.al_optimization_mode == ActiveLearningOptimizationMode.DISCRETE:
             uncertainty = torch.tensor(
                 [pred.bald_score for pred in ordered_predictions]
             )
         else:  # mcd_std for regression
             uncertainty = torch.tensor([pred.mcd_std for pred in ordered_predictions])
         desirability = self._calculate_desirability(
-            means,
-            context.al_campaign_config,
+            context=context,
+            predicted_means=means,
             class_str2int=result.derived_values.class_str2int,
         )
 
@@ -272,8 +267,8 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
 
     @staticmethod
     def _calculate_desirability(
+        context: ALContext,
         predicted_means: torch.Tensor,
-        al_campaign_config: ActiveLearningCampaignConfig,
         class_str2int: Optional[dict] = None,
     ) -> torch.Tensor:
         """Calculate desirability based on distance penalty to target value/label.
@@ -282,7 +277,11 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
         # Distance penalty: Lower is better
         dist = InferenceStep._calculate_distance_penalty(
             predicted_means,
-            al_campaign_config=al_campaign_config,
+            al_optimization_mode=context.al_optimization_mode,
+            target_value=context.al_target_value,
+            target_lb=context.al_target_lb,
+            target_ub=context.al_target_ub,
+            discrete_targets=context.al_discrete_targets,
             class_str2int=class_str2int,
         )
 
@@ -293,22 +292,31 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
     @staticmethod
     def _calculate_distance_penalty(
         means: torch.Tensor,
-        al_campaign_config: ActiveLearningCampaignConfig,
+        al_optimization_mode: ActiveLearningOptimizationMode,
+        target_value: Optional[float] = None,
+        target_lb: Optional[float] = None,
+        target_ub: Optional[float] = None,
         class_str2int: Optional[dict] = None,
+        discrete_targets: Optional[List[str]] = None,
     ) -> torch.Tensor:
-        mode = al_campaign_config.optimization_mode
-        match mode:
+        match al_optimization_mode:
             case ActiveLearningOptimizationMode.MAXIMIZE:
                 return means.max() - means
             case ActiveLearningOptimizationMode.MINIMIZE:
                 return means
             case ActiveLearningOptimizationMode.VALUE:
-                target_val = al_campaign_config.target_value
+                target_val = target_value
+                assert target_val is not None, (
+                    "Target value must be provided for VALUE optimization mode"
+                )
                 dist = torch.abs(target_val - means)
                 return dist
             case ActiveLearningOptimizationMode.INTERVAL:
                 dist = torch.zeros_like(means)
-                lb, ub = al_campaign_config.target_lb, al_campaign_config.target_ub
+                lb, ub = target_lb, target_ub
+                assert lb is not None and ub is not None, (
+                    "Target bounds must be provided for INTERVAL optimization mode"
+                )
                 below_lb = means < lb
                 above_ub = means > ub
                 dist[below_lb] = lb - means[below_lb]
@@ -323,7 +331,7 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
                     f"a value for each possible class!"
                 )
 
-                target_classes = al_campaign_config.discrete_targets or []
+                target_classes = discrete_targets or []
                 assert len(target_classes) > 0, (
                     "No target classes given for discrete optimization!"
                 )
@@ -341,20 +349,14 @@ class InferenceStep(PipelineStep[ScreeningPipelineContext]):
                 return penalty.min(dim=1)[0]  # Minimum penalty across target classes
 
             case _:
-                raise ValueError(f"Invalid optimization mode: {mode}")
+                raise ValueError(f"Invalid optimization mode: {al_optimization_mode}")
 
-    def _execute(self, context: ScreeningPipelineContext) -> ScreeningPipelineContext:
+    def _execute(self, context: ALContext) -> ALContext:
         if context.uses_biotrainer():
             preds, uncertainty, desirability = self._handle_biotrainer_result(context)
         else:
-            mode = context.al_campaign_config.optimization_mode
-            task_type = (
-                "classification"
-                if mode == ActiveLearningOptimizationMode.DISCRETE
-                else "regression"
-            )
             preds, uncertainty, desirability = self._random_baseline_inference(
-                context, task_type, uncertainty_strategy="constant", seed=42
+                context, context.al_task_type, uncertainty_strategy="constant", seed=42
             )
         context.predictions = preds
         context.uncertainty = uncertainty

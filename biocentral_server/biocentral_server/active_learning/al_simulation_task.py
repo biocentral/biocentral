@@ -10,8 +10,8 @@ from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
 from .al_iteration_task import ActiveLearningIterationTask
 from .al_config import (
-    ActiveLearningCampaignConfig,
-    ActiveLearningIterationConfig,
+    ActiveLearningScreeningCampaignConfig,
+    ActiveLearningScreeningIterationConfig,
     ActiveLearningSimulationConfig,
     ActiveLearningOptimizationMode,
 )
@@ -46,7 +46,7 @@ class _ActiveLearningSimulationFixedParameters:
 class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
-        al_campaign_config: ActiveLearningCampaignConfig,
+        al_campaign_config: ActiveLearningScreeningCampaignConfig,
         al_simulation_config: ActiveLearningSimulationConfig,
     ):
         super().__init__()
@@ -119,7 +119,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             )
         else:
             n_to_suggest = self.al_simulation_config.n_suggestions_per_iteration
-        al_iteration_config = ActiveLearningIterationConfig(
+        al_iteration_config = ActiveLearningScreeningIterationConfig(
             iteration=iteration_number,
             iteration_data=current_training_data,
             coefficient=0.5,  # TODO Adjust coefficient dynamically
