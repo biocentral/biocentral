@@ -19,19 +19,19 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig
-from biocentral_api._generated.models.active_learning_simulation_config import ActiveLearningSimulationConfig
+from biocentral_api._generated.models.active_learning_engineering_campaign_config import ActiveLearningEngineeringCampaignConfig
+from biocentral_api._generated.models.active_learning_engineering_iteration_config import ActiveLearningEngineeringIterationConfig
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ActiveLearningSimulationRequest(BaseModel):
+class ActiveLearningEngineeringIterationRequest(BaseModel):
     """
-    Request model for an active learning simulation
+    Request model for an active learning engineering iteration
     """ # noqa: E501
-    campaign_config: ActiveLearningCampaignConfig = Field(description="Campaign configuration")
-    simulation_config: ActiveLearningSimulationConfig = Field(description="Simulation configuration")
-    __properties: ClassVar[List[str]] = ["campaign_config", "simulation_config"]
+    campaign_config: ActiveLearningEngineeringCampaignConfig = Field(description="Engineering campaign configuration")
+    iteration_config: ActiveLearningEngineeringIterationConfig = Field(description="Engineering iteration configuration")
+    __properties: ClassVar[List[str]] = ["campaign_config", "iteration_config"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +51,7 @@ class ActiveLearningSimulationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ActiveLearningSimulationRequest from a JSON string"""
+        """Create an instance of ActiveLearningEngineeringIterationRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,14 +75,14 @@ class ActiveLearningSimulationRequest(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of campaign_config
         if self.campaign_config:
             _dict['campaign_config'] = self.campaign_config.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of simulation_config
-        if self.simulation_config:
-            _dict['simulation_config'] = self.simulation_config.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of iteration_config
+        if self.iteration_config:
+            _dict['iteration_config'] = self.iteration_config.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ActiveLearningSimulationRequest from a dict"""
+        """Create an instance of ActiveLearningEngineeringIterationRequest from a dict"""
         if obj is None:
             return None
 
@@ -90,8 +90,8 @@ class ActiveLearningSimulationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "campaign_config": ActiveLearningCampaignConfig.from_dict(obj["campaign_config"]) if obj.get("campaign_config") is not None else None,
-            "simulation_config": ActiveLearningSimulationConfig.from_dict(obj["simulation_config"]) if obj.get("simulation_config") is not None else None
+            "campaign_config": ActiveLearningEngineeringCampaignConfig.from_dict(obj["campaign_config"]) if obj.get("campaign_config") is not None else None,
+            "iteration_config": ActiveLearningEngineeringIterationConfig.from_dict(obj["iteration_config"]) if obj.get("iteration_config") is not None else None
         })
         return _obj
 

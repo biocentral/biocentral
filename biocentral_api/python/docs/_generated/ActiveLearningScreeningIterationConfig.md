@@ -1,4 +1,4 @@
-# ActiveLearningIterationConfig
+# ActiveLearningScreeningIterationConfig
 
 Configuration for a single iteration of active learning
 
@@ -14,19 +14,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig
+from biocentral_api._generated.models.active_learning_screening_iteration_config import ActiveLearningScreeningIterationConfig
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of ActiveLearningIterationConfig from a JSON string
-active_learning_iteration_config_instance = ActiveLearningIterationConfig.from_json(json)
+# create an instance of ActiveLearningScreeningIterationConfig from a JSON string
+active_learning_screening_iteration_config_instance = ActiveLearningScreeningIterationConfig.from_json(json)
 # print the JSON string representation of the object
-print(ActiveLearningIterationConfig.to_json())
+print(ActiveLearningScreeningIterationConfig.to_json())
 
 # convert the object into a dict
-active_learning_iteration_config_dict = active_learning_iteration_config_instance.to_dict()
-# create an instance of ActiveLearningIterationConfig from a dict
-active_learning_iteration_config_from_dict = ActiveLearningIterationConfig.from_dict(active_learning_iteration_config_dict)
+active_learning_screening_iteration_config_dict = active_learning_screening_iteration_config_instance.to_dict()
+# create an instance of ActiveLearningScreeningIterationConfig from a dict
+active_learning_screening_iteration_config_from_dict = ActiveLearningScreeningIterationConfig.from_dict(active_learning_screening_iteration_config_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

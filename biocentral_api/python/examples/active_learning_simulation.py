@@ -3,15 +3,15 @@ BETA
 
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
-from biocentral_api import BiocentralAPI, SequenceData, ActiveLearningCampaignConfig, \
-    ActiveLearningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType, \
+from biocentral_api import BiocentralAPI, SequenceData, ActiveLearningScreeningCampaignConfig, \
+    ActiveLearningScreeningSimulationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType, \
     ActiveLearningConvergenceConfig
 
 # TODO REMOVE LOCAL ONLY
 biocentral_api = BiocentralAPI(local_only=True)
 
 # Create campaign config (for all iterations)
-campaign_config = ActiveLearningCampaignConfig(name="Example_Simulation_Campaign",
+campaign_config = ActiveLearningScreeningCampaignConfig(name="Example_Simulation_Campaign",
                                                model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
                                                embedder_name="one_hot_encoding",
                                                optimization_mode=ActiveLearningOptimizationMode.VALUE,
@@ -30,7 +30,7 @@ simulation_data = [
 ]
 
 # Define simulation config
-simulation_config = ActiveLearningSimulationConfig(simulation_data=simulation_data,
+simulation_config = ActiveLearningScreeningSimulationConfig(simulation_data=simulation_data,
                                                    n_start=2,
                                                    n_suggestions_per_iteration=1, # Will be higher for most campaigns
                                                    convergence_config=ActiveLearningConvergenceConfig(
@@ -39,5 +39,5 @@ simulation_config = ActiveLearningSimulationConfig(simulation_data=simulation_da
                                                        max_consecutive_failures=2)
                                                    )
 # Run iteration
-simulation_results = biocentral_api.al_simulation(campaign_config, simulation_config).run_with_progress()
+simulation_results = biocentral_api.al_screening_simulation(campaign_config, simulation_config).run_with_progress()
 print(f"Simulation results: {simulation_results}")

@@ -1,7 +1,8 @@
 from .api import BiocentralAPI
-from ._generated import ActiveLearningCampaignConfig, ActiveLearningIterationConfig, \
-    SequenceData, ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningSimulationConfig, \
-    ActiveLearningIterationResult, ActiveLearningSimulationResult, ActiveLearningConvergenceConfig, \
+from ._generated import ActiveLearningEngineeringCampaignConfig, ActiveLearningEngineeringIterationConfig, \
+    SequenceData, ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningScreeningSimulationConfig, \
+    ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningIterationConfig, \
+    ActiveLearningIterationResult, ActiveLearningScreeningSimulationResult, ActiveLearningConvergenceConfig, \
     BiocentralPredictionModel, BiotrainerModelResult, BiotrainerInferenceResult, CommonEmbedder, Protocol, Prediction
 from .utils import batched
 
@@ -11,12 +12,15 @@ __all__ = ["BiocentralAPI",
            "BiotrainerInferenceResult",
            "CommonEmbedder",
            "SequenceData",
-           "ActiveLearningCampaignConfig",
-           "ActiveLearningIterationConfig",
+           "ActiveLearningScreeningSimulationConfig",
+           "ActiveLearningScreeningCampaignConfig",
+           "ActiveLearningScreeningIterationConfig",
+           "ActiveLearningEngineeringCampaignConfig",
+           "ActiveLearningEngineeringIterationConfig",
            "ActiveLearningOptimizationMode",
            "ActiveLearningModelType",
            "ActiveLearningIterationResult",
-           "ActiveLearningSimulationResult",
+           "ActiveLearningScreeningSimulationResult",
            "ActiveLearningConvergenceConfig",
            "Protocol",
            "Prediction",

@@ -4,9 +4,12 @@ from typing import List
 from .tasks import BiocentralServerTask, DTOHandler
 from .client_interface import ClientInterface
 
-from .._generated import ApiClient, ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningApi, \
-    TaskDTO, TaskStatus, ActiveLearningIterationRequest, ActiveLearningSimulationConfig, \
-    ActiveLearningSimulationRequest, ActiveLearningSimulationResult, ActiveLearningIterationResult
+from .._generated import ApiClient, ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningIterationConfig, \
+    ActiveLearningApi, \
+    TaskDTO, TaskStatus, ActiveLearningScreeningIterationRequest, ActiveLearningScreeningSimulationConfig, \
+    ActiveLearningScreeningSimulationRequest, ActiveLearningScreeningSimulationResult, ActiveLearningIterationResult, \
+    ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringCampaignConfig, \
+    ActiveLearningEngineeringIterationRequest
 
 
 class _ActiveLearningIterationDTOHandler(DTOHandler):
@@ -40,12 +43,12 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     _iteration_results = {}  # Use dict to preserve order of results
     _counted_iterations = set()  # track which iterations already moved the bar
 
-    def __init__(self, simulation_config: ActiveLearningSimulationConfig):
+    def __init__(self, simulation_config: ActiveLearningScreeningSimulationConfig):
         self._n_max_iterations = self._approximate_n_max_iterations(simulation_config)
         self._set_max_iterations_tqdm = False
 
     @staticmethod
-    def _approximate_n_max_iterations(simulation_config: ActiveLearningSimulationConfig):
+    def _approximate_n_max_iterations(simulation_config: ActiveLearningScreeningSimulationConfig):
         max_labels_budget = simulation_config.convergence_config.max_labels_budget
         if max_labels_budget is not None:
             return max_labels_budget // simulation_config.n_suggestions_per_iteration
@@ -95,34 +98,50 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
 
 
 class ActiveLearningClient(ClientInterface):
-    def al_iteration(self, api_client: ApiClient,
-                     campaign_config: ActiveLearningCampaignConfig,
-                     iteration_config: ActiveLearningIterationConfig) -> BiocentralServerTask[
+    def al_screening_iteration(self, api_client: ApiClient,
+                               campaign_config: ActiveLearningScreeningCampaignConfig,
+                               iteration_config: ActiveLearningScreeningIterationConfig) -> BiocentralServerTask[
         ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
         al_iteration_dto_handler = _ActiveLearningIterationDTOHandler()
 
-        al_iteration_request = ActiveLearningIterationRequest(campaign_config=campaign_config,
-                                                              iteration_config=iteration_config)
+        al_iteration_request = ActiveLearningScreeningIterationRequest(campaign_config=campaign_config,
+                                                                       iteration_config=iteration_config)
         task_id = self._submit_task(
-            endpoint_caller=lambda: al_api.active_learning_iteration_api_v1_active_learning_service_iteration_post(
+            endpoint_caller=lambda: al_api.active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post(
+                al_iteration_request)
+        )
+        return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler)
+
+    def al_engineering_iteration(self, api_client: ApiClient,
+                                 campaign_config: ActiveLearningEngineeringCampaignConfig,
+                                 iteration_config: ActiveLearningEngineeringIterationConfig) -> BiocentralServerTask[
+        ActiveLearningIterationResult]:
+        al_api = ActiveLearningApi(api_client)
+
+        al_iteration_dto_handler = _ActiveLearningIterationDTOHandler()
+
+        al_iteration_request = ActiveLearningEngineeringIterationRequest(campaign_config=campaign_config,
+                                                                         iteration_config=iteration_config)
+        task_id = self._submit_task(
+            endpoint_caller=lambda: al_api.active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post(
                 al_iteration_request)
         )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler)
 
     def al_simulation(self, api_client: ApiClient,
-                      campaign_config: ActiveLearningCampaignConfig,
-                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[
-        ActiveLearningSimulationResult]:
+                      campaign_config: ActiveLearningScreeningCampaignConfig,
+                      simulation_config: ActiveLearningScreeningSimulationConfig) -> BiocentralServerTask[
+        ActiveLearningScreeningSimulationResult]:
         al_api = ActiveLearningApi(api_client)
 
         al_simulation_dto_handler = _ActiveLearningSimulationDTOHandler(simulation_config=simulation_config)
 
-        al_simulation_request = ActiveLearningSimulationRequest(campaign_config=campaign_config,
-                                                                simulation_config=simulation_config)
+        al_simulation_request = ActiveLearningScreeningSimulationRequest(campaign_config=campaign_config,
+                                                                         simulation_config=simulation_config)
         task_id = self._submit_task(
-            endpoint_caller=lambda: al_api.active_learning_simulation_api_v1_active_learning_service_simulation_post(
+            endpoint_caller=lambda: al_api.active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post(
                 al_simulation_request)
         )
         return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_simulation_dto_handler)

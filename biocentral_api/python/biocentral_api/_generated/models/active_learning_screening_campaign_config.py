@@ -25,9 +25,9 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ActiveLearningCampaignConfig(BaseModel):
+class ActiveLearningScreeningCampaignConfig(BaseModel):
     """
-    Configuration for an active learning campaign
+    Configuration for an active learning screening campaign
     """ # noqa: E501
     name: StrictStr = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
@@ -58,7 +58,7 @@ class ActiveLearningCampaignConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ActiveLearningCampaignConfig from a JSON string"""
+        """Create an instance of ActiveLearningScreeningCampaignConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -108,7 +108,7 @@ class ActiveLearningCampaignConfig(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ActiveLearningCampaignConfig from a dict"""
+        """Create an instance of ActiveLearningScreeningCampaignConfig from a dict"""
         if obj is None:
             return None
 

@@ -17,21 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig
-from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from typing import Any, ClassVar, Dict, List, Union
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import SequenceData
 
-class ActiveLearningIterationRequest(BaseModel):
+class ActiveLearningScreeningIterationConfig(BaseModel):
     """
-    Request model for an active learning iteration
+    Configuration for a single iteration of active learning
     """ # noqa: E501
-    campaign_config: ActiveLearningCampaignConfig = Field(description="Campaign configuration")
-    iteration_config: ActiveLearningIterationConfig = Field(description="Iteration configuration")
-    __properties: ClassVar[List[str]] = ["campaign_config", "iteration_config"]
+    iteration: StrictInt = Field(description="Iteration number")
+    iteration_data: Annotated[List[SequenceData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
+    coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
+    n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
+    __properties: ClassVar[List[str]] = ["iteration", "iteration_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +53,7 @@ class ActiveLearningIterationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ActiveLearningIterationRequest from a JSON string"""
+        """Create an instance of ActiveLearningScreeningIterationConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,17 +74,18 @@ class ActiveLearningIterationRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of campaign_config
-        if self.campaign_config:
-            _dict['campaign_config'] = self.campaign_config.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of iteration_config
-        if self.iteration_config:
-            _dict['iteration_config'] = self.iteration_config.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in iteration_data (list)
+        _items = []
+        if self.iteration_data:
+            for _item_iteration_data in self.iteration_data:
+                if _item_iteration_data:
+                    _items.append(_item_iteration_data.to_dict())
+            _dict['iteration_data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ActiveLearningIterationRequest from a dict"""
+        """Create an instance of ActiveLearningScreeningIterationConfig from a dict"""
         if obj is None:
             return None
 
@@ -90,8 +93,10 @@ class ActiveLearningIterationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "campaign_config": ActiveLearningCampaignConfig.from_dict(obj["campaign_config"]) if obj.get("campaign_config") is not None else None,
-            "iteration_config": ActiveLearningIterationConfig.from_dict(obj["iteration_config"]) if obj.get("iteration_config") is not None else None
+            "iteration": obj.get("iteration"),
+            "iteration_data": [SequenceData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
+            "coefficient": obj.get("coefficient"),
+            "n_suggestions": obj.get("n_suggestions")
         })
         return _obj
 

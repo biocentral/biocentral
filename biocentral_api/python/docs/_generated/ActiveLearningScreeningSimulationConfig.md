@@ -1,4 +1,4 @@
-# ActiveLearningSimulationConfig
+# ActiveLearningScreeningSimulationConfig
 
 Configuration for a simulation of active learning on a complete dataset
 
@@ -15,19 +15,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_api._generated.models.active_learning_simulation_config import ActiveLearningSimulationConfig
+from biocentral_api._generated.models.active_learning_screening_simulation_config import ActiveLearningScreeningSimulationConfig
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of ActiveLearningSimulationConfig from a JSON string
-active_learning_simulation_config_instance = ActiveLearningSimulationConfig.from_json(json)
+# create an instance of ActiveLearningScreeningSimulationConfig from a JSON string
+active_learning_screening_simulation_config_instance = ActiveLearningScreeningSimulationConfig.from_json(json)
 # print the JSON string representation of the object
-print(ActiveLearningSimulationConfig.to_json())
+print(ActiveLearningScreeningSimulationConfig.to_json())
 
 # convert the object into a dict
-active_learning_simulation_config_dict = active_learning_simulation_config_instance.to_dict()
-# create an instance of ActiveLearningSimulationConfig from a dict
-active_learning_simulation_config_from_dict = ActiveLearningSimulationConfig.from_dict(active_learning_simulation_config_dict)
+active_learning_screening_simulation_config_dict = active_learning_screening_simulation_config_instance.to_dict()
+# create an instance of ActiveLearningScreeningSimulationConfig from a dict
+active_learning_screening_simulation_config_from_dict = ActiveLearningScreeningSimulationConfig.from_dict(active_learning_screening_simulation_config_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

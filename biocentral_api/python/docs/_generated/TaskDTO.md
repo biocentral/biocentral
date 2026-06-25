@@ -17,7 +17,7 @@ Name | Type | Description | Notes
 **embeddings_file** | **str** |  | [optional] 
 **projection_result** | **Dict[str, object]** | Hyperparameters used for this split | [optional] 
 **al_iteration_result** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
-**al_simulation_result** | [**ActiveLearningSimulationResult**](ActiveLearningSimulationResult.md) |  | [optional] 
+**al_simulation_result** | [**ActiveLearningScreeningSimulationResult**](ActiveLearningScreeningSimulationResult.md) |  | [optional] 
 
 ## Example
 

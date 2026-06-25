@@ -10,11 +10,13 @@ from biocentral_api import (
     BiocentralPredictionModel,
     CommonEmbedder,
     SequenceData,
-    ActiveLearningCampaignConfig,
-    ActiveLearningIterationConfig,
+    ActiveLearningScreeningCampaignConfig,
+    ActiveLearningScreeningIterationConfig,
+    ActiveLearningEngineeringCampaignConfig,
+    ActiveLearningEngineeringIterationConfig,
     ActiveLearningOptimizationMode,
     ActiveLearningModelType,
-    ActiveLearningSimulationConfig,
+    ActiveLearningScreeningSimulationConfig,
     ActiveLearningConvergenceConfig,
     Protocol,
 )
@@ -245,8 +247,8 @@ class TestActiveLearning(unittest.TestCase):
         # Active learning currently requires local dev features in many setups
         cls.api = _wait_or_skip(_make_api())
 
-    def test_active_learning_iteration(self):
-        campaign_config = ActiveLearningCampaignConfig(
+    def test_active_learning_screening_iteration(self):
+        campaign_config = ActiveLearningScreeningCampaignConfig(
             name="Example_Campaign",
             model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
             embedder_name="one_hot_encoding",
@@ -264,20 +266,20 @@ class TestActiveLearning(unittest.TestCase):
             SequenceData(seq_id="Seq7", seq="PRSEQ", set="pred", mask=None),
         ]
 
-        iteration_config = ActiveLearningIterationConfig(
+        iteration_config = ActiveLearningScreeningIterationConfig(
             iteration_data=iteration_data,
             n_suggestions=1,
             coefficient=0.8,
             iteration=1,
         )
 
-        iteration_result = self.api.al_iteration(campaign_config, iteration_config).run_with_progress()
+        iteration_result = self.api.al_screening_iteration(campaign_config, iteration_config).run_with_progress()
         self.assertTrue(hasattr(iteration_result, "results"))
         self.assertTrue(hasattr(iteration_result, "suggestions"))
         self.assertIsInstance(iteration_result.suggestions, list)
 
-    def test_active_learning_simulation(self):
-        campaign_config = ActiveLearningCampaignConfig(
+    def test_active_learning_screening_simulation(self):
+        campaign_config = ActiveLearningScreeningCampaignConfig(
             name="Example_Simulation_Campaign",
             model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
             embedder_name="one_hot_encoding",
@@ -295,7 +297,7 @@ class TestActiveLearning(unittest.TestCase):
             SequenceData(seq_id="Seq7", seq="PRSEQ", label="0.5", set="pred", mask=None),
         ]
 
-        simulation_config = ActiveLearningSimulationConfig(
+        simulation_config = ActiveLearningScreeningSimulationConfig(
             simulation_data=simulation_data,
             n_start=2,
             n_suggestions_per_iteration=1,
@@ -306,9 +308,36 @@ class TestActiveLearning(unittest.TestCase):
             ),
         )
 
-        simulation_results = self.api.al_simulation(campaign_config, simulation_config).run_with_progress()
+        simulation_results = self.api.al_screening_simulation(campaign_config, simulation_config).run_with_progress()
         self.assertTrue(hasattr(simulation_results, "iteration_results"))
 
+    def test_active_learning_engineering_iteration(self):
+        wildtype_sequence = "TSSLFPHPRL"
+        campaign_config = ActiveLearningEngineeringCampaignConfig(
+            name="Example_Campaign",
+            model_type=ActiveLearningModelType.FNN_MCD,
+            embedder_name="one_hot_encoding",
+            optimization_mode=ActiveLearningOptimizationMode.MAXIMIZE,
+            seed=44,
+            wildtype_sequence=wildtype_sequence,
+        )
+
+        iteration_data = [
+            SequenceData(seq_id="Mut1", seq="TSSLFPHPRM", label="1.054", set="train"),
+        ]
+
+        iteration_config = ActiveLearningEngineeringIterationConfig(
+            base_sequences=[wildtype_sequence],
+            training_data=iteration_data,
+            n_suggestions=10,
+            coefficient=0.8,
+            iteration=1,
+        )
+
+        iteration_result = self.api.al_engineering_iteration(campaign_config, iteration_config).run_with_progress()
+        self.assertTrue(hasattr(iteration_result, "results"))
+        self.assertTrue(hasattr(iteration_result, "suggestions"))
+        self.assertIsInstance(iteration_result.suggestions, list)
 
 if __name__ == '__main__':
     unittest.main()

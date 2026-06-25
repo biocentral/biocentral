@@ -36,17 +36,20 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
-    "ActiveLearningCampaignConfig",
     "ActiveLearningConvergenceConfig",
-    "ActiveLearningIterationConfig",
-    "ActiveLearningIterationRequest",
+    "ActiveLearningEngineeringCampaignConfig",
+    "ActiveLearningEngineeringIterationConfig",
+    "ActiveLearningEngineeringIterationRequest",
     "ActiveLearningIterationResult",
     "ActiveLearningModelType",
     "ActiveLearningOptimizationMode",
     "ActiveLearningResult",
-    "ActiveLearningSimulationConfig",
-    "ActiveLearningSimulationRequest",
-    "ActiveLearningSimulationResult",
+    "ActiveLearningScreeningCampaignConfig",
+    "ActiveLearningScreeningIterationConfig",
+    "ActiveLearningScreeningIterationRequest",
+    "ActiveLearningScreeningSimulationConfig",
+    "ActiveLearningScreeningSimulationRequest",
+    "ActiveLearningScreeningSimulationResult",
     "AddEmbeddingsRequest",
     "AddEmbeddingsResponse",
     "AutoDetectFormatRequest",
@@ -137,17 +140,20 @@ from biocentral_api._generated.exceptions import ApiAttributeError as ApiAttribu
 from biocentral_api._generated.exceptions import ApiException as ApiException
 
 # import models into sdk package
-from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig as ActiveLearningCampaignConfig
 from biocentral_api._generated.models.active_learning_convergence_config import ActiveLearningConvergenceConfig as ActiveLearningConvergenceConfig
-from biocentral_api._generated.models.active_learning_iteration_config import ActiveLearningIterationConfig as ActiveLearningIterationConfig
-from biocentral_api._generated.models.active_learning_iteration_request import ActiveLearningIterationRequest as ActiveLearningIterationRequest
+from biocentral_api._generated.models.active_learning_engineering_campaign_config import ActiveLearningEngineeringCampaignConfig as ActiveLearningEngineeringCampaignConfig
+from biocentral_api._generated.models.active_learning_engineering_iteration_config import ActiveLearningEngineeringIterationConfig as ActiveLearningEngineeringIterationConfig
+from biocentral_api._generated.models.active_learning_engineering_iteration_request import ActiveLearningEngineeringIterationRequest as ActiveLearningEngineeringIterationRequest
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult as ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType as ActiveLearningModelType
 from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode as ActiveLearningOptimizationMode
 from biocentral_api._generated.models.active_learning_result import ActiveLearningResult as ActiveLearningResult
-from biocentral_api._generated.models.active_learning_simulation_config import ActiveLearningSimulationConfig as ActiveLearningSimulationConfig
-from biocentral_api._generated.models.active_learning_simulation_request import ActiveLearningSimulationRequest as ActiveLearningSimulationRequest
-from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult as ActiveLearningSimulationResult
+from biocentral_api._generated.models.active_learning_screening_campaign_config import ActiveLearningScreeningCampaignConfig as ActiveLearningScreeningCampaignConfig
+from biocentral_api._generated.models.active_learning_screening_iteration_config import ActiveLearningScreeningIterationConfig as ActiveLearningScreeningIterationConfig
+from biocentral_api._generated.models.active_learning_screening_iteration_request import ActiveLearningScreeningIterationRequest as ActiveLearningScreeningIterationRequest
+from biocentral_api._generated.models.active_learning_screening_simulation_config import ActiveLearningScreeningSimulationConfig as ActiveLearningScreeningSimulationConfig
+from biocentral_api._generated.models.active_learning_screening_simulation_request import ActiveLearningScreeningSimulationRequest as ActiveLearningScreeningSimulationRequest
+from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult as ActiveLearningScreeningSimulationResult
 from biocentral_api._generated.models.add_embeddings_request import AddEmbeddingsRequest as AddEmbeddingsRequest
 from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
 from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest

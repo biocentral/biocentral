@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
-from biocentral_api._generated.models.active_learning_simulation_result import ActiveLearningSimulationResult
+from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
 from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult
 from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
@@ -48,7 +48,7 @@ class TaskDTO(BaseModel):
     embeddings_file: Optional[StrictStr] = None
     projection_result: Optional[Dict[str, Any]] = Field(default=None, description="Hyperparameters used for this split")
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
-    al_simulation_result: Optional[ActiveLearningSimulationResult] = None
+    al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
     __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
@@ -213,7 +213,7 @@ class TaskDTO(BaseModel):
             "embeddings_file": obj.get("embeddings_file"),
             "projection_result": obj.get("projection_result"),
             "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
-            "al_simulation_result": ActiveLearningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
+            "al_simulation_result": ActiveLearningScreeningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
         })
         return _obj
 

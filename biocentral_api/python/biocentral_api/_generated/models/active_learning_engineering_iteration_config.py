@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -25,15 +25,16 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-class ActiveLearningIterationConfig(BaseModel):
+class ActiveLearningEngineeringIterationConfig(BaseModel):
     """
     Configuration for a single iteration of active learning
     """ # noqa: E501
     iteration: StrictInt = Field(description="Iteration number")
-    iteration_data: Annotated[List[SequenceData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
+    base_sequences: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Sequences used to generate mutations")
+    training_data: Annotated[List[SequenceData], Field(min_length=1)] = Field(description="List of training data for this iteration")
     coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
     n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
-    __properties: ClassVar[List[str]] = ["iteration", "iteration_data", "coefficient", "n_suggestions"]
+    __properties: ClassVar[List[str]] = ["iteration", "base_sequences", "training_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -53,7 +54,7 @@ class ActiveLearningIterationConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ActiveLearningIterationConfig from a JSON string"""
+        """Create an instance of ActiveLearningEngineeringIterationConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,18 +75,18 @@ class ActiveLearningIterationConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in iteration_data (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in training_data (list)
         _items = []
-        if self.iteration_data:
-            for _item_iteration_data in self.iteration_data:
-                if _item_iteration_data:
-                    _items.append(_item_iteration_data.to_dict())
-            _dict['iteration_data'] = _items
+        if self.training_data:
+            for _item_training_data in self.training_data:
+                if _item_training_data:
+                    _items.append(_item_training_data.to_dict())
+            _dict['training_data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ActiveLearningIterationConfig from a dict"""
+        """Create an instance of ActiveLearningEngineeringIterationConfig from a dict"""
         if obj is None:
             return None
 
@@ -94,7 +95,8 @@ class ActiveLearningIterationConfig(BaseModel):
 
         _obj = cls.model_validate({
             "iteration": obj.get("iteration"),
-            "iteration_data": [SequenceData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
+            "base_sequences": obj.get("base_sequences"),
+            "training_data": [SequenceData.from_dict(_item) for _item in obj["training_data"]] if obj.get("training_data") is not None else None,
             "coefficient": obj.get("coefficient"),
             "n_suggestions": obj.get("n_suggestions")
         })

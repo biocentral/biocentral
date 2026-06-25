@@ -1,6 +1,6 @@
-# ActiveLearningCampaignConfig
+# ActiveLearningScreeningCampaignConfig
 
-Configuration for an active learning campaign
+Configuration for an active learning screening campaign
 
 ## Properties
 
@@ -19,19 +19,19 @@ Name | Type | Description | Notes
 ## Example
 
 ```python
-from biocentral_api._generated.models.active_learning_campaign_config import ActiveLearningCampaignConfig
+from biocentral_api._generated.models.active_learning_screening_campaign_config import ActiveLearningScreeningCampaignConfig
 
 # TODO update the JSON string below
 json = "{}"
-# create an instance of ActiveLearningCampaignConfig from a JSON string
-active_learning_campaign_config_instance = ActiveLearningCampaignConfig.from_json(json)
+# create an instance of ActiveLearningScreeningCampaignConfig from a JSON string
+active_learning_screening_campaign_config_instance = ActiveLearningScreeningCampaignConfig.from_json(json)
 # print the JSON string representation of the object
-print(ActiveLearningCampaignConfig.to_json())
+print(ActiveLearningScreeningCampaignConfig.to_json())
 
 # convert the object into a dict
-active_learning_campaign_config_dict = active_learning_campaign_config_instance.to_dict()
-# create an instance of ActiveLearningCampaignConfig from a dict
-active_learning_campaign_config_from_dict = ActiveLearningCampaignConfig.from_dict(active_learning_campaign_config_dict)
+active_learning_screening_campaign_config_dict = active_learning_screening_campaign_config_instance.to_dict()
+# create an instance of ActiveLearningScreeningCampaignConfig from a dict
+active_learning_screening_campaign_config_from_dict = ActiveLearningScreeningCampaignConfig.from_dict(active_learning_screening_campaign_config_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -10,9 +10,12 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
 from ._generated.models import Prediction, BiotrainerModelResult, BiotrainerInferenceResult
-from ._generated import ApiClient, Configuration, TaxonomyItem, SequenceData, DefaultApi, \
-    ActiveLearningCampaignConfig, ActiveLearningIterationConfig, ActiveLearningIterationResult, \
-    ActiveLearningSimulationConfig, ActiveLearningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol
+from ._generated import (ApiClient, Configuration, TaxonomyItem, SequenceData, DefaultApi, \
+                         ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningIterationConfig,
+                         ActiveLearningIterationResult, \
+                         ActiveLearningScreeningSimulationConfig,
+                         ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringCampaignConfig,
+                         ActiveLearningScreeningSimulationResult, BiocentralPredictionModel, CommonEmbedder, Protocol)
 from .clients import BiocentralServerTask, EmbeddingsClient, ProteinsClient, CustomModelsClient, PredictClient, \
     ActiveLearningClient, EmbeddingsResult
 
@@ -282,7 +285,8 @@ class BiocentralAPI:
             biocentral_server_task = custom_models_client.train(api_client, config, training_data)
             return biocentral_server_task
 
-    def inference(self, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[BiotrainerInferenceResult]:
+    def inference(self, model_hash: str, inference_data: Dict[str, str]) -> BiocentralServerTask[
+        BiotrainerInferenceResult]:
         """
         Run inference on a model trained via biocentral_server using given input data.
 
@@ -343,8 +347,8 @@ class BiocentralAPI:
             biocentral_server_task = predict_client.predict(api_client, model_names, sequence_data)
             return biocentral_server_task
 
-    def al_iteration(self, campaign_config: ActiveLearningCampaignConfig,
-                     iteration_config: ActiveLearningIterationConfig) -> BiocentralServerTask[
+    def al_screening_iteration(self, campaign_config: ActiveLearningScreeningCampaignConfig,
+                     iteration_config: ActiveLearningScreeningIterationConfig) -> BiocentralServerTask[
         ActiveLearningIterationResult]:
         if len(iteration_config.iteration_data) < 2:
             raise ValueError("Not enough data provided for an active learning iteration.")
@@ -353,12 +357,27 @@ class BiocentralAPI:
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
-            biocentral_server_task = active_learning_client.al_iteration(api_client, campaign_config, iteration_config)
+            biocentral_server_task = active_learning_client.al_screening_iteration(api_client,
+                                                                                   campaign_config,
+                                                                                   iteration_config)
             return biocentral_server_task
 
-    def al_simulation(self, campaign_config: ActiveLearningCampaignConfig,
-                      simulation_config: ActiveLearningSimulationConfig) -> BiocentralServerTask[
-        ActiveLearningSimulationResult]:
+    def al_engineering_iteration(self, campaign_config: ActiveLearningEngineeringCampaignConfig,
+                     iteration_config: ActiveLearningEngineeringIterationConfig) -> BiocentralServerTask[
+        ActiveLearningIterationResult]:
+        BiocentralAPI._check_sequence_lengths(
+            [iteration_data_point.seq for iteration_data_point in iteration_config.training_data])
+
+        active_learning_client = ActiveLearningClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = active_learning_client.al_engineering_iteration(api_client,
+                                                                                     campaign_config,
+                                                                                     iteration_config)
+            return biocentral_server_task
+
+    def al_screening_simulation(self, campaign_config: ActiveLearningScreeningCampaignConfig,
+                      simulation_config: ActiveLearningScreeningSimulationConfig) -> BiocentralServerTask[
+        ActiveLearningScreeningSimulationResult]:
         if len(simulation_config.simulation_data) < 2:
             raise ValueError("Not enough data provided for an active learning simulation.")
         BiocentralAPI._check_sequence_lengths(

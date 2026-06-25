@@ -26,7 +26,7 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-class ActiveLearningSimulationConfig(BaseModel):
+class ActiveLearningScreeningSimulationConfig(BaseModel):
     """
     Configuration for a simulation of active learning on a complete dataset
     """ # noqa: E501
@@ -55,7 +55,7 @@ class ActiveLearningSimulationConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ActiveLearningSimulationConfig from a JSON string"""
+        """Create an instance of ActiveLearningScreeningSimulationConfig from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -100,7 +100,7 @@ class ActiveLearningSimulationConfig(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ActiveLearningSimulationConfig from a dict"""
+        """Create an instance of ActiveLearningScreeningSimulationConfig from a dict"""
         if obj is None:
             return None
 
