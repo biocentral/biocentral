@@ -52,12 +52,22 @@ class TrainModelStep(PipelineStep[ALContext]):
             if context.al_model_type == ActiveLearningModelType.GAUSSIAN_PROCESS
             else 50
         )
-        return {
+
+        base_config = {
             "model_choice": model_choice,
             "protocol": protocol,
             "num_epochs": num_epochs,
             "patience": patience,
         }
+
+        if model_choice == "GP":
+            # Limiting to 21 components for gaussian processes (matches OHE dims)
+            dim_reduction_config = {
+                "dimension_reduction_method": "pca",
+                "n_reduced_components": 21,
+            }
+            base_config.update(dim_reduction_config)
+        return base_config
 
     def _train_and_inference_biotrainer(
         self,
