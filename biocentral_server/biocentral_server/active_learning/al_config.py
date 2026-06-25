@@ -226,7 +226,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
         return self
 
 
-class ActiveLearningSimulationConfig(BaseModel):
+class ActiveLearningScreeningSimulationConfig(BaseModel):
     """Configuration for a simulation of active learning on a complete dataset"""
 
     simulation_data: List[SequenceData] = Field(

@@ -1,5 +1,5 @@
 from junban import Pipeline
-from typing import Callable, Optional, Set
+from typing import Callable
 
 from ..al_shared import (
     AcquisitionStep,
@@ -23,7 +23,6 @@ def al_engineering_pipeline(
     al_iteration_config: ActiveLearningEngineeringIterationConfig,
     embedding_subtask_wrapper: Callable,
     biotrainer_subtask_wrapper: Callable,
-    all_labels_in_data: Optional[Set[str]] = None,
 ) -> ActiveLearningIterationResult:
     pipeline_context = EngineeringPipelineContext(
         al_optimization_mode=al_campaign_config.optimization_mode,
@@ -35,7 +34,7 @@ def al_engineering_pipeline(
         iteration=al_iteration_config.iteration,
         coefficient=al_iteration_config.coefficient,
         n_suggestions=al_iteration_config.n_suggestions,
-        all_labels_in_data=all_labels_in_data,
+        all_labels_in_data=None,
     )
     steps = [
         MutationGenerationStep(),

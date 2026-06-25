@@ -8,11 +8,11 @@ from biotrainer_core.data_classes import SequenceData
 from typing import Callable, Tuple, List, Optional, Set, Dict
 from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
-from .al_iteration_task import ActiveLearningIterationTask
+from .al_iteration_tasks import ActiveLearningScreeningIterationTask
 from .al_config import (
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningIterationConfig,
-    ActiveLearningSimulationConfig,
+    ActiveLearningScreeningSimulationConfig,
     ActiveLearningOptimizationMode,
 )
 
@@ -22,7 +22,7 @@ from ..server_management import (
     TaskDTO,
     TaskStatus,
     ActiveLearningIterationResult,
-    ActiveLearningSimulationResult,
+    ActiveLearningScreeningSimulationResult,
     PreEmbedMixin,
 )
 
@@ -43,11 +43,11 @@ class _ActiveLearningSimulationFixedParameters:
         return 100
 
 
-class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
+class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
         al_campaign_config: ActiveLearningScreeningCampaignConfig,
-        al_simulation_config: ActiveLearningSimulationConfig,
+        al_simulation_config: ActiveLearningScreeningSimulationConfig,
     ):
         super().__init__()
         self.al_campaign_config = al_campaign_config
@@ -69,7 +69,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             else None
         )
 
-        self.al_simulation_result = ActiveLearningSimulationResult(
+        self.al_simulation_result = ActiveLearningScreeningSimulationResult(
             campaign_name=self.al_campaign_config.name,
             potential_hits=self._get_potential_hits(),
         )
@@ -126,7 +126,7 @@ class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
             n_suggestions=n_to_suggest,
         )
 
-        al_iteration_task = ActiveLearningIterationTask(
+        al_iteration_task = ActiveLearningScreeningIterationTask(
             al_campaign_config=self.al_campaign_config,
             al_iteration_config=al_iteration_config,
             embeddings=embeddings,

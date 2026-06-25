@@ -5,7 +5,7 @@ from .error_models import ErrorResponse, NotFoundErrorResponse
 from .al_result import (
     ActiveLearningIterationResult,
     ActiveLearningResult,
-    ActiveLearningSimulationResult,
+    ActiveLearningScreeningSimulationResult,
 )
 
 __all__ = [
@@ -16,6 +16,6 @@ __all__ = [
     "MutationPrediction",
     "ActiveLearningResult",
     "ActiveLearningIterationResult",
-    "ActiveLearningSimulationResult",
+    "ActiveLearningScreeningSimulationResult",
     "EmbeddingProgress",
 ]

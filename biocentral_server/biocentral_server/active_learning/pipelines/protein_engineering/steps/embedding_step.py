@@ -46,16 +46,28 @@ class EmbeddingStep(PipelineStep[EngineeringPipelineContext]):
         if error_dto:
             raise Exception(error_dto.error)
 
-        model_training_data = [
-            data_point
+        model_training_data = {
+            data_point.seq_id: data_point.set_attribute(key="set", value="train")
             for data_point in embedding_result
             if data_point.get_hash() in training_data_hashed
-        ]
-        model_inference_data = [
-            data_point
+        }
+        if len(model_training_data) == 1:
+            # Edge case for minimal input: Add a dummy sequence
+            first_value = list(model_training_data.values())[0]
+            dummy_seq_data = SequenceData(
+                seq_id="dummy_train_1",
+                seq="PRTEIN",
+                set="train",
+                label=first_value.label,
+                embedding=first_value.embedding,
+            )
+            model_training_data[dummy_seq_data.get_hash()] = dummy_seq_data
+
+        model_inference_data = {
+            data_point.seq_id: data_point.set_attribute(key="set", value="pred")
             for data_point in embedding_result
             if data_point.get_hash() in mutation_data_hashed
-        ]
+        }
         context.training_data = model_training_data
         context.inference_data = model_inference_data
 

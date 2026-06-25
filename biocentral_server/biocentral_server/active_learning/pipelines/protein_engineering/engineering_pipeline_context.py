@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Set
+from typing import List, Callable, Optional, Set, Tuple
 from biotrainer_core.data_classes import SequenceData
 
 from ..al_shared import ALContext
@@ -7,6 +7,8 @@ from ...al_config import (
     ActiveLearningOptimizationMode,
     ActiveLearningModelType,
 )
+
+from ....server_management import TaskDTO
 
 
 class EngineeringPipelineContext(ALContext):
@@ -18,7 +20,9 @@ class EngineeringPipelineContext(ALContext):
         al_model_type: ActiveLearningModelType,
         al_training_data: List[SequenceData],
         base_sequences: List[str],
-        embedding_subtask_wrapper: Callable,
+        embedding_subtask_wrapper: Callable[
+            [List[SequenceData]], Tuple[Optional[TaskDTO], List[SequenceData]]
+        ],
         biotrainer_subtask_wrapper: Callable,
         iteration: int,  # Number of the iteration
         coefficient: float,

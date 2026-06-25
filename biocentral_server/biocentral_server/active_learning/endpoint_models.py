@@ -2,14 +2,16 @@ from pydantic import BaseModel, Field, model_validator
 
 from .al_config import (
     ActiveLearningScreeningCampaignConfig,
+    ActiveLearningEngineeringCampaignConfig,
     ActiveLearningScreeningIterationConfig,
+    ActiveLearningEngineeringIterationConfig,
     ActiveLearningOptimizationMode,
-    ActiveLearningSimulationConfig,
+    ActiveLearningScreeningSimulationConfig,
 )
 
 
-class ActiveLearningIterationRequest(BaseModel):
-    """Request model for an active learning iteration"""
+class ActiveLearningScreeningIterationRequest(BaseModel):
+    """Request model for an active learning screening iteration"""
 
     campaign_config: ActiveLearningScreeningCampaignConfig = Field(
         description="Campaign configuration"
@@ -52,12 +54,23 @@ class ActiveLearningIterationRequest(BaseModel):
         return self
 
 
-class ActiveLearningSimulationRequest(BaseModel):
-    """Request model for an active learning simulation"""
+class ActiveLearningScreeningSimulationRequest(BaseModel):
+    """Request model for an active learning screening simulation"""
 
     campaign_config: ActiveLearningScreeningCampaignConfig = Field(
         description="Campaign configuration"
     )
-    simulation_config: ActiveLearningSimulationConfig = Field(
+    simulation_config: ActiveLearningScreeningSimulationConfig = Field(
         description="Simulation configuration"
+    )
+
+
+class ActiveLearningEngineeringIterationRequest(BaseModel):
+    """Request model for an active learning engineering iteration"""
+
+    campaign_config: ActiveLearningEngineeringCampaignConfig = Field(
+        description="Engineering campaign configuration"
+    )
+    iteration_config: ActiveLearningEngineeringIterationConfig = Field(
+        description="Engineering iteration configuration"
     )

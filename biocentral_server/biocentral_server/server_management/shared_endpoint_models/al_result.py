@@ -26,8 +26,8 @@ class ActiveLearningIterationResult(BaseModel):
     )
 
 
-class ActiveLearningSimulationResult(BaseModel):
-    """Result of a simulated active learning campaign - used as a mutable object to store intermediate results"""
+class ActiveLearningScreeningSimulationResult(BaseModel):
+    """Result of a simulated active learning screening campaign - used as a mutable object to store intermediate results"""
 
     campaign_name: str = Field(
         description="Name of the simulated active learning campaign"

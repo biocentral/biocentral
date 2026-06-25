@@ -18,7 +18,7 @@ from .task_utils import run_subtask_util
 from ..shared_endpoint_models import (
     Prediction,
     ActiveLearningIterationResult,
-    ActiveLearningSimulationResult,
+    ActiveLearningScreeningSimulationResult,
     EmbeddingProgress,
 )
 
@@ -72,7 +72,7 @@ class TaskDTO(BaseModel):
 
     # active_learning
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
-    al_simulation_result: Optional[ActiveLearningSimulationResult] = None
+    al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
 
 
 class TaskInterface(ABC):

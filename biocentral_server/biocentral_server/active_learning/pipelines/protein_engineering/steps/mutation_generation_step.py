@@ -9,10 +9,12 @@ from ..engineering_pipeline_context import EngineeringPipelineContext
 
 class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _check_entry_assumptions(self, context: EngineeringPipelineContext) -> bool:
-        pass
+        assert len(context.base_sequences) > 0, "No base sequences provided!"
+        return True
 
     def _check_exit_assumptions(self, context: EngineeringPipelineContext) -> bool:
-        pass
+        assert len(context.mutations or []) > 0, "No mutations generated!"
+        return True
 
     def get_start_message(self) -> str:
         return "Generating mutations..."
