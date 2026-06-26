@@ -13,7 +13,7 @@ load_dotenv(".env")
 def run_worker(worker_id):
     """Run a single worker process with a specific name"""
     # Use custom worker name to identify in monitoring
-    worker_name = f"biocentral-worker-{worker_id}"
+    worker_name = f"biocentral-worker-{worker_id}-{os.getpid()}"
     start_rq_worker(name=worker_name)
 
 
