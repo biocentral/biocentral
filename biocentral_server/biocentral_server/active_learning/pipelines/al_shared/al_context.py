@@ -16,6 +16,7 @@ class ALContext(PipelineContext):
         self,
         al_optimization_mode: ActiveLearningOptimizationMode,
         al_model_type: ActiveLearningModelType,
+        embedder_name: str,
         biotrainer_subtask_wrapper: Callable,
         iteration: int,  # Number of the iteration
         coefficient: float,
@@ -33,7 +34,7 @@ class ALContext(PipelineContext):
             if al_optimization_mode == ActiveLearningOptimizationMode.DISCRETE
             else "regression"
         )
-
+        self.embedder_name = embedder_name
         self.biotrainer_subtask_wrapper = biotrainer_subtask_wrapper
 
         self.iteration = iteration

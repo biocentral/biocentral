@@ -3,6 +3,7 @@ import random
 
 from junban import PipelineStep
 from typing import List, Literal
+from biotrainer.embedding import BASELINE_EMBEDDERS
 from biotrainer_core.data_classes import SequenceData, Protocol, BiotrainerModelResult
 
 from ..al_context import ALContext
@@ -60,7 +61,9 @@ class TrainModelStep(PipelineStep[ALContext]):
             "patience": patience,
         }
 
-        if model_choice == "GP":
+        embedder_name = context.embedder_name.lower()
+        baseline_embedders = set([b.lower() for b in BASELINE_EMBEDDERS.keys()])
+        if model_choice == "GP" and embedder_name not in baseline_embedders:
             # Limiting to 21 components for gaussian processes (matches OHE dims)
             dim_reduction_config = {
                 "dimension_reduction_method": "pca",

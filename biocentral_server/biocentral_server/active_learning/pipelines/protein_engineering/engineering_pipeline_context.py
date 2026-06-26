@@ -18,6 +18,7 @@ class EngineeringPipelineContext(ALContext):
         self,
         al_optimization_mode: ActiveLearningOptimizationMode,
         al_model_type: ActiveLearningModelType,
+        embedder_name: str,
         al_training_data: List[SequenceData],
         base_sequences: List[str],
         embedding_subtask_wrapper: Callable[
@@ -34,17 +35,18 @@ class EngineeringPipelineContext(ALContext):
         all_labels_in_data: Optional[Set[str]] = None,
     ):
         super().__init__(
-            al_optimization_mode,
-            al_model_type,
-            biotrainer_subtask_wrapper,
-            iteration,
-            coefficient,
-            n_suggestions,
-            al_target_value,
-            al_target_lb,
-            al_target_ub,
-            al_discrete_targets,
-            all_labels_in_data,
+            al_optimization_mode=al_optimization_mode,
+            al_model_type=al_model_type,
+            embedder_name=embedder_name,
+            biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
+            iteration=iteration,
+            coefficient=coefficient,
+            n_suggestions=n_suggestions,
+            al_target_value=al_target_value,
+            al_target_lb=al_target_lb,
+            al_target_ub=al_target_ub,
+            al_discrete_targets=al_discrete_targets,
+            all_labels_in_data=all_labels_in_data,
         )
 
         self.al_training_data = al_training_data

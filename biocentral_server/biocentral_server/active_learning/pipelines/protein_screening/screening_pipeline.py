@@ -33,6 +33,7 @@ def al_screening_pipeline(
     pipeline_context = ScreeningPipelineContext(
         al_optimization_mode=al_campaign_config.optimization_mode,
         al_model_type=al_campaign_config.model_type,
+        embedder_name=al_campaign_config.embedder_name,
         al_iteration_data=al_iteration_config.iteration_data,
         biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
         embeddings=embeddings,

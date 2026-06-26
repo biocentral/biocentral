@@ -16,6 +16,7 @@ class ScreeningPipelineContext(ALContext):
         self,
         al_optimization_mode: ActiveLearningOptimizationMode,
         al_model_type: ActiveLearningModelType,
+        embedder_name: str,
         al_iteration_data: List[SequenceData],
         biotrainer_subtask_wrapper: Callable,
         embeddings: List[SequenceData],
@@ -31,6 +32,7 @@ class ScreeningPipelineContext(ALContext):
         super().__init__(
             al_optimization_mode=al_optimization_mode,
             al_model_type=al_model_type,
+            embedder_name=embedder_name,
             biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
             iteration=iteration,
             coefficient=coefficient,

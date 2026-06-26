@@ -27,6 +27,7 @@ def al_engineering_pipeline(
     pipeline_context = EngineeringPipelineContext(
         al_optimization_mode=al_campaign_config.optimization_mode,
         al_model_type=al_campaign_config.model_type,
+        embedder_name=al_campaign_config.embedder_name,
         al_training_data=al_iteration_config.training_data,
         base_sequences=al_iteration_config.base_sequences,
         embedding_subtask_wrapper=embedding_subtask_wrapper,
