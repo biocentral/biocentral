@@ -1,3 +1,4 @@
+import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -8,16 +9,6 @@ import 'package:flutter/material.dart';
 /// Points are color-coded based on their score values, with a gradient legend showing the score range.
 /// Supports single-iteration and combined multi-iteration modes.
 class ALPlotView extends StatelessWidget {
-  static const List<Color> _iterationColors = [
-    Colors.blue,
-    Colors.orange,
-    Colors.green,
-    Colors.purple,
-    Colors.red,
-    Colors.teal,
-    Colors.brown,
-    Colors.pink,
-  ];
   final String yLabel;
 
   /// The training results data to be displayed
@@ -101,7 +92,7 @@ class ALPlotView extends StatelessWidget {
 
     double counterX = 1.0;
     for (final (iteration, results) in _iterationData) {
-      final color = _iterationColors[iteration % _iterationColors.length];
+      final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
       for (final result in results) {
         spotInfo.add((iteration, result.entityId, result.score.toDouble()));
         spots.add(ScatterSpot(
@@ -196,14 +187,14 @@ class ALPlotView extends StatelessWidget {
   ScatterTouchData _buildCombinedTouchData(List<(int, String, double)> spotInfo) {
     return ScatterTouchData(
       touchTooltipData: ScatterTouchTooltipData(
-        getTooltipColor: (_) => Colors.blueGrey.shade700,
+        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
         getTooltipItems: (ScatterSpot touchedSpot) {
           final index = touchedSpot.x.toInt() - 1;
           if (index < 0 || index >= spotInfo.length) return null;
           final (iteration, entityId, score) = spotInfo[index];
           return ScatterTooltipItem(
             'Iteration $iteration\n$entityId\nScore: ${score.toStringAsFixed(Constants.maxDoublePrecision)}',
-            textStyle: const TextStyle(color: Colors.white, fontSize: 10),
+            textStyle: const TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 10),
           );
         },
       ),
@@ -220,7 +211,7 @@ class ALPlotView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: _iterationData.map((entry) {
           final (iteration, _) = entry;
-          final color = _iterationColors[iteration % _iterationColors.length];
+          final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
@@ -273,13 +264,7 @@ class ALPlotView extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(),
               gradient: const LinearGradient(
-                colors: [
-                  Colors.blue, // Low score
-                  Colors.purple,
-                  Colors.red,
-                  Colors.orange,
-                  Colors.yellow, // High score
-                ],
+                colors: BiocentralStyle.alScoreGradientColors,
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
               ),
@@ -364,12 +349,12 @@ class ALPlotView extends StatelessWidget {
   ScatterTouchData _buildTouchData() {
     return ScatterTouchData(
       touchTooltipData: ScatterTouchTooltipData(
-        getTooltipColor: (_) => Colors.blueGrey.shade700,
+        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
         getTooltipItems: (ScatterSpot touchedSpot) {
           return ScatterTooltipItem(
             '${_suggestedResults[touchedSpot.x.toInt() - 1].entityId}\n '
             'Score: ${touchedSpot.y.toStringAsFixed(Constants.maxDoublePrecision)}',
-            textStyle: const TextStyle(color: Colors.white, fontSize: 10),
+            textStyle: const TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 10),
           );
         },
       ),
@@ -419,11 +404,11 @@ class ALPlotView extends StatelessWidget {
   /// Returns a color based on the score ratio (0.0 - 1.0)
   /// The color gradient goes from blue (low scores) to yellow (high scores)
   Color getColorBasedOnScore(double ratio) {
-    if (ratio <= 0.2) return Colors.blue;
-    if (ratio <= 0.4) return Colors.purple;
-    if (ratio <= 0.6) return Colors.red;
-    if (ratio <= 0.8) return Colors.orange;
-    return Colors.yellow;
+    if (ratio <= 0.2) return BiocentralStyle.alScoreGradientColors[0];
+    if (ratio <= 0.4) return BiocentralStyle.alScoreGradientColors[1];
+    if (ratio <= 0.6) return BiocentralStyle.alScoreGradientColors[2];
+    if (ratio <= 0.8) return BiocentralStyle.alScoreGradientColors[3];
+    return BiocentralStyle.alScoreGradientColors[4];
   }
 }
 

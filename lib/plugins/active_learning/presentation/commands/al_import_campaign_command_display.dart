@@ -50,7 +50,7 @@ class _ALImportCampaignCommandDisplayState extends State<ALImportCampaignCommand
             child: ListTile(
               leading: Icon(
                 conflicts ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-                color: conflicts ? Colors.orange : Colors.green,
+                color: conflicts ? BiocentralStyle.alWarningColor : BiocentralStyle.alSuccessColor,
               ),
               title: Text(campaign.config.name),
               subtitle: Column(
@@ -60,7 +60,7 @@ class _ALImportCampaignCommandDisplayState extends State<ALImportCampaignCommand
                   const SizedBox(height: 2),
                   Text(
                     conflicts ? 'A campaign with this name already exists and will be overwritten if you proceed!' : 'Campaign can be added without issues.',
-                    style: TextStyle(color: conflicts ? Colors.orange.shade800 : Colors.green.shade700, fontStyle: FontStyle.italic),
+                    style: TextStyle(color: conflicts ? BiocentralStyle.alWarningTextColor : BiocentralStyle.alSuccessTextColor, fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
