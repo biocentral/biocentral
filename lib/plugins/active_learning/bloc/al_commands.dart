@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' as io;
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
@@ -213,4 +214,59 @@ final class ALAddExperimentalDataCommand extends BiocentralCommand<BiocentralDat
 
   @override
   String get typeName => 'ALAddExperimentalDataCommand';
+}
+
+final class ALExportCampaignCommand extends BiocentralCommand<String> {
+  final BiocentralProjectRepository _projectRepository;
+  final ALCampaign _campaign;
+  final String _filePath;
+
+  ALExportCampaignCommand({
+    required BiocentralProjectRepository projectRepository,
+    required ALCampaign campaign,
+    required String filePath,
+  })  : _projectRepository = projectRepository, _campaign = campaign, _filePath = filePath;
+
+  @override
+  Stream<BiocentralCommandLog<String>> execute() async* {
+    BiocentralCommandLog<String> log = initLog();
+    yield log = log.logInfo(information: 'Exporting campaign "${_campaign.config.name}"...');
+
+    final ioFile = io.File(_filePath);
+    final dirPath = ioFile.parent.path;
+    final fileName = ioFile.uri.pathSegments.last;
+
+    final saveEither = await _projectRepository.handleExternalSave(
+      fileName: fileName,
+      contentFunction: () async => jsonEncode({'campaigns': [_campaign.serialize()]}),
+      dirPath: dirPath,
+    );
+    yield saveEither.match(
+      (l) => log.errored(error: l.message),
+      (r) => log.finish(
+        result: BiocentralCommandResult(r ?? '', {'filePath': r ?? ''}),
+        finalProgress: BiocentralCommandProgress(
+          information: 'Campaign "${_campaign.config.name}" exported to $r!',
+          current: 1,
+          total: 1,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void acceptResult(BiocentralCommandLog? resultLog) {
+    // Export has no side effects on the repository
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {
+      'campaignName': _campaign.config.name,
+      'filePath': _filePath,
+    };
+  }
+
+  @override
+  String get typeName => 'ALExportCampaignCommand';
 }
