@@ -1,5 +1,6 @@
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_iteration_result_view.dart';
+import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_command_view.dart';
 import 'package:biocentral/sdk/util/size_config.dart';
 import 'package:flutter/material.dart';
@@ -59,19 +60,19 @@ class _ALHubViewState extends State<ALHubView> with AutomaticKeepAliveClientMixi
       case ALDatasetChangeStatus.none:
         return const SizedBox.shrink();
       case ALDatasetChangeStatus.suggestionsMissing:
-        return MaterialBanner(
-          backgroundColor: Colors.orange.shade100,
-          leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-          content: const Text(
+        return const MaterialBanner(
+          backgroundColor: BiocentralStyle.alWarningBackgroundColor,
+          leading: Icon(Icons.warning_amber_rounded, color: BiocentralStyle.alWarningColor),
+          content: Text(
             'Some suggested proteins from the latest iteration are no longer in the loaded dataset. '
             'Consider exporting the campaign before making further changes.',
           ),
-          actions: const [SizedBox.shrink()],
+          actions: [SizedBox.shrink()],
         );
       case ALDatasetChangeStatus.columnMissing:
         return MaterialBanner(
-          backgroundColor: Colors.red.shade100,
-          leading: const Icon(Icons.error_outline, color: Colors.red),
+          backgroundColor: BiocentralStyle.alCriticalBackgroundColor,
+          leading: const Icon(Icons.error_outline, color: BiocentralStyle.alCriticalColor),
           content: Text(
             'The target column "${state.selectedCampaign?.columnName}" no longer exists in the loaded dataset. '
             'Further iterations are disabled. Export the campaign and fix your dataset before continuing!',

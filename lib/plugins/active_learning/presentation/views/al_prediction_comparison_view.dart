@@ -1,6 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -75,11 +76,11 @@ class ALPredictionComparisonView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _legendDot(Colors.blue),
+                  _legendDot(BiocentralStyle.alPredictionLineColor),
                   const SizedBox(width: 4),
                   const Text('Prediction', style: TextStyle(fontSize: 12)),
                   const SizedBox(width: 16),
-                  _legendDot(Colors.orange),
+                  _legendDot(BiocentralStyle.alExperimentalLineColor),
                   const SizedBox(width: 4),
                   const Text('Experiment', style: TextStyle(fontSize: 12)),
                 ],
@@ -114,18 +115,18 @@ class ALPredictionComparisonView extends StatelessWidget {
     final predictionSeries = LineChartBarData(
       spots: data.asMap().entries.map((e) => FlSpot(e.key + 1.0, e.value.$2)).toList(),
       barWidth: 0,
-      color: Colors.blue,
+      color: BiocentralStyle.alPredictionLineColor,
       dotData: FlDotData(
-        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: Colors.blue),
+        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: BiocentralStyle.alPredictionLineColor),
       ),
     );
 
     final experimentalSeries = LineChartBarData(
       spots: data.asMap().entries.map((e) => FlSpot(e.key + 1.0, e.value.$3)).toList(),
       barWidth: 0,
-      color: Colors.orange,
+      color: BiocentralStyle.alExperimentalLineColor,
       dotData: FlDotData(
-        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: Colors.orange),
+        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: BiocentralStyle.alExperimentalLineColor),
       ),
     );
 
@@ -202,7 +203,7 @@ class ALPredictionComparisonView extends StatelessWidget {
       getTouchedSpotIndicator: (barData, spotIndexes) {
         if (barData == predictionSeries || barData == experimentalSeries) {
           return spotIndexes.map((_) => const TouchedSpotIndicatorData(
-            FlLine(color: Colors.transparent),
+            FlLine(color: BiocentralStyle.alConnectorLineColor),
             FlDotData(show: false),
           ),).toList();
         }
@@ -210,7 +211,7 @@ class ALPredictionComparisonView extends StatelessWidget {
         return spotIndexes.map((_) => null).toList();
       },
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (_) => Colors.blueGrey.shade700,
+        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
         getTooltipItems: (spots) {
           return spots.map((spot) {
             // connectors occupy barIndex 0..data.length-1; prediction is at data.length
@@ -225,7 +226,7 @@ class ALPredictionComparisonView extends StatelessWidget {
               'Prediction: ${prediction.toStringAsFixed(Constants.maxDoublePrecision)}\n'
               'Experiment: ${experimental.toStringAsFixed(Constants.maxDoublePrecision)}\n'
               'Δ: $sign${delta.toStringAsFixed(Constants.maxDoublePrecision)}',
-              const TextStyle(color: Colors.white, fontSize: 10),
+              const TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 10),
             );
           }).toList();
         },

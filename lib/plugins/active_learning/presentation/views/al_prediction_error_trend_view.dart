@@ -1,6 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -11,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// iteration. Each candle maps: low=min, open=Q1, close=Q3, high=max.
 /// Hides itself when no iteration has experimental data to compare.
 class ALPredictionErrorTrendView extends StatelessWidget {
-  static const Color _bodyColor = Color(0xFF673AB7); // deepPurple 500
+  static const Color _bodyColor = BiocentralStyle.alPredictionErrorBodyColor;
 
   final ALCampaign campaign;
 
@@ -188,12 +189,12 @@ class ALPredictionErrorTrendView extends StatelessWidget {
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         maxContentWidth: 180,
-        getTooltipColor: (_) => Colors.blueGrey.shade700,
+        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
         getTooltipItems: (painter, spot, spotIndex) {
           if (spotIndex < 0 || spotIndex >= stats.length) return null;
           final s = stats[spotIndex];
           String fmt(double v) => v.toStringAsFixed(Constants.maxDoublePrecision);
-          const style = TextStyle(color: Colors.white, fontSize: 11);
+          const style = TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 11);
           return CandlestickTooltipItem(
             'Iteration ${s.iteration}\n',
             textStyle: style,
