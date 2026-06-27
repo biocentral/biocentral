@@ -27,24 +27,42 @@ final class _ALHubProteinUpdateInternalEvent extends ALHubEvent {
   _ALHubProteinUpdateInternalEvent({required this.proteinDatabase});
 }
 
+enum ALDatasetChangeStatus {
+  none,
+  suggestionsMissing,
+  columnMissing,
+}
+
 final class ALHubState extends Equatable {
   final List<ALCampaign> campaigns;
   final ALCampaign? selectedCampaign;
   final Map<String, Protein> proteinDatabase;
-  // Snapshot of selected campaign's iteration count at state-creation time.
-  // ALCampaign is mutable, so including its reference in props would always
-  // compare as equal after an in-place mutation. This int is captured once and
-  // lets Equatable detect that iteration results were added.
+  final ALDatasetChangeStatus datasetChangeStatus;
   final int _selectedCampaignIterationCount;
 
-  ALHubState({required this.campaigns, required this.proteinDatabase, this.selectedCampaign}) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
+  ALHubState({
+    required this.campaigns, 
+    required this.proteinDatabase, 
+    this.selectedCampaign, 
+    this.datasetChangeStatus = ALDatasetChangeStatus.none,})
+      : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
-  ALHubState.initial() : campaigns = const [], proteinDatabase = const <String, Protein>{}, selectedCampaign = null, _selectedCampaignIterationCount = 0;
+  ALHubState.initial():
+        campaigns = const [], 
+        proteinDatabase = const <String, Protein>{}, 
+        selectedCampaign = null, 
+        _selectedCampaignIterationCount = 0,
+        datasetChangeStatus = ALDatasetChangeStatus.none;
 
-  ALHubState.loaded({required this.campaigns, required this.proteinDatabase, this.selectedCampaign}) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
+  ALHubState.loaded({
+    required this.campaigns,
+    required this.proteinDatabase,
+    this.selectedCampaign,
+    this.datasetChangeStatus = ALDatasetChangeStatus.none,
+  }) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
   @override
-  List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount];
+  List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount, datasetChangeStatus];
 }
 
 class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
@@ -66,18 +84,49 @@ class ALHubBloc extends Bloc<ALHubEvent, ALHubState> {
           ? event.campaigns.firstWhereOrNull((c) => c.internalName() == selectedName) ?? event.campaigns.first
           : event.campaigns.first;
 
-      emit(ALHubState.loaded(campaigns: event.campaigns, proteinDatabase: state.proteinDatabase, selectedCampaign: selected));
+      emit(ALHubState.loaded(
+        campaigns: event.campaigns,
+        proteinDatabase: state.proteinDatabase,
+        selectedCampaign: selected,
+        datasetChangeStatus: _detectDatasetChange(selected, state.proteinDatabase),
+      ),);
     });
 
     on<_ALHubProteinUpdateInternalEvent>((event, emit) async {
-      emit(ALHubState.loaded(campaigns: state.campaigns, proteinDatabase: event.proteinDatabase, selectedCampaign: state.selectedCampaign));
+      emit(ALHubState.loaded(
+        campaigns: state.campaigns,
+        proteinDatabase: event.proteinDatabase,
+        selectedCampaign: state.selectedCampaign,
+        datasetChangeStatus: _detectDatasetChange(state.selectedCampaign, event.proteinDatabase),
+      ),);
     });
 
     on<ALHubSelectCampaignEvent>((event, emit) {
-      emit(ALHubState.loaded(campaigns: state.campaigns, selectedCampaign: event.campaign, proteinDatabase: state.proteinDatabase));
+      emit(ALHubState.loaded(
+        campaigns: state.campaigns,
+        selectedCampaign: event.campaign,
+        proteinDatabase: state.proteinDatabase,
+        datasetChangeStatus: _detectDatasetChange(event.campaign, state.proteinDatabase),
+      ),);
     });
 
     _setupSubscriptions();
+  }
+
+  static ALDatasetChangeStatus _detectDatasetChange(ALCampaign? campaign, Map<String, Protein> database) {
+    if (campaign == null || campaign.iterationResults.isEmpty || database.isEmpty) {
+      return ALDatasetChangeStatus.none;
+    }
+
+    final columnExists = database.values.any((p) => p.attributes.containsKey(campaign.columnName));
+    if (!columnExists) return ALDatasetChangeStatus.columnMissing;
+
+    final lastSuggestions = campaign.iterationResults.last.$2.suggestions.toSet();
+    if (lastSuggestions.isNotEmpty && lastSuggestions.any((id) => !database.containsKey(id))) {
+      return ALDatasetChangeStatus.suggestionsMissing;
+    }
+
+    return ALDatasetChangeStatus.none;
   }
 
   void _setupSubscriptions() {
