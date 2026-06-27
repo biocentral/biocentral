@@ -11,7 +11,6 @@ import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fpdart/fpdart.dart' show FpdartOnIterable;
 
 class ALIterationCommandDisplay extends StatefulWidget {
   const ALIterationCommandDisplay({super.key});
@@ -81,9 +80,12 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
         });
       },
       builder: (context, state) {
+        final columnMissing = state.datasetChangeStatus == ALDatasetChangeStatus.columnMissing;
         final availability = BiocentralCommandAvailability(
-          available: state.campaigns.isNotEmpty,
-          unavailableMessage: 'No current campaigns to add data to!',
+          available: state.campaigns.isNotEmpty && !columnMissing,
+          unavailableMessage: columnMissing
+              ? 'Campaign column is missing from the loaded dataset. Export the campaign and fix your dataset before running more iterations.'
+              : 'No current campaigns to run iterations for!',
         );
         return BiocentralCommandWidget(
           icon: const Icon(Icons.newspaper),
