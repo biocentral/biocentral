@@ -159,7 +159,7 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
 
   Widget buildDataInput(Map<String, Protein> proteinDatabase) {
     if (_selectedCampaign == null) {
-      return const SizedBox.shrink(); // TODO: compare to Container() to see if it makes any difference
+      return Container();
     }
     if (_selectedCampaign!.iterationResults.isEmpty) {
       return const Text('Selected campaign does not have any results yet to add data!');
@@ -192,7 +192,7 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
           validator: (val) => val == null || val.isEmpty ? 'Value must not be empty!' : null,
           onChanged: (val) {
             setState(() {
-              _addedData[suggestion] = val; // TODO: check if val.toString() makes a difference
+              _addedData[suggestion] = val;
             });
           },
         ),),
@@ -203,78 +203,71 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
         ),
         const Align(
           alignment: Alignment.centerLeft,
-          child: Text('Add data for other sequences (optional)'),
+          child: Text('Other sequences (optional)'),
         ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: BiocentralDiscreteSelection<String>(
-                key: _dropdownKey,
-                title: 'Select sequence',
-                selectableValues: availableForExtra,
-                displayConversion: (id) => id,
-                initialValue: _pendingExtraId,
-                onChangedCallback: (String? selected) {
-                  setState(() {
-                    _pendingExtraId = selected;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(width: 8), // TODO: check if these should be in a single row instead of underneath each other
-            Expanded(
-              child: TextFormField(
-                controller: _extraValueController,
-                decoration: const InputDecoration(labelText: 'Value'),
-                textAlign: TextAlign.center,
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
-            const SizedBox(width: 8),
-            BiocentralSmallButton(
-              label: 'Stage',
-              onTap: _pendingExtraId != null && _extraValueController.text.isNotEmpty ? () {
-                final id = _pendingExtraId!;
-                final value = _extraValueController.text;
-                _extraValueController.clear();
-                setState(() {
-                  _extraData[id] = value;
-                  _pendingExtraId = null;
-                  _dropdownKey = UniqueKey();
-                });
-              } : null,
-            ),
-          ],
-        ),
-        
-        if (_extraData.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          ..._extraData.entries.map((entry) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(entry.key, overflow: TextOverflow.ellipsis),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    entry.value,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Remove',
-                  onPressed: () {
+        if (availableForExtra.isEmpty)
+          const Text('All sequences in the dataset already have data for this column.')
+        else
+          Row(
+            children: [
+              Expanded(
+                child: BiocentralDiscreteSelection<String>(
+                  key: _dropdownKey,
+                  title: 'Select sequence',
+                  selectableValues: availableForExtra,
+                  displayConversion: (id) => id,
+                  initialValue: _pendingExtraId,
+                  onChangedCallback: (String? selected) {
                     setState(() {
-                      _extraData.remove(entry.key);
+                      _pendingExtraId = selected;
                     });
                   },
                 ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _extraValueController,
+                  decoration: const InputDecoration(labelText: 'Value'),
+                  textAlign: TextAlign.center,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: 8),
+              BiocentralSmallButton(
+                label: 'Stage',
+                onTap: _pendingExtraId != null && _extraValueController.text.isNotEmpty ? () {
+                  final id = _pendingExtraId!;
+                  final value = _extraValueController.text;
+                  _extraValueController.clear();
+                  setState(() {
+                    _extraData[id] = value;
+                    _pendingExtraId = null;
+                    _dropdownKey = UniqueKey();
+                  });
+                } : null,
+              ),
+            ],
+          ),
+        
+        if (_extraData.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ..._extraData.entries.map((entry) => Card(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: ListTile(
+              dense: true,
+              title: Text(entry.key, overflow: TextOverflow.ellipsis),
+              subtitle: Text(entry.value, style: Theme.of(context).textTheme.bodyMedium),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Unstage',
+                onPressed: () {
+                  setState(() {
+                    _extraData.remove(entry.key);
+                  });
+                },
+              ),
             ),
           ),),
         ],
