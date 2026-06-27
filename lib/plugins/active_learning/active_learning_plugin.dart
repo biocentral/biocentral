@@ -3,6 +3,8 @@ import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/plugins/active_learning/presentation/commands/add_experimental_data_command_display.dart';
+import 'package:biocentral/plugins/active_learning/presentation/commands/al_export_campaign_command_display.dart';
+import 'package:biocentral/plugins/active_learning/presentation/commands/al_import_campaign_command_display.dart';
 import 'package:biocentral/plugins/active_learning/presentation/commands/al_iteration_command_display.dart';
 import 'package:biocentral/plugins/active_learning/presentation/commands/new_al_campaign_command_display.dart';
 import 'package:biocentral/plugins/active_learning/presentation/views/al_hub_view.dart';
@@ -31,7 +33,7 @@ class ALPlugin extends BiocentralPlugin
 
   @override
   ALRepository createListeningDatabase(
-      BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion) {
+      BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion,) {
     final repository = ALRepository(projectRepository);
     return repository;
   }
@@ -41,7 +43,9 @@ class ALPlugin extends BiocentralPlugin
     return [
       const NewALCampaignCommandDisplay(),
       const AddExperimentalDataCommandDisplay(),
-      const ALIterationCommandDisplay()
+      const ALIterationCommandDisplay(),
+      const ALExportCampaignCommandDisplay(),
+      const ALImportCampaignCommandDisplay(),
     ];
   }
 
