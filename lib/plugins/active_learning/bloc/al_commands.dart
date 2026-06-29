@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io' as io;
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/domain/al_repository.dart';
@@ -232,9 +231,9 @@ final class ALExportCampaignCommand extends BiocentralCommand<String> {
     BiocentralCommandLog<String> log = initLog();
     yield log = log.logInfo(information: 'Exporting campaign "${_campaign.config.name}"...');
 
-    final ioFile = io.File(_filePath);
-    final dirPath = ioFile.parent.path;
-    final fileName = ioFile.uri.pathSegments.last;
+    final xFile = XFile(_filePath);
+    final fileName = xFile.name;
+    final dirPath = _filePath.substring(0, _filePath.length - fileName.length - 1);
 
     final saveEither = await _projectRepository.handleExternalSave(
       fileName: fileName,
