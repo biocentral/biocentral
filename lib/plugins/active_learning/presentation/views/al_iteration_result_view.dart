@@ -25,6 +25,8 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   void initState() {
     super.initState();
     _subTabController = TabController(length: 2, vsync: this);
+    final length = context.read<ALHubBloc>().state.selectedCampaign?.iterationResults.length ?? 0;
+    _selectedResultIndex = length > 0 ? length - 1 : 0;
   }
 
   @override
@@ -37,10 +39,13 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
   Widget build(BuildContext context) {
     super.build(context);
     return BlocConsumer<ALHubBloc, ALHubState>(
-      listenWhen: (previous, current) => previous.selectedCampaign?.internalName() != current.selectedCampaign?.internalName(),
+      listenWhen: (previous, current) =>
+          previous.selectedCampaign?.internalName() != current.selectedCampaign?.internalName() ||
+          previous.selectedCampaignIterationCount != current.selectedCampaignIterationCount,
       listener: (context, state) {
+        final length = state.selectedCampaign?.iterationResults.length ?? 0;
         setState(() {
-          _selectedResultIndex = 0;
+          _selectedResultIndex = length > 0 ? length - 1 : 0;
         });
       },
       builder: (context, hubState) {

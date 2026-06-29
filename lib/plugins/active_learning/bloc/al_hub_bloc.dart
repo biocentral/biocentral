@@ -61,6 +61,8 @@ final class ALHubState extends Equatable {
     this.datasetChangeStatus = ALDatasetChangeStatus.none,
   }) : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
+  int get selectedCampaignIterationCount => _selectedCampaignIterationCount;
+
   @override
   List<Object?> get props => [campaigns, proteinDatabase, selectedCampaign, _selectedCampaignIterationCount, datasetChangeStatus];
 }
