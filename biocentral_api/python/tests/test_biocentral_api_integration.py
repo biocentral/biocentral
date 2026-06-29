@@ -88,6 +88,25 @@ class TestEmbeddings(unittest.TestCase):
         for v in res3.values():
             self.assertIsNotNone(v)
 
+    def test_project_pca_one_hot(self):
+        embedder_name = CommonEmbedder.ONE_HOT_ENCODING
+        sequence_data = {
+            "SeqP": "MMALSLALM",
+            "Seq2": "PRTEIN",
+            "Seq3": "PRT",
+            "Seq4": "SEQWENCE",
+            "Seq5": "MMPRTEINSEQWENCE",
+        }
+        projection_config = {"n_components": "2"}
+
+        result = self.api.project(
+            embedder_name=embedder_name,
+            method="pca",
+            sequence_data=sequence_data,
+            projection_config=projection_config
+        ).run()
+        self.assertIsNotNone(result)
+
 
 class TestPredict(unittest.TestCase):
     @classmethod
@@ -338,6 +357,7 @@ class TestActiveLearning(unittest.TestCase):
         self.assertTrue(hasattr(iteration_result, "results"))
         self.assertTrue(hasattr(iteration_result, "suggestions"))
         self.assertIsInstance(iteration_result.suggestions, list)
+
 
 if __name__ == '__main__':
     unittest.main()

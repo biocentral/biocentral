@@ -95,6 +95,10 @@ __all__ = [
     "Prediction1",
     "PredictionRequest",
     "ProjectionRequest",
+    "ProjectionResult",
+    "ProjectionsData",
+    "ProjectionsMetadata",
+    "ProteinAnnotations",
     "Protocol",
     "RawPrediction",
     "ResearchStats",
@@ -199,6 +203,10 @@ from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction1 import Prediction1 as Prediction1
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest as ProjectionRequest
+from biocentral_api._generated.models.projection_result import ProjectionResult as ProjectionResult
+from biocentral_api._generated.models.projections_data import ProjectionsData as ProjectionsData
+from biocentral_api._generated.models.projections_metadata import ProjectionsMetadata as ProjectionsMetadata
+from biocentral_api._generated.models.protein_annotations import ProteinAnnotations as ProteinAnnotations
 from biocentral_api._generated.models.protocol import Protocol as Protocol
 from biocentral_api._generated.models.raw_prediction import RawPrediction as RawPrediction
 from biocentral_api._generated.models.research_stats import ResearchStats as ResearchStats

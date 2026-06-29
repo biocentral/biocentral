@@ -16,7 +16,7 @@ from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
 from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, TaskStatus, \
-    TaskDTO, ProjectionsApi, ProjectionRequest
+    TaskDTO, ProjectionsApi, ProjectionRequest, ProjectionResult
 
 
 class EmbeddingsResult:
@@ -242,7 +242,7 @@ class EmbeddingsClient(ClientInterface):
                 method: str,
                 sequence_data: Dict[str, str],
                 projection_config: Dict[str, str],
-                ) -> BiocentralServerTask[Dict[str, Any]]:
+                ) -> BiocentralServerTask[ProjectionResult]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
 

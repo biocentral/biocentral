@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
@@ -26,6 +26,7 @@ from biocentral_api._generated.models.biotrainer_model_result import BiotrainerM
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.prediction import Prediction
+from biocentral_api._generated.models.projection_result import ProjectionResult
 from biocentral_api._generated.models.task_status import TaskStatus
 from typing import Optional, Set
 from typing_extensions import Self
@@ -46,7 +47,7 @@ class TaskDTO(BaseModel):
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
     embeddings: Optional[List[SequenceData]] = None
     embeddings_file: Optional[StrictStr] = None
-    projection_result: Optional[Dict[str, Any]] = Field(default=None, description="Hyperparameters used for this split")
+    projection_result: Optional[ProjectionResult] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
     __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
@@ -118,6 +119,9 @@ class TaskDTO(BaseModel):
                 if _item_embeddings:
                     _items.append(_item_embeddings.to_dict())
             _dict['embeddings'] = _items
+        # override the default output from pydantic by calling `to_dict()` of projection_result
+        if self.projection_result:
+            _dict['projection_result'] = self.projection_result.to_dict()
         # override the default output from pydantic by calling `to_dict()` of al_iteration_result
         if self.al_iteration_result:
             _dict['al_iteration_result'] = self.al_iteration_result.to_dict()
@@ -211,7 +215,7 @@ class TaskDTO(BaseModel):
             "embedded_sequences": obj.get("embedded_sequences"),
             "embeddings": [SequenceData.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
-            "projection_result": obj.get("projection_result"),
+            "projection_result": ProjectionResult.from_dict(obj["projection_result"]) if obj.get("projection_result") is not None else None,
             "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
             "al_simulation_result": ActiveLearningScreeningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
         })

@@ -72,6 +72,10 @@ from biocentral_api._generated.models.prediction import Prediction
 from biocentral_api._generated.models.prediction1 import Prediction1
 from biocentral_api._generated.models.prediction_request import PredictionRequest
 from biocentral_api._generated.models.projection_request import ProjectionRequest
+from biocentral_api._generated.models.projection_result import ProjectionResult
+from biocentral_api._generated.models.projections_data import ProjectionsData
+from biocentral_api._generated.models.projections_metadata import ProjectionsMetadata
+from biocentral_api._generated.models.protein_annotations import ProteinAnnotations
 from biocentral_api._generated.models.protocol import Protocol
 from biocentral_api._generated.models.raw_prediction import RawPrediction
 from biocentral_api._generated.models.research_stats import ResearchStats
