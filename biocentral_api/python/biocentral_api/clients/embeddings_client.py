@@ -9,14 +9,14 @@ import numpy as np
 
 from pathlib import Path
 from tqdm.auto import tqdm
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union, Optional, Any
 
-from .tasks import BiocentralServerTask, DTOHandler
 from .client_interface import ClientInterface
+from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
 from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, TaskStatus, \
-    TaskDTO
+    TaskDTO, ProjectionsApi, ProjectionRequest
 
 
 class EmbeddingsResult:
@@ -184,6 +184,38 @@ class _EmbedDTOHandler(DTOHandler):
         return f"Embedding with {self._embedder_name}.."
 
 
+class _ProjectionDTOHandler(DTOHandler):
+    def __init__(self, embedder_name):
+        self._embedder_name = embedder_name
+
+    def handle_result(self, dtos: List[TaskDTO]):
+        for dto in dtos:
+            status = dto.status
+            if status == TaskStatus.FINISHED:
+                projection_result = dto.projection_result
+                return projection_result
+        return None
+
+    def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
+        for dto in dtos:
+            status = dto.status
+            match status:
+                case TaskStatus.PENDING:
+                    pbar.set_description(f"Waiting for projection calculation to start..")
+                case TaskStatus.RUNNING:
+                    pbar.set_description(f"Projecting {self._embedder_name} embeddings..")
+                case TaskStatus.FINISHED:
+                    pbar.set_description(f"Finished projection calculation!")
+                    break
+                case TaskStatus.FAILED:
+                    pbar.set_description(f"Projection failed!")
+                    break
+        return pbar
+
+    def get_tqdm_initial_description(self) -> str:
+        return f"Projecting {self._embedder_name} embeddings.."
+
+
 class EmbeddingsClient(ClientInterface):
     def embed(self, api_client: ApiClient, embedder_name: str, reduce: bool, sequence_data: Dict[str, str],
               use_half_precision: bool) -> BiocentralServerTask[EmbeddingsResult]:
@@ -203,4 +235,27 @@ class EmbeddingsClient(ClientInterface):
         biocentral_server_task = BiocentralServerTask(task_id=task_id,
                                                       api_client=api_client,
                                                       dto_handler=embed_dto_handler)
+        return biocentral_server_task
+
+    def project(self, api_client: ApiClient,
+                embedder_name: str,
+                method: str,
+                sequence_data: Dict[str, str],
+                projection_config: Dict[str, str],
+                ) -> BiocentralServerTask[Dict[str, Any]]:
+        assert len(sequence_data) > 0, "No sequences provided"
+        assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
+
+        project_request = ProjectionRequest(sequence_data=sequence_data, embedder_name=embedder_name, method=method,
+                                            config=projection_config)
+        api_instance = ProjectionsApi(api_client)
+
+        task_id = self._submit_task(
+            endpoint_caller=lambda: api_instance.project_api_v1_projection_service_project_post(project_request)
+        )
+
+        projection_dto_handler = _ProjectionDTOHandler(embedder_name=embedder_name)
+        biocentral_server_task = BiocentralServerTask(task_id=task_id,
+                                                      api_client=api_client,
+                                                      dto_handler=projection_dto_handler)
         return biocentral_server_task

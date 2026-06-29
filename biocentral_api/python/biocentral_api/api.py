@@ -223,6 +223,34 @@ class BiocentralAPI:
                                                              use_half_precision)
             return biocentral_server_task
 
+    def project(self, embedder_name: str,
+                method: str,
+                sequence_data: Union[str, Dict[str, str]],
+                projection_config: Dict[str, str]) -> Optional[Dict[str, Any]]:
+        # TODO Unify, biotrainer-core refactoring
+        if isinstance(sequence_data, str):
+            fasta_path = Path(sequence_data)
+            if not fasta_path.exists():
+                raise ValueError(f"Fasta file not found at path: {fasta_path}")
+            sequence_data = self.read_fasta(fasta_path)
+        if len(sequence_data) == 0:
+            raise ValueError("No sequence data provided.")
+        if len(sequence_data) > 1000:
+            raise ValueError(
+                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
+                "Automated batching is planned for a future release, but not supported yet."
+            )
+        sequences = list(sequence_data.values())
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
+        BiocentralAPI._check_sequence_lengths(sequences)
+
+        embeddings_client = EmbeddingsClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = embeddings_client.project(api_client, embedder_name, method, sequence_data,
+                                                                projection_config)
+            return biocentral_server_task
+
     def taxonomy(self, taxonomy_ids: List[int]) -> Optional[List[TaxonomyItem]]:
         """
         Retrieve taxonomy information based on a list of taxonomy identifiers.
