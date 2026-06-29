@@ -4,9 +4,10 @@ import time
 import warnings
 import urllib.parse
 import urllib.request
-from pathlib import Path
 
+from pathlib import Path
 from pydantic import BaseModel, Field
+from biotrainer_core.input_files import read_FASTA
 from typing import Optional, List, Dict, Any, Tuple, Union, Iterable
 
 from ._generated.models import Prediction, BiotrainerModelResult, BiotrainerInferenceResult
@@ -157,6 +158,38 @@ class BiocentralAPI:
         raise TimeoutError("No healthy biocentral service became available in time")
 
     @staticmethod
+    def _handle_sequence_input(sequence_data: Union[str, Dict[str, str],
+                               List[SequenceData]]) -> List[SequenceData]:
+        if isinstance(sequence_data, str):
+            fasta_path = Path(sequence_data)
+            if not fasta_path.exists():
+                raise ValueError(f"Fasta file not found at path: {fasta_path}")
+            sequence_data = read_FASTA(fasta_path)
+        elif isinstance(sequence_data, dict):
+            sequence_data = [SequenceData(seq_id=k, seq=v) for k, v in sequence_data.items()]
+
+        if not isinstance(sequence_data, list):
+            raise ValueError("Sequence data must be a string, dictionary, or list of SequenceData objects.")
+
+        if len(sequence_data) == 0:
+            raise ValueError("No sequence data provided.")
+
+        first_seq_dat = sequence_data[0]
+        if not isinstance(first_seq_dat, SequenceData):
+            raise ValueError("Sequence data must be a string, dictionary, or list of SequenceData objects.")
+
+        if len(sequence_data) > 1000:
+            raise ValueError(
+                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
+                "Automated batching is planned for a future release, but not supported yet."
+            )
+        sequences = [seq.seq for seq in sequence_data]
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
+        BiocentralAPI._check_sequence_lengths(sequences)
+        return sequence_data
+
+    @staticmethod
     def _check_sequence_lengths(seqs: Iterable[str]) -> None:
         n_overlong_seqs = 0
         for seq in seqs:
@@ -171,14 +204,6 @@ class BiocentralAPI:
                 f"amount of {BiocentralAPI.RECOMMENDED_MAX_SEQUENCE_LENGTH} amino acids!\n"
                 f"Embeddings will still be computed, but might not be as reliable for these sequences.",
                 stacklevel=3)
-
-    @staticmethod
-    def read_fasta(fasta_path: Path) -> Dict[str, str]:
-        """Reads a fasta file and returns a dictionary of sequence identifiers and sequences."""
-        from Bio import SeqIO
-        with open(fasta_path, 'r') as fasta_file:
-            fasta_sequences = SeqIO.parse(fasta_file, 'fasta')
-            return {record.id: str(record.seq) for record in fasta_sequences}
 
     def embed(self,
               embedder_name: Union[str, CommonEmbedder],
@@ -198,57 +223,28 @@ class BiocentralAPI:
             minimize memory usage. Defaults to False.
         :return: Returns a BiocentralServerTask object that can be run to retrieve the embeddings.
         """
-        if isinstance(sequence_data, str):
-            fasta_path = Path(sequence_data)
-            if not fasta_path.exists():
-                raise ValueError(f"Fasta file not found at path: {fasta_path}")
-            sequence_data = self.read_fasta(fasta_path)
-        if len(sequence_data) == 0:
-            raise ValueError("No sequence data provided.")
-        if len(sequence_data) > 1000:
-            raise ValueError(
-                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
-                "Automated batching is planned for a future release, but not supported yet."
-            )
-        sequences = list(sequence_data.values())
-        if len(sequences) != len(set(sequences)):
-            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
-        BiocentralAPI._check_sequence_lengths(sequences)
+        sequence_data = self._handle_sequence_input(sequence_data)
+        sequence_data_dict = {seq_data.seq_id: seq_data.seq for seq_data in sequence_data}
 
         if isinstance(embedder_name, CommonEmbedder):
             embedder_name = embedder_name.value
 
         embeddings_client = EmbeddingsClient()
         with self._create_api_client() as api_client:
-            biocentral_server_task = embeddings_client.embed(api_client, embedder_name, reduce, sequence_data,
+            biocentral_server_task = embeddings_client.embed(api_client, embedder_name, reduce, sequence_data_dict,
                                                              use_half_precision)
             return biocentral_server_task
 
     def project(self, embedder_name: str,
                 method: str,
-                sequence_data: Union[str, Dict[str, str]],
+                sequence_data: Union[str, Dict[str, str], List[SequenceData]],
                 projection_config: Dict[str, str]) -> BiocentralServerTask[ProjectionResult]:
-        # TODO Unify, biotrainer-core refactoring
-        if isinstance(sequence_data, str):
-            fasta_path = Path(sequence_data)
-            if not fasta_path.exists():
-                raise ValueError(f"Fasta file not found at path: {fasta_path}")
-            sequence_data = self.read_fasta(fasta_path)
-        if len(sequence_data) == 0:
-            raise ValueError("No sequence data provided.")
-        if len(sequence_data) > 1000:
-            raise ValueError(
-                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
-                "Automated batching is planned for a future release, but not supported yet."
-            )
-        sequences = list(sequence_data.values())
-        if len(sequences) != len(set(sequences)):
-            raise ValueError("Duplicate sequences provided. Please make sure to provide unique sequences.")
-        BiocentralAPI._check_sequence_lengths(sequences)
+        sequence_data = self._handle_sequence_input(sequence_data)
+        sequence_data_dict = {seq_data.seq_id: seq_data.seq for seq_data in sequence_data}
 
         embeddings_client = EmbeddingsClient()
         with self._create_api_client() as api_client:
-            biocentral_server_task = embeddings_client.project(api_client, embedder_name, method, sequence_data,
+            biocentral_server_task = embeddings_client.project(api_client, embedder_name, method, sequence_data_dict,
                                                                projection_config)
             return biocentral_server_task
 

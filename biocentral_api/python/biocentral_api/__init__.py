@@ -3,7 +3,8 @@ from ._generated import ActiveLearningEngineeringCampaignConfig, ActiveLearningE
     SequenceData, ActiveLearningOptimizationMode, ActiveLearningModelType, ActiveLearningScreeningSimulationConfig, \
     ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningIterationConfig, \
     ActiveLearningIterationResult, ActiveLearningScreeningSimulationResult, ActiveLearningConvergenceConfig, \
-    BiocentralPredictionModel, BiotrainerModelResult, BiotrainerInferenceResult, CommonEmbedder, Protocol, Prediction
+    BiocentralPredictionModel, BiotrainerModelResult, BiotrainerInferenceResult, CommonEmbedder, Protocol, Prediction, \
+    ProjectionResult
 from .utils import batched
 
 __all__ = ["BiocentralAPI",
@@ -24,4 +25,5 @@ __all__ = ["BiocentralAPI",
            "ActiveLearningConvergenceConfig",
            "Protocol",
            "Prediction",
+           "ProjectionResult",
            "batched"]
