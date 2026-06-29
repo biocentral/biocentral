@@ -158,8 +158,23 @@ class BiocentralAPI:
         raise TimeoutError("No healthy biocentral service became available in time")
 
     @staticmethod
-    def _handle_sequence_input(sequence_data: Union[str, Dict[str, str],
-                               List[SequenceData]]) -> List[SequenceData]:
+    def _get_max_sequence_input_restriction(embedder: Optional[Union[str, CommonEmbedder]]) -> int:
+        n_default = 1000
+        n_baseline = 50000
+
+        baseline_embedders = [CommonEmbedder.LENGTH_EMBEDDER,
+                              CommonEmbedder.ONE_HOT_ENCODING,
+                              CommonEmbedder.RANDOM_EMBEDDER,
+                              CommonEmbedder.BLOSUM62,
+                              CommonEmbedder.AAOntology]
+
+        if embedder in baseline_embedders:
+            return n_baseline
+        return n_default
+
+    @staticmethod
+    def _handle_sequence_input(sequence_data: Union[str, Dict[str, str],List[SequenceData]],
+                               embedder_name: Optional[Union[str, CommonEmbedder]]) -> List[SequenceData]:
         if isinstance(sequence_data, str):
             fasta_path = Path(sequence_data)
             if not fasta_path.exists():
@@ -178,10 +193,12 @@ class BiocentralAPI:
         if not isinstance(first_seq_dat, SequenceData):
             raise ValueError("Sequence data must be a string, dictionary, or list of SequenceData objects.")
 
-        if len(sequence_data) > 1000:
+        max_seq_input = BiocentralAPI._get_max_sequence_input_restriction(embedder_name)
+        if len(sequence_data) > max_seq_input:
             raise ValueError(
-                "Maximum number of sequences per request is 1000. Please provide batches of 1000 sequences at a time. "
-                "Automated batching is planned for a future release, but not supported yet."
+                f"Maximum number of sequences per request is {max_seq_input}. "
+                f"Please provide batches of {max_seq_input} sequences at a time. "
+                f"Automated batching is planned for a future release, but not supported yet."
             )
         sequences = [seq.seq for seq in sequence_data]
         if len(sequences) != len(set(sequences)):
@@ -223,7 +240,7 @@ class BiocentralAPI:
             minimize memory usage. Defaults to False.
         :return: Returns a BiocentralServerTask object that can be run to retrieve the embeddings.
         """
-        sequence_data = self._handle_sequence_input(sequence_data)
+        sequence_data = self._handle_sequence_input(sequence_data, embedder_name)
         sequence_data_dict = {seq_data.seq_id: seq_data.seq for seq_data in sequence_data}
 
         if isinstance(embedder_name, CommonEmbedder):
@@ -235,11 +252,12 @@ class BiocentralAPI:
                                                              use_half_precision)
             return biocentral_server_task
 
-    def project(self, embedder_name: str,
+    def project(self,
+                embedder_name: Union[str, CommonEmbedder],
                 method: str,
                 sequence_data: Union[str, Dict[str, str], List[SequenceData]],
                 projection_config: Dict[str, str]) -> BiocentralServerTask[ProjectionResult]:
-        sequence_data = self._handle_sequence_input(sequence_data)
+        sequence_data = self._handle_sequence_input(sequence_data, embedder_name)
         sequence_data_dict = {seq_data.seq_id: seq_data.seq for seq_data in sequence_data}
 
         embeddings_client = EmbeddingsClient()
