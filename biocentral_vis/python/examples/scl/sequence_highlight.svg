@@ -6,641 +6,641 @@
   </style>
   <rect width="100%" height="100%" fill="white"/>
   <text x="400.0" y="25" class="title" text-anchor="middle">Sequence Highlight: Secondary Structure</text>
-  <rect x="40" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="1"/>
+  <rect x="40" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="1" data-type="residue"/>
   <text x="46.0" y="60" class="residue" text-anchor="middle">M</text>
-  <rect x="40" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="1"/>
+  <rect x="40" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="1" data-type="prediction"/>
   <text x="46.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="52" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="2"/>
+  <rect x="52" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="2" data-type="residue"/>
   <text x="58.0" y="60" class="residue" text-anchor="middle">K</text>
-  <rect x="52" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="2"/>
+  <rect x="52" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="2" data-type="prediction"/>
   <text x="58.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="64" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="3"/>
+  <rect x="64" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="3" data-type="residue"/>
   <text x="70.0" y="60" class="residue" text-anchor="middle">T</text>
-  <rect x="64" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="3"/>
+  <rect x="64" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="3" data-type="prediction"/>
   <text x="70.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="76" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="4"/>
+  <rect x="76" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="4" data-type="residue"/>
   <text x="82.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="76" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="4"/>
+  <rect x="76" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="4" data-type="prediction"/>
   <text x="82.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="88" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="5"/>
+  <rect x="88" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="5" data-type="residue"/>
   <text x="94.0" y="60" class="residue" text-anchor="middle">Y</text>
-  <rect x="88" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="5"/>
+  <rect x="88" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="5" data-type="prediction"/>
   <text x="94.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="100" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="6"/>
+  <rect x="100" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="6" data-type="residue"/>
   <text x="106.0" y="60" class="residue" text-anchor="middle">I</text>
-  <rect x="100" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="6"/>
+  <rect x="100" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="6" data-type="prediction"/>
   <text x="106.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="112" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="7"/>
+  <rect x="112" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="7" data-type="residue"/>
   <text x="118.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="112" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="7"/>
+  <rect x="112" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="7" data-type="prediction"/>
   <text x="118.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="124" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="8"/>
+  <rect x="124" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="8" data-type="residue"/>
   <text x="130.0" y="60" class="residue" text-anchor="middle">K</text>
-  <rect x="124" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="8"/>
+  <rect x="124" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="8" data-type="prediction"/>
   <text x="130.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="136" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="9"/>
+  <rect x="136" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="9" data-type="residue"/>
   <text x="142.0" y="60" class="residue" text-anchor="middle">Q</text>
-  <rect x="136" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="9"/>
+  <rect x="136" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="9" data-type="prediction"/>
   <text x="142.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="148" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="10"/>
+  <rect x="148" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="10" data-type="residue"/>
   <text x="154.0" y="60" class="residue" text-anchor="middle">R</text>
-  <rect x="148" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="10"/>
+  <rect x="148" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="10" data-type="prediction"/>
   <text x="154.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="160" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="11"/>
+  <rect x="160" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="11" data-type="residue"/>
   <text x="166.0" y="60" class="residue" text-anchor="middle">Q</text>
-  <rect x="160" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="11"/>
+  <rect x="160" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="11" data-type="prediction"/>
   <text x="166.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="172" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="12"/>
+  <rect x="172" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="12" data-type="residue"/>
   <text x="178.0" y="60" class="residue" text-anchor="middle">I</text>
-  <rect x="172" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="12"/>
+  <rect x="172" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="12" data-type="prediction"/>
   <text x="178.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="184" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="13"/>
+  <rect x="184" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="13" data-type="residue"/>
   <text x="190.0" y="60" class="residue" text-anchor="middle">S</text>
-  <rect x="184" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="13"/>
+  <rect x="184" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="13" data-type="prediction"/>
   <text x="190.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="196" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="14"/>
+  <rect x="196" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="14" data-type="residue"/>
   <text x="202.0" y="60" class="residue" text-anchor="middle">F</text>
-  <rect x="196" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="14"/>
+  <rect x="196" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="14" data-type="prediction"/>
   <text x="202.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="208" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="15"/>
+  <rect x="208" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="15" data-type="residue"/>
   <text x="214.0" y="60" class="residue" text-anchor="middle">V</text>
-  <rect x="208" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="15"/>
+  <rect x="208" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="15" data-type="prediction"/>
   <text x="214.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="220" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="16"/>
+  <rect x="220" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="16" data-type="residue"/>
   <text x="226.0" y="60" class="residue" text-anchor="middle">K</text>
-  <rect x="220" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="16"/>
+  <rect x="220" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="16" data-type="prediction"/>
   <text x="226.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="232" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="17"/>
+  <rect x="232" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="17" data-type="residue"/>
   <text x="238.0" y="60" class="residue" text-anchor="middle">S</text>
-  <rect x="232" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="17"/>
+  <rect x="232" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="17" data-type="prediction"/>
   <text x="238.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="244" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="18"/>
+  <rect x="244" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="18" data-type="residue"/>
   <text x="250.0" y="60" class="residue" text-anchor="middle">H</text>
-  <rect x="244" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="18"/>
+  <rect x="244" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="18" data-type="prediction"/>
   <text x="250.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="256" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="19"/>
+  <rect x="256" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="19" data-type="residue"/>
   <text x="262.0" y="60" class="residue" text-anchor="middle">F</text>
-  <rect x="256" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="19"/>
+  <rect x="256" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="19" data-type="prediction"/>
   <text x="262.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="268" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="20"/>
+  <rect x="268" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="20" data-type="residue"/>
   <text x="274.0" y="60" class="residue" text-anchor="middle">S</text>
-  <rect x="268" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="20"/>
+  <rect x="268" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="20" data-type="prediction"/>
   <text x="274.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="280" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="21"/>
+  <rect x="280" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="21" data-type="residue"/>
   <text x="286.0" y="60" class="residue" text-anchor="middle">R</text>
-  <rect x="280" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="21"/>
+  <rect x="280" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="21" data-type="prediction"/>
   <text x="286.0" y="90" class="residue" text-anchor="middle">E</text>
-  <rect x="292" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="22"/>
+  <rect x="292" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="22" data-type="residue"/>
   <text x="298.0" y="60" class="residue" text-anchor="middle">Q</text>
-  <rect x="292" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="22"/>
+  <rect x="292" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="22" data-type="prediction"/>
   <text x="298.0" y="90" class="residue" text-anchor="middle">E</text>
-  <rect x="304" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="23"/>
+  <rect x="304" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="23" data-type="residue"/>
   <text x="310.0" y="60" class="residue" text-anchor="middle">L</text>
-  <rect x="304" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="23"/>
+  <rect x="304" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="23" data-type="prediction"/>
   <text x="310.0" y="90" class="residue" text-anchor="middle">E</text>
-  <rect x="316" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="24"/>
+  <rect x="316" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="24" data-type="residue"/>
   <text x="322.0" y="60" class="residue" text-anchor="middle">E</text>
-  <rect x="316" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="24"/>
+  <rect x="316" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="24" data-type="prediction"/>
   <text x="322.0" y="90" class="residue" text-anchor="middle">E</text>
-  <rect x="328" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="25"/>
+  <rect x="328" y="46" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="25" data-type="residue"/>
   <text x="334.0" y="60" class="residue" text-anchor="middle">E</text>
-  <rect x="328" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="25"/>
+  <rect x="328" y="76" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="25" data-type="prediction"/>
   <text x="334.0" y="90" class="residue" text-anchor="middle">E</text>
-  <rect x="340" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="26"/>
+  <rect x="340" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="26" data-type="residue"/>
   <text x="346.0" y="60" class="residue" text-anchor="middle">R</text>
-  <rect x="340" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="26"/>
+  <rect x="340" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="26" data-type="prediction"/>
   <text x="346.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="352" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="27"/>
+  <rect x="352" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="27" data-type="residue"/>
   <text x="358.0" y="60" class="residue" text-anchor="middle">L</text>
-  <rect x="352" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="27"/>
+  <rect x="352" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="27" data-type="prediction"/>
   <text x="358.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="364" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="28"/>
+  <rect x="364" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="28" data-type="residue"/>
   <text x="370.0" y="60" class="residue" text-anchor="middle">G</text>
-  <rect x="364" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="28"/>
+  <rect x="364" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="28" data-type="prediction"/>
   <text x="370.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="376" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="29"/>
+  <rect x="376" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="29" data-type="residue"/>
   <text x="382.0" y="60" class="residue" text-anchor="middle">L</text>
-  <rect x="376" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="29"/>
+  <rect x="376" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="29" data-type="prediction"/>
   <text x="382.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="388" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="30"/>
+  <rect x="388" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="30" data-type="residue"/>
   <text x="394.0" y="60" class="residue" text-anchor="middle">I</text>
-  <rect x="388" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="30"/>
+  <rect x="388" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="30" data-type="prediction"/>
   <text x="394.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="400" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="31"/>
+  <rect x="400" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="31" data-type="residue"/>
   <text x="406.0" y="60" class="residue" text-anchor="middle">E</text>
-  <rect x="400" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="31"/>
+  <rect x="400" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="31" data-type="prediction"/>
   <text x="406.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="412" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="32"/>
+  <rect x="412" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="32" data-type="residue"/>
   <text x="418.0" y="60" class="residue" text-anchor="middle">V</text>
-  <rect x="412" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="32"/>
+  <rect x="412" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="32" data-type="prediction"/>
   <text x="418.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="424" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="33"/>
+  <rect x="424" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="33" data-type="residue"/>
   <text x="430.0" y="60" class="residue" text-anchor="middle">Q</text>
-  <rect x="424" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="33"/>
+  <rect x="424" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="33" data-type="prediction"/>
   <text x="430.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="436" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="34"/>
+  <rect x="436" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="34" data-type="residue"/>
   <text x="442.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="436" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="34"/>
+  <rect x="436" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="34" data-type="prediction"/>
   <text x="442.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="448" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="35"/>
+  <rect x="448" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="35" data-type="residue"/>
   <text x="454.0" y="60" class="residue" text-anchor="middle">P</text>
-  <rect x="448" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="35"/>
+  <rect x="448" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="35" data-type="prediction"/>
   <text x="454.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="460" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="36"/>
+  <rect x="460" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="36" data-type="residue"/>
   <text x="466.0" y="60" class="residue" text-anchor="middle">I</text>
-  <rect x="460" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="36"/>
+  <rect x="460" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="36" data-type="prediction"/>
   <text x="466.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="472" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="37"/>
+  <rect x="472" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="37" data-type="residue"/>
   <text x="478.0" y="60" class="residue" text-anchor="middle">L</text>
-  <rect x="472" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="37"/>
+  <rect x="472" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="37" data-type="prediction"/>
   <text x="478.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="484" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="38"/>
+  <rect x="484" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="38" data-type="residue"/>
   <text x="490.0" y="60" class="residue" text-anchor="middle">S</text>
-  <rect x="484" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="38"/>
+  <rect x="484" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="38" data-type="prediction"/>
   <text x="490.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="496" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="39"/>
+  <rect x="496" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="39" data-type="residue"/>
   <text x="502.0" y="60" class="residue" text-anchor="middle">R</text>
-  <rect x="496" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="39"/>
+  <rect x="496" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="39" data-type="prediction"/>
   <text x="502.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="508" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="40"/>
+  <rect x="508" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="40" data-type="residue"/>
   <text x="514.0" y="60" class="residue" text-anchor="middle">V</text>
-  <rect x="508" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="40"/>
+  <rect x="508" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="40" data-type="prediction"/>
   <text x="514.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="520" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="41"/>
+  <rect x="520" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="41" data-type="residue"/>
   <text x="526.0" y="60" class="residue" text-anchor="middle">G</text>
-  <rect x="520" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="41"/>
+  <rect x="520" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="41" data-type="prediction"/>
   <text x="526.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="532" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="42"/>
+  <rect x="532" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="42" data-type="residue"/>
   <text x="538.0" y="60" class="residue" text-anchor="middle">D</text>
-  <rect x="532" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="42"/>
+  <rect x="532" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="42" data-type="prediction"/>
   <text x="538.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="544" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="43"/>
+  <rect x="544" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="43" data-type="residue"/>
   <text x="550.0" y="60" class="residue" text-anchor="middle">G</text>
-  <rect x="544" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="43"/>
+  <rect x="544" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="43" data-type="prediction"/>
   <text x="550.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="556" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="44"/>
+  <rect x="556" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="44" data-type="residue"/>
   <text x="562.0" y="60" class="residue" text-anchor="middle">T</text>
-  <rect x="556" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="44"/>
+  <rect x="556" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="44" data-type="prediction"/>
   <text x="562.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="568" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="45"/>
+  <rect x="568" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="45" data-type="residue"/>
   <text x="574.0" y="60" class="residue" text-anchor="middle">Q</text>
-  <rect x="568" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="45"/>
+  <rect x="568" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="45" data-type="prediction"/>
   <text x="574.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="580" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="46"/>
+  <rect x="580" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="46" data-type="residue"/>
   <text x="586.0" y="60" class="residue" text-anchor="middle">D</text>
-  <rect x="580" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="46"/>
+  <rect x="580" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="46" data-type="prediction"/>
   <text x="586.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="592" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="47"/>
+  <rect x="592" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="47" data-type="residue"/>
   <text x="598.0" y="60" class="residue" text-anchor="middle">N</text>
-  <rect x="592" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="47"/>
+  <rect x="592" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="47" data-type="prediction"/>
   <text x="598.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="604" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="48"/>
+  <rect x="604" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="48" data-type="residue"/>
   <text x="610.0" y="60" class="residue" text-anchor="middle">L</text>
-  <rect x="604" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="48"/>
+  <rect x="604" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="48" data-type="prediction"/>
   <text x="610.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="616" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="49"/>
+  <rect x="616" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="49" data-type="residue"/>
   <text x="622.0" y="60" class="residue" text-anchor="middle">S</text>
-  <rect x="616" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="49"/>
+  <rect x="616" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="49" data-type="prediction"/>
   <text x="622.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="628" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="50"/>
+  <rect x="628" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="50" data-type="residue"/>
   <text x="634.0" y="60" class="residue" text-anchor="middle">G</text>
-  <rect x="628" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="50"/>
+  <rect x="628" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="50" data-type="prediction"/>
   <text x="634.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="640" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="51"/>
+  <rect x="640" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="51" data-type="residue"/>
   <text x="646.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="640" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="51"/>
+  <rect x="640" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="51" data-type="prediction"/>
   <text x="646.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="652" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="52"/>
+  <rect x="652" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="52" data-type="residue"/>
   <text x="658.0" y="60" class="residue" text-anchor="middle">E</text>
-  <rect x="652" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="52"/>
+  <rect x="652" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="52" data-type="prediction"/>
   <text x="658.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="664" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="53"/>
+  <rect x="664" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="53" data-type="residue"/>
   <text x="670.0" y="60" class="residue" text-anchor="middle">K</text>
-  <rect x="664" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="53"/>
+  <rect x="664" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="53" data-type="prediction"/>
   <text x="670.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="676" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="54"/>
+  <rect x="676" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="54" data-type="residue"/>
   <text x="682.0" y="60" class="residue" text-anchor="middle">M</text>
-  <rect x="676" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="54"/>
+  <rect x="676" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="54" data-type="prediction"/>
   <text x="682.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="688" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="55"/>
+  <rect x="688" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="55" data-type="residue"/>
   <text x="694.0" y="60" class="residue" text-anchor="middle">K</text>
-  <rect x="688" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="55"/>
+  <rect x="688" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="55" data-type="prediction"/>
   <text x="694.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="700" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="56"/>
+  <rect x="700" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="56" data-type="residue"/>
   <text x="706.0" y="60" class="residue" text-anchor="middle">T</text>
-  <rect x="700" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="56"/>
+  <rect x="700" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="56" data-type="prediction"/>
   <text x="706.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="712" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="57"/>
+  <rect x="712" y="46" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="57" data-type="residue"/>
   <text x="718.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="712" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="57"/>
+  <rect x="712" y="76" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="57" data-type="prediction"/>
   <text x="718.0" y="90" class="residue" text-anchor="middle">C</text>
-  <rect x="724" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="58"/>
+  <rect x="724" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="58" data-type="residue"/>
   <text x="730.0" y="60" class="residue" text-anchor="middle">Y</text>
-  <rect x="724" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="58"/>
+  <rect x="724" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="58" data-type="prediction"/>
   <text x="730.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="736" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="59"/>
+  <rect x="736" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="59" data-type="residue"/>
   <text x="742.0" y="60" class="residue" text-anchor="middle">I</text>
-  <rect x="736" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="59"/>
+  <rect x="736" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="59" data-type="prediction"/>
   <text x="742.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="748" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="60"/>
+  <rect x="748" y="46" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="60" data-type="residue"/>
   <text x="754.0" y="60" class="residue" text-anchor="middle">A</text>
-  <rect x="748" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="60"/>
+  <rect x="748" y="76" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="60" data-type="prediction"/>
   <text x="754.0" y="90" class="residue" text-anchor="middle">H</text>
-  <rect x="40" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="61"/>
+  <rect x="40" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="61" data-type="residue"/>
   <text x="46.0" y="120" class="residue" text-anchor="middle">K</text>
-  <rect x="40" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="61"/>
+  <rect x="40" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="61" data-type="prediction"/>
   <text x="46.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="52" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="62"/>
+  <rect x="52" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="62" data-type="residue"/>
   <text x="58.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="52" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="62"/>
+  <rect x="52" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="62" data-type="prediction"/>
   <text x="58.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="64" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="63"/>
+  <rect x="64" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="63" data-type="residue"/>
   <text x="70.0" y="120" class="residue" text-anchor="middle">R</text>
-  <rect x="64" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="63"/>
+  <rect x="64" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="63" data-type="prediction"/>
   <text x="70.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="76" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="64"/>
+  <rect x="76" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="64" data-type="residue"/>
   <text x="82.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="76" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="64"/>
+  <rect x="76" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="64" data-type="prediction"/>
   <text x="82.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="88" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="65"/>
+  <rect x="88" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="65" data-type="residue"/>
   <text x="94.0" y="120" class="residue" text-anchor="middle">I</text>
-  <rect x="88" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="65"/>
+  <rect x="88" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="65" data-type="prediction"/>
   <text x="94.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="100" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="66"/>
+  <rect x="100" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="66" data-type="residue"/>
   <text x="106.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="100" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="66"/>
+  <rect x="100" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="66" data-type="prediction"/>
   <text x="106.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="112" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="67"/>
+  <rect x="112" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="67" data-type="residue"/>
   <text x="118.0" y="120" class="residue" text-anchor="middle">F</text>
-  <rect x="112" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="67"/>
+  <rect x="112" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="67" data-type="prediction"/>
   <text x="118.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="124" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="68"/>
+  <rect x="124" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="68" data-type="residue"/>
   <text x="130.0" y="120" class="residue" text-anchor="middle">V</text>
-  <rect x="124" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="68"/>
+  <rect x="124" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="68" data-type="prediction"/>
   <text x="130.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="136" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="69"/>
+  <rect x="136" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="69" data-type="residue"/>
   <text x="142.0" y="120" class="residue" text-anchor="middle">K</text>
-  <rect x="136" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="69"/>
+  <rect x="136" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="69" data-type="prediction"/>
   <text x="142.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="148" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="70"/>
+  <rect x="148" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="70" data-type="residue"/>
   <text x="154.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="148" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="70"/>
+  <rect x="148" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="70" data-type="prediction"/>
   <text x="154.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="160" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="71"/>
+  <rect x="160" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="71" data-type="residue"/>
   <text x="166.0" y="120" class="residue" text-anchor="middle">H</text>
-  <rect x="160" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="71"/>
+  <rect x="160" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="71" data-type="prediction"/>
   <text x="166.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="172" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="72"/>
+  <rect x="172" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="72" data-type="residue"/>
   <text x="178.0" y="120" class="residue" text-anchor="middle">F</text>
-  <rect x="172" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="72"/>
+  <rect x="172" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="72" data-type="prediction"/>
   <text x="178.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="184" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="73"/>
+  <rect x="184" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="73" data-type="residue"/>
   <text x="190.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="184" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="73"/>
+  <rect x="184" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="73" data-type="prediction"/>
   <text x="190.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="196" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="74"/>
+  <rect x="196" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="74" data-type="residue"/>
   <text x="202.0" y="120" class="residue" text-anchor="middle">R</text>
-  <rect x="196" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="74"/>
+  <rect x="196" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="74" data-type="prediction"/>
   <text x="202.0" y="150" class="residue" text-anchor="middle">E</text>
-  <rect x="208" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="75"/>
+  <rect x="208" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="75" data-type="residue"/>
   <text x="214.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="208" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="75"/>
+  <rect x="208" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="75" data-type="prediction"/>
   <text x="214.0" y="150" class="residue" text-anchor="middle">E</text>
-  <rect x="220" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="76"/>
+  <rect x="220" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="76" data-type="residue"/>
   <text x="226.0" y="120" class="residue" text-anchor="middle">L</text>
-  <rect x="220" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="76"/>
+  <rect x="220" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="76" data-type="prediction"/>
   <text x="226.0" y="150" class="residue" text-anchor="middle">E</text>
-  <rect x="232" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="77"/>
+  <rect x="232" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="77" data-type="residue"/>
   <text x="238.0" y="120" class="residue" text-anchor="middle">E</text>
-  <rect x="232" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="77"/>
+  <rect x="232" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="77" data-type="prediction"/>
   <text x="238.0" y="150" class="residue" text-anchor="middle">E</text>
-  <rect x="244" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="78"/>
+  <rect x="244" y="106" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="78" data-type="residue"/>
   <text x="250.0" y="120" class="residue" text-anchor="middle">E</text>
-  <rect x="244" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="78"/>
+  <rect x="244" y="136" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="78" data-type="prediction"/>
   <text x="250.0" y="150" class="residue" text-anchor="middle">E</text>
-  <rect x="256" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="79"/>
+  <rect x="256" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="79" data-type="residue"/>
   <text x="262.0" y="120" class="residue" text-anchor="middle">R</text>
-  <rect x="256" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="79"/>
+  <rect x="256" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="79" data-type="prediction"/>
   <text x="262.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="268" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="80"/>
+  <rect x="268" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="80" data-type="residue"/>
   <text x="274.0" y="120" class="residue" text-anchor="middle">L</text>
-  <rect x="268" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="80"/>
+  <rect x="268" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="80" data-type="prediction"/>
   <text x="274.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="280" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="81"/>
+  <rect x="280" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="81" data-type="residue"/>
   <text x="286.0" y="120" class="residue" text-anchor="middle">G</text>
-  <rect x="280" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="81"/>
+  <rect x="280" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="81" data-type="prediction"/>
   <text x="286.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="292" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="82"/>
+  <rect x="292" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="82" data-type="residue"/>
   <text x="298.0" y="120" class="residue" text-anchor="middle">L</text>
-  <rect x="292" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="82"/>
+  <rect x="292" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="82" data-type="prediction"/>
   <text x="298.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="304" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="83"/>
+  <rect x="304" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="83" data-type="residue"/>
   <text x="310.0" y="120" class="residue" text-anchor="middle">I</text>
-  <rect x="304" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="83"/>
+  <rect x="304" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="83" data-type="prediction"/>
   <text x="310.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="316" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="84"/>
+  <rect x="316" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="84" data-type="residue"/>
   <text x="322.0" y="120" class="residue" text-anchor="middle">E</text>
-  <rect x="316" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="84"/>
+  <rect x="316" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="84" data-type="prediction"/>
   <text x="322.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="328" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="85"/>
+  <rect x="328" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="85" data-type="residue"/>
   <text x="334.0" y="120" class="residue" text-anchor="middle">V</text>
-  <rect x="328" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="85"/>
+  <rect x="328" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="85" data-type="prediction"/>
   <text x="334.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="340" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="86"/>
+  <rect x="340" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="86" data-type="residue"/>
   <text x="346.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="340" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="86"/>
+  <rect x="340" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="86" data-type="prediction"/>
   <text x="346.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="352" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="87"/>
+  <rect x="352" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="87" data-type="residue"/>
   <text x="358.0" y="120" class="residue" text-anchor="middle">A</text>
-  <rect x="352" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="87"/>
+  <rect x="352" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="87" data-type="prediction"/>
   <text x="358.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="364" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="88"/>
+  <rect x="364" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="88" data-type="residue"/>
   <text x="370.0" y="120" class="residue" text-anchor="middle">P</text>
-  <rect x="364" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="88"/>
+  <rect x="364" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="88" data-type="prediction"/>
   <text x="370.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="376" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="89"/>
+  <rect x="376" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="89" data-type="residue"/>
   <text x="382.0" y="120" class="residue" text-anchor="middle">I</text>
-  <rect x="376" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="89"/>
+  <rect x="376" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="89" data-type="prediction"/>
   <text x="382.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="388" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="90"/>
+  <rect x="388" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="90" data-type="residue"/>
   <text x="394.0" y="120" class="residue" text-anchor="middle">L</text>
-  <rect x="388" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="90"/>
+  <rect x="388" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="90" data-type="prediction"/>
   <text x="394.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="400" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="91"/>
+  <rect x="400" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="91" data-type="residue"/>
   <text x="406.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="400" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="91"/>
+  <rect x="400" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="91" data-type="prediction"/>
   <text x="406.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="412" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="92"/>
+  <rect x="412" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="92" data-type="residue"/>
   <text x="418.0" y="120" class="residue" text-anchor="middle">R</text>
-  <rect x="412" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="92"/>
+  <rect x="412" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="92" data-type="prediction"/>
   <text x="418.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="424" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="93"/>
+  <rect x="424" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="93" data-type="residue"/>
   <text x="430.0" y="120" class="residue" text-anchor="middle">V</text>
-  <rect x="424" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="93"/>
+  <rect x="424" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="93" data-type="prediction"/>
   <text x="430.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="436" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="94"/>
+  <rect x="436" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="94" data-type="residue"/>
   <text x="442.0" y="120" class="residue" text-anchor="middle">G</text>
-  <rect x="436" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="94"/>
+  <rect x="436" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="94" data-type="prediction"/>
   <text x="442.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="448" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="95"/>
+  <rect x="448" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="95" data-type="residue"/>
   <text x="454.0" y="120" class="residue" text-anchor="middle">D</text>
-  <rect x="448" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="95"/>
+  <rect x="448" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="95" data-type="prediction"/>
   <text x="454.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="460" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="96"/>
+  <rect x="460" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="96" data-type="residue"/>
   <text x="466.0" y="120" class="residue" text-anchor="middle">G</text>
-  <rect x="460" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="96"/>
+  <rect x="460" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="96" data-type="prediction"/>
   <text x="466.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="472" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="97"/>
+  <rect x="472" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="97" data-type="residue"/>
   <text x="478.0" y="120" class="residue" text-anchor="middle">T</text>
-  <rect x="472" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="97"/>
+  <rect x="472" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="97" data-type="prediction"/>
   <text x="478.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="484" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="98"/>
+  <rect x="484" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="98" data-type="residue"/>
   <text x="490.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="484" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="98"/>
+  <rect x="484" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="98" data-type="prediction"/>
   <text x="490.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="496" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="99"/>
+  <rect x="496" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="99" data-type="residue"/>
   <text x="502.0" y="120" class="residue" text-anchor="middle">D</text>
-  <rect x="496" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="99"/>
+  <rect x="496" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="99" data-type="prediction"/>
   <text x="502.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="508" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="100"/>
+  <rect x="508" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="100" data-type="residue"/>
   <text x="514.0" y="120" class="residue" text-anchor="middle">N</text>
-  <rect x="508" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="100"/>
+  <rect x="508" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="100" data-type="prediction"/>
   <text x="514.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="520" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="101"/>
+  <rect x="520" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="101" data-type="residue"/>
   <text x="526.0" y="120" class="residue" text-anchor="middle">L</text>
-  <rect x="520" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="101"/>
+  <rect x="520" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="101" data-type="prediction"/>
   <text x="526.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="532" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="102"/>
+  <rect x="532" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="102" data-type="residue"/>
   <text x="538.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="532" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="102"/>
+  <rect x="532" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="102" data-type="prediction"/>
   <text x="538.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="544" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="103"/>
+  <rect x="544" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="103" data-type="residue"/>
   <text x="550.0" y="120" class="residue" text-anchor="middle">G</text>
-  <rect x="544" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="103"/>
+  <rect x="544" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="103" data-type="prediction"/>
   <text x="550.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="556" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="104"/>
+  <rect x="556" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="104" data-type="residue"/>
   <text x="562.0" y="120" class="residue" text-anchor="middle">A</text>
-  <rect x="556" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="104"/>
+  <rect x="556" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="104" data-type="prediction"/>
   <text x="562.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="568" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="105"/>
+  <rect x="568" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="105" data-type="residue"/>
   <text x="574.0" y="120" class="residue" text-anchor="middle">E</text>
-  <rect x="568" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="105"/>
+  <rect x="568" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="105" data-type="prediction"/>
   <text x="574.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="580" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="106"/>
+  <rect x="580" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="106" data-type="residue"/>
   <text x="586.0" y="120" class="residue" text-anchor="middle">K</text>
-  <rect x="580" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="106"/>
+  <rect x="580" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="106" data-type="prediction"/>
   <text x="586.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="592" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="107"/>
+  <rect x="592" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="107" data-type="residue"/>
   <text x="598.0" y="120" class="residue" text-anchor="middle">M</text>
-  <rect x="592" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="107"/>
+  <rect x="592" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="M" data-prediction="C" data-index="107" data-type="prediction"/>
   <text x="598.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="604" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="108"/>
+  <rect x="604" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="108" data-type="residue"/>
   <text x="610.0" y="120" class="residue" text-anchor="middle">K</text>
-  <rect x="604" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="108"/>
+  <rect x="604" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="K" data-prediction="C" data-index="108" data-type="prediction"/>
   <text x="610.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="616" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="109"/>
+  <rect x="616" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="109" data-type="residue"/>
   <text x="622.0" y="120" class="residue" text-anchor="middle">T</text>
-  <rect x="616" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="109"/>
+  <rect x="616" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="T" data-prediction="C" data-index="109" data-type="prediction"/>
   <text x="622.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="628" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="110"/>
+  <rect x="628" y="106" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="110" data-type="residue"/>
   <text x="634.0" y="120" class="residue" text-anchor="middle">A</text>
-  <rect x="628" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="110"/>
+  <rect x="628" y="136" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="110" data-type="prediction"/>
   <text x="634.0" y="150" class="residue" text-anchor="middle">C</text>
-  <rect x="640" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="111"/>
+  <rect x="640" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="111" data-type="residue"/>
   <text x="646.0" y="120" class="residue" text-anchor="middle">Y</text>
-  <rect x="640" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="111"/>
+  <rect x="640" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Y" data-prediction="H" data-index="111" data-type="prediction"/>
   <text x="646.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="652" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="112"/>
+  <rect x="652" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="112" data-type="residue"/>
   <text x="658.0" y="120" class="residue" text-anchor="middle">I</text>
-  <rect x="652" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="112"/>
+  <rect x="652" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="112" data-type="prediction"/>
   <text x="658.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="664" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="113"/>
+  <rect x="664" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="113" data-type="residue"/>
   <text x="670.0" y="120" class="residue" text-anchor="middle">A</text>
-  <rect x="664" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="113"/>
+  <rect x="664" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="113" data-type="prediction"/>
   <text x="670.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="676" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="114"/>
+  <rect x="676" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="114" data-type="residue"/>
   <text x="682.0" y="120" class="residue" text-anchor="middle">K</text>
-  <rect x="676" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="114"/>
+  <rect x="676" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="114" data-type="prediction"/>
   <text x="682.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="688" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="115"/>
+  <rect x="688" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="115" data-type="residue"/>
   <text x="694.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="688" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="115"/>
+  <rect x="688" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="115" data-type="prediction"/>
   <text x="694.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="700" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="116"/>
+  <rect x="700" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="116" data-type="residue"/>
   <text x="706.0" y="120" class="residue" text-anchor="middle">R</text>
-  <rect x="700" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="116"/>
+  <rect x="700" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="R" data-prediction="H" data-index="116" data-type="prediction"/>
   <text x="706.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="712" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="117"/>
+  <rect x="712" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="117" data-type="residue"/>
   <text x="718.0" y="120" class="residue" text-anchor="middle">Q</text>
-  <rect x="712" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="117"/>
+  <rect x="712" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="117" data-type="prediction"/>
   <text x="718.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="724" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="118"/>
+  <rect x="724" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="118" data-type="residue"/>
   <text x="730.0" y="120" class="residue" text-anchor="middle">I</text>
-  <rect x="724" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="118"/>
+  <rect x="724" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="I" data-prediction="H" data-index="118" data-type="prediction"/>
   <text x="730.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="736" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="119"/>
+  <rect x="736" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="119" data-type="residue"/>
   <text x="742.0" y="120" class="residue" text-anchor="middle">S</text>
-  <rect x="736" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="119"/>
+  <rect x="736" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="119" data-type="prediction"/>
   <text x="742.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="748" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="120"/>
+  <rect x="748" y="106" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="120" data-type="residue"/>
   <text x="754.0" y="120" class="residue" text-anchor="middle">F</text>
-  <rect x="748" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="120"/>
+  <rect x="748" y="136" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="F" data-prediction="H" data-index="120" data-type="prediction"/>
   <text x="754.0" y="150" class="residue" text-anchor="middle">H</text>
-  <rect x="40" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="121"/>
+  <rect x="40" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="121" data-type="residue"/>
   <text x="46.0" y="180" class="residue" text-anchor="middle">V</text>
-  <rect x="40" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="121"/>
+  <rect x="40" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="V" data-prediction="H" data-index="121" data-type="prediction"/>
   <text x="46.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="52" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="122"/>
+  <rect x="52" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="122" data-type="residue"/>
   <text x="58.0" y="180" class="residue" text-anchor="middle">K</text>
-  <rect x="52" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="122"/>
+  <rect x="52" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="122" data-type="prediction"/>
   <text x="58.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="64" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="123"/>
+  <rect x="64" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="123" data-type="residue"/>
   <text x="70.0" y="180" class="residue" text-anchor="middle">S</text>
-  <rect x="64" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="123"/>
+  <rect x="64" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="123" data-type="prediction"/>
   <text x="70.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="76" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="124"/>
+  <rect x="76" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="124" data-type="residue"/>
   <text x="82.0" y="180" class="residue" text-anchor="middle">H</text>
-  <rect x="76" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="124"/>
+  <rect x="76" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="H" data-prediction="C" data-index="124" data-type="prediction"/>
   <text x="82.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="88" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="125"/>
+  <rect x="88" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="125" data-type="residue"/>
   <text x="94.0" y="180" class="residue" text-anchor="middle">F</text>
-  <rect x="88" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="125"/>
+  <rect x="88" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="F" data-prediction="C" data-index="125" data-type="prediction"/>
   <text x="94.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="100" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="126"/>
+  <rect x="100" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="126" data-type="residue"/>
   <text x="106.0" y="180" class="residue" text-anchor="middle">S</text>
-  <rect x="100" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="126"/>
+  <rect x="100" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="126" data-type="prediction"/>
   <text x="106.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="112" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="127"/>
+  <rect x="112" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="127" data-type="residue"/>
   <text x="118.0" y="180" class="residue" text-anchor="middle">R</text>
-  <rect x="112" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="127"/>
+  <rect x="112" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="R" data-prediction="E" data-index="127" data-type="prediction"/>
   <text x="118.0" y="210" class="residue" text-anchor="middle">E</text>
-  <rect x="124" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="128"/>
+  <rect x="124" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="128" data-type="residue"/>
   <text x="130.0" y="180" class="residue" text-anchor="middle">Q</text>
-  <rect x="124" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="128"/>
+  <rect x="124" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="Q" data-prediction="E" data-index="128" data-type="prediction"/>
   <text x="130.0" y="210" class="residue" text-anchor="middle">E</text>
-  <rect x="136" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="129"/>
+  <rect x="136" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="129" data-type="residue"/>
   <text x="142.0" y="180" class="residue" text-anchor="middle">L</text>
-  <rect x="136" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="129"/>
+  <rect x="136" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="L" data-prediction="E" data-index="129" data-type="prediction"/>
   <text x="142.0" y="210" class="residue" text-anchor="middle">E</text>
-  <rect x="148" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="130"/>
+  <rect x="148" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="130" data-type="residue"/>
   <text x="154.0" y="180" class="residue" text-anchor="middle">E</text>
-  <rect x="148" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="130"/>
+  <rect x="148" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="130" data-type="prediction"/>
   <text x="154.0" y="210" class="residue" text-anchor="middle">E</text>
-  <rect x="160" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="131"/>
+  <rect x="160" y="166" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="131" data-type="residue"/>
   <text x="166.0" y="180" class="residue" text-anchor="middle">E</text>
-  <rect x="160" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="131"/>
+  <rect x="160" y="196" width="12" height="20" fill="#4ECDC4" opacity="0.7" data-residue="E" data-prediction="E" data-index="131" data-type="prediction"/>
   <text x="166.0" y="210" class="residue" text-anchor="middle">E</text>
-  <rect x="172" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="132"/>
+  <rect x="172" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="132" data-type="residue"/>
   <text x="178.0" y="180" class="residue" text-anchor="middle">R</text>
-  <rect x="172" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="132"/>
+  <rect x="172" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="132" data-type="prediction"/>
   <text x="178.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="184" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="133"/>
+  <rect x="184" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="133" data-type="residue"/>
   <text x="190.0" y="180" class="residue" text-anchor="middle">L</text>
-  <rect x="184" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="133"/>
+  <rect x="184" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="133" data-type="prediction"/>
   <text x="190.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="196" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="134"/>
+  <rect x="196" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="134" data-type="residue"/>
   <text x="202.0" y="180" class="residue" text-anchor="middle">G</text>
-  <rect x="196" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="134"/>
+  <rect x="196" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="134" data-type="prediction"/>
   <text x="202.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="208" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="135"/>
+  <rect x="208" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="135" data-type="residue"/>
   <text x="214.0" y="180" class="residue" text-anchor="middle">L</text>
-  <rect x="208" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="135"/>
+  <rect x="208" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="135" data-type="prediction"/>
   <text x="214.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="220" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="136"/>
+  <rect x="220" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="136" data-type="residue"/>
   <text x="226.0" y="180" class="residue" text-anchor="middle">I</text>
-  <rect x="220" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="136"/>
+  <rect x="220" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="136" data-type="prediction"/>
   <text x="226.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="232" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="137"/>
+  <rect x="232" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="137" data-type="residue"/>
   <text x="238.0" y="180" class="residue" text-anchor="middle">E</text>
-  <rect x="232" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="137"/>
+  <rect x="232" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="E" data-prediction="C" data-index="137" data-type="prediction"/>
   <text x="238.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="244" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="138"/>
+  <rect x="244" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="138" data-type="residue"/>
   <text x="250.0" y="180" class="residue" text-anchor="middle">V</text>
-  <rect x="244" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="138"/>
+  <rect x="244" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="138" data-type="prediction"/>
   <text x="250.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="256" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="139"/>
+  <rect x="256" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="139" data-type="residue"/>
   <text x="262.0" y="180" class="residue" text-anchor="middle">Q</text>
-  <rect x="256" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="139"/>
+  <rect x="256" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="Q" data-prediction="C" data-index="139" data-type="prediction"/>
   <text x="262.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="268" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="140"/>
+  <rect x="268" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="140" data-type="residue"/>
   <text x="274.0" y="180" class="residue" text-anchor="middle">A</text>
-  <rect x="268" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="140"/>
+  <rect x="268" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="A" data-prediction="C" data-index="140" data-type="prediction"/>
   <text x="274.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="280" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="141"/>
+  <rect x="280" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="141" data-type="residue"/>
   <text x="286.0" y="180" class="residue" text-anchor="middle">P</text>
-  <rect x="280" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="141"/>
+  <rect x="280" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="P" data-prediction="C" data-index="141" data-type="prediction"/>
   <text x="286.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="292" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="142"/>
+  <rect x="292" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="142" data-type="residue"/>
   <text x="298.0" y="180" class="residue" text-anchor="middle">I</text>
-  <rect x="292" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="142"/>
+  <rect x="292" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="I" data-prediction="C" data-index="142" data-type="prediction"/>
   <text x="298.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="304" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="143"/>
+  <rect x="304" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="143" data-type="residue"/>
   <text x="310.0" y="180" class="residue" text-anchor="middle">L</text>
-  <rect x="304" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="143"/>
+  <rect x="304" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="L" data-prediction="C" data-index="143" data-type="prediction"/>
   <text x="310.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="316" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="144"/>
+  <rect x="316" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="144" data-type="residue"/>
   <text x="322.0" y="180" class="residue" text-anchor="middle">S</text>
-  <rect x="316" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="144"/>
+  <rect x="316" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="S" data-prediction="C" data-index="144" data-type="prediction"/>
   <text x="322.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="328" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="145"/>
+  <rect x="328" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="145" data-type="residue"/>
   <text x="334.0" y="180" class="residue" text-anchor="middle">R</text>
-  <rect x="328" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="145"/>
+  <rect x="328" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="R" data-prediction="C" data-index="145" data-type="prediction"/>
   <text x="334.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="340" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="146"/>
+  <rect x="340" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="146" data-type="residue"/>
   <text x="346.0" y="180" class="residue" text-anchor="middle">V</text>
-  <rect x="340" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="146"/>
+  <rect x="340" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="V" data-prediction="C" data-index="146" data-type="prediction"/>
   <text x="346.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="352" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="147"/>
+  <rect x="352" y="166" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="147" data-type="residue"/>
   <text x="358.0" y="180" class="residue" text-anchor="middle">G</text>
-  <rect x="352" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="147"/>
+  <rect x="352" y="196" width="12" height="20" fill="#95E1D3" opacity="0.7" data-residue="G" data-prediction="C" data-index="147" data-type="prediction"/>
   <text x="358.0" y="210" class="residue" text-anchor="middle">C</text>
-  <rect x="364" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="148"/>
+  <rect x="364" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="148" data-type="residue"/>
   <text x="370.0" y="180" class="residue" text-anchor="middle">D</text>
-  <rect x="364" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="148"/>
+  <rect x="364" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="148" data-type="prediction"/>
   <text x="370.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="376" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="149"/>
+  <rect x="376" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="149" data-type="residue"/>
   <text x="382.0" y="180" class="residue" text-anchor="middle">G</text>
-  <rect x="376" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="149"/>
+  <rect x="376" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="149" data-type="prediction"/>
   <text x="382.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="388" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="150"/>
+  <rect x="388" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="150" data-type="residue"/>
   <text x="394.0" y="180" class="residue" text-anchor="middle">T</text>
-  <rect x="388" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="150"/>
+  <rect x="388" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="T" data-prediction="H" data-index="150" data-type="prediction"/>
   <text x="394.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="400" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="151"/>
+  <rect x="400" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="151" data-type="residue"/>
   <text x="406.0" y="180" class="residue" text-anchor="middle">Q</text>
-  <rect x="400" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="151"/>
+  <rect x="400" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="Q" data-prediction="H" data-index="151" data-type="prediction"/>
   <text x="406.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="412" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="152"/>
+  <rect x="412" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="152" data-type="residue"/>
   <text x="418.0" y="180" class="residue" text-anchor="middle">D</text>
-  <rect x="412" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="152"/>
+  <rect x="412" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="D" data-prediction="H" data-index="152" data-type="prediction"/>
   <text x="418.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="424" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="153"/>
+  <rect x="424" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="153" data-type="residue"/>
   <text x="430.0" y="180" class="residue" text-anchor="middle">N</text>
-  <rect x="424" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="153"/>
+  <rect x="424" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="N" data-prediction="H" data-index="153" data-type="prediction"/>
   <text x="430.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="436" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="154"/>
+  <rect x="436" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="154" data-type="residue"/>
   <text x="442.0" y="180" class="residue" text-anchor="middle">L</text>
-  <rect x="436" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="154"/>
+  <rect x="436" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="L" data-prediction="H" data-index="154" data-type="prediction"/>
   <text x="442.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="448" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="155"/>
+  <rect x="448" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="155" data-type="residue"/>
   <text x="454.0" y="180" class="residue" text-anchor="middle">S</text>
-  <rect x="448" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="155"/>
+  <rect x="448" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="S" data-prediction="H" data-index="155" data-type="prediction"/>
   <text x="454.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="460" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="156"/>
+  <rect x="460" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="156" data-type="residue"/>
   <text x="466.0" y="180" class="residue" text-anchor="middle">G</text>
-  <rect x="460" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="156"/>
+  <rect x="460" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="G" data-prediction="H" data-index="156" data-type="prediction"/>
   <text x="466.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="472" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="157"/>
+  <rect x="472" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="157" data-type="residue"/>
   <text x="478.0" y="180" class="residue" text-anchor="middle">A</text>
-  <rect x="472" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="157"/>
+  <rect x="472" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="A" data-prediction="H" data-index="157" data-type="prediction"/>
   <text x="478.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="484" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="158"/>
+  <rect x="484" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="158" data-type="residue"/>
   <text x="490.0" y="180" class="residue" text-anchor="middle">E</text>
-  <rect x="484" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="158"/>
+  <rect x="484" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="E" data-prediction="H" data-index="158" data-type="prediction"/>
   <text x="490.0" y="210" class="residue" text-anchor="middle">H</text>
-  <rect x="496" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="159"/>
+  <rect x="496" y="166" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="159" data-type="residue"/>
   <text x="502.0" y="180" class="residue" text-anchor="middle">K</text>
-  <rect x="496" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="159"/>
+  <rect x="496" y="196" width="12" height="20" fill="#FF6B6B" opacity="0.7" data-residue="K" data-prediction="H" data-index="159" data-type="prediction"/>
   <text x="502.0" y="210" class="residue" text-anchor="middle">H</text>
   <text x="40" y="280" class="legend">Legend:</text>
   <rect x="100" y="270" width="15" height="15" fill="#95E1D3" opacity="0.7"/>

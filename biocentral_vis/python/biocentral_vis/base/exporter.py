@@ -122,6 +122,9 @@ class CrossPlatformMetadataExporter:
                     parsed = CrossPlatformMetadataExporter._parse_circle(element)
                 elif tag == 'rect':
                     parsed = CrossPlatformMetadataExporter._parse_rect(element)
+                elif tag == 'symbol':
+                    # Sometimes Altair uses <symbol> for points
+                    parsed = CrossPlatformMetadataExporter._parse_symbol(element)
 
                 if parsed:
                     # Collect all data-* attributes and aria-label
@@ -160,7 +163,8 @@ class CrossPlatformMetadataExporter:
     @staticmethod
     def _parse_bar_path_coords(d: str) -> Optional[Tuple[float, float, float, float]]:
         """Parse bar path coordinates: 'M x,y h width v height h -width Z'"""
-        m_match = re.search(r'M\s*([\d.]+)[,\s]+([\d.]+)', d)
+        # Improved regex to handle various spacing and signs
+        m_match = re.search(r'M\s*([\d.-]+)[,\s]+([\d.-]+)', d)
         h_match = re.search(r'h\s*([\d.-]+)', d)
         v_match = re.search(r'v\s*([\d.-]+)', d)
         if m_match and h_match and v_match:
@@ -191,6 +195,8 @@ class CrossPlatformMetadataExporter:
             return {
                 'x': x + w / 2,
                 'y': y + h / 2,
+                'width': w,
+                'height': h,
                 'radius': 5.0,
             }
         except (ValueError, TypeError):
@@ -200,7 +206,22 @@ class CrossPlatformMetadataExporter:
     def _parse_generic_path(path: ET.Element) -> Optional[Dict[str, Any]]:
         """Extract first coordinate from path data."""
         d = path.get('d', '')
-        match = re.search(r'M\s*([\d.]+)[,\s]+([\d.]+)', d)
+        # Try to find the first move command
+        match = re.search(r'M\s*([\d.-]+)[,\s]+([\d.-]+)', d)
+        if match:
+            return {
+                'x': float(match.group(1)),
+                'y': float(match.group(2)),
+                'radius': 5.0,
+            }
+        return None
+
+    @staticmethod
+    def _parse_symbol(symbol: ET.Element) -> Optional[Dict[str, Any]]:
+        """Parse a symbol element (used for some points)."""
+        # Symbols often use transform="translate(x,y)"
+        transform = symbol.get('transform', '')
+        match = re.search(r'translate\(([\d.-]+)[,\s]+([\d.-]+)\)', transform)
         if match:
             return {
                 'x': float(match.group(1)),

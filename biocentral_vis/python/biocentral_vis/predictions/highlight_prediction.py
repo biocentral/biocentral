@@ -108,7 +108,8 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
             # Background rectangle
             svg_parts.append(
                 f'  <rect x="{x}" y="{y_offset - 14}" width="{char_width}" height="{char_height}" '
-                f'fill="{color}" opacity="0.7" data-residue="{res}" data-prediction="{pred}" data-index="{absolute_idx}"/>'
+                f'fill="{color}" opacity="0.7" data-residue="{res}" data-prediction="{pred}" data-index="{absolute_idx}" '
+                f'data-type="residue"/>'
             )
 
             # Residue letter
@@ -121,7 +122,8 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
             # Background rectangle Pred
             svg_parts.append(
                 f'  <rect x="{x}" y="{y_offset_res - 14}" width="{char_width}" height="{char_height}" '
-                f'fill="{color}" opacity="0.7" data-residue="{res}" data-prediction="{pred}" data-index="{absolute_idx}"/>'
+                f'fill="{color}" opacity="0.7" data-residue="{res}" data-prediction="{pred}" data-index="{absolute_idx}" '
+                f'data-type="prediction"/>'
             )
 
             # Prediction letter

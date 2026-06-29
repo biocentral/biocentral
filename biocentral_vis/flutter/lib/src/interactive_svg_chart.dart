@@ -44,48 +44,61 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
         Expanded(
           child: Container(
             color: Colors.grey.shade100,
-            child: Center(
-              child: InteractiveViewer(
-                boundaryMargin: EdgeInsets.all(100),
-                minScale: 0.5,
-                maxScale: 4.0,
-                onInteractionUpdate: (details) {
-                  setState(() {
-                    scale = details.scale;
-                  });
-                },
-                child: MouseRegion(
-                  onHover: (event) => _handleHover(event.localPosition),
-                  onExit: (_) => setState(() {
-                    hoveredPoint = null;
-                    tooltipPosition = null;
-                  }),
-                  child: GestureDetector(
-                    onTapDown: (details) => _handleTap(details.localPosition),
-                    child: Container(
-                      width: widget.plotData.metadata.dimensions.width,
-                      height: widget.plotData.metadata.dimensions.height,
-                      child: Stack(
-                        children: [
-                          // SVG Layer
-                          SvgPicture.string(
-                            widget.plotData.svg,
-                            width: widget.plotData.metadata.dimensions.width,
-                            height: widget.plotData.metadata.dimensions.height,
-                          ),
+            padding: EdgeInsets.all(16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final chartWidth = widget.plotData.metadata.dimensions.width;
+                final chartHeight = widget.plotData.metadata.dimensions.height;
+                
+                // Calculate initial scale to fit the whole SVG
+                final double scaleX = constraints.maxWidth / chartWidth;
+                final double scaleY = constraints.maxHeight / chartHeight;
+                final double initialScale = (scaleX < scaleY ? scaleX : scaleY).clamp(0.1, 1.0);
 
-                          // Interactive overlay layer
-                          ..._buildInteractiveOverlays(),
+                return InteractiveViewer(
+                  boundaryMargin: EdgeInsets.all(100),
+                  minScale: 0.1,
+                  maxScale: 10.0,
+                  constrained: false,
+                  onInteractionUpdate: (details) {
+                    setState(() {
+                      scale = details.scale;
+                    });
+                  },
+                  child: MouseRegion(
+                    onHover: (event) => _handleHover(event.localPosition),
+                    onExit: (_) => setState(() {
+                      hoveredPoint = null;
+                      tooltipPosition = null;
+                    }),
+                    child: GestureDetector(
+                      onTapDown: (details) => _handleTap(details.localPosition),
+                      child: Container(
+                        width: chartWidth,
+                        height: chartHeight,
+                        child: Stack(
+                          children: [
+                            // SVG Layer
+                            SvgPicture.string(
+                              widget.plotData.svg,
+                              width: chartWidth,
+                              height: chartHeight,
+                              fit: BoxFit.contain,
+                            ),
 
-                          // Tooltip
-                          if (hoveredPoint != null && tooltipPosition != null)
-                            _buildTooltip(),
-                        ],
+                            // Interactive overlay layer
+                            ..._buildInteractiveOverlays(),
+
+                            // Tooltip
+                            if (hoveredPoint != null && tooltipPosition != null)
+                              _buildTooltip(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -99,15 +112,16 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
   List<Widget> _buildInteractiveOverlays() {
     return widget.plotData.metadata.points.map((point) {
       final isHovered = hoveredPoint == point;
+      final isRect = point.width != null && point.height != null;
 
       return Positioned(
-        left: point.x - point.radius - 5,
-        top: point.y - point.radius - 5,
+        left: isRect ? point.x - point.width! / 2 : point.x - point.radius - 5,
+        top: isRect ? point.y - point.height! / 2 : point.y - point.radius - 5,
         child: Container(
-          width: (point.radius + 5) * 2,
-          height: (point.radius + 5) * 2,
+          width: isRect ? point.width! : (point.radius + 5) * 2,
+          height: isRect ? point.height! : (point.radius + 5) * 2,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            shape: isRect ? BoxShape.rectangle : BoxShape.circle,
             border: isHovered
                 ? Border.all(color: Colors.blue, width: 2)
                 : null,
@@ -139,9 +153,22 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
 
   InteractivePoint? _findPointAtPosition(Offset position) {
     for (var point in widget.plotData.metadata.points) {
-      final distance = (Offset(point.x, point.y) - position).distance;
-      if (distance <= point.radius + 5) {
-        return point;
+      if (point.width != null && point.height != null) {
+        // Rectangle hit detection
+        final rect = Rect.fromCenter(
+          center: Offset(point.x, point.y),
+          width: point.width!,
+          height: point.height!,
+        );
+        if (rect.contains(position)) {
+          return point;
+        }
+      } else {
+        // Circle hit detection
+        final distance = (Offset(point.x, point.y) - position).distance;
+        if (distance <= point.radius + 5) {
+          return point;
+        }
       }
     }
     return null;
@@ -152,8 +179,14 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
     final pos = tooltipPosition!;
 
     // Position tooltip to the right and slightly up from the point
-    final tooltipLeft = pos.dx + 15;
-    final tooltipTop = pos.dy - 30;
+    double tooltipLeft = pos.dx + 15;
+    double tooltipTop = pos.dy - 30;
+
+    // Adjust if tooltip goes off-screen (based on chart dimensions)
+    final chartWidth = widget.plotData.metadata.dimensions.width;
+    if (tooltipLeft + 200 > chartWidth) {
+      tooltipLeft = pos.dx - 215; // Show on the left
+    }
 
     return Positioned(
       left: tooltipLeft,

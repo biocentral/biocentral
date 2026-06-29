@@ -2,11 +2,13 @@ import tempfile
 import altair as alt
 
 from pathlib import Path
+from biocentral_api import ProjectionResult
 from typing import List, Union, Dict, Any, Optional
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
-from .datasets import plot_label_distribution
 from .base import BiocentralVisualization
+from .datasets import plot_label_distribution
+from .projections import plot_projection_result
 from .models import plot_test_set_performance, plot_loss_curves
 
 
@@ -29,6 +31,11 @@ class BiocentralChart(BiocentralVisualization):
     @classmethod
     def model_test_set_performance(cls, model_result: BiotrainerModelResult, metric_name: str):
         chart, metadata = plot_test_set_performance(model_result, metric_name)
+        return cls(chart, metadata)
+
+    @classmethod
+    def projection_result(cls, projection_result: ProjectionResult, dataset: List[SequenceData]):
+        chart, metadata = plot_projection_result(projection_result, dataset)
         return cls(chart, metadata)
 
     def to_svg(self) -> str:

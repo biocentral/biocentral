@@ -57,12 +57,16 @@ class InteractivePoint {
   final double x;
   final double y;
   final double radius;
+  final double? width;
+  final double? height;
   final Map<String, dynamic> data;
 
   InteractivePoint({
     required this.x,
     required this.y,
     required this.radius,
+    this.width,
+    this.height,
     required this.data,
   });
 
@@ -71,6 +75,8 @@ class InteractivePoint {
       x: (json['x'] as num).toDouble(),
       y: (json['y'] as num).toDouble(),
       radius: (json['radius'] as num? ?? 5.0).toDouble(),
+      width: json['width'] != null ? (json['width'] as num).toDouble() : null,
+      height: json['height'] != null ? (json['height'] as num).toDouble() : null,
       data: Map<String, dynamic>.from(json['data'] ?? {}),
     );
   }
