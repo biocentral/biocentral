@@ -32,6 +32,9 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
   
   // Changing this key forces BiocentralDiscreteSelection to fully rebuild and clear its internal selection after an entry is staged.
   Key _dropdownKey = UniqueKey();
+  
+  // Changing this key forces all suggestion TextFormFields to rebuild and clear their internal state on campaign/iteration reset.
+  Key _suggestionsAreaKey = UniqueKey();
 
   @override
   void dispose() {
@@ -46,6 +49,7 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
     _pendingExtraId = null;
     _extraValueController.clear();
     _dropdownKey = UniqueKey();
+    _suggestionsAreaKey = UniqueKey();
     if (campaign != null) {
       final suggestions = campaign.iterationResults.lastOrNull?.$2.suggestions.toList() ?? [];
       _addedData.addEntries(suggestions.map((s) => MapEntry(s, '')));
@@ -74,7 +78,8 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ALHubBloc, ALHubState>(
-      listenWhen: (previous, current) => previous.selectedCampaign != current.selectedCampaign,
+      listenWhen: (previous, current) => previous.selectedCampaign != current.selectedCampaign
+          || previous.selectedCampaignIterationCount != current.selectedCampaignIterationCount,
       listener: (context, state) {
         setState(() {
           _resetCampaignState(state.selectedCampaign);
@@ -183,19 +188,25 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
           alignment: Alignment.centerLeft,
           child: Text('Suggested sequences'),
         ),
-        ..._addedData.keys.map((suggestion) => TextFormField(
-          decoration: InputDecoration(labelText: suggestion),
-          textAlign: TextAlign.center,
-          initialValue: _addedData[suggestion],
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          // TODO Improve validation
-          validator: (val) => val == null || val.isEmpty ? 'Value must not be empty!' : null,
-          onChanged: (val) {
-            setState(() {
-              _addedData[suggestion] = val;
-            });
-          },
-        ),),
+        KeyedSubtree(
+          key: _suggestionsAreaKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _addedData.keys.map((suggestion) => TextFormField(
+              decoration: InputDecoration(labelText: suggestion),
+              textAlign: TextAlign.center,
+              initialValue: _addedData[suggestion],
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              // TODO Improve validation
+              validator: (val) => val == null || val.isEmpty ? 'Value must not be empty!' : null,
+              onChanged: (val) {
+                setState(() {
+                  _addedData[suggestion] = val;
+                });
+              },
+            ),).toList(),
+          ),
+        ),
 
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
