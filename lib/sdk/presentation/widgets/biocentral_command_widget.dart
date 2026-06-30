@@ -132,7 +132,6 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
         const Divider(),
         const Text('Select Parameters:'),
         widget.parameterSelection(),
-        const SizedBox(height: 8.0),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -147,15 +146,15 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
                     },
             ),
             const Text('Automatically accept result'),
+            const SizedBox(width: 16),
+            ElevatedButton.icon(
+              onPressed: executeCommand,
+              icon: const Icon(Icons.play_circle_outline),
+              label: Text(widget.executeButtonLabel.toUpperCase()),
+            ),
           ],
         ),
-        ElevatedButton.icon(
-          onPressed: executeCommand,
-          icon: const Icon(Icons.play_circle_outline),
-          label: Text(widget.executeButtonLabel.toUpperCase()),
-        ),
-        const Divider(),
-      ].withPadding(const Padding(padding: EdgeInsets.all(8.0))),
+      ].withPadding(const Padding(padding: EdgeInsets.all(4.0))),
     );
   }
 }

@@ -13,7 +13,12 @@ class _BiocentralCommandViewState extends State<BiocentralCommandView> with Auto
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SingleChildScrollView(child: Column(children: widget.commandWidgets));
+    return SingleChildScrollView(
+        child: Column(
+          spacing: 2.0,
+          children: widget.commandWidgets,
+        ),
+    );
   }
 
   @override
