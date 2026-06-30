@@ -103,7 +103,7 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
 
   Widget buildParameterSelection(List<ALCampaign> campaigns) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
           withCondition(condition: true, childFunction: buildDatasetSelection),
@@ -112,11 +112,7 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
             childFunction: () => buildCampaignSelection(campaigns),
           ),
           withCondition(condition: _selectedCampaign != null, childFunction: buildIterationConfigSelection),
-        ].withPadding(
-          const Padding(
-            padding: EdgeInsetsGeometry.all(8.0),
-          ),
-        ),
+        ].withPadding(const Padding(padding: EdgeInsetsGeometry.all(8.0))),
       ),
     );
   }

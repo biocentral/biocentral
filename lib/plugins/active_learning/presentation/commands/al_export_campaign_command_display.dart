@@ -64,7 +64,7 @@ class _ALExportCampaignCommandDisplayState extends State<ALExportCampaignCommand
   Widget buildParameterSelection(List<ALCampaign> campaigns) {
     final defaultFileName = 'campaign_${_selectedCampaign?.config.name ?? 'export'}.json';
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
           BiocentralDiscreteSelection<ALCampaign>(

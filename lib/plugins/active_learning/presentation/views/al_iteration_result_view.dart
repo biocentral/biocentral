@@ -109,7 +109,6 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(campaign.config.name),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -170,7 +169,6 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(campaign.config.name),
             SizedBox(
               width: widgetWidth,
               height: widgetHeight,

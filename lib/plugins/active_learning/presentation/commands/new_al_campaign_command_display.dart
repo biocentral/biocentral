@@ -141,7 +141,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
 
   Widget buildParameterSelection() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
           withCondition(condition: true, childFunction: buildCampaignNameInput),
