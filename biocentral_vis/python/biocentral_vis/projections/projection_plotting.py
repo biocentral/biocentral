@@ -22,14 +22,17 @@ def plot_projection_result(projection_result: ProjectionResult,
     # Prepare data for plotting
     plot_data = []
     highlight_data = []  # Save highlight data separately and add it in the end to keep coloring order
+    all_labels = set()  # Collect all unique labels
+
     for seq_id in identifier:
         if seq_id in seq_data_by_id:
             seq_data = seq_data_by_id[seq_id]
             x, y, z = coord_map[seq_id]
             is_highlight = seq_id in highlight_ids
-            label = seq_data.get_attribute(color_attribute)
+            label = str(seq_data.get_attribute(color_attribute))
             if is_highlight:
-                label = highlight_name
+                label = str(highlight_name)
+            all_labels.add(label)
             data_dict = {
                 'seq_id': seq_id,
                 'x': x,
@@ -46,11 +49,25 @@ def plot_projection_result(projection_result: ProjectionResult,
     # Create DataFrame
     df = pd.DataFrame(plot_data)
 
+    # Create fixed domain: original labels (sorted) + highlight at the end
+    color_domain = sorted(list(all_labels))
+    color_range = alt.Color('label:N',
+                            title=color_attribute,
+                            scale=alt.Scale(
+                                domain=color_domain + ([highlight_name] if highlight_ids else []),
+                                range=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'] + (
+                                    ['#FF0000'] if highlight_ids else [])
+                            ),
+                            sort=color_domain + ([highlight_name] if highlight_ids else []))
+
     # Create Altair scatter plot
     chart = alt.Chart(df).mark_circle(size=60).encode(
         x=alt.X('x:Q', title='X Coordinate'),
         y=alt.Y('y:Q', title='Y Coordinate'),
-        color=alt.Color('label:N', title=color_attribute),
+        color=alt.Color('label:N',
+                        title=color_attribute,
+                        scale=alt.Scale(domain=color_domain),
+                        sort=color_domain),
         tooltip=['seq_id:N', 'x:Q', 'y:Q', 'z:Q', 'label:N']
     ).properties(
         width=600,
