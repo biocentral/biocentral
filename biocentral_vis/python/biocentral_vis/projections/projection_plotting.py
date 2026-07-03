@@ -29,10 +29,14 @@ def plot_projection_result(projection_result: ProjectionResult,
             seq_data = seq_data_by_id[seq_id]
             x, y, z = coord_map[seq_id]
             is_highlight = seq_id in highlight_ids
-            label = str(seq_data.get_attribute(color_attribute))
+            original_label = str(seq_data.get_attribute(color_attribute))
+            all_labels.add(original_label)
+
             if is_highlight:
                 label = str(highlight_name)
-            all_labels.add(label)
+            else:
+                label = original_label
+
             data_dict = {
                 'seq_id': seq_id,
                 'x': x,
@@ -46,28 +50,38 @@ def plot_projection_result(projection_result: ProjectionResult,
                 plot_data.append(data_dict)
 
     plot_data.extend(highlight_data)
-    # Create DataFrame
     df = pd.DataFrame(plot_data)
 
-    # Create fixed domain: original labels (sorted) + highlight at the end
-    color_domain = sorted(list(all_labels))
-    color_range = alt.Color('label:N',
-                            title=color_attribute,
-                            scale=alt.Scale(
-                                domain=color_domain + ([highlight_name] if highlight_ids else []),
-                                range=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'] + (
-                                    ['#FF0000'] if highlight_ids else [])
-                            ),
-                            sort=color_domain + ([highlight_name] if highlight_ids else []))
+    if highlight_ids:
+        color_domain = sorted(list(all_labels)) + [highlight_name]
+    else:
+        color_domain = sorted(list(all_labels))
 
+    # Define colors: default colors for labels + RED for highlight
+    default_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    color_range = default_colors[:len(all_labels)] + ['#FF0000']  # Always red for highlight
+
+    coloring = alt.Color('label:N',
+                         title=color_attribute,
+                         scale=alt.Scale(domain=color_domain, range=color_range),
+                         sort=color_domain)
+
+    # Opacity: 0.5 for non-highlights, 1.0 for highlights
+    opacity = alt.value(0.8)
+    if highlight_ids:
+        opacity = alt.condition(
+            alt.datum.label == highlight_name,
+            alt.value(1.0),  # Full opacity for highlights
+            alt.value(0.5)  # 50% opacity for non-highlights
+        )
+
+    projection_method = projection_result.projections_metadata.projection_name[0] or 'unknown'
     # Create Altair scatter plot
     chart = alt.Chart(df).mark_circle(size=60).encode(
-        x=alt.X('x:Q', title='X Coordinate'),
-        y=alt.Y('y:Q', title='Y Coordinate'),
-        color=alt.Color('label:N',
-                        title=color_attribute,
-                        scale=alt.Scale(domain=color_domain),
-                        sort=color_domain),
+        x=alt.X('x:Q', title=f"{projection_method} - Dim 1"),
+        y=alt.Y('y:Q', title=f"{projection_method} - Dim 2"),
+        color=coloring,
+        opacity=opacity,
         tooltip=['seq_id:N', 'x:Q', 'y:Q', 'z:Q', 'label:N']
     ).properties(
         width=600,
@@ -81,8 +95,7 @@ def plot_projection_result(projection_result: ProjectionResult,
         'n_points': len(plot_data),
         'color_attribute': color_attribute,
         'n_labels': df['label'].nunique(),
-        'projection_method': projection_result.projection_method if hasattr(projection_result,
-                                                                            'projection_method') else 'unknown',
+        'projection_method': projection_method,
         'dimensions': 3 if 'z' in df.columns else 2
     }
 
