@@ -7,7 +7,7 @@ requires-python = ">=3.11, <3.14"
 dependencies = [
     "altair>=6.0.0",
     "vl-convert-python>=1.9.0.post1",
-    "biocentral-api @ git+https://github.com/biocentral/biocentral_api.git@c64002d913cc391ab1c302be4dd9c15e1f3cfa27#subdirectory=python",
+    "biocentral-api @ git+https://github.com/biocentral/biocentral_api.git@63d90a0fac80c4d9d7b2e9a3fa109e6aafb9420e#subdirectory=python",
 
 ]
 
