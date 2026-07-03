@@ -1,7 +1,7 @@
 import altair as alt
 import pandas as pd
 
-from typing import List
+from typing import List, Set, Optional
 
 from biocentral_api import ProjectionResult
 from biotrainer_core.data_classes import SequenceData
@@ -10,25 +10,30 @@ from biotrainer_core.data_classes import SequenceData
 def plot_projection_result(projection_result: ProjectionResult,
                            dataset: List[SequenceData],
                            color_attribute: str = "TARGET",
+                           highlight_ids: Optional[Set[str]] = None,
+                           highlight_name : Optional[str] = "highlight",
                            ):
     projections_data = projection_result.projections_data
     identifier = projections_data.identifier
     coord_map = {seq_id: (projections_data.x[idx], projections_data.y[idx], projections_data.z[idx]) for idx, seq_id in
                  enumerate(identifier)}
     seq_data_by_id = {seq_data.seq_id: seq_data for seq_data in dataset}
-
+    highlight_ids = highlight_ids or set()
     # Prepare data for plotting
     plot_data = []
     for seq_id in identifier:
         if seq_id in seq_data_by_id:
             seq_data = seq_data_by_id[seq_id]
             x, y, z = coord_map[seq_id]
+            label = seq_data.get_attribute(color_attribute)
+            if seq_id in highlight_ids:
+                label = highlight_name
             plot_data.append({
                 'seq_id': seq_id,
                 'x': x,
                 'y': y,
                 'z': z,
-                'label': seq_data.get_attribute(color_attribute)
+                'label': label
             })
 
     # Create DataFrame

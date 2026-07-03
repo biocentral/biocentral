@@ -29,7 +29,10 @@ with open(projection_result_path, "r") as f:
 scl_dataset_projection = [seq_data.set_attribute(key="Hit", value=random.choice([0,1])) for seq_data in scl_dataset]
 projection_result_chart = BiocentralChart.projection_result(projection_result,
                                                             scl_dataset_projection,
-                                                            color_attribute="Hit")
+                                                            color_attribute="Hit",
+                                                            highlight_ids={"Q5I0E9"},
+                                                            highlight_name="First Sequence in Dataset",
+                                                            )
 projection_result_chart.save("projection_result_scl.svg")
 
 ### MODEL ###
