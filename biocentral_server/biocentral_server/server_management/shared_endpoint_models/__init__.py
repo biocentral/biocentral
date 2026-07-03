@@ -1,3 +1,4 @@
+from .projection_result import ProjectionResult
 from .response_models import StartTaskResponse
 from .embedding_progress import EmbeddingProgress
 from .prediction_model import Prediction, MutationPrediction
@@ -18,4 +19,5 @@ __all__ = [
     "ActiveLearningIterationResult",
     "ActiveLearningScreeningSimulationResult",
     "EmbeddingProgress",
+    "ProjectionResult",
 ]

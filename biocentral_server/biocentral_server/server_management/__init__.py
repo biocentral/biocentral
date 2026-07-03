@@ -14,6 +14,7 @@ from .shared_endpoint_models import (
     ActiveLearningResult,
     ActiveLearningIterationResult,
     ActiveLearningScreeningSimulationResult,
+    ProjectionResult,
 )
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
@@ -72,5 +73,6 @@ __all__ = [
     "ActiveLearningIterationResult",
     "ActiveLearningScreeningSimulationResult",
     "EmbeddingProgress",
+    "ProjectionResult",
     "DeviceService",
 ]

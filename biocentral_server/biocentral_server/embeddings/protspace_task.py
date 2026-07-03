@@ -9,7 +9,13 @@ from protspace.data.processors import BaseProcessor
 from biotrainer_core.data_classes import SequenceData
 
 from ..utils import get_logger
-from ..server_management import TaskInterface, TaskDTO, TaskStatus, PreEmbedMixin
+from ..server_management import (
+    TaskInterface,
+    TaskDTO,
+    TaskStatus,
+    PreEmbedMixin,
+    ProjectionResult,
+)
 
 logger = get_logger(__name__)
 
@@ -59,5 +65,9 @@ class ProtSpaceTask(TaskInterface, PreEmbedMixin):
         output = processor.create_output(
             metadata=metadata, reductions=[reduction], headers=protspace_headers
         )
-        projection_result = {key: table.to_pydict() for key, table in output.items()}
+        projection_result = ProjectionResult(
+            protein_annotations=output["protein_annotations"].to_pydict(),
+            projections_metadata=output["projections_metadata"].to_pydict(),
+            projections_data=output["projections_data"].to_pydict(),
+        )
         return TaskDTO(status=TaskStatus.FINISHED, projection_result=projection_result)
