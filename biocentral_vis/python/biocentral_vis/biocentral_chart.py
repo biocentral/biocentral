@@ -3,7 +3,7 @@ import altair as alt
 
 from pathlib import Path
 from biocentral_api import ProjectionResult
-from typing import List, Union, Dict, Any, Optional
+from typing import List, Union, Dict, Any, Optional, Callable
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from .base import BiocentralVisualization
@@ -34,8 +34,9 @@ class BiocentralChart(BiocentralVisualization):
         return cls(chart, metadata)
 
     @classmethod
-    def projection_result(cls, projection_result: ProjectionResult, dataset: List[SequenceData]):
-        chart, metadata = plot_projection_result(projection_result, dataset)
+    def projection_result(cls, projection_result: ProjectionResult, dataset: List[SequenceData],
+                          color_attribute: str = "TARGET"):
+        chart, metadata = plot_projection_result(projection_result, dataset, color_attribute=color_attribute)
         return cls(chart, metadata)
 
     def to_svg(self) -> str:

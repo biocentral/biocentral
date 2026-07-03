@@ -7,7 +7,10 @@ from biocentral_api import ProjectionResult
 from biotrainer_core.data_classes import SequenceData
 
 
-def plot_projection_result(projection_result: ProjectionResult, dataset: List[SequenceData]):
+def plot_projection_result(projection_result: ProjectionResult,
+                           dataset: List[SequenceData],
+                           color_attribute: str = "TARGET",
+                           ):
     projections_data = projection_result.projections_data
     identifier = projections_data.identifier
     coord_map = {seq_id: (projections_data.x[idx], projections_data.y[idx], projections_data.z[idx]) for idx, seq_id in
@@ -18,14 +21,14 @@ def plot_projection_result(projection_result: ProjectionResult, dataset: List[Se
     plot_data = []
     for seq_id in identifier:
         if seq_id in seq_data_by_id:
+            seq_data = seq_data_by_id[seq_id]
             x, y, z = coord_map[seq_id]
-            label = seq_data_by_id[seq_id].label
             plot_data.append({
                 'seq_id': seq_id,
                 'x': x,
                 'y': y,
                 'z': z,
-                'label': str(label)  # Convert to string for discrete coloring
+                'label': seq_data.get_attribute(color_attribute)
             })
 
     # Create DataFrame
@@ -35,7 +38,7 @@ def plot_projection_result(projection_result: ProjectionResult, dataset: List[Se
     chart = alt.Chart(df).mark_circle(size=60).encode(
         x=alt.X('x:Q', title='X Coordinate'),
         y=alt.Y('y:Q', title='Y Coordinate'),
-        color=alt.Color('label:N', title='Label'),
+        color=alt.Color('label:N', title=color_attribute),
         tooltip=['seq_id:N', 'x:Q', 'y:Q', 'z:Q', 'label:N']
     ).properties(
         width=600,
@@ -47,6 +50,7 @@ def plot_projection_result(projection_result: ProjectionResult, dataset: List[Se
     metadata = {
         'type': 'projection_scatter',
         'n_points': len(plot_data),
+        'color_attribute': color_attribute,
         'n_labels': df['label'].nunique(),
         'projection_method': projection_result.projection_method if hasattr(projection_result,
                                                                             'projection_method') else 'unknown',
