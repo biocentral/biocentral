@@ -21,21 +21,28 @@ def plot_projection_result(projection_result: ProjectionResult,
     highlight_ids = highlight_ids or set()
     # Prepare data for plotting
     plot_data = []
+    highlight_data = []  # Save highlight data separately and add it in the end to keep coloring order
     for seq_id in identifier:
         if seq_id in seq_data_by_id:
             seq_data = seq_data_by_id[seq_id]
             x, y, z = coord_map[seq_id]
+            is_highlight = seq_id in highlight_ids
             label = seq_data.get_attribute(color_attribute)
-            if seq_id in highlight_ids:
+            if is_highlight:
                 label = highlight_name
-            plot_data.append({
+            data_dict = {
                 'seq_id': seq_id,
                 'x': x,
                 'y': y,
                 'z': z,
                 'label': label
-            })
+            }
+            if is_highlight:
+                highlight_data.append(data_dict)
+            else:
+                plot_data.append(data_dict)
 
+    plot_data.extend(highlight_data)
     # Create DataFrame
     df = pd.DataFrame(plot_data)
 
