@@ -1,3 +1,4 @@
+import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';
 import 'package:flutter/material.dart';
 
 class BiocentralCommandView extends StatefulWidget {
@@ -10,14 +11,25 @@ class BiocentralCommandView extends StatefulWidget {
 }
 
 class _BiocentralCommandViewState extends State<BiocentralCommandView> with AutomaticKeepAliveClientMixin {
+  final _expandedToken = ValueNotifier<Object?>(null);
+
+  @override
+  void dispose() {
+    _expandedToken.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SingleChildScrollView(
+    return BiocentralCommandGroupScope(
+      notifier: _expandedToken,
+      child: SingleChildScrollView(
         child: Column(
           spacing: 2.0,
           children: widget.commandWidgets,
         ),
+      ),
     );
   }
 

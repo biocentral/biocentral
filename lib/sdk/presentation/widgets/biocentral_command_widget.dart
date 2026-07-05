@@ -6,6 +6,14 @@ import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+class BiocentralCommandGroupScope extends InheritedNotifier<ValueNotifier<Object?>> {
+  const BiocentralCommandGroupScope({required super.notifier, required super.child, super.key});
+
+  static ValueNotifier<Object?>? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<BiocentralCommandGroupScope>()?.notifier;
+  }
+}
+
 class BiocentralCommandWidget extends StatefulWidget {
   final Icon icon;
   final String name;
@@ -54,8 +62,27 @@ class BiocentralCommandWidget extends StatefulWidget {
 }
 
 class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
+  final Object _token = Object();
   bool _selected = false;
   bool _autoAccept = false;
+
+  void _expand() {
+    final notifier = BiocentralCommandGroupScope.maybeOf(context);
+    if (notifier != null) {
+      notifier.value = _token;
+    } else {
+      setState(() => _selected = true);
+    }
+  }
+
+  void _collapse() {
+    final notifier = BiocentralCommandGroupScope.maybeOf(context);
+    if (notifier != null) {
+      if (notifier.value == _token) notifier.value = null;
+    } else {
+      setState(() => _selected = false);
+    }
+  }
 
   void executeCommand() {
     final BiocentralCommandBloc commandBloc = context.read<BiocentralCommandBloc>();
@@ -77,12 +104,11 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final notifier = BiocentralCommandGroupScope.maybeOf(context);
+    final isExpanded = notifier != null ? notifier.value == _token : _selected;
+
     final unselectedWidget = InkWell(
-      onTap: widget.commandAvailability.available
-          ? () => setState(() {
-                _selected = true;
-              })
-          : null,
+      onTap: widget.commandAvailability.available ? _expand : null,
       child: Card(
         color: widget.commandAvailability.available ? null : Colors.grey[300],
         child: Padding(
@@ -90,11 +116,7 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
           child: Row(
             children: [
               IconButton.filled(
-                onPressed: widget.commandAvailability.available
-                    ? () => setState(() {
-                          _selected = true;
-                        })
-                    : null,
+                onPressed: widget.commandAvailability.available ? _expand : null,
                 icon: widget.icon,
               ),
               const SizedBox(width: 8),
@@ -109,7 +131,7 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
         ),
       ),
     );
-    if (!_selected) {
+    if (!isExpanded) {
       if (!widget.commandAvailability.available) {
         return BiocentralTooltip(
           message: widget.commandAvailability.unavailableMessage ?? 'Command currently not available',
@@ -124,9 +146,7 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
       leading: widget.icon,
       initiallyExpanded: true,
       showTrailingIcon: false,
-      onExpansionChanged: (v) => setState(() {
-        _selected = false;
-      }),
+      onExpansionChanged: (v) => _collapse(),
       children: [
         Text(widget.description),
         const Divider(),
