@@ -4,7 +4,7 @@ import altair as alt
 from typing import List
 from biotrainer_core.data_classes import SequenceData
 
-DISCRETE_THRESHOLD = 20
+from ..base.constants import DISCRETE_THRESHOLD
 
 
 def _plot_label_distribution_discrete(dataset: List[SequenceData]):

@@ -16,7 +16,7 @@ projection_result_path = "projection_result_scl.json"
 ### DATASET ###
 scl_dataset = read_FASTA(dataset_path)
 
-label_distribution_chart = BiocentralChart.label_distribution(read_FASTA(dataset_path))
+label_distribution_chart = BiocentralChart.label_distribution(scl_dataset)
 label_distribution_chart.save("scl_label_distribution.svg")
 label_distribution_chart.save_export(assets_path + "scl_label_distribution.json")
 

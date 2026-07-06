@@ -56,4 +56,5 @@ class BiocentralChart(BiocentralVisualization):
         return self.chart
 
     def save(self, output_path: Union[str, Path]):
-        self.chart.save(output_path)
+        output_path = Path(output_path)
+        self.chart.save(output_path, format=output_path.suffix.strip("."))
