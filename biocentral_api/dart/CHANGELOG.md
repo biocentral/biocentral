@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Python Updates Only
+
 ## 1.2.0
 
 * Adding support for UdonPred model
