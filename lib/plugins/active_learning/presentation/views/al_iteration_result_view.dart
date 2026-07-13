@@ -129,6 +129,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
               child: ALPlotView(
                 yLabel: 'Score',
                 data: campaign.iterationResults[_selectedResultIndex].$2,
+                fileNamePrefix: campaign.config.name,
               ),
             ),
             SizedBox(
@@ -175,6 +176,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
               child: ALPlotView(
                 yLabel: 'Score',
                 allData: allResults,
+                fileNamePrefix: campaign.config.name,
               ),
             ),
             SizedBox(

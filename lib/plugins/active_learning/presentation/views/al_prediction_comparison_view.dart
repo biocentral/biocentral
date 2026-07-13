@@ -3,10 +3,12 @@ import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 class ALPredictionComparisonView extends StatelessWidget {
   final String yLabel;
@@ -14,13 +16,20 @@ class ALPredictionComparisonView extends StatelessWidget {
   final ActiveLearningIterationResult? result;
   final List<ActiveLearningIterationResult>? allResults;
 
-  const ALPredictionComparisonView({
+  final WidgetsToImageController _exportController = WidgetsToImageController();
+  
+  ALPredictionComparisonView({
     required this.yLabel,
     required this.campaign,
     this.result,
     this.allResults,
     super.key,
   }) : assert(result != null || allResults != null, 'Either result or allResults must be provided');
+
+  String get _defaultFileName {
+    final suffix = result != null ? 'iteration_${result!.iteration}' : 'all_iterations';
+    return 'al_prediction_comparison_${campaign.config.name}_$suffix.png';
+  }
 
   List<(ActiveLearningResult, double, double)> _plottableData(Map<String, Protein> proteinDb) {
     if (allResults != null) {
@@ -64,26 +73,50 @@ class ALPredictionComparisonView extends StatelessWidget {
           title: const Text('Predictions vs. Experiments'),
           leading: const Icon(Icons.compare_arrows),
           children: [
-            SizedBox(
-              height: 500,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 35, 16, 24),
-                child: LineChart(_buildChartData(data)),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.save),
+                  tooltip: 'Export plot as PNG',
+                  onPressed: () => exportWidgetAsPng(
+                    context: context,
+                    controller: _exportController,
+                    defaultFileName: _defaultFileName,
+                  ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _legendDot(BiocentralStyle.alPredictionLineColor),
-                  const SizedBox(width: 4),
-                  const Text('Prediction', style: TextStyle(fontSize: 12)),
-                  const SizedBox(width: 16),
-                  _legendDot(BiocentralStyle.alExperimentalLineColor),
-                  const SizedBox(width: 4),
-                  const Text('Experiment', style: TextStyle(fontSize: 12)),
-                ],
+            WidgetsToImage(
+              controller: _exportController,
+              child: Container( // used to color background of screenshot the same as application
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 500,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 35, 16, 24),
+                        child: LineChart(_buildChartData(data)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _legendDot(BiocentralStyle.alPredictionLineColor),
+                          const SizedBox(width: 4),
+                          const Text('Prediction', style: TextStyle(fontSize: 12)),
+                          const SizedBox(width: 16),
+                          _legendDot(BiocentralStyle.alExperimentalLineColor),
+                          const SizedBox(width: 4),
+                          const Text('Experiment', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
