@@ -3,10 +3,12 @@ import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
 import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 /// Candlestick chart showing the distribution of absolute prediction errors per
 /// iteration. Each candle maps: low=min, open=Q1, close=Q3, high=max.
@@ -16,7 +18,9 @@ class ALPredictionErrorTrendView extends StatelessWidget {
 
   final ALCampaign campaign;
 
-  const ALPredictionErrorTrendView({required this.campaign, super.key});
+  final WidgetsToImageController _exportController = WidgetsToImageController();
+
+  ALPredictionErrorTrendView({required this.campaign, super.key});
 
   /// Returns sorted absolute errors for all suggested proteins in [iterResult]
   /// that have both a numeric prediction and an experimental value.
@@ -78,11 +82,31 @@ class ALPredictionErrorTrendView extends StatelessWidget {
           title: const Text('Prediction Error Distribution'),
           leading: const Icon(Icons.candlestick_chart),
           children: [
-            SizedBox(
-              height: 300,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 32, 16),
-                child: CandlestickChart(_buildChartData(stats)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.save),
+                  tooltip: 'Export plot as PNG',
+                  onPressed: () => exportWidgetAsPng(
+                    context: context,
+                    controller: _exportController,
+                    defaultFileName: 'al_prediction_error_trend_${campaign.config.name}.png',
+                  ),
+                ),
+              ],
+            ),
+            WidgetsToImage(
+              controller: _exportController,
+              child: Container( // used to color background of screenshot the same as application
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: SizedBox(
+                  height: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 32, 16),
+                    child: CandlestickChart(_buildChartData(stats)),
+                  ),
+                ),
               ),
             ),
           ],

@@ -1,8 +1,10 @@
 import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
+import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 /// A widget that displays a scatter plot visualization of Active Learning results.
 /// The plot shows protein sequences on the x-axis and their corresponding scores on the y-axis.
@@ -15,16 +17,22 @@ class ALPlotView extends StatelessWidget {
   final ActiveLearningIterationResult? data;
   final List<ActiveLearningIterationResult>? allData;
 
+  /// Suggested graph export finelname
+  final String? fileNamePrefix;
+
   final List<ActiveLearningResult> _suggestedResults;
   final List<(int iteration, List<ActiveLearningResult> results)> _iterationData;
 
   /// Cached min/max values for the y-axis range
   final MinMaxValues minMaxValues;
 
+  final WidgetsToImageController _exportController = WidgetsToImageController();
+
   ALPlotView({
     required this.yLabel,
     this.data,
     this.allData,
+    this.fileNamePrefix,
     super.key,
   }) : assert(data != null || allData != null, 'Either data or allData must be provided'),
         _suggestedResults = allData == null ? _buildSuggestedResults(data) : const [],
@@ -68,22 +76,49 @@ class ALPlotView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (allData != null) {
-      return _buildCombined();
+      return _buildCombined(context);
     }
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            _buildScatterPlot(),
-            _buildColorLegend(),
-          ],
-        ),
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.save),
+                tooltip: 'Export plot as PNG',
+                onPressed: () => exportWidgetAsPng(
+                  context: context,
+                  controller: _exportController,
+                  defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_iteration_${data?.iteration}.png',
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: WidgetsToImage(
+              controller: _exportController,
+              child: Container( // used to color background of screenshot the same as application
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      _buildScatterPlot(),
+                      _buildColorLegend(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCombined() {
+  Widget _buildCombined(BuildContext context) {
     final allResults = _iterationData.expand((e) => e.$2).toList();
     if (allResults.isEmpty) return const SizedBox.shrink();
 
@@ -104,15 +139,42 @@ class ALPlotView extends StatelessWidget {
       }
     }
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Expanded(child: _buildCombinedScatterPlot(spots, spotInfo)),
-            _buildIterationLegend(),
-          ],
-        ),
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.save),
+                tooltip: 'Export plot as PNG',
+                onPressed: () => exportWidgetAsPng(
+                  context: context,
+                  controller: _exportController,
+                  defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_all_iterations.png',
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: WidgetsToImage(
+              controller: _exportController,
+              child: Container( // used to color background of screenshot the same as application
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildCombinedScatterPlot(spots, spotInfo)),
+                      _buildIterationLegend(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
