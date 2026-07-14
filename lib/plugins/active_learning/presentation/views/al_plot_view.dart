@@ -1,9 +1,11 @@
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 
 /// A widget that displays a scatter plot visualization of Active Learning results.
@@ -94,7 +96,8 @@ class ALPlotView extends StatelessWidget {
                 icon: const Icon(Icons.save),
                 tooltip: 'Export plot as PNG',
                 onPressed: () => exportWidgetAsPng(
-                  context: context,
+                  messenger: ScaffoldMessenger.of(context),
+                  projectRepository: context.read<BiocentralProjectRepository>(),
                   controller: _exportController,
                   defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_iteration_${data?.iteration}.png',
                 ),
@@ -352,7 +355,8 @@ class _ALCombinedPlotView extends StatelessWidget {
                 icon: const Icon(Icons.save),
                 tooltip: 'Export plot as PNG',
                 onPressed: () => exportWidgetAsPng(
-                  context: context,
+                  messenger: ScaffoldMessenger.of(context),
+                  projectRepository: context.read<BiocentralProjectRepository>(),
                   controller: _exportController,
                   defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_all_iterations.png',
                 ),
