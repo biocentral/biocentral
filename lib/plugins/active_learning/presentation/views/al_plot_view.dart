@@ -76,7 +76,12 @@ class ALPlotView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (allData != null) {
-      return _buildCombined(context);
+      return _ALCombinedPlotView(
+        yLabel: yLabel,
+        iterationData: _iterationData,
+        minMaxValues: minMaxValues,
+        fileNamePrefix: fileNamePrefix,
+      );
     }
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
@@ -114,181 +119,6 @@ class ALPlotView extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCombined(BuildContext context) {
-    final allResults = _iterationData.expand((e) => e.$2).toList();
-    if (allResults.isEmpty) return const SizedBox.shrink();
-
-    final List<(int iteration, String entityId, double score)> spotInfo = [];
-    final List<ScatterSpot> spots = [];
-
-    double counterX = 1.0;
-    for (final (iteration, results) in _iterationData) {
-      final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
-      for (final result in results) {
-        spotInfo.add((iteration, result.entityId, result.score.toDouble()));
-        spots.add(ScatterSpot(
-          counterX++,
-          result.score.toDouble(),
-          show: true,
-          dotPainter: FlDotCirclePainter(radius: 8, color: color),
-        ),);
-      }
-    }
-
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.save),
-                tooltip: 'Export plot as PNG',
-                onPressed: () => exportWidgetAsPng(
-                  context: context,
-                  controller: _exportController,
-                  defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_all_iterations.png',
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: WidgetsToImage(
-              controller: _exportController,
-              child: Container( // used to color background of screenshot the same as application
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(child: _buildCombinedScatterPlot(spots, spotInfo)),
-                      _buildIterationLegend(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCombinedScatterPlot(
-    List<ScatterSpot> spots,
-    List<(int, String, double)> spotInfo,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ScatterChart(
-        ScatterChartData(
-          titlesData: _buildCombinedTitlesData(spotInfo),
-          gridData: const FlGridData(),
-          scatterSpots: spots,
-          minX: 0,
-          maxX: spots.length.toDouble() + 1,
-          minY: minMaxValues.getMinY,
-          maxY: minMaxValues.getMaxY,
-          borderData: FlBorderData(show: true),
-          scatterTouchData: _buildCombinedTouchData(spotInfo),
-        ),
-      ),
-    );
-  }
-
-  FlTitlesData _buildCombinedTitlesData(List<(int, String, double)> spotInfo) {
-    return FlTitlesData(
-      rightTitles: const AxisTitles(),
-      topTitles: const AxisTitles(
-        axisNameWidget: Text(
-          'All Iterations',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-      ),
-      leftTitles: AxisTitles(
-        axisNameWidget: Align(
-          alignment: Alignment.bottomCenter,
-          child: Text(yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        ),
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 50,
-          getTitlesWidget: (value, meta) => Text(
-            value.toStringAsFixed(Constants.maxDoublePrecision),
-            style: const TextStyle(fontSize: 12),
-          ),
-        ),
-      ),
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          interval: 1,
-          reservedSize: 50,
-          getTitlesWidget: (value, meta) {
-            final int index = value.toInt();
-            if (index < 1 || index > spotInfo.length) return const SizedBox.shrink();
-            return RotatedBox(
-              quarterTurns: 3,
-              child: Text(
-                spotInfo[index - 1].$2,
-                style: const TextStyle(fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  ScatterTouchData _buildCombinedTouchData(List<(int, String, double)> spotInfo) {
-    return ScatterTouchData(
-      touchTooltipData: ScatterTouchTooltipData(
-        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
-        getTooltipItems: (ScatterSpot touchedSpot) {
-          final index = touchedSpot.x.toInt() - 1;
-          if (index < 0 || index >= spotInfo.length) return null;
-          final (iteration, entityId, score) = spotInfo[index];
-          return ScatterTooltipItem(
-            'Iteration $iteration\n$entityId\nScore: ${score.toStringAsFixed(Constants.maxDoublePrecision)}',
-            textStyle: const TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 10),
-          );
-        },
-      ),
-      enabled: true,
-    );
-  }
-
-  Widget _buildIterationLegend() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      width: 120,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _iterationData.map((entry) {
-          final (iteration, _) = entry;
-          final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-                ),
-                const SizedBox(width: 8),
-                Text('Iteration $iteration', style: const TextStyle(fontSize: 12)),
-              ],
-            ),
-          );
-        }).toList(),
       ),
     );
   }
@@ -471,6 +301,198 @@ class ALPlotView extends StatelessWidget {
     if (ratio <= 0.6) return BiocentralStyle.alScoreGradientColors[2];
     if (ratio <= 0.8) return BiocentralStyle.alScoreGradientColors[3];
     return BiocentralStyle.alScoreGradientColors[4];
+  }
+}
+
+class _ALCombinedPlotView extends StatelessWidget {
+  final String yLabel;
+  final String? fileNamePrefix;
+  final List<(int iteration, List<ActiveLearningResult> results)> iterationData;
+  final MinMaxValues minMaxValues;
+
+  final WidgetsToImageController _exportController = WidgetsToImageController();
+
+  _ALCombinedPlotView({
+    required this.yLabel,
+    required this.iterationData,
+    required this.minMaxValues,
+    this.fileNamePrefix,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final allResults = iterationData.expand((e) => e.$2).toList();
+    if (allResults.isEmpty) return const SizedBox.shrink();
+
+    final List<(int iteration, String entityId, double score)> spotInfo = [];
+    final List<ScatterSpot> spots = [];
+
+    double counterX = 1.0;
+    for (final (iteration, results) in iterationData) {
+      final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
+      for (final result in results) {
+        spotInfo.add((iteration, result.entityId, result.score.toDouble()));
+        spots.add(ScatterSpot(
+          counterX++,
+          result.score.toDouble(),
+          show: true,
+          dotPainter: FlDotCirclePainter(radius: 8, color: color),
+        ),);
+      }
+    }
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.save),
+                tooltip: 'Export plot as PNG',
+                onPressed: () => exportWidgetAsPng(
+                  context: context,
+                  controller: _exportController,
+                  defaultFileName: 'al_scatter_${fileNamePrefix ?? 'plot'}_all_iterations.png',
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: WidgetsToImage(
+              controller: _exportController,
+              child: Container( // used to color background of screenshot the same as application
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildCombinedScatterPlot(spots, spotInfo)),
+                      _buildIterationLegend(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCombinedScatterPlot(
+    List<ScatterSpot> spots,
+    List<(int, String, double)> spotInfo,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ScatterChart(
+        ScatterChartData(
+          titlesData: _buildCombinedTitlesData(spotInfo),
+          gridData: const FlGridData(),
+          scatterSpots: spots,
+          minX: 0,
+          maxX: spots.length.toDouble() + 1,
+          minY: minMaxValues.getMinY,
+          maxY: minMaxValues.getMaxY,
+          borderData: FlBorderData(show: true),
+          scatterTouchData: _buildCombinedTouchData(spotInfo),
+        ),
+      ),
+    );
+  }
+
+  FlTitlesData _buildCombinedTitlesData(List<(int, String, double)> spotInfo) {
+    return FlTitlesData(
+      rightTitles: const AxisTitles(),
+      topTitles: const AxisTitles(
+        axisNameWidget: Text(
+          'All Iterations',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ),
+      leftTitles: AxisTitles(
+        axisNameWidget: Align(
+          alignment: Alignment.bottomCenter,
+          child: Text(yLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        ),
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 50,
+          getTitlesWidget: (value, meta) => Text(
+            value.toStringAsFixed(Constants.maxDoublePrecision),
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          interval: 1,
+          reservedSize: 50,
+          getTitlesWidget: (value, meta) {
+            final int index = value.toInt();
+            if (index < 1 || index > spotInfo.length) return const SizedBox.shrink();
+            return RotatedBox(
+              quarterTurns: 3,
+              child: Text(
+                spotInfo[index - 1].$2,
+                style: const TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  ScatterTouchData _buildCombinedTouchData(List<(int, String, double)> spotInfo) {
+    return ScatterTouchData(
+      touchTooltipData: ScatterTouchTooltipData(
+        getTooltipColor: (_) => BiocentralStyle.alTooltipBackground,
+        getTooltipItems: (ScatterSpot touchedSpot) {
+          final index = touchedSpot.x.toInt() - 1;
+          if (index < 0 || index >= spotInfo.length) return null;
+          final (iteration, entityId, score) = spotInfo[index];
+          return ScatterTooltipItem(
+            'Iteration $iteration\n$entityId\nScore: ${score.toStringAsFixed(Constants.maxDoublePrecision)}',
+            textStyle: const TextStyle(color: BiocentralStyle.alTooltipTextColor, fontSize: 10),
+          );
+        },
+      ),
+      enabled: true,
+    );
+  }
+
+  Widget _buildIterationLegend() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      width: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: iterationData.map((entry) {
+          final (iteration, _) = entry;
+          final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+                ),
+                const SizedBox(width: 8),
+                Text('Iteration $iteration', style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 }
 
