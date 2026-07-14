@@ -1,6 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/active_learning/bloc/al_hub_bloc.dart';
 import 'package:biocentral/plugins/active_learning/model/al_campaign.dart';
+import 'package:biocentral/sdk/domain/biocentral_project_repository.dart';
 import 'package:biocentral/sdk/presentation/style/biocentral_style.dart';
 import 'package:biocentral/sdk/util/constants.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
@@ -89,7 +90,8 @@ class ALPredictionErrorTrendView extends StatelessWidget {
                   icon: const Icon(Icons.save),
                   tooltip: 'Export plot as PNG',
                   onPressed: () => exportWidgetAsPng(
-                    context: context,
+                    messenger: ScaffoldMessenger.of(context),
+                    projectRepository: context.read<BiocentralProjectRepository>(),
                     controller: _exportController,
                     defaultFileName: 'al_prediction_error_trend_${campaign.config.name}.png',
                   ),

@@ -5,7 +5,6 @@ import 'package:biocentral/sdk/util/constants.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
 
 extension PaddedWigets on List<Widget> {
@@ -53,35 +52,36 @@ Widget withCondition({required bool condition, required Widget Function() childF
   return Container();
 }
 
-Future<void> exportWidgetAsPng({required BuildContext context, required WidgetsToImageController controller, required String defaultFileName}) async {
+Future<void> exportWidgetAsPng({required ScaffoldMessengerState messenger, required BiocentralProjectRepository projectRepository, required WidgetsToImageController controller, required String defaultFileName}) async {
   final Uint8List? bytes = await controller.capturePng(pixelRatio: 3.0);
-  
-  if (bytes == null) return;
+
+  if (bytes == null) {
+    messenger.showSnackBar(const SnackBar(content: Text('Failed to capture plot image')));
+    return;
+  }
 
   final String? savePath = await FilePicker.platform.saveFile(
     dialogTitle: 'Export plot as PNG',
     fileName: defaultFileName,
   );
-  
-  if (savePath == null) return;
+
+  if (savePath == null) {
+    messenger.showSnackBar(const SnackBar(content: Text('Export canceled')));
+    return;
+  }
 
   final xFile = XFile(savePath);
   final fileName = xFile.name;
   final dirPath = savePath.substring(0, savePath.length - fileName.length - 1);
 
-  if (!context.mounted) return;
-  
-  final projectRepository = context.read<BiocentralProjectRepository>();
   final saveEither = await projectRepository.handleExternalSave(
     fileName: fileName,
     bytesFunction: () async => bytes,
     dirPath: dirPath,
   );
 
-  if (!context.mounted) return;
-  
   saveEither.match(
-    (error) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to export plot: ${error.message}'))),
-    (path) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Plot exported to ${path ?? fileName}'))),
+    (error) => messenger.showSnackBar(SnackBar(content: Text('Failed to export plot: ${error.message}'))),
+    (path) => messenger.showSnackBar(SnackBar(content: Text('Plot exported to ${path ?? fileName}'))),
   );
 }
