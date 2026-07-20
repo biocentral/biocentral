@@ -16,6 +16,7 @@ from .shared_endpoint_models import (
     ActiveLearningScreeningSimulationResult,
     ProjectionResult,
 )
+from .request_validation import validate_embedder_name
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import (
@@ -75,4 +76,5 @@ __all__ = [
     "EmbeddingProgress",
     "ProjectionResult",
     "DeviceService",
+    "validate_embedder_name",
 ]

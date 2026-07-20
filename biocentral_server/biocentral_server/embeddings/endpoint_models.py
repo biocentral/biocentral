@@ -4,6 +4,10 @@ from enum import Enum
 from typing import List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
+from ..server_management.shared_endpoint_models.embedder_base_model import (
+    EmbedderModelBase,
+)
+
 
 class CommonEmbedder(str, Enum):
     """Common embedder model names"""
@@ -30,10 +34,8 @@ class CommonEmbedder(str, Enum):
         return json_schema
 
 
-class EmbedRequest(BaseModel):
-    embedder_name: str = Field(
-        description="Name of the embedder model to use", examples=list(CommonEmbedder)
-    )
+class EmbedRequest(EmbedderModelBase):
+    # embedder_name in EmbedderModelBase
     reduce: bool = Field(
         default="false", description="Whether to use dimensionality reduction"
     )
@@ -47,13 +49,11 @@ class EmbedRequest(BaseModel):
     )
 
 
-class GetMissingEmbeddingsRequest(BaseModel):
+class GetMissingEmbeddingsRequest(EmbedderModelBase):
     """Request model for checking missing embeddings"""
 
     sequences: str = Field(description="JSON string containing sequence data")
-    embedder_name: str = Field(
-        description="Name of the embedder model", examples=list(CommonEmbedder)
-    )
+    # embedder_name in EmbedderModelBase
     reduced: bool = Field(description="Whether to check for reduced embeddings")
 
     @field_validator("sequences")
@@ -76,12 +76,12 @@ class GetMissingEmbeddingsResponse(BaseModel):
     )
 
 
-class AddEmbeddingsRequest(BaseModel):
+class AddEmbeddingsRequest(EmbedderModelBase):
     """Request model for adding embeddings"""
 
     h5_bytes: str = Field(description="Base64 encoded HDF5 file containing embeddings")
     sequences: str = Field(description="JSON string containing sequence data")
-    embedder_name: str = Field(description="Name of the embedder model")
+    # embedder_name in EmbedderModelBase
     reduced: bool = Field(description="Whether these are reduced embeddings")
 
 
@@ -99,7 +99,7 @@ class GetProjectionConfigResponse(BaseModel):
     )
 
 
-class ProjectionRequest(BaseModel):
+class ProjectionRequest(EmbedderModelBase):
     """Request model for projection"""
 
     sequence_data: Dict[str, str] = Field(
@@ -107,4 +107,4 @@ class ProjectionRequest(BaseModel):
     )
     method: str = Field(description="Projection method to use")
     config: Dict[str, Any] = Field(description="Projection configuration")
-    embedder_name: str = Field(description="Name of the embedder model")
+    # embedder_name in EmbedderModelBase

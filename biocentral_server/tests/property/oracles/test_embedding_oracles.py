@@ -6,8 +6,12 @@ from pathlib import Path
 import csv
 import numpy as np
 import pytest
-from pydantic import BaseModel, Field
+from pydantic import Field
 from biotrainer_core.data_classes import SequenceData
+
+from biocentral_server.server_management.shared_endpoint_models.embedder_base_model import (
+    EmbedderModelBase,
+)
 
 from tests.fixtures.test_dataset import (
     get_test_sequences,
@@ -186,8 +190,7 @@ class EmbedderProtocol(Protocol):
     ) -> List[np.ndarray]: ...
 
 
-class OracleConfig(BaseModel):
-    embedder_name: str = Field(description="Name of the embedder model to test")
+class OracleConfig(EmbedderModelBase):
     cosine_threshold: float = Field(
         description="Maximum cosine distance allowed for batch invariance checks"
     )

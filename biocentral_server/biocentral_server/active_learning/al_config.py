@@ -5,6 +5,10 @@ from typing import List, Optional
 from biotrainer_core.data_classes import SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
 
+from ..server_management.shared_endpoint_models.embedder_base_model import (
+    EmbedderModelBase,
+)
+
 
 class ActiveLearningModelType(str, Enum):
     GAUSSIAN_PROCESS = "GAUSSIAN_PROCESS"
@@ -28,12 +32,12 @@ class ActiveLearningOptimizationMode(str, Enum):
         return ActiveLearningOptimizationMode(status.upper())
 
 
-class ActiveLearningScreeningCampaignConfig(BaseModel):
+class ActiveLearningScreeningCampaignConfig(EmbedderModelBase):
     """Configuration for an active learning screening campaign"""
 
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
-    embedder_name: str = Field(description="Name of embedder to use")
+    # embedder_name in EmbedderModelBase
     optimization_mode: ActiveLearningOptimizationMode = Field(
         description="Optimization mode selection"
     )
@@ -125,12 +129,12 @@ class ActiveLearningScreeningIterationConfig(BaseModel):
         return v
 
 
-class ActiveLearningEngineeringCampaignConfig(BaseModel):
+class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
     """Configuration for an active learning engineering campaign"""
 
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
-    embedder_name: str = Field(description="Name of embedder to use")
+    # embedder_name in EmbedderModelBase
     optimization_mode: ActiveLearningOptimizationMode = Field(
         description="Optimization mode selection"
     )

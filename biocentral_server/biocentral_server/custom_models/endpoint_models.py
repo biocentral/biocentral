@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import List, Optional, Any, Dict
 
 from biotrainer_core.data_classes import SequenceData
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from ..server_management import validate_embedder_name
 
 
 class ErrorResponse(BaseModel):
@@ -19,6 +21,17 @@ class ConfigVerificationRequest(BaseModel):
     config_dict: Dict[str, Any] = Field(
         description="Biotrainer configuration", min_length=1
     )
+
+    @field_validator("config_dict")
+    @classmethod
+    def check_embedder_name(cls, v) -> str:
+        maybe_embedder_name = v.get("embedder_name")
+        if not maybe_embedder_name:
+            return v
+        maybe_error = validate_embedder_name(maybe_embedder_name)
+        if maybe_error is not None:
+            raise ValueError(maybe_error)
+        return v
 
 
 class ConfigVerificationResponse(BaseModel):
@@ -41,6 +54,17 @@ class StartTrainingRequest(BaseModel):
     training_data: List[SequenceData] = Field(
         description="List of sequence training data", min_length=1
     )
+
+    @field_validator("config_dict")
+    @classmethod
+    def check_embedder_name(cls, v) -> str:
+        maybe_embedder_name = v.get("embedder_name")
+        if not maybe_embedder_name:
+            return v
+        maybe_error = validate_embedder_name(maybe_embedder_name)
+        if maybe_error is not None:
+            raise ValueError(maybe_error)
+        return v
 
 
 class ModelFilesRequest(BaseModel):
