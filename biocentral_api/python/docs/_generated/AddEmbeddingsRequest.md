@@ -6,9 +6,9 @@ Request model for adding embeddings
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
 **h5_bytes** | **str** | Base64 encoded HDF5 file containing embeddings | 
 **sequences** | **str** | JSON string containing sequence data | 
-**embedder_name** | **str** | Name of the embedder model | 
 **reduced** | **bool** | Whether these are reduced embeddings | 
 
 ## Example

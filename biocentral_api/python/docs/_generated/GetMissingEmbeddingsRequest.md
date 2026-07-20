@@ -6,8 +6,8 @@ Request model for checking missing embeddings
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
 **sequences** | **str** | JSON string containing sequence data | 
-**embedder_name** | **str** | Name of the embedder model | 
 **reduced** | **bool** | Whether to check for reduced embeddings | 
 
 ## Example

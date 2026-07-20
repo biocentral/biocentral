@@ -27,10 +27,10 @@ class GetMissingEmbeddingsRequest(BaseModel):
     """
     Request model for checking missing embeddings
     """ # noqa: E501
+    embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     sequences: StrictStr = Field(description="JSON string containing sequence data")
-    embedder_name: StrictStr = Field(description="Name of the embedder model")
     reduced: StrictBool = Field(description="Whether to check for reduced embeddings")
-    __properties: ClassVar[List[str]] = ["sequences", "embedder_name", "reduced"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "sequences", "reduced"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -83,8 +83,8 @@ class GetMissingEmbeddingsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "sequences": obj.get("sequences"),
             "embedder_name": obj.get("embedder_name"),
+            "sequences": obj.get("sequences"),
             "reduced": obj.get("reduced")
         })
         return _obj

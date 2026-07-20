@@ -27,11 +27,11 @@ class ProjectionRequest(BaseModel):
     """
     Request model for projection
     """ # noqa: E501
+    embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     sequence_data: Dict[str, StrictStr] = Field(description="Sequence data to embed (seq_id -> sequence)")
     method: StrictStr = Field(description="Projection method to use")
     config: Dict[str, Any] = Field(description="Projection configuration")
-    embedder_name: StrictStr = Field(description="Name of the embedder model")
-    __properties: ClassVar[List[str]] = ["sequence_data", "method", "config", "embedder_name"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "sequence_data", "method", "config"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -84,10 +84,10 @@ class ProjectionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "embedder_name": obj.get("embedder_name"),
             "sequence_data": obj.get("sequence_data"),
             "method": obj.get("method"),
-            "config": obj.get("config"),
-            "embedder_name": obj.get("embedder_name")
+            "config": obj.get("config")
         })
         return _obj
 

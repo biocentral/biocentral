@@ -27,11 +27,11 @@ class AddEmbeddingsRequest(BaseModel):
     """
     Request model for adding embeddings
     """ # noqa: E501
+    embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     h5_bytes: StrictStr = Field(description="Base64 encoded HDF5 file containing embeddings")
     sequences: StrictStr = Field(description="JSON string containing sequence data")
-    embedder_name: StrictStr = Field(description="Name of the embedder model")
     reduced: StrictBool = Field(description="Whether these are reduced embeddings")
-    __properties: ClassVar[List[str]] = ["h5_bytes", "sequences", "embedder_name", "reduced"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "h5_bytes", "sequences", "reduced"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -84,9 +84,9 @@ class AddEmbeddingsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "embedder_name": obj.get("embedder_name"),
             "h5_bytes": obj.get("h5_bytes"),
             "sequences": obj.get("sequences"),
-            "embedder_name": obj.get("embedder_name"),
             "reduced": obj.get("reduced")
         })
         return _obj

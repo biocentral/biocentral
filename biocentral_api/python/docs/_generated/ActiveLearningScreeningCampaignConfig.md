@@ -6,9 +6,9 @@ Configuration for an active learning screening campaign
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
 **name** | **str** | Name of the active learning campaign | 
 **model_type** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
-**embedder_name** | **str** | Name of embedder to use | 
 **optimization_mode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **target_lb** | **float** | Lower bound of the target value to optimize (mode: INTERVAL) | [optional] 

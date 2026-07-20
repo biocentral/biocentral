@@ -6,9 +6,9 @@ Configuration for an active learning engineering campaign
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
 **name** | **str** | Name of the active learning campaign | 
 **model_type** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
-**embedder_name** | **str** | Name of embedder to use | 
 **optimization_mode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **wildtype_sequence** | **str** | Wildtype sequence to engineer | 

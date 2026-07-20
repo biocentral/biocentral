@@ -29,13 +29,13 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
     """
     Configuration for an active learning engineering campaign
     """ # noqa: E501
+    embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     name: StrictStr = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
-    embedder_name: StrictStr = Field(description="Name of embedder to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     wildtype_sequence: StrictStr = Field(description="Wildtype sequence to engineer")
-    __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "seed", "wildtype_sequence"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -93,9 +93,9 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "embedder_name": obj.get("embedder_name"),
             "name": obj.get("name"),
             "model_type": obj.get("model_type"),
-            "embedder_name": obj.get("embedder_name"),
             "optimization_mode": obj.get("optimization_mode"),
             "seed": obj.get("seed"),
             "wildtype_sequence": obj.get("wildtype_sequence")

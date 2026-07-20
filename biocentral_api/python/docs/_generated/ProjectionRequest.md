@@ -6,10 +6,10 @@ Request model for projection
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
 **sequence_data** | **Dict[str, str]** | Sequence data to embed (seq_id -&gt; sequence) | 
 **method** | **str** | Projection method to use | 
 **config** | **Dict[str, object]** | Projection configuration | 
-**embedder_name** | **str** | Name of the embedder model | 
 
 ## Example
 

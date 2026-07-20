@@ -29,16 +29,16 @@ class ActiveLearningScreeningCampaignConfig(BaseModel):
     """
     Configuration for an active learning screening campaign
     """ # noqa: E501
+    embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     name: StrictStr = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
-    embedder_name: StrictStr = Field(description="Name of embedder to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     target_lb: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Lower bound of the target value to optimize (mode: INTERVAL)")
     target_ub: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Upper bound of the target value to optimize (mode: INTERVAL)")
     target_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Target value to optimize (mode: VALUE)")
     discrete_targets: Optional[List[StrictStr]] = Field(default=None, description="List of target labels (must be subset of all labels)")
-    __properties: ClassVar[List[str]] = ["name", "model_type", "embedder_name", "optimization_mode", "seed", "target_lb", "target_ub", "target_value", "discrete_targets"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "target_lb", "target_ub", "target_value", "discrete_targets"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -116,9 +116,9 @@ class ActiveLearningScreeningCampaignConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "embedder_name": obj.get("embedder_name"),
             "name": obj.get("name"),
             "model_type": obj.get("model_type"),
-            "embedder_name": obj.get("embedder_name"),
             "optimization_mode": obj.get("optimization_mode"),
             "seed": obj.get("seed"),
             "target_lb": obj.get("target_lb"),
