@@ -7,17 +7,20 @@ part of 'serializers.dart';
 // **************************************************************************
 
 Serializers _$serializers = (Serializers().toBuilder()
-      ..add(ActiveLearningCampaignConfig.serializer)
       ..add(ActiveLearningConvergenceConfig.serializer)
-      ..add(ActiveLearningIterationConfig.serializer)
-      ..add(ActiveLearningIterationRequest.serializer)
+      ..add(ActiveLearningEngineeringCampaignConfig.serializer)
+      ..add(ActiveLearningEngineeringIterationConfig.serializer)
+      ..add(ActiveLearningEngineeringIterationRequest.serializer)
       ..add(ActiveLearningIterationResult.serializer)
       ..add(ActiveLearningModelType.serializer)
       ..add(ActiveLearningOptimizationMode.serializer)
       ..add(ActiveLearningResult.serializer)
-      ..add(ActiveLearningSimulationConfig.serializer)
-      ..add(ActiveLearningSimulationRequest.serializer)
-      ..add(ActiveLearningSimulationResult.serializer)
+      ..add(ActiveLearningScreeningCampaignConfig.serializer)
+      ..add(ActiveLearningScreeningIterationConfig.serializer)
+      ..add(ActiveLearningScreeningIterationRequest.serializer)
+      ..add(ActiveLearningScreeningSimulationConfig.serializer)
+      ..add(ActiveLearningScreeningSimulationRequest.serializer)
+      ..add(ActiveLearningScreeningSimulationResult.serializer)
       ..add(AddEmbeddingsRequest.serializer)
       ..add(AddEmbeddingsResponse.serializer)
       ..add(AutoDetectFormatRequest.serializer)
@@ -65,6 +68,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(Prediction1.serializer)
       ..add(PredictionRequest.serializer)
       ..add(ProjectionRequest.serializer)
+      ..add(ProjectionResult.serializer)
+      ..add(ProjectionsData.serializer)
+      ..add(ProjectionsMetadata.serializer)
+      ..add(ProteinAnnotations.serializer)
       ..add(Protocol.serializer)
       ..add(RawPrediction.serializer)
       ..add(ResearchStats.serializer)
@@ -162,6 +169,54 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [
+            const FullType(BuiltList, const [const FullType(String)])
+          ]),
+          () => ListBuilder<BuiltList<String>>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(int)]),
+          () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(ActiveLearningIterationResult)]),
+          () => ListBuilder<ActiveLearningIterationResult>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(num)]),
+          () => ListBuilder<num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType.nullable(num)]),
+          () => ListBuilder<num?>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
             const FullType.nullable(JsonObject)
@@ -174,6 +229,18 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(num)]),
           () => ListBuilder<num>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(int)]),
+          () => ListBuilder<int>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TaskDTO)]),
           () => ListBuilder<TaskDTO>())
       ..addBuilderFactory(
@@ -185,25 +252,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(int)]),
           () => ListBuilder<int>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(num)]),
-          () => ListBuilder<num>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(num)]),
-          () => ListBuilder<num>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(int)]),
-          () => ListBuilder<int>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(int)]),
-          () => ListBuilder<int>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
-      ..addBuilderFactory(
-          const FullType(
-              BuiltList, const [const FullType(ActiveLearningIterationResult)]),
-          () => ListBuilder<ActiveLearningIterationResult>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType.nullable(JsonObject)]),
@@ -229,12 +277,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SequenceData)]),
           () => ListBuilder<SequenceData>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),

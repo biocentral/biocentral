@@ -26,6 +26,7 @@ part 'training_result.g.dart';
 /// * [trainingLosses] - Training losses for each epoch
 /// * [validationLosses] - Validation losses for each epoch
 /// * [bestEpochMetrics] - Best training epoch metrics
+/// * [sanityCheckWarnings] - Warnings from sanity checks
 @BuiltValue()
 abstract class TrainingResult implements Built<TrainingResult, TrainingResultBuilder> {
   /// Number of sequences in the training set
@@ -75,6 +76,10 @@ abstract class TrainingResult implements Built<TrainingResult, TrainingResultBui
   /// Best training epoch metrics
   @BuiltValueField(wireName: r'best_epoch_metrics')
   EpochMetrics? get bestEpochMetrics;
+
+  /// Warnings from sanity checks
+  @BuiltValueField(wireName: r'sanity_check_warnings')
+  BuiltList<String>? get sanityCheckWarnings;
 
   TrainingResult._();
 
@@ -181,6 +186,13 @@ class _$TrainingResultSerializer implements PrimitiveSerializer<TrainingResult> 
       yield serializers.serialize(
         object.bestEpochMetrics,
         specifiedType: const FullType.nullable(EpochMetrics),
+      );
+    }
+    if (object.sanityCheckWarnings != null) {
+      yield r'sanity_check_warnings';
+      yield serializers.serialize(
+        object.sanityCheckWarnings,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
       );
     }
   }
@@ -299,6 +311,14 @@ class _$TrainingResultSerializer implements PrimitiveSerializer<TrainingResult> 
           ) as EpochMetrics?;
           if (valueDes == null) continue;
           result.bestEpochMetrics.replace(valueDes);
+          break;
+        case r'sanity_check_warnings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
+          result.sanityCheckWarnings.replace(valueDes);
           break;
         default:
           unhandled.add(key);

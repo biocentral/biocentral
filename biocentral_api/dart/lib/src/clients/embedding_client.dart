@@ -1,6 +1,7 @@
 import 'package:biocentral_api/src/api.dart' as gen;
 import 'package:biocentral_api/src/model/embed_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
+import 'package:biocentral_api/src/model/projection_result.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:built_collection/built_collection.dart';
@@ -39,12 +40,12 @@ class _EmbedDtoHandler extends DtoHandler<String> {
   }
 }
 
-class _ProjectionDTOHandler extends DtoHandler<Map<String, dynamic>> {
+class _ProjectionDTOHandler extends DtoHandler<ProjectionResult> {
   @override
-  Map<String, dynamic>? handle(List<TaskDTO> dtos) {
+  ProjectionResult? handle(List<TaskDTO> dtos) {
     for (final dto in dtos) {
       if (dto.status == TaskStatus.FINISHED) {
-        return dto.projectionResult?.toMap();
+        return dto.projectionResult;
       }
     }
     return null;
@@ -85,7 +86,7 @@ class EmbeddingClient {
     return projectionConfigResponse.projectionConfig.toMap();
   }
 
-  Future<BiocentralServerTask<Map<String, dynamic>?>> project({
+  Future<BiocentralServerTask<ProjectionResult?>> project({
     required gen.BiocentralApi api,
     required String embedderName,
     required String method,
@@ -103,6 +104,6 @@ class EmbeddingClient {
     final taskId = await submitTask(() =>
         projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req));
     final handler = _ProjectionDTOHandler();
-    return BiocentralServerTask<Map<String, dynamic>>(taskId: taskId, api: api, dtoHandler: handler);
+    return BiocentralServerTask<ProjectionResult>(taskId: taskId, api: api, dtoHandler: handler);
   }
 }

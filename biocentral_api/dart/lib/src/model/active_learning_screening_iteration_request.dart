@@ -3,67 +3,67 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:biocentral_api/src/model/active_learning_iteration_config.dart';
-import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_campaign_config.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_iteration_config.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'active_learning_iteration_request.g.dart';
+part 'active_learning_screening_iteration_request.g.dart';
 
-/// Request model for an active learning iteration
+/// Request model for an active learning screening iteration
 ///
 /// Properties:
 /// * [campaignConfig] - Campaign configuration
 /// * [iterationConfig] - Iteration configuration
 @BuiltValue()
-abstract class ActiveLearningIterationRequest implements Built<ActiveLearningIterationRequest, ActiveLearningIterationRequestBuilder> {
+abstract class ActiveLearningScreeningIterationRequest implements Built<ActiveLearningScreeningIterationRequest, ActiveLearningScreeningIterationRequestBuilder> {
   /// Campaign configuration
   @BuiltValueField(wireName: r'campaign_config')
-  ActiveLearningCampaignConfig get campaignConfig;
+  ActiveLearningScreeningCampaignConfig get campaignConfig;
 
   /// Iteration configuration
   @BuiltValueField(wireName: r'iteration_config')
-  ActiveLearningIterationConfig get iterationConfig;
+  ActiveLearningScreeningIterationConfig get iterationConfig;
 
-  ActiveLearningIterationRequest._();
+  ActiveLearningScreeningIterationRequest._();
 
-  factory ActiveLearningIterationRequest([void updates(ActiveLearningIterationRequestBuilder b)]) = _$ActiveLearningIterationRequest;
+  factory ActiveLearningScreeningIterationRequest([void updates(ActiveLearningScreeningIterationRequestBuilder b)]) = _$ActiveLearningScreeningIterationRequest;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningIterationRequestBuilder b) => b;
+  static void _defaults(ActiveLearningScreeningIterationRequestBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ActiveLearningIterationRequest> get serializer => _$ActiveLearningIterationRequestSerializer();
+  static Serializer<ActiveLearningScreeningIterationRequest> get serializer => _$ActiveLearningScreeningIterationRequestSerializer();
 }
 
-class _$ActiveLearningIterationRequestSerializer implements PrimitiveSerializer<ActiveLearningIterationRequest> {
+class _$ActiveLearningScreeningIterationRequestSerializer implements PrimitiveSerializer<ActiveLearningScreeningIterationRequest> {
   @override
-  final Iterable<Type> types = const [ActiveLearningIterationRequest, _$ActiveLearningIterationRequest];
+  final Iterable<Type> types = const [ActiveLearningScreeningIterationRequest, _$ActiveLearningScreeningIterationRequest];
 
   @override
-  final String wireName = r'ActiveLearningIterationRequest';
+  final String wireName = r'ActiveLearningScreeningIterationRequest';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ActiveLearningIterationRequest object, {
+    ActiveLearningScreeningIterationRequest object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'campaign_config';
     yield serializers.serialize(
       object.campaignConfig,
-      specifiedType: const FullType(ActiveLearningCampaignConfig),
+      specifiedType: const FullType(ActiveLearningScreeningCampaignConfig),
     );
     yield r'iteration_config';
     yield serializers.serialize(
       object.iterationConfig,
-      specifiedType: const FullType(ActiveLearningIterationConfig),
+      specifiedType: const FullType(ActiveLearningScreeningIterationConfig),
     );
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    ActiveLearningIterationRequest object, {
+    ActiveLearningScreeningIterationRequest object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -74,7 +74,7 @@ class _$ActiveLearningIterationRequestSerializer implements PrimitiveSerializer<
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ActiveLearningIterationRequestBuilder result,
+    required ActiveLearningScreeningIterationRequestBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -84,15 +84,15 @@ class _$ActiveLearningIterationRequestSerializer implements PrimitiveSerializer<
         case r'campaign_config':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(ActiveLearningCampaignConfig),
-          ) as ActiveLearningCampaignConfig;
+            specifiedType: const FullType(ActiveLearningScreeningCampaignConfig),
+          ) as ActiveLearningScreeningCampaignConfig;
           result.campaignConfig.replace(valueDes);
           break;
         case r'iteration_config':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(ActiveLearningIterationConfig),
-          ) as ActiveLearningIterationConfig;
+            specifiedType: const FullType(ActiveLearningScreeningIterationConfig),
+          ) as ActiveLearningScreeningIterationConfig;
           result.iterationConfig.replace(valueDes);
           break;
         default:
@@ -104,12 +104,12 @@ class _$ActiveLearningIterationRequestSerializer implements PrimitiveSerializer<
   }
 
   @override
-  ActiveLearningIterationRequest deserialize(
+  ActiveLearningScreeningIterationRequest deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ActiveLearningIterationRequestBuilder();
+    final result = ActiveLearningScreeningIterationRequestBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

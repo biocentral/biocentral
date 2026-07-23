@@ -8,23 +8,23 @@ part of 'projection_request.dart';
 
 class _$ProjectionRequest extends ProjectionRequest {
   @override
+  final String embedderName;
+  @override
   final BuiltMap<String, String> sequenceData;
   @override
   final String method;
   @override
   final BuiltMap<String, JsonObject?> config;
-  @override
-  final String embedderName;
 
   factory _$ProjectionRequest(
           [void Function(ProjectionRequestBuilder)? updates]) =>
       (ProjectionRequestBuilder()..update(updates))._build();
 
   _$ProjectionRequest._(
-      {required this.sequenceData,
+      {required this.embedderName,
+      required this.sequenceData,
       required this.method,
-      required this.config,
-      required this.embedderName})
+      required this.config})
       : super._();
   @override
   ProjectionRequest rebuild(void Function(ProjectionRequestBuilder) updates) =>
@@ -38,19 +38,19 @@ class _$ProjectionRequest extends ProjectionRequest {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is ProjectionRequest &&
+        embedderName == other.embedderName &&
         sequenceData == other.sequenceData &&
         method == other.method &&
-        config == other.config &&
-        embedderName == other.embedderName;
+        config == other.config;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
+    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, sequenceData.hashCode);
     _$hash = $jc(_$hash, method.hashCode);
     _$hash = $jc(_$hash, config.hashCode);
-    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -58,10 +58,10 @@ class _$ProjectionRequest extends ProjectionRequest {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'ProjectionRequest')
+          ..add('embedderName', embedderName)
           ..add('sequenceData', sequenceData)
           ..add('method', method)
-          ..add('config', config)
-          ..add('embedderName', embedderName))
+          ..add('config', config))
         .toString();
   }
 }
@@ -69,6 +69,10 @@ class _$ProjectionRequest extends ProjectionRequest {
 class ProjectionRequestBuilder
     implements Builder<ProjectionRequest, ProjectionRequestBuilder> {
   _$ProjectionRequest? _$v;
+
+  String? _embedderName;
+  String? get embedderName => _$this._embedderName;
+  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
 
   MapBuilder<String, String>? _sequenceData;
   MapBuilder<String, String> get sequenceData =>
@@ -86,10 +90,6 @@ class ProjectionRequestBuilder
   set config(MapBuilder<String, JsonObject?>? config) =>
       _$this._config = config;
 
-  String? _embedderName;
-  String? get embedderName => _$this._embedderName;
-  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
-
   ProjectionRequestBuilder() {
     ProjectionRequest._defaults(this);
   }
@@ -97,10 +97,10 @@ class ProjectionRequestBuilder
   ProjectionRequestBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
+      _embedderName = $v.embedderName;
       _sequenceData = $v.sequenceData.toBuilder();
       _method = $v.method;
       _config = $v.config.toBuilder();
-      _embedderName = $v.embedderName;
       _$v = null;
     }
     return this;
@@ -124,12 +124,12 @@ class ProjectionRequestBuilder
     try {
       _$result = _$v ??
           _$ProjectionRequest._(
+            embedderName: BuiltValueNullFieldError.checkNotNull(
+                embedderName, r'ProjectionRequest', 'embedderName'),
             sequenceData: sequenceData.build(),
             method: BuiltValueNullFieldError.checkNotNull(
                 method, r'ProjectionRequest', 'method'),
             config: config.build(),
-            embedderName: BuiltValueNullFieldError.checkNotNull(
-                embedderName, r'ProjectionRequest', 'embedderName'),
           );
     } catch (_) {
       late String _$failedField;

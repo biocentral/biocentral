@@ -9,7 +9,7 @@ import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'active_learning_simulation_config.g.dart';
+part 'active_learning_screening_simulation_config.g.dart';
 
 /// Configuration for a simulation of active learning on a complete dataset
 ///
@@ -20,7 +20,7 @@ part 'active_learning_simulation_config.g.dart';
 /// * [nSuggestionsPerIteration] - Number of suggestions to propose per iteration
 /// * [convergenceConfig] - Convergence criteria for the simulation
 @BuiltValue()
-abstract class ActiveLearningSimulationConfig implements Built<ActiveLearningSimulationConfig, ActiveLearningSimulationConfigBuilder> {
+abstract class ActiveLearningScreeningSimulationConfig implements Built<ActiveLearningScreeningSimulationConfig, ActiveLearningScreeningSimulationConfigBuilder> {
   /// List of all sequence data for the simulation
   @BuiltValueField(wireName: r'simulation_data')
   BuiltList<SequenceData> get simulationData;
@@ -41,27 +41,27 @@ abstract class ActiveLearningSimulationConfig implements Built<ActiveLearningSim
   @BuiltValueField(wireName: r'convergence_config')
   ActiveLearningConvergenceConfig get convergenceConfig;
 
-  ActiveLearningSimulationConfig._();
+  ActiveLearningScreeningSimulationConfig._();
 
-  factory ActiveLearningSimulationConfig([void updates(ActiveLearningSimulationConfigBuilder b)]) = _$ActiveLearningSimulationConfig;
+  factory ActiveLearningScreeningSimulationConfig([void updates(ActiveLearningScreeningSimulationConfigBuilder b)]) = _$ActiveLearningScreeningSimulationConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningSimulationConfigBuilder b) => b;
+  static void _defaults(ActiveLearningScreeningSimulationConfigBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ActiveLearningSimulationConfig> get serializer => _$ActiveLearningSimulationConfigSerializer();
+  static Serializer<ActiveLearningScreeningSimulationConfig> get serializer => _$ActiveLearningScreeningSimulationConfigSerializer();
 }
 
-class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<ActiveLearningSimulationConfig> {
+class _$ActiveLearningScreeningSimulationConfigSerializer implements PrimitiveSerializer<ActiveLearningScreeningSimulationConfig> {
   @override
-  final Iterable<Type> types = const [ActiveLearningSimulationConfig, _$ActiveLearningSimulationConfig];
+  final Iterable<Type> types = const [ActiveLearningScreeningSimulationConfig, _$ActiveLearningScreeningSimulationConfig];
 
   @override
-  final String wireName = r'ActiveLearningSimulationConfig';
+  final String wireName = r'ActiveLearningScreeningSimulationConfig';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ActiveLearningSimulationConfig object, {
+    ActiveLearningScreeningSimulationConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'simulation_data';
@@ -98,7 +98,7 @@ class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<
   @override
   Object serialize(
     Serializers serializers,
-    ActiveLearningSimulationConfig object, {
+    ActiveLearningScreeningSimulationConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -109,7 +109,7 @@ class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ActiveLearningSimulationConfigBuilder result,
+    required ActiveLearningScreeningSimulationConfigBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -162,12 +162,12 @@ class _$ActiveLearningSimulationConfigSerializer implements PrimitiveSerializer<
   }
 
   @override
-  ActiveLearningSimulationConfig deserialize(
+  ActiveLearningScreeningSimulationConfig deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ActiveLearningSimulationConfigBuilder();
+    final result = ActiveLearningScreeningSimulationConfigBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

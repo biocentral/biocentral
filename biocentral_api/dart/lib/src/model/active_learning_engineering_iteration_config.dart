@@ -8,24 +8,29 @@ import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'active_learning_iteration_config.g.dart';
+part 'active_learning_engineering_iteration_config.g.dart';
 
 /// Configuration for a single iteration of active learning
 ///
 /// Properties:
 /// * [iteration] - Iteration number
-/// * [iterationData] - List of sequence training data for this iteration
+/// * [baseSequences] - Sequences used to generate mutations
+/// * [trainingData] - List of training data for this iteration
 /// * [coefficient] - Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
 /// * [nSuggestions] - Number of suggestions to propose from this iteration
 @BuiltValue()
-abstract class ActiveLearningIterationConfig implements Built<ActiveLearningIterationConfig, ActiveLearningIterationConfigBuilder> {
+abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringIterationConfigBuilder> {
   /// Iteration number
   @BuiltValueField(wireName: r'iteration')
   int get iteration;
 
-  /// List of sequence training data for this iteration
-  @BuiltValueField(wireName: r'iteration_data')
-  BuiltList<SequenceData> get iterationData;
+  /// Sequences used to generate mutations
+  @BuiltValueField(wireName: r'base_sequences')
+  BuiltList<String> get baseSequences;
+
+  /// List of training data for this iteration
+  @BuiltValueField(wireName: r'training_data')
+  BuiltList<SequenceData> get trainingData;
 
   /// Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
   @BuiltValueField(wireName: r'coefficient')
@@ -35,27 +40,27 @@ abstract class ActiveLearningIterationConfig implements Built<ActiveLearningIter
   @BuiltValueField(wireName: r'n_suggestions')
   int get nSuggestions;
 
-  ActiveLearningIterationConfig._();
+  ActiveLearningEngineeringIterationConfig._();
 
-  factory ActiveLearningIterationConfig([void updates(ActiveLearningIterationConfigBuilder b)]) = _$ActiveLearningIterationConfig;
+  factory ActiveLearningEngineeringIterationConfig([void updates(ActiveLearningEngineeringIterationConfigBuilder b)]) = _$ActiveLearningEngineeringIterationConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningIterationConfigBuilder b) => b;
+  static void _defaults(ActiveLearningEngineeringIterationConfigBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ActiveLearningIterationConfig> get serializer => _$ActiveLearningIterationConfigSerializer();
+  static Serializer<ActiveLearningEngineeringIterationConfig> get serializer => _$ActiveLearningEngineeringIterationConfigSerializer();
 }
 
-class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<ActiveLearningIterationConfig> {
+class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveSerializer<ActiveLearningEngineeringIterationConfig> {
   @override
-  final Iterable<Type> types = const [ActiveLearningIterationConfig, _$ActiveLearningIterationConfig];
+  final Iterable<Type> types = const [ActiveLearningEngineeringIterationConfig, _$ActiveLearningEngineeringIterationConfig];
 
   @override
-  final String wireName = r'ActiveLearningIterationConfig';
+  final String wireName = r'ActiveLearningEngineeringIterationConfig';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ActiveLearningIterationConfig object, {
+    ActiveLearningEngineeringIterationConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     yield r'iteration';
@@ -63,9 +68,14 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
       object.iteration,
       specifiedType: const FullType(int),
     );
-    yield r'iteration_data';
+    yield r'base_sequences';
     yield serializers.serialize(
-      object.iterationData,
+      object.baseSequences,
+      specifiedType: const FullType(BuiltList, [FullType(String)]),
+    );
+    yield r'training_data';
+    yield serializers.serialize(
+      object.trainingData,
       specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
     );
     yield r'coefficient';
@@ -83,7 +93,7 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
   @override
   Object serialize(
     Serializers serializers,
-    ActiveLearningIterationConfig object, {
+    ActiveLearningEngineeringIterationConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -94,7 +104,7 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ActiveLearningIterationConfigBuilder result,
+    required ActiveLearningEngineeringIterationConfigBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -108,12 +118,19 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
           ) as int;
           result.iteration = valueDes;
           break;
-        case r'iteration_data':
+        case r'base_sequences':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>;
+          result.baseSequences.replace(valueDes);
+          break;
+        case r'training_data':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(BuiltList, [FullType(SequenceData)]),
           ) as BuiltList<SequenceData>;
-          result.iterationData.replace(valueDes);
+          result.trainingData.replace(valueDes);
           break;
         case r'coefficient':
           final valueDes = serializers.deserialize(
@@ -138,12 +155,12 @@ class _$ActiveLearningIterationConfigSerializer implements PrimitiveSerializer<A
   }
 
   @override
-  ActiveLearningIterationConfig deserialize(
+  ActiveLearningEngineeringIterationConfig deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ActiveLearningIterationConfigBuilder();
+    final result = ActiveLearningEngineeringIterationConfigBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

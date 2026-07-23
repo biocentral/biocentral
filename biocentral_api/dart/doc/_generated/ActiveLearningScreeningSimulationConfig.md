@@ -1,4 +1,4 @@
-# biocentral_api.model.ActiveLearningSimulationConfig
+# biocentral_api.model.ActiveLearningScreeningSimulationConfig
 
 ## Load the model package
 ```dart

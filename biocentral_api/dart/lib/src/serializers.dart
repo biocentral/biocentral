@@ -14,17 +14,20 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:biocentral_api/src/date_serializer.dart';
 import 'package:biocentral_api/src/model/date.dart';
 
-import 'package:biocentral_api/src/model/active_learning_campaign_config.dart';
 import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
-import 'package:biocentral_api/src/model/active_learning_iteration_config.dart';
-import 'package:biocentral_api/src/model/active_learning_iteration_request.dart';
+import 'package:biocentral_api/src/model/active_learning_engineering_campaign_config.dart';
+import 'package:biocentral_api/src/model/active_learning_engineering_iteration_config.dart';
+import 'package:biocentral_api/src/model/active_learning_engineering_iteration_request.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
 import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
 import 'package:biocentral_api/src/model/active_learning_result.dart';
-import 'package:biocentral_api/src/model/active_learning_simulation_config.dart';
-import 'package:biocentral_api/src/model/active_learning_simulation_request.dart';
-import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_campaign_config.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_iteration_config.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_iteration_request.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_simulation_config.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_simulation_request.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/add_embeddings_request.dart';
 import 'package:biocentral_api/src/model/add_embeddings_response.dart';
 import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
@@ -70,6 +73,10 @@ import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction1.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
 import 'package:biocentral_api/src/model/projection_request.dart';
+import 'package:biocentral_api/src/model/projection_result.dart';
+import 'package:biocentral_api/src/model/projections_data.dart';
+import 'package:biocentral_api/src/model/projections_metadata.dart';
+import 'package:biocentral_api/src/model/protein_annotations.dart';
 import 'package:biocentral_api/src/model/protocol.dart';
 import 'package:biocentral_api/src/model/raw_prediction.dart';
 import 'package:biocentral_api/src/model/research_stats.dart';
@@ -94,17 +101,20 @@ import 'package:biocentral_api/src/model/validation_error.dart';
 part 'serializers.g.dart';
 
 @SerializersFor([
-  ActiveLearningCampaignConfig,
   ActiveLearningConvergenceConfig,
-  ActiveLearningIterationConfig,
-  ActiveLearningIterationRequest,
+  ActiveLearningEngineeringCampaignConfig,
+  ActiveLearningEngineeringIterationConfig,
+  ActiveLearningEngineeringIterationRequest,
   ActiveLearningIterationResult,
   ActiveLearningModelType,
   ActiveLearningOptimizationMode,
   ActiveLearningResult,
-  ActiveLearningSimulationConfig,
-  ActiveLearningSimulationRequest,
-  ActiveLearningSimulationResult,
+  ActiveLearningScreeningCampaignConfig,
+  ActiveLearningScreeningIterationConfig,
+  ActiveLearningScreeningIterationRequest,
+  ActiveLearningScreeningSimulationConfig,
+  ActiveLearningScreeningSimulationRequest,
+  ActiveLearningScreeningSimulationResult,
   AddEmbeddingsRequest,
   AddEmbeddingsResponse,
   AutoDetectFormatRequest,
@@ -150,6 +160,10 @@ part 'serializers.g.dart';
   Prediction1,
   PredictionRequest,
   ProjectionRequest,
+  ProjectionResult,
+  ProjectionsData,
+  ProjectionsMetadata,
+  ProteinAnnotations,
   Protocol,
   RawPrediction,
   ResearchStats,

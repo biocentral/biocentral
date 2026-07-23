@@ -18,9 +18,9 @@ Name | Type | Description | Notes
 **embeddedSequences** | **BuiltMap&lt;String, String&gt;** |  | [optional] 
 **embeddings** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) |  | [optional] 
 **embeddingsFile** | **String** |  | [optional] 
-**projectionResult** | [**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md) | Hyperparameters used for this split | [optional] 
+**projectionResult** | [**ProjectionResult**](ProjectionResult.md) |  | [optional] 
 **alIterationResult** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
-**alSimulationResult** | [**ActiveLearningSimulationResult**](ActiveLearningSimulationResult.md) |  | [optional] 
+**alSimulationResult** | [**ActiveLearningScreeningSimulationResult**](ActiveLearningScreeningSimulationResult.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

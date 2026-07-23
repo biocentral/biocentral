@@ -1,4 +1,4 @@
-# biocentral_api.model.ActiveLearningCampaignConfig
+# biocentral_api.model.ActiveLearningScreeningCampaignConfig
 
 ## Load the model package
 ```dart
@@ -8,9 +8,9 @@ import 'package:biocentral_api/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**embedderName** | **String** | Name of the embedder model to use | 
 **name** | **String** | Name of the active learning campaign | 
 **modelType** | [**ActiveLearningModelType**](ActiveLearningModelType.md) | Type of model to use | 
-**embedderName** | **String** | Name of embedder to use | 
 **optimizationMode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **targetLb** | **num** | Lower bound of the target value to optimize (mode: INTERVAL) | [optional] 

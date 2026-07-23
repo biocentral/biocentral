@@ -9,29 +9,30 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**activeLearningIterationApiV1ActiveLearningServiceIterationPost**](ActiveLearningApi.md#activelearningiterationapiv1activelearningserviceiterationpost) | **POST** /api/v1/active_learning_service/iteration | Run one active learning iteration
-[**activeLearningSimulationApiV1ActiveLearningServiceSimulationPost**](ActiveLearningApi.md#activelearningsimulationapiv1activelearningservicesimulationpost) | **POST** /api/v1/active_learning_service/simulation | Run a simulated active learning campaign
+[**activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost**](ActiveLearningApi.md#activelearningengineeringiterationapiv1activelearningserviceengineeringiterationpost) | **POST** /api/v1/active_learning_service/engineering_iteration | Run one active learning engineering iteration
+[**activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost**](ActiveLearningApi.md#activelearningscreeningiterationapiv1activelearningservicescreeningiterationpost) | **POST** /api/v1/active_learning_service/screening_iteration | Run one active learning screening iteration
+[**activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost**](ActiveLearningApi.md#activelearningscreeningsimulationapiv1activelearningservicescreeningsimulationpost) | **POST** /api/v1/active_learning_service/screening_simulation | Run a simulated active learning screening campaign
 
 
-# **activeLearningIterationApiV1ActiveLearningServiceIterationPost**
-> StartTaskResponse activeLearningIterationApiV1ActiveLearningServiceIterationPost(activeLearningIterationRequest)
+# **activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost**
+> StartTaskResponse activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost(activeLearningEngineeringIterationRequest)
 
-Run one active learning iteration
+Run one active learning engineering iteration
 
-Submit an active learning iteration job
+Submit an active learning engineering iteration job
 
 ### Example
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getActiveLearningApi();
-final ActiveLearningIterationRequest activeLearningIterationRequest = ; // ActiveLearningIterationRequest | 
+final ActiveLearningEngineeringIterationRequest activeLearningEngineeringIterationRequest = ; // ActiveLearningEngineeringIterationRequest | 
 
 try {
-    final response = api.activeLearningIterationApiV1ActiveLearningServiceIterationPost(activeLearningIterationRequest);
+    final response = api.activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost(activeLearningEngineeringIterationRequest);
     print(response);
 } on DioException catch (e) {
-    print('Exception when calling ActiveLearningApi->activeLearningIterationApiV1ActiveLearningServiceIterationPost: $e\n');
+    print('Exception when calling ActiveLearningApi->activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost: $e\n');
 }
 ```
 
@@ -39,7 +40,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **activeLearningIterationRequest** | [**ActiveLearningIterationRequest**](ActiveLearningIterationRequest.md)|  | 
+ **activeLearningEngineeringIterationRequest** | [**ActiveLearningEngineeringIterationRequest**](ActiveLearningEngineeringIterationRequest.md)|  | 
 
 ### Return type
 
@@ -56,25 +57,25 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **activeLearningSimulationApiV1ActiveLearningServiceSimulationPost**
-> StartTaskResponse activeLearningSimulationApiV1ActiveLearningServiceSimulationPost(activeLearningSimulationRequest)
+# **activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost**
+> StartTaskResponse activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost(activeLearningScreeningIterationRequest)
 
-Run a simulated active learning campaign
+Run one active learning screening iteration
 
-Submit an active learning simulation job
+Submit an active learning screening iteration job
 
 ### Example
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getActiveLearningApi();
-final ActiveLearningSimulationRequest activeLearningSimulationRequest = ; // ActiveLearningSimulationRequest | 
+final ActiveLearningScreeningIterationRequest activeLearningScreeningIterationRequest = ; // ActiveLearningScreeningIterationRequest | 
 
 try {
-    final response = api.activeLearningSimulationApiV1ActiveLearningServiceSimulationPost(activeLearningSimulationRequest);
+    final response = api.activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost(activeLearningScreeningIterationRequest);
     print(response);
 } on DioException catch (e) {
-    print('Exception when calling ActiveLearningApi->activeLearningSimulationApiV1ActiveLearningServiceSimulationPost: $e\n');
+    print('Exception when calling ActiveLearningApi->activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost: $e\n');
 }
 ```
 
@@ -82,7 +83,50 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **activeLearningSimulationRequest** | [**ActiveLearningSimulationRequest**](ActiveLearningSimulationRequest.md)|  | 
+ **activeLearningScreeningIterationRequest** | [**ActiveLearningScreeningIterationRequest**](ActiveLearningScreeningIterationRequest.md)|  | 
+
+### Return type
+
+[**StartTaskResponse**](StartTaskResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost**
+> StartTaskResponse activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost(activeLearningScreeningSimulationRequest)
+
+Run a simulated active learning screening campaign
+
+Submit an active learning screening simulation job
+
+### Example
+```dart
+import 'package:biocentral_api/api.dart';
+
+final api = BiocentralApi().getActiveLearningApi();
+final ActiveLearningScreeningSimulationRequest activeLearningScreeningSimulationRequest = ; // ActiveLearningScreeningSimulationRequest | 
+
+try {
+    final response = api.activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost(activeLearningScreeningSimulationRequest);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling ActiveLearningApi->activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **activeLearningScreeningSimulationRequest** | [**ActiveLearningScreeningSimulationRequest**](ActiveLearningScreeningSimulationRequest.md)|  | 
 
 ### Return type
 

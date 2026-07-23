@@ -11,12 +11,16 @@ part 'add_embeddings_request.g.dart';
 /// Request model for adding embeddings
 ///
 /// Properties:
+/// * [embedderName] - Name of the embedder model to use
 /// * [h5Bytes] - Base64 encoded HDF5 file containing embeddings
 /// * [sequences] - JSON string containing sequence data
-/// * [embedderName] - Name of the embedder model
 /// * [reduced] - Whether these are reduced embeddings
 @BuiltValue()
 abstract class AddEmbeddingsRequest implements Built<AddEmbeddingsRequest, AddEmbeddingsRequestBuilder> {
+  /// Name of the embedder model to use
+  @BuiltValueField(wireName: r'embedder_name')
+  String get embedderName;
+
   /// Base64 encoded HDF5 file containing embeddings
   @BuiltValueField(wireName: r'h5_bytes')
   String get h5Bytes;
@@ -24,10 +28,6 @@ abstract class AddEmbeddingsRequest implements Built<AddEmbeddingsRequest, AddEm
   /// JSON string containing sequence data
   @BuiltValueField(wireName: r'sequences')
   String get sequences;
-
-  /// Name of the embedder model
-  @BuiltValueField(wireName: r'embedder_name')
-  String get embedderName;
 
   /// Whether these are reduced embeddings
   @BuiltValueField(wireName: r'reduced')
@@ -56,6 +56,11 @@ class _$AddEmbeddingsRequestSerializer implements PrimitiveSerializer<AddEmbeddi
     AddEmbeddingsRequest object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
+    yield r'embedder_name';
+    yield serializers.serialize(
+      object.embedderName,
+      specifiedType: const FullType(String),
+    );
     yield r'h5_bytes';
     yield serializers.serialize(
       object.h5Bytes,
@@ -64,11 +69,6 @@ class _$AddEmbeddingsRequestSerializer implements PrimitiveSerializer<AddEmbeddi
     yield r'sequences';
     yield serializers.serialize(
       object.sequences,
-      specifiedType: const FullType(String),
-    );
-    yield r'embedder_name';
-    yield serializers.serialize(
-      object.embedderName,
       specifiedType: const FullType(String),
     );
     yield r'reduced';
@@ -99,6 +99,13 @@ class _$AddEmbeddingsRequestSerializer implements PrimitiveSerializer<AddEmbeddi
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
+        case r'embedder_name':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.embedderName = valueDes;
+          break;
         case r'h5_bytes':
           final valueDes = serializers.deserialize(
             value,
@@ -112,13 +119,6 @@ class _$AddEmbeddingsRequestSerializer implements PrimitiveSerializer<AddEmbeddi
             specifiedType: const FullType(String),
           ) as String;
           result.sequences = valueDes;
-          break;
-        case r'embedder_name':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.embedderName = valueDes;
           break;
         case r'reduced':
           final valueDes = serializers.deserialize(

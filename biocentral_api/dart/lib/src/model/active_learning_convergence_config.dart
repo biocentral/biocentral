@@ -12,7 +12,7 @@ part 'active_learning_convergence_config.g.dart';
 ///
 /// Properties:
 /// * [maxLabelsBudget] - Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')
-/// * [targetSuccesses] - Number of positive targets found before stopping ('Stop when we find 10 good proteins')
+/// * [nHits] - Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')
 /// * [maxConsecutiveFailures] - Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')
 @BuiltValue()
 abstract class ActiveLearningConvergenceConfig implements Built<ActiveLearningConvergenceConfig, ActiveLearningConvergenceConfigBuilder> {
@@ -20,9 +20,9 @@ abstract class ActiveLearningConvergenceConfig implements Built<ActiveLearningCo
   @BuiltValueField(wireName: r'max_labels_budget')
   int? get maxLabelsBudget;
 
-  /// Number of positive targets found before stopping ('Stop when we find 10 good proteins')
-  @BuiltValueField(wireName: r'target_successes')
-  int? get targetSuccesses;
+  /// Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')
+  @BuiltValueField(wireName: r'n_hits')
+  int? get nHits;
 
   /// Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')
   @BuiltValueField(wireName: r'max_consecutive_failures')
@@ -58,10 +58,10 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
         specifiedType: const FullType.nullable(int),
       );
     }
-    if (object.targetSuccesses != null) {
-      yield r'target_successes';
+    if (object.nHits != null) {
+      yield r'n_hits';
       yield serializers.serialize(
-        object.targetSuccesses,
+        object.nHits,
         specifiedType: const FullType.nullable(int),
       );
     }
@@ -103,13 +103,13 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
           if (valueDes == null) continue;
           result.maxLabelsBudget = valueDes;
           break;
-        case r'target_successes':
+        case r'n_hits':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType.nullable(int),
           ) as int?;
           if (valueDes == null) continue;
-          result.targetSuccesses = valueDes;
+          result.nHits = valueDes;
           break;
         case r'max_consecutive_failures':
           final valueDes = serializers.deserialize(

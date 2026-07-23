@@ -9,14 +9,14 @@ import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'active_learning_campaign_config.g.dart';
+part 'active_learning_screening_campaign_config.g.dart';
 
-/// Configuration for an active learning campaign
+/// Configuration for an active learning screening campaign
 ///
 /// Properties:
+/// * [embedderName] - Name of the embedder model to use
 /// * [name] - Name of the active learning campaign
 /// * [modelType] - Type of model to use
-/// * [embedderName] - Name of embedder to use
 /// * [optimizationMode] - Optimization mode selection
 /// * [seed] - Random seed for reproducibility.
 /// * [targetLb] - Lower bound of the target value to optimize (mode: INTERVAL)
@@ -24,7 +24,11 @@ part 'active_learning_campaign_config.g.dart';
 /// * [targetValue] - Target value to optimize (mode: VALUE)
 /// * [discreteTargets] - List of target labels (must be subset of all labels)
 @BuiltValue()
-abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampaignConfig, ActiveLearningCampaignConfigBuilder> {
+abstract class ActiveLearningScreeningCampaignConfig implements Built<ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningCampaignConfigBuilder> {
+  /// Name of the embedder model to use
+  @BuiltValueField(wireName: r'embedder_name')
+  String get embedderName;
+
   /// Name of the active learning campaign
   @BuiltValueField(wireName: r'name')
   String get name;
@@ -33,10 +37,6 @@ abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampa
   @BuiltValueField(wireName: r'model_type')
   ActiveLearningModelType get modelType;
   // enum modelTypeEnum {  GAUSSIAN_PROCESS,  FNN_MCD,  RANDOM,  };
-
-  /// Name of embedder to use
-  @BuiltValueField(wireName: r'embedder_name')
-  String get embedderName;
 
   /// Optimization mode selection
   @BuiltValueField(wireName: r'optimization_mode')
@@ -63,29 +63,34 @@ abstract class ActiveLearningCampaignConfig implements Built<ActiveLearningCampa
   @BuiltValueField(wireName: r'discrete_targets')
   BuiltList<String>? get discreteTargets;
 
-  ActiveLearningCampaignConfig._();
+  ActiveLearningScreeningCampaignConfig._();
 
-  factory ActiveLearningCampaignConfig([void updates(ActiveLearningCampaignConfigBuilder b)]) = _$ActiveLearningCampaignConfig;
+  factory ActiveLearningScreeningCampaignConfig([void updates(ActiveLearningScreeningCampaignConfigBuilder b)]) = _$ActiveLearningScreeningCampaignConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningCampaignConfigBuilder b) => b;
+  static void _defaults(ActiveLearningScreeningCampaignConfigBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ActiveLearningCampaignConfig> get serializer => _$ActiveLearningCampaignConfigSerializer();
+  static Serializer<ActiveLearningScreeningCampaignConfig> get serializer => _$ActiveLearningScreeningCampaignConfigSerializer();
 }
 
-class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<ActiveLearningCampaignConfig> {
+class _$ActiveLearningScreeningCampaignConfigSerializer implements PrimitiveSerializer<ActiveLearningScreeningCampaignConfig> {
   @override
-  final Iterable<Type> types = const [ActiveLearningCampaignConfig, _$ActiveLearningCampaignConfig];
+  final Iterable<Type> types = const [ActiveLearningScreeningCampaignConfig, _$ActiveLearningScreeningCampaignConfig];
 
   @override
-  final String wireName = r'ActiveLearningCampaignConfig';
+  final String wireName = r'ActiveLearningScreeningCampaignConfig';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ActiveLearningCampaignConfig object, {
+    ActiveLearningScreeningCampaignConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
+    yield r'embedder_name';
+    yield serializers.serialize(
+      object.embedderName,
+      specifiedType: const FullType(String),
+    );
     yield r'name';
     yield serializers.serialize(
       object.name,
@@ -95,11 +100,6 @@ class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<Ac
     yield serializers.serialize(
       object.modelType,
       specifiedType: const FullType(ActiveLearningModelType),
-    );
-    yield r'embedder_name';
-    yield serializers.serialize(
-      object.embedderName,
-      specifiedType: const FullType(String),
     );
     yield r'optimization_mode';
     yield serializers.serialize(
@@ -146,7 +146,7 @@ class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<Ac
   @override
   Object serialize(
     Serializers serializers,
-    ActiveLearningCampaignConfig object, {
+    ActiveLearningScreeningCampaignConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -157,13 +157,20 @@ class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<Ac
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ActiveLearningCampaignConfigBuilder result,
+    required ActiveLearningScreeningCampaignConfigBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
+        case r'embedder_name':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.embedderName = valueDes;
+          break;
         case r'name':
           final valueDes = serializers.deserialize(
             value,
@@ -177,13 +184,6 @@ class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<Ac
             specifiedType: const FullType(ActiveLearningModelType),
           ) as ActiveLearningModelType;
           result.modelType = valueDes;
-          break;
-        case r'embedder_name':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.embedderName = valueDes;
           break;
         case r'optimization_mode':
           final valueDes = serializers.deserialize(
@@ -241,12 +241,12 @@ class _$ActiveLearningCampaignConfigSerializer implements PrimitiveSerializer<Ac
   }
 
   @override
-  ActiveLearningCampaignConfig deserialize(
+  ActiveLearningScreeningCampaignConfig deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ActiveLearningCampaignConfigBuilder();
+    final result = ActiveLearningScreeningCampaignConfigBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

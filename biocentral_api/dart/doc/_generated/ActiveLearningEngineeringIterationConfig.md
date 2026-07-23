@@ -1,4 +1,4 @@
-# biocentral_api.model.ActiveLearningIterationConfig
+# biocentral_api.model.ActiveLearningEngineeringIterationConfig
 
 ## Load the model package
 ```dart
@@ -9,7 +9,8 @@ import 'package:biocentral_api/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **iteration** | **int** | Iteration number | 
-**iterationData** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) | List of sequence training data for this iteration | 
+**baseSequences** | **BuiltList&lt;String&gt;** | Sequences used to generate mutations | 
+**trainingData** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) | List of training data for this iteration | 
 **coefficient** | **num** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
 **nSuggestions** | **int** | Number of suggestions to propose from this iteration | 
 

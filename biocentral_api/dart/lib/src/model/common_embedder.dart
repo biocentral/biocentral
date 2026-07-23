@@ -38,6 +38,9 @@ class CommonEmbedder extends EnumClass {
   /// Common embedder model names
   @BuiltValueEnumConst(wireName: r'blosum62')
   static const CommonEmbedder BLOSUM62 = _$BLOSUM62;
+  /// Common embedder model names
+  @BuiltValueEnumConst(wireName: r'length_embedder')
+  static const CommonEmbedder LENGTH_EMBEDDER = _$LENGTH_EMBEDDER;
 
   static Serializer<CommonEmbedder> get serializer => _$commonEmbedderSerializer;
 

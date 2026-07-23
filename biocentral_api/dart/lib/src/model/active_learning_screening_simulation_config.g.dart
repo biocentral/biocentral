@@ -1,12 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'active_learning_simulation_config.dart';
+part of 'active_learning_screening_simulation_config.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
+class _$ActiveLearningScreeningSimulationConfig
+    extends ActiveLearningScreeningSimulationConfig {
   @override
   final BuiltList<SequenceData> simulationData;
   @override
@@ -18,11 +19,13 @@ class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
   @override
   final ActiveLearningConvergenceConfig convergenceConfig;
 
-  factory _$ActiveLearningSimulationConfig(
-          [void Function(ActiveLearningSimulationConfigBuilder)? updates]) =>
-      (ActiveLearningSimulationConfigBuilder()..update(updates))._build();
+  factory _$ActiveLearningScreeningSimulationConfig(
+          [void Function(ActiveLearningScreeningSimulationConfigBuilder)?
+              updates]) =>
+      (ActiveLearningScreeningSimulationConfigBuilder()..update(updates))
+          ._build();
 
-  _$ActiveLearningSimulationConfig._(
+  _$ActiveLearningScreeningSimulationConfig._(
       {required this.simulationData,
       this.nStart,
       this.startIds,
@@ -30,18 +33,19 @@ class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
       required this.convergenceConfig})
       : super._();
   @override
-  ActiveLearningSimulationConfig rebuild(
-          void Function(ActiveLearningSimulationConfigBuilder) updates) =>
+  ActiveLearningScreeningSimulationConfig rebuild(
+          void Function(ActiveLearningScreeningSimulationConfigBuilder)
+              updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ActiveLearningSimulationConfigBuilder toBuilder() =>
-      ActiveLearningSimulationConfigBuilder()..replace(this);
+  ActiveLearningScreeningSimulationConfigBuilder toBuilder() =>
+      ActiveLearningScreeningSimulationConfigBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is ActiveLearningSimulationConfig &&
+    return other is ActiveLearningScreeningSimulationConfig &&
         simulationData == other.simulationData &&
         nStart == other.nStart &&
         startIds == other.startIds &&
@@ -63,7 +67,8 @@ class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'ActiveLearningSimulationConfig')
+    return (newBuiltValueToStringHelper(
+            r'ActiveLearningScreeningSimulationConfig')
           ..add('simulationData', simulationData)
           ..add('nStart', nStart)
           ..add('startIds', startIds)
@@ -73,11 +78,11 @@ class _$ActiveLearningSimulationConfig extends ActiveLearningSimulationConfig {
   }
 }
 
-class ActiveLearningSimulationConfigBuilder
+class ActiveLearningScreeningSimulationConfigBuilder
     implements
-        Builder<ActiveLearningSimulationConfig,
-            ActiveLearningSimulationConfigBuilder> {
-  _$ActiveLearningSimulationConfig? _$v;
+        Builder<ActiveLearningScreeningSimulationConfig,
+            ActiveLearningScreeningSimulationConfigBuilder> {
+  _$ActiveLearningScreeningSimulationConfig? _$v;
 
   ListBuilder<SequenceData>? _simulationData;
   ListBuilder<SequenceData> get simulationData =>
@@ -106,11 +111,11 @@ class ActiveLearningSimulationConfigBuilder
           ActiveLearningConvergenceConfigBuilder? convergenceConfig) =>
       _$this._convergenceConfig = convergenceConfig;
 
-  ActiveLearningSimulationConfigBuilder() {
-    ActiveLearningSimulationConfig._defaults(this);
+  ActiveLearningScreeningSimulationConfigBuilder() {
+    ActiveLearningScreeningSimulationConfig._defaults(this);
   }
 
-  ActiveLearningSimulationConfigBuilder get _$this {
+  ActiveLearningScreeningSimulationConfigBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _simulationData = $v.simulationData.toBuilder();
@@ -124,29 +129,30 @@ class ActiveLearningSimulationConfigBuilder
   }
 
   @override
-  void replace(ActiveLearningSimulationConfig other) {
-    _$v = other as _$ActiveLearningSimulationConfig;
+  void replace(ActiveLearningScreeningSimulationConfig other) {
+    _$v = other as _$ActiveLearningScreeningSimulationConfig;
   }
 
   @override
-  void update(void Function(ActiveLearningSimulationConfigBuilder)? updates) {
+  void update(
+      void Function(ActiveLearningScreeningSimulationConfigBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  ActiveLearningSimulationConfig build() => _build();
+  ActiveLearningScreeningSimulationConfig build() => _build();
 
-  _$ActiveLearningSimulationConfig _build() {
-    _$ActiveLearningSimulationConfig _$result;
+  _$ActiveLearningScreeningSimulationConfig _build() {
+    _$ActiveLearningScreeningSimulationConfig _$result;
     try {
       _$result = _$v ??
-          _$ActiveLearningSimulationConfig._(
+          _$ActiveLearningScreeningSimulationConfig._(
             simulationData: simulationData.build(),
             nStart: nStart,
             startIds: _startIds?.build(),
             nSuggestionsPerIteration: BuiltValueNullFieldError.checkNotNull(
                 nSuggestionsPerIteration,
-                r'ActiveLearningSimulationConfig',
+                r'ActiveLearningScreeningSimulationConfig',
                 'nSuggestionsPerIteration'),
             convergenceConfig: convergenceConfig.build(),
           );
@@ -163,7 +169,9 @@ class ActiveLearningSimulationConfigBuilder
         convergenceConfig.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-            r'ActiveLearningSimulationConfig', _$failedField, e.toString());
+            r'ActiveLearningScreeningSimulationConfig',
+            _$failedField,
+            e.toString());
       }
       rethrow;
     }

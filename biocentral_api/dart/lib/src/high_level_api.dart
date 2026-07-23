@@ -2,7 +2,7 @@ import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
-import 'package:biocentral_api/src/model/sequence_data.dart';
+import 'package:biocentral_api/src/model/projection_result.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
@@ -194,7 +194,7 @@ extension EmbeddingAPI on BiocentralAPI {
     return EmbeddingClient().projectionConfig(api: _getAPI());
   }
 
-  Future<BiocentralServerTask<Map<String, dynamic>?>> project({
+  Future<BiocentralServerTask<ProjectionResult?>> project({
     required String embedderName,
     required String method,
     required Map<String, String> sequenceData,
@@ -243,8 +243,8 @@ extension ProteinsAPI on BiocentralAPI {
 
 extension ActiveLearningAPI on BiocentralAPI {
   Future<BiocentralServerTask<ActiveLearningIterationResult>> activeLearningIteration({
-    required ActiveLearningCampaignConfig campaignConfig,
-    required ActiveLearningIterationConfig iterationConfig,
+    required ActiveLearningScreeningCampaignConfig campaignConfig,
+    required ActiveLearningScreeningIterationConfig iterationConfig,
   }) async {
     return ActiveLearningClient()
         .activeLearningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);

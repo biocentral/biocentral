@@ -1,18 +1,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'active_learning_campaign_config.dart';
+part of 'active_learning_screening_campaign_config.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
+class _$ActiveLearningScreeningCampaignConfig
+    extends ActiveLearningScreeningCampaignConfig {
+  @override
+  final String embedderName;
   @override
   final String name;
   @override
   final ActiveLearningModelType modelType;
-  @override
-  final String embedderName;
   @override
   final ActiveLearningOptimizationMode optimizationMode;
   @override
@@ -26,14 +27,16 @@ class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
   @override
   final BuiltList<String>? discreteTargets;
 
-  factory _$ActiveLearningCampaignConfig(
-          [void Function(ActiveLearningCampaignConfigBuilder)? updates]) =>
-      (ActiveLearningCampaignConfigBuilder()..update(updates))._build();
+  factory _$ActiveLearningScreeningCampaignConfig(
+          [void Function(ActiveLearningScreeningCampaignConfigBuilder)?
+              updates]) =>
+      (ActiveLearningScreeningCampaignConfigBuilder()..update(updates))
+          ._build();
 
-  _$ActiveLearningCampaignConfig._(
-      {required this.name,
+  _$ActiveLearningScreeningCampaignConfig._(
+      {required this.embedderName,
+      required this.name,
       required this.modelType,
-      required this.embedderName,
       required this.optimizationMode,
       this.seed,
       this.targetLb,
@@ -42,21 +45,22 @@ class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
       this.discreteTargets})
       : super._();
   @override
-  ActiveLearningCampaignConfig rebuild(
-          void Function(ActiveLearningCampaignConfigBuilder) updates) =>
+  ActiveLearningScreeningCampaignConfig rebuild(
+          void Function(ActiveLearningScreeningCampaignConfigBuilder)
+              updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ActiveLearningCampaignConfigBuilder toBuilder() =>
-      ActiveLearningCampaignConfigBuilder()..replace(this);
+  ActiveLearningScreeningCampaignConfigBuilder toBuilder() =>
+      ActiveLearningScreeningCampaignConfigBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is ActiveLearningCampaignConfig &&
+    return other is ActiveLearningScreeningCampaignConfig &&
+        embedderName == other.embedderName &&
         name == other.name &&
         modelType == other.modelType &&
-        embedderName == other.embedderName &&
         optimizationMode == other.optimizationMode &&
         seed == other.seed &&
         targetLb == other.targetLb &&
@@ -68,9 +72,9 @@ class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
   @override
   int get hashCode {
     var _$hash = 0;
+    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, modelType.hashCode);
-    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, optimizationMode.hashCode);
     _$hash = $jc(_$hash, seed.hashCode);
     _$hash = $jc(_$hash, targetLb.hashCode);
@@ -83,10 +87,11 @@ class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'ActiveLearningCampaignConfig')
+    return (newBuiltValueToStringHelper(
+            r'ActiveLearningScreeningCampaignConfig')
+          ..add('embedderName', embedderName)
           ..add('name', name)
           ..add('modelType', modelType)
-          ..add('embedderName', embedderName)
           ..add('optimizationMode', optimizationMode)
           ..add('seed', seed)
           ..add('targetLb', targetLb)
@@ -97,11 +102,15 @@ class _$ActiveLearningCampaignConfig extends ActiveLearningCampaignConfig {
   }
 }
 
-class ActiveLearningCampaignConfigBuilder
+class ActiveLearningScreeningCampaignConfigBuilder
     implements
-        Builder<ActiveLearningCampaignConfig,
-            ActiveLearningCampaignConfigBuilder> {
-  _$ActiveLearningCampaignConfig? _$v;
+        Builder<ActiveLearningScreeningCampaignConfig,
+            ActiveLearningScreeningCampaignConfigBuilder> {
+  _$ActiveLearningScreeningCampaignConfig? _$v;
+
+  String? _embedderName;
+  String? get embedderName => _$this._embedderName;
+  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
 
   String? _name;
   String? get name => _$this._name;
@@ -111,10 +120,6 @@ class ActiveLearningCampaignConfigBuilder
   ActiveLearningModelType? get modelType => _$this._modelType;
   set modelType(ActiveLearningModelType? modelType) =>
       _$this._modelType = modelType;
-
-  String? _embedderName;
-  String? get embedderName => _$this._embedderName;
-  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
 
   ActiveLearningOptimizationMode? _optimizationMode;
   ActiveLearningOptimizationMode? get optimizationMode =>
@@ -144,16 +149,16 @@ class ActiveLearningCampaignConfigBuilder
   set discreteTargets(ListBuilder<String>? discreteTargets) =>
       _$this._discreteTargets = discreteTargets;
 
-  ActiveLearningCampaignConfigBuilder() {
-    ActiveLearningCampaignConfig._defaults(this);
+  ActiveLearningScreeningCampaignConfigBuilder() {
+    ActiveLearningScreeningCampaignConfig._defaults(this);
   }
 
-  ActiveLearningCampaignConfigBuilder get _$this {
+  ActiveLearningScreeningCampaignConfigBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
+      _embedderName = $v.embedderName;
       _name = $v.name;
       _modelType = $v.modelType;
-      _embedderName = $v.embedderName;
       _optimizationMode = $v.optimizationMode;
       _seed = $v.seed;
       _targetLb = $v.targetLb;
@@ -166,32 +171,33 @@ class ActiveLearningCampaignConfigBuilder
   }
 
   @override
-  void replace(ActiveLearningCampaignConfig other) {
-    _$v = other as _$ActiveLearningCampaignConfig;
+  void replace(ActiveLearningScreeningCampaignConfig other) {
+    _$v = other as _$ActiveLearningScreeningCampaignConfig;
   }
 
   @override
-  void update(void Function(ActiveLearningCampaignConfigBuilder)? updates) {
+  void update(
+      void Function(ActiveLearningScreeningCampaignConfigBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  ActiveLearningCampaignConfig build() => _build();
+  ActiveLearningScreeningCampaignConfig build() => _build();
 
-  _$ActiveLearningCampaignConfig _build() {
-    _$ActiveLearningCampaignConfig _$result;
+  _$ActiveLearningScreeningCampaignConfig _build() {
+    _$ActiveLearningScreeningCampaignConfig _$result;
     try {
       _$result = _$v ??
-          _$ActiveLearningCampaignConfig._(
+          _$ActiveLearningScreeningCampaignConfig._(
+            embedderName: BuiltValueNullFieldError.checkNotNull(embedderName,
+                r'ActiveLearningScreeningCampaignConfig', 'embedderName'),
             name: BuiltValueNullFieldError.checkNotNull(
-                name, r'ActiveLearningCampaignConfig', 'name'),
-            modelType: BuiltValueNullFieldError.checkNotNull(
-                modelType, r'ActiveLearningCampaignConfig', 'modelType'),
-            embedderName: BuiltValueNullFieldError.checkNotNull(
-                embedderName, r'ActiveLearningCampaignConfig', 'embedderName'),
+                name, r'ActiveLearningScreeningCampaignConfig', 'name'),
+            modelType: BuiltValueNullFieldError.checkNotNull(modelType,
+                r'ActiveLearningScreeningCampaignConfig', 'modelType'),
             optimizationMode: BuiltValueNullFieldError.checkNotNull(
                 optimizationMode,
-                r'ActiveLearningCampaignConfig',
+                r'ActiveLearningScreeningCampaignConfig',
                 'optimizationMode'),
             seed: seed,
             targetLb: targetLb,
@@ -206,7 +212,9 @@ class ActiveLearningCampaignConfigBuilder
         _discreteTargets?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-            r'ActiveLearningCampaignConfig', _$failedField, e.toString());
+            r'ActiveLearningScreeningCampaignConfig',
+            _$failedField,
+            e.toString());
       }
       rethrow;
     }

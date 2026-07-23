@@ -1,8 +1,9 @@
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_api/src/serializers.dart';
 import 'package:built_collection/built_collection.dart';
 
-import '../model/active_learning_campaign_config.dart';
-import '../model/active_learning_iteration_config.dart';
+import '../model/active_learning_screening_campaign_config.dart';
+import '../model/active_learning_screening_iteration_config.dart';
 import '../model/active_learning_iteration_result.dart';
 import '../model/active_learning_model_type.dart';
 import '../model/active_learning_optimization_mode.dart';
@@ -92,6 +93,16 @@ extension BiotrainerPredictionSerial on BiotrainerPrediction {
   }
 }
 
+extension ProjectionResultSerial on ProjectionResult {
+  Map<String, dynamic> serialize() {
+    return standardSerializers.serializeWith(ProjectionResult.serializer, this) as Map<String, dynamic>;
+  }
+
+  static ProjectionResult deserialize(Map<String, dynamic> jsonMap) {
+    return standardSerializers.deserializeWith(ProjectionResult.serializer, jsonMap)!;
+  }
+}
+
 extension BootstrappedMetricSerial on BootstrappedMetric {
   Map<String, dynamic> serialize() {
     return standardSerializers.serializeWith(BootstrappedMetric.serializer, this) as Map<String, dynamic>;
@@ -132,7 +143,7 @@ extension EmbeddingStatsSerial on EmbeddingStats {
   }
 }
 
-extension ALCampaignConfigSerial on ActiveLearningCampaignConfig {
+extension ALScreeningCampaignConfigSerial on ActiveLearningScreeningCampaignConfig {
   Map<String, dynamic> serialize() {
     return {
       'name': name,
@@ -147,8 +158,8 @@ extension ALCampaignConfigSerial on ActiveLearningCampaignConfig {
     };
   }
 
-  static ActiveLearningCampaignConfig deserialize(Map<String, dynamic> jsonMap) {
-    return ActiveLearningCampaignConfig((b) => b
+  static ActiveLearningScreeningCampaignConfig deserialize(Map<String, dynamic> jsonMap) {
+    return ActiveLearningScreeningCampaignConfig((b) => b
       ..name = jsonMap['name'] as String
       ..embedderName = jsonMap['embedderName'] as String
       ..modelType = ActiveLearningModelType.valueOf(jsonMap['modelType'] as String)
@@ -163,7 +174,7 @@ extension ALCampaignConfigSerial on ActiveLearningCampaignConfig {
   }
 }
 
-extension ALIterationConfigSerial on ActiveLearningIterationConfig {
+extension ALScreeningIterationConfigSerial on ActiveLearningScreeningIterationConfig {
   Map<String, dynamic> serialize() {
     return {
       'iteration': iteration,
@@ -173,8 +184,8 @@ extension ALIterationConfigSerial on ActiveLearningIterationConfig {
     };
   }
 
-  static ActiveLearningIterationConfig deserialize(Map<String, dynamic> jsonMap) {
-    return ActiveLearningIterationConfig((b) => b
+  static ActiveLearningScreeningIterationConfig deserialize(Map<String, dynamic> jsonMap) {
+    return ActiveLearningScreeningIterationConfig((b) => b
       ..iteration = jsonMap['iteration'] as int
       ..iterationData = ListBuilder<SequenceData>((jsonMap['iteration_data'] as List)
           .map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))

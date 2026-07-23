@@ -8,12 +8,12 @@ import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
-import 'package:biocentral_api/src/model/active_learning_simulation_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
+import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
-import 'package:built_value/json_object.dart';
+import 'package:biocentral_api/src/model/projection_result.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -32,7 +32,7 @@ part 'task_dto.g.dart';
 /// * [embeddedSequences] 
 /// * [embeddings] 
 /// * [embeddingsFile] 
-/// * [projectionResult] - Hyperparameters used for this split
+/// * [projectionResult] 
 /// * [alIterationResult] 
 /// * [alSimulationResult] 
 @BuiltValue()
@@ -68,15 +68,14 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'embeddings_file')
   String? get embeddingsFile;
 
-  /// Hyperparameters used for this split
   @BuiltValueField(wireName: r'projection_result')
-  BuiltMap<String, JsonObject?>? get projectionResult;
+  ProjectionResult? get projectionResult;
 
   @BuiltValueField(wireName: r'al_iteration_result')
   ActiveLearningIterationResult? get alIterationResult;
 
   @BuiltValueField(wireName: r'al_simulation_result')
-  ActiveLearningSimulationResult? get alSimulationResult;
+  ActiveLearningScreeningSimulationResult? get alSimulationResult;
 
   TaskDTO._();
 
@@ -173,7 +172,7 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield r'projection_result';
       yield serializers.serialize(
         object.projectionResult,
-        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+        specifiedType: const FullType.nullable(ProjectionResult),
       );
     }
     if (object.alIterationResult != null) {
@@ -187,7 +186,7 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield r'al_simulation_result';
       yield serializers.serialize(
         object.alSimulationResult,
-        specifiedType: const FullType.nullable(ActiveLearningSimulationResult),
+        specifiedType: const FullType.nullable(ActiveLearningScreeningSimulationResult),
       );
     }
   }
@@ -295,8 +294,8 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         case r'projection_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-          ) as BuiltMap<String, JsonObject?>?;
+            specifiedType: const FullType.nullable(ProjectionResult),
+          ) as ProjectionResult?;
           if (valueDes == null) continue;
           result.projectionResult.replace(valueDes);
           break;
@@ -311,8 +310,8 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         case r'al_simulation_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(ActiveLearningSimulationResult),
-          ) as ActiveLearningSimulationResult?;
+            specifiedType: const FullType.nullable(ActiveLearningScreeningSimulationResult),
+          ) as ActiveLearningScreeningSimulationResult?;
           if (valueDes == null) continue;
           result.alSimulationResult.replace(valueDes);
           break;

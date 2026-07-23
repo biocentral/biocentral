@@ -8,9 +8,9 @@ part of 'get_missing_embeddings_request.dart';
 
 class _$GetMissingEmbeddingsRequest extends GetMissingEmbeddingsRequest {
   @override
-  final String sequences;
-  @override
   final String embedderName;
+  @override
+  final String sequences;
   @override
   final bool reduced;
 
@@ -19,8 +19,8 @@ class _$GetMissingEmbeddingsRequest extends GetMissingEmbeddingsRequest {
       (GetMissingEmbeddingsRequestBuilder()..update(updates))._build();
 
   _$GetMissingEmbeddingsRequest._(
-      {required this.sequences,
-      required this.embedderName,
+      {required this.embedderName,
+      required this.sequences,
       required this.reduced})
       : super._();
   @override
@@ -36,16 +36,16 @@ class _$GetMissingEmbeddingsRequest extends GetMissingEmbeddingsRequest {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is GetMissingEmbeddingsRequest &&
-        sequences == other.sequences &&
         embedderName == other.embedderName &&
+        sequences == other.sequences &&
         reduced == other.reduced;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, sequences.hashCode);
     _$hash = $jc(_$hash, embedderName.hashCode);
+    _$hash = $jc(_$hash, sequences.hashCode);
     _$hash = $jc(_$hash, reduced.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -54,8 +54,8 @@ class _$GetMissingEmbeddingsRequest extends GetMissingEmbeddingsRequest {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'GetMissingEmbeddingsRequest')
-          ..add('sequences', sequences)
           ..add('embedderName', embedderName)
+          ..add('sequences', sequences)
           ..add('reduced', reduced))
         .toString();
   }
@@ -67,13 +67,13 @@ class GetMissingEmbeddingsRequestBuilder
             GetMissingEmbeddingsRequestBuilder> {
   _$GetMissingEmbeddingsRequest? _$v;
 
-  String? _sequences;
-  String? get sequences => _$this._sequences;
-  set sequences(String? sequences) => _$this._sequences = sequences;
-
   String? _embedderName;
   String? get embedderName => _$this._embedderName;
   set embedderName(String? embedderName) => _$this._embedderName = embedderName;
+
+  String? _sequences;
+  String? get sequences => _$this._sequences;
+  set sequences(String? sequences) => _$this._sequences = sequences;
 
   bool? _reduced;
   bool? get reduced => _$this._reduced;
@@ -86,8 +86,8 @@ class GetMissingEmbeddingsRequestBuilder
   GetMissingEmbeddingsRequestBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _sequences = $v.sequences;
       _embedderName = $v.embedderName;
+      _sequences = $v.sequences;
       _reduced = $v.reduced;
       _$v = null;
     }
@@ -110,10 +110,10 @@ class GetMissingEmbeddingsRequestBuilder
   _$GetMissingEmbeddingsRequest _build() {
     final _$result = _$v ??
         _$GetMissingEmbeddingsRequest._(
-          sequences: BuiltValueNullFieldError.checkNotNull(
-              sequences, r'GetMissingEmbeddingsRequest', 'sequences'),
           embedderName: BuiltValueNullFieldError.checkNotNull(
               embedderName, r'GetMissingEmbeddingsRequest', 'embedderName'),
+          sequences: BuiltValueNullFieldError.checkNotNull(
+              sequences, r'GetMissingEmbeddingsRequest', 'sequences'),
           reduced: BuiltValueNullFieldError.checkNotNull(
               reduced, r'GetMissingEmbeddingsRequest', 'reduced'),
         );

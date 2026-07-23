@@ -11,7 +11,7 @@ class _$ActiveLearningConvergenceConfig
   @override
   final int? maxLabelsBudget;
   @override
-  final int? targetSuccesses;
+  final int? nHits;
   @override
   final int? maxConsecutiveFailures;
 
@@ -20,7 +20,7 @@ class _$ActiveLearningConvergenceConfig
       (ActiveLearningConvergenceConfigBuilder()..update(updates))._build();
 
   _$ActiveLearningConvergenceConfig._(
-      {this.maxLabelsBudget, this.targetSuccesses, this.maxConsecutiveFailures})
+      {this.maxLabelsBudget, this.nHits, this.maxConsecutiveFailures})
       : super._();
   @override
   ActiveLearningConvergenceConfig rebuild(
@@ -36,7 +36,7 @@ class _$ActiveLearningConvergenceConfig
     if (identical(other, this)) return true;
     return other is ActiveLearningConvergenceConfig &&
         maxLabelsBudget == other.maxLabelsBudget &&
-        targetSuccesses == other.targetSuccesses &&
+        nHits == other.nHits &&
         maxConsecutiveFailures == other.maxConsecutiveFailures;
   }
 
@@ -44,7 +44,7 @@ class _$ActiveLearningConvergenceConfig
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, maxLabelsBudget.hashCode);
-    _$hash = $jc(_$hash, targetSuccesses.hashCode);
+    _$hash = $jc(_$hash, nHits.hashCode);
     _$hash = $jc(_$hash, maxConsecutiveFailures.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -54,7 +54,7 @@ class _$ActiveLearningConvergenceConfig
   String toString() {
     return (newBuiltValueToStringHelper(r'ActiveLearningConvergenceConfig')
           ..add('maxLabelsBudget', maxLabelsBudget)
-          ..add('targetSuccesses', targetSuccesses)
+          ..add('nHits', nHits)
           ..add('maxConsecutiveFailures', maxConsecutiveFailures))
         .toString();
   }
@@ -71,10 +71,9 @@ class ActiveLearningConvergenceConfigBuilder
   set maxLabelsBudget(int? maxLabelsBudget) =>
       _$this._maxLabelsBudget = maxLabelsBudget;
 
-  int? _targetSuccesses;
-  int? get targetSuccesses => _$this._targetSuccesses;
-  set targetSuccesses(int? targetSuccesses) =>
-      _$this._targetSuccesses = targetSuccesses;
+  int? _nHits;
+  int? get nHits => _$this._nHits;
+  set nHits(int? nHits) => _$this._nHits = nHits;
 
   int? _maxConsecutiveFailures;
   int? get maxConsecutiveFailures => _$this._maxConsecutiveFailures;
@@ -89,7 +88,7 @@ class ActiveLearningConvergenceConfigBuilder
     final $v = _$v;
     if ($v != null) {
       _maxLabelsBudget = $v.maxLabelsBudget;
-      _targetSuccesses = $v.targetSuccesses;
+      _nHits = $v.nHits;
       _maxConsecutiveFailures = $v.maxConsecutiveFailures;
       _$v = null;
     }
@@ -113,7 +112,7 @@ class ActiveLearningConvergenceConfigBuilder
     final _$result = _$v ??
         _$ActiveLearningConvergenceConfig._(
           maxLabelsBudget: maxLabelsBudget,
-          targetSuccesses: targetSuccesses,
+          nHits: nHits,
           maxConsecutiveFailures: maxConsecutiveFailures,
         );
     replace(_$result);

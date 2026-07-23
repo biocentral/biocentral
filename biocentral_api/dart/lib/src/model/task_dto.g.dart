@@ -28,11 +28,11 @@ class _$TaskDTO extends TaskDTO {
   @override
   final String? embeddingsFile;
   @override
-  final BuiltMap<String, JsonObject?>? projectionResult;
+  final ProjectionResult? projectionResult;
   @override
   final ActiveLearningIterationResult? alIterationResult;
   @override
-  final ActiveLearningSimulationResult? alSimulationResult;
+  final ActiveLearningScreeningSimulationResult? alSimulationResult;
 
   factory _$TaskDTO([void Function(TaskDTOBuilder)? updates]) =>
       (TaskDTOBuilder()..update(updates))._build();
@@ -177,10 +177,10 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set embeddingsFile(String? embeddingsFile) =>
       _$this._embeddingsFile = embeddingsFile;
 
-  MapBuilder<String, JsonObject?>? _projectionResult;
-  MapBuilder<String, JsonObject?> get projectionResult =>
-      _$this._projectionResult ??= MapBuilder<String, JsonObject?>();
-  set projectionResult(MapBuilder<String, JsonObject?>? projectionResult) =>
+  ProjectionResultBuilder? _projectionResult;
+  ProjectionResultBuilder get projectionResult =>
+      _$this._projectionResult ??= ProjectionResultBuilder();
+  set projectionResult(ProjectionResultBuilder? projectionResult) =>
       _$this._projectionResult = projectionResult;
 
   ActiveLearningIterationResultBuilder? _alIterationResult;
@@ -190,11 +190,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
           ActiveLearningIterationResultBuilder? alIterationResult) =>
       _$this._alIterationResult = alIterationResult;
 
-  ActiveLearningSimulationResultBuilder? _alSimulationResult;
-  ActiveLearningSimulationResultBuilder get alSimulationResult =>
-      _$this._alSimulationResult ??= ActiveLearningSimulationResultBuilder();
+  ActiveLearningScreeningSimulationResultBuilder? _alSimulationResult;
+  ActiveLearningScreeningSimulationResultBuilder get alSimulationResult =>
+      _$this._alSimulationResult ??=
+          ActiveLearningScreeningSimulationResultBuilder();
   set alSimulationResult(
-          ActiveLearningSimulationResultBuilder? alSimulationResult) =>
+          ActiveLearningScreeningSimulationResultBuilder? alSimulationResult) =>
       _$this._alSimulationResult = alSimulationResult;
 
   TaskDTOBuilder() {

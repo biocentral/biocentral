@@ -31,6 +31,8 @@ class _$TrainingResult extends TrainingResult {
   final BuiltList<num>? validationLosses;
   @override
   final EpochMetrics? bestEpochMetrics;
+  @override
+  final BuiltList<String>? sanityCheckWarnings;
 
   factory _$TrainingResult([void Function(TrainingResultBuilder)? updates]) =>
       (TrainingResultBuilder()..update(updates))._build();
@@ -47,7 +49,8 @@ class _$TrainingResult extends TrainingResult {
       this.elapsedTime,
       this.trainingLosses,
       this.validationLosses,
-      this.bestEpochMetrics})
+      this.bestEpochMetrics,
+      this.sanityCheckWarnings})
       : super._();
   @override
   TrainingResult rebuild(void Function(TrainingResultBuilder) updates) =>
@@ -71,7 +74,8 @@ class _$TrainingResult extends TrainingResult {
         elapsedTime == other.elapsedTime &&
         trainingLosses == other.trainingLosses &&
         validationLosses == other.validationLosses &&
-        bestEpochMetrics == other.bestEpochMetrics;
+        bestEpochMetrics == other.bestEpochMetrics &&
+        sanityCheckWarnings == other.sanityCheckWarnings;
   }
 
   @override
@@ -89,6 +93,7 @@ class _$TrainingResult extends TrainingResult {
     _$hash = $jc(_$hash, trainingLosses.hashCode);
     _$hash = $jc(_$hash, validationLosses.hashCode);
     _$hash = $jc(_$hash, bestEpochMetrics.hashCode);
+    _$hash = $jc(_$hash, sanityCheckWarnings.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -107,7 +112,8 @@ class _$TrainingResult extends TrainingResult {
           ..add('elapsedTime', elapsedTime)
           ..add('trainingLosses', trainingLosses)
           ..add('validationLosses', validationLosses)
-          ..add('bestEpochMetrics', bestEpochMetrics))
+          ..add('bestEpochMetrics', bestEpochMetrics)
+          ..add('sanityCheckWarnings', sanityCheckWarnings))
         .toString();
   }
 }
@@ -178,6 +184,12 @@ class TrainingResultBuilder
   set bestEpochMetrics(EpochMetricsBuilder? bestEpochMetrics) =>
       _$this._bestEpochMetrics = bestEpochMetrics;
 
+  ListBuilder<String>? _sanityCheckWarnings;
+  ListBuilder<String> get sanityCheckWarnings =>
+      _$this._sanityCheckWarnings ??= ListBuilder<String>();
+  set sanityCheckWarnings(ListBuilder<String>? sanityCheckWarnings) =>
+      _$this._sanityCheckWarnings = sanityCheckWarnings;
+
   TrainingResultBuilder() {
     TrainingResult._defaults(this);
   }
@@ -197,6 +209,7 @@ class TrainingResultBuilder
       _trainingLosses = $v.trainingLosses?.toBuilder();
       _validationLosses = $v.validationLosses?.toBuilder();
       _bestEpochMetrics = $v.bestEpochMetrics?.toBuilder();
+      _sanityCheckWarnings = $v.sanityCheckWarnings?.toBuilder();
       _$v = null;
     }
     return this;
@@ -232,6 +245,7 @@ class TrainingResultBuilder
             trainingLosses: _trainingLosses?.build(),
             validationLosses: _validationLosses?.build(),
             bestEpochMetrics: _bestEpochMetrics?.build(),
+            sanityCheckWarnings: _sanityCheckWarnings?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -249,6 +263,8 @@ class TrainingResultBuilder
         _validationLosses?.build();
         _$failedField = 'bestEpochMetrics';
         _bestEpochMetrics?.build();
+        _$failedField = 'sanityCheckWarnings';
+        _sanityCheckWarnings?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'TrainingResult', _$failedField, e.toString());

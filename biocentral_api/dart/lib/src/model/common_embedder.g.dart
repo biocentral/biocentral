@@ -17,6 +17,8 @@ const CommonEmbedder _$RANDOM_EMBEDDER =
     const CommonEmbedder._('RANDOM_EMBEDDER');
 const CommonEmbedder _$AAOntology = const CommonEmbedder._('AAOntology');
 const CommonEmbedder _$BLOSUM62 = const CommonEmbedder._('BLOSUM62');
+const CommonEmbedder _$LENGTH_EMBEDDER =
+    const CommonEmbedder._('LENGTH_EMBEDDER');
 
 CommonEmbedder _$valueOf(String name) {
   switch (name) {
@@ -38,6 +40,8 @@ CommonEmbedder _$valueOf(String name) {
       return _$AAOntology;
     case 'BLOSUM62':
       return _$BLOSUM62;
+    case 'LENGTH_EMBEDDER':
+      return _$LENGTH_EMBEDDER;
     default:
       throw ArgumentError(name);
   }
@@ -54,6 +58,7 @@ final BuiltSet<CommonEmbedder> _$values =
   _$RANDOM_EMBEDDER,
   _$AAOntology,
   _$BLOSUM62,
+  _$LENGTH_EMBEDDER,
 ]);
 
 class _$CommonEmbedderMeta {
@@ -67,6 +72,7 @@ class _$CommonEmbedderMeta {
   CommonEmbedder get RANDOM_EMBEDDER => _$RANDOM_EMBEDDER;
   CommonEmbedder get AAOntology => _$AAOntology;
   CommonEmbedder get BLOSUM62 => _$BLOSUM62;
+  CommonEmbedder get LENGTH_EMBEDDER => _$LENGTH_EMBEDDER;
   CommonEmbedder valueOf(String name) => _$valueOf(name);
   BuiltSet<CommonEmbedder> get values => _$values;
 }
@@ -91,6 +97,7 @@ class _$CommonEmbedderSerializer
     'RANDOM_EMBEDDER': 'random_embedder',
     'AAOntology': 'AAOntology',
     'BLOSUM62': 'blosum62',
+    'LENGTH_EMBEDDER': 'length_embedder',
   };
   static const Map<Object, String> _fromWire = const <Object, String>{
     'Rostlab/prot_t5_xl_uniref50': 'ProtT5',
@@ -102,6 +109,7 @@ class _$CommonEmbedderSerializer
     'random_embedder': 'RANDOM_EMBEDDER',
     'AAOntology': 'AAOntology',
     'blosum62': 'BLOSUM62',
+    'length_embedder': 'LENGTH_EMBEDDER',
   };
 
   @override

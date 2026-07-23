@@ -1,12 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'active_learning_iteration_config.dart';
+part of 'active_learning_screening_iteration_config.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$ActiveLearningIterationConfig extends ActiveLearningIterationConfig {
+class _$ActiveLearningScreeningIterationConfig
+    extends ActiveLearningScreeningIterationConfig {
   @override
   final int iteration;
   @override
@@ -16,29 +17,32 @@ class _$ActiveLearningIterationConfig extends ActiveLearningIterationConfig {
   @override
   final int nSuggestions;
 
-  factory _$ActiveLearningIterationConfig(
-          [void Function(ActiveLearningIterationConfigBuilder)? updates]) =>
-      (ActiveLearningIterationConfigBuilder()..update(updates))._build();
+  factory _$ActiveLearningScreeningIterationConfig(
+          [void Function(ActiveLearningScreeningIterationConfigBuilder)?
+              updates]) =>
+      (ActiveLearningScreeningIterationConfigBuilder()..update(updates))
+          ._build();
 
-  _$ActiveLearningIterationConfig._(
+  _$ActiveLearningScreeningIterationConfig._(
       {required this.iteration,
       required this.iterationData,
       required this.coefficient,
       required this.nSuggestions})
       : super._();
   @override
-  ActiveLearningIterationConfig rebuild(
-          void Function(ActiveLearningIterationConfigBuilder) updates) =>
+  ActiveLearningScreeningIterationConfig rebuild(
+          void Function(ActiveLearningScreeningIterationConfigBuilder)
+              updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ActiveLearningIterationConfigBuilder toBuilder() =>
-      ActiveLearningIterationConfigBuilder()..replace(this);
+  ActiveLearningScreeningIterationConfigBuilder toBuilder() =>
+      ActiveLearningScreeningIterationConfigBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is ActiveLearningIterationConfig &&
+    return other is ActiveLearningScreeningIterationConfig &&
         iteration == other.iteration &&
         iterationData == other.iterationData &&
         coefficient == other.coefficient &&
@@ -58,7 +62,8 @@ class _$ActiveLearningIterationConfig extends ActiveLearningIterationConfig {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'ActiveLearningIterationConfig')
+    return (newBuiltValueToStringHelper(
+            r'ActiveLearningScreeningIterationConfig')
           ..add('iteration', iteration)
           ..add('iterationData', iterationData)
           ..add('coefficient', coefficient)
@@ -67,11 +72,11 @@ class _$ActiveLearningIterationConfig extends ActiveLearningIterationConfig {
   }
 }
 
-class ActiveLearningIterationConfigBuilder
+class ActiveLearningScreeningIterationConfigBuilder
     implements
-        Builder<ActiveLearningIterationConfig,
-            ActiveLearningIterationConfigBuilder> {
-  _$ActiveLearningIterationConfig? _$v;
+        Builder<ActiveLearningScreeningIterationConfig,
+            ActiveLearningScreeningIterationConfigBuilder> {
+  _$ActiveLearningScreeningIterationConfig? _$v;
 
   int? _iteration;
   int? get iteration => _$this._iteration;
@@ -91,11 +96,11 @@ class ActiveLearningIterationConfigBuilder
   int? get nSuggestions => _$this._nSuggestions;
   set nSuggestions(int? nSuggestions) => _$this._nSuggestions = nSuggestions;
 
-  ActiveLearningIterationConfigBuilder() {
-    ActiveLearningIterationConfig._defaults(this);
+  ActiveLearningScreeningIterationConfigBuilder() {
+    ActiveLearningScreeningIterationConfig._defaults(this);
   }
 
-  ActiveLearningIterationConfigBuilder get _$this {
+  ActiveLearningScreeningIterationConfigBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _iteration = $v.iteration;
@@ -108,30 +113,31 @@ class ActiveLearningIterationConfigBuilder
   }
 
   @override
-  void replace(ActiveLearningIterationConfig other) {
-    _$v = other as _$ActiveLearningIterationConfig;
+  void replace(ActiveLearningScreeningIterationConfig other) {
+    _$v = other as _$ActiveLearningScreeningIterationConfig;
   }
 
   @override
-  void update(void Function(ActiveLearningIterationConfigBuilder)? updates) {
+  void update(
+      void Function(ActiveLearningScreeningIterationConfigBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  ActiveLearningIterationConfig build() => _build();
+  ActiveLearningScreeningIterationConfig build() => _build();
 
-  _$ActiveLearningIterationConfig _build() {
-    _$ActiveLearningIterationConfig _$result;
+  _$ActiveLearningScreeningIterationConfig _build() {
+    _$ActiveLearningScreeningIterationConfig _$result;
     try {
       _$result = _$v ??
-          _$ActiveLearningIterationConfig._(
-            iteration: BuiltValueNullFieldError.checkNotNull(
-                iteration, r'ActiveLearningIterationConfig', 'iteration'),
+          _$ActiveLearningScreeningIterationConfig._(
+            iteration: BuiltValueNullFieldError.checkNotNull(iteration,
+                r'ActiveLearningScreeningIterationConfig', 'iteration'),
             iterationData: iterationData.build(),
-            coefficient: BuiltValueNullFieldError.checkNotNull(
-                coefficient, r'ActiveLearningIterationConfig', 'coefficient'),
-            nSuggestions: BuiltValueNullFieldError.checkNotNull(
-                nSuggestions, r'ActiveLearningIterationConfig', 'nSuggestions'),
+            coefficient: BuiltValueNullFieldError.checkNotNull(coefficient,
+                r'ActiveLearningScreeningIterationConfig', 'coefficient'),
+            nSuggestions: BuiltValueNullFieldError.checkNotNull(nSuggestions,
+                r'ActiveLearningScreeningIterationConfig', 'nSuggestions'),
           );
     } catch (_) {
       late String _$failedField;
@@ -140,7 +146,9 @@ class ActiveLearningIterationConfigBuilder
         iterationData.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-            r'ActiveLearningIterationConfig', _$failedField, e.toString());
+            r'ActiveLearningScreeningIterationConfig',
+            _$failedField,
+            e.toString());
       }
       rethrow;
     }

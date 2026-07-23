@@ -8,11 +8,11 @@ part of 'add_embeddings_request.dart';
 
 class _$AddEmbeddingsRequest extends AddEmbeddingsRequest {
   @override
+  final String embedderName;
+  @override
   final String h5Bytes;
   @override
   final String sequences;
-  @override
-  final String embedderName;
   @override
   final bool reduced;
 
@@ -21,9 +21,9 @@ class _$AddEmbeddingsRequest extends AddEmbeddingsRequest {
       (AddEmbeddingsRequestBuilder()..update(updates))._build();
 
   _$AddEmbeddingsRequest._(
-      {required this.h5Bytes,
+      {required this.embedderName,
+      required this.h5Bytes,
       required this.sequences,
-      required this.embedderName,
       required this.reduced})
       : super._();
   @override
@@ -39,18 +39,18 @@ class _$AddEmbeddingsRequest extends AddEmbeddingsRequest {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is AddEmbeddingsRequest &&
+        embedderName == other.embedderName &&
         h5Bytes == other.h5Bytes &&
         sequences == other.sequences &&
-        embedderName == other.embedderName &&
         reduced == other.reduced;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
+    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, h5Bytes.hashCode);
     _$hash = $jc(_$hash, sequences.hashCode);
-    _$hash = $jc(_$hash, embedderName.hashCode);
     _$hash = $jc(_$hash, reduced.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -59,9 +59,9 @@ class _$AddEmbeddingsRequest extends AddEmbeddingsRequest {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'AddEmbeddingsRequest')
+          ..add('embedderName', embedderName)
           ..add('h5Bytes', h5Bytes)
           ..add('sequences', sequences)
-          ..add('embedderName', embedderName)
           ..add('reduced', reduced))
         .toString();
   }
@@ -71,6 +71,10 @@ class AddEmbeddingsRequestBuilder
     implements Builder<AddEmbeddingsRequest, AddEmbeddingsRequestBuilder> {
   _$AddEmbeddingsRequest? _$v;
 
+  String? _embedderName;
+  String? get embedderName => _$this._embedderName;
+  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
+
   String? _h5Bytes;
   String? get h5Bytes => _$this._h5Bytes;
   set h5Bytes(String? h5Bytes) => _$this._h5Bytes = h5Bytes;
@@ -78,10 +82,6 @@ class AddEmbeddingsRequestBuilder
   String? _sequences;
   String? get sequences => _$this._sequences;
   set sequences(String? sequences) => _$this._sequences = sequences;
-
-  String? _embedderName;
-  String? get embedderName => _$this._embedderName;
-  set embedderName(String? embedderName) => _$this._embedderName = embedderName;
 
   bool? _reduced;
   bool? get reduced => _$this._reduced;
@@ -94,9 +94,9 @@ class AddEmbeddingsRequestBuilder
   AddEmbeddingsRequestBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
+      _embedderName = $v.embedderName;
       _h5Bytes = $v.h5Bytes;
       _sequences = $v.sequences;
-      _embedderName = $v.embedderName;
       _reduced = $v.reduced;
       _$v = null;
     }
@@ -119,12 +119,12 @@ class AddEmbeddingsRequestBuilder
   _$AddEmbeddingsRequest _build() {
     final _$result = _$v ??
         _$AddEmbeddingsRequest._(
+          embedderName: BuiltValueNullFieldError.checkNotNull(
+              embedderName, r'AddEmbeddingsRequest', 'embedderName'),
           h5Bytes: BuiltValueNullFieldError.checkNotNull(
               h5Bytes, r'AddEmbeddingsRequest', 'h5Bytes'),
           sequences: BuiltValueNullFieldError.checkNotNull(
               sequences, r'AddEmbeddingsRequest', 'sequences'),
-          embedderName: BuiltValueNullFieldError.checkNotNull(
-              embedderName, r'AddEmbeddingsRequest', 'embedderName'),
           reduced: BuiltValueNullFieldError.checkNotNull(
               reduced, r'AddEmbeddingsRequest', 'reduced'),
         );

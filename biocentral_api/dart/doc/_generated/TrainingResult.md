@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **trainingLosses** | **BuiltList&lt;num&gt;** | Training losses for each epoch | [optional] 
 **validationLosses** | **BuiltList&lt;num&gt;** | Validation losses for each epoch | [optional] 
 **bestEpochMetrics** | [**EpochMetrics**](EpochMetrics.md) | Best training epoch metrics | [optional] 
+**sanityCheckWarnings** | **BuiltList&lt;String&gt;** | Warnings from sanity checks | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

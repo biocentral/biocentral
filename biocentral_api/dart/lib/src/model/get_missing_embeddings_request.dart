@@ -11,18 +11,18 @@ part 'get_missing_embeddings_request.g.dart';
 /// Request model for checking missing embeddings
 ///
 /// Properties:
+/// * [embedderName] - Name of the embedder model to use
 /// * [sequences] - JSON string containing sequence data
-/// * [embedderName] - Name of the embedder model
 /// * [reduced] - Whether to check for reduced embeddings
 @BuiltValue()
 abstract class GetMissingEmbeddingsRequest implements Built<GetMissingEmbeddingsRequest, GetMissingEmbeddingsRequestBuilder> {
+  /// Name of the embedder model to use
+  @BuiltValueField(wireName: r'embedder_name')
+  String get embedderName;
+
   /// JSON string containing sequence data
   @BuiltValueField(wireName: r'sequences')
   String get sequences;
-
-  /// Name of the embedder model
-  @BuiltValueField(wireName: r'embedder_name')
-  String get embedderName;
 
   /// Whether to check for reduced embeddings
   @BuiltValueField(wireName: r'reduced')
@@ -51,14 +51,14 @@ class _$GetMissingEmbeddingsRequestSerializer implements PrimitiveSerializer<Get
     GetMissingEmbeddingsRequest object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    yield r'sequences';
-    yield serializers.serialize(
-      object.sequences,
-      specifiedType: const FullType(String),
-    );
     yield r'embedder_name';
     yield serializers.serialize(
       object.embedderName,
+      specifiedType: const FullType(String),
+    );
+    yield r'sequences';
+    yield serializers.serialize(
+      object.sequences,
       specifiedType: const FullType(String),
     );
     yield r'reduced';
@@ -89,19 +89,19 @@ class _$GetMissingEmbeddingsRequestSerializer implements PrimitiveSerializer<Get
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'sequences':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.sequences = valueDes;
-          break;
         case r'embedder_name':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
           result.embedderName = valueDes;
+          break;
+        case r'sequences':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.sequences = valueDes;
           break;
         case r'reduced':
           final valueDes = serializers.deserialize(

@@ -13,12 +13,16 @@ part 'projection_request.g.dart';
 /// Request model for projection
 ///
 /// Properties:
+/// * [embedderName] - Name of the embedder model to use
 /// * [sequenceData] - Sequence data to embed (seq_id -> sequence)
 /// * [method] - Projection method to use
 /// * [config] - Projection configuration
-/// * [embedderName] - Name of the embedder model
 @BuiltValue()
 abstract class ProjectionRequest implements Built<ProjectionRequest, ProjectionRequestBuilder> {
+  /// Name of the embedder model to use
+  @BuiltValueField(wireName: r'embedder_name')
+  String get embedderName;
+
   /// Sequence data to embed (seq_id -> sequence)
   @BuiltValueField(wireName: r'sequence_data')
   BuiltMap<String, String> get sequenceData;
@@ -30,10 +34,6 @@ abstract class ProjectionRequest implements Built<ProjectionRequest, ProjectionR
   /// Projection configuration
   @BuiltValueField(wireName: r'config')
   BuiltMap<String, JsonObject?> get config;
-
-  /// Name of the embedder model
-  @BuiltValueField(wireName: r'embedder_name')
-  String get embedderName;
 
   ProjectionRequest._();
 
@@ -58,6 +58,11 @@ class _$ProjectionRequestSerializer implements PrimitiveSerializer<ProjectionReq
     ProjectionRequest object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
+    yield r'embedder_name';
+    yield serializers.serialize(
+      object.embedderName,
+      specifiedType: const FullType(String),
+    );
     yield r'sequence_data';
     yield serializers.serialize(
       object.sequenceData,
@@ -72,11 +77,6 @@ class _$ProjectionRequestSerializer implements PrimitiveSerializer<ProjectionReq
     yield serializers.serialize(
       object.config,
       specifiedType: const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-    );
-    yield r'embedder_name';
-    yield serializers.serialize(
-      object.embedderName,
-      specifiedType: const FullType(String),
     );
   }
 
@@ -101,6 +101,13 @@ class _$ProjectionRequestSerializer implements PrimitiveSerializer<ProjectionReq
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
+        case r'embedder_name':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.embedderName = valueDes;
+          break;
         case r'sequence_data':
           final valueDes = serializers.deserialize(
             value,
@@ -121,13 +128,6 @@ class _$ProjectionRequestSerializer implements PrimitiveSerializer<ProjectionReq
             specifiedType: const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
           ) as BuiltMap<String, JsonObject?>;
           result.config.replace(valueDes);
-          break;
-        case r'embedder_name':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(String),
-          ) as String;
-          result.embedderName = valueDes;
           break;
         default:
           unhandled.add(key);

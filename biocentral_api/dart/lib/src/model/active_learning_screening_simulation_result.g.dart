@@ -1,20 +1,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'active_learning_simulation_result.dart';
+part of 'active_learning_screening_simulation_result.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$ActiveLearningSimulationResult extends ActiveLearningSimulationResult {
+class _$ActiveLearningScreeningSimulationResult
+    extends ActiveLearningScreeningSimulationResult {
   @override
   final String campaignName;
   @override
-  final BuiltList<num>? iterationMetricsTotal;
+  final BuiltList<String> potentialHits;
   @override
-  final BuiltList<num>? iterationMetricsSuggestions;
+  final BuiltList<BootstrappedMetric>? iterationMetricsTotal;
   @override
-  final BuiltList<int>? iterationTargetSuccesses;
+  final BuiltList<BootstrappedMetric>? iterationMetricsSuggestions;
+  @override
+  final BuiltList<BuiltList<String>>? iterationHits;
   @override
   final BuiltList<int>? iterationConsecutiveFailures;
   @override
@@ -22,36 +25,41 @@ class _$ActiveLearningSimulationResult extends ActiveLearningSimulationResult {
   @override
   final BuiltList<ActiveLearningIterationResult>? iterationResults;
 
-  factory _$ActiveLearningSimulationResult(
-          [void Function(ActiveLearningSimulationResultBuilder)? updates]) =>
-      (ActiveLearningSimulationResultBuilder()..update(updates))._build();
+  factory _$ActiveLearningScreeningSimulationResult(
+          [void Function(ActiveLearningScreeningSimulationResultBuilder)?
+              updates]) =>
+      (ActiveLearningScreeningSimulationResultBuilder()..update(updates))
+          ._build();
 
-  _$ActiveLearningSimulationResult._(
+  _$ActiveLearningScreeningSimulationResult._(
       {required this.campaignName,
+      required this.potentialHits,
       this.iterationMetricsTotal,
       this.iterationMetricsSuggestions,
-      this.iterationTargetSuccesses,
+      this.iterationHits,
       this.iterationConsecutiveFailures,
       this.stopReasons,
       this.iterationResults})
       : super._();
   @override
-  ActiveLearningSimulationResult rebuild(
-          void Function(ActiveLearningSimulationResultBuilder) updates) =>
+  ActiveLearningScreeningSimulationResult rebuild(
+          void Function(ActiveLearningScreeningSimulationResultBuilder)
+              updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ActiveLearningSimulationResultBuilder toBuilder() =>
-      ActiveLearningSimulationResultBuilder()..replace(this);
+  ActiveLearningScreeningSimulationResultBuilder toBuilder() =>
+      ActiveLearningScreeningSimulationResultBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is ActiveLearningSimulationResult &&
+    return other is ActiveLearningScreeningSimulationResult &&
         campaignName == other.campaignName &&
+        potentialHits == other.potentialHits &&
         iterationMetricsTotal == other.iterationMetricsTotal &&
         iterationMetricsSuggestions == other.iterationMetricsSuggestions &&
-        iterationTargetSuccesses == other.iterationTargetSuccesses &&
+        iterationHits == other.iterationHits &&
         iterationConsecutiveFailures == other.iterationConsecutiveFailures &&
         stopReasons == other.stopReasons &&
         iterationResults == other.iterationResults;
@@ -61,9 +69,10 @@ class _$ActiveLearningSimulationResult extends ActiveLearningSimulationResult {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, campaignName.hashCode);
+    _$hash = $jc(_$hash, potentialHits.hashCode);
     _$hash = $jc(_$hash, iterationMetricsTotal.hashCode);
     _$hash = $jc(_$hash, iterationMetricsSuggestions.hashCode);
-    _$hash = $jc(_$hash, iterationTargetSuccesses.hashCode);
+    _$hash = $jc(_$hash, iterationHits.hashCode);
     _$hash = $jc(_$hash, iterationConsecutiveFailures.hashCode);
     _$hash = $jc(_$hash, stopReasons.hashCode);
     _$hash = $jc(_$hash, iterationResults.hashCode);
@@ -73,11 +82,13 @@ class _$ActiveLearningSimulationResult extends ActiveLearningSimulationResult {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'ActiveLearningSimulationResult')
+    return (newBuiltValueToStringHelper(
+            r'ActiveLearningScreeningSimulationResult')
           ..add('campaignName', campaignName)
+          ..add('potentialHits', potentialHits)
           ..add('iterationMetricsTotal', iterationMetricsTotal)
           ..add('iterationMetricsSuggestions', iterationMetricsSuggestions)
-          ..add('iterationTargetSuccesses', iterationTargetSuccesses)
+          ..add('iterationHits', iterationHits)
           ..add('iterationConsecutiveFailures', iterationConsecutiveFailures)
           ..add('stopReasons', stopReasons)
           ..add('iterationResults', iterationResults))
@@ -85,34 +96,41 @@ class _$ActiveLearningSimulationResult extends ActiveLearningSimulationResult {
   }
 }
 
-class ActiveLearningSimulationResultBuilder
+class ActiveLearningScreeningSimulationResultBuilder
     implements
-        Builder<ActiveLearningSimulationResult,
-            ActiveLearningSimulationResultBuilder> {
-  _$ActiveLearningSimulationResult? _$v;
+        Builder<ActiveLearningScreeningSimulationResult,
+            ActiveLearningScreeningSimulationResultBuilder> {
+  _$ActiveLearningScreeningSimulationResult? _$v;
 
   String? _campaignName;
   String? get campaignName => _$this._campaignName;
   set campaignName(String? campaignName) => _$this._campaignName = campaignName;
 
-  ListBuilder<num>? _iterationMetricsTotal;
-  ListBuilder<num> get iterationMetricsTotal =>
-      _$this._iterationMetricsTotal ??= ListBuilder<num>();
-  set iterationMetricsTotal(ListBuilder<num>? iterationMetricsTotal) =>
+  ListBuilder<String>? _potentialHits;
+  ListBuilder<String> get potentialHits =>
+      _$this._potentialHits ??= ListBuilder<String>();
+  set potentialHits(ListBuilder<String>? potentialHits) =>
+      _$this._potentialHits = potentialHits;
+
+  ListBuilder<BootstrappedMetric>? _iterationMetricsTotal;
+  ListBuilder<BootstrappedMetric> get iterationMetricsTotal =>
+      _$this._iterationMetricsTotal ??= ListBuilder<BootstrappedMetric>();
+  set iterationMetricsTotal(
+          ListBuilder<BootstrappedMetric>? iterationMetricsTotal) =>
       _$this._iterationMetricsTotal = iterationMetricsTotal;
 
-  ListBuilder<num>? _iterationMetricsSuggestions;
-  ListBuilder<num> get iterationMetricsSuggestions =>
-      _$this._iterationMetricsSuggestions ??= ListBuilder<num>();
+  ListBuilder<BootstrappedMetric>? _iterationMetricsSuggestions;
+  ListBuilder<BootstrappedMetric> get iterationMetricsSuggestions =>
+      _$this._iterationMetricsSuggestions ??= ListBuilder<BootstrappedMetric>();
   set iterationMetricsSuggestions(
-          ListBuilder<num>? iterationMetricsSuggestions) =>
+          ListBuilder<BootstrappedMetric>? iterationMetricsSuggestions) =>
       _$this._iterationMetricsSuggestions = iterationMetricsSuggestions;
 
-  ListBuilder<int>? _iterationTargetSuccesses;
-  ListBuilder<int> get iterationTargetSuccesses =>
-      _$this._iterationTargetSuccesses ??= ListBuilder<int>();
-  set iterationTargetSuccesses(ListBuilder<int>? iterationTargetSuccesses) =>
-      _$this._iterationTargetSuccesses = iterationTargetSuccesses;
+  ListBuilder<BuiltList<String>>? _iterationHits;
+  ListBuilder<BuiltList<String>> get iterationHits =>
+      _$this._iterationHits ??= ListBuilder<BuiltList<String>>();
+  set iterationHits(ListBuilder<BuiltList<String>>? iterationHits) =>
+      _$this._iterationHits = iterationHits;
 
   ListBuilder<int>? _iterationConsecutiveFailures;
   ListBuilder<int> get iterationConsecutiveFailures =>
@@ -134,18 +152,19 @@ class ActiveLearningSimulationResultBuilder
           ListBuilder<ActiveLearningIterationResult>? iterationResults) =>
       _$this._iterationResults = iterationResults;
 
-  ActiveLearningSimulationResultBuilder() {
-    ActiveLearningSimulationResult._defaults(this);
+  ActiveLearningScreeningSimulationResultBuilder() {
+    ActiveLearningScreeningSimulationResult._defaults(this);
   }
 
-  ActiveLearningSimulationResultBuilder get _$this {
+  ActiveLearningScreeningSimulationResultBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _campaignName = $v.campaignName;
+      _potentialHits = $v.potentialHits.toBuilder();
       _iterationMetricsTotal = $v.iterationMetricsTotal?.toBuilder();
       _iterationMetricsSuggestions =
           $v.iterationMetricsSuggestions?.toBuilder();
-      _iterationTargetSuccesses = $v.iterationTargetSuccesses?.toBuilder();
+      _iterationHits = $v.iterationHits?.toBuilder();
       _iterationConsecutiveFailures =
           $v.iterationConsecutiveFailures?.toBuilder();
       _stopReasons = $v.stopReasons?.toBuilder();
@@ -156,28 +175,30 @@ class ActiveLearningSimulationResultBuilder
   }
 
   @override
-  void replace(ActiveLearningSimulationResult other) {
-    _$v = other as _$ActiveLearningSimulationResult;
+  void replace(ActiveLearningScreeningSimulationResult other) {
+    _$v = other as _$ActiveLearningScreeningSimulationResult;
   }
 
   @override
-  void update(void Function(ActiveLearningSimulationResultBuilder)? updates) {
+  void update(
+      void Function(ActiveLearningScreeningSimulationResultBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  ActiveLearningSimulationResult build() => _build();
+  ActiveLearningScreeningSimulationResult build() => _build();
 
-  _$ActiveLearningSimulationResult _build() {
-    _$ActiveLearningSimulationResult _$result;
+  _$ActiveLearningScreeningSimulationResult _build() {
+    _$ActiveLearningScreeningSimulationResult _$result;
     try {
       _$result = _$v ??
-          _$ActiveLearningSimulationResult._(
+          _$ActiveLearningScreeningSimulationResult._(
             campaignName: BuiltValueNullFieldError.checkNotNull(campaignName,
-                r'ActiveLearningSimulationResult', 'campaignName'),
+                r'ActiveLearningScreeningSimulationResult', 'campaignName'),
+            potentialHits: potentialHits.build(),
             iterationMetricsTotal: _iterationMetricsTotal?.build(),
             iterationMetricsSuggestions: _iterationMetricsSuggestions?.build(),
-            iterationTargetSuccesses: _iterationTargetSuccesses?.build(),
+            iterationHits: _iterationHits?.build(),
             iterationConsecutiveFailures:
                 _iterationConsecutiveFailures?.build(),
             stopReasons: _stopReasons?.build(),
@@ -186,12 +207,14 @@ class ActiveLearningSimulationResultBuilder
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'potentialHits';
+        potentialHits.build();
         _$failedField = 'iterationMetricsTotal';
         _iterationMetricsTotal?.build();
         _$failedField = 'iterationMetricsSuggestions';
         _iterationMetricsSuggestions?.build();
-        _$failedField = 'iterationTargetSuccesses';
-        _iterationTargetSuccesses?.build();
+        _$failedField = 'iterationHits';
+        _iterationHits?.build();
         _$failedField = 'iterationConsecutiveFailures';
         _iterationConsecutiveFailures?.build();
         _$failedField = 'stopReasons';
@@ -200,7 +223,9 @@ class ActiveLearningSimulationResultBuilder
         _iterationResults?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
-            r'ActiveLearningSimulationResult', _$failedField, e.toString());
+            r'ActiveLearningScreeningSimulationResult',
+            _$failedField,
+            e.toString());
       }
       rethrow;
     }
