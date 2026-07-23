@@ -77,14 +77,14 @@ class ALIterationCommand extends BiocentralCommand<ActiveLearningIterationResult
   final BiocentralAPIRepository _apiRepository;
   final ALRepository _alRepository;
   final ALCampaign _campaign;
-  final ActiveLearningIterationConfig _iterationConfig;
+  final ActiveLearningScreeningIterationConfig _iterationConfig;
 
   ALIterationCommand(
       {required BiocentralDatabase biocentralDatabase,
       required BiocentralAPIRepository apiRepository,
       required ALRepository alRepository,
       required ALCampaign campaign,
-      required ActiveLearningIterationConfig iterationConfig})
+      required ActiveLearningScreeningIterationConfig iterationConfig})
       : _biocentralDatabase = biocentralDatabase,
         _apiRepository = apiRepository,
         _alRepository = alRepository,
