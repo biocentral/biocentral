@@ -1,10 +1,9 @@
-import 'package:biocentral/sdk/util/library_extensions_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 
 class ALCampaign {
-  final ActiveLearningCampaignConfig config;
+  final ActiveLearningScreeningCampaignConfig config;
   final String columnName; // Database Column used for the campaign
-  final List<(ActiveLearningIterationConfig, ActiveLearningIterationResult)> iterationResults;
+  final List<(ActiveLearningScreeningIterationConfig, ActiveLearningIterationResult)> iterationResults;
 
   ALCampaign({required this.config, required this.columnName, required this.iterationResults});
 
@@ -12,12 +11,12 @@ class ALCampaign {
 
   factory ALCampaign.deserialize(Map<String, dynamic> jsonMap) {
     return ALCampaign(
-      config: ALCampaignConfigSerial.deserialize(jsonMap['config']),
+      config: ALScreeningCampaignConfigSerial.deserialize(jsonMap['config']),
       columnName: jsonMap['columnName'],
       iterationResults: (jsonMap['iterationResults'] as List<dynamic>)
           .map(
             (item) => (
-              ALIterationConfigSerial.deserialize(item['config']),
+              ALScreeningIterationConfigSerial.deserialize(item['config']),
               ALIterationResultSerial.deserialize(item['result']),
             ),
           )
@@ -29,7 +28,7 @@ class ALCampaign {
     return config.name + config.embedderName + columnName + config.hashCode.toString();
   }
 
-  void addIterationResult(ActiveLearningIterationConfig config, ActiveLearningIterationResult result) {
+  void addIterationResult(ActiveLearningScreeningIterationConfig config, ActiveLearningIterationResult result) {
     iterationResults.add((config, result));
   }
 

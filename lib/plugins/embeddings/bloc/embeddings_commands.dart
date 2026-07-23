@@ -328,7 +328,8 @@ final class LoadProjectionsCommand extends BiocentralCommand<List<Projection>> {
         return;
       }
       final protspaceMap = jsonDecode(fileData.content);
-      final projections = ProtspaceFileHandler.parse(protspaceMap);
+      final projectionResult = ProjectionResultSerial.deserialize(protspaceMap);
+      final projections = ProtspaceFileHandler.fromProjectionResult(projectionResult);
       if (projections.isEmpty) {
         yield log.errored(error: 'Could not find any projections in file!');
         return;
@@ -431,7 +432,7 @@ final class CalculateProjectionsCommand extends BiocentralCommand<List<Projectio
     await for (final (dto, projectionDataResponse) in biocentralTask.run()) {
       if (projectionDataResponse != null) {
         // TODO Projection.fromProstspace()
-        projections = ProtspaceFileHandler.parse(projectionDataResponse);
+        projections = ProtspaceFileHandler.fromProjectionResult(projectionDataResponse);
       }
       if (projections != null) {
         break;

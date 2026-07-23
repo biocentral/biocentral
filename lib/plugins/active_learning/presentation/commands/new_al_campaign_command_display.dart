@@ -38,7 +38,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
   double? _targetUb;
   String? _desiredTargetClass;
 
-  ActiveLearningIterationConfig? _iterationConfig;
+  ActiveLearningScreeningIterationConfig? _iterationConfig;
 
   @override
   void initState() {
@@ -77,12 +77,12 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
     return false;
   }
 
-  ActiveLearningCampaignConfig? buildCampaignConfig() {
+  ActiveLearningScreeningCampaignConfig? buildCampaignConfig() {
     if (_selectedOptimizationMode != null &&
         _selectedEmbedder != null &&
         _selectedSurrogateModel != null &&
         (_desiredTargetClass != null || isContinuousOptimizationModeSpecified())) {
-      return ActiveLearningCampaignConfig(
+      return ActiveLearningScreeningCampaignConfig(
         (b) => b
           ..name = _campaignName
           ..embedderName = _selectedEmbedder!.wireName

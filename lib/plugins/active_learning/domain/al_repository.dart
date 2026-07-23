@@ -42,7 +42,7 @@ class ALRepository with AutoSaving, StreamableDatabase<List<ALCampaign>> {
     updateStream();
   }
 
-  void addNewResult(ALCampaign campaign, ActiveLearningIterationConfig config, ActiveLearningIterationResult result) {
+  void addNewResult(ALCampaign campaign, ActiveLearningScreeningIterationConfig config, ActiveLearningIterationResult result) {
     campaign.addIterationResult(config, result);
     addNewCampaign(campaign); // Simply overwrite existing campaign
   }

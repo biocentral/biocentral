@@ -1,40 +1,28 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral/plugins/embeddings/model/projection.dart';
 
 class ProtspaceFileHandler {
-  static List<Projection> parse(Map<String, dynamic> protspaceMap) {
+  static List<Projection> fromProjectionResult(ProjectionResult projectionResult) {
     final List<Projection> result = [];
 
-    // Parse Protein Features (if needed for validation)
-    final proteinFeaturesRaw = protspaceMap['protein_features'];
-    final Map<String, dynamic> proteinFeatures =
-        proteinFeaturesRaw is Map<String, dynamic> ? proteinFeaturesRaw : (proteinFeaturesRaw?.asMap ?? {});
-    final List<dynamic> proteinIds = proteinFeatures['protein_id'] ?? [];
+    final proteinIds = projectionResult.proteinAnnotations.proteinId;
 
-    // Parse Projections Metadata
-    final metadataRaw = protspaceMap['projections_metadata'];
-    final Map<String, dynamic> metadata =
-        metadataRaw is Map<String, dynamic> ? metadataRaw : (metadataRaw?.asMap ?? {});
-    final List<dynamic> projNames = metadata['projection_name'] ?? [];
-    final List<dynamic> dimensions = metadata['dimensions'] ?? [];
-    final List<dynamic> infoJsons = metadata['info_json'] ?? [];
+    final projNames = projectionResult.projectionsMetadata.projectionName;
+    final infoJsons = projectionResult.projectionsMetadata.infoJson;
 
-    // Parse Projections Data
-    final projDataRaw = protspaceMap['projections_data'];
-    final Map<String, dynamic> projData =
-        projDataRaw is Map<String, dynamic> ? projDataRaw : (projDataRaw?.asMap ?? {});
-    final List<dynamic> projectionNames = projData['projection_name'] ?? [];
-    final List<dynamic> identifiers = projData['identifier'] ?? [];
-    final List<dynamic> xCoords = projData['x'] ?? [];
-    final List<dynamic> yCoords = projData['y'] ?? [];
-    final List<dynamic> zCoords = projData['z'] ?? [];
+    final projectionNames = projectionResult.projectionsData.projectionName;
+    final identifiers = projectionResult.projectionsData.identifier;
+    final xCoords = projectionResult.projectionsData.x;
+    final yCoords = projectionResult.projectionsData.y;
+    final zCoords = projectionResult.projectionsData.z;
 
     // Group data by unique projection names
     final Map<String, List<int>> projectionIndices = {};
     for (int i = 0; i < projectionNames.length; i++) {
-      final projName = projectionNames[i].toString();
+      final projName = projectionNames[i];
       projectionIndices.putIfAbsent(projName, () => []).add(i);
     }
 
@@ -45,7 +33,7 @@ class ProtspaceFileHandler {
       final List<List<double>> coords = [];
 
       for (final idx in indices) {
-        ids.add(identifiers[idx].toString());
+        ids.add(identifiers[idx]);
 
         final List<double> coordinates = [];
 
@@ -53,9 +41,11 @@ class ProtspaceFileHandler {
         final y = yCoords[idx];
         final z = zCoords[idx];
 
-        if (x != null) coordinates.add((x is num) ? x.toDouble() : double.parse(x.toString()));
-        if (y != null) coordinates.add((y is num) ? y.toDouble() : double.parse(y.toString()));
-        if (z != null) coordinates.add((z is num) ? z.toDouble() : double.parse(z.toString()));
+        coordinates.add(x.toDouble());
+        coordinates.add(y.toDouble());
+        if (z != null) {
+          coordinates.add(z.toDouble());
+        }
 
         coords.add(coordinates);
       }
@@ -65,9 +55,7 @@ class ProtspaceFileHandler {
       final Map<String, dynamic> config;
       if (metadataIdx >= 0 && metadataIdx < infoJsons.length) {
         final configRaw = infoJsons[metadataIdx];
-        config = configRaw is Map<String, dynamic>
-            ? configRaw
-            : (jsonDecode(configRaw) as Map<String, dynamic>? ?? <String, String>{});
+        config = jsonDecode(configRaw) as Map<String, dynamic>? ?? <String, String>{};
       } else {
         config = <String, String>{};
       }

@@ -9,7 +9,7 @@ class AlIterationConfigDisplay extends StatefulWidget {
   final int maxNumberPossibleSuggestions;
   final List<SequenceData> iterationData;
 
-  final void Function(ActiveLearningIterationConfig?) onChanged;
+  final void Function(ActiveLearningScreeningIterationConfig?) onChanged;
 
   const AlIterationConfigDisplay({
     required this.iteration,
@@ -39,9 +39,9 @@ class _AlIterationConfigDisplayState extends State<AlIterationConfigDisplay> {
     _nSuggestions = min(10, widget.maxNumberPossibleSuggestions);
   }
 
-  ActiveLearningIterationConfig? collectConfig() {
+  ActiveLearningScreeningIterationConfig? collectConfig() {
     if (_nSuggestions != null && _nSuggestions! > 0 && _exploitationExplorationValue != null) {
-      return ActiveLearningIterationConfig(
+      return ActiveLearningScreeningIterationConfig(
         (b) => b
           ..iteration = widget.iteration
           ..coefficient = _exploitationExplorationValue

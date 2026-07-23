@@ -40,7 +40,7 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
 
   ALCampaign? _selectedCampaign;
 
-  ActiveLearningIterationConfig? _iterationConfig;
+  ActiveLearningScreeningIterationConfig? _iterationConfig;
 
   @override
   void initState() {
