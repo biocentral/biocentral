@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
 from biotrainer.output_files import OutputData
 from biotrainer.input_files import BiotrainerSequenceRecord
-from typing import Any, Dict, Callable, Generator, Optional, List, Tuple
+from typing import Any, Dict, Callable, Generator, Optional, List, Tuple, Union
 
 from .task_utils import run_subtask_util
 
@@ -58,6 +58,9 @@ class TaskDTO(BaseModel):
     embedded_sequences: Optional[Dict[str, str]] = None
     embeddings: Optional[List[BiotrainerSequenceRecord]] = None
     embeddings_file: Optional[str] = None
+
+    #clustering
+    clustered_data: Optional[Dict[str, List[str]]] = None
 
     # projections
     projection_result: Optional[Dict[str, Any]] = None
