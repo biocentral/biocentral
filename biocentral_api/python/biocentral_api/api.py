@@ -35,8 +35,8 @@ class BiocentralAPI:
 
     DEFAULT_LOCAL_URL = "http://localhost:9540"
     API_URL = "https://biocentral.rostlab.org"
-    MIN_API_VERSION = "1.0.0"
-    MAX_API_VERSION = "2.0.0"
+    MIN_API_VERSION = "2.0.0"
+    MAX_API_VERSION = "3.0.0"
     RECOMMENDED_MAX_SEQUENCE_LENGTH = 1024
 
     def __init__(self,
