@@ -1,0 +1,34 @@
+---
+title: ProtT5Conservation
+description: Per-residue evolutionary conservation state prediction.
+---
+
+### Summary
+
+- **Model name:** `ProtT5Conservation`
+- **Task:** Protein residue conservation prediction (VESPA)
+- **Protocol:** `residue_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `926.7 KB`
+
+### Outputs
+
+#### conservation
+
+- **Description:** Per-residue evolutionary conservation prediction
+- **Output type:** `per_residue`
+- **Value type:** `str`
+
+| Class range | Label | Meaning |
+| --- | --- | --- |
+| `0` to `3` | Variable | Residue is evolutionarily variable |
+| `4` to `6` | Average | Residue is equally conserved and variable |
+| `7` to `8` | Conserved | Residue is evolutionarily conserved |
+
+### References
+
+- **Authors:** Céline Marquet; Michael Heinzinger; Tobias Olenyi; Christian Dallago; Kyra Erckert; Michael Bernhofer; Dmitrii Nechaev; Burkhard Rost
+- **Model link:** [github.com/Rostlab/VESPA](https://github.com/Rostlab/VESPA)
+- **Citation:** [doi.org/10.1007/s00439-021-02411-y](https://doi.org/10.1007/s00439-021-02411-y)
+- **License:** `AGPL-3.0`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

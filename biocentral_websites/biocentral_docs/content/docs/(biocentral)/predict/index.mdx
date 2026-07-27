@@ -1,0 +1,21 @@
+---
+title: Predict Module
+description: Create predictions from protein sequences using pretrained models.
+---
+
+The `predict` module provides sequence-level, residue-level, and mutation-level inference for protein analysis.
+
+### Model catalog overview
+
+| Model                                                                              | Primary task                                         | Protocol            | Output granularity |
+|------------------------------------------------------------------------------------|------------------------------------------------------|---------------------|--------------------|
+| [TMbed](/docs/predict/tmbed)                                                                   | Transmembrane topology prediction                    | `residue_to_class`  | Per residue        |
+| [LightAttentionMembrane](/docs/predict/lightattention-membrane)                                | Membrane association classification                  | `residues_to_class` | Per sequence       |
+| [LightAttentionSubcellularLocalization](/docs/predict/lightattention-subcellular-localization) | Subcellular localization classification              | `residues_to_class` | Per sequence       |
+| [Seth](/docs/predict/seth)                                                                     | Disorder scoring (CheZOD-based)                      | `residue_to_value`  | Per residue        |
+| [UdonPred](/docs/predict/udonpred)                                                             | Disorder scoring (TriZOD)                            | `residue_to_value`  | Per residue        |
+| [BindEmbed](/bindembed)                                                            | Ligand-binding residue prediction                    | `residue_to_class`  | Per residue        |
+| [ProtT5Conservation](/docs/predict/prott5-conservation)                                        | Residue conservation estimation                      | `residue_to_class`  | Per residue        |
+| [ProtT5SecondaryStructure](/docs/predict/prott5-secondary-structure)                           | Secondary structure prediction (3-state and 8-state) | `residue_to_class`  | Per residue        |
+| [VespaG](/docs/predict/vespag)                                                                 | Variant effect prediction                            | `residue_to_class`  | Mutation           |
+| [ExoTox](/docs/predict/exotox)                                                                  | Exotoxin classification                              | `sequence_to_class` | Per sequence       |

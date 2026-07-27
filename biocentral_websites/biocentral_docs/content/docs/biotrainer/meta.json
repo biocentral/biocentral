@@ -1,0 +1,9 @@
+{
+  "title": "biotrainer",
+  "root": true,
+  "pages": ["index",
+    "---Autoeval---", "autoeval_overview",
+    "---BioEngineer---", "",
+    "---Training---", "training_first_steps", "training_config_file_options_overview", "training_config_file_options", "training_data_standardization", "training_cli", "training_architecture_overview",
+    "---Support---", "troubleshooting"]
+}
