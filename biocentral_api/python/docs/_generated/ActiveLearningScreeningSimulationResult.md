@@ -1,0 +1,37 @@
+# ActiveLearningScreeningSimulationResult
+
+Result of a simulated active learning screening campaign - used as a mutable object to store intermediate results
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**campaign_name** | **str** | Name of the simulated active learning campaign | 
+**potential_hits** | **List[str]** | Potential targets (hits) to find in the dataset given the campaign config | 
+**iteration_metrics_total** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Total metrics (mae/acc) for each iteration on all data | [optional] 
+**iteration_metrics_suggestions** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Metrics (mae/acc) for each iteration on suggested data | [optional] 
+**iteration_hits** | **List[List[str]]** | Successful targets (hits) found in each iteration | [optional] 
+**iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
+**stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (convergence criteria reached) | [optional] 
+**iteration_results** | [**List[ActiveLearningIterationResult]**](ActiveLearningIterationResult.md) | List of active learning iteration results | [optional] 
+
+## Example
+
+```python
+from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
+
+# TODO update the JSON string below
+json = "{}"
+# create an instance of ActiveLearningScreeningSimulationResult from a JSON string
+active_learning_screening_simulation_result_instance = ActiveLearningScreeningSimulationResult.from_json(json)
+# print the JSON string representation of the object
+print(ActiveLearningScreeningSimulationResult.to_json())
+
+# convert the object into a dict
+active_learning_screening_simulation_result_dict = active_learning_screening_simulation_result_instance.to_dict()
+# create an instance of ActiveLearningScreeningSimulationResult from a dict
+active_learning_screening_simulation_result_from_dict = ActiveLearningScreeningSimulationResult.from_dict(active_learning_screening_simulation_result_dict)
+```
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+
