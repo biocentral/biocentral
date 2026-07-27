@@ -1,0 +1,56 @@
+from typing import Any, Dict, List
+
+from .toxicity import ExoTox
+from .binding import BindEmbed
+from .base_model import BaseModel
+from .variant_effect import VespaG
+from .disorder import Seth, UdonPred
+from .conservation import ProtT5Conservation
+from .membrane import TMbed, LightAttentionMembrane
+from .base_model.model_metadata import ModelMetadata
+from .secondary_structure import ProtT5SecondaryStructure
+from .localization import LightAttentionSubcellularLocalization
+from .biocentral_prediction_model import BiocentralPredictionModel
+
+MODEL_REGISTRY: Dict[BiocentralPredictionModel, Any] = {
+    model_name: model_class
+    for model_name, model_class in {
+        TMbed.get_metadata().name: TMbed,
+        LightAttentionMembrane.get_metadata().name: LightAttentionMembrane,
+        LightAttentionSubcellularLocalization.get_metadata().name: LightAttentionSubcellularLocalization,
+        Seth.get_metadata().name: Seth,
+        UdonPred.get_metadata().name: UdonPred,
+        BindEmbed.get_metadata().name: BindEmbed,
+        ProtT5Conservation.get_metadata().name: ProtT5Conservation,
+        ProtT5SecondaryStructure.get_metadata().name: ProtT5SecondaryStructure,
+        VespaG.get_metadata().name: VespaG,
+        ExoTox.get_metadata().name: ExoTox,
+    }.items()
+}
+
+
+def filter_models(
+    model_names: List[BiocentralPredictionModel],
+) -> Dict[BiocentralPredictionModel, Any]:
+    assert all([model_name in MODEL_REGISTRY for model_name in model_names]), (
+        "Invalid model name, this should have been caught in the endpoint"
+    )
+
+    return {
+        model_name: MODEL_REGISTRY[model_name]
+        for model_name in model_names
+        if model_name in MODEL_REGISTRY
+    }
+
+
+def get_metadata_for_all_models() -> List[ModelMetadata]:
+    return [model.get_metadata() for model in MODEL_REGISTRY.values()]
+
+
+__all__ = [
+    "filter_models",
+    "get_metadata_for_all_models",
+    "BaseModel",
+    "BiocentralPredictionModel",
+    "ModelMetadata",
+]

@@ -1,0 +1,253 @@
+name: Test
+
+on:
+  push:
+    branches: [ 'main', 'develop']
+  pull_request:
+    branches: [ 'main', 'develop' ]
+  workflow_dispatch:
+    inputs:
+      skip_unit_tests:
+        description: 'Skip unit tests'
+        required: false
+        default: false
+        type: boolean
+      reason:
+        description: 'Why are you running this?'
+        required: false
+        default: 'Manual trigger'
+
+# Required for GHA cache to work on pull requests
+permissions:
+  contents: read
+  packages: read
+  actions: write
+
+jobs:
+  unit-test:
+    if: ${{ github.event.inputs.skip_unit_tests != 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ '3.12' ]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Configure Git to use HTTPS for git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Run pytest (unit tests) with coverage
+        run: |
+          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning" \
+            --cov=biocentral_server/embeddings \
+            --cov=biocentral_server/predict \
+            --cov=biocentral_server/custom_models \
+            --cov-branch \
+            --cov-report=xml \
+            --cov-report=term-missing
+
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 24576
+          swap-size-mb: 1024
+          temp-reserve-mb: 16384
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          overprovision-lvm: 'true'
+
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
+      - name: Move Docker storage to large partition
+        run: |
+          sudo systemctl stop docker.service
+          sudo systemctl stop docker.socket
+          sudo mkdir -p /home/runner/work/docker
+          sudo mv /var/lib/docker /home/runner/work/docker
+          sudo ln -s /home/runner/work/docker /var/lib/docker
+          sudo systemctl start docker.service
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git to use HTTPS for git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.26"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          cache-local-path: "/tmp/.uv-cache"
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker image
+        run: docker pull ghcr.io/${{ github.repository }}/biocentral-server:ci
+
+      - name: Prepare bind mount source directories
+        run: |
+          mkdir -p \
+            "$HOME/.cache/huggingface" \
+            ./storage/embeddings/postgres \
+            ./storage/files \
+            ./storage/server_temp_files \
+            ./storage/model-repository \
+            ./storage/redis \
+            ./assets
+
+      - name: Start services with Docker Compose
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.ci --env-file .env.local up -d --wait
+        env:
+          CI_IMAGE: ghcr.io/${{ github.repository }}/biocentral-server:ci
+          MODEL_DOWNLOADS: |
+            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+            _bind_embed_cv3:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
+          timeout-minutes: 10
+
+      - name: Run integration tests
+        run: uv run pytest tests/integration/ -v -m "not triton" --reruns 1 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning"  --capture=tee-sys
+
+      - name: Show logs
+        if: always()
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.ci logs
+
+      - name: Stop services
+        if: always()
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.ci down -v
+
+  property-oracle-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 24576
+          swap-size-mb: 1024
+          temp-reserve-mb: 8192
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          overprovision-lvm: 'true'
+
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Load environment variables from .env.ci
+        run: cat .env.ci >> $GITHUB_ENV
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git to use HTTPS for git dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          cache-local-path: "/tmp/.uv-cache"
+
+      - name: Install dependencies (CPU-only PyTorch)
+        run: uv sync --no-install-project --index-strategy unsafe-best-match
+        env:
+          UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run setup container with Docker Compose
+        run: |
+          docker compose -f docker-compose.ci.yml --env-file .env.ci up triton-model-init
+        env:
+          MODEL_DOWNLOADS: |
+            _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+            _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+            _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+            _bind_embed_cv3:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+            _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+            _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+            _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+            _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+            _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+            _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+            prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+            seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
+          timeout-minutes: 10
+
+      - name: Run property oracle tests
+        run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"

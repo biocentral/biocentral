@@ -1,0 +1,157 @@
+import torch
+import numpy as np
+
+from typing import List, Dict
+from biotrainer_core.data_classes import Protocol
+
+from ..base_model import (
+    BaseModel,
+    ModelMetadata,
+    ModelOutput,
+    OutputClass,
+    OutputType,
+    LocalOnnxInferenceMixin,
+    TritonInferenceMixin,
+)
+from ..biocentral_prediction_model import BiocentralPredictionModel
+
+from ....server_management import Prediction
+
+
+class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+    """ProtT5Conservation model for residue conservation prediction.
+
+    Supports both ONNX (local) and Triton (remote) backends.
+    Simple per-residue prediction model.
+    """
+
+    # Triton configuration
+
+    @staticmethod
+    def TRITON_MODEL_NAME() -> str:
+        """Name of model in Triton repository."""
+        return "prott5_cons"
+
+    @staticmethod
+    def TRITON_INPUT_NAMES() -> List[str]:
+        """Names of input tensors."""
+        return ["input"]
+
+    @staticmethod
+    def TRITON_OUTPUT_NAMES() -> List[str]:
+        """Names of output tensors."""
+        return ["output"]
+
+    def __init__(self, batch_size, backend: str = "onnx"):
+        super().__init__(
+            batch_size=batch_size,
+            backend=backend,
+            uses_ensemble=False,
+            requires_mask=False,
+            requires_transpose=False,
+        )
+
+    @staticmethod
+    def get_metadata() -> ModelMetadata:
+        return ModelMetadata(
+            name=BiocentralPredictionModel.ProtT5Conservation,
+            protocol=Protocol.residue_to_class,
+            description="VESPA model for protein residue conservation prediction",
+            authors="C{'{e}}line Marquet and Michael Heinzinger and Tobias Olenyi and Christian Dallago and Kyra Erckert and Michael Bernhofer and Dmitrii Nechaev and Burkhard Rost",
+            model_link="https://github.com/Rostlab/VESPA",
+            citation="https://doi.org/10.1007/s00439-021-02411-y",
+            licence="AGPL-3.0",
+            outputs=[
+                ModelOutput(
+                    name="conservation",
+                    description="Per-residue evolutionary conservation prediction, "
+                    "as defined by 10.1093/bioinformatics/bth070",
+                    output_type=OutputType.PER_RESIDUE,
+                    value_type="str",
+                    classes=[
+                        OutputClass(
+                            shortcut="0",
+                            label="Variable",
+                            description="Residue is evolutionarily variable",
+                        ),
+                        OutputClass(
+                            shortcut="1",
+                            label="Variable",
+                            description="Residue is evolutionarily variable",
+                        ),
+                        OutputClass(
+                            shortcut="2",
+                            label="Variable",
+                            description="Residue is evolutionarily variable",
+                        ),
+                        OutputClass(
+                            shortcut="3",
+                            label="Variable",
+                            description="Residue is evolutionarily variable",
+                        ),
+                        OutputClass(
+                            shortcut="4",
+                            label="Average",
+                            description="Residue is equally conserved and variable",
+                        ),
+                        OutputClass(
+                            shortcut="5",
+                            label="Average",
+                            description="Residue is equally conserved and variable",
+                        ),
+                        OutputClass(
+                            shortcut="6",
+                            label="Average",
+                            description="Residue is equally conserved and variable",
+                        ),
+                        OutputClass(
+                            shortcut="7",
+                            label="Conserved",
+                            description="Residue is evolutionarily conserved",
+                        ),
+                        OutputClass(
+                            shortcut="8",
+                            label="Conserved",
+                            description="Residue is evolutionarily conserved",
+                        ),
+                    ],
+                )
+            ],
+            model_size="926.7 KB",
+            training_data_link="http://data.bioembeddings.com/public/design/",
+            embedder="Rostlab/prot_t5_xl_uniref50",
+        )
+
+    def predict(
+        self, sequences: Dict[str, str], embeddings
+    ) -> Dict[str, List[Prediction]]:
+        self._ensure_backend_initialized()
+        inputs = self._prepare_inputs(embeddings=embeddings)
+        embedding_ids = list(embeddings.keys())
+        results = []
+        for batch in inputs:
+            if self.backend == "onnx":
+                # ONNX returns list of outputs
+                cons_Yhat = self.model.run(None, batch)
+                cons_Yhat = torch.from_numpy(np.float32(np.stack(cons_Yhat[0])))
+                cons_Yhat = self._finalize_raw_prediction(
+                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+                )
+
+            elif self.backend == "triton":
+                # Triton returns numpy array directly
+                raw_output = self._run_inference(batch)
+                # raw_output is (batch, seq_len, num_classes)
+                cons_Yhat = torch.from_numpy(raw_output)
+                cons_Yhat = self._finalize_raw_prediction(
+                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+                )
+            else:
+                raise ValueError(f"Unknown backend: {self.backend}")
+
+            results.extend(cons_Yhat)
+
+        model_output = {"conservation": results}
+        return self._post_process(
+            model_output=model_output, embedding_ids=embedding_ids
+        )

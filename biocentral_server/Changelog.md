@@ -1,0 +1,109 @@
+# biocentral_server Changelog
+
+## v2.0.0
+
+- Updating to biotrainer-core
+- Updating dependencies
+- Improving projection API
+- Adding clustering task (thanks to Sophie Tabery!)
+- Introduced `ProjectionResult` object and updated `ProtSpace` dependency.
+- Enhanced the engineering pipeline with a basic implementation.
+- Implemented endpoint differentiation between engineering and screening functionality.
+- Introduced `LENGTH_EMBEDDER` as a new `CommonEmbedder`.
+- Refactored active learning configurations for clarity and consistency.
+- Resolved multiple bugs and improved overall code stability.
+
+## v1.2.1
+
+- Updated file management to use a local storage backend, removing SeaweedFS container dependency.
+- Added verification of file management at application startup.
+- Enhanced the landing page with a link to the tour and an icon for better user experience.
+- Suppressed unnecessary FAISS Info log messages.
+- Set assets data to read-only for improved security.
+- Added missing server port to `.env` files for consistency and clarified usage of profiles for local debugging.
+
+## v.1.2.0
+
+- Added new UdonPred model (https://github.com/davidwagemann/udonpred) for TriZOD disorder predictions
+- Refactored bay_opt module name to active_learning
+- Refactored al_pipeline to use `junban` scientific workflow management
+- Removed code duplication for embedding by adding a `PreEmbedMixin` for tasks
+- Removed redundant declarations in docker compose files by using the `override` pattern
+- Updating dependencies
+
+## v1.1.2
+
+- Resolved half precision embedding issues by standardizing terminology in the database and modifying handling to use
+  only `biotrainer`.
+- Replaced print statements with proper logging in the Triton Embedder for better debugging and readability.
+- Updated the README to include a usage section.
+- Fixed citation formatting errors.
+- Refined Docker configuration to use proper volumes instead of copying assets, improving build practices.
+
+## v1.1.1
+
+- Fixed embedding deduplication, simplification, and dict creation for various tasks.
+- Addressed device handling and ensured proper train set assignment in simulations.
+- Removed deprecated functions and streamlined embeddings-related code.
+- Introduced centralized device service for unified task handling.
+- Refactored task queue settings for stability and error logging.
+- Added scheduled tasks for database cleanup and improved monitoring.
+- Improved metrics collection for both service statistics and research stats.
+- Migrated monitoring to Redis with enhanced persistence.
+- Added unit and integration tests for core functionalities by @denizozturk95.
+
+## v1.1.0
+
+- Refactored and added common embedders, enums, and dataclasses for API consistency.
+- Introduced debug mode for rate limiting in local deployment.
+- Improved `SequenceTrainingData` model by making `label` optional and added validation for prediction sets.
+- Simplified embeddings for training by using input data directly, added `BiotrainerTritonEmbedder` and updated naming.
+- Added seed and reproducibility settings to AL configurations and tasks.
+- Extended simulation task with real-world inspired convergence configurations and consistent iteration index usage.
+- Added new features like `did_converge` flag, iteration tracking options, and improvements in `al_simulation_task`.
+- Unified Gaussian Process (GP) models while introducing a random baseline model.
+- Improved AL DTO handling with new result classes.
+- Various minor fixes, including modularity enhancements and overall cleanup.
+- Updating dependencies.
+- Paper review version.
+
+## v1.0.0
+
+- Fixed configuration conversion issues and various `.env` path resolutions.
+- Updated Prometheus configurations, adding support for a separate volume and time series metrics logging.
+- Added features like rate limiting and a middleware for body size limitation (default: 200MB).
+- Enhanced robustness in prediction endpoints, handling versatile input formats and refining how model input details are
+  processed.
+- Introduced support for exotox and new models such as "la membrane" and Vespag.
+- Resolved async-related user ID retrieval issues and associated task DTO enhancements.
+- Updated Docker-related files, improving setup and health checks in Docker Compose.
+- Various refactorings for better structure, including moving temporary methods, cleaning unused modules, and
+  transforming prediction and embedding handling.
+- Paper submission version.
+
+## v0.2.5
+
+* Improving docker compose setup
+* Adding initializers to handle external data download, storage and preprocessing
+* Adding predict module with 8 new prediction models, a prediction and a metadata endpoint
+
+## v0.2.0
+
+* Greatly improving task handling by adding resume functionality
+* Switching to docker compose setup, hence removing pyinstaller and frontend
+* Improving AutoEval Task to plm leaderboard v2
+
+## v0.1.2
+
+* Adding embeddings database (PostgreSQL/TinyDB)
+* Adding prototype of plm_eval module based on FLIP and auto_eval
+* Improving process management
+
+## v0.1.1
+
+* Improving cross-platform compatibility (icon, building)
+* Adding CI-pipeline for building, testing and release
+
+## v0.1.0
+
+* Initial alpha release

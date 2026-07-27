@@ -1,0 +1,100 @@
+# CI-specific Docker Compose
+# Extends the base docker-compose.yml with CI-specific overrides
+
+services:
+  embeddings-db:
+    extends:
+      file: docker-compose.yml
+      service: embeddings-db
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+  redis-jobs:
+    extends:
+      file: docker-compose.yml
+      service: redis-jobs
+    command: redis-server --save "" --appendonly no
+    ports:
+      - "${REDIS_JOBS_PORT}:6379"
+
+  triton-model-init:  # Necessary to download local onnx files
+    extends:
+      file: docker-compose.yml
+      service: triton-model-init
+
+  biocentral-server:
+    extends:
+      file: docker-compose.yml
+      service: biocentral-server
+    image: ${CI_IMAGE:-biocentral-server:ci}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-9540}:9540"
+    environment:
+      USE_TRITON: ${USE_TRITON:-false}
+      SERVER_DEBUG: ${SERVER_DEBUG:-true}
+    deploy: !reset []
+
+  biocentral-worker:
+    extends:
+      file: docker-compose.yml
+      service: biocentral-worker
+    image: ${CI_IMAGE:-biocentral-server:ci}
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          devices: !reset []  # Empty array to override GPU requirement
+    environment:
+      USE_TRITON: ${USE_TRITON:-false}
+
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${EMBEDDINGS_DATA_DIR}
+  file_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FILES_DATA_DIR:-./storage/files}
+  temp_server_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SERVER_TEMP_DATA_DIR}
+  huggingface_models_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HUGGINGFACE_MODELS_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_DIR:-./storage/redis}
+  assets_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ASSETS_DIR:-./assets}
+networks:
+  biocentral-network:
+    driver: bridge

@@ -1,0 +1,203 @@
+x-app-defaults: &app-defaults
+  networks:
+    - biocentral-network
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+  environment: &app-env
+    POSTGRES_HOST: embeddings-db
+    POSTGRES_DB: ${POSTGRES_DB}
+    POSTGRES_USER: ${POSTGRES_USER}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    REDIS_JOBS_HOST: redis-jobs
+    HF_HOME: /app/huggingface_models
+    FILES_DATA_DIR: /app/storage/files
+    ASSETS_DIR: /app/assets
+    TRITON_GRPC_URL: http://triton:8001
+    TRITON_HTTP_URL: http://triton:8000
+    USE_TRITON: "true"
+    MODEL_REPOSITORY_PATH: /app/models
+    MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+
+services:
+  biocentral-server:
+    <<: *app-defaults
+    image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
+    ports:
+      - "${SERVER_PORT:-9540}:9540"
+    volumes:
+      - huggingface_models_cache:/app/huggingface_models
+      - assets_data:/app/assets:ro
+      - file_storage:/app/storage/files
+      - triton_models:/app/models:ro
+    depends_on:
+      biocentral-worker: { condition: service_started }
+      redis-jobs: { condition: service_healthy }
+      embeddings-db: { condition: service_healthy }
+      triton-model-init: { condition: service_completed_successfully }
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  biocentral-worker:
+    <<: *app-defaults
+    image: ghcr.io/biocentral/biocentral_server/biocentral-server:latest
+    command: python3 worker.py
+    volumes:
+      - huggingface_models_cache:/app/huggingface_models
+      - file_storage:/app/storage/files
+      - assets_data:/app/assets
+      - triton_models:/app/models:ro
+    restart: always
+    depends_on:
+      redis-jobs: { condition: service_healthy }
+      embeddings-db: { condition: service_healthy }
+      triton-model-init: { condition: service_completed_successfully }
+
+  redis-jobs:
+    image: redis:alpine
+    command: redis-server --save 60 1 --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biocentral-network
+
+  embeddings-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biocentral-network
+
+  triton-model-init:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.init
+    volumes:
+      - triton_models:/app/models
+    environment:
+      - MODEL_REPOSITORY_PATH=/app/models
+      - MODEL_DOWNLOADS=${MODEL_DOWNLOADS:-}
+    networks:
+      - biocentral-network
+
+  triton:
+    build:
+      context: ./storage/model-repository
+      dockerfile: Dockerfile.triton
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 24G
+        reservations:
+          memory: 16G
+    command: >
+      tritonserver
+      --model-repository=/app/models
+      --model-control-mode=explicit
+      --load-model=prot_t5_pipeline
+      --load-model=esm2_t33_pipeline
+      --load-model=esm2_t36_pipeline
+      --load-model=prott5_sec
+      --load-model=prott5_cons
+      --load-model=bind_embed
+      --load-model=seth
+      --load-model=tmbed
+      --load-model=light_attention_subcell
+      --load-model=light_attention_membrane
+      --load-model=vespag
+      --load-model=exotox
+      --load-model=udonpred
+      --disable-auto-complete-config
+      --log-verbose=1
+    volumes:
+      - triton_models:/app/models:ro
+    restart: always
+    depends_on:
+      triton-model-init:
+        condition: service_completed_successfully
+    networks:
+      - biocentral-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/v2/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${EMBEDDINGS_DATA_DIR}
+  file_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FILES_DATA_DIR:-./storage/files}
+  temp_server_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SERVER_TEMP_DATA_DIR}
+  huggingface_models_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HUGGINGFACE_MODELS_DIR}
+  triton_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_REPOSITORY_PATH:-./storage/model-repository}
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_DIR:-./storage/redis}
+  assets_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ASSETS_DIR:-./assets}
+
+networks:
+  biocentral-network:
+    driver: bridge
