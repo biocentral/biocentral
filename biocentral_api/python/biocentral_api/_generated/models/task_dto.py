@@ -47,10 +47,11 @@ class TaskDTO(BaseModel):
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
     embeddings: Optional[List[SequenceData]] = None
     embeddings_file: Optional[StrictStr] = None
+    clustered_data: Optional[Dict[str, List[StrictStr]]] = None
     projection_result: Optional[ProjectionResult] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "projection_result", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -173,6 +174,11 @@ class TaskDTO(BaseModel):
         if self.embeddings_file is None and "embeddings_file" in self.model_fields_set:
             _dict['embeddings_file'] = None
 
+        # set to None if clustered_data (nullable) is None
+        # and model_fields_set contains the field
+        if self.clustered_data is None and "clustered_data" in self.model_fields_set:
+            _dict['clustered_data'] = None
+
         # set to None if projection_result (nullable) is None
         # and model_fields_set contains the field
         if self.projection_result is None and "projection_result" in self.model_fields_set:
@@ -215,6 +221,7 @@ class TaskDTO(BaseModel):
             "embedded_sequences": obj.get("embedded_sequences"),
             "embeddings": [SequenceData.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
+            "clustered_data": obj.get("clustered_data"),
             "projection_result": ProjectionResult.from_dict(obj["projection_result"]) if obj.get("projection_result") is not None else None,
             "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
             "al_simulation_result": ActiveLearningScreeningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None

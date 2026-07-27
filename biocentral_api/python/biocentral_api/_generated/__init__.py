@@ -62,6 +62,7 @@ __all__ = [
     "BiotrainerModelUpdate",
     "BiotrainerPrediction",
     "BootstrappedMetric",
+    "ClusteringRequest",
     "CommonEmbedder",
     "ConfigOptionsResponse",
     "ConfigVerificationRequest",
@@ -170,6 +171,7 @@ from biocentral_api._generated.models.biotrainer_model_result import BiotrainerM
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate as BiotrainerModelUpdate
 from biocentral_api._generated.models.biotrainer_prediction import BiotrainerPrediction as BiotrainerPrediction
 from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric as BootstrappedMetric
+from biocentral_api._generated.models.clustering_request import ClusteringRequest as ClusteringRequest
 from biocentral_api._generated.models.common_embedder import CommonEmbedder as CommonEmbedder
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest as ConfigVerificationRequest

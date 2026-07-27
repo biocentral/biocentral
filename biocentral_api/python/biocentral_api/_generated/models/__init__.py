@@ -39,6 +39,7 @@ from biocentral_api._generated.models.biotrainer_model_result import BiotrainerM
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.biotrainer_prediction import BiotrainerPrediction
 from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric
+from biocentral_api._generated.models.clustering_request import ClusteringRequest
 from biocentral_api._generated.models.common_embedder import CommonEmbedder
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest

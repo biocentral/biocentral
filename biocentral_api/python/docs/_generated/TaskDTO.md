@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **embedded_sequences** | **Dict[str, str]** |  | [optional] 
 **embeddings** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) |  | [optional] 
 **embeddings_file** | **str** |  | [optional] 
+**clustered_data** | **Dict[str, List[str]]** |  | [optional] 
 **projection_result** | [**ProjectionResult**](ProjectionResult.md) |  | [optional] 
 **al_iteration_result** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 **al_simulation_result** | [**ActiveLearningScreeningSimulationResult**](ActiveLearningScreeningSimulationResult.md) |  | [optional] 

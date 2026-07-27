@@ -41,6 +41,7 @@ biocentral_api/_generated/models/biotrainer_model_result.py
 biocentral_api/_generated/models/biotrainer_model_update.py
 biocentral_api/_generated/models/biotrainer_prediction.py
 biocentral_api/_generated/models/bootstrapped_metric.py
+biocentral_api/_generated/models/clustering_request.py
 biocentral_api/_generated/models/common_embedder.py
 biocentral_api/_generated/models/config_options_response.py
 biocentral_api/_generated/models/config_verification_request.py
@@ -127,6 +128,7 @@ docs/BiotrainerModelResult.md
 docs/BiotrainerModelUpdate.md
 docs/BiotrainerPrediction.md
 docs/BootstrappedMetric.md
+docs/ClusteringRequest.md
 docs/CommonEmbedder.md
 docs/ConfigOptionsResponse.md
 docs/ConfigVerificationRequest.md

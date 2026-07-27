@@ -161,6 +161,10 @@ class BiocentralAPI:
     def _get_max_sequence_input_restriction(embedder: Optional[Union[str, CommonEmbedder]]) -> int:
         n_default = 1000
         n_baseline = 50000
+        n_clustering = 100000
+
+        if embedder is None:
+            return n_clustering
 
         baseline_embedders = [CommonEmbedder.LENGTH_EMBEDDER,
                               CommonEmbedder.ONE_HOT_ENCODING,
@@ -173,7 +177,7 @@ class BiocentralAPI:
         return n_default
 
     @staticmethod
-    def _handle_sequence_input(sequence_data: Union[str, Dict[str, str],List[SequenceData]],
+    def _handle_sequence_input(sequence_data: Union[str, Dict[str, str], List[SequenceData]],
                                embedder_name: Optional[Union[str, CommonEmbedder]]) -> List[SequenceData]:
         if isinstance(sequence_data, str):
             fasta_path = Path(sequence_data)
@@ -283,6 +287,22 @@ class BiocentralAPI:
         with self._create_api_client() as api_client:
             taxonomy_data = proteins_client.taxonomy(api_client, taxonomy_ids)
             return taxonomy_data
+
+    def cluster(self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3) -> BiocentralServerTask[
+        Dict[str, str]]:
+        """
+        Clusters the provided sequences using pymmseqs on the biocentral server.
+
+        :param sequence_data: A dictionary of sequence identifiers and sequences to be clustered.
+        :param sequence_identity_threshold: The threshold for sequence identity used during clustering.
+        """
+        sequence_data = self._handle_sequence_input(sequence_data, embedder_name=None)
+        sequence_data_dict = {seq_data.seq_id: seq_data.seq for seq_data in sequence_data}
+        proteins_client = ProteinsClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = proteins_client.cluster(api_client, sequence_data_dict,
+                                                             sequence_identity_threshold)
+            return biocentral_server_task
 
     def train(self, config: Dict[str, Any],
               training_data: List[SequenceData]) -> BiocentralServerTask[BiotrainerModelResult]:
