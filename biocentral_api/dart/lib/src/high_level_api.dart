@@ -3,6 +3,7 @@ import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
 import 'package:biocentral_api/src/model/projection_result.dart';
+import 'package:built_collection/built_collection.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
@@ -238,6 +239,17 @@ extension ProteinsAPI on BiocentralAPI {
   }) async {
     final result = await ProteinsClient().taxonomy(api: _getAPI(), taxonomyIds: taxonomyIds);
     return result?.toList();
+  }
+
+  Future<BiocentralServerTask<Map<String, List<String>>>> cluster({
+    required Map<String, String> sequenceData,
+    double sequenceIdentityThreshold = 0.3,
+  }) async {
+    return ProteinsClient().cluster(
+      api: _getAPI(),
+      sequenceData: sequenceData,
+      sequenceIdentityThreshold: sequenceIdentityThreshold,
+    );
   }
 }
 

@@ -28,6 +28,8 @@ class _$TaskDTO extends TaskDTO {
   @override
   final String? embeddingsFile;
   @override
+  final BuiltMap<String, BuiltList<String>>? clusteredData;
+  @override
   final ProjectionResult? projectionResult;
   @override
   final ActiveLearningIterationResult? alIterationResult;
@@ -48,6 +50,7 @@ class _$TaskDTO extends TaskDTO {
       this.embeddedSequences,
       this.embeddings,
       this.embeddingsFile,
+      this.clusteredData,
       this.projectionResult,
       this.alIterationResult,
       this.alSimulationResult})
@@ -73,6 +76,7 @@ class _$TaskDTO extends TaskDTO {
         embeddedSequences == other.embeddedSequences &&
         embeddings == other.embeddings &&
         embeddingsFile == other.embeddingsFile &&
+        clusteredData == other.clusteredData &&
         projectionResult == other.projectionResult &&
         alIterationResult == other.alIterationResult &&
         alSimulationResult == other.alSimulationResult;
@@ -91,6 +95,7 @@ class _$TaskDTO extends TaskDTO {
     _$hash = $jc(_$hash, embeddedSequences.hashCode);
     _$hash = $jc(_$hash, embeddings.hashCode);
     _$hash = $jc(_$hash, embeddingsFile.hashCode);
+    _$hash = $jc(_$hash, clusteredData.hashCode);
     _$hash = $jc(_$hash, projectionResult.hashCode);
     _$hash = $jc(_$hash, alIterationResult.hashCode);
     _$hash = $jc(_$hash, alSimulationResult.hashCode);
@@ -111,6 +116,7 @@ class _$TaskDTO extends TaskDTO {
           ..add('embeddedSequences', embeddedSequences)
           ..add('embeddings', embeddings)
           ..add('embeddingsFile', embeddingsFile)
+          ..add('clusteredData', clusteredData)
           ..add('projectionResult', projectionResult)
           ..add('alIterationResult', alIterationResult)
           ..add('alSimulationResult', alSimulationResult))
@@ -177,6 +183,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set embeddingsFile(String? embeddingsFile) =>
       _$this._embeddingsFile = embeddingsFile;
 
+  MapBuilder<String, BuiltList<String>>? _clusteredData;
+  MapBuilder<String, BuiltList<String>> get clusteredData =>
+      _$this._clusteredData ??= MapBuilder<String, BuiltList<String>>();
+  set clusteredData(MapBuilder<String, BuiltList<String>>? clusteredData) =>
+      _$this._clusteredData = clusteredData;
+
   ProjectionResultBuilder? _projectionResult;
   ProjectionResultBuilder get projectionResult =>
       _$this._projectionResult ??= ProjectionResultBuilder();
@@ -215,6 +227,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
       _embeddedSequences = $v.embeddedSequences?.toBuilder();
       _embeddings = $v.embeddings?.toBuilder();
       _embeddingsFile = $v.embeddingsFile;
+      _clusteredData = $v.clusteredData?.toBuilder();
       _projectionResult = $v.projectionResult?.toBuilder();
       _alIterationResult = $v.alIterationResult?.toBuilder();
       _alSimulationResult = $v.alSimulationResult?.toBuilder();
@@ -252,6 +265,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             embeddedSequences: _embeddedSequences?.build(),
             embeddings: _embeddings?.build(),
             embeddingsFile: embeddingsFile,
+            clusteredData: _clusteredData?.build(),
             projectionResult: _projectionResult?.build(),
             alIterationResult: _alIterationResult?.build(),
             alSimulationResult: _alSimulationResult?.build(),
@@ -274,6 +288,8 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
         _$failedField = 'embeddings';
         _embeddings?.build();
 
+        _$failedField = 'clusteredData';
+        _clusteredData?.build();
         _$failedField = 'projectionResult';
         _projectionResult?.build();
         _$failedField = 'alIterationResult';

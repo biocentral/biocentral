@@ -40,6 +40,7 @@ import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/biotrainer_prediction.dart';
 import 'package:biocentral_api/src/model/bootstrapped_metric.dart';
+import 'package:biocentral_api/src/model/clustering_request.dart';
 import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
@@ -127,6 +128,7 @@ part 'serializers.g.dart';
   BiotrainerModelUpdate,
   BiotrainerPrediction,
   BootstrappedMetric,
+  ClusteringRequest,
   CommonEmbedder,
   ConfigOptionsResponse,
   ConfigVerificationRequest,

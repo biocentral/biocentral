@@ -26,6 +26,7 @@ doc/BiotrainerModelResult.md
 doc/BiotrainerModelUpdate.md
 doc/BiotrainerPrediction.md
 doc/BootstrappedMetric.md
+doc/ClusteringRequest.md
 doc/CommonEmbedder.md
 doc/ConfigOptionsResponse.md
 doc/ConfigVerificationRequest.md
@@ -133,6 +134,7 @@ lib/src/model/biotrainer_model_result.dart
 lib/src/model/biotrainer_model_update.dart
 lib/src/model/biotrainer_prediction.dart
 lib/src/model/bootstrapped_metric.dart
+lib/src/model/clustering_request.dart
 lib/src/model/common_embedder.dart
 lib/src/model/config_options_response.dart
 lib/src/model/config_verification_request.dart

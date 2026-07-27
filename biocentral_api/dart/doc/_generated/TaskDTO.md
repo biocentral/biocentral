@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **embeddedSequences** | **BuiltMap&lt;String, String&gt;** |  | [optional] 
 **embeddings** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) |  | [optional] 
 **embeddingsFile** | **String** |  | [optional] 
+**clusteredData** | [**BuiltMap&lt;String, BuiltList&lt;String&gt;&gt;**](BuiltList.md) |  | [optional] 
 **projectionResult** | [**ProjectionResult**](ProjectionResult.md) |  | [optional] 
 **alIterationResult** | [**ActiveLearningIterationResult**](ActiveLearningIterationResult.md) |  | [optional] 
 **alSimulationResult** | [**ActiveLearningScreeningSimulationResult**](ActiveLearningScreeningSimulationResult.md) |  | [optional] 

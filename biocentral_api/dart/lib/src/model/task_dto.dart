@@ -32,6 +32,7 @@ part 'task_dto.g.dart';
 /// * [embeddedSequences] 
 /// * [embeddings] 
 /// * [embeddingsFile] 
+/// * [clusteredData] 
 /// * [projectionResult] 
 /// * [alIterationResult] 
 /// * [alSimulationResult] 
@@ -67,6 +68,9 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
 
   @BuiltValueField(wireName: r'embeddings_file')
   String? get embeddingsFile;
+
+  @BuiltValueField(wireName: r'clustered_data')
+  BuiltMap<String, BuiltList<String>>? get clusteredData;
 
   @BuiltValueField(wireName: r'projection_result')
   ProjectionResult? get projectionResult;
@@ -166,6 +170,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield serializers.serialize(
         object.embeddingsFile,
         specifiedType: const FullType.nullable(String),
+      );
+    }
+    if (object.clusteredData != null) {
+      yield r'clustered_data';
+      yield serializers.serialize(
+        object.clusteredData,
+        specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(String)])]),
       );
     }
     if (object.projectionResult != null) {
@@ -290,6 +301,14 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           ) as String?;
           if (valueDes == null) continue;
           result.embeddingsFile = valueDes;
+          break;
+        case r'clustered_data':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(String)])]),
+          ) as BuiltMap<String, BuiltList<String>>?;
+          if (valueDes == null) continue;
+          result.clusteredData.replace(valueDes);
           break;
         case r'projection_result':
           final valueDes = serializers.deserialize(

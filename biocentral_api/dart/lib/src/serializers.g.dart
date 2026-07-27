@@ -35,6 +35,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(BiotrainerModelUpdate.serializer)
       ..add(BiotrainerPrediction.serializer)
       ..add(BootstrappedMetric.serializer)
+      ..add(ClusteringRequest.serializer)
       ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
       ..add(ConfigVerificationRequest.serializer)
@@ -280,10 +281,20 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
+            const FullType(BuiltList, const [const FullType(String)])
+          ]),
+          () => MapBuilder<String, BuiltList<String>>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
             const FullType(
                 BuiltList, const [const FullType.nullable(JsonObject)])
           ]),
           () => MapBuilder<String, BuiltList<JsonObject?>>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
