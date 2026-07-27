@@ -1,5 +1,18 @@
 # biocentral_server Changelog
 
+## v2.0.0
+
+- Updating to biotrainer-core
+- Updating dependencies
+- Improving projection API
+- Adding clustering task (thanks to Sophie Tabery!)
+- Introduced `ProjectionResult` object and updated `ProtSpace` dependency.
+- Enhanced the engineering pipeline with a basic implementation.
+- Implemented endpoint differentiation between engineering and screening functionality.
+- Introduced `LENGTH_EMBEDDER` as a new `CommonEmbedder`.
+- Refactored active learning configurations for clarity and consistency.
+- Resolved multiple bugs and improved overall code stability.
+
 ## v1.2.1
 
 - Updated file management to use a local storage backend, removing SeaweedFS container dependency.
