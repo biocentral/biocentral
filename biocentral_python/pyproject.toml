@@ -23,6 +23,9 @@ server = ["biocentral-server>=2.0.0,<3.0.0"]
 local = ["biotrainer>=2.0.0,<3.0.0"]
 all = ["biotrainer>=2.0.0,<3.0.0", "biocentral-server>=2.0.0,<3.0.0"]
 
+[tool.uv]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+
 [project.scripts]
 biocentral = "biocentral.cli:biocentral"
 

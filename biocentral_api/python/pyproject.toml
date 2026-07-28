@@ -33,6 +33,9 @@ dev = [
     "twine>=6.2.0",
 ]
 
+[tool.uv]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
