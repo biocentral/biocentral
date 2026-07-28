@@ -8,7 +8,7 @@ authors = [
 ]
 license = { text = "GPL-3.0" }
 readme = "README.md"
-requires-python = ">=3.12.0,<3.13"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     # Backend
     "taxoniq>=1.0.1,<2.0.0",
@@ -55,6 +55,9 @@ dev = [
     "psutil>=7.2.2",
     "pyrefly>=0.45.0",
 ]
+
+[tool.uv.sources]
+biotrainer = { path = "../biotrainer", editable = true }
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"

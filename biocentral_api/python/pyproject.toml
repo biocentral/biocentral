@@ -7,7 +7,7 @@ authors = [
 ]
 readme = "README.md"
 keywords = ["OpenAPI", "OpenAPI-Generator", "Biocentral Server", "Biocentral"]
-requires-python = ">=3.11"
+requires-python = ">=3.12,<3.14"
 
 dependencies = [
     "urllib3>=2.1.0,<3.0.0",

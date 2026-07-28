@@ -266,7 +266,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.3,<3.12.0" },
-    { name = "biotrainer", git = "https://github.com/biocentral/biotrainer.git?rev=refactoring%2Fpost-v2" },
+    { name = "biotrainer", editable = "../biotrainer" },
     { name = "blosc2", specifier = ">=4.2.0,<5.0.0" },
     { name = "circuitbreaker", specifier = ">=2.1.3,<2.2.0" },
     { name = "click", specifier = ">=8.4.2,<9.0.0" },
@@ -327,7 +327,7 @@ wheels = [
 [[package]]
 name = "biotrainer"
 version = "2.0.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?rev=refactoring%2Fpost-v2#3736fbf78cc58eb1f044b271ff56712865faef4b" }
+source = { editable = "../biotrainer" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -358,16 +358,69 @@ dependencies = [
     { name = "umap-learn" },
 ]
 
+[package.metadata]
+requires-dist = [
+    { name = "aaanalysis", specifier = ">=1.0.3,<1.1.0" },
+    { name = "accelerate", specifier = ">=1.14.0,<2.0.0" },
+    { name = "altair", marker = "extra == 'autoeval-frontend'", specifier = ">=6.2.2,<6.3.0" },
+    { name = "appdirs", specifier = ">=1.4.4" },
+    { name = "biotrainer-core", editable = "../biotrainer/biotrainer-core" },
+    { name = "blosum", specifier = ">=2.2.0,<2.3.0" },
+    { name = "build", marker = "extra == 'dev'", specifier = ">=1.5.0,<2.0.0" },
+    { name = "cyclopts", specifier = ">=4.22.0,<4.23.0" },
+    { name = "datasets", specifier = ">=4.8.0,<5.0.0" },
+    { name = "einops", specifier = ">=0.8.2,<0.9.0" },
+    { name = "esm", marker = "extra == 'esm-c'", git = "https://github.com/Biohub/esm.git?branch=main" },
+    { name = "gpytorch", specifier = ">=1.15.2,<2.0" },
+    { name = "h5py", specifier = ">=3.15.0,<4.0.0" },
+    { name = "junban", specifier = ">=1.0.3,<1.1.0" },
+    { name = "jupyter", marker = "extra == 'jupyter'", specifier = ">=1.1.1,<1.2.0" },
+    { name = "llvmlite", specifier = ">=0.46.0,<0.49.0" },
+    { name = "notebook", marker = "extra == 'jupyter'", specifier = ">=7.4.0,<7.7.0" },
+    { name = "numpy", specifier = ">=2.4.1,<2.6.0" },
+    { name = "onnx", specifier = ">=1.22.0,<1.23.0" },
+    { name = "onnxruntime", marker = "extra == 'onnx-cpu'", specifier = ">=1.25.0,<1.30.0" },
+    { name = "onnxruntime", marker = "extra == 'onnx-gpu'", specifier = ">=1.25.0,<1.30.0" },
+    { name = "onnxruntime", marker = "extra == 'onnx-mac'", specifier = ">=1.25.0,<1.30.0" },
+    { name = "onnxscript", specifier = ">=0.7.0,<0.8.0" },
+    { name = "peft", specifier = ">=0.18.1,<0.20.0" },
+    { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.10.0,<2.11.0" },
+    { name = "pydantic", specifier = ">=2.12.0,<2.15.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.1.1,<9.2.0" },
+    { name = "ruamel-yaml", specifier = ">=0.17.40,<0.18.0" },
+    { name = "safetensors", specifier = ">=0.4.4" },
+    { name = "scikit-learn", specifier = ">=1.5.1" },
+    { name = "scipy", specifier = ">=1.17.1" },
+    { name = "sentencepiece", specifier = ">=0.2.0" },
+    { name = "streamlit", marker = "extra == 'autoeval-frontend'", specifier = ">=1.60.0,<1.61.0" },
+    { name = "tensorboard", specifier = ">=2.20.0,<2.22.0" },
+    { name = "torch", specifier = ">=2.11.0,<3.0.0" },
+    { name = "torchmetrics", specifier = ">=1.9.0" },
+    { name = "tqdm", specifier = ">=4.67.3,<5.0.0" },
+    { name = "umap-learn", specifier = ">=0.5.7,<0.6.0" },
+    { name = "xformers", marker = "extra == 'esm-c'", specifier = ">=0.0.35,<0.1.0" },
+]
+provides-extras = ["jupyter", "onnx-cpu", "onnx-gpu", "onnx-mac", "dev", "autoeval-frontend", "esm-c"]
+
 [[package]]
 name = "biotrainer-core"
 version = "2.0.0"
-source = { git = "https://github.com/biocentral/biotrainer.git?subdirectory=biotrainer-core&rev=refactoring%2Fpost-v2#3736fbf78cc58eb1f044b271ff56712865faef4b" }
+source = { editable = "../biotrainer/biotrainer-core" }
 dependencies = [
     { name = "h5py" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "ruamel-yaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "h5py", specifier = ">=3.15.0,<4.0.0" },
+    { name = "numpy", specifier = ">=2.4.1,<2.5.0" },
+    { name = "pandas", specifier = ">=2.3.3" },
+    { name = "pydantic", specifier = ">=2.12.3" },
+    { name = "ruamel-yaml", specifier = ">=0.17.40,<0.18.0" },
 ]
 
 [[package]]
