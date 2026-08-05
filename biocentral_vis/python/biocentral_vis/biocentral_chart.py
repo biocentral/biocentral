@@ -7,7 +7,7 @@ from typing import List, Union, Dict, Any, Optional, Set
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from .base import BiocentralVisualization
-from .datasets import plot_label_distribution
+from .datasets import plot_label_distribution, plot_split_distribution
 from .projections import plot_projection_result
 from .models import plot_test_set_performance, plot_loss_curves
 
@@ -21,6 +21,11 @@ class BiocentralChart(BiocentralVisualization):
     @classmethod
     def label_distribution(cls, dataset: List[SequenceData]):
         chart, metadata = plot_label_distribution(dataset)
+        return cls(chart, metadata)
+
+    @classmethod
+    def split_distribution(cls, dataset: List[SequenceData]):
+        chart, metadata = plot_split_distribution(dataset)
         return cls(chart, metadata)
 
     @classmethod
