@@ -161,7 +161,8 @@ def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData])
         if label is None:
             continue
         try:
-            all_values.extend([float(v) for v in label])
+            delimiter = ";" if ";" in label else ","
+            all_values.extend([float(v) for v in label.split(delimiter)])
         except ValueError:
             return _plot_label_distribution_per_residue_discrete(dataset)
 
