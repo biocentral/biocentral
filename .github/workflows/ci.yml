@@ -69,6 +69,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-server-python
 
@@ -95,6 +96,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-python-simple
         with:
@@ -117,6 +119,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-flutter-ire
 
@@ -156,6 +159,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-server-python
         with:
@@ -180,6 +184,9 @@ jobs:
       - name: Run integration tests
         run: uv run pytest tests/integration/ -v -m "not triton" --reruns 1 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning" --capture=tee-sys
 
+      - name: Run property oracle tests
+        run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"
+
       - name: Show logs
         if: always()
         run: docker compose -f docker-compose.ci.yml --env-file .env.ci logs
@@ -187,50 +194,6 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose -f docker-compose.ci.yml --env-file .env.ci down -v
-
-  server-property-tests:
-    name: "🔗 Stage 2 · Server Property Oracle Tests"
-    needs: [ changes, server-unit-tests ]
-    if: |
-      always() &&
-      needs.changes.outputs.server == 'true' &&
-      (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: biocentral_server
-
-    steps:
-      - name: Maximize build disk space
-        uses: easimon/maximize-build-space@v10
-        with:
-          root-reserve-mb: 24576
-          swap-size-mb: 1024
-          temp-reserve-mb: 8192
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-          overprovision-lvm: 'true'
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - uses: ./.github/actions/setup-server-python
-        with:
-          uv-enable-cache: "true"
-
-      - uses: ./.github/actions/setup-server-services
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-actor: ${{ github.actor }}
-          github-repository: ${{ github.repository }}
-          compose-command: "docker compose -f docker-compose.ci.yml --env-file .env.ci up triton-model-init"
-
-      - name: Run property oracle tests
-        run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"
 
   api-integration-tests:
     name: "🔗 Stage 2 · API Integration Tests"
@@ -248,6 +211,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-python-simple
         with:
@@ -273,6 +237,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-python-simple
         with:
@@ -298,6 +263,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - uses: ./.github/actions/setup-flutter-ire
 
@@ -315,7 +281,6 @@ jobs:
     needs:
       - server-unit-tests
       - server-integration-tests
-      - server-property-tests
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&
@@ -330,6 +295,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
 
       - uses: docker/setup-buildx-action@v3
 
@@ -381,6 +349,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: recursive
 
       - name: Install Windows Dependencies
         if: matrix.os == 'windows-latest'
@@ -450,6 +419,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
 
       - name: Get version
         id: get_version
