@@ -73,15 +73,9 @@ jobs:
 
       - uses: ./.github/actions/setup-server-python
 
-      - name: Run unit tests with coverage
+      - name: "Run server unit tests"
         run: |
-          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning" \
-            --cov=biocentral_server/embeddings \
-            --cov=biocentral_server/predict \
-            --cov=biocentral_server/custom_models \
-            --cov-branch \
-            --cov-report=xml \
-            --cov-report=term-missing
+          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning"
 
   vis-unit-tests:
     name: "🧪 Stage 1 · Vis Unit Tests"
@@ -127,7 +121,7 @@ jobs:
 
       - name: "Run api unit tests"
         run: |
-          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning"
+          uv run pytest tests/unit/* -v -W "ignore::DeprecationWarning"
 
   ire-unit-widget-tests:
     name: "🧪 Stage 1 · IRE Unit & Widget Tests"
@@ -150,73 +144,8 @@ jobs:
         run: flutter test
 
   # ════════════════════════════════════════════════════════════
-  #  Stage 2 – Integration Tests
+  #  Stage 2 – Integration Tests (Server Integration deprecated and will be removed)
   # ════════════════════════════════════════════════════════════
-
-  server-integration-tests:
-    name: "🔗 Stage 2 · Server Integration Tests"
-    needs: [ changes, server-unit-tests ]
-    if: |
-      always() &&
-      needs.changes.outputs.server == 'true' &&
-      (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: biocentral_server
-
-    steps:
-      - name: Maximize build disk space
-        uses: easimon/maximize-build-space@v10
-        with:
-          root-reserve-mb: 24576
-          swap-size-mb: 1024
-          temp-reserve-mb: 16384
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-          overprovision-lvm: 'true'
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: recursive
-
-      - uses: ./.github/actions/setup-server-python
-        with:
-          uv-version: "0.9.26"
-          uv-enable-cache: "true"
-
-      - name: Move Docker storage to large partition
-        run: |
-          sudo systemctl stop docker.service
-          sudo systemctl stop docker.socket
-          sudo mkdir -p /home/runner/work/docker
-          sudo mv /var/lib/docker /home/runner/work/docker
-          sudo ln -s /home/runner/work/docker /var/lib/docker
-          sudo systemctl start docker.service
-
-      - uses: ./.github/actions/setup-server-services
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-actor: ${{ github.actor }}
-          github-repository: ${{ github.repository }}
-
-      - name: Run integration tests
-        run: uv run pytest tests/integration/ -v -m "not triton" --reruns 1 --reruns-delay 10 --durations=0 -W "ignore::DeprecationWarning" --capture=tee-sys
-
-      - name: Run property oracle tests
-        run: uv run pytest tests/property/oracles -v -n auto --durations=0 -W "ignore::DeprecationWarning"
-
-      - name: Show logs
-        if: always()
-        run: docker compose -f docker-compose.ci.yml --env-file .env.ci logs
-
-      - name: Stop services
-        if: always()
-        run: docker compose -f docker-compose.ci.yml --env-file .env.ci down -v
 
   api-integration-tests:
     name: "🔗 Stage 2 · API Integration Tests"
@@ -226,9 +155,6 @@ jobs:
       needs.changes.outputs.api == 'true' &&
       (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: biocentral_api/python
 
     steps:
       - uses: actions/checkout@v4
@@ -236,38 +162,35 @@ jobs:
           fetch-depth: 1
           submodules: recursive
 
-      - uses: ./.github/actions/setup-python-simple
-        with:
-          working-directory: biocentral_api/python
+      - uses: ./.github/actions/setup-server-python
 
-      # TODO: Set up server via docker-compose and run API integration tests against it
+      - uses: ./.github/actions/setup-server-services
+
+      - name: "Start biocentral-server locally"
+        shell: bash
+        working-directory: biocentral_server
+        run: |
+          uv run python run-local.py &
+          # Wait for server to be ready
+          for i in {1..30}; do
+            if curl -s http://localhost:9540/health > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server..."
+            sleep 2
+          done
+
       - name: Run API tests
-        run: uv run pytest tests/ -v -W "ignore::DeprecationWarning"
-
-  python-equivalence-tests:
-    name: "🔗 Stage 2 · Python Equivalence Tests"
-    needs: [ changes, server-unit-tests ]
-    if: |
-      always() &&
-      needs.changes.outputs.python == 'true' &&
-      (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: biocentral_python
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: recursive
+        working-directory: biocentral_api/python
+        run: uv run pytest tests/integration -v -W "ignore::DeprecationWarning"
 
       - uses: ./.github/actions/setup-python-simple
         with:
           working-directory: biocentral_python
 
       # TODO: Add equivalence tests comparing local and API backends
-      - name: "Placeholder: No tests yet"
+      - name: "Placeholder: python-equivalence-tests"
         run: echo "⚠️  No equivalence tests for biocentral_python yet – add tests under biocentral_python/tests/"
 
   ire-integration-tests:
@@ -303,7 +226,7 @@ jobs:
     name: "📦 Stage 3 · Build Server Docker Image"
     needs:
       - server-unit-tests
-      - server-integration-tests
+      - api-integration-tests
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&

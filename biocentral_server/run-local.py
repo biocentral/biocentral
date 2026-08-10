@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from biocentral_server.main import run_server
 
 # Load local environment variables
-load_dotenv(".env")
+load_dotenv(os.getenv("ENV_FILE", ".env"))
 
 
 def run_worker(worker_id):

@@ -1,38 +1,15 @@
 name: "Setup Server Docker Services"
-description: "Pull CI Docker image, prepare bind mount directories, and start services with Docker Compose for biocentral_server"
+description: "Prepare bind mount directories and start infrastructure services with Docker Compose for biocentral_server"
 
 inputs:
-  github-token:
-    description: "GitHub token for GHCR login"
-    required: true
-  github-actor:
-    description: "GitHub actor for GHCR login"
-    required: true
-  github-repository:
-    description: "GitHub repository (owner/repo)"
-    required: true
   compose-command:
-    description: "Docker Compose up command (override for property tests)"
+    description: "Docker Compose up command"
     required: false
-    default: "docker compose -f docker-compose.ci.yml --env-file .env.ci --env-file .env.local up -d --wait"
+    default: "docker compose -f docker-compose.ci.yml --env-file .env.ci up -d --wait embeddings-db redis-jobs triton-model-init"
 
 runs:
   using: "composite"
   steps:
-    - uses: docker/setup-buildx-action@v3
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ inputs.github-actor }}
-        password: ${{ inputs.github-token }}
-
-    - name: Pull Docker image
-      shell: bash
-      working-directory: biocentral_server
-      run: docker pull ghcr.io/${{ inputs.github-repository }}/biocentral-server:ci
-
     - name: Prepare bind mount directories
       shell: bash
       working-directory: biocentral_server
@@ -51,7 +28,6 @@ runs:
       working-directory: biocentral_server
       run: ${{ inputs.compose-command }}
       env:
-        CI_IMAGE: ghcr.io/${{ inputs.github-repository }}/biocentral-server:ci
         MODEL_DOWNLOADS: |
           _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
           _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
