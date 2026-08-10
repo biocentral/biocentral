@@ -29,7 +29,7 @@ dependencies = [
     "junban>=1.0.2,<1.1.0",
     "click>=8.4.2,<9.0.0",
     # Git Dependencies
-    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@refactoring/post-v2",
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@refactoring/autoeval",
     #"biotrainer>=2.0.0,<2.1.0",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v4.8.2#subdirectory=apps/protspace",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
