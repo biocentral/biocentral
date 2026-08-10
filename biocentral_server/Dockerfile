@@ -47,7 +47,7 @@ ARG UV_EXTRA_INDEX_URL
 ENV UV_EXTRA_INDEX_URL=${UV_EXTRA_INDEX_URL}
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv lock --no-sources \
+    uv lock --no-sources && \
     uv sync --no-sources --frozen --no-install-project --no-dev
 
 # Copy application files
