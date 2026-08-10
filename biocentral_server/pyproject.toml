@@ -57,7 +57,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-biotrainer = { workspace = true }
+biotrainer = { path = "../biotrainer", editable = true }
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"

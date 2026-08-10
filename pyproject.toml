@@ -6,16 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = []
 
-[dependency-groups]
-dev = [
+[tool.uv]
+dev-dependencies = [
     "pre-commit>=4.0.0",
-]
-
-[tool.uv.workspace]
-members = [
-    "biocentral_python",
-    "biocentral_server",
-    "biotrainer/biotrainer-core",
-    "biocentral_vis/python",
-    "biocentral_api/python",
 ]
