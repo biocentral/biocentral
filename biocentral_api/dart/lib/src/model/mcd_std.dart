@@ -66,4 +66,3 @@ class _$McdStdSerializer implements PrimitiveSerializer<McdStd> {
     return result.build();
   }
 }
-

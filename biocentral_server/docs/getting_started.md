@@ -41,10 +41,9 @@ run the following command to ensure that:
 mkdir -p ./storage/embeddings ./storage/files ./storage/server_temp_files ./storage/redis ~/.cache/huggingface
 ```
 
-*Note: This assumes that you do not run docker as root.
+_Note: This assumes that you do not run docker as root.
 If you do, you need to replace the `~` with `/root` in the commands above, or choose a different directory for these
-directories.*
-
+directories._
 
 Now run the entire setup, including the embedding database, prediction models and the server via docker compose:
 

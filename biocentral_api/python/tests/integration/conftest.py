@@ -16,7 +16,9 @@ def _wait_or_skip(api: BiocentralAPI, timeout: int = 60) -> BiocentralAPI:
     try:
         return api.wait_until_healthy(max_wait_seconds=timeout)
     except Exception as e:
-        raise unittest.SkipTest(f"Biocentral service not available for integration tests: {e}")
+        raise unittest.SkipTest(
+            f"Biocentral service not available for integration tests: {e}"
+        )
 
 
 @pytest.fixture(scope="session")

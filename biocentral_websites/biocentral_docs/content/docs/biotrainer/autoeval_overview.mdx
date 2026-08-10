@@ -71,7 +71,7 @@ the [reference file](https://marks.hms.harvard.edu/proteingym/ProteinGym_v1.3/DM
 * **non-virus**: All other datasets.
 * **total**: **virus** and **non-virus** combined.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > As ProteinGym does not use a seed for bootstrapping the results, the evaluation results between `autoeval` and
 > the ProteinGym leaderboard can differ. Our experiments showed deviations between `+/- 0.01 to 0.025` points for SCC
 > on the aggregated results. Please consider this when comparing your results to the ProteinGym leaderboard.
@@ -209,7 +209,7 @@ final_report.compare_with_public_leaderboard()
 If successful, this will return a link to the `autoeval` dashboard that includes your report. Note that your report
 is deleted from the [autoeval_service](https://github.com/biocentral/autoeval_service) after 24h.
 
-If you want to make your results public, you can also publish them on the leaderboard. 
+If you want to make your results public, you can also publish them on the leaderboard.
 **Your results will then be permanently and publicly available.**
 
 To do so, you can use the following method:
@@ -217,7 +217,7 @@ To do so, you can use the following method:
 final_report.publish(name="Your Name", email="your.mail@example.com", citation="https://doi.org/VALID-DOI_URL")
 ```
 Note that your report is internally checked for validity and compliance with the `autoeval` standards. Only reports
-for models publicly available on huggingface are accepted at the moment. We will use your name and email to credit you 
+for models publicly available on huggingface are accepted at the moment. We will use your name and email to credit you
 for your contribution and to reach out to you in case of any questions.
 
 ### Local execution

@@ -239,4 +239,3 @@ class _$ActiveLearningScreeningSimulationResultSerializer implements PrimitiveSe
     return result.build();
   }
 }
-

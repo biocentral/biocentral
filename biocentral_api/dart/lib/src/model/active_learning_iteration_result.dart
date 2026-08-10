@@ -140,4 +140,3 @@ class _$ActiveLearningIterationResultSerializer implements PrimitiveSerializer<A
     return result.build();
   }
 }
-

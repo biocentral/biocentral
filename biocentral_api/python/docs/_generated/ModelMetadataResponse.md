@@ -1,11 +1,10 @@
 # ModelMetadataResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**metadata** | [**List[ModelMetadata]**](ModelMetadata.md) | List of model metadata | 
+| Name         | Type                                        | Description            | Notes |
+| ------------ | ------------------------------------------- | ---------------------- | ----- |
+| **metadata** | [**List[ModelMetadata]**](ModelMetadata.md) | List of model metadata |
 
 ## Example
 
@@ -24,6 +23,5 @@ model_metadata_response_dict = model_metadata_response_instance.to_dict()
 # create an instance of ModelMetadataResponse from a dict
 model_metadata_response_from_dict = ModelMetadataResponse.from_dict(model_metadata_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

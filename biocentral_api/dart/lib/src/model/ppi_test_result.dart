@@ -11,12 +11,12 @@ part 'ppi_test_result.g.dart';
 /// PPITestResult
 ///
 /// Properties:
-/// * [success] 
-/// * [information] 
-/// * [testMetrics] 
-/// * [testStatistic] 
-/// * [pValue] 
-/// * [significanceLevel] 
+/// * [success]
+/// * [information]
+/// * [testMetrics]
+/// * [testStatistic]
+/// * [pValue]
+/// * [significanceLevel]
 @BuiltValue()
 abstract class PPITestResult implements Built<PPITestResult, PPITestResultBuilder> {
   @BuiltValueField(wireName: r'success')
@@ -184,4 +184,3 @@ class _$PPITestResultSerializer implements PrimitiveSerializer<PPITestResult> {
     return result.build();
   }
 }
-

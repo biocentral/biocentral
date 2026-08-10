@@ -174,4 +174,3 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
     return result.build();
   }
 }
-

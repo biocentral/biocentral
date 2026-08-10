@@ -26,13 +26,17 @@ with open(projection_result_path, "r") as f:
     projection_result = json.load(f)
     projection_result = ProjectionResult.model_validate(projection_result)
 
-scl_dataset_projection = [seq_data.set_attribute(key="Hit", value=random.choice([0,1])) for seq_data in scl_dataset]
-projection_result_chart = BiocentralChart.projection_result(projection_result,
-                                                            scl_dataset_projection,
-                                                            color_attribute="Hit",
-                                                            highlight_ids={"Q5I0E9"},
-                                                            highlight_name="First Sequence in Dataset",
-                                                            )
+scl_dataset_projection = [
+    seq_data.set_attribute(key="Hit", value=random.choice([0, 1]))
+    for seq_data in scl_dataset
+]
+projection_result_chart = BiocentralChart.projection_result(
+    projection_result,
+    scl_dataset_projection,
+    color_attribute="Hit",
+    highlight_ids={"Q5I0E9"},
+    highlight_name="First Sequence in Dataset",
+)
 projection_result_chart.save("projection_result_scl.svg")
 
 ### MODEL ###
@@ -45,11 +49,12 @@ loss_curves_chart.save_export(assets_path + "scl_loss_curves.json")
 
 
 model_test_set_performance_chart = BiocentralChart.model_test_set_performance(
-    model_result,
-    "accuracy"
+    model_result, "accuracy"
 )
 model_test_set_performance_chart.save("scl_model_test_set_performance.svg")
-model_test_set_performance_chart.save_export(assets_path + "scl_model_test_set_performance.json")
+model_test_set_performance_chart.save_export(
+    assets_path + "scl_model_test_set_performance.json"
+)
 
 ### PREDICTIONS ###
 
@@ -64,9 +69,7 @@ prediction = Prediction(
 
 # Create and export
 highlight = BiocentralHighlight.from_prediction(
-    sequence=sequence,
-    prediction=prediction,
-    residues_per_line=60
+    sequence=sequence, prediction=prediction, residues_per_line=60
 )
 
 highlight.save("sequence_highlight.svg")

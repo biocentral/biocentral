@@ -22,30 +22,30 @@
 
 ########################################################################################################################
 
-import numpy as np
 
 import pickle
 import h5py
 import pandas as pd
-import re, argparse, csv, collections,random
+import re
+import argparse
 from collections import Counter
-from datetime import datetime
+
 # #################################################################################################
 # Option depending where the user wants the run the code form, default running the code with make from the project folder.
-cl=""
+cl = ""
 # If one wants to execute this file from the Code/python folder uncomment the next line.
-cl="../../"
+cl = "../../"
 
 ########################################################################################################################
 # Get the arguments from the command line.
-parser = argparse.ArgumentParser(prog="classifying_unknown_proteins",
-                                 description=" predicted toxicity to proteins in embeddings format")
-parser.add_argument("pred",
-                    type=str,
-                    help="trained predictor")
-parser.add_argument("X",
-                    type=str,
-                    help="secreted proteins of unknown toxicity in embeddings format")
+parser = argparse.ArgumentParser(
+    prog="classifying_unknown_proteins",
+    description=" predicted toxicity to proteins in embeddings format",
+)
+parser.add_argument("pred", type=str, help="trained predictor")
+parser.add_argument(
+    "X", type=str, help="secreted proteins of unknown toxicity in embeddings format"
+)
 
 # animal_tox_animal_non_tox_embeddings.h5
 # example_phage_proteins_handpicked_embeddings.h5
@@ -59,44 +59,44 @@ parser.add_argument("X",
 # example_phage_proteins_spike_in_baseplate.pdb
 
 
-
 args = parser.parse_args()
 
 # Extract information from the provided parameters
 # Number of cross validations in optimizing the predictor
-cv=re.search("CV(\d+)_", args.pred).group(1)
+cv = re.search("CV(\d+)_", args.pred).group(1)
 # folder where the results are saved
-where=re.search("Predictor/(.*)_(.*)_SST(\d+)_", args.pred).group(1)
+where = re.search("Predictor/(.*)_(.*)_SST(\d+)_", args.pred).group(1)
 # mmseqs2 reduction level
-sst_level=re.search("SST(\d+)", args.pred).group(1)
+sst_level = re.search("SST(\d+)", args.pred).group(1)
 # the type of embedding during training
-embedding_type_train = re.search("Predictor/(.*)_(.*)_SST(\d+)_CV(\d+)_(.*)",  args.pred).group(5)
+embedding_type_train = re.search(
+    "Predictor/(.*)_(.*)_SST(\d+)_CV(\d+)_(.*)", args.pred
+).group(5)
 # the model architecture
-architecture=re.search("Predictor/(.*)_(.*)_SST(\d+)_", args.pred).group(2)
+architecture = re.search("Predictor/(.*)_(.*)_SST(\d+)_", args.pred).group(2)
 
 
 # Make the results reproducible
-random_seed=7
-random_state=7
+random_seed = 7
+random_state = 7
 
 
 ########################################################################################################################
 # Step 1: Open data
 # Step 1.1: Open the predictor
-with open(args.pred, 'rb') as f:
+with open(args.pred, "rb") as f:
     predictor = pickle.load(f)
 
 # Step 1.2: Open the embeddings
 with h5py.File(args.X, "r") as f:
     embs = dict((k, list(f[k])) for k in f)
-    X=pd.DataFrame(embs).T
-    X.index=[i.split(' ',1)[0] for i in f]
-
+    X = pd.DataFrame(embs).T
+    X.index = [i.split(" ", 1)[0] for i in f]
 
 
 # Step 2: run the test file on the imported predictor
 y_pred = predictor.predict(X)
-y_probas =predictor.predict_proba(X)[:, 1]
+y_probas = predictor.predict_proba(X)[:, 1]
 count = Counter(y_pred)
 
 print(count)

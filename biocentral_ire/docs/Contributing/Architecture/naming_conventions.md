@@ -1,8 +1,9 @@
 # Naming conventions
 
-* Difference between *dataset* and *database*:
-  * *Dataset*: Single file that can be loaded, exported, etc.
-  * *Database*: All current present entities loaded in a biocentral grid
+- Difference between _dataset_ and _database_:
+  - _Dataset_: Single file that can be loaded, exported, etc.
+  - _Database_: All current present entities loaded in a biocentral grid
 
 ## Abbreviations
-* PPI: Protein-Protein-Interaction
+
+- PPI: Protein-Protein-Interaction

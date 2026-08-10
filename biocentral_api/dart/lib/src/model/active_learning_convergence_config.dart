@@ -147,4 +147,3 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
     return result.build();
   }
 }
-

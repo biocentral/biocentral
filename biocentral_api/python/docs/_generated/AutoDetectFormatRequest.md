@@ -1,11 +1,10 @@
 # AutoDetectFormatRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**header** | **str** |  | 
+| Name       | Type    | Description | Notes |
+| ---------- | ------- | ----------- | ----- |
+| **header** | **str** |             |
 
 ## Example
 
@@ -24,6 +23,5 @@ auto_detect_format_request_dict = auto_detect_format_request_instance.to_dict()
 # create an instance of AutoDetectFormatRequest from a dict
 auto_detect_format_request_from_dict = AutoDetectFormatRequest.from_dict(auto_detect_format_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

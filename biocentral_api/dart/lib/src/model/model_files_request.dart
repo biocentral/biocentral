@@ -104,4 +104,3 @@ class _$ModelFilesRequestSerializer implements PrimitiveSerializer<ModelFilesReq
     return result.build();
   }
 }
-

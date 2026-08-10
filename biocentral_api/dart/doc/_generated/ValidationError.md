@@ -1,19 +1,19 @@
 # biocentral_api.model.ValidationError
 
 ## Load the model package
+
 ```dart
 import 'package:biocentral_api/api.dart';
 ```
 
 ## Properties
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**loc** | [**BuiltList&lt;LocationInner&gt;**](LocationInner.md) |  | 
-**msg** | **String** |  | 
-**type** | **String** |  | 
-**input** | [**JsonObject**](.md) |  | [optional] 
-**ctx** | [**JsonObject**](.md) |  | [optional] 
+
+| Name      | Type                                                   | Description | Notes      |
+| --------- | ------------------------------------------------------ | ----------- | ---------- |
+| **loc**   | [**BuiltList&lt;LocationInner&gt;**](LocationInner.md) |             |
+| **msg**   | **String**                                             |             |
+| **type**  | **String**                                             |             |
+| **input** | [**JsonObject**](.md)                                  |             | [optional] |
+| **ctx**   | [**JsonObject**](.md)                                  |             | [optional] |
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

@@ -18,7 +18,7 @@ class ALPredictionComparisonView extends StatelessWidget {
   final List<ActiveLearningIterationResult>? allResults;
 
   final WidgetsToImageController _exportController = WidgetsToImageController();
-  
+
   ALPredictionComparisonView({
     required this.yLabel,
     required this.campaign,
@@ -69,7 +69,7 @@ class ALPredictionComparisonView extends StatelessWidget {
       builder: (context, state) {
         final data = _plottableData(state.proteinDatabase);
         if (data.isEmpty) return const SizedBox.shrink();
-        
+
         return ExpansionTile(
           title: const Text('Predictions vs. Experiments'),
           leading: const Icon(Icons.compare_arrows),

@@ -10,6 +10,7 @@ from .exporter import CrossPlatformMetadataExporter
 
 class BiocentralVisualization(ABC):
     """Base class for all biocentral visualizations"""
+
     metadata: Dict[str, Any]
 
     @abstractmethod
@@ -24,11 +25,11 @@ class BiocentralVisualization(ABC):
 
     def save_export(self, output_path: Union[str, Path]):
         """Save export schema JSON File"""
-        if Path(output_path).suffix != '.json':
-            raise ValueError('Output path must have .json extension')
+        if Path(output_path).suffix != ".json":
+            raise ValueError("Output path must have .json extension")
 
         export_data = self.export()
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(export_data, f)
 
     def get_metadata(self) -> Dict[str, Any]:

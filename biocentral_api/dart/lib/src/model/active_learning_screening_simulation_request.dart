@@ -123,4 +123,3 @@ class _$ActiveLearningScreeningSimulationRequestSerializer implements PrimitiveS
     return result.build();
   }
 }
-

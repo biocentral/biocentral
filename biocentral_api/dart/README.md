@@ -2,28 +2,33 @@
 
 ## Usage
 
-This library is primarily designed to be used within 
+This library is primarily designed to be used within
 the [biocentral frontend](https://github.com/biocentral/biocentral). You can find usage examples there.
 The openapi specification can be found [here](https://biocentral.rostlab.org/docs).
 
 ## Post-generation setup
+
 1. Fix `lib/src/model/biotrainer_sequence_record.dart` with BuiltMap
 2. Add the following to `common_embedder.dart`:
+
 ```dart
   String get wireName =>
       (_$commonEmbedderSerializer as _$CommonEmbedderSerializer).serialize(Serializers(), this) as String;
 ```
+
 3. Add the following to `protocol.dart`:
+
 ```dart
   String get wireName =>
       (_$protocolSerializer as _$ProtocolSerializer).serialize(Serializers(), this) as String;
 ```
+
 4. Run `dart run build_runner build --delete-conflicting-outputs`
 5. Rollback `extensions` directory if it was deleted
 
 ## Citation
 
-Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using the *biocentral API* in your work:
+Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using the _biocentral API_ in your work:
 
 ```text
 @Article{Franz2026,

@@ -1,13 +1,12 @@
 # ProjectionsMetadata
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**projection_name** | **List[str]** |  | 
-**dimensions** | **List[int]** |  | 
-**info_json** | **List[str]** |  | 
+| Name                | Type          | Description | Notes |
+| ------------------- | ------------- | ----------- | ----- |
+| **projection_name** | **List[str]** |             |
+| **dimensions**      | **List[int]** |             |
+| **info_json**       | **List[str]** |             |
 
 ## Example
 
@@ -26,6 +25,5 @@ projections_metadata_dict = projections_metadata_instance.to_dict()
 # create an instance of ProjectionsMetadata from a dict
 projections_metadata_from_dict = ProjectionsMetadata.from_dict(projections_metadata_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

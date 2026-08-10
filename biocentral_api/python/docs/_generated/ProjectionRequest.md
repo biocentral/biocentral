@@ -4,12 +4,12 @@ Request model for projection
 
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**embedder_name** | **str** | Name of the embedder model to use | 
-**sequence_data** | **Dict[str, str]** | Sequence data to embed (seq_id -&gt; sequence) | 
-**method** | **str** | Projection method to use | 
-**config** | **Dict[str, object]** | Projection configuration | 
+| Name              | Type                  | Description                                    | Notes |
+| ----------------- | --------------------- | ---------------------------------------------- | ----- |
+| **embedder_name** | **str**               | Name of the embedder model to use              |
+| **sequence_data** | **Dict[str, str]**    | Sequence data to embed (seq_id -&gt; sequence) |
+| **method**        | **str**               | Projection method to use                       |
+| **config**        | **Dict[str, object]** | Projection configuration                       |
 
 ## Example
 
@@ -28,6 +28,5 @@ projection_request_dict = projection_request_instance.to_dict()
 # create an instance of ProjectionRequest from a dict
 projection_request_from_dict = ProjectionRequest.from_dict(projection_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

@@ -107,4 +107,3 @@ class _$ConfigVerificationResponseSerializer implements PrimitiveSerializer<Conf
     return result.build();
   }
 }
-

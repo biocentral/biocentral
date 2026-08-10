@@ -11,7 +11,7 @@ import 'package:built_value/serializer.dart';
 
 part 'test_result.g.dart';
 
-/// Test results after training. 
+/// Test results after training.
 ///
 /// Properties:
 /// * [inferenceResult] - Plain test inference result
@@ -170,4 +170,3 @@ class _$TestResultSerializer implements PrimitiveSerializer<TestResult> {
     return result.build();
   }
 }
-

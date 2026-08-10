@@ -7,7 +7,7 @@ from .dto_handler import DTOHandler
 
 from ..._generated import BiocentralServiceApi, ApiClient, TaskStatusResponse, TaskDTO
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class BiocentralServerTask(Generic[T]):
@@ -16,31 +16,34 @@ class BiocentralServerTask(Generic[T]):
     MAX_CONSECUTIVE_FAILURES: int = 10
 
     def __init__(
-            self,
-            task_id: str,
-            api_client: ApiClient,
-            dto_handler: DTOHandler,
+        self,
+        task_id: str,
+        api_client: ApiClient,
+        dto_handler: DTOHandler,
     ):
         self.task_id = task_id
         self.api_client = api_client
         self.dto_handler = dto_handler
 
-    def _fetch_task_status(self, api_instance: BiocentralServiceApi) -> TaskStatusResponse:
+    def _fetch_task_status(
+        self, api_instance: BiocentralServiceApi
+    ) -> TaskStatusResponse:
         """Fetch task status from the API."""
-        return api_instance.task_status_api_v1_biocentral_service_task_status_task_id_get(
-            self.task_id
+        return (
+            api_instance.task_status_api_v1_biocentral_service_task_status_task_id_get(
+                self.task_id
+            )
         )
 
     def _poll_task_status(
-            self,
-            progress_callback: Optional[Callable[[Any, Optional[tqdm]], None]] = None
+        self, progress_callback: Optional[Callable[[Any, Optional[tqdm]], None]] = None
     ) -> Optional[T]:
         """
         Poll task status until completion or timeout.
-        
+
         Args:
             progress_callback: Optional callback for progress updates with signature (response, pbar)
-        
+
         Returns:
             Result from dto_handler if task completes, None on timeout
         """
@@ -54,7 +57,7 @@ class BiocentralServerTask(Generic[T]):
                 leave=False,
                 mininterval=0.3,
                 smoothing=0.3,
-                desc=self.dto_handler.get_tqdm_initial_description()
+                desc=self.dto_handler.get_tqdm_initial_description(),
             )
             if progress_callback
             else None
@@ -66,7 +69,11 @@ class BiocentralServerTask(Generic[T]):
             for _ in range(self.MAX_TRIES):
                 try:
                     task_status_response = self._fetch_task_status(api_instance)
-                    dtos = task_status_response.dtos if task_status_response.dtos is not None else []
+                    dtos = (
+                        task_status_response.dtos
+                        if task_status_response.dtos is not None
+                        else []
+                    )
 
                     # 1. Check progress
                     if progress_callback is not None:
@@ -88,9 +95,11 @@ class BiocentralServerTask(Generic[T]):
                     print(f"Error fetching task status for task {self.task_id}: {e}")
                     consecutive_failures += 1
                     if consecutive_failures >= self.MAX_CONSECUTIVE_FAILURES:
-                        error_message = (f"Task failed due to exceeding max consecutive "
-                                         f"failures ({self.MAX_CONSECUTIVE_FAILURES})!"
-                                         f"Last error: {e}")
+                        error_message = (
+                            f"Task failed due to exceeding max consecutive "
+                            f"failures ({self.MAX_CONSECUTIVE_FAILURES})!"
+                            f"Last error: {e}"
+                        )
                         break
 
                 time.sleep(self.TIMEOUT)

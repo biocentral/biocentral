@@ -2,14 +2,14 @@
 
 All URIs are relative to *http://localhost*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post**](ActiveLearningApi.md#active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post) | **POST** /api/v1/active_learning_service/engineering_iteration | Run one active learning engineering iteration
-[**active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post**](ActiveLearningApi.md#active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post) | **POST** /api/v1/active_learning_service/screening_iteration | Run one active learning screening iteration
-[**active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post**](ActiveLearningApi.md#active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post) | **POST** /api/v1/active_learning_service/screening_simulation | Run a simulated active learning screening campaign
-
+| Method                                                                                                                                                                                                                      | HTTP request                                                   | Description                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| [**active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post**](ActiveLearningApi.md#active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post) | **POST** /api/v1/active_learning_service/engineering_iteration | Run one active learning engineering iteration      |
+| [**active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post**](ActiveLearningApi.md#active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post)         | **POST** /api/v1/active_learning_service/screening_iteration   | Run one active learning screening iteration        |
+| [**active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post**](ActiveLearningApi.md#active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post)     | **POST** /api/v1/active_learning_service/screening_simulation  | Run a simulated active learning screening campaign |
 
 # **active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post**
+
 > StartTaskResponse active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post(active_learning_engineering_iteration_request)
 
 Run one active learning engineering iteration
@@ -17,7 +17,6 @@ Run one active learning engineering iteration
 Submit an active learning engineering iteration job
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -37,7 +36,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ActiveLearningApi(api_client)
-    active_learning_engineering_iteration_request = biocentral_api._generated.ActiveLearningEngineeringIterationRequest() # ActiveLearningEngineeringIterationRequest | 
+    active_learning_engineering_iteration_request = biocentral_api._generated.ActiveLearningEngineeringIterationRequest() # ActiveLearningEngineeringIterationRequest |
 
     try:
         # Run one active learning engineering iteration
@@ -48,14 +47,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ActiveLearningApi->active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **active_learning_engineering_iteration_request** | [**ActiveLearningEngineeringIterationRequest**](ActiveLearningEngineeringIterationRequest.md)|  | 
+| Name                                              | Type                                                                                          | Description | Notes |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------- | ----- |
+| **active_learning_engineering_iteration_request** | [**ActiveLearningEngineeringIterationRequest**](ActiveLearningEngineeringIterationRequest.md) |             |
 
 ### Return type
 
@@ -67,21 +63,22 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
-**400** | Validation Error |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not Found           | -                |
+| **400**     | Validation Error    | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post**
+
 > StartTaskResponse active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post(active_learning_screening_iteration_request)
 
 Run one active learning screening iteration
@@ -89,7 +86,6 @@ Run one active learning screening iteration
 Submit an active learning screening iteration job
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -109,7 +105,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ActiveLearningApi(api_client)
-    active_learning_screening_iteration_request = biocentral_api._generated.ActiveLearningScreeningIterationRequest() # ActiveLearningScreeningIterationRequest | 
+    active_learning_screening_iteration_request = biocentral_api._generated.ActiveLearningScreeningIterationRequest() # ActiveLearningScreeningIterationRequest |
 
     try:
         # Run one active learning screening iteration
@@ -120,14 +116,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ActiveLearningApi->active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **active_learning_screening_iteration_request** | [**ActiveLearningScreeningIterationRequest**](ActiveLearningScreeningIterationRequest.md)|  | 
+| Name                                            | Type                                                                                      | Description | Notes |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------- | ----- |
+| **active_learning_screening_iteration_request** | [**ActiveLearningScreeningIterationRequest**](ActiveLearningScreeningIterationRequest.md) |             |
 
 ### Return type
 
@@ -139,21 +132,22 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
-**400** | Validation Error |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not Found           | -                |
+| **400**     | Validation Error    | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post**
+
 > StartTaskResponse active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post(active_learning_screening_simulation_request)
 
 Run a simulated active learning screening campaign
@@ -161,7 +155,6 @@ Run a simulated active learning screening campaign
 Submit an active learning screening simulation job
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -181,7 +174,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ActiveLearningApi(api_client)
-    active_learning_screening_simulation_request = biocentral_api._generated.ActiveLearningScreeningSimulationRequest() # ActiveLearningScreeningSimulationRequest | 
+    active_learning_screening_simulation_request = biocentral_api._generated.ActiveLearningScreeningSimulationRequest() # ActiveLearningScreeningSimulationRequest |
 
     try:
         # Run a simulated active learning screening campaign
@@ -192,14 +185,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ActiveLearningApi->active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **active_learning_screening_simulation_request** | [**ActiveLearningScreeningSimulationRequest**](ActiveLearningScreeningSimulationRequest.md)|  | 
+| Name                                             | Type                                                                                        | Description | Notes |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------- | ----------- | ----- |
+| **active_learning_screening_simulation_request** | [**ActiveLearningScreeningSimulationRequest**](ActiveLearningScreeningSimulationRequest.md) |             |
 
 ### Return type
 
@@ -211,17 +201,16 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
-**400** | Validation Error |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not Found           | -                |
+| **400**     | Validation Error    | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-

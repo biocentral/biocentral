@@ -11,7 +11,7 @@ import 'package:built_value/serializer.dart';
 
 part 'training_result.g.dart';
 
-/// Training results for each cross-validation split. 
+/// Training results for each cross-validation split.
 ///
 /// Properties:
 /// * [nTrainingIds] - Number of sequences in the training set
@@ -348,4 +348,3 @@ class _$TrainingResultSerializer implements PrimitiveSerializer<TrainingResult> 
     return result.build();
   }
 }
-

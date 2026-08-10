@@ -4,14 +4,14 @@ Base class for all model predictions.
 
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**model_name** | **str** | Name of the model | 
-**prediction_name** | **str** | Name of the prediction | 
-**protocol** | **str** | Protocol name | 
-**value** | **object** |  | 
-**value_lower** | **float** | Lower bound of the prediction | [optional] 
-**value_upper** | **float** | Upper bound of the prediction | [optional] 
+| Name                | Type       | Description                   | Notes      |
+| ------------------- | ---------- | ----------------------------- | ---------- |
+| **model_name**      | **str**    | Name of the model             |
+| **prediction_name** | **str**    | Name of the prediction        |
+| **protocol**        | **str**    | Protocol name                 |
+| **value**           | **object** |                               |
+| **value_lower**     | **float**  | Lower bound of the prediction | [optional] |
+| **value_upper**     | **float**  | Upper bound of the prediction | [optional] |
 
 ## Example
 
@@ -30,6 +30,5 @@ prediction_dict = prediction_instance.to_dict()
 # create an instance of Prediction from a dict
 prediction_from_dict = Prediction.from_dict(prediction_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

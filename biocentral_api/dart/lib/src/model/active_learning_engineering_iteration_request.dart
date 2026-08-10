@@ -123,4 +123,3 @@ class _$ActiveLearningEngineeringIterationRequestSerializer implements Primitive
     return result.build();
   }
 }
-

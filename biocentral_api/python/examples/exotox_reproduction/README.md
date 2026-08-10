@@ -1,7 +1,7 @@
 # ExoTox Reproduction Example
 
 This example shows how to apply the biocentral_api to reproduce the
-[ExoTox predictor](https://doi.org/10.1186/s13040-025-00469-2) and convert it to *ONNX*.
+[ExoTox predictor](https://doi.org/10.1186/s13040-025-00469-2) and convert it to _ONNX_.
 
 ## Required files
 
@@ -10,12 +10,12 @@ All files can be downloaded from the supplementary material of the Exotox paper
 
 The following files are required for the reproduction and conversion:
 
-* [Training sequences](exotox_files/X_train_SST30.fasta)
-* [Test sequences](exotox_files/X_test_SST30.fasta)
-* [Training labels](exotox_files/y_train_SST30.csv)
-* [Test labels](exotox_files/y_test_SST30.csv)
-* [ExoTox predictor model checkpoint](exotox_files/sklearn_svcPC20_SST30_CV10_embeddingsProtT5)
-* [ExoTox predictor script - showing usage of the predictor](exotox_files/classifying_unknown_proteins.py)
+- [Training sequences](exotox_files/X_train_SST30.fasta)
+- [Test sequences](exotox_files/X_test_SST30.fasta)
+- [Training labels](exotox_files/y_train_SST30.csv)
+- [Test labels](exotox_files/y_test_SST30.csv)
+- [ExoTox predictor model checkpoint](exotox_files/sklearn_svcPC20_SST30_CV10_embeddingsProtT5)
+- [ExoTox predictor script - showing usage of the predictor](exotox_files/classifying_unknown_proteins.py)
 
 ## Installation
 
@@ -23,6 +23,7 @@ To use the notebooks for these examples, make sure you
 have [uv](https://docs.astral.sh/uv/getting-started/installation/) installed.
 
 Then run:
+
 ```shell
 uv venv
 source .venv/bin/activate

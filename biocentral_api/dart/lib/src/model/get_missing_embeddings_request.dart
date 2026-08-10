@@ -138,4 +138,3 @@ class _$GetMissingEmbeddingsRequestSerializer implements PrimitiveSerializer<Get
     return result.build();
   }
 }
-

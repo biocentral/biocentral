@@ -3,9 +3,17 @@ BETA
 
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
-from biocentral_api import BiocentralAPI, SequenceData, ActiveLearningScreeningCampaignConfig, \
-    ActiveLearningScreeningIterationConfig, ActiveLearningEngineeringCampaignConfig, \
-    ActiveLearningEngineeringIterationConfig, ActiveLearningOptimizationMode, ActiveLearningModelType
+
+from biocentral_api import (
+    BiocentralAPI,
+    SequenceData,
+    ActiveLearningScreeningCampaignConfig,
+    ActiveLearningScreeningIterationConfig,
+    ActiveLearningEngineeringCampaignConfig,
+    ActiveLearningEngineeringIterationConfig,
+    ActiveLearningOptimizationMode,
+    ActiveLearningModelType,
+)
 
 
 def demonstrate_al_screening():
@@ -17,15 +25,19 @@ def demonstrate_al_screening():
         model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
         embedder_name="one_hot_encoding",
         optimization_mode=ActiveLearningOptimizationMode.VALUE,
-        target_value=10.0
+        target_value=10.0,
     )
 
     # Define initial data
     iteration_data = [
-        SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None),  # Labeled start data
+        SequenceData(
+            seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None
+        ),  # Labeled start data
         SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
         SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
-        SequenceData(seq_id="Seq4", seq="SEQWENCE", set="pred", mask=None),  # Unlabeled data
+        SequenceData(
+            seq_id="Seq4", seq="SEQWENCE", set="pred", mask=None
+        ),  # Unlabeled data
         SequenceData(seq_id="Seq5", seq="PRTE", set="pred", mask=None),
         SequenceData(seq_id="Seq6", seq="MMALSM", set="pred", mask=None),
         SequenceData(seq_id="Seq7", seq="PRSEQ", set="pred", mask=None),
@@ -36,11 +48,13 @@ def demonstrate_al_screening():
         iteration_data=iteration_data,
         n_suggestions=1,  # Will be higher for most campaigns
         coefficient=0.8,  # High exploration at the start of the campaign
-        iteration=1  # Iteration Index
+        iteration=1,  # Iteration Index
     )
 
     # Run iteration
-    iteration_result = biocentral_api.al_screening_iteration(campaign_config, iteration_config).run_with_progress()
+    iteration_result = biocentral_api.al_screening_iteration(
+        campaign_config, iteration_config
+    ).run_with_progress()
     print(f"Screening iteration results: {iteration_result.results}")
     print(f"Screening suggestions for lab-testing: {iteration_result.suggestions}")
 
@@ -76,7 +90,9 @@ def demonstrate_al_engineering():
     )
 
     # Run iteration
-    iteration_result = biocentral_api.al_engineering_iteration(campaign_config, iteration_config).run_with_progress()
+    iteration_result = biocentral_api.al_engineering_iteration(
+        campaign_config, iteration_config
+    ).run_with_progress()
     print(f"Engineering iteration results: {iteration_result.results}")
     print(f"Engineering suggestions for lab-testing: {iteration_result.suggestions}")
 

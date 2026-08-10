@@ -122,4 +122,3 @@ class _$StartInferenceRequestSerializer implements PrimitiveSerializer<StartInfe
     return result.build();
   }
 }
-

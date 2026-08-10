@@ -2,15 +2,15 @@ from typing import Dict, List, Tuple, Any, Optional
 from biocentral_api import Prediction
 
 _COLOR_SCHEMES = {
-    'secondary_structure': {
-        'H': '#FF6B6B',  # Helix - red
-        'E': '#4ECDC4',  # Sheet - cyan
-        'C': '#95E1D3',  # Coil - light green
-        'L': '#95E1D3',  # Loop - light green
+    "secondary_structure": {
+        "H": "#FF6B6B",  # Helix - red
+        "E": "#4ECDC4",  # Sheet - cyan
+        "C": "#95E1D3",  # Coil - light green
+        "L": "#95E1D3",  # Loop - light green
     },
-    'disorder': {
-        'D': '#FF6B6B',  # Disordered - red
-        'O': '#4ECDC4',  # Ordered - cyan
+    "disorder": {
+        "D": "#FF6B6B",  # Disordered - red
+        "O": "#4ECDC4",  # Ordered - cyan
     },
     # TODO: More schemes
 }
@@ -20,21 +20,27 @@ def _auto_detect_color_scheme(prediction_name: str, prediction: str) -> Dict[str
     """Auto-detect color scheme based on prediction label"""
     prediction_name = prediction_name.lower()
 
-    if 'secondary' in prediction_name or 'structure' in prediction_name:
-        return _COLOR_SCHEMES['secondary_structure']
-    elif 'disorder' in prediction_name:
-        return _COLOR_SCHEMES['disorder']
+    if "secondary" in prediction_name or "structure" in prediction_name:
+        return _COLOR_SCHEMES["secondary_structure"]
+    elif "disorder" in prediction_name:
+        return _COLOR_SCHEMES["disorder"]
     else:
         # Generate default colors for unique values
         unique_values = set(prediction)
-        colors = ['#FF6B6B', '#4ECDC4', '#95E1D3', '#F7DC6F', '#BB8FCE', '#85C1E2']
-        return {val: colors[i % len(colors)] for i, val in enumerate(sorted(unique_values))}
+        colors = ["#FF6B6B", "#4ECDC4", "#95E1D3", "#F7DC6F", "#BB8FCE", "#85C1E2"]
+        return {
+            val: colors[i % len(colors)] for i, val in enumerate(sorted(unique_values))
+        }
 
 
 def _process_prediction(sequence: str, pred_value) -> str:
     """Convert prediction value to string of same length as sequence"""
     try:
-        pred_str = "".join(pred_value) if isinstance(pred_value, (list, tuple)) else str(pred_value)
+        pred_str = (
+            "".join(pred_value)
+            if isinstance(pred_value, (list, tuple))
+            else str(pred_value)
+        )
         if len(pred_str) != len(sequence):
             raise ValueError(
                 f"Prediction length ({len(pred_str)}) doesn't match "
@@ -45,12 +51,14 @@ def _process_prediction(sequence: str, pred_value) -> str:
         raise ValueError(f"Can only highlight per-residue predictions: {e}")
 
 
-def _split_into_lines(sequence: str, pred_value: str, residues_per_line: int) -> List[Tuple[str, str]]:
+def _split_into_lines(
+    sequence: str, pred_value: str, residues_per_line: int
+) -> List[Tuple[str, str]]:
     """Split sequence and prediction into lines"""
     lines = []
     for i in range(0, len(sequence), residues_per_line):
-        seq_chunk = sequence[i:i + residues_per_line]
-        pred_chunk = pred_value[i:i + residues_per_line]
+        seq_chunk = sequence[i : i + residues_per_line]
+        pred_chunk = pred_value[i : i + residues_per_line]
         lines.append((seq_chunk, pred_chunk))
     return lines
 
@@ -63,8 +71,12 @@ def _get_prediction_distribution(pred_value: str) -> Dict[str, int]:
     return distribution
 
 
-def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[str] = None, residues_per_line: int = 100) -> Tuple[
-    str, Dict[str, Any]]:
+def highlight_prediction(
+    sequence: str,
+    prediction: Prediction,
+    title: Optional[str] = None,
+    residues_per_line: int = 100,
+) -> Tuple[str, Dict[str, Any]]:
     pred_value = prediction.value
     pred_value = _process_prediction(sequence, pred_value)
 
@@ -86,12 +98,12 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
     # Build SVG
     svg_parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">',
-        f'  <style>',
-        f'    .residue {{ font-family: monospace; font-size: 14px; }}',
-        f'    .title {{ font-family: sans-serif; font-size: 16px; font-weight: bold; }}',
-        f'    .legend {{ font-family: sans-serif; font-size: 12px; }}',
-        f'  </style>',
-        f'  <rect width="100%" height="100%" fill="white"/>',
+        "  <style>",
+        "    .residue { font-family: monospace; font-size: 14px; }",
+        "    .title { font-family: sans-serif; font-size: 16px; font-weight: bold; }",
+        "    .legend { font-family: sans-serif; font-size: 12px; }",
+        "  </style>",
+        '  <rect width="100%" height="100%" fill="white"/>',
         f'  <text x="{width / 2}" y="25" class="title" text-anchor="middle">{title}</text>',
     ]
 
@@ -101,7 +113,7 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
         x_offset = margin
         line_start_idx = l_idx * residues_per_line
         for i, (res, pred) in enumerate(zip(line_seq, line_pred)):
-            color = color_scheme.get(pred, '#EEEEEE')
+            color = color_scheme.get(pred, "#EEEEEE")
             x = x_offset + i * char_width
             absolute_idx = line_start_idx + i + 1
 
@@ -137,7 +149,9 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
     # Draw legend
     legend_y = height - legend_height + 20
     legend_x = margin
-    svg_parts.append(f'  <text x="{legend_x}" y="{legend_y}" class="legend">Legend:</text>')
+    svg_parts.append(
+        f'  <text x="{legend_x}" y="{legend_y}" class="legend">Legend:</text>'
+    )
 
     legend_x += 60
     for label, color in sorted(color_scheme.items()):
@@ -149,17 +163,17 @@ def highlight_prediction(sequence: str, prediction: Prediction, title: Optional[
         )
         legend_x += 80
 
-    svg_parts.append('</svg>')
+    svg_parts.append("</svg>")
 
-    svg_final = '\n'.join(svg_parts)
+    svg_final = "\n".join(svg_parts)
 
     metadata = {
-        'type': 'highlight',
-        'sequence_length': len(sequence),
-        'prediction_label': prediction.prediction_name,
-        'color_scheme': color_scheme,
-        'residues_per_line': residues_per_line,
-        'prediction_distribution': _get_prediction_distribution(pred_value),
+        "type": "highlight",
+        "sequence_length": len(sequence),
+        "prediction_label": prediction.prediction_name,
+        "color_scheme": color_scheme,
+        "residues_per_line": residues_per_line,
+        "prediction_distribution": _get_prediction_distribution(pred_value),
     }
 
     return svg_final, metadata

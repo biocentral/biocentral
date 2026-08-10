@@ -12,7 +12,7 @@ part 'run_test_response.g.dart';
 /// RunTestResponse
 ///
 /// Properties:
-/// * [testResult] 
+/// * [testResult]
 @BuiltValue()
 abstract class RunTestResponse implements Built<RunTestResponse, RunTestResponseBuilder> {
   @BuiltValueField(wireName: r'test_result')
@@ -104,4 +104,3 @@ class _$RunTestResponseSerializer implements PrimitiveSerializer<RunTestResponse
     return result.build();
   }
 }
-

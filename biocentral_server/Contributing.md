@@ -34,28 +34,28 @@ We use a modified GitFlow workflow for this project. Here's an overview of the p
 ### Supporting Branches
 
 - Feature Branches:
-    - Name format: `<plugin_name>/feature/your-feature-name`
-    - Branch off from: `develop`
-    - Merge back into: `develop`
-    - Used for developing new features or enhancements.
+  - Name format: `<plugin_name>/feature/your-feature-name`
+  - Branch off from: `develop`
+  - Merge back into: `develop`
+  - Used for developing new features or enhancements.
 
 - Bugfix Branches:
-    - Name format: `<plugin_name>/bugfix/issue-description`
-    - Branch off from: `develop`
-    - Merge back into: `develop`
-    - Used for fixing non-critical bugs.
+  - Name format: `<plugin_name>/bugfix/issue-description`
+  - Branch off from: `develop`
+  - Merge back into: `develop`
+  - Used for fixing non-critical bugs.
 
 - Release Branches:
-    - Name format: `<plugin_name>/release/vX-Y-Z`
-    - Branch off from: `develop`
-    - Merge back into: `develop` and `main`
-    - Used for preparing a new production release.
+  - Name format: `<plugin_name>/release/vX-Y-Z`
+  - Branch off from: `develop`
+  - Merge back into: `develop` and `main`
+  - Used for preparing a new production release.
 
 - Hotfix Branches:
-    - Name format: `<plugin_name>/hotfix/issue-description`
-    - Branch off from: `main`
-    - Merge back into: `develop` and `main`
-    - Used for critical bugfixes that need to be addressed immediately.
+  - Name format: `<plugin_name>/hotfix/issue-description`
+  - Branch off from: `main`
+  - Merge back into: `develop` and `main`
+  - Used for critical bugfixes that need to be addressed immediately.
 
 If your contribution concerns the whole project or just the core biocentral application, please use
 `biocentral/` instead of `<plugin_name>/` as prefix.
@@ -63,23 +63,23 @@ If your contribution concerns the whole project or just the core biocentral appl
 ### Workflow Steps
 
 1. For a new feature or non-critical bug fix:
-    - Create a new feature or bugfix branch from `develop`.
-    - Work on your changes in this branch.
-    - When ready, create a pull request to merge your branch into `develop`.
+   - Create a new feature or bugfix branch from `develop`.
+   - Work on your changes in this branch.
+   - When ready, create a pull request to merge your branch into `develop`.
 
 2. For preparing a release:
-    - Create a release branch from `develop`.
-    - Make any final adjustments, version number updates, etc.
-    - Create a pull request to merge the release branch into `main`.
-    - After merging into `main`, also merge back into `develop`.
-    - Tag the merge commit in `main` with the version number.
+   - Create a release branch from `develop`.
+   - Make any final adjustments, version number updates, etc.
+   - Create a pull request to merge the release branch into `main`.
+   - After merging into `main`, also merge back into `develop`.
+   - Tag the merge commit in `main` with the version number.
 
 3. For critical hotfixes:
-    - Create a hotfix branch from `main`.
-    - Make your fixes.
-    - Create a pull request to merge into `main`.
-    - After merging into `main`, also merge into `develop`.
-    - Tag the merge commit in `main` with an updated version number.
+   - Create a hotfix branch from `main`.
+   - Make your fixes.
+   - Create a pull request to merge into `main`.
+   - After merging into `main`, also merge into `develop`.
+   - Tag the merge commit in `main` with an updated version number.
 
 ### Pull Requests
 
@@ -123,11 +123,11 @@ The process has to be done and is described in more detail in the
 
 This section lists the labels we use to help us track and manage issues and pull requests.
 
-* `bug` - Issues that are bugs.
-* `enhancement` - Issues that are feature requests.
-* `documentation` - Issues or pull requests related to documentation.
-* `refactoring` - If you change something in the code, e.g. renaming function names.
-* `maintenance` -  If you update parts of the project to newer versions, e.g. dependency updates or fixing examples.
-* `good first issue` - Good for newcomers.
+- `bug` - Issues that are bugs.
+- `enhancement` - Issues that are feature requests.
+- `documentation` - Issues or pull requests related to documentation.
+- `refactoring` - If you change something in the code, e.g. renaming function names.
+- `maintenance` - If you update parts of the project to newer versions, e.g. dependency updates or fixing examples.
+- `good first issue` - Good for newcomers.
 
 Thank you for contributing to `biocentral_server`!

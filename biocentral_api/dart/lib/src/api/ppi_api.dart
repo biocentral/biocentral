@@ -28,10 +28,10 @@ class PpiApi {
   const PpiApi(this._dio, this._serializers);
 
   /// Auto Detect Format By Header
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [autoDetectFormatRequest] 
+  /// * [autoDetectFormatRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -41,7 +41,7 @@ class PpiApi {
   ///
   /// Returns a [Future] containing a [Response] with a [DetectedFormatResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<DetectedFormatResponse>> autoDetectFormatByHeaderApiV1PpiServiceAutoDetectFormatPost({ 
+  Future<Response<DetectedFormatResponse>> autoDetectFormatByHeaderApiV1PpiServiceAutoDetectFormatPost({
     required AutoDetectFormatRequest autoDetectFormatRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -123,7 +123,7 @@ class PpiApi {
   }
 
   /// Formats
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -135,7 +135,7 @@ class PpiApi {
   ///
   /// Returns a [Future] containing a [Response] with a [JsonObject] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<JsonObject>> formatsApiV1PpiServiceFormatsGet({ 
+  Future<Response<JsonObject>> formatsApiV1PpiServiceFormatsGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -196,10 +196,10 @@ class PpiApi {
   }
 
   /// Import Dataset
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [importDatasetRequest] 
+  /// * [importDatasetRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -209,7 +209,7 @@ class PpiApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ImportDatasetResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ImportDatasetResponse>> importDatasetApiV1PpiServiceImportPost({ 
+  Future<Response<ImportDatasetResponse>> importDatasetApiV1PpiServiceImportPost({
     required ImportDatasetRequest importDatasetRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -291,10 +291,10 @@ class PpiApi {
   }
 
   /// Run Test
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [runTestRequest] 
+  /// * [runTestRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -304,7 +304,7 @@ class PpiApi {
   ///
   /// Returns a [Future] containing a [Response] with a [RunTestResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<RunTestResponse>> runTestApiV1PpiServiceDatasetTestsRunTestPost({ 
+  Future<Response<RunTestResponse>> runTestApiV1PpiServiceDatasetTestsRunTestPost({
     required RunTestRequest runTestRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -386,7 +386,7 @@ class PpiApi {
   }
 
   /// Tests
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -398,7 +398,7 @@ class PpiApi {
   ///
   /// Returns a [Future] containing a [Response] with a [JsonObject] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<JsonObject>> testsApiV1PpiServiceDatasetTestsTestsGet({ 
+  Future<Response<JsonObject>> testsApiV1PpiServiceDatasetTestsTestsGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,

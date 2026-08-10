@@ -1,3 +1,9 @@
 {
-  "pages": ["(biocentral)", "biocentral-ire", "biocentral_api", "biocentral_server", "biotrainer"]
+  "pages": [
+    "(biocentral)",
+    "biocentral-ire",
+    "biocentral_api",
+    "biocentral_server",
+    "biotrainer"
+  ]
 }

@@ -67,7 +67,8 @@ async def embed(
     embedder_name = request_data.embedder_name
     if embedder_name is None or len(embedder_name) == 0:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid embedder_name provided!"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid embedder_name provided!",
         )
     # Convert string booleans to actual booleans
     reduced = str2bool(str(request_data.reduce))

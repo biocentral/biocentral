@@ -1,11 +1,10 @@
 # ProteinAnnotations
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**protein_id** | **List[str]** |  | 
+| Name           | Type          | Description | Notes |
+| -------------- | ------------- | ----------- | ----- |
+| **protein_id** | **List[str]** |             |
 
 ## Example
 
@@ -24,6 +23,5 @@ protein_annotations_dict = protein_annotations_instance.to_dict()
 # create an instance of ProteinAnnotations from a dict
 protein_annotations_from_dict = ProteinAnnotations.from_dict(protein_annotations_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

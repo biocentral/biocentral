@@ -1,11 +1,10 @@
 # RunTestResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**test_result** | [**PPITestResult**](PPITestResult.md) |  | 
+| Name            | Type                                  | Description | Notes |
+| --------------- | ------------------------------------- | ----------- | ----- |
+| **test_result** | [**PPITestResult**](PPITestResult.md) |             |
 
 ## Example
 
@@ -24,6 +23,5 @@ run_test_response_dict = run_test_response_instance.to_dict()
 # create an instance of RunTestResponse from a dict
 run_test_response_from_dict = RunTestResponse.from_dict(run_test_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

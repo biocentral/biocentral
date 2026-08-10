@@ -4,16 +4,25 @@ from typing import List
 from .tasks import BiocentralServerTask, DTOHandler
 from .client_interface import ClientInterface
 
-from .._generated import ApiClient, ActiveLearningScreeningCampaignConfig, ActiveLearningScreeningIterationConfig, \
-    ActiveLearningApi, \
-    TaskDTO, TaskStatus, ActiveLearningScreeningIterationRequest, ActiveLearningScreeningSimulationConfig, \
-    ActiveLearningScreeningSimulationRequest, ActiveLearningScreeningSimulationResult, ActiveLearningIterationResult, \
-    ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringCampaignConfig, \
-    ActiveLearningEngineeringIterationRequest
+from .._generated import (
+    ApiClient,
+    ActiveLearningScreeningCampaignConfig,
+    ActiveLearningScreeningIterationConfig,
+    ActiveLearningApi,
+    TaskDTO,
+    TaskStatus,
+    ActiveLearningScreeningIterationRequest,
+    ActiveLearningScreeningSimulationConfig,
+    ActiveLearningScreeningSimulationRequest,
+    ActiveLearningScreeningSimulationResult,
+    ActiveLearningIterationResult,
+    ActiveLearningEngineeringIterationConfig,
+    ActiveLearningEngineeringCampaignConfig,
+    ActiveLearningEngineeringIterationRequest,
+)
 
 
 class _ActiveLearningIterationDTOHandler(DTOHandler):
-
     def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             status = dto.status
@@ -26,12 +35,12 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
         for dto in dtos:
             status = dto.status
             if status == TaskStatus.RUNNING:
-                pbar.set_description(f"Running active learning iteration..")
+                pbar.set_description("Running active learning iteration..")
             if status == TaskStatus.FINISHED:
-                pbar.set_description(f"Finished active learning iteration!")
+                pbar.set_description("Finished active learning iteration!")
                 break
             if status == TaskStatus.FAILED:
-                pbar.set_description(f"Active learning iteration failed!")
+                pbar.set_description("Active learning iteration failed!")
                 break
         return pbar
 
@@ -48,12 +57,20 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
         self._set_max_iterations_tqdm = False
 
     @staticmethod
-    def _approximate_n_max_iterations(simulation_config: ActiveLearningScreeningSimulationConfig):
+    def _approximate_n_max_iterations(
+        simulation_config: ActiveLearningScreeningSimulationConfig,
+    ):
         max_labels_budget = simulation_config.convergence_config.max_labels_budget
         if max_labels_budget is not None:
             return max_labels_budget // simulation_config.n_suggestions_per_iteration
-        n_start_data = simulation_config.n_start if simulation_config.n_start else len(simulation_config.start_ids)
-        return (len(simulation_config.simulation_data) - n_start_data) // simulation_config.n_suggestions_per_iteration
+        n_start_data = (
+            simulation_config.n_start
+            if simulation_config.n_start
+            else len(simulation_config.start_ids)
+        )
+        return (
+            len(simulation_config.simulation_data) - n_start_data
+        ) // simulation_config.n_suggestions_per_iteration
 
     def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
@@ -64,8 +81,9 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
             if status == TaskStatus.FINISHED:
                 al_simulation_result = dto.al_simulation_result
                 if al_simulation_result is not None:
-                    al_simulation_result.iteration_results = sorted(self._iteration_results.values(),
-                                                                    key=lambda x: x.iteration)
+                    al_simulation_result.iteration_results = sorted(
+                        self._iteration_results.values(), key=lambda x: x.iteration
+                    )
                     return al_simulation_result
         return None
 
@@ -80,16 +98,18 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
                 it_idx = dto.al_iteration_result.iteration
                 if it_idx not in self._counted_iterations:
                     self._counted_iterations.add(it_idx)
-                    pbar.set_description(f"Running active learning simulation (max: {self._n_max_iterations})..")
+                    pbar.set_description(
+                        f"Running active learning simulation (max: {self._n_max_iterations}).."
+                    )
                     pbar.update(1)
                     # Optionally show n/total in postfix to make progress explicit
                     if pbar.total:
                         pbar.set_postfix_str(f"{pbar.n}/{pbar.total}")
             if status == TaskStatus.FINISHED and dto.al_simulation_result is not None:
-                pbar.set_description(f"Finished active learning simulation!")
+                pbar.set_description("Finished active learning simulation!")
                 break
             if status == TaskStatus.FAILED:
-                pbar.set_description(f"Active learning simulation failed!")
+                pbar.set_description("Active learning simulation failed!")
                 break
         return pbar
 
@@ -98,50 +118,72 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
 
 
 class ActiveLearningClient(ClientInterface):
-    def al_screening_iteration(self, api_client: ApiClient,
-                               campaign_config: ActiveLearningScreeningCampaignConfig,
-                               iteration_config: ActiveLearningScreeningIterationConfig) -> BiocentralServerTask[
-        ActiveLearningIterationResult]:
+    def al_screening_iteration(
+        self,
+        api_client: ApiClient,
+        campaign_config: ActiveLearningScreeningCampaignConfig,
+        iteration_config: ActiveLearningScreeningIterationConfig,
+    ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
         al_iteration_dto_handler = _ActiveLearningIterationDTOHandler()
 
-        al_iteration_request = ActiveLearningScreeningIterationRequest(campaign_config=campaign_config,
-                                                                       iteration_config=iteration_config)
+        al_iteration_request = ActiveLearningScreeningIterationRequest(
+            campaign_config=campaign_config, iteration_config=iteration_config
+        )
         task_id = self._submit_task(
             endpoint_caller=lambda: al_api.active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post(
-                al_iteration_request)
+                al_iteration_request
+            )
         )
-        return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler)
+        return BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler
+        )
 
-    def al_engineering_iteration(self, api_client: ApiClient,
-                                 campaign_config: ActiveLearningEngineeringCampaignConfig,
-                                 iteration_config: ActiveLearningEngineeringIterationConfig) -> BiocentralServerTask[
-        ActiveLearningIterationResult]:
+    def al_engineering_iteration(
+        self,
+        api_client: ApiClient,
+        campaign_config: ActiveLearningEngineeringCampaignConfig,
+        iteration_config: ActiveLearningEngineeringIterationConfig,
+    ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
         al_iteration_dto_handler = _ActiveLearningIterationDTOHandler()
 
-        al_iteration_request = ActiveLearningEngineeringIterationRequest(campaign_config=campaign_config,
-                                                                         iteration_config=iteration_config)
+        al_iteration_request = ActiveLearningEngineeringIterationRequest(
+            campaign_config=campaign_config, iteration_config=iteration_config
+        )
         task_id = self._submit_task(
             endpoint_caller=lambda: al_api.active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post(
-                al_iteration_request)
+                al_iteration_request
+            )
         )
-        return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler)
+        return BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler
+        )
 
-    def al_simulation(self, api_client: ApiClient,
-                      campaign_config: ActiveLearningScreeningCampaignConfig,
-                      simulation_config: ActiveLearningScreeningSimulationConfig) -> BiocentralServerTask[
-        ActiveLearningScreeningSimulationResult]:
+    def al_simulation(
+        self,
+        api_client: ApiClient,
+        campaign_config: ActiveLearningScreeningCampaignConfig,
+        simulation_config: ActiveLearningScreeningSimulationConfig,
+    ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
         al_api = ActiveLearningApi(api_client)
 
-        al_simulation_dto_handler = _ActiveLearningSimulationDTOHandler(simulation_config=simulation_config)
+        al_simulation_dto_handler = _ActiveLearningSimulationDTOHandler(
+            simulation_config=simulation_config
+        )
 
-        al_simulation_request = ActiveLearningScreeningSimulationRequest(campaign_config=campaign_config,
-                                                                         simulation_config=simulation_config)
+        al_simulation_request = ActiveLearningScreeningSimulationRequest(
+            campaign_config=campaign_config, simulation_config=simulation_config
+        )
         task_id = self._submit_task(
             endpoint_caller=lambda: al_api.active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post(
-                al_simulation_request)
+                al_simulation_request
+            )
         )
-        return BiocentralServerTask(task_id=task_id, api_client=api_client, dto_handler=al_simulation_dto_handler)
+        return BiocentralServerTask(
+            task_id=task_id,
+            api_client=api_client,
+            dto_handler=al_simulation_dto_handler,
+        )

@@ -1,11 +1,10 @@
 # ResearchStatsResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**research_stats** | [**ResearchStats**](ResearchStats.md) | Research statistics | 
+| Name               | Type                                  | Description         | Notes |
+| ------------------ | ------------------------------------- | ------------------- | ----- |
+| **research_stats** | [**ResearchStats**](ResearchStats.md) | Research statistics |
 
 ## Example
 
@@ -24,6 +23,5 @@ research_stats_response_dict = research_stats_response_instance.to_dict()
 # create an instance of ResearchStatsResponse from a dict
 research_stats_response_from_dict = ResearchStatsResponse.from_dict(research_stats_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

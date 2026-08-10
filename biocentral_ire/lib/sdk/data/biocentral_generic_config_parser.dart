@@ -19,7 +19,7 @@ class BiocentralGenericConfigHandler {
     }
     return resultMap;
   }
-  
+
   Future<String> write(Map<BiocentralConfigOption, dynamic> configMap) async => _handlingStrategy.write(configMap);
 
   Set<String> supportedFileExtensions() => _handlingStrategy.supportedFileExtensions();

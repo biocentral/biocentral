@@ -155,4 +155,3 @@ class _$ActiveLearningResultSerializer implements PrimitiveSerializer<ActiveLear
     return result.build();
   }
 }
-

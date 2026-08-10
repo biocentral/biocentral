@@ -162,4 +162,3 @@ class _$EmbedRequestSerializer implements PrimitiveSerializer<EmbedRequest> {
     return result.build();
   }
 }
-

@@ -1,0 +1,21 @@
+[project]
+name = "biocentral-monorepo"
+version = "2.0.0"
+description = "Monorepo for Biocentral projects"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "biocentral_python",
+    "biocentral_server",
+    "biotrainer/biotrainer-core",
+    "biocentral_vis/python",
+    "biocentral_api/python",
+]

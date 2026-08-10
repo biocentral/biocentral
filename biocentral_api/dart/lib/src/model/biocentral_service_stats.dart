@@ -207,4 +207,3 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
     return result.build();
   }
 }
-

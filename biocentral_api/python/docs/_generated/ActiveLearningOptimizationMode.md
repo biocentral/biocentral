@@ -1,18 +1,15 @@
 # ActiveLearningOptimizationMode
 
-
 ## Enum
 
-* `INTERVAL` (value: `'INTERVAL'`)
+- `INTERVAL` (value: `'INTERVAL'`)
 
-* `VALUE` (value: `'VALUE'`)
+- `VALUE` (value: `'VALUE'`)
 
-* `MAXIMIZE` (value: `'MAXIMIZE'`)
+- `MAXIMIZE` (value: `'MAXIMIZE'`)
 
-* `MINIMIZE` (value: `'MINIMIZE'`)
+- `MINIMIZE` (value: `'MINIMIZE'`)
 
-* `DISCRETE` (value: `'DISCRETE'`)
+- `DISCRETE` (value: `'DISCRETE'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

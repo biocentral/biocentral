@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from typing import List, Dict, Tuple, Callable
+from typing import List, Dict, Tuple
 from biocentral_api import SequenceTrainingData
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, matthews_corrcoef
@@ -47,8 +47,7 @@ def split_train_val(train_seqs, train_labels, val_size: float):
 
     # Split the data
     train_ids, val_ids, train_labels_list, val_labels_list = train_test_split(
-        seq_ids, labels, test_size=val_size,
-        random_state=42, stratify=labels
+        seq_ids, labels, test_size=val_size, random_state=42, stratify=labels
     )
 
     # Reconstruct dictionaries
@@ -60,15 +59,21 @@ def split_train_val(train_seqs, train_labels, val_size: float):
     return train_seqs_dict, val_seqs_dict, train_labels_dict, val_labels_dict
 
 
-def create_training_data(train_seqs, val_seqs, test_seqs, train_labels, val_labels, test_labels) -> List[
-    SequenceTrainingData]:
-    seqs_labels_sets = [(train_seqs, train_labels, "train"), (val_seqs, val_labels, "val"),
-                        (test_seqs, test_labels, "test")]
+def create_training_data(
+    train_seqs, val_seqs, test_seqs, train_labels, val_labels, test_labels
+) -> List[SequenceTrainingData]:
+    seqs_labels_sets = [
+        (train_seqs, train_labels, "train"),
+        (val_seqs, val_labels, "val"),
+        (test_seqs, test_labels, "test"),
+    ]
     training_data = []
     for seqs, labels, set_name in seqs_labels_sets:
         for seq_id, seq in seqs.items():
             label = labels[seq_id]
-            data_point = SequenceTrainingData(seq_id=seq_id, sequence=seq, label=label, set=set_name, mask=None)
+            data_point = SequenceTrainingData(
+                seq_id=seq_id, sequence=seq, label=label, set=set_name, mask=None
+            )
             training_data.append(data_point)
     return training_data
 
@@ -79,7 +84,9 @@ def _calculate_metrics(y_true, y_pred):
     return accuracy, mcc
 
 
-def _get_mean_and_confidence_bounds(values: np.ndarray, confidence_level: float) -> Tuple[float, float, float]:
+def _get_mean_and_confidence_bounds(
+    values: np.ndarray, confidence_level: float
+) -> Tuple[float, float, float]:
     """
     Calculates the mean and confidence range for the given values. Used for bootstrapping error reporting.
 
@@ -88,7 +95,9 @@ def _get_mean_and_confidence_bounds(values: np.ndarray, confidence_level: float)
     :return: Tuple: mean, lower_bound, upper_bound
     """
     if not 0 < confidence_level < 1:
-        raise ValueError(f"Confidence level must be between 0 and 1, given: {confidence_level}!")
+        raise ValueError(
+            f"Confidence level must be between 0 and 1, given: {confidence_level}!"
+        )
 
     mean = np.mean(values)
 
@@ -103,12 +112,12 @@ def _get_mean_and_confidence_bounds(values: np.ndarray, confidence_level: float)
 
 
 def do_bootstrapping(
-        y_true: np.ndarray,
-        y_pred: np.ndarray,
-        iterations: int = 1000,
-        sample_size: int = -1,
-        confidence_level: float = 0.05,
-        random_seed: int = None
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    iterations: int = 1000,
+    sample_size: int = -1,
+    confidence_level: float = 0.05,
+    random_seed: int = None,
 ) -> Dict[str, Dict[str, float]]:
     """
     Perform bootstrapping to estimate confidence intervals for metrics.
@@ -122,7 +131,9 @@ def do_bootstrapping(
     :return: Dictionary with metrics as keys, each containing 'mean', 'lower', and 'upper' bounds
     """
     if len(y_true) != len(y_pred):
-        raise ValueError(f"y_true and y_pred must have same length. Got {len(y_true)} and {len(y_pred)}")
+        raise ValueError(
+            f"y_true and y_pred must have same length. Got {len(y_true)} and {len(y_pred)}"
+        )
 
     if sample_size == -1:
         sample_size = len(y_true)
@@ -135,7 +146,9 @@ def do_bootstrapping(
 
     # Set random seed
     if random_seed is None:
-        random_seed = np.random.get_state()[1][0] if np.random.get_state()[1] is not None else 42
+        random_seed = (
+            np.random.get_state()[1][0] if np.random.get_state()[1] is not None else 42
+        )
     rng = np.random.RandomState(random_seed)
 
     # Generate all random indices at once
@@ -155,10 +168,11 @@ def do_bootstrapping(
     metrics = list(iteration_results[0].keys())
     result_dict = {}
     for metric in metrics:
-        all_metric_values = np.array([res[metric] for res in iteration_results], dtype=np.float32)
+        all_metric_values = np.array(
+            [res[metric] for res in iteration_results], dtype=np.float32
+        )
         mean, lower_bound, upper_bound = _get_mean_and_confidence_bounds(
-            values=all_metric_values,
-            confidence_level=confidence_level
+            values=all_metric_values, confidence_level=confidence_level
         )
         result_dict[metric] = {"mean": mean, "lower": lower_bound, "upper": upper_bound}
 

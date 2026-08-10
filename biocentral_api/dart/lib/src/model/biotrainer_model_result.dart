@@ -189,4 +189,3 @@ class _$BiotrainerModelResultSerializer implements PrimitiveSerializer<Biotraine
     return result.build();
   }
 }
-

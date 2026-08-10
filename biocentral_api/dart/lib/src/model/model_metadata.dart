@@ -283,4 +283,3 @@ class _$ModelMetadataSerializer implements PrimitiveSerializer<ModelMetadata> {
     return result.build();
   }
 }
-

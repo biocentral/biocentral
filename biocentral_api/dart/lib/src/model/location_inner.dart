@@ -65,4 +65,3 @@ class _$LocationInnerSerializer implements PrimitiveSerializer<LocationInner> {
     return result.build();
   }
 }
-

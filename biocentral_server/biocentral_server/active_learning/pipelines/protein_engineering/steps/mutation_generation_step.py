@@ -40,12 +40,12 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
                 + mutation_aa
                 + wildtype_sequence[random_idx + 1 :]
             )
-            assert len(mutated_seq) == len(wildtype_sequence), (
-                "Mutated sequence is not the same length as the wildtype sequence!"
-            )
-            assert mutated_seq[random_idx] == mutation_aa, (
-                "Mutated sequence does not contain the mutation!"
-            )
+            assert len(mutated_seq) == len(
+                wildtype_sequence
+            ), "Mutated sequence is not the same length as the wildtype sequence!"
+            assert (
+                mutated_seq[random_idx] == mutation_aa
+            ), "Mutated sequence does not contain the mutation!"
             if mutated_seq in training_data_sequences:
                 continue
             mutations.add(mutated_seq)

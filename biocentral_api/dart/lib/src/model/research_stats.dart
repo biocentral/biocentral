@@ -207,4 +207,3 @@ class _$ResearchStatsSerializer implements PrimitiveSerializer<ResearchStats> {
     return result.build();
   }
 }
-

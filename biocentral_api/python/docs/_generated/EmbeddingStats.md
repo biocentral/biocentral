@@ -1,15 +1,14 @@
 # EmbeddingStats
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**embedder_name** | **str** |  | 
-**dims** | **int** |  | 
-**n_tracked** | **int** |  | 
-**min** | **float** |  | 
-**max** | **float** |  | 
+| Name              | Type      | Description | Notes |
+| ----------------- | --------- | ----------- | ----- |
+| **embedder_name** | **str**   |             |
+| **dims**          | **int**   |             |
+| **n_tracked**     | **int**   |             |
+| **min**           | **float** |             |
+| **max**           | **float** |             |
 
 ## Example
 
@@ -28,6 +27,5 @@ embedding_stats_dict = embedding_stats_instance.to_dict()
 # create an instance of EmbeddingStats from a dict
 embedding_stats_from_dict = EmbeddingStats.from_dict(embedding_stats_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

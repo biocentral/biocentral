@@ -6,6 +6,7 @@ from typing import Callable, Dict, List
 from pymmseqs.commands import easy_cluster, easy_linclust
 from ..server_management import TaskInterface, TaskDTO, TaskStatus
 
+
 class ClusterSequencesTask(TaskInterface):
     """
     Task to cluster sequences via pymmseqs by converting an input dictionary
@@ -62,7 +63,9 @@ class ClusterSequencesTask(TaskInterface):
             clustered_results: Dict[str, List[str]] = {}
 
             if not os.path.exists(tsv_file):
-                raise FileNotFoundError("MMseqs2 did not generate the expected TSV cluster file.")
+                raise FileNotFoundError(
+                    "MMseqs2 did not generate the expected TSV cluster file."
+                )
 
             with open(tsv_file, "r") as f:
                 for line in f:
@@ -84,4 +87,3 @@ class ClusterSequencesTask(TaskInterface):
             # 4. CLEANUP: Delete the entire temporary directory and its contents
             if os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir, ignore_errors=True)
-                

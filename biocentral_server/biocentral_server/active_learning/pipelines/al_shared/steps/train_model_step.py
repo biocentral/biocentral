@@ -94,9 +94,9 @@ class TrainModelStep(PipelineStep[ALContext]):
         # TODO Improve in biotrainer to not need a test set strictly
         first_embedding = next(iter(context.training_data.values())).embedding
         if context.al_optimization_mode == ActiveLearningOptimizationMode.DISCRETE:
-            assert context.all_labels_in_data is not None, (
-                "all_target_classes must be provided for discrete optimization"
-            )
+            assert (
+                context.all_labels_in_data is not None
+            ), "all_target_classes must be provided for discrete optimization"
             test_data = [
                 SequenceData(
                     seq_id=f"DummyTestSeq{idx}",

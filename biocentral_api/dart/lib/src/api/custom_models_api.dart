@@ -34,7 +34,7 @@ class CustomModelsApi {
   /// Retrieve available configuration options for a specific biotrainer protocol
   ///
   /// Parameters:
-  /// * [protocol] 
+  /// * [protocol]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -44,7 +44,7 @@ class CustomModelsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ConfigOptionsResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ConfigOptionsResponse>> configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet({ 
+  Future<Response<ConfigOptionsResponse>> configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet({
     required String protocol,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -109,7 +109,7 @@ class CustomModelsApi {
   /// Get trained model files after training completion
   ///
   /// Parameters:
-  /// * [modelFilesRequest] 
+  /// * [modelFilesRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -119,7 +119,7 @@ class CustomModelsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltMap<String, JsonObject>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltMap<String, JsonObject>>> modelFilesApiV1CustomModelsServiceModelFilesPost({ 
+  Future<Response<BuiltMap<String, JsonObject>>> modelFilesApiV1CustomModelsServiceModelFilesPost({
     required ModelFilesRequest modelFilesRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -204,7 +204,7 @@ class CustomModelsApi {
   /// Submit sequences for prediction using a trained model
   ///
   /// Parameters:
-  /// * [startInferenceRequest] 
+  /// * [startInferenceRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -214,7 +214,7 @@ class CustomModelsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> startInferenceApiV1CustomModelsServiceStartInferencePost({ 
+  Future<Response<StartTaskResponse>> startInferenceApiV1CustomModelsServiceStartInferencePost({
     required StartInferenceRequest startInferenceRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -299,7 +299,7 @@ class CustomModelsApi {
   /// Submit a new model training job with specified configuration and training data
   ///
   /// Parameters:
-  /// * [startTrainingRequest] 
+  /// * [startTrainingRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -309,7 +309,7 @@ class CustomModelsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> startTrainingApiV1CustomModelsServiceStartTrainingPost({ 
+  Future<Response<StartTaskResponse>> startTrainingApiV1CustomModelsServiceStartTrainingPost({
     required StartTrainingRequest startTrainingRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -394,7 +394,7 @@ class CustomModelsApi {
   /// Validate a biotrainer configuration dict
   ///
   /// Parameters:
-  /// * [configVerificationRequest] 
+  /// * [configVerificationRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -404,7 +404,7 @@ class CustomModelsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ConfigVerificationResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ConfigVerificationResponse>> verifyConfigApiV1CustomModelsServiceVerifyConfigPost({ 
+  Future<Response<ConfigVerificationResponse>> verifyConfigApiV1CustomModelsServiceVerifyConfigPost({
     required ConfigVerificationRequest configVerificationRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

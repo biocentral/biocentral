@@ -1,11 +1,10 @@
 # ImportDatasetResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**imported_dataset** | **Dict[str, object]** |  | 
+| Name                 | Type                  | Description | Notes |
+| -------------------- | --------------------- | ----------- | ----- |
+| **imported_dataset** | **Dict[str, object]** |             |
 
 ## Example
 
@@ -24,6 +23,5 @@ import_dataset_response_dict = import_dataset_response_instance.to_dict()
 # create an instance of ImportDatasetResponse from a dict
 import_dataset_response_from_dict = ImportDatasetResponse.from_dict(import_dataset_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

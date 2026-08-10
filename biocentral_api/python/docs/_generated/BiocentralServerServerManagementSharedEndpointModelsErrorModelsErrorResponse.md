@@ -1,14 +1,13 @@
 # BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**error** | **str** |  | 
-**error_type** | **str** |  | 
-**details** | **str** |  | [optional] 
-**error_code** | **int** |  | [optional] 
+| Name           | Type    | Description | Notes      |
+| -------------- | ------- | ----------- | ---------- |
+| **error**      | **str** |             |
+| **error_type** | **str** |             |
+| **details**    | **str** |             | [optional] |
+| **error_code** | **int** |             | [optional] |
 
 ## Example
 
@@ -27,6 +26,5 @@ biocentral_server_server_management_shared_endpoint_models_error_models_error_re
 # create an instance of BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse from a dict
 biocentral_server_server_management_shared_endpoint_models_error_models_error_response_from_dict = BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.from_dict(biocentral_server_server_management_shared_endpoint_models_error_models_error_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

@@ -196,4 +196,3 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
     return result.build();
   }
 }
-

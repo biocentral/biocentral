@@ -2,15 +2,15 @@
 
 All URIs are relative to *http://localhost*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**add_embeddings_api_v1_embeddings_service_add_embeddings_post**](EmbeddingsApi.md#add_embeddings_api_v1_embeddings_service_add_embeddings_post) | **POST** /api/v1/embeddings_service/add_embeddings | Add embeddings
-[**common_embedders_api_v1_embeddings_service_common_embedders_get**](EmbeddingsApi.md#common_embedders_api_v1_embeddings_service_common_embedders_get) | **GET** /api/v1/embeddings_service/common_embedders | Get a list of common embedder names support by the server
-[**embed_api_v1_embeddings_service_embed_post**](EmbeddingsApi.md#embed_api_v1_embeddings_service_embed_post) | **POST** /api/v1/embeddings_service/embed | Calculate embeddings
-[**get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post**](EmbeddingsApi.md#get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post) | **POST** /api/v1/embeddings_service/get_missing_embeddings | Check missing embeddings
-
+| Method                                                                                                                                                                            | HTTP request                                               | Description                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| [**add_embeddings_api_v1_embeddings_service_add_embeddings_post**](EmbeddingsApi.md#add_embeddings_api_v1_embeddings_service_add_embeddings_post)                                 | **POST** /api/v1/embeddings_service/add_embeddings         | Add embeddings                                            |
+| [**common_embedders_api_v1_embeddings_service_common_embedders_get**](EmbeddingsApi.md#common_embedders_api_v1_embeddings_service_common_embedders_get)                           | **GET** /api/v1/embeddings_service/common_embedders        | Get a list of common embedder names support by the server |
+| [**embed_api_v1_embeddings_service_embed_post**](EmbeddingsApi.md#embed_api_v1_embeddings_service_embed_post)                                                                     | **POST** /api/v1/embeddings_service/embed                  | Calculate embeddings                                      |
+| [**get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post**](EmbeddingsApi.md#get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post) | **POST** /api/v1/embeddings_service/get_missing_embeddings | Check missing embeddings                                  |
 
 # **add_embeddings_api_v1_embeddings_service_add_embeddings_post**
+
 > AddEmbeddingsResponse add_embeddings_api_v1_embeddings_service_add_embeddings_post(add_embeddings_request)
 
 Add embeddings
@@ -18,7 +18,6 @@ Add embeddings
 Add pre-computed embeddings from HDF5 file to the embeddings database
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -38,7 +37,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
-    add_embeddings_request = biocentral_api._generated.AddEmbeddingsRequest() # AddEmbeddingsRequest | 
+    add_embeddings_request = biocentral_api._generated.AddEmbeddingsRequest() # AddEmbeddingsRequest |
 
     try:
         # Add embeddings
@@ -49,14 +48,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling EmbeddingsApi->add_embeddings_api_v1_embeddings_service_add_embeddings_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **add_embeddings_request** | [**AddEmbeddingsRequest**](AddEmbeddingsRequest.md)|  | 
+| Name                       | Type                                                | Description | Notes |
+| -------------------------- | --------------------------------------------------- | ----------- | ----- |
+| **add_embeddings_request** | [**AddEmbeddingsRequest**](AddEmbeddingsRequest.md) |             |
 
 ### Return type
 
@@ -68,21 +64,22 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not found |  -  |
-**400** | Bad Request |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not found           | -                |
+| **400**     | Bad Request         | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **common_embedders_api_v1_embeddings_service_common_embedders_get**
+
 > List[CommonEmbedder] common_embedders_api_v1_embeddings_service_common_embedders_get()
 
 Get a list of common embedder names support by the server
@@ -90,7 +87,6 @@ Get a list of common embedder names support by the server
 Get a list of commonly used embedder names
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -119,8 +115,6 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling EmbeddingsApi->common_embedders_api_v1_embeddings_service_common_embedders_get: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -135,19 +129,20 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not found |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not found           | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **embed_api_v1_embeddings_service_embed_post**
+
 > StartTaskResponse embed_api_v1_embeddings_service_embed_post(embed_request)
 
 Calculate embeddings
@@ -155,7 +150,6 @@ Calculate embeddings
 Submit sequences for embedding calculation using specified embedder model
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -175,7 +169,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
-    embed_request = biocentral_api._generated.EmbedRequest() # EmbedRequest | 
+    embed_request = biocentral_api._generated.EmbedRequest() # EmbedRequest |
 
     try:
         # Calculate embeddings
@@ -186,14 +180,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling EmbeddingsApi->embed_api_v1_embeddings_service_embed_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **embed_request** | [**EmbedRequest**](EmbedRequest.md)|  | 
+| Name              | Type                                | Description | Notes |
+| ----------------- | ----------------------------------- | ----------- | ----- |
+| **embed_request** | [**EmbedRequest**](EmbedRequest.md) |             |
 
 ### Return type
 
@@ -205,20 +196,21 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not Found           | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post**
+
 > GetMissingEmbeddingsResponse get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post(get_missing_embeddings_request)
 
 Check missing embeddings
@@ -226,7 +218,6 @@ Check missing embeddings
 Check which sequences are missing embeddings for a given embedder and reduction setting
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -246,7 +237,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.EmbeddingsApi(api_client)
-    get_missing_embeddings_request = biocentral_api._generated.GetMissingEmbeddingsRequest() # GetMissingEmbeddingsRequest | 
+    get_missing_embeddings_request = biocentral_api._generated.GetMissingEmbeddingsRequest() # GetMissingEmbeddingsRequest |
 
     try:
         # Check missing embeddings
@@ -257,14 +248,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling EmbeddingsApi->get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **get_missing_embeddings_request** | [**GetMissingEmbeddingsRequest**](GetMissingEmbeddingsRequest.md)|  | 
+| Name                               | Type                                                              | Description | Notes |
+| ---------------------------------- | ----------------------------------------------------------------- | ----------- | ----- |
+| **get_missing_embeddings_request** | [**GetMissingEmbeddingsRequest**](GetMissingEmbeddingsRequest.md) |             |
 
 ### Return type
 
@@ -276,17 +264,16 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not found |  -  |
-**400** | Bad Request |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not found           | -                |
+| **400**     | Bad Request         | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-

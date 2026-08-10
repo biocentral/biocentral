@@ -16,6 +16,6 @@ storage/
 
 ## List of required files and types for functions and output files
 
-* Biotrainer - Model Training:
-  * Input: Sequence file, Label file, Mask file (fasta files), Config file (.yaml/dict)
-  * Output: out.yml, logger_out.log, embeddings as .h5 file, checkpoints as .pt file(s)
+- Biotrainer - Model Training:
+  - Input: Sequence file, Label file, Mask file (fasta files), Config file (.yaml/dict)
+  - Output: out.yml, logger_out.log, embeddings as .h5 file, checkpoints as .pt file(s)

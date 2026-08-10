@@ -23,8 +23,13 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/dart-lang/sdk
-    rev: main
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, markdown]
+
+  - repo: local
     hooks:
       - id: dart-format
         name: Dart Format
@@ -37,15 +42,6 @@ repos:
         language: system
         types: [dart]
         description: "Note: dart analyze might need to be run from package roots if dependencies are not globally available."
-
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
-      - id: prettier
-        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, markdown]
-
-  - repo: local
-    hooks:
       - id: check-commit-msg
         name: Check Commit Message Format
         entry: bin/check_commit_msg.py

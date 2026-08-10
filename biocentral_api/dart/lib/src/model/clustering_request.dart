@@ -125,4 +125,3 @@ class _$ClusteringRequestSerializer implements PrimitiveSerializer<ClusteringReq
     return result.build();
   }
 }
-

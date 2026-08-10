@@ -4,11 +4,11 @@ Request model for checking missing embeddings
 
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**embedder_name** | **str** | Name of the embedder model to use | 
-**sequences** | **str** | JSON string containing sequence data | 
-**reduced** | **bool** | Whether to check for reduced embeddings | 
+| Name              | Type     | Description                             | Notes |
+| ----------------- | -------- | --------------------------------------- | ----- |
+| **embedder_name** | **str**  | Name of the embedder model to use       |
+| **sequences**     | **str**  | JSON string containing sequence data    |
+| **reduced**       | **bool** | Whether to check for reduced embeddings |
 
 ## Example
 
@@ -27,6 +27,5 @@ get_missing_embeddings_request_dict = get_missing_embeddings_request_instance.to
 # create an instance of GetMissingEmbeddingsRequest from a dict
 get_missing_embeddings_request_from_dict = GetMissingEmbeddingsRequest.from_dict(get_missing_embeddings_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

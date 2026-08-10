@@ -1,15 +1,14 @@
 # ProjectionsData
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**projection_name** | **List[str]** |  | 
-**identifier** | **List[str]** |  | 
-**x** | **List[float]** |  | 
-**y** | **List[float]** |  | 
-**z** | **List[Optional[float]]** |  | 
+| Name                | Type                      | Description | Notes |
+| ------------------- | ------------------------- | ----------- | ----- |
+| **projection_name** | **List[str]**             |             |
+| **identifier**      | **List[str]**             |             |
+| **x**               | **List[float]**           |             |
+| **y**               | **List[float]**           |             |
+| **z**               | **List[Optional[float]]** |             |
 
 ## Example
 
@@ -28,6 +27,5 @@ projections_data_dict = projections_data_instance.to_dict()
 # create an instance of ProjectionsData from a dict
 projections_data_from_dict = ProjectionsData.from_dict(projections_data_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

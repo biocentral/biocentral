@@ -36,7 +36,7 @@ class PredictionApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ModelMetadataResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ModelMetadataResponse>> modelMetadataApiV1PredictionServiceModelMetadataGet({ 
+  Future<Response<ModelMetadataResponse>> modelMetadataApiV1PredictionServiceModelMetadataGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -100,7 +100,7 @@ class PredictionApi {
   /// Submit sequences for prediction using specified models and receive a task ID for tracking
   ///
   /// Parameters:
-  /// * [predictionRequest] 
+  /// * [predictionRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -110,7 +110,7 @@ class PredictionApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> predictApiV1PredictionServicePredictPost({ 
+  Future<Response<StartTaskResponse>> predictApiV1PredictionServicePredictPost({
     required PredictionRequest predictionRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

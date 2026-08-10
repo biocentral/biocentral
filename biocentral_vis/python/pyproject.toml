@@ -14,4 +14,4 @@ dependencies = [
 exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 
 [tool.uv.sources]
-biocentral_api = { path = "../../biocentral_api/python", editable = true }
+biocentral_api = { workspace = true }

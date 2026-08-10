@@ -49,7 +49,7 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
               builder: (context, constraints) {
                 final chartWidth = widget.plotData.metadata.dimensions.width;
                 final chartHeight = widget.plotData.metadata.dimensions.height;
-                
+
                 // Calculate initial scale to fit the whole SVG
                 final double scaleX = constraints.maxWidth / chartWidth;
                 final double scaleY = constraints.maxHeight / chartHeight;
@@ -272,9 +272,9 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
   Widget _buildStatsPanel() {
     final extra = widget.plotData.metadata.extra;
     final totalCount = widget.plotData.metadata.points.length;
-    
+
     final List<Widget> statItems = [];
-    
+
     // Add default stats if it seems like a point/bar chart
     if (widget.plotData.metadata.xLabel.isNotEmpty || widget.plotData.metadata.yLabel.isNotEmpty) {
       statItems.add(_buildStatItem(

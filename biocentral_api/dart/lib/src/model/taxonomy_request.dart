@@ -105,4 +105,3 @@ class _$TaxonomyRequestSerializer implements PrimitiveSerializer<TaxonomyRequest
     return result.build();
   }
 }
-

@@ -5,8 +5,15 @@ from .client_interface import ClientInterface
 from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
-from .._generated import ApiClient, PredictionRequest, PredictionApi, TaskStatus, \
-    TaskDTO, BiocentralPredictionModel, Prediction
+from .._generated import (
+    ApiClient,
+    PredictionRequest,
+    PredictionApi,
+    TaskStatus,
+    TaskDTO,
+    BiocentralPredictionModel,
+    Prediction,
+)
 
 
 class _PredictDTOHandler(DTOHandler):
@@ -26,14 +33,14 @@ class _PredictDTOHandler(DTOHandler):
             status = dto.status
             match status:
                 case TaskStatus.PENDING:
-                    pbar.set_description(f"Waiting for prediction task to start..")
+                    pbar.set_description("Waiting for prediction task to start..")
                 case TaskStatus.RUNNING:
-                    pbar.set_description(f"Predicting..")
+                    pbar.set_description("Predicting..")
                 case TaskStatus.FINISHED:
-                    pbar.set_description(f"Finished predictions!")
+                    pbar.set_description("Finished predictions!")
                     break
                 case TaskStatus.FAILED:
-                    pbar.set_description(f"Predictions failed!")
+                    pbar.set_description("Predictions failed!")
                     break
         return pbar
 
@@ -42,21 +49,34 @@ class _PredictDTOHandler(DTOHandler):
 
 
 class PredictClient(ClientInterface):
-    def predict(self, api_client: ApiClient, model_names: List[BiocentralPredictionModel],
-                sequence_data: Dict[str, str]) -> BiocentralServerTask[Dict[str, List[Prediction]]]:
+    def predict(
+        self,
+        api_client: ApiClient,
+        model_names: List[BiocentralPredictionModel],
+        sequence_data: Dict[str, str],
+    ) -> BiocentralServerTask[Dict[str, List[Prediction]]]:
         assert len(sequence_data) > 0, "No sequences provided"
-        assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
+        assert len(sequence_data.values()) == len(
+            set(sequence_data.values())
+        ), "Duplicate sequences provided"
 
-        hash2id = {calculate_sequence_hash(seq): seq_id for seq_id, seq in sequence_data.items()}
+        hash2id = {
+            calculate_sequence_hash(seq): seq_id
+            for seq_id, seq in sequence_data.items()
+        }
 
-        prediction_request = PredictionRequest(model_names=model_names, sequence_input=sequence_data)
+        prediction_request = PredictionRequest(
+            model_names=model_names, sequence_input=sequence_data
+        )
         api_instance = PredictionApi(api_client)
         task_id = self._submit_task(
             endpoint_caller=lambda: api_instance.predict_api_v1_prediction_service_predict_post(
-                prediction_request))
+                prediction_request
+            )
+        )
 
         predict_dto_handler = _PredictDTOHandler(hash2id)
-        biocentral_server_task = BiocentralServerTask(task_id=task_id,
-                                                      api_client=api_client,
-                                                      dto_handler=predict_dto_handler)
+        biocentral_server_task = BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=predict_dto_handler
+        )
         return biocentral_server_task

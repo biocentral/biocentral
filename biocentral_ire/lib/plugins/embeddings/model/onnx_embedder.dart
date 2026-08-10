@@ -3,7 +3,7 @@ import 'package:biocentral/plugins/embeddings/model/onnx_runtime_wrapper.dart';
 class ONNXEmbedder {
   static const List<String> requiredInputNames = ['input_ids', 'attention_mask'];
   static const int requiredOutputCount = 1;
-  
+
   static (bool, String) validateFromSession(OrtSession session) {
     final inputNames = session.inputNames;
     if(inputNames.length != requiredInputNames.length) {

@@ -1,12 +1,11 @@
 # EmbeddingProgress
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**current** | **int** | Current progress | 
-**total** | **int** | Total number of embeddings to compute | 
+| Name        | Type    | Description                           | Notes |
+| ----------- | ------- | ------------------------------------- | ----- |
+| **current** | **int** | Current progress                      |
+| **total**   | **int** | Total number of embeddings to compute |
 
 ## Example
 
@@ -25,6 +24,5 @@ embedding_progress_dict = embedding_progress_instance.to_dict()
 # create an instance of EmbeddingProgress from a dict
 embedding_progress_from_dict = EmbeddingProgress.from_dict(embedding_progress_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

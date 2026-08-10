@@ -6,6 +6,7 @@ from typing import Callable
 from .._generated import StartTaskResponse, ApiException
 from .._generated.exceptions import UnprocessableEntityException
 
+
 class ClientInterface(ABC):
     @staticmethod
     def _handle_error(e) -> None:
@@ -17,7 +18,9 @@ class ClientInterface(ABC):
                 if first_detail is None:
                     raise e  # Fallback
                 msg = first_detail.msg
-                raise UnprocessableEntityException(f"Unprocessable entity: {msg}") from e
+                raise UnprocessableEntityException(
+                    f"Unprocessable entity: {msg}"
+                ) from e
         raise e
 
     @staticmethod
@@ -37,10 +40,12 @@ class ClientInterface(ABC):
 
                 # Progress bar
                 print(f"Rate limit exceeded (attempt {retry + 1}/{max_retries})")
-                for _ in tqdm(range(wait_seconds),
-                              desc="Waiting",
-                              bar_format='{desc}: {bar} {remaining}s',
-                              ncols=60):
+                for _ in tqdm(
+                    range(wait_seconds),
+                    desc="Waiting",
+                    bar_format="{desc}: {bar} {remaining}s",
+                    ncols=60,
+                ):
                     sleep(1)
 
             except Exception as e:

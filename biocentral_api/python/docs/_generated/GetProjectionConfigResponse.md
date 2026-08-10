@@ -4,9 +4,9 @@ Response model for projection configuration
 
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**projection_config** | **Dict[str, List[object]]** | Projection configuration for each method | 
+| Name                  | Type                        | Description                              | Notes |
+| --------------------- | --------------------------- | ---------------------------------------- | ----- |
+| **projection_config** | **Dict[str, List[object]]** | Projection configuration for each method |
 
 ## Example
 
@@ -25,6 +25,5 @@ get_projection_config_response_dict = get_projection_config_response_instance.to
 # create an instance of GetProjectionConfigResponse from a dict
 get_projection_config_response_from_dict = GetProjectionConfigResponse.from_dict(get_projection_config_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

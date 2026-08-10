@@ -1,5 +1,6 @@
 from typing import Generator
 
+
 def batched(iterable, batch_size_limit: int = 1000) -> Generator[list, None, None]:
     """
     Yield batches of approximately equal sizes, not exceeding batch_size_limit.
@@ -26,4 +27,4 @@ def batched(iterable, batch_size_limit: int = 1000) -> Generator[list, None, Non
     batch_size = (total_items + num_batches - 1) // num_batches
 
     for i in range(0, total_items, batch_size):
-        yield items[i:i + batch_size]
+        yield items[i : i + batch_size]

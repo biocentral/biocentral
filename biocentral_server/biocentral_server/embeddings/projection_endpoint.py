@@ -4,7 +4,9 @@ from fastapi_limiter.depends import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 
 from protspace.utils import get_reducers
-from protspace.utils.constants import DimensionReductionConfig as ProtSpaceDimensionReductionConfig
+from protspace.utils.constants import (
+    DimensionReductionConfig as ProtSpaceDimensionReductionConfig,
+)
 
 from .endpoint_models import GetProjectionConfigResponse, ProjectionRequest
 from .protspace_task import ProtSpaceTask
@@ -39,7 +41,9 @@ def projection_config():
     methods = list(reducers.keys())
 
     projection_config_by_method = {
-        method: reducers[method](ProtSpaceDimensionReductionConfig()).get_params().keys()  # TODO Get actual config options
+        method: reducers[method](ProtSpaceDimensionReductionConfig())
+        .get_params()
+        .keys()  # TODO Get actual config options
         for method in methods
     }
     return GetProjectionConfigResponse(projection_config=projection_config_by_method)

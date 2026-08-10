@@ -106,4 +106,3 @@ class _$TaskStatusResponseSerializer implements PrimitiveSerializer<TaskStatusRe
     return result.build();
   }
 }
-

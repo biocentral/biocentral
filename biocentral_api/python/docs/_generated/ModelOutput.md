@@ -1,17 +1,16 @@
 # ModelOutput
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**name** | **str** | Name of the output | 
-**description** | **str** | Description of the output | 
-**output_type** | [**OutputType**](OutputType.md) | Type of output | 
-**value_type** | **str** | Type of output values | 
-**classes** | [**List[OutputClass]**](OutputClass.md) | List of output classes for categorical outputs | [optional] 
-**value_range** | **List[object]** | Value range of predictions for continous outputs | [optional] 
-**unit** | **str** | Optional unit for numerical outputs | [optional] 
+| Name            | Type                                    | Description                                      | Notes      |
+| --------------- | --------------------------------------- | ------------------------------------------------ | ---------- |
+| **name**        | **str**                                 | Name of the output                               |
+| **description** | **str**                                 | Description of the output                        |
+| **output_type** | [**OutputType**](OutputType.md)         | Type of output                                   |
+| **value_type**  | **str**                                 | Type of output values                            |
+| **classes**     | [**List[OutputClass]**](OutputClass.md) | List of output classes for categorical outputs   | [optional] |
+| **value_range** | **List[object]**                        | Value range of predictions for continous outputs | [optional] |
+| **unit**        | **str**                                 | Optional unit for numerical outputs              | [optional] |
 
 ## Example
 
@@ -30,6 +29,5 @@ model_output_dict = model_output_instance.to_dict()
 # create an instance of ModelOutput from a dict
 model_output_from_dict = ModelOutput.from_dict(model_output_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

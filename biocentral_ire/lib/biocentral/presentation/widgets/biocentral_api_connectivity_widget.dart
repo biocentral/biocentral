@@ -48,5 +48,5 @@ class BiocentralAPIConnectivityWidget extends StatelessWidget {
       },
     );
   }
-  
+
 }

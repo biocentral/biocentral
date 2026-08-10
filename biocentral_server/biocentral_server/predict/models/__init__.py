@@ -32,9 +32,9 @@ MODEL_REGISTRY: Dict[BiocentralPredictionModel, Any] = {
 def filter_models(
     model_names: List[BiocentralPredictionModel],
 ) -> Dict[BiocentralPredictionModel, Any]:
-    assert all([model_name in MODEL_REGISTRY for model_name in model_names]), (
-        "Invalid model name, this should have been caught in the endpoint"
-    )
+    assert all(
+        [model_name in MODEL_REGISTRY for model_name in model_names]
+    ), "Invalid model name, this should have been caught in the endpoint"
 
     return {
         model_name: MODEL_REGISTRY[model_name]

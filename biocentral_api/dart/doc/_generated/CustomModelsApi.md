@@ -1,22 +1,23 @@
 # biocentral_api.api.CustomModelsApi
 
 ## Load the API package
+
 ```dart
 import 'package:biocentral_api/api.dart';
 ```
 
 All URIs are relative to *http://localhost*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**](CustomModelsApi.md#configoptionsapiv1custommodelsserviceconfigoptionsprotocolget) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
-[**modelFilesApiV1CustomModelsServiceModelFilesPost**](CustomModelsApi.md#modelfilesapiv1custommodelsservicemodelfilespost) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
-[**startInferenceApiV1CustomModelsServiceStartInferencePost**](CustomModelsApi.md#startinferenceapiv1custommodelsservicestartinferencepost) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
-[**startTrainingApiV1CustomModelsServiceStartTrainingPost**](CustomModelsApi.md#starttrainingapiv1custommodelsservicestarttrainingpost) | **POST** /api/v1/custom_models_service/start_training | Start model training
-[**verifyConfigApiV1CustomModelsServiceVerifyConfigPost**](CustomModelsApi.md#verifyconfigapiv1custommodelsserviceverifyconfigpost) | **POST** /api/v1/custom_models_service/verify_config/ | Verify configuration
-
+| Method                                                                                                                                                | HTTP request                                                    | Description                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| [**configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**](CustomModelsApi.md#configoptionsapiv1custommodelsserviceconfigoptionsprotocolget) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol |
+| [**modelFilesApiV1CustomModelsServiceModelFilesPost**](CustomModelsApi.md#modelfilesapiv1custommodelsservicemodelfilespost)                           | **POST** /api/v1/custom_models_service/model_files              | Retrieve model files                     |
+| [**startInferenceApiV1CustomModelsServiceStartInferencePost**](CustomModelsApi.md#startinferenceapiv1custommodelsservicestartinferencepost)           | **POST** /api/v1/custom_models_service/start_inference          | Start model inference                    |
+| [**startTrainingApiV1CustomModelsServiceStartTrainingPost**](CustomModelsApi.md#starttrainingapiv1custommodelsservicestarttrainingpost)               | **POST** /api/v1/custom_models_service/start_training           | Start model training                     |
+| [**verifyConfigApiV1CustomModelsServiceVerifyConfigPost**](CustomModelsApi.md#verifyconfigapiv1custommodelsserviceverifyconfigpost)                   | **POST** /api/v1/custom_models_service/verify_config/           | Verify configuration                     |
 
 # **configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**
+
 > ConfigOptionsResponse configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet(protocol)
 
 Get configuration options for a protocol
@@ -24,11 +25,12 @@ Get configuration options for a protocol
 Retrieve available configuration options for a specific biotrainer protocol
 
 ### Example
+
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final String protocol = protocol_example; // String | 
+final String protocol = protocol_example; // String |
 
 try {
     final response = api.configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet(protocol);
@@ -40,9 +42,9 @@ try {
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **protocol** | **String**|  | 
+| Name         | Type       | Description | Notes |
+| ------------ | ---------- | ----------- | ----- |
+| **protocol** | **String** |             |
 
 ### Return type
 
@@ -54,12 +56,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **modelFilesApiV1CustomModelsServiceModelFilesPost**
+
 > BuiltMap<String, JsonObject> modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest)
 
 Retrieve model files
@@ -67,11 +70,12 @@ Retrieve model files
 Get trained model files after training completion
 
 ### Example
+
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final ModelFilesRequest modelFilesRequest = ; // ModelFilesRequest | 
+final ModelFilesRequest modelFilesRequest = ; // ModelFilesRequest |
 
 try {
     final response = api.modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest);
@@ -83,9 +87,9 @@ try {
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **modelFilesRequest** | [**ModelFilesRequest**](ModelFilesRequest.md)|  | 
+| Name                  | Type                                          | Description | Notes |
+| --------------------- | --------------------------------------------- | ----------- | ----- |
+| **modelFilesRequest** | [**ModelFilesRequest**](ModelFilesRequest.md) |             |
 
 ### Return type
 
@@ -97,12 +101,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **startInferenceApiV1CustomModelsServiceStartInferencePost**
+
 > StartTaskResponse startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest)
 
 Start model inference
@@ -110,11 +115,12 @@ Start model inference
 Submit sequences for prediction using a trained model
 
 ### Example
+
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final StartInferenceRequest startInferenceRequest = ; // StartInferenceRequest | 
+final StartInferenceRequest startInferenceRequest = ; // StartInferenceRequest |
 
 try {
     final response = api.startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest);
@@ -126,9 +132,9 @@ try {
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **startInferenceRequest** | [**StartInferenceRequest**](StartInferenceRequest.md)|  | 
+| Name                      | Type                                                  | Description | Notes |
+| ------------------------- | ----------------------------------------------------- | ----------- | ----- |
+| **startInferenceRequest** | [**StartInferenceRequest**](StartInferenceRequest.md) |             |
 
 ### Return type
 
@@ -140,12 +146,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **startTrainingApiV1CustomModelsServiceStartTrainingPost**
+
 > StartTaskResponse startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest)
 
 Start model training
@@ -153,11 +160,12 @@ Start model training
 Submit a new model training job with specified configuration and training data
 
 ### Example
+
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final StartTrainingRequest startTrainingRequest = ; // StartTrainingRequest | 
+final StartTrainingRequest startTrainingRequest = ; // StartTrainingRequest |
 
 try {
     final response = api.startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest);
@@ -169,9 +177,9 @@ try {
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **startTrainingRequest** | [**StartTrainingRequest**](StartTrainingRequest.md)|  | 
+| Name                     | Type                                                | Description | Notes |
+| ------------------------ | --------------------------------------------------- | ----------- | ----- |
+| **startTrainingRequest** | [**StartTrainingRequest**](StartTrainingRequest.md) |             |
 
 ### Return type
 
@@ -183,12 +191,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **verifyConfigApiV1CustomModelsServiceVerifyConfigPost**
+
 > ConfigVerificationResponse verifyConfigApiV1CustomModelsServiceVerifyConfigPost(configVerificationRequest)
 
 Verify configuration
@@ -196,11 +205,12 @@ Verify configuration
 Validate a biotrainer configuration dict
 
 ### Example
+
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final ConfigVerificationRequest configVerificationRequest = ; // ConfigVerificationRequest | 
+final ConfigVerificationRequest configVerificationRequest = ; // ConfigVerificationRequest |
 
 try {
     final response = api.verifyConfigApiV1CustomModelsServiceVerifyConfigPost(configVerificationRequest);
@@ -212,9 +222,9 @@ try {
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **configVerificationRequest** | [**ConfigVerificationRequest**](ConfigVerificationRequest.md)|  | 
+| Name                          | Type                                                          | Description | Notes |
+| ----------------------------- | ------------------------------------------------------------- | ----------- | ----- |
+| **configVerificationRequest** | [**ConfigVerificationRequest**](ConfigVerificationRequest.md) |             |
 
 ### Return type
 
@@ -226,8 +236,7 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-

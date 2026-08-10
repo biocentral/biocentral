@@ -1,7 +1,6 @@
 import unittest
 
 from biocentral_api import (
-    BiocentralAPI,
     SequenceData,
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningIterationConfig,
@@ -18,6 +17,7 @@ class TestActiveLearning(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
+
         cls.api = _wait_or_skip(_make_api())
 
     def test_active_learning_screening_iteration(self):
@@ -30,8 +30,12 @@ class TestActiveLearning(unittest.TestCase):
         )
 
         iteration_data = [
-            SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None),
-            SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
+            SequenceData(
+                seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None
+            ),
+            SequenceData(
+                seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None
+            ),
             SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
             SequenceData(seq_id="Seq4", seq="SEQWENCE", set="pred", mask=None),
             SequenceData(seq_id="Seq5", seq="PRTE", set="pred", mask=None),
@@ -46,7 +50,9 @@ class TestActiveLearning(unittest.TestCase):
             iteration=1,
         )
 
-        iteration_result = self.api.al_screening_iteration(campaign_config, iteration_config).run_with_progress()
+        iteration_result = self.api.al_screening_iteration(
+            campaign_config, iteration_config
+        ).run_with_progress()
         self.assertTrue(hasattr(iteration_result, "results"))
         self.assertTrue(hasattr(iteration_result, "suggestions"))
         self.assertIsInstance(iteration_result.suggestions, list)
@@ -61,13 +67,23 @@ class TestActiveLearning(unittest.TestCase):
         )
 
         simulation_data = [
-            SequenceData(seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None),
-            SequenceData(seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None),
+            SequenceData(
+                seq_id="Seq1", seq="MMALSLALM", label="5.4", set="train", mask=None
+            ),
+            SequenceData(
+                seq_id="Seq2", seq="PRTEIN", label="1.1", set="train", mask=None
+            ),
             SequenceData(seq_id="Seq3", seq="PRT", label="2.2", set="train", mask=None),
-            SequenceData(seq_id="Seq4", seq="SEQWENCE", label="3.3", set="pred", mask=None),
+            SequenceData(
+                seq_id="Seq4", seq="SEQWENCE", label="3.3", set="pred", mask=None
+            ),
             SequenceData(seq_id="Seq5", seq="PRTE", label="9.9", set="pred", mask=None),
-            SequenceData(seq_id="Seq6", seq="MMALSM", label="4.0", set="pred", mask=None),
-            SequenceData(seq_id="Seq7", seq="PRSEQ", label="0.5", set="pred", mask=None),
+            SequenceData(
+                seq_id="Seq6", seq="MMALSM", label="4.0", set="pred", mask=None
+            ),
+            SequenceData(
+                seq_id="Seq7", seq="PRSEQ", label="0.5", set="pred", mask=None
+            ),
         ]
 
         simulation_config = ActiveLearningScreeningSimulationConfig(
@@ -81,7 +97,9 @@ class TestActiveLearning(unittest.TestCase):
             ),
         )
 
-        simulation_results = self.api.al_screening_simulation(campaign_config, simulation_config).run_with_progress()
+        simulation_results = self.api.al_screening_simulation(
+            campaign_config, simulation_config
+        ).run_with_progress()
         self.assertTrue(hasattr(simulation_results, "iteration_results"))
 
     def test_active_learning_engineering_iteration(self):
@@ -107,11 +125,13 @@ class TestActiveLearning(unittest.TestCase):
             iteration=1,
         )
 
-        iteration_result = self.api.al_engineering_iteration(campaign_config, iteration_config).run_with_progress()
+        iteration_result = self.api.al_engineering_iteration(
+            campaign_config, iteration_config
+        ).run_with_progress()
         self.assertTrue(hasattr(iteration_result, "results"))
         self.assertTrue(hasattr(iteration_result, "suggestions"))
         self.assertIsInstance(iteration_result.suggestions, list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

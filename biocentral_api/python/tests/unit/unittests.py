@@ -13,8 +13,18 @@ class TestProxyConfig(unittest.TestCase):
     cases = [
         ("https from env", {"HTTPS_PROXY": PROXY}, "https://example.org", PROXY),
         ("no env", {}, "https://example.org", None),
-        ("NO_PROXY bypass", {"HTTPS_PROXY": PROXY, "NO_PROXY": "example.org"}, "https://example.org", None),
-        ("scheme mismatch (https proxy, http url)", {"HTTPS_PROXY": PROXY}, "http://localhost:9540", None),
+        (
+            "NO_PROXY bypass",
+            {"HTTPS_PROXY": PROXY, "NO_PROXY": "example.org"},
+            "https://example.org",
+            None,
+        ),
+        (
+            "scheme mismatch (https proxy, http url)",
+            {"HTTPS_PROXY": PROXY},
+            "http://localhost:9540",
+            None,
+        ),
     ]
 
     def test_proxy_from_env(self):
@@ -24,7 +34,6 @@ class TestProxyConfig(unittest.TestCase):
 
 
 class TestBatching(unittest.TestCase):
-
     def test_batching(self):
         normal_case = [1, 2, 3, 4, 5]
         limit = 2
@@ -77,5 +86,5 @@ class TestBatching(unittest.TestCase):
         self.assertEqual(batches[0], [1, 2, 3])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

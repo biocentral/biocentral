@@ -104,4 +104,3 @@ class _$AddEmbeddingsResponseSerializer implements PrimitiveSerializer<AddEmbedd
     return result.build();
   }
 }
-

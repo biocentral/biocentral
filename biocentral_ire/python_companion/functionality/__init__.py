@@ -7,5 +7,5 @@ __all__ = [
     "get_h5_info",
     "get_embedding",
     "sync_internal_h5",
-    "test_normal"
+    "test_normal",
 ]

@@ -105,4 +105,3 @@ class _$GetMissingEmbeddingsResponseSerializer implements PrimitiveSerializer<Ge
     return result.build();
   }
 }
-

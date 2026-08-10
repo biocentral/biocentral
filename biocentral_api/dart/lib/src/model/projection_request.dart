@@ -157,4 +157,3 @@ class _$ProjectionRequestSerializer implements PrimitiveSerializer<ProjectionReq
     return result.build();
   }
 }
-

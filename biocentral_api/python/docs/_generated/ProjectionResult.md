@@ -1,13 +1,12 @@
 # ProjectionResult
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**protein_annotations** | [**ProteinAnnotations**](ProteinAnnotations.md) |  | 
-**projections_metadata** | [**ProjectionsMetadata**](ProjectionsMetadata.md) |  | 
-**projections_data** | [**ProjectionsData**](ProjectionsData.md) |  | 
+| Name                     | Type                                              | Description | Notes |
+| ------------------------ | ------------------------------------------------- | ----------- | ----- |
+| **protein_annotations**  | [**ProteinAnnotations**](ProteinAnnotations.md)   |             |
+| **projections_metadata** | [**ProjectionsMetadata**](ProjectionsMetadata.md) |             |
+| **projections_data**     | [**ProjectionsData**](ProjectionsData.md)         |             |
 
 ## Example
 
@@ -26,6 +25,5 @@ projection_result_dict = projection_result_instance.to_dict()
 # create an instance of ProjectionResult from a dict
 projection_result_from_dict = ProjectionResult.from_dict(projection_result_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

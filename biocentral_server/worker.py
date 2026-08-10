@@ -25,6 +25,7 @@ def run_worker(name: str = None, queues: list = None):
     logger = get_logger(__name__)
     logger.info("Preloading heavy libraries...")
     from protspace.utils import get_reducers
+
     _ = get_reducers()  # Enforce import of protspace reduction methods
     # Add other heavy imports if identified
     logger.info("Preloading complete.")

@@ -1,11 +1,10 @@
 # ModelFilesRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**model_hash** | **str** | Hash identifier for the trained model | 
+| Name           | Type    | Description                           | Notes |
+| -------------- | ------- | ------------------------------------- | ----- |
+| **model_hash** | **str** | Hash identifier for the trained model |
 
 ## Example
 
@@ -24,6 +23,5 @@ model_files_request_dict = model_files_request_instance.to_dict()
 # create an instance of ModelFilesRequest from a dict
 model_files_request_from_dict = ModelFilesRequest.from_dict(model_files_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

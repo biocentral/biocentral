@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import re
-import os
+
 
 def main():
     commit_msg_filepath = sys.argv[1]
-    with open(commit_msg_filepath, 'r') as f:
+    with open(commit_msg_filepath, "r") as f:
         commit_msg = f.read()
 
     # Expected format: fix/refactor/...: [package, e.g. vis/server] message \n Signed-off-by: Name <email>
@@ -42,6 +42,7 @@ def main():
         sys.exit(1)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

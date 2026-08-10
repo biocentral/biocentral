@@ -106,4 +106,3 @@ class _$TaxonomyResponseSerializer implements PrimitiveSerializer<TaxonomyRespon
     return result.build();
   }
 }
-

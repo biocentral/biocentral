@@ -11,8 +11,8 @@ part 'import_dataset_request.g.dart';
 /// ImportDatasetRequest
 ///
 /// Properties:
-/// * [format] 
-/// * [dataset] 
+/// * [format]
+/// * [dataset]
 @BuiltValue()
 abstract class ImportDatasetRequest implements Built<ImportDatasetRequest, ImportDatasetRequestBuilder> {
   @BuiltValueField(wireName: r'format')
@@ -119,4 +119,3 @@ class _$ImportDatasetRequestSerializer implements PrimitiveSerializer<ImportData
     return result.build();
   }
 }
-

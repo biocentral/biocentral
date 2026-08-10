@@ -1,10 +1,9 @@
 ---
 name: Maintenance request
 about: Suggest technical changes
-title: ''
+title: ""
 labels: maintenance
-assignees: ''
-
+assignees: ""
 ---
 
 <!---

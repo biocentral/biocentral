@@ -5,18 +5,23 @@ import unittest
 import numpy as np
 import pytest
 
-from biocentral_api import BiocentralAPI, BiocentralPredictionModel
+from biocentral_api import BiocentralPredictionModel
 
 
 class TestPredict(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
+
         cls.api = _wait_or_skip(_make_api())
 
     def test_predict_all(self):
         # Predict for all but VespaG (requires ESM-2 3B Model)
-        model_names = [m for m in BiocentralPredictionModel if m != BiocentralPredictionModel.VESPAG]
+        model_names = [
+            m
+            for m in BiocentralPredictionModel
+            if m != BiocentralPredictionModel.VESPAG
+        ]
         sequence_data = {
             "Seq1": "MMAPLSLALMM",
             "Seq2": "PRTPEINMMALM",
@@ -24,7 +29,9 @@ class TestPredict(unittest.TestCase):
             "Seq4": "SEQPWENCEAWMMWW",
         }
 
-        result = self.api.predict(model_names=model_names, sequence_data=sequence_data).run()
+        result = self.api.predict(
+            model_names=model_names, sequence_data=sequence_data
+        ).run()
 
         print(result)
 
@@ -38,7 +45,9 @@ class TestPredict(unittest.TestCase):
         model_names = [BiocentralPredictionModel.UDONPRED]
 
         sequence_data = {}
-        with open("tests/integration/predict/udonpred_trizod/phot_trizod.fasta", "r") as phot_trizod_file:
+        with open(
+            "tests/integration/predict/udonpred_trizod/phot_trizod.fasta", "r"
+        ) as phot_trizod_file:
             for line in phot_trizod_file.readlines():
                 if line.startswith(">"):
                     seq_id = line.strip().replace(">", "")
@@ -48,7 +57,9 @@ class TestPredict(unittest.TestCase):
 
         print(f"Read {len(sequence_data)} sequences from phot_trizod.fasta")
 
-        result = self.api.predict(model_names=model_names, sequence_data=sequence_data).run()
+        result = self.api.predict(
+            model_names=model_names, sequence_data=sequence_data
+        ).run()
 
         self.assertEqual(set(result.keys()), set(sequence_data.keys()))
         for pred in result.values():
@@ -58,7 +69,9 @@ class TestPredict(unittest.TestCase):
         # Extract tar.gz to temporary directory and process all .caid files
         with tempfile.TemporaryDirectory() as temp_dir:
             # Extract archive
-            archive_path = "tests/integration/predict/udonpred_trizod/phot_trizod.tar.gz"
+            archive_path = (
+                "tests/integration/predict/udonpred_trizod/phot_trizod.tar.gz"
+            )
             with tarfile.open(archive_path, "r:gz") as tar:
                 tar.extractall(temp_dir)
 
@@ -78,10 +91,16 @@ class TestPredict(unittest.TestCase):
                     idx = lines[0].strip().replace(">", "")
 
                     # Check that this ID exists in sequence_data
-                    self.assertIn(idx, sequence_data, f"ID '{idx}' from .caid file not found in sequence_data")
+                    self.assertIn(
+                        idx,
+                        sequence_data,
+                        f"ID '{idx}' from .caid file not found in sequence_data",
+                    )
 
                     # Check that this ID exists in prediction results
-                    self.assertIn(idx, result, f"ID '{idx}' not found in prediction results")
+                    self.assertIn(
+                        idx, result, f"ID '{idx}' not found in prediction results"
+                    )
 
                     expected_result = []
                     seq = ""
@@ -93,19 +112,28 @@ class TestPredict(unittest.TestCase):
                         expected_result.append(float(aa_res))
 
                     # Verify exact sequence match
-                    self.assertEqual(sequence_data[idx], seq,
-                                     f"Sequence mismatch for ID '{idx}': sequence_data and .caid file don't match")
+                    self.assertEqual(
+                        sequence_data[idx],
+                        seq,
+                        f"Sequence mismatch for ID '{idx}': sequence_data and .caid file don't match",
+                    )
 
                     # Compare predictions with expected results
-                    predicted_values = list(map(float, result[idx][0].value.replace("'", "").split(",")))
-                    predicted_values = list(map(lambda v: round(v, 3), predicted_values))
+                    predicted_values = list(
+                        map(float, result[idx][0].value.replace("'", "").split(","))
+                    )
+                    predicted_values = list(
+                        map(lambda v: round(v, 3), predicted_values)
+                    )
                     expected_result = list(map(lambda v: round(v, 3), expected_result))
                     self.assertTrue(len(predicted_values) == len(expected_result))
-                    self.assertTrue(np.allclose(predicted_values, expected_result, atol=1e-3),
-                                    f"Prediction mismatch for ID '{idx}':\n"
-                                    f"{predicted_values}\n"
-                                    f"{expected_result}")
+                    self.assertTrue(
+                        np.allclose(predicted_values, expected_result, atol=1e-3),
+                        f"Prediction mismatch for ID '{idx}':\n"
+                        f"{predicted_values}\n"
+                        f"{expected_result}",
+                    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

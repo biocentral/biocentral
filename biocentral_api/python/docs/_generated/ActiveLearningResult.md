@@ -1,14 +1,13 @@
 # ActiveLearningResult
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**entity_id** | **str** | Entity identifier | 
-**prediction** | **str** | Predicted value | 
-**uncertainty** | **float** | Uncertainty of the prediction | 
-**score** | **float** | Score of the entity for using it for the next iteration | 
+| Name            | Type      | Description                                             | Notes |
+| --------------- | --------- | ------------------------------------------------------- | ----- |
+| **entity_id**   | **str**   | Entity identifier                                       |
+| **prediction**  | **str**   | Predicted value                                         |
+| **uncertainty** | **float** | Uncertainty of the prediction                           |
+| **score**       | **float** | Score of the entity for using it for the next iteration |
 
 ## Example
 
@@ -27,6 +26,5 @@ active_learning_result_dict = active_learning_result_instance.to_dict()
 # create an instance of ActiveLearningResult from a dict
 active_learning_result_from_dict = ActiveLearningResult.from_dict(active_learning_result_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

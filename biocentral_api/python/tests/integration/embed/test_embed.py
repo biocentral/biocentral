@@ -1,12 +1,13 @@
 import unittest
 
-from biocentral_api import BiocentralAPI, CommonEmbedder
+from biocentral_api import CommonEmbedder
 
 
 class TestEmbeddings(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
+
         cls.api = _wait_or_skip(_make_api())
 
     def test_embed_one_hot_and_prott5(self):
@@ -70,10 +71,10 @@ class TestEmbeddings(unittest.TestCase):
             embedder_name=embedder_name,
             method="pca",
             sequence_data=sequence_data,
-            projection_config=projection_config
+            projection_config=projection_config,
         ).run()
         self.assertIsNotNone(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -14,9 +14,9 @@ part 'projection_result.g.dart';
 /// ProjectionResult
 ///
 /// Properties:
-/// * [proteinAnnotations] 
-/// * [projectionsMetadata] 
-/// * [projectionsData] 
+/// * [proteinAnnotations]
+/// * [projectionsMetadata]
+/// * [projectionsData]
 @BuiltValue()
 abstract class ProjectionResult implements Built<ProjectionResult, ProjectionResultBuilder> {
   @BuiltValueField(wireName: r'protein_annotations')
@@ -138,4 +138,3 @@ class _$ProjectionResultSerializer implements PrimitiveSerializer<ProjectionResu
     return result.build();
   }
 }
-

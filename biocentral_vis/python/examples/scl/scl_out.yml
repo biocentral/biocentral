@@ -5,10 +5,10 @@ config:
   sanity_check: true
   ignore_file_inconsistencies: false
   external_writer: tensorboard
-  output_dir: 
+  output_dir:
     /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output
   bootstrapping_iterations: 30
-  input_file: 
+  input_file:
     /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/scl.fasta
   model_choice: FNN
   optimizer_choice: adam
@@ -31,7 +31,7 @@ config:
     method: hold_out
     choose_by: loss
   protocol: sequence_to_class
-  log_dir: 
+  log_dir:
     /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output/68412c82bf39e729
 derived_values:
   biotrainer_version: 2.0.0+beta
@@ -68,7 +68,7 @@ derived_values:
     7: 0.3453125059604645
     8: 9.408910751342773
     9: 1.8596868515014648
-  embeddings_file: 
+  embeddings_file:
     /home/sebie/PycharmProjects/biotrainerFork/examples/test_no_git/autoeval/pbc/scl/output/embeddings/one_hot_encoding/reduced_embeddings_file_one_hot_encoding.h5
   model_hash: 68412c82bf39e729
   n_classes: 10

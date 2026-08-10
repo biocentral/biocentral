@@ -1,12 +1,11 @@
 import unittest
 
-from biocentral_api import BiocentralAPI
-
 
 class TestProteins(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
+
         cls.api = _wait_or_skip(_make_api())
 
     def test_retrieve_taxonomy(self):
@@ -31,5 +30,5 @@ class TestProteins(unittest.TestCase):
         self.assertEqual(len(sequence_data), len(all_ids))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

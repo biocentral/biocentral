@@ -2,13 +2,13 @@
 
 All URIs are relative to *http://localhost*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**model_metadata_api_v1_prediction_service_model_metadata_get**](PredictionApi.md#model_metadata_api_v1_prediction_service_model_metadata_get) | **GET** /api/v1/prediction_service/model_metadata | Get predict model metadata
-[**predict_api_v1_prediction_service_predict_post**](PredictionApi.md#predict_api_v1_prediction_service_predict_post) | **POST** /api/v1/prediction_service/predict | Submit protein sequence prediction job
-
+| Method                                                                                                                                          | HTTP request                                      | Description                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------- |
+| [**model_metadata_api_v1_prediction_service_model_metadata_get**](PredictionApi.md#model_metadata_api_v1_prediction_service_model_metadata_get) | **GET** /api/v1/prediction_service/model_metadata | Get predict model metadata             |
+| [**predict_api_v1_prediction_service_predict_post**](PredictionApi.md#predict_api_v1_prediction_service_predict_post)                           | **POST** /api/v1/prediction_service/predict       | Submit protein sequence prediction job |
 
 # **model_metadata_api_v1_prediction_service_model_metadata_get**
+
 > ModelMetadataResponse model_metadata_api_v1_prediction_service_model_metadata_get()
 
 Get predict model metadata
@@ -16,7 +16,6 @@ Get predict model metadata
 Get metadata for available prediction models
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -45,8 +44,6 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling PredictionApi->model_metadata_api_v1_prediction_service_model_metadata_get: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -61,19 +58,20 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: application/json
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not found |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Not found           | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **predict_api_v1_prediction_service_predict_post**
+
 > StartTaskResponse predict_api_v1_prediction_service_predict_post(prediction_request)
 
 Submit protein sequence prediction job
@@ -81,7 +79,6 @@ Submit protein sequence prediction job
 Submit sequences for prediction using specified models and receive a task ID for tracking
 
 ### Example
-
 
 ```python
 import biocentral_api._generated
@@ -101,7 +98,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.PredictionApi(api_client)
-    prediction_request = biocentral_api._generated.PredictionRequest() # PredictionRequest | 
+    prediction_request = biocentral_api._generated.PredictionRequest() # PredictionRequest |
 
     try:
         # Submit protein sequence prediction job
@@ -112,14 +109,11 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling PredictionApi->predict_api_v1_prediction_service_predict_post: %s\n" % e)
 ```
 
-
-
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **prediction_request** | [**PredictionRequest**](PredictionRequest.md)|  | 
+| Name                   | Type                                          | Description | Notes |
+| ---------------------- | --------------------------------------------- | ----------- | ----- |
+| **prediction_request** | [**PredictionRequest**](PredictionRequest.md) |             |
 
 ### Return type
 
@@ -131,17 +125,16 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
- - **Accept**: application/json
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Model not found |  -  |
-**400** | Bad Request |  -  |
-**422** | Validation Error |  -  |
+| Status code | Description         | Response headers |
+| ----------- | ------------------- | ---------------- |
+| **200**     | Successful Response | -                |
+| **404**     | Model not found     | -                |
+| **400**     | Bad Request         | -                |
+| **422**     | Validation Error    | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-

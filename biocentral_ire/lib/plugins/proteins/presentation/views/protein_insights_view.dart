@@ -15,9 +15,9 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
   final GlobalKey _columnSelectionKey = GlobalKey();
   final GlobalKey _operationSelectionKey = GlobalKey();
   final GlobalKey _calculateButtonKey = GlobalKey();
-  
+
   String? _newColumnName;
-  
+
   @override
   void initState() {
     super.initState();
@@ -34,10 +34,10 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
     // TODO
     final operationHistory = state.columnWizardHistory?[state.selectedColumn] ?? [];
     if (state.selectedColumn != null && state.columnWizard != null && operationHistory.isNotEmpty) {
-      
+
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final ColumnWizardBloc columnWizardBloc = BlocProvider.of<ColumnWizardBloc>(context);

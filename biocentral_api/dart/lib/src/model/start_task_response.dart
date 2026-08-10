@@ -104,4 +104,3 @@ class _$StartTaskResponseSerializer implements PrimitiveSerializer<StartTaskResp
     return result.build();
   }
 }
-

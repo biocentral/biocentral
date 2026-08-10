@@ -29,10 +29,10 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
   // State for pending extra-entry row
   String? _pendingExtraId;
   final TextEditingController _extraValueController = TextEditingController();
-  
+
   // Changing this key forces BiocentralDiscreteSelection to fully rebuild and clear its internal selection after an entry is staged.
   Key _dropdownKey = UniqueKey();
-  
+
   // Changing this key forces all suggestion TextFormFields to rebuild and clear their internal state on campaign/iteration reset.
   Key _suggestionsAreaKey = UniqueKey();
 
@@ -171,7 +171,7 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
     }
 
     final suggestionSet = _addedData.keys.toSet();
-    
+
     final availableForExtra = proteinDatabase.entries
         .where((e) {
           final existing = e.value.attributes[_selectedCampaign!.columnName];
@@ -261,7 +261,7 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
               ),
             ],
           ),
-        
+
         if (_extraData.isNotEmpty) ...[
           const SizedBox(height: 8),
           ..._extraData.entries.map((entry) => Card(

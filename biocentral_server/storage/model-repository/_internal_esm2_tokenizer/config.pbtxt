@@ -21,4 +21,4 @@ output [
     data_type: TYPE_INT64
     dims: [ -1 ]
   }
-] 
+]

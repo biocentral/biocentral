@@ -1,13 +1,12 @@
 # ActiveLearningIterationResult
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**iteration** | **int** | Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config) | 
-**results** | [**List[ActiveLearningResult]**](ActiveLearningResult.md) | List of active learning results | 
-**suggestions** | **List[str]** | List of suggested entity IDs for next iteration | 
+| Name            | Type                                                      | Description                                                                                                 | Notes |
+| --------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----- |
+| **iteration**   | **int**                                                   | Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config) |
+| **results**     | [**List[ActiveLearningResult]**](ActiveLearningResult.md) | List of active learning results                                                                             |
+| **suggestions** | **List[str]**                                             | List of suggested entity IDs for next iteration                                                             |
 
 ## Example
 
@@ -26,6 +25,5 @@ active_learning_iteration_result_dict = active_learning_iteration_result_instanc
 # create an instance of ActiveLearningIterationResult from a dict
 active_learning_iteration_result_from_dict = ActiveLearningIterationResult.from_dict(active_learning_iteration_result_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

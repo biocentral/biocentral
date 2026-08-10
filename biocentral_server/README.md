@@ -4,7 +4,7 @@ Compute functionality for biocentral. Provided via a dockerized FastAPI server.
 
 ## Usage
 
-Learn how to best use the *biocentral_server* functionality for your use case
+Learn how to best use the _biocentral_server_ functionality for your use case
 by taking the [tour](https://tour.biocentral.cloud/)!
 
 Or check out the [API](https://github.com/biocentral/biocentral_api) or [Frontend](https://app.biocentral.cloud)
@@ -15,7 +15,7 @@ directly.
 These are the currently provided modules:
 
 | Module        |                    Features                     | External Dependencies |
-|---------------|:-----------------------------------------------:|:---------------------:|
+| ------------- | :---------------------------------------------: | :-------------------: |
 | embeddings    |             Embed protein sequences             |     [biotrainer]      |
 | ppi           |     Work with protein-protein interactions      |     [hvi_toolkit]     |
 | predict       |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
@@ -23,15 +23,10 @@ These are the currently provided modules:
 | proteins      |             Work with protein data              |       [taxoniq]       |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
-
 [hvi_toolkit]: https://github.com/SebieF/hvi_toolkit
-
 [taxoniq]: https://github.com/taxoniq/taxoniq
-
 [TMbed]: https://github.com/BernhoferM/TMbed
-
 [VespaG]: https://github.com/JSchlensok/VespaG/
-
 
 ## Installing and running
 
@@ -41,7 +36,7 @@ For development, see the [development guide](/docs/Contributing/development_setu
 
 ## Citation
 
-Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using *biocentral* in your work:
+Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using _biocentral_ in your work:
 
 ```text
 @Article{Franz2026,

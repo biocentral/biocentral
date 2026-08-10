@@ -1,11 +1,10 @@
 # HTTPValidationError
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**detail** | [**List[ValidationError]**](ValidationError.md) |  | [optional] 
+| Name       | Type                                            | Description | Notes      |
+| ---------- | ----------------------------------------------- | ----------- | ---------- |
+| **detail** | [**List[ValidationError]**](ValidationError.md) |             | [optional] |
 
 ## Example
 
@@ -24,6 +23,5 @@ http_validation_error_dict = http_validation_error_instance.to_dict()
 # create an instance of HTTPValidationError from a dict
 http_validation_error_from_dict = HTTPValidationError.from_dict(http_validation_error_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

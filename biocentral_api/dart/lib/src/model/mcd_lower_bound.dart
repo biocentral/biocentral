@@ -66,4 +66,3 @@ class _$McdLowerBoundSerializer implements PrimitiveSerializer<McdLowerBound> {
     return result.build();
   }
 }
-

@@ -25,7 +25,7 @@ class BiocentralServiceApi {
   const BiocentralServiceApi(this._dio, this._serializers);
 
   /// Research Stats
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -37,7 +37,7 @@ class BiocentralServiceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ResearchStatsResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ResearchStatsResponse>> researchStatsApiV1BiocentralServiceResearchStatsGet({ 
+  Future<Response<ResearchStatsResponse>> researchStatsApiV1BiocentralServiceResearchStatsGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -98,7 +98,7 @@ class BiocentralServiceApi {
   }
 
   /// Stats
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -110,7 +110,7 @@ class BiocentralServiceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [ServiceStatsResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ServiceStatsResponse>> statsApiV1BiocentralServiceStatsGet({ 
+  Future<Response<ServiceStatsResponse>> statsApiV1BiocentralServiceStatsGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -171,10 +171,10 @@ class BiocentralServiceApi {
   }
 
   /// Task Status
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [taskId] 
+  /// * [taskId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -184,7 +184,7 @@ class BiocentralServiceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [TaskStatusResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<TaskStatusResponse>> taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet({ 
+  Future<Response<TaskStatusResponse>> taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet({
     required String taskId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -246,10 +246,10 @@ class BiocentralServiceApi {
   }
 
   /// Task Status Resumed
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [taskId] 
+  /// * [taskId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -259,7 +259,7 @@ class BiocentralServiceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [TaskStatusResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<TaskStatusResponse>> taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet({ 
+  Future<Response<TaskStatusResponse>> taskStatusResumedApiV1BiocentralServiceTaskStatusResumedTaskIdGet({
     required String taskId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -321,7 +321,7 @@ class BiocentralServiceApi {
   }
 
   /// Welcome Message
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -333,7 +333,7 @@ class BiocentralServiceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [JsonObject] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<JsonObject>> welcomeMessageApiV1BiocentralServiceWelcomeMessageGet({ 
+  Future<Response<JsonObject>> welcomeMessageApiV1BiocentralServiceWelcomeMessageGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,

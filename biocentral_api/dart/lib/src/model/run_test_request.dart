@@ -11,8 +11,8 @@ part 'run_test_request.g.dart';
 /// RunTestRequest
 ///
 /// Properties:
-/// * [hash] 
-/// * [test] 
+/// * [hash]
+/// * [test]
 @BuiltValue()
 abstract class RunTestRequest implements Built<RunTestRequest, RunTestRequestBuilder> {
   @BuiltValueField(wireName: r'hash')
@@ -119,4 +119,3 @@ class _$RunTestRequestSerializer implements PrimitiveSerializer<RunTestRequest> 
     return result.build();
   }
 }
-

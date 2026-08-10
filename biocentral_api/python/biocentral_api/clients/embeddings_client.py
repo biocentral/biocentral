@@ -9,14 +9,22 @@ import numpy as np
 
 from pathlib import Path
 from tqdm.auto import tqdm
-from typing import Dict, List, Union, Optional, Any
+from typing import Dict, List, Union, Optional
 
 from .client_interface import ClientInterface
 from .tasks import BiocentralServerTask, DTOHandler
 
 from ..utils import calculate_sequence_hash
-from .._generated import ApiClient, EmbedRequest, EmbeddingsApi, TaskStatus, \
-    TaskDTO, ProjectionsApi, ProjectionRequest, ProjectionResult
+from .._generated import (
+    ApiClient,
+    EmbedRequest,
+    EmbeddingsApi,
+    TaskStatus,
+    TaskDTO,
+    ProjectionsApi,
+    ProjectionRequest,
+    ProjectionResult,
+)
 
 
 class EmbeddingsResult:
@@ -26,7 +34,7 @@ class EmbeddingsResult:
         self._embeddings_file_str: Optional[str] = embeddings_file_str
 
         # Cached
-        self.__embeddings_file_handle = None  # h5 file handle 
+        self.__embeddings_file_handle = None  # h5 file handle
         self.__id2emb = None  # Hashed ids -> Embedding
 
     def merge(self, other: EmbeddingsResult) -> EmbeddingsResult:
@@ -42,28 +50,34 @@ class EmbeddingsResult:
         hash2id_combined = {**self._hash2id, **other._hash2id}
         own_id2emb = self._id2emb()
         other_id2emb = other._id2emb()
-        new_result = EmbeddingsResult(hash2id=hash2id_combined, embeddings_file_str=self._embeddings_file_str)
+        new_result = EmbeddingsResult(
+            hash2id=hash2id_combined, embeddings_file_str=self._embeddings_file_str
+        )
         new_result.__id2emb = {**own_id2emb, **other_id2emb}
         assert len(new_result._id2hash) == len(new_result._hash2id)
         if len(own_id2emb) + len(other_id2emb) != len(new_result._id2emb()):
-            warnings.warn("Merging embeddings resulted in different number of embeddings! "
-                          "This means that you tried to merge results that contain the same ids, which might not be"
-                          " intended behaviour.")
+            warnings.warn(
+                "Merging embeddings resulted in different number of embeddings! "
+                "This means that you tried to merge results that contain the same ids, which might not be"
+                " intended behaviour."
+            )
         return new_result
 
     def _lazy_read_handle(self):
-        """ Return cached handle or lazily read embeddings string """
+        """Return cached handle or lazily read embeddings string"""
         assert self.__id2emb is None, "Lazy reading called after id2emb already exists!"
 
         if self.__embeddings_file_handle is not None:
             return self.__embeddings_file_handle
         # Open
         if self._embeddings_file_str is None:
-            raise Exception("No embeddings file string available! This is probably due to a failed merge.")
+            raise Exception(
+                "No embeddings file string available! This is probably due to a failed merge."
+            )
 
         h5_bytes = base64.b64decode(self._embeddings_file_str)
         h5_io = io.BytesIO(h5_bytes)
-        self.__embeddings_file_handle = h5py.File(h5_io, 'r')
+        self.__embeddings_file_handle = h5py.File(h5_io, "r")
         return self.__embeddings_file_handle
 
     def _id2emb(self):
@@ -82,28 +96,30 @@ class EmbeddingsResult:
     def to_dict(self, hashed_ids: Optional[bool] = False) -> Dict[str, np.ndarray]:
         """
         Get a dictionary of id -> embedding.
-        
+
         :param hashed_ids: If True, sequence hashes instead of the original sequence ids are used to index dict
         :return: Dictionary of sequence/hash ids and embeddings as numpy arrays
         """
         if hashed_ids:
             return dict(self._id2emb())
         else:
-            seqid2emb = {self._hash2id[idx]: embd for idx, embd in self._id2emb().items()}
+            seqid2emb = {
+                self._hash2id[idx]: embd for idx, embd in self._id2emb().items()
+            }
             return seqid2emb
 
     def to_list(self) -> List:
-        """ Get the list of embeddings as lists """
+        """Get the list of embeddings as lists"""
         id2emb = self._id2emb()
         return [embd.tolist() for embd in id2emb.values()]
 
     def to_numpy(self) -> np.ndarray:
-        """ Get the stacked numpy array of all embeddings """
+        """Get the stacked numpy array of all embeddings"""
         id2emb = self._id2emb()
         return np.stack(list(id2emb.values()))
 
     def __getitem__(self, item: str) -> Optional[np.ndarray]:
-        """ Get a specific embedding for a particular id (can be both, sequence id or sequence hash) """
+        """Get a specific embedding for a particular id (can be both, sequence id or sequence hash)"""
 
         def _retrieve(d):
             try:
@@ -122,19 +138,21 @@ class EmbeddingsResult:
         embeddings_file_handle = self._lazy_read_handle()
         return _retrieve(embeddings_file_handle)
 
-    def save(self, save_path: Union[Path, str], hashed_ids: Optional[bool] = False) -> None:
+    def save(
+        self, save_path: Union[Path, str], hashed_ids: Optional[bool] = False
+    ) -> None:
         """
         Save the embeddings as h5 file locally.
-        
+
         :param save_path: Path where to save the embeddings file.
         :param hashed_ids: If True, sequence hashes instead of the original sequence ids are used to index the h5 database
         """
         if hashed_ids and self._embeddings_file_str is not None:
-            with open(save_path, 'w') as h5_file:
+            with open(save_path, "w") as h5_file:
                 h5_file.write(self._embeddings_file_str)
         else:
             seqid2emb = self.to_dict(hashed_ids=hashed_ids)
-            with h5py.File(save_path, 'w') as h5_file:
+            with h5py.File(save_path, "w") as h5_file:
                 for seq_id, embedding in seqid2emb.items():
                     h5_file.create_dataset(seq_id, data=embedding)
 
@@ -152,31 +170,40 @@ class _EmbedDTOHandler(DTOHandler):
                 embeddings_file = dto.embeddings_file
                 if embeddings_file is None:
                     pass  # TODO Handle error
-                return EmbeddingsResult(hash2id=self._hash2id, embeddings_file_str=embeddings_file)
+                return EmbeddingsResult(
+                    hash2id=self._hash2id, embeddings_file_str=embeddings_file
+                )
 
         return None
 
     def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
         for dto in dtos:
             status = dto.status
-            if status in [TaskStatus.RUNNING,
-                          TaskStatus.FINISHED]:
+            if status in [TaskStatus.RUNNING, TaskStatus.FINISHED]:
                 if self._cached_embedding_total is None:
-                    self._cached_embedding_total = dto.embedding_progress.total if dto.embedding_progress else None
-                    pbar.total = self._cached_embedding_total if self._cached_embedding_total else 0
-                current = dto.embedding_progress.current if dto.embedding_progress else None
+                    self._cached_embedding_total = (
+                        dto.embedding_progress.total if dto.embedding_progress else None
+                    )
+                    pbar.total = (
+                        self._cached_embedding_total
+                        if self._cached_embedding_total
+                        else 0
+                    )
+                current = (
+                    dto.embedding_progress.current if dto.embedding_progress else None
+                )
                 if current is not None:
                     pbar.update(current - pbar.n)
             match status:
                 case TaskStatus.PENDING:
-                    pbar.set_description(f"Waiting for embedding calculation to start..")
+                    pbar.set_description("Waiting for embedding calculation to start..")
                 case TaskStatus.RUNNING:
                     pbar.set_description(f"Embedding with {self._embedder_name}..")
                 case TaskStatus.FINISHED:
-                    pbar.set_description(f"Finished embedding calculation!")
+                    pbar.set_description("Finished embedding calculation!")
                     break
                 case TaskStatus.FAILED:
-                    pbar.set_description(f"Embedding failed!")
+                    pbar.set_description("Embedding failed!")
                     break
         return pbar
 
@@ -201,14 +228,18 @@ class _ProjectionDTOHandler(DTOHandler):
             status = dto.status
             match status:
                 case TaskStatus.PENDING:
-                    pbar.set_description(f"Waiting for projection calculation to start..")
+                    pbar.set_description(
+                        "Waiting for projection calculation to start.."
+                    )
                 case TaskStatus.RUNNING:
-                    pbar.set_description(f"Projecting {self._embedder_name} embeddings..")
+                    pbar.set_description(
+                        f"Projecting {self._embedder_name} embeddings.."
+                    )
                 case TaskStatus.FINISHED:
-                    pbar.set_description(f"Finished projection calculation!")
+                    pbar.set_description("Finished projection calculation!")
                     break
                 case TaskStatus.FAILED:
-                    pbar.set_description(f"Projection failed!")
+                    pbar.set_description("Projection failed!")
                     break
         return pbar
 
@@ -217,45 +248,74 @@ class _ProjectionDTOHandler(DTOHandler):
 
 
 class EmbeddingsClient(ClientInterface):
-    def embed(self, api_client: ApiClient, embedder_name: str, reduce: bool, sequence_data: Dict[str, str],
-              use_half_precision: bool) -> BiocentralServerTask[EmbeddingsResult]:
+    def embed(
+        self,
+        api_client: ApiClient,
+        embedder_name: str,
+        reduce: bool,
+        sequence_data: Dict[str, str],
+        use_half_precision: bool,
+    ) -> BiocentralServerTask[EmbeddingsResult]:
         assert len(sequence_data) > 0, "No sequences provided"
-        assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
+        assert len(sequence_data.values()) == len(
+            set(sequence_data.values())
+        ), "Duplicate sequences provided"
 
-        hash2id = {calculate_sequence_hash(seq): seq_id for seq_id, seq in sequence_data.items()}
+        hash2id = {
+            calculate_sequence_hash(seq): seq_id
+            for seq_id, seq in sequence_data.items()
+        }
 
-        embed_request = EmbedRequest(embedder_name=embedder_name, reduce=reduce, sequence_data=sequence_data,
-                                     use_half_precision=use_half_precision)
+        embed_request = EmbedRequest(
+            embedder_name=embedder_name,
+            reduce=reduce,
+            sequence_data=sequence_data,
+            use_half_precision=use_half_precision,
+        )
         api_instance = EmbeddingsApi(api_client)
         task_id = self._submit_task(
-            endpoint_caller=lambda: api_instance.embed_api_v1_embeddings_service_embed_post(embed_request)
+            endpoint_caller=lambda: api_instance.embed_api_v1_embeddings_service_embed_post(
+                embed_request
+            )
         )
 
-        embed_dto_handler = _EmbedDTOHandler(hash2id=hash2id, embedder_name=embedder_name)
-        biocentral_server_task = BiocentralServerTask(task_id=task_id,
-                                                      api_client=api_client,
-                                                      dto_handler=embed_dto_handler)
+        embed_dto_handler = _EmbedDTOHandler(
+            hash2id=hash2id, embedder_name=embedder_name
+        )
+        biocentral_server_task = BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=embed_dto_handler
+        )
         return biocentral_server_task
 
-    def project(self, api_client: ApiClient,
-                embedder_name: str,
-                method: str,
-                sequence_data: Dict[str, str],
-                projection_config: Dict[str, str],
-                ) -> BiocentralServerTask[ProjectionResult]:
+    def project(
+        self,
+        api_client: ApiClient,
+        embedder_name: str,
+        method: str,
+        sequence_data: Dict[str, str],
+        projection_config: Dict[str, str],
+    ) -> BiocentralServerTask[ProjectionResult]:
         assert len(sequence_data) > 0, "No sequences provided"
-        assert len(sequence_data.values()) == len(set(sequence_data.values())), "Duplicate sequences provided"
+        assert len(sequence_data.values()) == len(
+            set(sequence_data.values())
+        ), "Duplicate sequences provided"
 
-        project_request = ProjectionRequest(sequence_data=sequence_data, embedder_name=embedder_name, method=method,
-                                            config=projection_config)
+        project_request = ProjectionRequest(
+            sequence_data=sequence_data,
+            embedder_name=embedder_name,
+            method=method,
+            config=projection_config,
+        )
         api_instance = ProjectionsApi(api_client)
 
         task_id = self._submit_task(
-            endpoint_caller=lambda: api_instance.project_api_v1_projection_service_project_post(project_request)
+            endpoint_caller=lambda: api_instance.project_api_v1_projection_service_project_post(
+                project_request
+            )
         )
 
         projection_dto_handler = _ProjectionDTOHandler(embedder_name=embedder_name)
-        biocentral_server_task = BiocentralServerTask(task_id=task_id,
-                                                      api_client=api_client,
-                                                      dto_handler=projection_dto_handler)
+        biocentral_server_task = BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=projection_dto_handler
+        )
         return biocentral_server_task

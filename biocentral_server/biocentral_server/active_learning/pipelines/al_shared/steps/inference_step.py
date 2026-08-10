@@ -42,20 +42,20 @@ class InferenceStep(PipelineStep[ALContext]):
 
         # Calculate probability of target class in training data
         al_targets = set([t.lower() for t in discrete_targets or []])
-        assert len(al_targets) > 0, (
-            "No target classes given for random classification predictions!"
-        )
-        assert all(t in class_str2int for t in al_targets), (
-            "Target classes must be in class_str2int!"
-        )
+        assert (
+            len(al_targets) > 0
+        ), "No target classes given for random classification predictions!"
+        assert all(
+            t in class_str2int for t in al_targets
+        ), "Target classes must be in class_str2int!"
 
         train_labels = [
             str(data_point.get_target()).lower() for data_point in train_data.values()
         ]
         train_labels_set = set(train_labels)
-        assert all(t in class_str2int for t in train_labels_set), (
-            "Training labels must be in class_str2int!"
-        )
+        assert all(
+            t in class_str2int for t in train_labels_set
+        ), "Training labels must be in class_str2int!"
         for class_label in class_str2int.keys():
             if class_label not in train_labels_set:
                 train_labels.append(
@@ -78,9 +78,9 @@ class InferenceStep(PipelineStep[ALContext]):
             torch.distributions.Dirichlet(concentration).sample((n_inference,)).tolist()
         )
         class_int2str = {v: k.lower() for k, v in class_str2int.items()}
-        assert len(class_int2str) == len(class_str2int), (
-            "Found duplicated class labels in class dictionary!"
-        )
+        assert len(class_int2str) == len(
+            class_str2int
+        ), "Found duplicated class labels in class dictionary!"
 
         random_predictions = [
             class_int2str[torch.max(torch.tensor(m), dim=0)[1].item()]
@@ -306,17 +306,17 @@ class InferenceStep(PipelineStep[ALContext]):
                 return means
             case ActiveLearningOptimizationMode.VALUE:
                 target_val = target_value
-                assert target_val is not None, (
-                    "Target value must be provided for VALUE optimization mode"
-                )
+                assert (
+                    target_val is not None
+                ), "Target value must be provided for VALUE optimization mode"
                 dist = torch.abs(target_val - means)
                 return dist
             case ActiveLearningOptimizationMode.INTERVAL:
                 dist = torch.zeros_like(means)
                 lb, ub = target_lb, target_ub
-                assert lb is not None and ub is not None, (
-                    "Target bounds must be provided for INTERVAL optimization mode"
-                )
+                assert (
+                    lb is not None and ub is not None
+                ), "Target bounds must be provided for INTERVAL optimization mode"
                 below_lb = means < lb
                 above_ub = means > ub
                 dist[below_lb] = lb - means[below_lb]
@@ -332,9 +332,9 @@ class InferenceStep(PipelineStep[ALContext]):
                 )
 
                 target_classes = discrete_targets or []
-                assert len(target_classes) > 0, (
-                    "No target classes given for discrete optimization!"
-                )
+                assert (
+                    len(target_classes) > 0
+                ), "No target classes given for discrete optimization!"
 
                 class_str2int_lower = {
                     cl.lower(): idx for cl, idx in class_str2int.items()

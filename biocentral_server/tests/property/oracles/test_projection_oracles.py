@@ -27,7 +27,9 @@ def clear_projection_oracle_results() -> None:
 
 
 class ProjectionOracleConfig(BaseModel):
-    method: str = Field(description="Projection method name (e.g., 'umap', 'pca', 'tsne')")
+    method: str = Field(
+        description="Projection method name (e.g., 'umap', 'pca', 'tsne')"
+    )
     n_components: int = Field(
         default=2, description="Number of dimensions to project to"
     )
@@ -292,6 +294,7 @@ class DirectProjector:
         n_components: int,
     ) -> Dict[str, np.ndarray]:
         import pandas as pd
+
         self._ensure_initialized()
 
         if method.lower() not in self._reducers:
@@ -317,7 +320,9 @@ class DirectProjector:
             dims=n_components,
         )
         output = self._processor.create_output(
-            metadata=metadata, reductions=[reduction], headers=seq_ids,
+            metadata=metadata,
+            reductions=[reduction],
+            headers=seq_ids,
         )
         projection_result = {key: table.to_pydict() for key, table in output.items()}
 
@@ -354,12 +359,26 @@ def tsne_config() -> ProjectionOracleConfig:
 
 # 20 sequence IDs for UMAP (requires > n_neighbors=15)
 _ORACLE_SEQUENCE_IDS = [
-    "standard_001", "standard_002", "standard_003",
-    "real_insulin_b", "real_ubiquitin", "real_gfp_core",
-    "length_short_10", "length_medium_50", "length_long_200",
-    "all_standard_aa", "hydrophobic_rich", "charged_rich", "proline_rich",
-    "motif_alpha_helix", "motif_beta_sheet", "motif_glycine_loop",
-    "cysteine_rich", "homopolymer_A", "length_short_5", "length_min_2",
+    "standard_001",
+    "standard_002",
+    "standard_003",
+    "real_insulin_b",
+    "real_ubiquitin",
+    "real_gfp_core",
+    "length_short_10",
+    "length_medium_50",
+    "length_long_200",
+    "all_standard_aa",
+    "hydrophobic_rich",
+    "charged_rich",
+    "proline_rich",
+    "motif_alpha_helix",
+    "motif_beta_sheet",
+    "motif_glycine_loop",
+    "cysteine_rich",
+    "homopolymer_A",
+    "length_short_5",
+    "length_min_2",
 ]
 
 
@@ -373,12 +392,22 @@ def oracle_embeddings() -> Dict[str, np.ndarray]:
 
 # Mapping for diverse test with renamed keys (16 sequences for UMAP)
 _DIVERSE_ID_MAPPING = {
-    "short": "length_short_10", "medium": "length_medium_50", "long": "length_long_200",
-    "standard": "standard_001", "standard_002": "standard_002", "standard_003": "standard_003",
-    "charged": "charged_rich", "hydrophobic": "hydrophobic_rich", "proline_rich": "proline_rich",
-    "alpha_helix": "motif_alpha_helix", "beta_sheet": "motif_beta_sheet", "glycine_loop": "motif_glycine_loop",
-    "cysteine_rich": "cysteine_rich", "all_aa": "all_standard_aa",
-    "insulin": "real_insulin_b", "ubiquitin": "real_ubiquitin",
+    "short": "length_short_10",
+    "medium": "length_medium_50",
+    "long": "length_long_200",
+    "standard": "standard_001",
+    "standard_002": "standard_002",
+    "standard_003": "standard_003",
+    "charged": "charged_rich",
+    "hydrophobic": "hydrophobic_rich",
+    "proline_rich": "proline_rich",
+    "alpha_helix": "motif_alpha_helix",
+    "beta_sheet": "motif_beta_sheet",
+    "glycine_loop": "motif_glycine_loop",
+    "cysteine_rich": "cysteine_rich",
+    "all_aa": "all_standard_aa",
+    "insulin": "real_insulin_b",
+    "ubiquitin": "real_ubiquitin",
 }
 
 

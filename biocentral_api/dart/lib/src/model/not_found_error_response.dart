@@ -11,10 +11,10 @@ part 'not_found_error_response.g.dart';
 /// NotFoundErrorResponse
 ///
 /// Properties:
-/// * [error] 
-/// * [errorType] 
-/// * [details] 
-/// * [errorCode] 
+/// * [error]
+/// * [errorType]
+/// * [details]
+/// * [errorCode]
 @BuiltValue()
 abstract class NotFoundErrorResponse implements Built<NotFoundErrorResponse, NotFoundErrorResponseBuilder> {
   @BuiltValueField(wireName: r'error')
@@ -160,4 +160,3 @@ class _$NotFoundErrorResponseSerializer implements PrimitiveSerializer<NotFoundE
     return result.build();
   }
 }
-

@@ -3,8 +3,9 @@ import numpy as np
 
 from scipy import stats
 
+
 def test_normal(json_data):
-    data = json_data.get('data')
+    data = json_data.get("data")
 
     if not data:
         print("Error: No data provided", flush=True)
@@ -25,7 +26,7 @@ def test_normal(json_data):
     result = {
         "is_normal": bool(is_normal),
         "p_value": float(p_value),  # Convert to float for JSON serialization
-        "statistic": float(statistic)
+        "statistic": float(statistic),
     }
     print(f"Result: {result}", flush=True)
     return result

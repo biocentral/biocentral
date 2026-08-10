@@ -1,11 +1,10 @@
 # TaxonomyResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**taxonomy** | [**List[TaxonomyItem]**](TaxonomyItem.md) | List of taxonomy lookup results | 
+| Name         | Type                                      | Description                     | Notes |
+| ------------ | ----------------------------------------- | ------------------------------- | ----- |
+| **taxonomy** | [**List[TaxonomyItem]**](TaxonomyItem.md) | List of taxonomy lookup results |
 
 ## Example
 
@@ -24,6 +23,5 @@ taxonomy_response_dict = taxonomy_response_instance.to_dict()
 # create an instance of TaxonomyResponse from a dict
 taxonomy_response_from_dict = TaxonomyResponse.from_dict(taxonomy_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

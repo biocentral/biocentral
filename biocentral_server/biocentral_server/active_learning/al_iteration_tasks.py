@@ -60,9 +60,9 @@ class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
             )
             if error_dto:
                 return error_dto
-        assert embeddings is not None and len(embeddings) > 0, (
-            "embeddings is None after pre-embedding before active learning iteration!"
-        )
+        assert (
+            embeddings is not None and len(embeddings) > 0
+        ), "embeddings is None after pre-embedding before active learning iteration!"
         # Seed all random generators for reproducibility
         seed_all(self.al_campaign_config.seed)
 

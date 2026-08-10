@@ -22,6 +22,7 @@ cd biocentral_server
 ```
 
 Create a new python environment and install the requirements:
+
 ```shell
 uv venv
 source .venv/bin/activate
@@ -30,10 +31,10 @@ uv sync --group dev
 
 Copy the local environment file and check that it matches your requirements:
 
-```shell
+````shell
 ```shell
 cp .env.local .env
-```
+````
 
 Run the additional containers (database, redis, triton etc.) via docker compose
 (automatically uses the `docker-compose.override.yml` file with appropriate overrides for local development):
@@ -43,6 +44,7 @@ docker compose up -d
 ```
 
 Run the server locally with workers:
+
 ```shell
 uv run run-local.py
 ```

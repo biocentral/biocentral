@@ -3,6 +3,7 @@
 Overview how to build biocentral for different platforms locally.
 
 For serious_python, you need to add this environment variable to your run configuration:
+
 ```shell
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 flutter run -d linux
@@ -12,6 +13,7 @@ SERIOUS_PYTHON_SITE_PACKAGES=/absolute/path/to/biocentral/build/site-packages
 ```
 
 Create the launcher icons:
+
 ```shell
 dart run flutter_launcher_icons
 ```

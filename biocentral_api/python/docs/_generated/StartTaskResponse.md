@@ -4,9 +4,9 @@ Response model for job submission
 
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**task_id** | **str** | Unique task identifier for tracking the computation job | 
+| Name        | Type    | Description                                             | Notes |
+| ----------- | ------- | ------------------------------------------------------- | ----- |
+| **task_id** | **str** | Unique task identifier for tracking the computation job |
 
 ## Example
 
@@ -25,6 +25,5 @@ start_task_response_dict = start_task_response_instance.to_dict()
 # create an instance of StartTaskResponse from a dict
 start_task_response_from_dict = StartTaskResponse.from_dict(start_task_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

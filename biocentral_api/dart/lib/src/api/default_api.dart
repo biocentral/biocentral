@@ -19,7 +19,7 @@ class DefaultApi {
   const DefaultApi(this._dio, this._serializers);
 
   /// Health Check
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -31,7 +31,7 @@ class DefaultApi {
   ///
   /// Returns a [Future] containing a [Response] with a [JsonObject] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<JsonObject>> healthCheckHealthGet({ 
+  Future<Response<JsonObject>> healthCheckHealthGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,

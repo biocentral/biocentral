@@ -12,11 +12,11 @@ part 'projections_data.g.dart';
 /// ProjectionsData
 ///
 /// Properties:
-/// * [projectionName] 
-/// * [identifier] 
-/// * [x] 
-/// * [y] 
-/// * [z] 
+/// * [projectionName]
+/// * [identifier]
+/// * [x]
+/// * [y]
+/// * [z]
 @BuiltValue()
 abstract class ProjectionsData implements Built<ProjectionsData, ProjectionsDataBuilder> {
   @BuiltValueField(wireName: r'projection_name')
@@ -168,4 +168,3 @@ class _$ProjectionsDataSerializer implements PrimitiveSerializer<ProjectionsData
     return result.build();
   }
 }
-

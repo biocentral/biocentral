@@ -41,7 +41,7 @@ extension SetColumn on BiocentralDatabaseColumn {
     }
     return splitSets;
   }
-  
+
   String formatAsSplitSets() {
     final Map<SplitSet, int> splitDistribution = {};
     for(final (value) in values.values) {

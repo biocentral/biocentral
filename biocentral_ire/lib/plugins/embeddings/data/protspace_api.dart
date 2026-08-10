@@ -169,7 +169,7 @@ class ProtspaceFileHandler {
     (function() {
         var iframe = document.getElementById('protspaceFrame');
         var data = $jsonData;
-        
+
         function sendData() {
             iframe.contentWindow.postMessage(data, "$protspaceURL");
         }

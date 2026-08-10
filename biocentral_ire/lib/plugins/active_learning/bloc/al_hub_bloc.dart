@@ -41,16 +41,16 @@ final class ALHubState extends Equatable {
   final int _selectedCampaignIterationCount;
 
   ALHubState({
-    required this.campaigns, 
-    required this.proteinDatabase, 
-    this.selectedCampaign, 
+    required this.campaigns,
+    required this.proteinDatabase,
+    this.selectedCampaign,
     this.datasetChangeStatus = ALDatasetChangeStatus.none,})
       : _selectedCampaignIterationCount = selectedCampaign?.iterationResults.length ?? 0;
 
   ALHubState.initial():
-        campaigns = const [], 
-        proteinDatabase = const <String, Protein>{}, 
-        selectedCampaign = null, 
+        campaigns = const [],
+        proteinDatabase = const <String, Protein>{},
+        selectedCampaign = null,
         _selectedCampaignIterationCount = 0,
         datasetChangeStatus = ALDatasetChangeStatus.none;
 

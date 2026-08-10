@@ -1,11 +1,10 @@
 # ServiceStatsResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**service_stats** | [**BiocentralServiceStats**](BiocentralServiceStats.md) | Service statistics | 
+| Name              | Type                                                    | Description        | Notes |
+| ----------------- | ------------------------------------------------------- | ------------------ | ----- |
+| **service_stats** | [**BiocentralServiceStats**](BiocentralServiceStats.md) | Service statistics |
 
 ## Example
 
@@ -24,6 +23,5 @@ service_stats_response_dict = service_stats_response_instance.to_dict()
 # create an instance of ServiceStatsResponse from a dict
 service_stats_response_from_dict = ServiceStatsResponse.from_dict(service_stats_response_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

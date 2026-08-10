@@ -106,4 +106,3 @@ class _$ModelMetadataResponseSerializer implements PrimitiveSerializer<ModelMeta
     return result.build();
   }
 }
-

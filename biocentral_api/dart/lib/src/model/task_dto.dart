@@ -22,20 +22,20 @@ part 'task_dto.g.dart';
 /// TaskDTO
 ///
 /// Properties:
-/// * [status] 
-/// * [error] 
-/// * [predictions] 
-/// * [biotrainerUpdate] 
-/// * [biotrainerResult] 
-/// * [biotrainerInferenceResult] 
-/// * [embeddingProgress] 
-/// * [embeddedSequences] 
-/// * [embeddings] 
-/// * [embeddingsFile] 
-/// * [clusteredData] 
-/// * [projectionResult] 
-/// * [alIterationResult] 
-/// * [alSimulationResult] 
+/// * [status]
+/// * [error]
+/// * [predictions]
+/// * [biotrainerUpdate]
+/// * [biotrainerResult]
+/// * [biotrainerInferenceResult]
+/// * [embeddingProgress]
+/// * [embeddedSequences]
+/// * [embeddings]
+/// * [embeddingsFile]
+/// * [clusteredData]
+/// * [projectionResult]
+/// * [alIterationResult]
+/// * [alSimulationResult]
 @BuiltValue()
 abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'status')
@@ -362,4 +362,3 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
     return result.build();
   }
 }
-

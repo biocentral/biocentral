@@ -3,6 +3,7 @@
 These tests use the generated API client directly to test validation behavior
 and internal endpoints that are not exposed through the high-level BiocentralAPI.
 """
+
 import unittest
 
 from biocentral_api._generated import (
@@ -19,6 +20,7 @@ class _ServerEndpointTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
+
         api = _wait_or_skip(_make_api())
         base_url = api._get_base_url()
         cls._configuration = Configuration(host=base_url)
@@ -71,5 +73,5 @@ class TestProjectionValidation(_ServerEndpointTestCase):
                 projections_api.project_api_v1_projection_service_project_post(request)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

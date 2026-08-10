@@ -1,14 +1,13 @@
 # EmbedRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**embedder_name** | **str** | Name of the embedder model to use | 
-**reduce** | **bool** | Whether to use dimensionality reduction | [optional] [default to False]
-**sequence_data** | **Dict[str, str]** | Sequence data to embed (seq_id -&gt; sequence) | 
-**use_half_precision** | **bool** | Whether to use half precision | [optional] [default to False]
+| Name                   | Type               | Description                                    | Notes                         |
+| ---------------------- | ------------------ | ---------------------------------------------- | ----------------------------- |
+| **embedder_name**      | **str**            | Name of the embedder model to use              |
+| **reduce**             | **bool**           | Whether to use dimensionality reduction        | [optional] [default to False] |
+| **sequence_data**      | **Dict[str, str]** | Sequence data to embed (seq_id -&gt; sequence) |
+| **use_half_precision** | **bool**           | Whether to use half precision                  | [optional] [default to False] |
 
 ## Example
 
@@ -27,6 +26,5 @@ embed_request_dict = embed_request_instance.to_dict()
 # create an instance of EmbedRequest from a dict
 embed_request_from_dict = EmbedRequest.from_dict(embed_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

@@ -12,9 +12,9 @@ part 'projections_metadata.g.dart';
 /// ProjectionsMetadata
 ///
 /// Properties:
-/// * [projectionName] 
-/// * [dimensions] 
-/// * [infoJson] 
+/// * [projectionName]
+/// * [dimensions]
+/// * [infoJson]
 @BuiltValue()
 abstract class ProjectionsMetadata implements Built<ProjectionsMetadata, ProjectionsMetadataBuilder> {
   @BuiltValueField(wireName: r'projection_name')
@@ -136,4 +136,3 @@ class _$ProjectionsMetadataSerializer implements PrimitiveSerializer<Projections
     return result.build();
   }
 }
-

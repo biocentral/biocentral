@@ -1,11 +1,10 @@
 # TaxonomyRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**taxonomy_ids** | **List[int]** | List of taxonomy ids | 
+| Name             | Type          | Description          | Notes |
+| ---------------- | ------------- | -------------------- | ----- |
+| **taxonomy_ids** | **List[int]** | List of taxonomy ids |
 
 ## Example
 
@@ -24,6 +23,5 @@ taxonomy_request_dict = taxonomy_request_instance.to_dict()
 # create an instance of TaxonomyRequest from a dict
 taxonomy_request_from_dict = TaxonomyRequest.from_dict(taxonomy_request_dict)
 ```
+
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-

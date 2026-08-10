@@ -123,4 +123,3 @@ class _$ActiveLearningScreeningIterationRequestSerializer implements PrimitiveSe
     return result.build();
   }
 }
-

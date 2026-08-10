@@ -331,9 +331,9 @@ def assert_embedding_valid(
     pooled: bool = False,
 ) -> None:
     # Assert that an embedding is valid, raising AssertionError if not.
-    assert validate_embedding_shape(embedding, sequence_length, model_name, pooled), (
-        f"Invalid shape: {embedding.shape}"
-    )
+    assert validate_embedding_shape(
+        embedding, sequence_length, model_name, pooled
+    ), f"Invalid shape: {embedding.shape}"
 
     props = validate_embedding_properties(embedding, model_name)
     for prop_name, is_valid in props.items():

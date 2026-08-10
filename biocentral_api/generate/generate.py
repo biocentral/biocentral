@@ -10,7 +10,6 @@ import os
 import shutil
 import subprocess
 import sys
-import biotrainer_core
 from pathlib import Path
 
 
@@ -19,11 +18,7 @@ def run_command(command, cwd=None):
     print(f"Running: {' '.join(command)}")
     try:
         result = subprocess.run(
-            command,
-            cwd=cwd,
-            check=True,
-            capture_output=True,
-            text=True
+            command, cwd=cwd, check=True, capture_output=True, text=True
         )
         if result.stdout:
             print(result.stdout)
@@ -65,18 +60,20 @@ def move_generated_docs(source_docs_dir, target_docs_dir, existing_manual_docs):
             "--delete",  # delete files in target that don't exist in source
             "--exclude-from=-",  # exclude patterns from stdin
             f"{source_docs_dir}/",  # source (trailing slash important)
-            f"{target_docs_dir}/"  # target
+            f"{target_docs_dir}/",  # target
         ]
 
         # Create exclude patterns for manual docs
-        exclude_patterns = "\n".join(existing_manual_docs) if existing_manual_docs else ""
+        exclude_patterns = (
+            "\n".join(existing_manual_docs) if existing_manual_docs else ""
+        )
 
         result = subprocess.run(
             rsync_command,
             input=exclude_patterns,
             text=True,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         if result.stdout:
@@ -184,7 +181,7 @@ def prune_outdated_generated_code_dart(lang_root: Path, generated_files: set):
             continue
 
     # Also include lib root if there are generated files directly under lib/
-    has_lib_root_files = any(Path(p).parent.as_posix() == 'lib' for p in allow)
+    has_lib_root_files = any(Path(p).parent.as_posix() == "lib" for p in allow)
     if has_lib_root_files:
         prune_dirs.add(lib_dir)
 
@@ -216,10 +213,10 @@ def git_add_generated_files(lang_root: Path, language: str):
         lang_root: Path to the language root directory (e.g., repo/python or repo/dart)
         language: Either 'python' or 'dart' to determine which directories to add
     """
-    if language == 'python':
-        dirs_to_add = ['biocentral_api', 'docs']
-    elif language == 'dart':
-        dirs_to_add = ['lib', 'doc']
+    if language == "python":
+        dirs_to_add = ["biocentral_api", "docs"]
+    elif language == "dart":
+        dirs_to_add = ["lib", "doc"]
     else:
         print(f"Unknown language: {language}")
         return False
@@ -243,7 +240,6 @@ def git_add_generated_files(lang_root: Path, language: str):
 
 def post_process_imports(output_dir: Path):
     """Add missing imports for mapped types to generated Python files."""
-    import re
 
     generated_models_dir = output_dir / "biocentral_api" / "_generated" / "models"
 
@@ -277,14 +273,18 @@ def post_process_imports(output_dir: Path):
                 content = "\n".join(lines)
 
                 # Replace the fully qualified name with just SequenceData
-                content = content.replace("biotrainer_core.data_classes.SequenceData", "SequenceData")
+                content = content.replace(
+                    "biotrainer_core.data_classes.SequenceData", "SequenceData"
+                )
 
                 py_file.write_text(content)
                 print(f"Added SequenceData import to {py_file.name}")
 
     # Also update __init__.py to not export SequenceData model
-    init_files = [generated_models_dir / "__init__.py",
-                  generated_models_dir.parent / "__init__.py"]
+    init_files = [
+        generated_models_dir / "__init__.py",
+        generated_models_dir.parent / "__init__.py",
+    ]
     for init_file in init_files:
         if init_file.exists():
             content = init_file.read_text()
@@ -292,10 +292,11 @@ def post_process_imports(output_dir: Path):
             # Remove any line that imports/exports the generated SequenceData
             lines = content.split("\n")
             filtered_lines = [
-                line for line in lines
+                line
+                for line in lines
                 if not (
-                        "sequence_data import SequenceData" in line or
-                        "'SequenceData': SequenceData" in line
+                    "sequence_data import SequenceData" in line
+                    or "'SequenceData': SequenceData" in line
                 )
             ]
 
@@ -312,6 +313,7 @@ def post_process_imports(output_dir: Path):
 
             init_file.write_text("\n".join(filtered_lines))
             print("Updated __init__.py")
+
 
 def generate_python():
     # Define paths
@@ -335,14 +337,20 @@ def generate_python():
     generator_command = [
         "openapi-generator-cli",
         "generate",
-        "-g", "python",
-        "--package-name", "biocentral_api._generated",
+        "-g",
+        "python",
+        "--package-name",
+        "biocentral_api._generated",
         "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
-        "--type-mappings", "SequenceData=biotrainer_core.data_classes.SequenceData",
-        "--import-mappings", "SequenceData=biotrainer_core.data_classes.SequenceData",
+        "--type-mappings",
+        "SequenceData=biotrainer_core.data_classes.SequenceData",
+        "--import-mappings",
+        "SequenceData=biotrainer_core.data_classes.SequenceData",
         "--language-specific-primitives=SequenceData",
-        "-i", str(openapi_spec),
-        "-o", str(output_dir)
+        "-i",
+        str(openapi_spec),
+        "-o",
+        str(output_dir),
     ]
 
     print("Generating OpenAPI Python client...")
@@ -410,12 +418,16 @@ def generate_dart():
     generator_command = [
         "openapi-generator-cli",
         "generate",
-        "-g", "dart-dio",
-        "--package-name", "biocentral_api",
+        "-g",
+        "dart-dio",
+        "--package-name",
+        "biocentral_api",
         "--additional-properties=pubName=biocentral_api",
         "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
-        "-i", str(openapi_spec),
-        "-o", str(output_dir)
+        "-i",
+        str(openapi_spec),
+        "-o",
+        str(output_dir),
     ]
 
     print("Generating OpenAPI Dart client...")
@@ -434,7 +446,7 @@ def generate_dart():
         "run",
         "build_runner",
         "build",
-        "--delete-conflicting-outputs"
+        "--delete-conflicting-outputs",
     ]
 
     # if not run_command(builder_command, cwd=output_dir):

@@ -2,7 +2,7 @@ from tqdm.auto import tqdm
 from typing import List, Optional
 from abc import ABC, abstractmethod
 
-from ..._generated import TaskStatusResponse, TaskDTO, TaskStatus
+from ..._generated import TaskDTO, TaskStatus
 
 
 class DTOHandler(ABC):

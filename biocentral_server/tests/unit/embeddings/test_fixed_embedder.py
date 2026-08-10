@@ -393,9 +393,9 @@ class TestEmbeddingQuality:
         embedding = embedder.embed(sequence)
 
         for i in range(len(sequence) - 1):
-            assert not np.allclose(embedding[i], embedding[i + 1]), (
-                f"Positions {i} and {i + 1} should differ"
-            )
+            assert not np.allclose(
+                embedding[i], embedding[i + 1]
+            ), f"Positions {i} and {i + 1} should differ"
 
 
 class TestFixedEmbedderRepr:

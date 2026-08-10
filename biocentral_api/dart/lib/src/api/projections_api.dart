@@ -26,7 +26,7 @@ class ProjectionsApi {
   /// Calculate projections for embeddings using Protspace
   ///
   /// Parameters:
-  /// * [projectionRequest] 
+  /// * [projectionRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -36,7 +36,7 @@ class ProjectionsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> projectApiV1ProjectionServiceProjectPost({ 
+  Future<Response<StartTaskResponse>> projectApiV1ProjectionServiceProjectPost({
     required ProjectionRequest projectionRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -130,7 +130,7 @@ class ProjectionsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [GetProjectionConfigResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GetProjectionConfigResponse>> projectionConfigApiV1ProjectionServiceProjectionConfigGet({ 
+  Future<Response<GetProjectionConfigResponse>> projectionConfigApiV1ProjectionServiceProjectionConfigGet({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,

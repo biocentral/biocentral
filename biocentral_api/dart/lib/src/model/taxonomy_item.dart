@@ -11,9 +11,9 @@ part 'taxonomy_item.g.dart';
 /// TaxonomyItem
 ///
 /// Properties:
-/// * [taxonomyId] 
-/// * [name] 
-/// * [family] 
+/// * [taxonomyId]
+/// * [name]
+/// * [family]
 @BuiltValue()
 abstract class TaxonomyItem implements Built<TaxonomyItem, TaxonomyItemBuilder> {
   @BuiltValueField(wireName: r'taxonomy_id')
@@ -135,4 +135,3 @@ class _$TaxonomyItemSerializer implements PrimitiveSerializer<TaxonomyItem> {
     return result.build();
   }
 }
-

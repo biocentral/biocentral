@@ -157,4 +157,3 @@ class _$ActiveLearningScreeningIterationConfigSerializer implements PrimitiveSer
     return result.build();
   }
 }
-

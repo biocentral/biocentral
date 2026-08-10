@@ -149,7 +149,7 @@ embedder_name: one_hot_encoding | random_embedder | AAOntology | blosum62
 * `one_hot_encoding`: Creates one hot encodings based on the amino acid sequence
 * `random_embedder`: Generates random 128xsequence_length embedding vectors
 * `AAOntology`: Uses amino-acid associated feature scales from AAOntology: https://doi.org/10.1016/j.jmb.2024.168717
-* `blosum62`: Uses the substitution values from blosum62, using the [blosum](https://github.com/not-a-feature/blosum) 
+* `blosum62`: Uses the substitution values from blosum62, using the [blosum](https://github.com/not-a-feature/blosum)
 python package
 
 If you want to use your own embedder directly in *biotrainer*, you can provide it as an onnx file. Usually, you will
@@ -287,13 +287,13 @@ To provide a threshold that indicates, if the patience should decrease, an epsil
 float):
 
 ```yaml
-epsilon: 1e-3  # Default: 0.001 
+epsilon: 1e-3  # Default: 0.001
 ```
 
 <details>
 <summary>Early stop mechanism explanation:</summary>
-If the current loss is smaller than the previous minimum loss given the epsilon threshold, a stop count is reset to 
-the patience value indicated above. 
+If the current loss is smaller than the previous minimum loss given the epsilon threshold, a stop count is reset to
+the patience value indicated above.
 Otherwise, if it is already 0, early stop is triggered and the best previous model loaded.
 If it is still above 0, patience gets decreased by one.
 Expressed in code:
@@ -373,7 +373,7 @@ The `stratified` option can also be used for regression tasks. In this case, the
 to bins to calculate the stratified splits.
 
 To use **nested** k-fold cross validation, hyperparameters which should be optimized with the nested splits must
-be specified in the config file. This can be done by using lists explicitly, even using a range expression. 
+be specified in the config file. This can be done by using lists explicitly, even using a range expression.
 The latter has to be provided as a string.
 The following example shows all three options:
 
@@ -437,7 +437,7 @@ For both cross validation methods, you can also declare which metric to use to c
 ```yaml
 cross_validation_config:
   method: leave_p_out
-  choose_by: loss | accuracy | precision | recall | rmse | ... # Default: loss 
+  choose_by: loss | accuracy | precision | recall | rmse | ... # Default: loss
   p: 5  # p >= 1
 ```
 
@@ -505,11 +505,11 @@ finetuning:
   lora_bias: none | all | lora_only  # Default: none, Type of bias to use in LoRA
 ```
 
-The `lora_target_modules` parameter can be either a list of module names or a regex string to match module names. 
+The `lora_target_modules` parameter can be either a list of module names or a regex string to match module names.
 If set to `auto`, target modules are inferred from the embedder name automatically.
 
-If `random_masking` is set to `True`, masked language modeling (MLM) in [BERT-style](https://arxiv.org/abs/1810.04805) 
-will be applied as a finetuning task. 
+If `random_masking` is set to `True`, masked language modeling (MLM) in [BERT-style](https://arxiv.org/abs/1810.04805)
+will be applied as a finetuning task.
 
 After training, the LoRA adapter weights will be saved separately from the base model, allowing for efficient storage
 and deployment of the finetuned model.
@@ -550,7 +550,7 @@ The `hf_dataset` section of the configuration includes the following options:
 
 ### Handling Dataset Splits
 
-Datasets in the HuggingFace repository may include predefined splits (e.g., `train`, `validation`, `test`, `pred`). 
+Datasets in the HuggingFace repository may include predefined splits (e.g., `train`, `validation`, `test`, `pred`).
 The tool handles splits as follows:
 
 1. **If at least three predefined splits exist** (e.g., `train`, `validation`, `test`):

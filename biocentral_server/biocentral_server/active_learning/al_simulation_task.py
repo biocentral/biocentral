@@ -171,9 +171,9 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                     for sugg_id, sugg_label in suggestion_labels_float.items()
                     if sugg_label >= max_percentile
                 ]
-                assert len(over_percentile) == len(set(over_percentile)), (
-                    f"Found duplicates: {over_percentile}"
-                )
+                assert len(over_percentile) == len(
+                    set(over_percentile)
+                ), f"Found duplicates: {over_percentile}"
                 return over_percentile
             case ActiveLearningOptimizationMode.MINIMIZE:
                 all_labels_float = {
@@ -191,9 +191,9 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                     for sugg_id, sugg_label in suggestion_labels_float.items()
                     if sugg_label <= min_percentile
                 ]
-                assert len(under_percentile) == len(set(under_percentile)), (
-                    f"Found duplicates: {under_percentile}"
-                )
+                assert len(under_percentile) == len(
+                    set(under_percentile)
+                ), f"Found duplicates: {under_percentile}"
                 return under_percentile
             case ActiveLearningOptimizationMode.VALUE:
                 target_value = self.al_campaign_config.target_value
@@ -205,9 +205,9 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                     for sugg_id, sugg_label in suggestion_labels_float.items()
                     if abs(sugg_label - target_value) <= target_delta
                 ]
-                assert len(within_delta) == len(set(within_delta)), (
-                    f"Found duplicates: {within_delta}"
-                )
+                assert len(within_delta) == len(
+                    set(within_delta)
+                ), f"Found duplicates: {within_delta}"
                 return within_delta
             case ActiveLearningOptimizationMode.INTERVAL:
                 target_lb, target_ub = (
@@ -222,9 +222,9 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                     for sugg_id, sugg_label in suggestion_labels_float.items()
                     if target_lb <= sugg_label <= target_ub
                 ]
-                assert len(within_interval) == len(set(within_interval)), (
-                    f"Found duplicates: {within_interval}"
-                )
+                assert len(within_interval) == len(
+                    set(within_interval)
+                ), f"Found duplicates: {within_interval}"
                 return within_interval
             case ActiveLearningOptimizationMode.DISCRETE:
                 target_labels = self.al_campaign_config.discrete_targets
@@ -546,8 +546,8 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         )
         if error_dto:
             return error_dto
-        assert embeddings is not None, (
-            "embeddings is None after pre-embedding before active learning iteration!"
-        )
+        assert (
+            embeddings is not None
+        ), "embeddings is None after pre-embedding before active learning iteration!"
 
         return self._run_simulation(embeddings, update_dto_callback)

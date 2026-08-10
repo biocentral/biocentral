@@ -31,14 +31,14 @@ from [GitHub](https://github.com/biocentral/biocentral/releases), or use it dire
 
 **Current platform compatibility**:
 
-| Platform       | Compatible | 
-|----------------|:----------:|
-| Web            |     ✅      | 
-| Linux          |     ✅      | 
-| Windows        |     ✅      | 
-| MacOS          |     ✅      | 
-| Android Tablet |     ❌      |
-| Apple Tablet   |     ❌      |
+| Platform       | Compatible |
+| -------------- | :--------: |
+| Web            |     ✅     |
+| Linux          |     ✅     |
+| Windows        |     ✅     |
+| MacOS          |     ✅     |
+| Android Tablet |     ❌     |
+| Apple Tablet   |     ❌     |
 
 ## 🤝 Contributing
 
@@ -46,7 +46,7 @@ We heartily welcome contributions! Check out our [contributing guidelines](Contr
 
 If you are a researcher in any related field (biology, medicine, informatics, ...) and want to use biocentral
 for your work, please do not hesitate to get in touch in case you encounter any issues or want to participate in the
-development of *biocentral*: [info@biocentral.cloud](mailto:info@biocentral.cloud)
+development of _biocentral_: [info@biocentral.cloud](mailto:info@biocentral.cloud)
 
 ## 📚 Documentation
 
@@ -60,7 +60,7 @@ for details.
 
 ## 📜 Citation
 
-Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using *biocentral* in your work:
+Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are using _biocentral_ in your work:
 
 ```text
 @Article{Franz2026,
@@ -75,4 +75,3 @@ Please cite [our paper](https://doi.org/10.1016/j.jmb.2026.169673) if you are us
   publisher = {Elsevier BV},
 }
 ```
-

@@ -140,4 +140,3 @@ class _$EpochMetricsSerializer implements PrimitiveSerializer<EpochMetrics> {
     return result.build();
   }
 }
-

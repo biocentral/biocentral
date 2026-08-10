@@ -9,7 +9,7 @@ input [
     dims: [ -1 ]
   },
   {
-    name: "attention_mask" 
+    name: "attention_mask"
     data_type: TYPE_INT64
     dims: [ -1 ]
   }
@@ -33,4 +33,4 @@ instance_group [
     count: 1
     kind: KIND_AUTO
   }
-] 
+]

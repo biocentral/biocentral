@@ -67,4 +67,3 @@ class _$RawPredictionSerializer implements PrimitiveSerializer<RawPrediction> {
     return result.build();
   }
 }
-

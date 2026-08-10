@@ -256,12 +256,12 @@ class BaseModel(ABC):
 
         # Check delimiter
         if delimiter and len(delimiter) > 0:
-            assert 0 <= len(delimiter) <= 1, (
-                "Delimiter must be exactly one or no character!"
-            )
-            assert per_residue, (
-                "Per-sequence prediction is not compatible with a delimiter!"
-            )
+            assert (
+                0 <= len(delimiter) <= 1
+            ), "Delimiter must be exactly one or no character!"
+            assert (
+                per_residue
+            ), "Per-sequence prediction is not compatible with a delimiter!"
 
         for prediction_name, outputs in model_output.items():
             label_map = label_maps.get(prediction_name, {}) if label_maps else None

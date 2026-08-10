@@ -12,57 +12,57 @@ class StdoutFilter(logging.Filter):
 
 handler = logging.StreamHandler(sys.stdout)
 handler.addFilter(StdoutFilter())
-logging.getLogger('werkzeug').addHandler(handler)
-logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.getLogger("werkzeug").addHandler(handler)
+logging.getLogger("werkzeug").setLevel(logging.INFO)
 
 app = Flask(__name__)
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 
 
-@app.route('/test_normal', methods=['POST'])
+@app.route("/test_normal", methods=["POST"])
 def test_normal():
     result = functionality.test_normal(request.json)
     return jsonify(result)
 
 
-@app.route('/read_h5', methods=['POST'])
+@app.route("/read_h5", methods=["POST"])
 def read_h5():
     result = functionality.read_h5(request.json)
     return jsonify(result)
 
 
-@app.route('/write_h5', methods=['POST'])
+@app.route("/write_h5", methods=["POST"])
 def write_h5():
     result = functionality.write_h5(request.json)
     return jsonify(result)
 
 
-@app.route('/get_h5_info', methods=['POST'])
+@app.route("/get_h5_info", methods=["POST"])
 def get_h5_info():
     result = functionality.get_h5_info(request.json)
     return jsonify(result)
 
 
-@app.route('/get_embedding', methods=['POST'])
+@app.route("/get_embedding", methods=["POST"])
 def get_embedding():
     result = functionality.get_embedding(request.json)
     return jsonify(result)
 
 
-@app.route('/sync_internal_h5', methods=['POST'])
+@app.route("/sync_internal_h5", methods=["POST"])
 def sync_internal_h5():
     result = functionality.sync_internal_h5(request.json)
     return jsonify(result)
 
 
-@app.route('/terminate', methods=['GET'])
+@app.route("/terminate", methods=["GET"])
 def terminate():
     print("Terminating server from terminate request")
     exit(0)
 
 
-@app.route('/health_check', methods=['GET'])
+@app.route("/health_check", methods=["GET"])
 def health_check():
     return jsonify({"status": "OK"})
 

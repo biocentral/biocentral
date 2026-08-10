@@ -138,4 +138,3 @@ class _$OutputClassSerializer implements PrimitiveSerializer<OutputClass> {
     return result.build();
   }
 }
-

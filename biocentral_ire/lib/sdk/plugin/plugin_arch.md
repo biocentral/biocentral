@@ -57,7 +57,6 @@ Flutter does not support dynamic code execution directly. However, you can use t
 dart
 
 ```json
-
 // Example configuration file (JSON)
 [
   {

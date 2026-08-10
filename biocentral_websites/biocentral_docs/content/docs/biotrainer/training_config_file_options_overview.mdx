@@ -51,7 +51,7 @@ shuffle: True | False  # Default: True
 # Cross Validation
 cross_validation_config:
   method: hold_out | k_fold | leave_p_out
-  
+
   # k-fold specific options
   k: 5  # Required for k-fold, k >= 2
   stratified: True | False  # Default: False
@@ -60,10 +60,10 @@ cross_validation_config:
   nested_k: 3  # Required for nested k-fold, nested_k >= 2
   search_method: random_search | grid_search
   n_max_evaluations_random: 3  # For random search
-  
+
   # leave-p-out specific option
   p: 5  # p >= 1
-  
+
   # Common option
   choose_by: loss | accuracy | precision | recall  # Default: loss
 

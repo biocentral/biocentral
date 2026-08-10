@@ -15,7 +15,7 @@ config:
   input_file: /home/sebie/PycharmProjects/biotrainerFork/examples/residue_to_class/input.fasta
   learning_rate: 0.001
   limited_sample_size: -1
-  log_dir: 
+  log_dir:
     /home/sebie/PycharmProjects/biotrainerFork/examples/residue_to_class/output/CNN/one_hot_encoding
   loss_choice: cross_entropy_loss
   model_choice: CNN

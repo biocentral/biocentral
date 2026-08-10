@@ -65,7 +65,7 @@ class TaskDTO(BaseModel):
     embeddings: Optional[List[SequenceData]] = None
     embeddings_file: Optional[str] = None
 
-    #clustering
+    # clustering
     clustered_data: Optional[Dict[str, List[str]]] = None
 
     # projections

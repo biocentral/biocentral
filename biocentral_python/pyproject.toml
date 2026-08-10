@@ -33,11 +33,11 @@ biocentral = "biocentral.cli:biocentral"
 Repository = "https://github.com/biocentral/biocentral"
 
 [tool.uv.sources]
-biocentral_api = { path = "../biocentral_api/python", editable = true }
-biocentral_vis = { path = "../biocentral_vis/python", editable = true }
-biocentral_server = { path = "../biocentral_server", editable = true }
-biotrainer = { path = "../biotrainer", editable = true }
-biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
+biocentral_api = { workspace = true }
+biocentral_vis = { workspace = true }
+biocentral_server = { workspace = true }
+biotrainer = { workspace = true }
+biotrainer-core = { workspace = true }
 
 [build-system]
 requires = ["setuptools"]
