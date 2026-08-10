@@ -106,6 +106,29 @@ jobs:
       - name: "Placeholder: No tests yet"
         run: echo "⚠️  No unit tests for biocentral_vis yet – add tests under biocentral_vis/python/tests/"
 
+  api-unit-tests:
+    name: "🧪 Stage 1 · Api Unit Tests"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_api/python
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-python-simple
+        with:
+          working-directory: biocentral_api/python
+
+      - name: "Run api unit tests"
+        run: |
+          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning"
+
   ire-unit-widget-tests:
     name: "🧪 Stage 1 · IRE Unit & Widget Tests"
     needs: changes
