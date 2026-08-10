@@ -41,6 +41,11 @@ runs:
           _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
           prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
           seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
+
+    - name: "Fix bind mount permissions"
+      shell: bash
+      working-directory: biocentral_server
+      run: sudo chmod -R 777 ./storage ./assets
     
     - name: "Debug docker-compose state"
       if: failure()
