@@ -3,10 +3,8 @@ from biotrainer_core.data_classes import SequenceData
 from fastapi_limiter.depends import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 
-from protspace.utils import (
-    DimensionReductionConfig as ProtSpaceDimensionReductionConfig,
-    REDUCERS,
-)
+from protspace.utils import get_reducers
+from protspace.utils.constants import DimensionReductionConfig as ProtSpaceDimensionReductionConfig
 
 from .endpoint_models import GetProjectionConfigResponse, ProjectionRequest
 from .protspace_task import ProtSpaceTask
@@ -37,11 +35,11 @@ router = APIRouter(
     dependencies=[Depends(RateLimiter(times=2, seconds=20))],
 )
 def projection_config():
-    methods = list(REDUCERS.keys())
+    methods = list(get_reducers().keys())
 
     protspace_default_config = ProtSpaceDimensionReductionConfig()
     projection_config_by_method = {
-        method: protspace_default_config.parameters_by_method(method)
+        method: []  # TODO Currently broken, needs to be adapted to new Protspace API
         for method in methods
     }
     return GetProjectionConfigResponse(projection_config=projection_config_by_method)
@@ -67,7 +65,7 @@ async def project(
     config = convert_config(config_dict)
     embedder_name = request_data.embedder_name
 
-    if method not in REDUCERS:
+    if method not in get_reducers():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown method: {method}"
         )
