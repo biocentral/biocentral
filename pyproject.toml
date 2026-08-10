@@ -7,6 +7,9 @@ requires-python = ">=3.12,<3.13"
 dependencies = []
 
 [tool.uv]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 dev-dependencies = [
     "pre-commit>=4.0.0",
+    "pyyaml>=6.0.3",
+    "requests>=2.34.2",
 ]
