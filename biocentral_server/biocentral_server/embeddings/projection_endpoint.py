@@ -35,11 +35,11 @@ router = APIRouter(
     dependencies=[Depends(RateLimiter(times=2, seconds=20))],
 )
 def projection_config():
-    methods = list(get_reducers().keys())
+    reducers = get_reducers()
+    methods = list(reducers.keys())
 
-    protspace_default_config = ProtSpaceDimensionReductionConfig()
     projection_config_by_method = {
-        method: []  # TODO Currently broken, needs to be adapted to new Protspace API
+        method: reducers[method](ProtSpaceDimensionReductionConfig()).get_params().keys()  # TODO Get actual config options
         for method in methods
     }
     return GetProjectionConfigResponse(projection_config=projection_config_by_method)
