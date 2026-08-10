@@ -21,3 +21,7 @@ services:
     extends:
       file: docker-compose.yml
       service: triton-model-init
+
+networks:
+  biocentral-network:
+    driver: bridge
