@@ -1,0 +1,87 @@
+<idea-plugin>
+    <id>com.biocentral.pycharm</id>
+    <name>Biocentral</name>
+    <vendor url="https://github.com/biocentral/biocentral">Biocentral</vendor>
+
+    <description><![CDATA[
+        Integrates the <a href="https://github.com/biocentral/biocentral">Biocentral</a>
+        Python ecosystem with PyCharm and IntelliJ IDEA (with the Python plugin).
+        <ul>
+            <li>Recognizes <code>.fasta</code> / <code>.fa</code> / <code>.faa</code> / <code>.fna</code> files.</li>
+            <li>Renders per-dataset charts (label / length / split distribution) using
+                <code>BiocentralChart</code>.</li>
+            <li>Computes embeddings via <code>Biocentral().embed(...)</code> in the
+                project's configured Python interpreter.</li>
+        </ul>
+        The plugin uses the project's Python SDK; it does not bundle a Python runtime.
+        Install <code>biocentral</code> (and optionally <code>biocentral[local]</code>)
+        into the SDK to use the features.
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h4>0.1.0</h4>
+        <ul>
+            <li>Initial release: FASTA recognition, BiocentralChart preview, embedding action.</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.python</depends>
+
+    <resource-bundle>messages.BiocentralBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Persistent project-level settings -->
+        <projectService serviceImplementation="com.biocentral.pycharm.settings.BiocentralSettings"/>
+        <projectService serviceImplementation="com.biocentral.pycharm.ui.BiocentralToolWindowService"/>
+
+        <!-- FASTA file type registration -->
+        <fileType
+                name="FASTA"
+                implementationClass="com.biocentral.pycharm.fasta.FastaFileType"
+                fieldName="INSTANCE"
+                language="TEXT"
+                extensions="fasta;fa;faa;fna"/>
+
+        <!-- Editor notification banner offering actions on FASTA files -->
+        <editorNotificationProvider implementation="com.biocentral.pycharm.notification.FastaEditorNotificationProvider"/>
+
+        <!-- Biocentral tool window (charts + embeddings). Anchored to the
+             right so it lives alongside other side panels like AI Assistant. -->
+        <toolWindow
+                id="Biocentral"
+                anchor="right"
+                icon="com.biocentral.pycharm.ui.BiocentralIcons.TOOL_WINDOW"
+                factoryClass="com.biocentral.pycharm.ui.BiocentralToolWindowFactory"/>
+
+        <!-- Settings page -->
+        <projectConfigurable
+                parentId="tools"
+                instance="com.biocentral.pycharm.settings.BiocentralConfigurable"
+                id="com.biocentral.pycharm.settings"
+                displayName="Biocentral"
+                nonDefaultProject="true"/>
+
+        <notificationGroup
+                id="Biocentral"
+                displayType="BALLOON"
+                bundle="messages.BiocentralBundle"
+                key="notification.group.biocentral"/>
+    </extensions>
+
+    <actions>
+        <group id="Biocentral.FastaContext" text="Biocentral" popup="true">
+            <action id="Biocentral.Visualize"
+                    class="com.biocentral.pycharm.actions.VisualizeAction"
+                    text="Visualize"
+                    description="Render all BiocentralCharts for this FASTA dataset in the Biocentral tool window"/>
+            <action id="Biocentral.EmbedFasta"
+                    class="com.biocentral.pycharm.actions.EmbedFastaAction"
+                    text="Embed Sequences..."
+                    description="Compute embeddings via Biocentral.embed()"/>
+            <separator/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </group>
+    </actions>
+</idea-plugin>
