@@ -1,4 +1,4 @@
 [submodule "biotrainer"]
 	path = biotrainer
 	url = https://github.com/biocentral/biotrainer.git
-	branch = refactoring/post-v2
+	branch = refactoring/autoeval
