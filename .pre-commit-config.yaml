@@ -44,6 +44,6 @@ repos:
         description: "Note: dart analyze might need to be run from package roots if dependencies are not globally available."
       - id: check-commit-msg
         name: Check Commit Message Format
-        entry: bin/check_commit_msg.py
+        entry: _global/bin/check_commit_msg.py
         language: python
         stages: [commit-msg]
