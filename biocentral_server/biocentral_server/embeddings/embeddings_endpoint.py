@@ -64,6 +64,11 @@ async def embed(
     metrics_service: Annotated[MetricsService, Depends(MetricsService)],
 ):
     """Endpoint for embeddings calculation"""
+    embedder_name = request_data.embedder_name
+    if embedder_name is None or len(embedder_name) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid embedder_name provided!"
+        )
     # Convert string booleans to actual booleans
     reduced = str2bool(str(request_data.reduce))
     use_half_precision = str2bool(str(request_data.use_half_precision))
@@ -73,7 +78,7 @@ async def embed(
     ]
 
     embedding_task = ExportEmbeddingsTask(
-        embedder_name=request_data.embedder_name,
+        embedder_name=embedder_name,
         sequence_input=sequence_data,
         reduced=reduced,
         use_half_precision=use_half_precision,
@@ -83,7 +88,7 @@ async def embed(
     # Record metrics
     metrics_service.record_sequence_data(
         sequences=request_data.sequence_data,
-        embedder_name=request_data.embedder_name,
+        embedder_name=embedder_name,
     )
     # Run task
     task_id = TaskManager().add_task(embedding_task, user_id=user_id)
