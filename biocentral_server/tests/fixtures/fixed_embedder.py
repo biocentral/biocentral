@@ -3,7 +3,7 @@
 import numpy as np
 from typing import Dict, List, Optional, Tuple
 
-from biotrainer.utilities import calculate_sequence_hash
+from biotrainer_core.functions.hashing import calculate_sequence_hash
 from pydantic import BaseModel, Field
 
 

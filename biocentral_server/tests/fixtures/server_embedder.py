@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 import httpx
 import numpy as np
-from biotrainer.utilities import calculate_sequence_hash
+from biotrainer_core.functions.hashing import calculate_sequence_hash
 from biotrainer_core.data_classes import SequenceData
 
 from biocentral_server.server_management.embedding_database import EmbeddingsDatabase
