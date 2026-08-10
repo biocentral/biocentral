@@ -12,7 +12,7 @@ class TestTrainAndInference(unittest.TestCase):
 
     def test_train_then_infer(self):
         config = {
-            "embedder_name": CommonEmbedder.ProtT5,
+            "embedder_name": CommonEmbedder.ONE_HOT_ENCODING,
             "model_choice": "FNN",
             "protocol": Protocol.SEQUENCE_TO_CLASS,
         }
@@ -44,7 +44,7 @@ class TestTrainAndInference(unittest.TestCase):
         training_result = self.api.train(
             config=config, training_data=training_data
         ).run_with_progress()
-        model_hash = training_result.derived_values.model_hash
+        model_hash = training_result.derived_values.model_hash or ""
         self.assertTrue(len(model_hash) > 0, "Training did not return a model hash")
 
         inference_data = {

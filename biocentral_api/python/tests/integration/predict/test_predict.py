@@ -15,6 +15,8 @@ class TestPredict(unittest.TestCase):
 
         cls.api = _wait_or_skip(_make_api())
 
+    @pytest.mark.skipif(os.getenv("CI") is not None,
+                        reason="Large test that should only be executed on demand (not in CI)")
     def test_predict_all(self):
         # Predict for all but VespaG (requires ESM-2 3B Model)
         model_names = [
@@ -39,7 +41,7 @@ class TestPredict(unittest.TestCase):
         for pred in result.values():
             self.assertIsInstance(pred, list)
             self.assertGreaterEqual(len(pred), 1)
-
+    
     @pytest.mark.skip(reason="Large test that should only be executed on demand")
     def test_udonpred_correctness(self):
         model_names = [BiocentralPredictionModel.UDONPRED]

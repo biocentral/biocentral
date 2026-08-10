@@ -2,6 +2,7 @@ import unittest
 
 from biocentral_api import (
     SequenceData,
+    CommonEmbedder,
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningIterationConfig,
     ActiveLearningEngineeringCampaignConfig,
@@ -24,7 +25,7 @@ class TestActiveLearning(unittest.TestCase):
         campaign_config = ActiveLearningScreeningCampaignConfig(
             name="Example_Campaign",
             model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
-            embedder_name="one_hot_encoding",
+            embedder_name=CommonEmbedder.ONE_HOT_ENCODING.value,
             optimization_mode=ActiveLearningOptimizationMode.VALUE,
             target_value=10.0,
         )
@@ -61,7 +62,7 @@ class TestActiveLearning(unittest.TestCase):
         campaign_config = ActiveLearningScreeningCampaignConfig(
             name="Example_Simulation_Campaign",
             model_type=ActiveLearningModelType.GAUSSIAN_PROCESS,
-            embedder_name="one_hot_encoding",
+            embedder_name=CommonEmbedder.ONE_HOT_ENCODING.value,
             optimization_mode=ActiveLearningOptimizationMode.VALUE,
             target_value=10.0,
         )
@@ -107,7 +108,7 @@ class TestActiveLearning(unittest.TestCase):
         campaign_config = ActiveLearningEngineeringCampaignConfig(
             name="Example_Campaign",
             model_type=ActiveLearningModelType.FNN_MCD,
-            embedder_name="one_hot_encoding",
+            embedder_name=CommonEmbedder.ONE_HOT_ENCODING.value,
             optimization_mode=ActiveLearningOptimizationMode.MAXIMIZE,
             seed=44,
             wildtype_sequence=wildtype_sequence,
