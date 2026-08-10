@@ -207,8 +207,9 @@ def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData])
 
 def plot_label_distribution(dataset: List[SequenceData]):
     labels_set = {seq_data.label: seq_data.seq for seq_data in dataset if seq_data.label is not None}
-    is_discrete = len(labels_set) > DISCRETE_THRESHOLD
-    is_per_residue = all([len(label) == len(seq or "") for label, seq in labels_set.items()])
+    is_discrete = len(labels_set) < DISCRETE_THRESHOLD
+    # TODO Improve delimiter handling, move to SequenceData
+    is_per_residue = all([len(label) == len(seq or "") or ";" in label for label, seq in labels_set.items()])
     if is_discrete:
         if is_per_residue:
             return _plot_label_distribution_per_residue_discrete(dataset)
