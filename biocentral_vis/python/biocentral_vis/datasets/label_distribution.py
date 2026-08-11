@@ -4,7 +4,7 @@ import altair as alt
 from typing import List
 from biotrainer_core.data_classes import SequenceData
 
-from ..base.constants import DISCRETE_THRESHOLD
+from ..base import SequenceDataUtils
 
 
 def _plot_label_distribution_per_sequence_discrete(dataset: List[SequenceData]):
@@ -127,13 +127,13 @@ def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData]):
                 data_by_label[residue_label] = {
                     "label": residue_label,
                     "count": 0,
-                    "seq_ids": [],
+                    "seq_ids": set(),
                     "sets": {},
                 }
 
             data_by_label[residue_label]["count"] += 1
             if record.seq_id not in data_by_label[residue_label]["seq_ids"]:
-                data_by_label[residue_label]["seq_ids"].append(record.seq_id)
+                data_by_label[residue_label]["seq_ids"].add(record.seq_id)
 
             set_name = record.set or "unknown"
             data_by_label[residue_label]["sets"][set_name] = (
@@ -224,19 +224,10 @@ def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData])
 
 
 def plot_label_distribution(dataset: List[SequenceData]):
-    labels_set = {
-        seq_data.label: seq_data.seq
-        for seq_data in dataset
-        if seq_data.label is not None
-    }
-    is_discrete = len(labels_set) < DISCRETE_THRESHOLD
-    # TODO Improve delimiter handling, move to SequenceData
-    is_per_residue = all(
-        [
-            len(label) == len(seq or "") or ";" in label
-            for label, seq in labels_set.items()
-        ]
-    )
+    seq_utils = SequenceDataUtils(sequence_data=dataset)
+    is_discrete = seq_utils.is_discrete()
+    is_per_residue = seq_utils.is_per_residue()
+
     if is_discrete:
         if is_per_residue:
             return _plot_label_distribution_per_residue_discrete(dataset)

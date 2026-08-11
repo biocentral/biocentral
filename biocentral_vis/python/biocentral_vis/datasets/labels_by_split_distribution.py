@@ -4,7 +4,7 @@ import altair as alt
 from typing import List, Callable, Optional
 from biotrainer_core.data_classes import SequenceData
 
-from ..base.constants import DISCRETE_THRESHOLD
+from ..base import SequenceDataUtils
 
 
 def _plot_labels_by_split_per_sequence_discrete(dataset: List[SequenceData]):
@@ -238,18 +238,10 @@ def plot_labels_by_split_distribution(
     dataset: List[SequenceData], labels_filter: Optional[Callable[[str], bool]] = None
 ):
     # TODO Apply the labels filter everywhere
-    labels_set = {
-        seq_data.label: seq_data.seq
-        for seq_data in dataset
-        if seq_data.label is not None
-    }
-    is_discrete = len(labels_set) < DISCRETE_THRESHOLD
-    is_per_residue = all(
-        [
-            len(label) == len(seq or "") or ";" in label
-            for label, seq in labels_set.items()
-        ]
-    )
+    seq_utils = SequenceDataUtils(sequence_data=dataset)
+    is_discrete = seq_utils.is_discrete()
+    is_per_residue = seq_utils.is_per_residue()
+
     if is_discrete:
         if is_per_residue:
             return _plot_labels_by_split_per_residue_discrete(dataset)
