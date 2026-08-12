@@ -3,7 +3,7 @@ import altair as alt
 
 from pathlib import Path
 from biocentral_api import ProjectionResult
-from typing import List, Union, Dict, Any, Optional, Set
+from typing import List, Union, Dict, Any, Optional, Set, Callable
 from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
 
 from .base import BiocentralVisualization
@@ -28,8 +28,11 @@ class BiocentralChart(BiocentralVisualization):
         return cls(chart, metadata)
 
     @classmethod
-    def label_distribution(cls, dataset: List[SequenceData]):
-        chart, metadata = plot_label_distribution(dataset)
+    def label_distribution(cls, dataset: List[SequenceData],
+                           labels_filter: Optional[Callable[[str], bool]] = None):
+        """ Plot the distribution of labels in the dataset.
+        Filter function must return True if the label should be considered for plotting. """
+        chart, metadata = plot_label_distribution(dataset, labels_filter)
         return cls(chart, metadata)
 
     @classmethod
@@ -38,8 +41,11 @@ class BiocentralChart(BiocentralVisualization):
         return cls(chart, metadata)
 
     @classmethod
-    def labels_by_split_distribution(cls, dataset: List[SequenceData]):
-        chart, metadata = plot_labels_by_split_distribution(dataset)
+    def labels_by_split_distribution(cls, dataset: List[SequenceData],
+                                     labels_filter: Optional[Callable[[str], bool]] = None):
+        """ Plot the distribution of labels in the dataset by training/val/test split.
+        Filter function must return True if the label should be considered for plotting. """
+        chart, metadata = plot_labels_by_split_distribution(dataset, labels_filter)
         return cls(chart, metadata)
 
     @classmethod

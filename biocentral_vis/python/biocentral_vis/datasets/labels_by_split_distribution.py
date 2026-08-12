@@ -7,12 +7,15 @@ from biotrainer_core.data_classes import SequenceData
 from ..base import SequenceDataUtils
 
 
-def _plot_labels_by_split_per_sequence_discrete(dataset: List[SequenceData]):
+def _plot_labels_by_split_per_sequence_discrete(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     # Collect counts per label per split
     rows = []
     for record in dataset:
         label = record.label
         if label is None:
+            continue
+        skip = not labels_filter(label)
+        if skip:
             continue
         split = record.set or "unknown"
         rows.append({"label": label, "split": split})
@@ -55,16 +58,19 @@ def _plot_labels_by_split_per_sequence_discrete(dataset: List[SequenceData]):
     return chart, metadata
 
 
-def _plot_labels_by_split_per_sequence_continuous(dataset: List[SequenceData]):
+def _plot_labels_by_split_per_sequence_continuous(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     rows = []
     for record in dataset:
         label = record.label
         if label is None:
             continue
+        skip = not labels_filter(label)
+        if skip:
+            continue
         try:
             label_float = float(label)
         except ValueError:
-            return _plot_labels_by_split_per_sequence_discrete(dataset)
+            return _plot_labels_by_split_per_sequence_discrete(dataset, labels_filter)
         split = record.set or "unknown"
         rows.append({"label": label_float, "split": split})
 
@@ -118,7 +124,7 @@ def _plot_labels_by_split_per_sequence_continuous(dataset: List[SequenceData]):
     return chart, metadata
 
 
-def _plot_labels_by_split_per_residue_discrete(dataset: List[SequenceData]):
+def _plot_labels_by_split_per_residue_discrete(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     # Aggregate per-residue labels by split
     rows = []
     for record in dataset:
@@ -127,7 +133,9 @@ def _plot_labels_by_split_per_residue_discrete(dataset: List[SequenceData]):
             continue
         split = record.set or "unknown"
         for residue_label in label:
-            rows.append({"label": residue_label, "split": split})
+            accept_label = labels_filter(residue_label)
+            if accept_label:
+                rows.append({"label": residue_label, "split": split})
 
     df = pd.DataFrame(rows)
     total_residues = len(df)
@@ -169,7 +177,7 @@ def _plot_labels_by_split_per_residue_discrete(dataset: List[SequenceData]):
     return chart, metadata
 
 
-def _plot_labels_by_split_per_residue_continuous(dataset: List[SequenceData]):
+def _plot_labels_by_split_per_residue_continuous(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     rows = []
     for record in dataset:
         label = record.label
@@ -179,10 +187,10 @@ def _plot_labels_by_split_per_residue_continuous(dataset: List[SequenceData]):
         try:
             delimiter = ";" if ";" in label else ","
             rows.extend(
-                [{"label": float(v), "split": split} for v in label.split(delimiter)]
+                [{"label": float(v), "split": split} for v in label.split(delimiter) if labels_filter(v)]
             )
         except ValueError:
-            return _plot_labels_by_split_per_residue_discrete(dataset)
+            return _plot_labels_by_split_per_residue_discrete(dataset, labels_filter)
 
     df = pd.DataFrame(rows)
     total_residues = len(df)
@@ -237,16 +245,16 @@ def _plot_labels_by_split_per_residue_continuous(dataset: List[SequenceData]):
 def plot_labels_by_split_distribution(
     dataset: List[SequenceData], labels_filter: Optional[Callable[[str], bool]] = None
 ):
-    # TODO Apply the labels filter everywhere
+    labels_filter = labels_filter or (lambda x: True)
     seq_utils = SequenceDataUtils(sequence_data=dataset)
     is_discrete = seq_utils.is_discrete()
     is_per_residue = seq_utils.is_per_residue()
 
     if is_discrete:
         if is_per_residue:
-            return _plot_labels_by_split_per_residue_discrete(dataset)
-        return _plot_labels_by_split_per_sequence_discrete(dataset)
+            return _plot_labels_by_split_per_residue_discrete(dataset, labels_filter)
+        return _plot_labels_by_split_per_sequence_discrete(dataset, labels_filter)
     # Continuous
     if is_per_residue:
-        return _plot_labels_by_split_per_residue_continuous(dataset)
-    return _plot_labels_by_split_per_sequence_continuous(dataset)
+        return _plot_labels_by_split_per_residue_continuous(dataset, labels_filter)
+    return _plot_labels_by_split_per_sequence_continuous(dataset, labels_filter)

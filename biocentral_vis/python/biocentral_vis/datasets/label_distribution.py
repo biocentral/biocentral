@@ -1,18 +1,22 @@
 import pandas as pd
 import altair as alt
 
-from typing import List
+from typing import List, Optional, Callable
 from biotrainer_core.data_classes import SequenceData
 
 from ..base import SequenceDataUtils
 
 
-def _plot_label_distribution_per_sequence_discrete(dataset: List[SequenceData]):
+def _plot_label_distribution_per_sequence_discrete(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     # Collect rich data
     data_by_label = {}
     for record in dataset:
         label = record.label
         if label is None:
+            continue
+
+        skip = not labels_filter(label)
+        if skip:
             continue
 
         if label not in data_by_label:
@@ -63,13 +67,20 @@ def _plot_label_distribution_per_sequence_discrete(dataset: List[SequenceData]):
 
 def _plot_label_distribution_per_sequence_continuous(
     dataset: List[SequenceData],
+    labels_filter: Callable[[str], bool]
 ):
-    try:
-        labels_float = [
-            float(seq_data.label) for seq_data in dataset if seq_data.label is not None
-        ]
-    except ValueError:
-        return _plot_label_distribution_per_sequence_discrete(dataset)
+    labels_float = []
+    for seq_data in dataset:
+        label = seq_data.label
+        if label is None:
+            continue
+        skip = not labels_filter(label)
+        if skip:
+            continue
+        try:
+            labels_float.append(float(label))
+        except ValueError:
+            return _plot_label_distribution_per_sequence_discrete(dataset, labels_filter)
 
     dataset_len = len(dataset)
 
@@ -112,7 +123,8 @@ def _plot_label_distribution_per_sequence_continuous(
     return chart, metadata
 
 
-def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData]):
+def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData],
+                                                  labels_filter: Callable[[str], bool]):
     # Aggregate all per-residue labels across all proteins
     data_by_label = {}
     total_residues = 0
@@ -122,6 +134,9 @@ def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData]):
             continue
 
         for residue_label in label:
+            skip = not labels_filter(residue_label)
+            if skip:
+                continue
             total_residues += 1
             if residue_label not in data_by_label:
                 data_by_label[residue_label] = {
@@ -169,7 +184,7 @@ def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData]):
     return chart, metadata
 
 
-def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData]):
+def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
     # Aggregate all per-residue continuous values across all proteins
     all_values = []
     for record in dataset:
@@ -178,9 +193,9 @@ def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData])
             continue
         try:
             delimiter = ";" if ";" in label else ","
-            all_values.extend([float(v) for v in label.split(delimiter)])
+            all_values.extend([float(v) for v in label.split(delimiter) if labels_filter(v)])
         except ValueError:
-            return _plot_label_distribution_per_residue_discrete(dataset)
+            return _plot_label_distribution_per_residue_discrete(dataset, labels_filter)
 
     total_residues = len(all_values)
 
@@ -223,16 +238,17 @@ def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData])
     return chart, metadata
 
 
-def plot_label_distribution(dataset: List[SequenceData]):
+def plot_label_distribution(dataset: List[SequenceData], labels_filter: Optional[Callable[[str], bool]] = None):
+    labels_filter = labels_filter or (lambda x: True)
     seq_utils = SequenceDataUtils(sequence_data=dataset)
     is_discrete = seq_utils.is_discrete()
     is_per_residue = seq_utils.is_per_residue()
 
     if is_discrete:
         if is_per_residue:
-            return _plot_label_distribution_per_residue_discrete(dataset)
-        return _plot_label_distribution_per_sequence_discrete(dataset)
+            return _plot_label_distribution_per_residue_discrete(dataset, labels_filter=labels_filter)
+        return _plot_label_distribution_per_sequence_discrete(dataset, labels_filter=labels_filter)
     # Continuous
     if is_per_residue:
-        return _plot_label_distribution_per_residue_continuous(dataset)
-    return _plot_label_distribution_per_sequence_continuous(dataset)
+        return _plot_label_distribution_per_residue_continuous(dataset, labels_filter=labels_filter)
+    return _plot_label_distribution_per_sequence_continuous(dataset, labels_filter=labels_filter)
