@@ -1,6 +1,45 @@
 ---
 title: embed
-description: Documentation for the embed module.
+description: Get representations for protein sequences.
 ---
 
-Module placeholder for `embed`.
+The *biocentral* `embed` module allows to run `protein language models` and other baseline embedders.
+These contain meaningful representations for protein sequences - the ideal basis for downstream analysis!
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+<Tabs items={['API', 'GUI', 'CLI']}>
+    <Tab value="API">
+        Using the [biocentral Python API](https://github.com/biocentral/biocentral_api):
+
+        ```python
+        from biocentral import Biocentral, CommonEmbedder
+
+        biocentral = Biocentral()
+
+        embedder_name = CommonEmbedder.ONE_HOT_ENCODING
+        sequence_data = {
+            "Seq1": "MMALSLALMM",
+            "Seq2": "PRTEINMMALM",
+            "Seq3": "PRTSSSLAMAM",
+            "Seq4": "SEQWENCEAWMMWW",
+        }
+        result = biocentral.embed(embedder_name=embedder_name, sequence_data=sequence_data)
+        print(result)
+        ```
+    </Tab>
+
+    <Tab value="GUI">
+        Using the [biocentral IRE](https://app.biocentral.cloud):
+
+        ![UdonPred Placeholder](/docs/udonpred_placebolder.png)
+    </Tab>
+
+    <Tab value="CLI">
+
+        ```shell
+        biocentral embed sequences.fasta
+        ```
+    </Tab>
+</Tabs>
+
