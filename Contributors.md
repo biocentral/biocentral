@@ -32,3 +32,4 @@ Committing with `git commit -s` will add the sign-off at the end of the commit m
 - Arno Claude <61106168+arnoclaude@users.noreply.github.com>
 - Shuze Liu <shuze.liu@tum.de>
 - Deniz Öztürk <750282004C4DEC44@mytum.de>
+- Tobias Olenyi <tobias.olenyi@tum.de>
