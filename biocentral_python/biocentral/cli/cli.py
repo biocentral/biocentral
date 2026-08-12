@@ -1,13 +1,29 @@
 import sys
 import click
 
-from .biocentral import Biocentral
+from typing import Optional
+
+from ..biocentral import Biocentral, BiocentralAPI
 
 
 @click.group()
 def biocentral():
     """Biocentral CLI - unified access to the biocentral ecosystem."""
     pass
+
+
+def _make_biocentral_object(mode: str, server_url: Optional[str] = None, device: Optional[str] = None):
+    if mode == "api":
+        custom_api = None
+        if server_url is not None:
+            custom_api = BiocentralAPI(fixed_server_url=server_url)
+        return Biocentral(mode=mode, custom_api=custom_api)
+    elif mode == "local":
+        if server_url is not None:
+            print("WARNING: Custom server URL is ignored in local mode.")
+        return Biocentral(mode=mode, device=device)
+    else:
+        raise ValueError(f"Invalid mode: {mode}")
 
 
 @biocentral.command()
@@ -23,19 +39,19 @@ def biocentral():
     "--device", default=None, help="Device for local computation (e.g. cuda, cpu)"
 )
 @click.option(
-    "--no-reduce", is_flag=True, help="Do not reduce embeddings to per-sequence"
+    "--reduce", is_flag=True, help="Reduce embeddings to per-sequence"
 )
 @click.option("--output", "-o", default=None, help="Output h5 file path")
-def embed(fasta_path, embedder, mode, server_url, device, no_reduce, output):
+def embed(fasta_path, embedder, mode, server_url, device, reduce, output):
     """Compute embeddings for sequences in a FASTA file."""
-    bc = Biocentral(mode=mode, server_url=server_url, device=device)
-    result = bc.embed(embedder, fasta_path, reduce=not no_reduce)
+    bc = _make_biocentral_object(mode=mode, server_url=server_url, device=device)
+    result = bc.embed(embedder, fasta_path, reduce=reduce)
 
     if output:
         result.save(output)
         click.echo(f"Embeddings saved to {output}")
     else:
-        id2emb = result.get_embeddings()
+        id2emb = result.to_dict()
         click.echo(
             f"Computed {len(id2emb)} embeddings (shape: {next(iter(id2emb.values())).shape})"
         )
@@ -69,7 +85,7 @@ def train(config_path, mode, server_url, device):
         click.echo("Error: No input data found. Provide 'input_file' in the config.")
         sys.exit(1)
 
-    bc = Biocentral(mode=mode, server_url=server_url, device=device)
+    bc = _make_biocentral_object(mode=mode, server_url=server_url, device=device)
     result = bc.train(dict(config), input_data)
 
     model_hash = None
@@ -91,7 +107,7 @@ def train(config_path, mode, server_url, device):
 )
 def inference(model_hash, fasta_path, mode, server_url, device):
     """Run inference on a trained model using its hash."""
-    bc = Biocentral(mode=mode, server_url=server_url, device=device)
+    bc = _make_biocentral_object(mode=mode, server_url=server_url, device=device)
     result = bc.inference(model_hash, fasta_path)
 
     for prediction in result.predictions:
@@ -110,13 +126,13 @@ def inference(model_hash, fasta_path, mode, server_url, device):
 @click.option("--server-url", default=None, help="Custom server URL")
 def predict(fasta_path, model_names, server_url):
     """Predict using pre-trained server-hosted models (API only)."""
-    bc = Biocentral(mode="api", server_url=server_url)
+    bc = _make_biocentral_object(mode="api", server_url=server_url)
     result = bc.predict(list(model_names), fasta_path)
 
     for model_name, predictions in result.items():
         click.echo(f"\n--- {model_name} ---")
         for pred in predictions:
-            click.echo(f"  {pred.seq_id}: {pred}")
+            click.echo(f"  {pred}")
 
 
 @biocentral.group()
@@ -135,7 +151,7 @@ def server():
 def up(mode):
     """Start the biocentral server."""
     try:
-        from biocentral_server.cli import server as server_cli
+        from .server_cli import server as server_cli
 
         ctx = click.Context(server_cli)
         ctx.invoke(server_cli.commands["up"], mode=mode)
@@ -150,7 +166,7 @@ def up(mode):
 def down():
     """Shut down the biocentral server."""
     try:
-        from biocentral_server.cli import server as server_cli
+        from .server_cli import server as server_cli
 
         ctx = click.Context(server_cli)
         ctx.invoke(server_cli.commands["down"])
@@ -160,6 +176,75 @@ def down():
         )
         sys.exit(1)
 
+
+@server.command()
+@click.argument("h5", type=click.Path(exists=True))
+@click.option(
+    "--keep/--no-keep",
+    default=True,
+    help="Whether to keep the embeddings during cleanup (default: True)",
+)
+def snack(h5, keep):
+    """'Snack' an h5 file and add it to the database."""
+    try:
+        from .server_cli import server as server_cli
+
+        ctx = click.Context(server_cli)
+        ctx.invoke(server_cli.commands["snack"], h5=h5, keep=keep)
+    except ImportError:
+        click.echo(
+            "Server management requires biocentral_server. Install with: pip install biocentral[server]"
+        )
+        sys.exit(1)
+
+
+@server.command()
+@click.option("--output", "-o", default="database_dump.h5", help="Output h5 file path")
+def dump(output):
+    """Dump all database information to an h5 file."""
+    try:
+        from .server_cli import server as server_cli
+
+        ctx = click.Context(server_cli)
+        ctx.invoke(server_cli.commands["dump"], output=output)
+    except ImportError:
+        click.echo(
+            "Server management requires biocentral_server. Install with: pip install biocentral[server]"
+        )
+        sys.exit(1)
+
+
+@server.command()
+def stats():
+    """Show server stats."""
+    try:
+        from .server_cli import server as server_cli
+
+        ctx = click.Context(server_cli)
+        ctx.invoke(server_cli.commands["stats"])
+    except ImportError:
+        click.echo(
+            "Server management requires biocentral_server. Install with: pip install biocentral[server]"
+        )
+        sys.exit(1)
+
+
+@server.command()
+@click.option(
+    "--interactive", is_flag=True, help="Interactive mode (next/previous error)"
+)
+def errors(interactive):
+    """Analyze errors in logs."""
+    try:
+        from .server_cli import server as server_cli
+
+        ctx = click.Context(server_cli)
+        ctx.invoke(server_cli.commands["errors"], interactive=interactive)
+    except ImportError:
+        click.echo(
+            "Server management requires biocentral_server. Install with: pip install biocentral[server]"
+        )
+        sys.exit(1)
 
 if __name__ == "__main__":
     biocentral()

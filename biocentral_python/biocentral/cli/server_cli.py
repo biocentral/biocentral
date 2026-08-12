@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 
 # We need to add the project root to sys.path to import biocentral_server
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent.parent / "biocentral_server"
 sys.path.append(str(project_root))
 
 
