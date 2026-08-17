@@ -18,14 +18,15 @@ from .models import plot_test_set_performance, plot_loss_curves
 
 
 class BiocentralChart(BiocentralVisualization):
-    def __init__(self, chart: alt.Chart, metadata: Dict[str, Any]):
+    def __init__(self, default_chart_name: str, chart: alt.Chart, metadata: Dict[str, Any]):
+        self._default_chart_name = default_chart_name
         self.chart = chart
         self.metadata = metadata
 
     @classmethod
     def sequence_length_distribution(cls, dataset: List[SequenceData]):
         chart, metadata = plot_sequence_length_distribution(dataset)
-        return cls(chart, metadata)
+        return cls("sequence_length_distribution", chart, metadata)
 
     @classmethod
     def label_distribution(cls, dataset: List[SequenceData],
@@ -33,12 +34,12 @@ class BiocentralChart(BiocentralVisualization):
         """ Plot the distribution of labels in the dataset.
         Filter function must return True if the label should be considered for plotting. """
         chart, metadata = plot_label_distribution(dataset, labels_filter)
-        return cls(chart, metadata)
+        return cls("label_distribution", chart, metadata)
 
     @classmethod
     def split_distribution(cls, dataset: List[SequenceData]):
         chart, metadata = plot_split_distribution(dataset)
-        return cls(chart, metadata)
+        return cls("split_distribution", chart, metadata)
 
     @classmethod
     def labels_by_split_distribution(cls, dataset: List[SequenceData],
@@ -46,21 +47,21 @@ class BiocentralChart(BiocentralVisualization):
         """ Plot the distribution of labels in the dataset by training/val/test split.
         Filter function must return True if the label should be considered for plotting. """
         chart, metadata = plot_labels_by_split_distribution(dataset, labels_filter)
-        return cls(chart, metadata)
+        return cls("labels_by_split_distribution", chart, metadata)
 
     @classmethod
     def model_loss_curve(
         cls, model_result: BiotrainerModelResult, cv_split: str = "hold_out"
     ):
         chart, metadata = plot_loss_curves(model_result, cv_split)
-        return cls(chart, metadata)
+        return cls("model_loss_curve", chart, metadata)
 
     @classmethod
     def model_test_set_performance(
         cls, model_result: BiotrainerModelResult, metric_name: str
     ):
         chart, metadata = plot_test_set_performance(model_result, metric_name)
-        return cls(chart, metadata)
+        return cls("model_test_set_performance", chart, metadata)
 
     @classmethod
     def projection_result(
@@ -78,7 +79,7 @@ class BiocentralChart(BiocentralVisualization):
             highlight_ids=highlight_ids,
             highlight_name=highlight_name,
         )
-        return cls(chart, metadata)
+        return cls("projection_result", chart, metadata)
 
     def to_svg(self) -> str:
         with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp:
@@ -88,9 +89,22 @@ class BiocentralChart(BiocentralVisualization):
             tmp_path.unlink()
             return svg_content
 
+    def to_png(self) -> bytes:
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            self.chart.save(tmp.name)
+            tmp_path = Path(tmp.name)
+            png_bytes = tmp_path.read_bytes()
+            tmp_path.unlink()
+            return png_bytes
+
     def get_chart(self) -> Optional[alt.Chart]:
         return self.chart
 
     def save(self, output_path: Union[str, Path]):
         output_path = Path(output_path)
-        self.chart.save(output_path, format=output_path.suffix.strip("."))
+        if output_path.is_dir():
+            output_path = output_path / f"{self._default_chart_name}.svg"
+            format = "svg"
+        else:
+            format = output_path.suffix.strip(".")
+        self.chart.save(output_path, format=format)

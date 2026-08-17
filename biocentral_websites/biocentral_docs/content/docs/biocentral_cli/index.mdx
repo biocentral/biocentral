@@ -46,7 +46,24 @@ biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --mode l
 
 ## Functionality Commands
 
-These commands cover core bioinformatics workflows: *embedding, training, clustering, inference, and prediction*.
+These commands cover core bioinformatics workflows: *visualization, embedding, training, clustering, inference, and prediction*.
+
+### `visualize` - Automatically plot your datasets
+
+Create plots for a dataset (e.g. FASTA file). *Biocentral* automatically tries to find the best visualization
+for the given type of dataset.
+
+```shell
+biocentral visualize sequences.fasta --save
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--save` | If True, plot files are saved in the current working directory |
+---
+
 
 ### `embed` — Compute Protein Embeddings
 

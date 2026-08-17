@@ -29,6 +29,51 @@ def _make_biocentral_object(mode: str, server_url: Optional[str] = None, device:
 @biocentral.command()
 @click.argument("fasta_path", type=click.Path(exists=True))
 @click.option(
+    "--save", is_flag=True, help="Save generated svg files in the current working directory"
+)
+def visualize(fasta_path, save):
+    """Compute embeddings for sequences in a FASTA file."""
+    click.echo(
+        f"[Biocentral] Visualizing dataset.."
+    )
+    plots = Biocentral.visualize(fasta_path, save=save)
+
+    import os
+    import tempfile
+    import webbrowser
+
+    if save:
+        # Files are already saved, just open them
+        for plot in plots:
+            title = plot._default_chart_name
+            filepath = f"{title}.svg"
+            if os.path.exists(filepath):
+                click.echo(f"Opening {filepath}...")
+                webbrowser.open(f"file://{os.path.abspath(filepath)}")
+    else:
+        # Use temporary files
+        temp_files = []
+        for plot in plots:
+            title = plot._default_chart_name
+            # Create a temporary file that won't be immediately deleted
+            temp_file = tempfile.NamedTemporaryFile(
+                mode='w',
+                suffix='.svg',
+                prefix=f"{title}_",
+                delete=False
+            )
+            temp_file.write(plot.to_svg())
+            temp_file.close()
+            temp_files.append(temp_file.name)
+
+            click.echo(f"Opening visualization: {title}")
+            webbrowser.open(f"file://{os.path.abspath(temp_file.name)}")
+
+        click.echo(f"\nTemporary files created: {len(temp_files)}")
+
+@biocentral.command()
+@click.argument("fasta_path", type=click.Path(exists=True))
+@click.option(
     "--embedder", required=True, help="Embedder name (e.g. Rostlab/prot_t5_xl_uniref50)"
 )
 @click.option(

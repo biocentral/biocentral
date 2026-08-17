@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from biocentral_vis import BiocentralChart
 from typing import Dict, Any, List, Optional, Union
 
 from biocentral_api import (
@@ -38,10 +39,10 @@ class Biocentral:
     """
 
     def __init__(
-        self,
-        mode: str = "api",
-        custom_api: Optional[BiocentralAPI] = None,
-        device: Optional[str] = None,
+            self,
+            mode: str = "api",
+            custom_api: Optional[BiocentralAPI] = None,
+            device: Optional[str] = None,
     ):
         """
         :param mode: Execution mode - "api" for remote server, "local" for local biotrainer execution.
@@ -79,8 +80,8 @@ class Biocentral:
         return records
 
     @staticmethod
-    def _handle_sequence_data_input(
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+    def _parse_input_as_dict(
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
     ) -> Dict[str, str]:
         if isinstance(sequence_data, str):
             records = Biocentral._read_fasta(sequence_data)
@@ -97,12 +98,71 @@ class Biocentral:
 
         return seq_dat
 
+    @staticmethod
+    def _parse_input_as_sequence_data(
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+    ) -> List[SequenceData]:
+        if isinstance(sequence_data, str):
+            seq_dat = Biocentral._read_fasta(sequence_data)
+        elif isinstance(sequence_data, list) and len(sequence_data) > 0 and isinstance(sequence_data[0], SequenceData):
+            seq_dat = sequence_data
+        elif isinstance(sequence_data, dict):
+            seq_dat = [SequenceData(seq_id=k, seq=v) for k, v in sequence_data.items()]
+        else:
+            raise ValueError(f"Invalid sequence data type: {type(sequence_data)}")
+
+        if len(seq_dat) == 0:
+            raise ValueError("No sequences found in input data")
+
+        return seq_dat
+
+    @staticmethod
+    def visualize(sequence_data: Union[str, Dict[str, str], List[SequenceData]], save: bool = False) -> List[
+        BiocentralChart]:
+        """
+        Visualize a given set of proteins. Automatically tries to find the best available visualization method(s).
+        For more fine-grained visualizations, use the BiocentralChart class directly.
+
+        :param sequence_data: Dict of {id: sequence} or path to a FASTA file.
+        :param save: Whether to save generated svg files in the current working directory. Defaults to False.
+        """
+        seq_dat = Biocentral._parse_input_as_sequence_data(sequence_data)
+        have_labels = any([data_point.label is not None for data_point in seq_dat])
+        have_splits = any([data_point.set is not None for data_point in seq_dat])
+
+        plots_to_generate = [("Sequence Length Distribution",
+                              lambda sd: BiocentralChart.sequence_length_distribution(dataset=sd))]
+        if have_labels:
+            plots_to_generate.append(("Label Distribution",
+                                      lambda sd: BiocentralChart.label_distribution(dataset=sd)),
+                                     )
+        if have_splits:
+            plots_to_generate.append(("Splits Distribution",
+                                      lambda sd: BiocentralChart.split_distribution(dataset=sd)))
+        if have_labels and have_splits:
+            plots_to_generate.append(("Label Distribution By Split",
+                                      lambda sd: BiocentralChart.labels_by_split_distribution(dataset=sd)))
+
+        plots: List[BiocentralChart] = []
+
+        print(f"Generating plots for dataset of {len(seq_dat)} sequences..")
+        for title, plotter in plots_to_generate:
+            print(f"Generating plot: {title}")
+            plot = plotter(seq_dat)
+            plots.append(plot)
+
+        if save:
+            for plot in plots:
+                plot.save(output_path=".")
+
+        return plots
+
     def embed(
-        self,
-        embedder_name: str,
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
-        reduce: bool = True,
-        use_half_precision: bool = False,
+            self,
+            embedder_name: str,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            reduce: bool = True,
+            use_half_precision: bool = False,
     ) -> EmbeddingsResult:
         """Compute embeddings for the given sequences.
 
@@ -112,14 +172,14 @@ class Biocentral:
         :param use_half_precision: Use half precision to reduce memory. Defaults to False.
         :return: EmbeddingsResult containing the computed embeddings.
         """
-        seq_dat = self._handle_sequence_data_input(sequence_data)
+        seq_dat = self._parse_input_as_dict(sequence_data)
 
         return self._backend.embed(
             embedder_name, seq_dat, reduce=reduce, use_half_precision=use_half_precision
         )
 
     def train(
-        self, config: Dict[str, Any], training_data: Union[str, List[SequenceData]]
+            self, config: Dict[str, Any], training_data: Union[str, List[SequenceData]]
     ) -> BiotrainerModelResult:
         """Train a model using biotrainer.
 
@@ -127,14 +187,13 @@ class Biocentral:
         :param training_data: List of SequenceData objects for training or path to biotrainer fasta file.
         :return: BiotrainerModelResult with training results and model hash.
         """
-        if isinstance(training_data, str):
-            training_data = self._read_fasta(training_data)
+        training_data = self._parse_input_as_sequence_data(training_data)
         return self._backend.train(config, training_data)
 
     def inference(
-        self,
-        model_result: Union[str, BiotrainerModelResult],
-        inference_data: Union[str, Dict[str, str], List[SequenceData]],
+            self,
+            model_result: Union[str, BiotrainerModelResult],
+            inference_data: Union[str, Dict[str, str], List[SequenceData]],
     ) -> BiotrainerInferenceResult:
         """Run inference using a model trained via biotrainer, identified by its hash.
 
@@ -143,7 +202,7 @@ class Biocentral:
         :param inference_data: Dict of {id: sequence} or path to a FASTA file.
         :return: BiotrainerInferenceResult with predictions.
         """
-        inference_dat = self._handle_sequence_data_input(inference_data)
+        inference_dat = self._parse_input_as_dict(inference_data)
         if isinstance(model_result, BiotrainerModelResult):
             model_hash = model_result.derived_values.model_hash
             if model_hash is None:
@@ -155,22 +214,22 @@ class Biocentral:
         return self._backend.inference(model_hash, inference_dat)
 
     def project(
-        self,
-        embedder_name: str,
-        method: str,
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
-        projection_config: Dict[str, str],
+            self,
+            embedder_name: str,
+            method: str,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            projection_config: Dict[str, str],
     ) -> ProjectionResult:
-        project_dat = self._handle_sequence_data_input(sequence_data)
+        project_dat = self._parse_input_as_dict(sequence_data)
 
         return self._backend.project(
             embedder_name, method, project_dat, projection_config
         )
 
     def predict(
-        self,
-        model_names: List[str],
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            self,
+            model_names: List[str],
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
     ) -> Dict[str, List[Prediction]]:
         """Predict using pre-trained server-hosted models (API mode only).
 
@@ -179,6 +238,6 @@ class Biocentral:
         :return: Dict mapping model names to lists of Predictions.
         :raises NotAvailableError: If called in local mode.
         """
-        predict_dat = self._handle_sequence_data_input(sequence_data)
+        predict_dat = self._parse_input_as_dict(sequence_data)
 
         return self._backend.predict(model_names, predict_dat)
