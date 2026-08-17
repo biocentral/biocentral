@@ -75,8 +75,9 @@ class _$ConfigVerificationResponseSerializer implements PrimitiveSerializer<Conf
         case r'error':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(String),
-          ) as String;
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
           result.error = valueDes;
           break;
         default:
@@ -107,3 +108,4 @@ class _$ConfigVerificationResponseSerializer implements PrimitiveSerializer<Conf
     return result.build();
   }
 }
+

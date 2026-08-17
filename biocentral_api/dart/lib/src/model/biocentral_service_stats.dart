@@ -15,6 +15,7 @@ part 'biocentral_service_stats.g.dart';
 /// * [usableCpuCount] - Number of usable CPU cores available to the process
 /// * [embeddingsDatabaseSize] - Current size of the embeddings database in bytes
 /// * [totalTasks] - Total number of tasks submitted since server startup
+/// * [runningTasks] - Current number of tasks running
 /// * [queueLength] - Current number of tasks queued for execution
 /// * [cudaAvailable] - Whether CUDA GPU acceleration is available
 /// * [cudaDeviceNames] - List of names of available CUDA devices
@@ -32,6 +33,10 @@ abstract class BiocentralServiceStats implements Built<BiocentralServiceStats, B
   /// Total number of tasks submitted since server startup
   @BuiltValueField(wireName: r'total_tasks')
   int get totalTasks;
+
+  /// Current number of tasks running
+  @BuiltValueField(wireName: r'running_tasks')
+  int get runningTasks;
 
   /// Current number of tasks queued for execution
   @BuiltValueField(wireName: r'queue_length')
@@ -85,6 +90,11 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
     yield r'total_tasks';
     yield serializers.serialize(
       object.totalTasks,
+      specifiedType: const FullType(int),
+    );
+    yield r'running_tasks';
+    yield serializers.serialize(
+      object.runningTasks,
       specifiedType: const FullType(int),
     );
     yield r'queue_length';
@@ -151,6 +161,13 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
           ) as int;
           result.totalTasks = valueDes;
           break;
+        case r'running_tasks':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.runningTasks = valueDes;
+          break;
         case r'queue_length':
           final valueDes = serializers.deserialize(
             value,
@@ -207,3 +224,4 @@ class _$BiocentralServiceStatsSerializer implements PrimitiveSerializer<Biocentr
     return result.build();
   }
 }
+

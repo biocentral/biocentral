@@ -105,3 +105,4 @@ class _$ResearchStatsResponseSerializer implements PrimitiveSerializer<ResearchS
     return result.build();
   }
 }
+

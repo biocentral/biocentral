@@ -155,3 +155,4 @@ class _$AddEmbeddingsRequestSerializer implements PrimitiveSerializer<AddEmbeddi
     return result.build();
   }
 }
+

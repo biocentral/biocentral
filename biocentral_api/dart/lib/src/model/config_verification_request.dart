@@ -106,3 +106,4 @@ class _$ConfigVerificationRequestSerializer implements PrimitiveSerializer<Confi
     return result.build();
   }
 }
+

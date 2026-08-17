@@ -11,7 +11,7 @@ part 'auto_detect_format_request.g.dart';
 /// AutoDetectFormatRequest
 ///
 /// Properties:
-/// * [header]
+/// * [header] 
 @BuiltValue()
 abstract class AutoDetectFormatRequest implements Built<AutoDetectFormatRequest, AutoDetectFormatRequestBuilder> {
   @BuiltValueField(wireName: r'header')
@@ -103,3 +103,4 @@ class _$AutoDetectFormatRequestSerializer implements PrimitiveSerializer<AutoDet
     return result.build();
   }
 }
+

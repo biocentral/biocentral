@@ -30,7 +30,7 @@ class BiocentralAPI {
 
   // API compatibility window: [MIN_API_VERSION, MAX_API_VERSION)
   static const String MIN_API_VERSION = "1.0.0"; // inclusive
-  static const String MAX_API_VERSION = "2.0.0"; // exclusive
+  static const String MAX_API_VERSION = "3.0.0"; // exclusive
 
   BiocentralAPI._(
       {required this.fixedURL,

@@ -189,8 +189,128 @@ part 'serializers.g.dart';
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(String)]),
+        () => MapBuilder<String, String>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ModelOutput)]),
+        () => ListBuilder<ModelOutput>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(OutputClass)]),
+        () => ListBuilder<OutputClass>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(TaskDTO)]),
+        () => ListBuilder<TaskDTO>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ActiveLearningResult)]),
+        () => ListBuilder<ActiveLearningResult>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(num)]),
+        () => MapBuilder<String, num>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(Prediction)]),
+        () => ListBuilder<Prediction>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BuiltList, [FullType(String)])]),
+        () => ListBuilder<BuiltList<String>>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(CommonEmbedder)]),
         () => ListBuilder<CommonEmbedder>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(TrainingResult)]),
+        () => MapBuilder<String, TrainingResult>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ModelMetadata)]),
+        () => ListBuilder<ModelMetadata>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(TaxonomyItem)]),
+        () => ListBuilder<TaxonomyItem>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ActiveLearningIterationResult)]),
+        () => ListBuilder<ActiveLearningIterationResult>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(LocationInner)]),
+        () => ListBuilder<LocationInner>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BootstrappedMetric)]),
+        () => ListBuilder<BootstrappedMetric>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(int)]),
+        () => MapBuilder<String, int>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType.nullable(num)]),
+        () => ListBuilder<num>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(TestResult)]),
+        () => MapBuilder<String, TestResult>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BiocentralPredictionModel)]),
+        () => ListBuilder<BiocentralPredictionModel>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(SequenceData)]),
+        () => ListBuilder<SequenceData>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(num)]),
+        () => ListBuilder<num>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(Prediction)])]),
+        () => MapBuilder<String, BuiltList<Prediction>>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(BootstrappedMetric)])]),
+        () => MapBuilder<String, BuiltList<BootstrappedMetric>>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType.nullable(JsonObject)]),
+        () => ListBuilder<JsonObject>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(String)])]),
+        () => MapBuilder<String, BuiltList<String>>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BiotrainerPrediction)]),
+        () => ListBuilder<BiotrainerPrediction>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(int)]),
+        () => ListBuilder<int>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+        () => MapBuilder<String, JsonObject?>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltMap, [FullType(String), FullType(BuiltList, [FullType(JsonObject)])]),
+        () => MapBuilder<String, BuiltList<JsonObject>>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(ValidationError)]),
+        () => ListBuilder<ValidationError>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(String)]),
+        () => ListBuilder<String>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),

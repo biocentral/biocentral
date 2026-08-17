@@ -15,7 +15,7 @@ part 'prediction.g.dart';
 /// * [modelName] - Name of the model
 /// * [predictionName] - Name of the prediction
 /// * [protocol] - Protocol name
-/// * [value]
+/// * [value] 
 /// * [valueLower] - Lower bound of the prediction
 /// * [valueUpper] - Upper bound of the prediction
 @BuiltValue()
@@ -196,3 +196,4 @@ class _$PredictionSerializer implements PrimitiveSerializer<Prediction> {
     return result.build();
   }
 }
+

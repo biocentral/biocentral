@@ -28,7 +28,7 @@ class ActiveLearningApi {
   /// Submit an active learning engineering iteration job
   ///
   /// Parameters:
-  /// * [activeLearningEngineeringIterationRequest]
+  /// * [activeLearningEngineeringIterationRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -38,7 +38,7 @@ class ActiveLearningApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost({
+  Future<Response<StartTaskResponse>> activeLearningEngineeringIterationApiV1ActiveLearningServiceEngineeringIterationPost({ 
     required ActiveLearningEngineeringIterationRequest activeLearningEngineeringIterationRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -123,7 +123,7 @@ class ActiveLearningApi {
   /// Submit an active learning screening iteration job
   ///
   /// Parameters:
-  /// * [activeLearningScreeningIterationRequest]
+  /// * [activeLearningScreeningIterationRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -133,7 +133,7 @@ class ActiveLearningApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost({
+  Future<Response<StartTaskResponse>> activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost({ 
     required ActiveLearningScreeningIterationRequest activeLearningScreeningIterationRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -218,7 +218,7 @@ class ActiveLearningApi {
   /// Submit an active learning screening simulation job
   ///
   /// Parameters:
-  /// * [activeLearningScreeningSimulationRequest]
+  /// * [activeLearningScreeningSimulationRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -228,7 +228,7 @@ class ActiveLearningApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost({
+  Future<Response<StartTaskResponse>> activeLearningScreeningSimulationApiV1ActiveLearningServiceScreeningSimulationPost({ 
     required ActiveLearningScreeningSimulationRequest activeLearningScreeningSimulationRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

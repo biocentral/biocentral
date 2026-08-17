@@ -66,3 +66,4 @@ class _$McdMeanSerializer implements PrimitiveSerializer<McdMean> {
     return result.build();
   }
 }
+

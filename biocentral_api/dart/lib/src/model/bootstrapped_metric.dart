@@ -206,3 +206,4 @@ class _$BootstrappedMetricSerializer implements PrimitiveSerializer<Bootstrapped
     return result.build();
   }
 }
+

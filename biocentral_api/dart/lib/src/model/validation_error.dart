@@ -14,11 +14,11 @@ part 'validation_error.g.dart';
 /// ValidationError
 ///
 /// Properties:
-/// * [loc]
-/// * [msg]
-/// * [type]
-/// * [input]
-/// * [ctx]
+/// * [loc] 
+/// * [msg] 
+/// * [type] 
+/// * [input] 
+/// * [ctx] 
 @BuiltValue()
 abstract class ValidationError implements Built<ValidationError, ValidationErrorBuilder> {
   @BuiltValueField(wireName: r'loc')
@@ -143,8 +143,9 @@ class _$ValidationErrorSerializer implements PrimitiveSerializer<ValidationError
         case r'ctx':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(JsonObject),
-          ) as JsonObject;
+            specifiedType: const FullType.nullable(JsonObject),
+          ) as JsonObject?;
+          if (valueDes == null) continue;
           result.ctx = valueDes;
           break;
         default:
@@ -175,3 +176,4 @@ class _$ValidationErrorSerializer implements PrimitiveSerializer<ValidationError
     return result.build();
   }
 }
+

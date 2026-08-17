@@ -10,7 +10,7 @@ import 'package:built_value/serializer.dart';
 
 part 'derived_values.g.dart';
 
-/// Derived values calculated during the training process.
+/// Derived values calculated during the training process. 
 ///
 /// Properties:
 /// * [biotrainerVersion] - Version of BioTrainer used for training
@@ -369,3 +369,4 @@ class _$DerivedValuesSerializer implements PrimitiveSerializer<DerivedValues> {
     return result.build();
   }
 }
+

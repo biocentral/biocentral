@@ -128,8 +128,9 @@ class _$BiotrainerModelResultSerializer implements PrimitiveSerializer<Biotraine
         case r'config':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
-          ) as BuiltMap<String, JsonObject?>;
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+          ) as BuiltMap<String, JsonObject?>?;
+          if (valueDes == null) continue;
           result.config.replace(valueDes);
           break;
         case r'derived_values':
@@ -143,22 +144,25 @@ class _$BiotrainerModelResultSerializer implements PrimitiveSerializer<Biotraine
         case r'training_results':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(TrainingResult)]),
-          ) as BuiltMap<String, TrainingResult>;
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(TrainingResult)]),
+          ) as BuiltMap<String, TrainingResult>?;
+          if (valueDes == null) continue;
           result.trainingResults.replace(valueDes);
           break;
         case r'test_results':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltMap, [FullType(String), FullType(TestResult)]),
-          ) as BuiltMap<String, TestResult>;
+            specifiedType: const FullType.nullable(BuiltMap, [FullType(String), FullType(TestResult)]),
+          ) as BuiltMap<String, TestResult>?;
+          if (valueDes == null) continue;
           result.testResults.replace(valueDes);
           break;
         case r'predictions':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(BiotrainerPrediction)]),
-          ) as BuiltList<BiotrainerPrediction>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(BiotrainerPrediction)]),
+          ) as BuiltList<BiotrainerPrediction>?;
+          if (valueDes == null) continue;
           result.predictions.replace(valueDes);
           break;
         default:
@@ -189,3 +193,4 @@ class _$BiotrainerModelResultSerializer implements PrimitiveSerializer<Biotraine
     return result.build();
   }
 }
+

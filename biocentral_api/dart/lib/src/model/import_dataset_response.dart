@@ -13,7 +13,7 @@ part 'import_dataset_response.g.dart';
 /// ImportDatasetResponse
 ///
 /// Properties:
-/// * [importedDataset]
+/// * [importedDataset] 
 @BuiltValue()
 abstract class ImportDatasetResponse implements Built<ImportDatasetResponse, ImportDatasetResponseBuilder> {
   @BuiltValueField(wireName: r'imported_dataset')
@@ -105,3 +105,4 @@ class _$ImportDatasetResponseSerializer implements PrimitiveSerializer<ImportDat
     return result.build();
   }
 }
+

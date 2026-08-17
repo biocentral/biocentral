@@ -116,8 +116,9 @@ class _$EmbedRequestSerializer implements PrimitiveSerializer<EmbedRequest> {
         case r'reduce':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.reduce = valueDes;
           break;
         case r'sequence_data':
@@ -130,8 +131,9 @@ class _$EmbedRequestSerializer implements PrimitiveSerializer<EmbedRequest> {
         case r'use_half_precision':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.useHalfPrecision = valueDes;
           break;
         default:
@@ -162,3 +164,4 @@ class _$EmbedRequestSerializer implements PrimitiveSerializer<EmbedRequest> {
     return result.build();
   }
 }
+

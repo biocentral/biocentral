@@ -223,3 +223,4 @@ class _$SequenceDataSerializer implements PrimitiveSerializer<SequenceData> {
     return result.build();
   }
 }
+

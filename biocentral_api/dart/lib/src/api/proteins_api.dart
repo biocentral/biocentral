@@ -28,7 +28,7 @@ class ProteinsApi {
   /// Retrieve taxonomy data for a list of taxonomy ids
   ///
   /// Parameters:
-  /// * [taxonomyRequest]
+  /// * [taxonomyRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -38,7 +38,7 @@ class ProteinsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [TaxonomyResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<TaxonomyResponse>> taxonomyApiV1ProteinServiceTaxonomyPost({
+  Future<Response<TaxonomyResponse>> taxonomyApiV1ProteinServiceTaxonomyPost({ 
     required TaxonomyRequest taxonomyRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -123,7 +123,7 @@ class ProteinsApi {
   /// Submit sequences for clustering with pymmseqs
   ///
   /// Parameters:
-  /// * [clusteringRequest]
+  /// * [clusteringRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -133,7 +133,7 @@ class ProteinsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> triggerProteinClusteringApiV1ProteinServiceClusterPost({
+  Future<Response<StartTaskResponse>> triggerProteinClusteringApiV1ProteinServiceClusterPost({ 
     required ClusteringRequest clusteringRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

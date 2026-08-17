@@ -11,7 +11,7 @@ part 'detected_format_response.g.dart';
 /// DetectedFormatResponse
 ///
 /// Properties:
-/// * [detectedFormat]
+/// * [detectedFormat] 
 @BuiltValue()
 abstract class DetectedFormatResponse implements Built<DetectedFormatResponse, DetectedFormatResponseBuilder> {
   @BuiltValueField(wireName: r'detected_format')
@@ -103,3 +103,4 @@ class _$DetectedFormatResponseSerializer implements PrimitiveSerializer<Detected
     return result.build();
   }
 }
+

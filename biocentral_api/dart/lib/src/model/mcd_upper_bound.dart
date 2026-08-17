@@ -66,3 +66,4 @@ class _$McdUpperBoundSerializer implements PrimitiveSerializer<McdUpperBound> {
     return result.build();
   }
 }
+

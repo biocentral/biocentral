@@ -106,3 +106,4 @@ class _$GetProjectionConfigResponseSerializer implements PrimitiveSerializer<Get
     return result.build();
   }
 }
+

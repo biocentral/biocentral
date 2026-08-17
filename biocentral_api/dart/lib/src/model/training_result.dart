@@ -11,7 +11,7 @@ import 'package:built_value/serializer.dart';
 
 part 'training_result.g.dart';
 
-/// Training results for each cross-validation split.
+/// Training results for each cross-validation split. 
 ///
 /// Properties:
 /// * [nTrainingIds] - Number of sequences in the training set
@@ -293,15 +293,17 @@ class _$TrainingResultSerializer implements PrimitiveSerializer<TrainingResult> 
         case r'training_losses':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(num)]),
-          ) as BuiltList<num>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(num)]),
+          ) as BuiltList<num>?;
+          if (valueDes == null) continue;
           result.trainingLosses.replace(valueDes);
           break;
         case r'validation_losses':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(num)]),
-          ) as BuiltList<num>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(num)]),
+          ) as BuiltList<num>?;
+          if (valueDes == null) continue;
           result.validationLosses.replace(valueDes);
           break;
         case r'best_epoch_metrics':
@@ -348,3 +350,4 @@ class _$TrainingResultSerializer implements PrimitiveSerializer<TrainingResult> 
     return result.build();
   }
 }
+

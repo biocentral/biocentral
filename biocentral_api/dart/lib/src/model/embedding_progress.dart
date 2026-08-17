@@ -121,3 +121,4 @@ class _$EmbeddingProgressSerializer implements PrimitiveSerializer<EmbeddingProg
     return result.build();
   }
 }
+

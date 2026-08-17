@@ -11,11 +11,11 @@ part 'embedding_stats.g.dart';
 /// EmbeddingStats
 ///
 /// Properties:
-/// * [embedderName]
-/// * [dims]
-/// * [nTracked]
-/// * [min]
-/// * [max]
+/// * [embedderName] 
+/// * [dims] 
+/// * [nTracked] 
+/// * [min] 
+/// * [max] 
 @BuiltValue()
 abstract class EmbeddingStats implements Built<EmbeddingStats, EmbeddingStatsBuilder> {
   @BuiltValueField(wireName: r'embedder_name')
@@ -167,3 +167,4 @@ class _$EmbeddingStatsSerializer implements PrimitiveSerializer<EmbeddingStats> 
     return result.build();
   }
 }
+

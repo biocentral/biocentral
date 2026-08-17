@@ -11,10 +11,10 @@ part 'biocentral_server_server_management_shared_endpoint_models_error_models_er
 /// BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 ///
 /// Properties:
-/// * [error]
-/// * [errorType]
-/// * [details]
-/// * [errorCode]
+/// * [error] 
+/// * [errorType] 
+/// * [details] 
+/// * [errorCode] 
 @BuiltValue()
 abstract class BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse implements Built<BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse, BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponseBuilder> {
   @BuiltValueField(wireName: r'error')
@@ -157,3 +157,4 @@ class _$BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResp
     return result.build();
   }
 }
+

@@ -123,3 +123,4 @@ class _$PredictionRequestSerializer implements PrimitiveSerializer<PredictionReq
     return result.build();
   }
 }
+

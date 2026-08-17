@@ -105,3 +105,4 @@ class _$ServiceStatsResponseSerializer implements PrimitiveSerializer<ServiceSta
     return result.build();
   }
 }
+

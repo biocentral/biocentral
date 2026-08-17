@@ -31,7 +31,7 @@ class EmbeddingsApi {
   /// Add pre-computed embeddings from HDF5 file to the embeddings database
   ///
   /// Parameters:
-  /// * [addEmbeddingsRequest]
+  /// * [addEmbeddingsRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -41,7 +41,7 @@ class EmbeddingsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [AddEmbeddingsResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<AddEmbeddingsResponse>> addEmbeddingsApiV1EmbeddingsServiceAddEmbeddingsPost({
+  Future<Response<AddEmbeddingsResponse>> addEmbeddingsApiV1EmbeddingsServiceAddEmbeddingsPost({ 
     required AddEmbeddingsRequest addEmbeddingsRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -135,7 +135,7 @@ class EmbeddingsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<CommonEmbedder>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<CommonEmbedder>>> commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet({
+  Future<Response<BuiltList<CommonEmbedder>>> commonEmbeddersApiV1EmbeddingsServiceCommonEmbeddersGet({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -199,7 +199,7 @@ class EmbeddingsApi {
   /// Submit sequences for embedding calculation using specified embedder model
   ///
   /// Parameters:
-  /// * [embedRequest]
+  /// * [embedRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -209,7 +209,7 @@ class EmbeddingsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [StartTaskResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<StartTaskResponse>> embedApiV1EmbeddingsServiceEmbedPost({
+  Future<Response<StartTaskResponse>> embedApiV1EmbeddingsServiceEmbedPost({ 
     required EmbedRequest embedRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -294,7 +294,7 @@ class EmbeddingsApi {
   /// Check which sequences are missing embeddings for a given embedder and reduction setting
   ///
   /// Parameters:
-  /// * [getMissingEmbeddingsRequest]
+  /// * [getMissingEmbeddingsRequest] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -304,7 +304,7 @@ class EmbeddingsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [GetMissingEmbeddingsResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GetMissingEmbeddingsResponse>> getMissingEmbeddingsApiV1EmbeddingsServiceGetMissingEmbeddingsPost({
+  Future<Response<GetMissingEmbeddingsResponse>> getMissingEmbeddingsApiV1EmbeddingsServiceGetMissingEmbeddingsPost({ 
     required GetMissingEmbeddingsRequest getMissingEmbeddingsRequest,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

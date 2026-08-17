@@ -126,3 +126,4 @@ class _$BiotrainerInferenceResultSerializer implements PrimitiveSerializer<Biotr
     return result.build();
   }
 }
+

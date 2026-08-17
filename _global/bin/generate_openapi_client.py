@@ -394,11 +394,9 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
     print(f"Generated docs are in: {target_docs_dir}")
 
 
-def generate_dart():
+def generate_dart(openapi_spec: Path, dart_target_dir: Path):
     # Define paths
-    script_dir = Path(__file__).parent
-    openapi_spec = script_dir / "openapi.json"
-    output_dir = script_dir.parent / "dart"
+    output_dir = dart_target_dir
     temp_docs_dir = output_dir / "doc"
     target_docs_dir = output_dir / "doc" / "_generated"
 
@@ -431,7 +429,7 @@ def generate_dart():
     print("Generating OpenAPI Dart client...")
 
     # Run the generator
-    if not run_command(generator_command, cwd=script_dir):
+    if not run_command(generator_command, cwd=dart_target_dir):
         print("Failed to generate OpenAPI client")
         sys.exit(1)
 
@@ -501,9 +499,9 @@ def main():
     python_target_dir = base_dir / "python"
     dart_target_dir = base_dir / "dart"
 
-    openapi_spec = get_openapi_spec(openapi_target_dir)
-    generate_python(openapi_spec=openapi_spec, python_target_dir=python_target_dir)
-    # generate_dart()
+    openapi_spec = get_openapi_spec(openapi_target_dir, skip_generation=False)
+    #generate_python(openapi_spec=openapi_spec, python_target_dir=python_target_dir)
+    generate_dart(openapi_spec=openapi_spec, dart_target_dir=dart_target_dir)
 
 
 if __name__ == "__main__":

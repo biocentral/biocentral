@@ -260,3 +260,4 @@ class _$ActiveLearningScreeningCampaignConfigSerializer implements PrimitiveSeri
     return result.build();
   }
 }
+

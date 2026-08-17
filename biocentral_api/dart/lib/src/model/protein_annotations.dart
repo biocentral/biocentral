@@ -12,7 +12,7 @@ part 'protein_annotations.g.dart';
 /// ProteinAnnotations
 ///
 /// Properties:
-/// * [proteinId]
+/// * [proteinId] 
 @BuiltValue()
 abstract class ProteinAnnotations implements Built<ProteinAnnotations, ProteinAnnotationsBuilder> {
   @BuiltValueField(wireName: r'protein_id')
@@ -104,3 +104,4 @@ class _$ProteinAnnotationsSerializer implements PrimitiveSerializer<ProteinAnnot
     return result.build();
   }
 }
+

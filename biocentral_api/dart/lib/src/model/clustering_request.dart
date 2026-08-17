@@ -93,8 +93,9 @@ class _$ClusteringRequestSerializer implements PrimitiveSerializer<ClusteringReq
         case r'sequence_identity_threshold':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(num),
-          ) as num;
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
           result.sequenceIdentityThreshold = valueDes;
           break;
         default:
@@ -125,3 +126,4 @@ class _$ClusteringRequestSerializer implements PrimitiveSerializer<ClusteringReq
     return result.build();
   }
 }
+

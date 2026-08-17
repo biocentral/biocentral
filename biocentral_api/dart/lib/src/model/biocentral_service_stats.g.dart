@@ -14,6 +14,8 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
   @override
   final int totalTasks;
   @override
+  final int runningTasks;
+  @override
   final int queueLength;
   @override
   final bool cudaAvailable;
@@ -30,6 +32,7 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
       {required this.usableCpuCount,
       required this.embeddingsDatabaseSize,
       required this.totalTasks,
+      required this.runningTasks,
       required this.queueLength,
       required this.cudaAvailable,
       required this.cudaDeviceNames,
@@ -51,6 +54,7 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
         usableCpuCount == other.usableCpuCount &&
         embeddingsDatabaseSize == other.embeddingsDatabaseSize &&
         totalTasks == other.totalTasks &&
+        runningTasks == other.runningTasks &&
         queueLength == other.queueLength &&
         cudaAvailable == other.cudaAvailable &&
         cudaDeviceNames == other.cudaDeviceNames &&
@@ -63,6 +67,7 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
     _$hash = $jc(_$hash, usableCpuCount.hashCode);
     _$hash = $jc(_$hash, embeddingsDatabaseSize.hashCode);
     _$hash = $jc(_$hash, totalTasks.hashCode);
+    _$hash = $jc(_$hash, runningTasks.hashCode);
     _$hash = $jc(_$hash, queueLength.hashCode);
     _$hash = $jc(_$hash, cudaAvailable.hashCode);
     _$hash = $jc(_$hash, cudaDeviceNames.hashCode);
@@ -77,6 +82,7 @@ class _$BiocentralServiceStats extends BiocentralServiceStats {
           ..add('usableCpuCount', usableCpuCount)
           ..add('embeddingsDatabaseSize', embeddingsDatabaseSize)
           ..add('totalTasks', totalTasks)
+          ..add('runningTasks', runningTasks)
           ..add('queueLength', queueLength)
           ..add('cudaAvailable', cudaAvailable)
           ..add('cudaDeviceNames', cudaDeviceNames)
@@ -102,6 +108,10 @@ class BiocentralServiceStatsBuilder
   int? _totalTasks;
   int? get totalTasks => _$this._totalTasks;
   set totalTasks(int? totalTasks) => _$this._totalTasks = totalTasks;
+
+  int? _runningTasks;
+  int? get runningTasks => _$this._runningTasks;
+  set runningTasks(int? runningTasks) => _$this._runningTasks = runningTasks;
 
   int? _queueLength;
   int? get queueLength => _$this._queueLength;
@@ -133,6 +143,7 @@ class BiocentralServiceStatsBuilder
       _usableCpuCount = $v.usableCpuCount;
       _embeddingsDatabaseSize = $v.embeddingsDatabaseSize;
       _totalTasks = $v.totalTasks;
+      _runningTasks = $v.runningTasks;
       _queueLength = $v.queueLength;
       _cudaAvailable = $v.cudaAvailable;
       _cudaDeviceNames = $v.cudaDeviceNames.toBuilder();
@@ -168,6 +179,8 @@ class BiocentralServiceStatsBuilder
                 'embeddingsDatabaseSize'),
             totalTasks: BuiltValueNullFieldError.checkNotNull(
                 totalTasks, r'BiocentralServiceStats', 'totalTasks'),
+            runningTasks: BuiltValueNullFieldError.checkNotNull(
+                runningTasks, r'BiocentralServiceStats', 'runningTasks'),
             queueLength: BuiltValueNullFieldError.checkNotNull(
                 queueLength, r'BiocentralServiceStats', 'queueLength'),
             cudaAvailable: BuiltValueNullFieldError.checkNotNull(

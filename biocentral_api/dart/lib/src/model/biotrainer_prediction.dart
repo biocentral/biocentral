@@ -20,15 +20,15 @@ part 'biotrainer_prediction.g.dart';
 ///
 /// Properties:
 /// * [seqId] - Sequence identifier
-/// * [prediction]
+/// * [prediction] 
 /// * [isAggregated] - Whether the prediction is an aggregated per-residue prediction
 /// * [residueIndex] - Residue index for non-collapsed per-residue predictions
-/// * [rawPrediction]
+/// * [rawPrediction] 
 /// * [mcdPredictions] - All Monte-Carlo-Dropout predictions
-/// * [mcdMean]
-/// * [mcdStd]
-/// * [mcdLowerBound]
-/// * [mcdUpperBound]
+/// * [mcdMean] 
+/// * [mcdStd] 
+/// * [mcdLowerBound] 
+/// * [mcdUpperBound] 
 /// * [baldScore] - BALD score
 @BuiltValue()
 abstract class BiotrainerPrediction implements Built<BiotrainerPrediction, BiotrainerPredictionBuilder> {
@@ -207,8 +207,9 @@ class _$BiotrainerPredictionSerializer implements PrimitiveSerializer<Biotrainer
         case r'is_aggregated':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(bool),
-          ) as bool;
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
           result.isAggregated = valueDes;
           break;
         case r'residue_index':
@@ -303,3 +304,4 @@ class _$BiotrainerPredictionSerializer implements PrimitiveSerializer<Biotrainer
     return result.build();
   }
 }
+

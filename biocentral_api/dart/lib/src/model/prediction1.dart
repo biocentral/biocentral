@@ -67,3 +67,4 @@ class _$Prediction1Serializer implements PrimitiveSerializer<Prediction1> {
     return result.build();
   }
 }
+

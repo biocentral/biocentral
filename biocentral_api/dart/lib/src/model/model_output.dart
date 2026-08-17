@@ -220,3 +220,4 @@ class _$ModelOutputSerializer implements PrimitiveSerializer<ModelOutput> {
     return result.build();
   }
 }
+

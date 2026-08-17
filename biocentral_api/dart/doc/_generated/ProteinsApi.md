@@ -1,20 +1,19 @@
 # biocentral_api.api.ProteinsApi
 
 ## Load the API package
-
 ```dart
 import 'package:biocentral_api/api.dart';
 ```
 
 All URIs are relative to *http://localhost*
 
-| Method                                                                                                                              | HTTP request                               | Description            |
-| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------- |
-| [**taxonomyApiV1ProteinServiceTaxonomyPost**](ProteinsApi.md#taxonomyapiv1proteinservicetaxonomypost)                               | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data |
-| [**triggerProteinClusteringApiV1ProteinServiceClusterPost**](ProteinsApi.md#triggerproteinclusteringapiv1proteinserviceclusterpost) | **POST** /api/v1/protein_service/cluster/  | Calculate clustering   |
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**taxonomyApiV1ProteinServiceTaxonomyPost**](ProteinsApi.md#taxonomyapiv1proteinservicetaxonomypost) | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data
+[**triggerProteinClusteringApiV1ProteinServiceClusterPost**](ProteinsApi.md#triggerproteinclusteringapiv1proteinserviceclusterpost) | **POST** /api/v1/protein_service/cluster/ | Calculate clustering
+
 
 # **taxonomyApiV1ProteinServiceTaxonomyPost**
-
 > TaxonomyResponse taxonomyApiV1ProteinServiceTaxonomyPost(taxonomyRequest)
 
 Retrieve taxonomy data
@@ -22,12 +21,11 @@ Retrieve taxonomy data
 Retrieve taxonomy data for a list of taxonomy ids
 
 ### Example
-
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getProteinsApi();
-final TaxonomyRequest taxonomyRequest = ; // TaxonomyRequest |
+final TaxonomyRequest taxonomyRequest = ; // TaxonomyRequest | 
 
 try {
     final response = api.taxonomyApiV1ProteinServiceTaxonomyPost(taxonomyRequest);
@@ -39,9 +37,9 @@ try {
 
 ### Parameters
 
-| Name                | Type                                      | Description | Notes |
-| ------------------- | ----------------------------------------- | ----------- | ----- |
-| **taxonomyRequest** | [**TaxonomyRequest**](TaxonomyRequest.md) |             |
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **taxonomyRequest** | [**TaxonomyRequest**](TaxonomyRequest.md)|  | 
 
 ### Return type
 
@@ -53,13 +51,12 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **triggerProteinClusteringApiV1ProteinServiceClusterPost**
-
 > StartTaskResponse triggerProteinClusteringApiV1ProteinServiceClusterPost(clusteringRequest)
 
 Calculate clustering
@@ -67,12 +64,11 @@ Calculate clustering
 Submit sequences for clustering with pymmseqs
 
 ### Example
-
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getProteinsApi();
-final ClusteringRequest clusteringRequest = ; // ClusteringRequest |
+final ClusteringRequest clusteringRequest = ; // ClusteringRequest | 
 
 try {
     final response = api.triggerProteinClusteringApiV1ProteinServiceClusterPost(clusteringRequest);
@@ -84,9 +80,9 @@ try {
 
 ### Parameters
 
-| Name                  | Type                                          | Description | Notes |
-| --------------------- | --------------------------------------------- | ----------- | ----- |
-| **clusteringRequest** | [**ClusteringRequest**](ClusteringRequest.md) |             |
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **clusteringRequest** | [**ClusteringRequest**](ClusteringRequest.md)|  | 
 
 ### Return type
 
@@ -98,7 +94,8 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

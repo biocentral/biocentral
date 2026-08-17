@@ -11,8 +11,8 @@ part 'biocentral_server_custom_models_endpoint_models_error_response.g.dart';
 /// Standard error response model
 ///
 /// Properties:
-/// * [error]
-/// * [detail]
+/// * [error] 
+/// * [detail] 
 @BuiltValue()
 abstract class BiocentralServerCustomModelsEndpointModelsErrorResponse implements Built<BiocentralServerCustomModelsEndpointModelsErrorResponse, BiocentralServerCustomModelsEndpointModelsErrorResponseBuilder> {
   @BuiltValueField(wireName: r'error')
@@ -122,3 +122,4 @@ class _$BiocentralServerCustomModelsEndpointModelsErrorResponseSerializer implem
     return result.build();
   }
 }
+

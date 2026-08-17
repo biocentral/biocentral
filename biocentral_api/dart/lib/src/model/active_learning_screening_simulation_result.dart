@@ -171,29 +171,33 @@ class _$ActiveLearningScreeningSimulationResultSerializer implements PrimitiveSe
         case r'iteration_metrics_total':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(BootstrappedMetric)]),
-          ) as BuiltList<BootstrappedMetric>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(BootstrappedMetric)]),
+          ) as BuiltList<BootstrappedMetric>?;
+          if (valueDes == null) continue;
           result.iterationMetricsTotal.replace(valueDes);
           break;
         case r'iteration_metrics_suggestions':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(BootstrappedMetric)]),
-          ) as BuiltList<BootstrappedMetric>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(BootstrappedMetric)]),
+          ) as BuiltList<BootstrappedMetric>?;
+          if (valueDes == null) continue;
           result.iterationMetricsSuggestions.replace(valueDes);
           break;
         case r'iteration_hits':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(BuiltList, [FullType(String)])]),
-          ) as BuiltList<BuiltList<String>>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(BuiltList, [FullType(String)])]),
+          ) as BuiltList<BuiltList<String>>?;
+          if (valueDes == null) continue;
           result.iterationHits.replace(valueDes);
           break;
         case r'iteration_consecutive_failures':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(int)]),
-          ) as BuiltList<int>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(int)]),
+          ) as BuiltList<int>?;
+          if (valueDes == null) continue;
           result.iterationConsecutiveFailures.replace(valueDes);
           break;
         case r'stop_reasons':
@@ -207,8 +211,9 @@ class _$ActiveLearningScreeningSimulationResultSerializer implements PrimitiveSe
         case r'iteration_results':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(ActiveLearningIterationResult)]),
-          ) as BuiltList<ActiveLearningIterationResult>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(ActiveLearningIterationResult)]),
+          ) as BuiltList<ActiveLearningIterationResult>?;
+          if (valueDes == null) continue;
           result.iterationResults.replace(valueDes);
           break;
         default:
@@ -239,3 +244,4 @@ class _$ActiveLearningScreeningSimulationResultSerializer implements PrimitiveSe
     return result.build();
   }
 }
+
