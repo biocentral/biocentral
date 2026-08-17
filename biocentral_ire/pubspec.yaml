@@ -50,7 +50,7 @@ dependencies:
       ref: feature/add-web-support
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
-  simple_icons: '^10.1.3'
+  simple_icons: '^16.23.0'
   tutorial_system: '^0.0.4'
   universal_io: ^2.2.2
   url_launcher: '^6.3.0'
