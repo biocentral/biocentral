@@ -194,7 +194,11 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                 subtitle: Text(serviceStats.totalTasks.toString()),
               ),
               ListTile(
-                title: Text("Current Length of Task Queue:", style: TextStyle(fontWeight: FontWeight.bold)),
+                title: Text("Number of Currently Running Tasks:", style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(serviceStats.runningTasks.toString()),
+              ),
+              ListTile(
+                title: Text("Number of Queued Tasks:", style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(serviceStats.queueLength.toString()),
               ),
               ListTile(
