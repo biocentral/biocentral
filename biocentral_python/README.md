@@ -1,5 +1,3 @@
-from biocentral import Biocentral
-
 # biocentral
 
 This is the *biocentral* python package, providing all functionality of the biocentral ecosystem in one package.

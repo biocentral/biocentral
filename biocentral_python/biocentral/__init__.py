@@ -10,4 +10,5 @@ __all__ = [
     "BiocentralAPI",
     "BiocentralChart",
     "NotAvailableError",
+    "CommonEmbedder",
 ]

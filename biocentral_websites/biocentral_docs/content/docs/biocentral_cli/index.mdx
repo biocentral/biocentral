@@ -1,0 +1,280 @@
+---
+title: Biocentral - CLI
+description: Use biocentral directly in your terminal.
+---
+
+The [biocentral python package](https://pypi.org/project/biocentral/) provides a command line interface (CLI) that
+lets you use biocentral directly in your terminal — no Python scripting required.
+
+## Installation
+
+Install from [pypi](https://pypi.org/project/biocentral/) using pip:
+```shell
+pip install biocentral
+```
+
+If you want to deploy your own [server](https://github.com/biocentral/biocentral/tree/main/biocentral_server),
+add the *server* extra:
+```shell
+pip install biocentral[server]
+```
+
+If you want to run local functionality, add the *local* extra:
+```shell
+pip install biocentral[local]
+```
+
+## Local vs. Server Mode
+
+One of biocentral's key strengths is that **every command can run either locally on your machine or on a remote server** — you just switch the `--mode` flag:
+
+| Mode | Flag | Description |
+|------|------|-------------|
+| API (default) | `--mode api` | Offloads computation to a biocentral server. Lightweight, no GPU required. |
+| Local | `--mode local` | Runs everything on your own machine. Requires `pip install biocentral[local]`. |
+
+You can also point to your own server instance with `--server-url`:
+```shell
+# Use a custom server
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --mode api --server-url http://my-server:8000
+
+# Run the same command locally instead
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --mode local
+```
+
+---
+
+## Functionality Commands
+
+These commands cover core bioinformatics workflows: *embedding, training, clustering, inference, and prediction*.
+
+### `embed` — Compute Protein Embeddings
+
+Compute embeddings for all sequences in a FASTA file using a protein language model.
+
+```shell
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50
+```
+
+Save the results to an HDF5 file:
+```shell
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --output embeddings.h5
+```
+
+Reduce per-residue embeddings to a single vector per sequence:
+```shell
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --reduce --output embeddings.h5
+```
+
+Run locally on a GPU:
+```shell
+biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --mode local --device cuda --output embeddings.h5
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--embedder` | *(required)* Embedder name, e.g. `Rostlab/prot_t5_xl_uniref50` |
+| `--mode` | `api` (default) or `local` |
+| `--server-url` | Custom server URL (api mode only) |
+| `--device` | Device for local computation, e.g. `cuda` or `cpu` |
+| `--reduce` | Reduce embeddings to one vector per sequence |
+| `--output`, `-o` | Output `.h5` file path |
+
+---
+
+### `train` — Train a Model
+
+Train a model using a [biotrainer](https://github.com/sacdallago/biotrainer) configuration file.
+
+```shell
+biocentral train my_config.yml
+```
+
+Run training locally:
+```shell
+biocentral train my_config.yml --mode local --device cuda
+```
+
+After training completes, the command prints the **model hash** — a unique identifier you can use later for inference.
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--mode` | `api` (default) or `local` |
+| `--server-url` | Custom server URL (api mode only) |
+| `--device` | Device for local computation, e.g. `cuda` or `cpu` |
+
+---
+
+### `inference` — Run Inference on a Trained Model
+
+Use a previously trained model (identified by its hash) to make predictions on new sequences.
+
+```shell
+biocentral inference <model_hash> new_sequences.fasta
+```
+
+Run inference locally:
+```shell
+biocentral inference <model_hash> new_sequences.fasta --mode local
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--mode` | `api` (default) or `local` |
+| `--server-url` | Custom server URL (api mode only) |
+| `--device` | Device for local computation, e.g. `cuda` or `cpu` |
+
+---
+
+### `predict` — Predict with Pre-trained Models
+
+Use pre-trained, server-hosted models to get predictions without any training step. This command is currently API-only.
+
+```shell
+biocentral predict sequences.fasta --model my_pretrained_model
+```
+
+Use multiple models at once:
+```shell
+biocentral predict sequences.fasta --model model_a --model model_b
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--model` | *(required, repeatable)* Pre-trained model name(s) |
+| `--server-url` | Custom server URL |
+
+---
+
+## Server Management Commands
+
+These commands help you manage your own local biocentral server instance.
+They require the server extra: `pip install biocentral[server]`.
+
+### `server up` — Start the Server
+
+Start the biocentral server using Docker Compose.
+
+```shell
+biocentral server up
+```
+
+Start in development mode (rebuilds the Docker image from source):
+```shell
+biocentral server up --mode dev
+```
+
+Start in local mode (only starts dependencies; run the server script manually):
+```shell
+biocentral server up --mode local
+```
+
+**Modes:**
+
+| Mode | Description |
+|------|-------------|
+| `prod` (default) | Production mode via Docker Compose |
+| `dev` | Development mode — builds the image locally |
+| `local` | Starts only dependencies (e.g. database, Redis); run the server script yourself |
+
+---
+
+### `server down` — Stop the Server
+
+Shut down all running server containers.
+
+```shell
+biocentral server down
+```
+
+---
+
+### `server stats` — Show Server Statistics
+
+Display database statistics for the running server.
+
+```shell
+biocentral server stats
+```
+
+---
+
+### `server snack` — Import Embeddings into the Database
+
+Load embeddings from an HDF5 file
+(following the [biotrainer standard](https://github.com/sacdallago/biotrainer/blob/main/biotrainer-core/biotrainer_core/h5_files/emb_db_dto.py))
+into the server's database. Useful for pre-populating the server with existing embeddings.
+
+```shell
+biocentral server snack embeddings.h5
+```
+
+Discard the raw embedding vectors after import (keep only metadata):
+```shell
+biocentral server snack embeddings.h5 --no-keep
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--keep` / `--no-keep` | Whether to retain embeddings after import (default: `--keep`) |
+
+---
+
+### `server dump` — Export Database to HDF5
+
+Export all embeddings from the server database to an HDF5 file. Useful for backups or migrating data.
+
+```shell
+biocentral server dump
+```
+
+Specify a custom output file:
+```shell
+biocentral server dump --output my_backup.h5
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--output`, `-o` | Output file path (default: `database_dump.h5`) |
+
+---
+
+### `server errors` — Analyze Server Logs
+
+Scan Docker and log file output for errors and display them in a readable format.
+
+```shell
+biocentral server errors
+```
+
+Browse errors interactively (navigate with `n`/`p`, quit with `q`):
+```shell
+biocentral server errors --interactive
+```
+
+---
+
+## Other
+
+### Getting Help
+
+Every command supports `--help` to show available options:
+
+```shell
+biocentral --help
+biocentral embed --help
+biocentral server --help
+biocentral server up --help
+```

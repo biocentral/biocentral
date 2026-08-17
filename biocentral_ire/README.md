@@ -11,7 +11,7 @@ Biomedical data, from lab to paper.
 Biocentral is an open-source, innovative bioinformatics platform designed to bridge the gap between the
 latest developments in bioinformatics and applications in molecular biology and diagnostic medicine.
 
-Check out our **getting started** [guide](https://docs.biocentral.cloud/biocentral-ire/getting_started) 
+Check out our **getting started** [guide](https://docs.biocentral.cloud/biocentral_ire) 
 to learn how to use biocentral.
 
 ### Key Features

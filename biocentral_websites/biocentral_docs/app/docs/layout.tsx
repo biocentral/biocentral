@@ -11,7 +11,7 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
         {
           title: "biocentral",
           url: "/docs",
-          description: "Learn how to use the biocentral ecosystem",
+          description: "Ecosystem to integrate biomedical data and machine learning",
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -31,8 +31,8 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
           ),
         },
         {
-          title: "biocentral_api",
-          url: "/docs/biocentral_api",
+          title: "biocentral - Python",
+          url: "/docs/biocentral_python",
           description: "Programmatic access to the biocentral ecosystem",
           icon: (
             <svg
@@ -51,9 +51,30 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
             </svg>
           ),
         },
+          {
+          title: "biocentral - CLI",
+          url: "/docs/biocentral_cli",
+          description: "Use biocentral in your terminal",
+          icon: (
+              <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+              >
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" x2="20" y1="19" y2="19"/>
+              </svg>
+          ),
+        },
         {
           title: "biocentral IRE",
-          url: "/docs/biocentral-ire",
+          url: "/docs/biocentral_ire",
           description: "Desktop application for biocentral",
           icon: (
             <svg
