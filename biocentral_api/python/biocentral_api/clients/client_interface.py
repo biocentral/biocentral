@@ -41,10 +41,10 @@ class ClientInterface(ABC):
                 # Progress bar
                 print(f"Rate limit exceeded (attempt {retry + 1}/{max_retries})")
                 for _ in tqdm(
-                    range(wait_seconds),
-                    desc="Waiting",
-                    bar_format="{desc}: {bar} {remaining}s",
-                    ncols=60,
+                        range(wait_seconds),
+                        desc="Waiting",
+                        bar_format="{desc}: {bar} {remaining}s",
+                        ncols=60,
                 ):
                     sleep(1)
 

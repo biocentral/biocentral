@@ -2,17 +2,18 @@
 
 All URIs are relative to *http://localhost*
 
-| Method                                                               | HTTP request    | Description  |
-| -------------------------------------------------------------------- | --------------- | ------------ |
-| [**health_check_health_get**](DefaultApi.md#health_check_health_get) | **GET** /health | Health Check |
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**health_check_health_get**](DefaultApi.md#health_check_health_get) | **GET** /health | Health Check
+
 
 # **health_check_health_get**
-
 > object health_check_health_get()
 
 Health Check
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -40,6 +41,8 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling DefaultApi->health_check_health_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -54,13 +57,14 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

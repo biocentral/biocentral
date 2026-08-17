@@ -4,24 +4,26 @@ Biocentral prediction model names (for usage in APIs)
 
 ## Enum
 
-- `BINDEMBED` (value: `'BindEmbed'`)
+* `BINDEMBED` (value: `'BindEmbed'`)
 
-- `PROTT5CONSERVATION` (value: `'ProtT5Conservation'`)
+* `PROTT5CONSERVATION` (value: `'ProtT5Conservation'`)
 
-- `SETH` (value: `'Seth'`)
+* `SETH` (value: `'Seth'`)
 
-- `LIGHTATTENTIONSUBCELLULARLOCALIZATION` (value: `'LightAttentionSubcellularLocalization'`)
+* `LIGHTATTENTIONSUBCELLULARLOCALIZATION` (value: `'LightAttentionSubcellularLocalization'`)
 
-- `LIGHTATTENTIONMEMBRANE` (value: `'LightAttentionMembrane'`)
+* `LIGHTATTENTIONMEMBRANE` (value: `'LightAttentionMembrane'`)
 
-- `TMBED` (value: `'TMbed'`)
+* `TMBED` (value: `'TMbed'`)
 
-- `PROTT5SECONDARYSTRUCTURE` (value: `'ProtT5SecondaryStructure'`)
+* `PROTT5SECONDARYSTRUCTURE` (value: `'ProtT5SecondaryStructure'`)
 
-- `EXOTOX` (value: `'ExoTox'`)
+* `EXOTOX` (value: `'ExoTox'`)
 
-- `VESPAG` (value: `'VespaG'`)
+* `VESPAG` (value: `'VespaG'`)
 
-- `UDONPRED` (value: `'UdonPred'`)
+* `UDONPRED` (value: `'UdonPred'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

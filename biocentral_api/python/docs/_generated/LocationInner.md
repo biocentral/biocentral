@@ -1,9 +1,10 @@
 # LocationInner
 
+
 ## Properties
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
 
 ## Example
 
@@ -22,5 +23,6 @@ location_inner_dict = location_inner_instance.to_dict()
 # create an instance of LocationInner from a dict
 location_inner_from_dict = LocationInner.from_dict(location_inner_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

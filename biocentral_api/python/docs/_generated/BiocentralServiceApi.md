@@ -2,21 +2,22 @@
 
 All URIs are relative to *http://localhost*
 
-| Method                                                                                                                                                                                     | HTTP request                                                     | Description         |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- | ------------------- |
-| [**research_stats_api_v1_biocentral_service_research_stats_get**](BiocentralServiceApi.md#research_stats_api_v1_biocentral_service_research_stats_get)                                     | **GET** /api/v1/biocentral_service/research_stats/               | Research Stats      |
-| [**stats_api_v1_biocentral_service_stats_get**](BiocentralServiceApi.md#stats_api_v1_biocentral_service_stats_get)                                                                         | **GET** /api/v1/biocentral_service/stats/                        | Stats               |
-| [**task_status_api_v1_biocentral_service_task_status_task_id_get**](BiocentralServiceApi.md#task_status_api_v1_biocentral_service_task_status_task_id_get)                                 | **GET** /api/v1/biocentral_service/task_status/{task_id}         | Task Status         |
-| [**task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**](BiocentralServiceApi.md#task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed |
-| [**welcome_message_api_v1_biocentral_service_welcome_message_get**](BiocentralServiceApi.md#welcome_message_api_v1_biocentral_service_welcome_message_get)                                 | **GET** /api/v1/biocentral_service/welcome_message               | Welcome Message     |
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**research_stats_api_v1_biocentral_service_research_stats_get**](BiocentralServiceApi.md#research_stats_api_v1_biocentral_service_research_stats_get) | **GET** /api/v1/biocentral_service/research_stats/ | Research Stats
+[**stats_api_v1_biocentral_service_stats_get**](BiocentralServiceApi.md#stats_api_v1_biocentral_service_stats_get) | **GET** /api/v1/biocentral_service/stats/ | Stats
+[**task_status_api_v1_biocentral_service_task_status_task_id_get**](BiocentralServiceApi.md#task_status_api_v1_biocentral_service_task_status_task_id_get) | **GET** /api/v1/biocentral_service/task_status/{task_id} | Task Status
+[**task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**](BiocentralServiceApi.md#task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get) | **GET** /api/v1/biocentral_service/task_status_resumed/{task_id} | Task Status Resumed
+[**welcome_message_api_v1_biocentral_service_welcome_message_get**](BiocentralServiceApi.md#welcome_message_api_v1_biocentral_service_welcome_message_get) | **GET** /api/v1/biocentral_service/welcome_message | Welcome Message
+
 
 # **research_stats_api_v1_biocentral_service_research_stats_get**
-
 > ResearchStatsResponse research_stats_api_v1_biocentral_service_research_stats_get()
 
 Research Stats
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -45,6 +46,8 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling BiocentralServiceApi->research_stats_api_v1_biocentral_service_research_stats_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -59,25 +62,25 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **stats_api_v1_biocentral_service_stats_get**
-
 > ServiceStatsResponse stats_api_v1_biocentral_service_stats_get()
 
 Stats
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -106,6 +109,8 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling BiocentralServiceApi->stats_api_v1_biocentral_service_stats_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -120,25 +125,25 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **task_status_api_v1_biocentral_service_task_status_task_id_get**
-
 > TaskStatusResponse task_status_api_v1_biocentral_service_task_status_task_id_get(task_id)
 
 Task Status
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -157,7 +162,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
-    task_id = 'task_id_example' # str |
+    task_id = 'task_id_example' # str | 
 
     try:
         # Task Status
@@ -168,11 +173,14 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling BiocentralServiceApi->task_status_api_v1_biocentral_service_task_status_task_id_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
-| Name        | Type    | Description | Notes |
-| ----------- | ------- | ----------- | ----- |
-| **task_id** | **str** |             |
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**|  | 
 
 ### Return type
 
@@ -184,26 +192,26 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
-| **422**     | Validation Error    | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get**
-
 > TaskStatusResponse task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get(task_id)
 
 Task Status Resumed
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -222,7 +230,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.BiocentralServiceApi(api_client)
-    task_id = 'task_id_example' # str |
+    task_id = 'task_id_example' # str | 
 
     try:
         # Task Status Resumed
@@ -233,11 +241,14 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling BiocentralServiceApi->task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
-| Name        | Type    | Description | Notes |
-| ----------- | ------- | ----------- | ----- |
-| **task_id** | **str** |             |
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **task_id** | **str**|  | 
 
 ### Return type
 
@@ -249,26 +260,26 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
-| **422**     | Validation Error    | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **welcome_message_api_v1_biocentral_service_welcome_message_get**
-
 > object welcome_message_api_v1_biocentral_service_welcome_message_get()
 
 Welcome Message
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -296,6 +307,8 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling BiocentralServiceApi->welcome_message_api_v1_biocentral_service_welcome_message_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -310,14 +323,15 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

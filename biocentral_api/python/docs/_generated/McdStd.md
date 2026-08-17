@@ -4,8 +4,8 @@ Monte-Carlo-Dropout standard deviation(s)
 
 ## Properties
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
 
 ## Example
 
@@ -24,5 +24,6 @@ mcd_std_dict = mcd_std_instance.to_dict()
 # create an instance of McdStd from a dict
 mcd_std_from_dict = McdStd.from_dict(mcd_std_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

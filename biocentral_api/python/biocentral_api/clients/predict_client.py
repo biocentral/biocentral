@@ -50,10 +50,10 @@ class _PredictDTOHandler(DTOHandler):
 
 class PredictClient(ClientInterface):
     def predict(
-        self,
-        api_client: ApiClient,
-        model_names: List[BiocentralPredictionModel],
-        sequence_data: Dict[str, str],
+            self,
+            api_client: ApiClient,
+            model_names: List[BiocentralPredictionModel],
+            sequence_data: Dict[str, str],
     ) -> BiocentralServerTask[Dict[str, List[Prediction]]]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(

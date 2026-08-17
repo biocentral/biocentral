@@ -1,12 +1,13 @@
 # EpochMetrics
 
+
 ## Properties
 
-| Name           | Type                  | Description        | Notes |
-| -------------- | --------------------- | ------------------ | ----- |
-| **epoch**      | **int**               | Epoch number       |
-| **training**   | **Dict[str, object]** | Training metrics   |
-| **validation** | **Dict[str, object]** | Validation metrics |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**epoch** | **int** | Epoch number | 
+**training** | **Dict[str, object]** | Training metrics | 
+**validation** | **Dict[str, object]** | Validation metrics | 
 
 ## Example
 
@@ -25,5 +26,6 @@ epoch_metrics_dict = epoch_metrics_instance.to_dict()
 # create an instance of EpochMetrics from a dict
 epoch_metrics_from_dict = EpochMetrics.from_dict(epoch_metrics_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

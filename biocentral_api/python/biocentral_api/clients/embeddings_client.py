@@ -139,7 +139,7 @@ class EmbeddingsResult:
         return _retrieve(embeddings_file_handle)
 
     def save(
-        self, save_path: Union[Path, str], hashed_ids: Optional[bool] = False
+            self, save_path: Union[Path, str], hashed_ids: Optional[bool] = False
     ) -> None:
         """
         Save the embeddings as h5 file locally.
@@ -249,12 +249,12 @@ class _ProjectionDTOHandler(DTOHandler):
 
 class EmbeddingsClient(ClientInterface):
     def embed(
-        self,
-        api_client: ApiClient,
-        embedder_name: str,
-        reduce: bool,
-        sequence_data: Dict[str, str],
-        use_half_precision: bool,
+            self,
+            api_client: ApiClient,
+            embedder_name: str,
+            reduce: bool,
+            sequence_data: Dict[str, str],
+            use_half_precision: bool,
     ) -> BiocentralServerTask[EmbeddingsResult]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(
@@ -288,12 +288,12 @@ class EmbeddingsClient(ClientInterface):
         return biocentral_server_task
 
     def project(
-        self,
-        api_client: ApiClient,
-        embedder_name: str,
-        method: str,
-        sequence_data: Dict[str, str],
-        projection_config: Dict[str, str],
+            self,
+            api_client: ApiClient,
+            embedder_name: str,
+            method: str,
+            sequence_data: Dict[str, str],
+            projection_config: Dict[str, str],
     ) -> BiocentralServerTask[ProjectionResult]:
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(

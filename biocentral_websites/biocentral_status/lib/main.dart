@@ -148,11 +148,14 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
   Widget buildTabView(String url, BiocentralStatusInfo statusInfo) {
     if (url.contains("localhost") && !statusInfo.health.healthy) {
       return Center(
-        child: Linkify(text: "You do not have a local server currently running. \n\n"
-            "Learn how to set up a local server here:\n"
-            "https://biocentral.cloud/docs/biocentral_server/getting_started",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        options: LinkifyOptions(humanize: false),),
+        child: Linkify(
+          text:
+              "You do not have a local server currently running. \n\n"
+              "Learn how to set up a local server here:\n"
+              "https://biocentral.cloud/docs/biocentral_server/getting_started",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          options: LinkifyOptions(humanize: false),
+        ),
       );
     }
     return Column(
@@ -234,7 +237,9 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                     subtitle: Text(researchStats.avgSequenceLength.toString()),
                   ),
                   buildTopChart("Top Embedders (by usage):", researchStats.topEmbedders.asMap()),
+                  SizedBox(height: 40),
                   buildTopChart("Top Predictors (by usage):", researchStats.topPredictors.asMap()),
+                  SizedBox(height: 40),
                   buildAminoAcidDistributionChart(researchStats),
                 ]),
         ],
@@ -295,7 +300,7 @@ class _BiocentralStatusViewState extends State<BiocentralStatusView> {
                       showTitles: true,
                       reservedSize: 40,
                       getTitlesWidget: (value, meta) {
-                        return Text(value.toInt().toString(), style: TextStyle(fontSize: 10));
+                        return Text(value.toInt().toStringAsPrecision(2), style: TextStyle(fontSize: 10));
                       },
                     ),
                   ),

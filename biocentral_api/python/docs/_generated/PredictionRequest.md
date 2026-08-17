@@ -1,11 +1,12 @@
 # PredictionRequest
 
+
 ## Properties
 
-| Name               | Type                                                                | Description                                          | Notes |
-| ------------------ | ------------------------------------------------------------------- | ---------------------------------------------------- | ----- |
-| **model_names**    | [**List[BiocentralPredictionModel]**](BiocentralPredictionModel.md) | List of model names to use for prediction            |
-| **sequence_input** | **Dict[str, str]**                                                  | Dictionary mapping sequence IDs to protein sequences |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**model_names** | [**List[BiocentralPredictionModel]**](BiocentralPredictionModel.md) | List of model names to use for prediction | 
+**sequence_input** | **Dict[str, str]** | Dictionary mapping sequence IDs to protein sequences | 
 
 ## Example
 
@@ -24,5 +25,6 @@ prediction_request_dict = prediction_request_instance.to_dict()
 # create an instance of PredictionRequest from a dict
 prediction_request_from_dict = PredictionRequest.from_dict(prediction_request_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

@@ -4,12 +4,12 @@ Configuration for a single iteration of active learning
 
 ## Properties
 
-| Name               | Type                                                                                                | Description                                                                                    | Notes |
-| ------------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----- |
-| **iteration**      | **int**                                                                                             | Iteration number                                                                               |
-| **iteration_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of sequence training data for this iteration                                              |
-| **coefficient**    | **float**                                                                                           | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) |
-| **n_suggestions**  | **int**                                                                                             | Number of suggestions to propose from this iteration                                           |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**iteration** | **int** | Iteration number | 
+**iteration_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of sequence training data for this iteration | 
+**coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
+**n_suggestions** | **int** | Number of suggestions to propose from this iteration | 
 
 ## Example
 
@@ -28,5 +28,6 @@ active_learning_screening_iteration_config_dict = active_learning_screening_iter
 # create an instance of ActiveLearningScreeningIterationConfig from a dict
 active_learning_screening_iteration_config_from_dict = ActiveLearningScreeningIterationConfig.from_dict(active_learning_screening_iteration_config_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

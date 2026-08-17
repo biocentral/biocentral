@@ -2,13 +2,13 @@
 
 All URIs are relative to *http://localhost*
 
-| Method                                                                                                                                              | HTTP request                               | Description            |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------- |
-| [**taxonomy_api_v1_protein_service_taxonomy_post**](ProteinsApi.md#taxonomy_api_v1_protein_service_taxonomy_post)                                   | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data |
-| [**trigger_protein_clustering_api_v1_protein_service_cluster_post**](ProteinsApi.md#trigger_protein_clustering_api_v1_protein_service_cluster_post) | **POST** /api/v1/protein_service/cluster/  | Calculate clustering   |
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**taxonomy_api_v1_protein_service_taxonomy_post**](ProteinsApi.md#taxonomy_api_v1_protein_service_taxonomy_post) | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data
+[**trigger_protein_clustering_api_v1_protein_service_cluster_post**](ProteinsApi.md#trigger_protein_clustering_api_v1_protein_service_cluster_post) | **POST** /api/v1/protein_service/cluster/ | Calculate clustering
+
 
 # **taxonomy_api_v1_protein_service_taxonomy_post**
-
 > TaxonomyResponse taxonomy_api_v1_protein_service_taxonomy_post(taxonomy_request)
 
 Retrieve taxonomy data
@@ -16,6 +16,7 @@ Retrieve taxonomy data
 Retrieve taxonomy data for a list of taxonomy ids
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -35,7 +36,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ProteinsApi(api_client)
-    taxonomy_request = biocentral_api._generated.TaxonomyRequest() # TaxonomyRequest |
+    taxonomy_request = biocentral_api._generated.TaxonomyRequest() # TaxonomyRequest | 
 
     try:
         # Retrieve taxonomy data
@@ -46,11 +47,14 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ProteinsApi->taxonomy_api_v1_protein_service_taxonomy_post: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
-| Name                 | Type                                      | Description | Notes |
-| -------------------- | ----------------------------------------- | ----------- | ----- |
-| **taxonomy_request** | [**TaxonomyRequest**](TaxonomyRequest.md) |             |
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **taxonomy_request** | [**TaxonomyRequest**](TaxonomyRequest.md)|  | 
 
 ### Return type
 
@@ -62,22 +66,21 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
-| **400**     | Bad Request         | -                |
-| **422**     | Validation Error    | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**400** | Bad Request |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **trigger_protein_clustering_api_v1_protein_service_cluster_post**
-
 > StartTaskResponse trigger_protein_clustering_api_v1_protein_service_cluster_post(clustering_request)
 
 Calculate clustering
@@ -85,6 +88,7 @@ Calculate clustering
 Submit sequences for clustering with pymmseqs
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -104,7 +108,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ProteinsApi(api_client)
-    clustering_request = biocentral_api._generated.ClusteringRequest() # ClusteringRequest |
+    clustering_request = biocentral_api._generated.ClusteringRequest() # ClusteringRequest | 
 
     try:
         # Calculate clustering
@@ -115,11 +119,14 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ProteinsApi->trigger_protein_clustering_api_v1_protein_service_cluster_post: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
-| Name                   | Type                                          | Description | Notes |
-| ---------------------- | --------------------------------------------- | ----------- | ----- |
-| **clustering_request** | [**ClusteringRequest**](ClusteringRequest.md) |             |
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **clustering_request** | [**ClusteringRequest**](ClusteringRequest.md)|  | 
 
 ### Return type
 
@@ -131,15 +138,16 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
-| **422**     | Validation Error    | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

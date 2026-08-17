@@ -167,11 +167,13 @@ def create_app() -> FastAPI:
     # Landing page
     assets_dir = Path(os.environ.get("ASSETS_DIR", "assets/"))
     landing_file_content = None
-    with open(assets_dir / "landing.html", "r") as landing_file:
-        landing_file_content = landing_file.read()
+    landing_file = assets_dir / "landing.html"
+    if landing_file.exists():
+        with open(landing_file, "r") as landing_file:
+            landing_file_content = landing_file.read()
 
-    if landing_file_content is None or len(landing_file_content) == 0:
-        raise Exception("Landing page file not found or is empty!")
+        if landing_file_content is None or len(landing_file_content) == 0:
+            raise Exception("Landing page file not found or is empty!")
 
     @app.get("/", include_in_schema=False)
     async def landing_page():

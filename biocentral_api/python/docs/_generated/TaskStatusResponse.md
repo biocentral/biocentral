@@ -1,10 +1,11 @@
 # TaskStatusResponse
 
+
 ## Properties
 
-| Name     | Type                            | Description                                                                                | Notes |
-| -------- | ------------------------------- | ------------------------------------------------------------------------------------------ | ----- |
-| **dtos** | [**List[TaskDTO]**](TaskDTO.md) | List of task DTOs generated during task execution since last request for the given task id |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**dtos** | [**List[TaskDTO]**](TaskDTO.md) | List of task DTOs generated during task execution since last request for the given task id | 
 
 ## Example
 
@@ -23,5 +24,6 @@ task_status_response_dict = task_status_response_instance.to_dict()
 # create an instance of TaskStatusResponse from a dict
 task_status_response_from_dict = TaskStatusResponse.from_dict(task_status_response_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

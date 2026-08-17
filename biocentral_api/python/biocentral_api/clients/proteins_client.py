@@ -47,7 +47,7 @@ class _ClusterDTOHandler(DTOHandler):
 
 class ProteinsClient(ClientInterface):
     def taxonomy(
-        self, api_client: ApiClient, taxonomy_ids: List[int]
+            self, api_client: ApiClient, taxonomy_ids: List[int]
     ) -> Optional[List[TaxonomyItem]]:
         api_instance = ProteinsApi(api_client)
         taxonomy_request = TaxonomyRequest(taxonomy_ids=taxonomy_ids)
@@ -68,10 +68,10 @@ class ProteinsClient(ClientInterface):
             return None
 
     def cluster(
-        self,
-        api_client: ApiClient,
-        sequence_data: Dict[str, str],
-        sequence_identity_threshold: float,
+            self,
+            api_client: ApiClient,
+            sequence_data: Dict[str, str],
+            sequence_identity_threshold: float,
     ):
         assert len(sequence_data) > 0, "No sequences provided"
         assert len(sequence_data.values()) == len(

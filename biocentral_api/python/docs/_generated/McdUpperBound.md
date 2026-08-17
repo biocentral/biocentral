@@ -4,8 +4,8 @@ Monte-Carlo-Dropout upper bound(s)
 
 ## Properties
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
 
 ## Example
 
@@ -24,5 +24,6 @@ mcd_upper_bound_dict = mcd_upper_bound_instance.to_dict()
 # create an instance of McdUpperBound from a dict
 mcd_upper_bound_from_dict = McdUpperBound.from_dict(mcd_upper_bound_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

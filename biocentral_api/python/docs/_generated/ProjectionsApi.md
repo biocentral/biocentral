@@ -2,13 +2,13 @@
 
 All URIs are relative to *http://localhost*
 
-| Method                                                                                                                                                       | HTTP request                                         | Description                  |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- | ---------------------------- |
-| [**project_api_v1_projection_service_project_post**](ProjectionsApi.md#project_api_v1_projection_service_project_post)                                       | **POST** /api/v1/projection_service/project          | Calculate projections        |
-| [**projection_config_api_v1_projection_service_projection_config_get**](ProjectionsApi.md#projection_config_api_v1_projection_service_projection_config_get) | **GET** /api/v1/projection_service/projection_config | Get Protspace config options |
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**project_api_v1_projection_service_project_post**](ProjectionsApi.md#project_api_v1_projection_service_project_post) | **POST** /api/v1/projection_service/project | Calculate projections
+[**projection_config_api_v1_projection_service_projection_config_get**](ProjectionsApi.md#projection_config_api_v1_projection_service_projection_config_get) | **GET** /api/v1/projection_service/projection_config | Get Protspace config options
+
 
 # **project_api_v1_projection_service_project_post**
-
 > StartTaskResponse project_api_v1_projection_service_project_post(projection_request)
 
 Calculate projections
@@ -16,6 +16,7 @@ Calculate projections
 Calculate projections for embeddings using Protspace
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -35,7 +36,7 @@ configuration = biocentral_api._generated.Configuration(
 with biocentral_api._generated.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = biocentral_api._generated.ProjectionsApi(api_client)
-    projection_request = biocentral_api._generated.ProjectionRequest() # ProjectionRequest |
+    projection_request = biocentral_api._generated.ProjectionRequest() # ProjectionRequest | 
 
     try:
         # Calculate projections
@@ -46,11 +47,14 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ProjectionsApi->project_api_v1_projection_service_project_post: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
-| Name                   | Type                                          | Description | Notes |
-| ---------------------- | --------------------------------------------- | ----------- | ----- |
-| **projection_request** | [**ProjectionRequest**](ProjectionRequest.md) |             |
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **projection_request** | [**ProjectionRequest**](ProjectionRequest.md)|  | 
 
 ### Return type
 
@@ -62,21 +66,20 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: application/json
-- **Accept**: application/json
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
-| **422**     | Validation Error    | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **projection_config_api_v1_projection_service_projection_config_get**
-
 > GetProjectionConfigResponse projection_config_api_v1_projection_service_projection_config_get()
 
 Get Protspace config options
@@ -84,6 +87,7 @@ Get Protspace config options
 Get Protspace project configs by projection method
 
 ### Example
+
 
 ```python
 import biocentral_api._generated
@@ -112,6 +116,8 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
         print("Exception when calling ProjectionsApi->projection_config_api_v1_projection_service_projection_config_get: %s\n" % e)
 ```
 
+
+
 ### Parameters
 
 This endpoint does not need any parameter.
@@ -126,14 +132,15 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: application/json
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 ### HTTP response details
 
-| Status code | Description         | Response headers |
-| ----------- | ------------------- | ---------------- |
-| **200**     | Successful Response | -                |
-| **404**     | Not Found           | -                |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

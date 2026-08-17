@@ -16,17 +16,17 @@ class BiocentralServerTask(Generic[T]):
     MAX_CONSECUTIVE_FAILURES: int = 10
 
     def __init__(
-        self,
-        task_id: str,
-        api_client: ApiClient,
-        dto_handler: DTOHandler,
+            self,
+            task_id: str,
+            api_client: ApiClient,
+            dto_handler: DTOHandler,
     ):
         self.task_id = task_id
         self.api_client = api_client
         self.dto_handler = dto_handler
 
     def _fetch_task_status(
-        self, api_instance: BiocentralServiceApi
+            self, api_instance: BiocentralServiceApi
     ) -> TaskStatusResponse:
         """Fetch task status from the API."""
         return (
@@ -36,7 +36,7 @@ class BiocentralServerTask(Generic[T]):
         )
 
     def _poll_task_status(
-        self, progress_callback: Optional[Callable[[Any, Optional[tqdm]], None]] = None
+            self, progress_callback: Optional[Callable[[Any, Optional[tqdm]], None]] = None
     ) -> Optional[T]:
         """
         Poll task status until completion or timeout.

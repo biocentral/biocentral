@@ -4,12 +4,12 @@ Request model for adding embeddings
 
 ## Properties
 
-| Name              | Type     | Description                                    | Notes |
-| ----------------- | -------- | ---------------------------------------------- | ----- |
-| **embedder_name** | **str**  | Name of the embedder model to use              |
-| **h5_bytes**      | **str**  | Base64 encoded HDF5 file containing embeddings |
-| **sequences**     | **str**  | JSON string containing sequence data           |
-| **reduced**       | **bool** | Whether these are reduced embeddings           |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**embedder_name** | **str** | Name of the embedder model to use | 
+**h5_bytes** | **str** | Base64 encoded HDF5 file containing embeddings | 
+**sequences** | **str** | JSON string containing sequence data | 
+**reduced** | **bool** | Whether these are reduced embeddings | 
 
 ## Example
 
@@ -28,5 +28,6 @@ add_embeddings_request_dict = add_embeddings_request_instance.to_dict()
 # create an instance of AddEmbeddingsRequest from a dict
 add_embeddings_request_from_dict = AddEmbeddingsRequest.from_dict(add_embeddings_request_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

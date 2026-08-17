@@ -14,6 +14,9 @@ class BiocentralServiceStats(BaseModel):
     total_tasks: int = Field(
         description="Total number of tasks submitted since server startup"
     )
+    running_tasks: int = Field(
+        description="Current number of tasks running"
+    )
     queue_length: int = Field(
         description="Current number of tasks queued for execution"
     )

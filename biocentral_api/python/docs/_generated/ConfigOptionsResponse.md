@@ -1,10 +1,11 @@
 # ConfigOptionsResponse
 
+
 ## Properties
 
-| Name        | Type             | Description                               | Notes |
-| ----------- | ---------------- | ----------------------------------------- | ----- |
-| **options** | **List[object]** | List of configuration option dictionaries |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**options** | **List[object]** | List of configuration option dictionaries | 
 
 ## Example
 
@@ -23,5 +24,6 @@ config_options_response_dict = config_options_response_instance.to_dict()
 # create an instance of ConfigOptionsResponse from a dict
 config_options_response_from_dict = ConfigOptionsResponse.from_dict(config_options_response_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

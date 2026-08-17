@@ -81,10 +81,10 @@ class _InferenceDTOHandler(DTOHandler):
 
 class CustomModelsClient(ClientInterface):
     def train(
-        self,
-        api_client: ApiClient,
-        config: Dict[str, Any],
-        training_data: List[SequenceData],
+            self,
+            api_client: ApiClient,
+            config: Dict[str, Any],
+            training_data: List[SequenceData],
     ) -> BiocentralServerTask[BiotrainerModelResult]:
         custom_models_api = CustomModelsApi(api_client)
         config_verification_request = ConfigVerificationRequest(config_dict=config)
@@ -114,7 +114,7 @@ class CustomModelsClient(ClientInterface):
         )
 
     def inference(
-        self, api_client: ApiClient, model_hash: str, inference_data: Dict[str, str]
+            self, api_client: ApiClient, model_hash: str, inference_data: Dict[str, str]
     ) -> BiocentralServerTask[BiotrainerInferenceResult]:
         custom_models_api = CustomModelsApi(api_client)
         start_inference_request = StartInferenceRequest(

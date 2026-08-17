@@ -103,6 +103,7 @@ async def stats(metrics_service: Annotated[MetricsService, Depends(MetricsServic
     embeddings_database_size = embeddings_db.get_database_size()
 
     total_tasks = await metrics_service.get_total_tasks()
+    running_tasks = TaskManager().get_current_number_of_running_tasks()
     queue_length = TaskManager().get_current_number_of_queued_tasks()
 
     cuda_available = torch.cuda.is_available()
@@ -116,6 +117,7 @@ async def stats(metrics_service: Annotated[MetricsService, Depends(MetricsServic
             usable_cpu_count=usable_cpu_count,
             embeddings_database_size=embeddings_database_size,
             total_tasks=total_tasks,
+            running_tasks=running_tasks,
             queue_length=queue_length,
             cuda_available=cuda_available,
             cuda_device_names=cuda_device_names,

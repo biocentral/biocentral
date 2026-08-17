@@ -4,9 +4,9 @@ Request model for config verification
 
 ## Properties
 
-| Name            | Type                  | Description              | Notes |
-| --------------- | --------------------- | ------------------------ | ----- |
-| **config_dict** | **Dict[str, object]** | Biotrainer configuration |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**config_dict** | **Dict[str, object]** | Biotrainer configuration | 
 
 ## Example
 
@@ -25,5 +25,6 @@ config_verification_request_dict = config_verification_request_instance.to_dict(
 # create an instance of ConfigVerificationRequest from a dict
 config_verification_request_from_dict = ConfigVerificationRequest.from_dict(config_verification_request_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

@@ -1,11 +1,12 @@
 # StartTrainingRequest
 
+
 ## Properties
 
-| Name              | Type                                                                                                | Description                    | Notes |
-| ----------------- | --------------------------------------------------------------------------------------------------- | ------------------------------ | ----- |
-| **config_dict**   | **Dict[str, object]**                                                                               | Biotrainer configuration       |
-| **training_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of sequence training data |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**config_dict** | **Dict[str, object]** | Biotrainer configuration | 
+**training_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of sequence training data | 
 
 ## Example
 
@@ -24,5 +25,6 @@ start_training_request_dict = start_training_request_instance.to_dict()
 # create an instance of StartTrainingRequest from a dict
 start_training_request_from_dict = StartTrainingRequest.from_dict(start_training_request_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

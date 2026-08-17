@@ -4,9 +4,9 @@ Response model for config verification
 
 ## Properties
 
-| Name      | Type    | Description                                                      | Notes                      |
-| --------- | ------- | ---------------------------------------------------------------- | -------------------------- |
-| **error** | **str** | Empty string if verification successful, error message otherwise | [optional] [default to ''] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**error** | **str** | Empty string if verification successful, error message otherwise | [optional] [default to '']
 
 ## Example
 
@@ -25,5 +25,6 @@ config_verification_response_dict = config_verification_response_instance.to_dic
 # create an instance of ConfigVerificationResponse from a dict
 config_verification_response_from_dict = ConfigVerificationResponse.from_dict(config_verification_response_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

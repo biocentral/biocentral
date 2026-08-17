@@ -4,8 +4,8 @@ Monte-Carlo-Dropout lower bound(s)
 
 ## Properties
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
 
 ## Example
 
@@ -24,5 +24,6 @@ mcd_lower_bound_dict = mcd_lower_bound_instance.to_dict()
 # create an instance of McdLowerBound from a dict
 mcd_lower_bound_from_dict = McdLowerBound.from_dict(mcd_lower_bound_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

@@ -58,7 +58,7 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
 
     @staticmethod
     def _approximate_n_max_iterations(
-        simulation_config: ActiveLearningScreeningSimulationConfig,
+            simulation_config: ActiveLearningScreeningSimulationConfig,
     ):
         max_labels_budget = simulation_config.convergence_config.max_labels_budget
         if max_labels_budget is not None:
@@ -69,7 +69,7 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
             else len(simulation_config.start_ids)
         )
         return (
-            len(simulation_config.simulation_data) - n_start_data
+                len(simulation_config.simulation_data) - n_start_data
         ) // simulation_config.n_suggestions_per_iteration
 
     def handle_result(self, dtos: List[TaskDTO]):
@@ -119,10 +119,10 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
 
 class ActiveLearningClient(ClientInterface):
     def al_screening_iteration(
-        self,
-        api_client: ApiClient,
-        campaign_config: ActiveLearningScreeningCampaignConfig,
-        iteration_config: ActiveLearningScreeningIterationConfig,
+            self,
+            api_client: ApiClient,
+            campaign_config: ActiveLearningScreeningCampaignConfig,
+            iteration_config: ActiveLearningScreeningIterationConfig,
     ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
@@ -141,10 +141,10 @@ class ActiveLearningClient(ClientInterface):
         )
 
     def al_engineering_iteration(
-        self,
-        api_client: ApiClient,
-        campaign_config: ActiveLearningEngineeringCampaignConfig,
-        iteration_config: ActiveLearningEngineeringIterationConfig,
+            self,
+            api_client: ApiClient,
+            campaign_config: ActiveLearningEngineeringCampaignConfig,
+            iteration_config: ActiveLearningEngineeringIterationConfig,
     ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         al_api = ActiveLearningApi(api_client)
 
@@ -163,10 +163,10 @@ class ActiveLearningClient(ClientInterface):
         )
 
     def al_simulation(
-        self,
-        api_client: ApiClient,
-        campaign_config: ActiveLearningScreeningCampaignConfig,
-        simulation_config: ActiveLearningScreeningSimulationConfig,
+            self,
+            api_client: ApiClient,
+            campaign_config: ActiveLearningScreeningCampaignConfig,
+            simulation_config: ActiveLearningScreeningSimulationConfig,
     ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
         al_api = ActiveLearningApi(api_client)
 

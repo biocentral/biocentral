@@ -1,12 +1,13 @@
 # TaxonomyItem
 
+
 ## Properties
 
-| Name            | Type    | Description | Notes |
-| --------------- | ------- | ----------- | ----- |
-| **taxonomy_id** | **int** |             |
-| **name**        | **str** |             |
-| **family**      | **str** |             |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**taxonomy_id** | **int** |  | 
+**name** | **str** |  | 
+**family** | **str** |  | 
 
 ## Example
 
@@ -25,5 +26,6 @@ taxonomy_item_dict = taxonomy_item_instance.to_dict()
 # create an instance of TaxonomyItem from a dict
 taxonomy_item_from_dict = TaxonomyItem.from_dict(taxonomy_item_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

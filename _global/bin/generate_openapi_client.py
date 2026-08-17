@@ -315,11 +315,9 @@ def post_process_imports(output_dir: Path):
             print("Updated __init__.py")
 
 
-def generate_python():
+def generate_python(openapi_spec: Path, python_target_dir: Path):
     # Define paths
-    script_dir = Path(__file__).parent
-    openapi_spec = script_dir / "openapi.json"
-    output_dir = script_dir.parent / "python"
+    output_dir = python_target_dir
     temp_docs_dir = output_dir / "docs"
     target_docs_dir = output_dir / "docs" / "_generated"
 
@@ -356,7 +354,7 @@ def generate_python():
     print("Generating OpenAPI Python client...")
 
     # Run the generator
-    if not run_command(generator_command, cwd=script_dir):
+    if not run_command(generator_command, cwd=python_target_dir):
         print("Failed to generate OpenAPI client")
         sys.exit(1)
 
@@ -483,10 +481,29 @@ def generate_dart():
     print(f"Generated docs are in: {target_docs_dir}")
 
 
+def get_openapi_spec(openapi_target_dir: Path, skip_generation = False):
+    import json
+
+    openapi_spec = openapi_target_dir / 'openapi.json'
+
+    if not skip_generation:
+        from biocentral_server.main import app
+
+        with open(openapi_target_dir / 'openapi.json', 'w') as f:
+            json.dump(app.openapi(), f)
+
+    return openapi_spec
+
 def main():
     """Main function to generate OpenAPI client and organize documentation."""
-    # generate_python()
-    generate_dart()
+    base_dir = Path(__file__).parent.parent.parent / "biocentral_api"
+    openapi_target_dir = base_dir / "openapi_spec"
+    python_target_dir = base_dir / "python"
+    dart_target_dir = base_dir / "dart"
+
+    openapi_spec = get_openapi_spec(openapi_target_dir)
+    generate_python(openapi_spec=openapi_spec, python_target_dir=python_target_dir)
+    # generate_dart()
 
 
 if __name__ == "__main__":

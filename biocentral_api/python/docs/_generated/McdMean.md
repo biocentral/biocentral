@@ -4,8 +4,8 @@ Monte-Carlo-Dropout mean(s)
 
 ## Properties
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
 
 ## Example
 
@@ -24,5 +24,6 @@ mcd_mean_dict = mcd_mean_instance.to_dict()
 # create an instance of McdMean from a dict
 mcd_mean_from_dict = McdMean.from_dict(mcd_mean_dict)
 ```
-
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

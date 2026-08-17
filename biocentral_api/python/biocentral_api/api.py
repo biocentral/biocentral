@@ -66,10 +66,10 @@ class BiocentralAPI:
     RECOMMENDED_MAX_SEQUENCE_LENGTH = 1024
 
     def __init__(
-        self,
-        api_token: Optional[str] = None,
-        fixed_server_url: Optional[str] = None,
-        local_only: bool = False,
+            self,
+            api_token: Optional[str] = None,
+            fixed_server_url: Optional[str] = None,
+            local_only: bool = False,
     ):
         self.api_token = api_token or ""
 
@@ -120,7 +120,7 @@ class BiocentralAPI:
         proxies = urllib.request.getproxies_environment()
         proxy = proxies.get(parsed.scheme)
         if proxy and not urllib.request.proxy_bypass_environment(
-            parsed.netloc, proxies
+                parsed.netloc, proxies
         ):
             cfg.proxy = proxy
         return cfg
@@ -163,7 +163,7 @@ class BiocentralAPI:
         ]
 
     def _update_health_status(
-        self, request_timeout: float = 2.0
+            self, request_timeout: float = 2.0
     ) -> List[_BiocentralAPIHealth]:
         updated: List[_BiocentralAPIHealth] = []
         for api_health_status in self._url_health_status:
@@ -197,7 +197,7 @@ class BiocentralAPI:
             return _BiocentralAPIHealth(url=url, healthy=False)
 
     def wait_until_healthy(
-        self, max_wait_seconds: float = 30.0, poll_interval: float = 1.0
+            self, max_wait_seconds: float = 30.0, poll_interval: float = 1.0
     ) -> BiocentralAPI:
         """Poll the candidate URLs until a healthy one is found or timeout.
 
@@ -221,7 +221,7 @@ class BiocentralAPI:
 
     @staticmethod
     def _get_max_sequence_input_restriction(
-        embedder: Optional[Union[str, CommonEmbedder]],
+            embedder: Optional[Union[str, CommonEmbedder]],
     ) -> int:
         n_default = 1000
         n_baseline = 50000
@@ -244,8 +244,8 @@ class BiocentralAPI:
 
     @staticmethod
     def _handle_sequence_input(
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
-        embedder_name: Optional[Union[str, CommonEmbedder]],
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            embedder_name: Optional[Union[str, CommonEmbedder]],
     ) -> List[SequenceData]:
         if isinstance(sequence_data, str):
             fasta_path = Path(sequence_data)
@@ -306,11 +306,11 @@ class BiocentralAPI:
             )
 
     def embed(
-        self,
-        embedder_name: Union[str, CommonEmbedder],
-        sequence_data: Union[str, Dict[str, str]],
-        reduce: Optional[bool] = True,
-        use_half_precision: Optional[bool] = False,
+            self,
+            embedder_name: Union[str, CommonEmbedder],
+            sequence_data: Union[str, Dict[str, str]],
+            reduce: Optional[bool] = True,
+            use_half_precision: Optional[bool] = False,
     ) -> BiocentralServerTask[EmbeddingsResult]:
         """
         Generates embeddings for the given sequence data using the specified embedder.
@@ -345,11 +345,11 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def project(
-        self,
-        embedder_name: Union[str, CommonEmbedder],
-        method: str,
-        sequence_data: Union[str, Dict[str, str], List[SequenceData]],
-        projection_config: Dict[str, str],
+            self,
+            embedder_name: Union[str, CommonEmbedder],
+            method: str,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            projection_config: Dict[str, str],
     ) -> BiocentralServerTask[ProjectionResult]:
         sequence_data = self._handle_sequence_input(sequence_data, embedder_name)
         sequence_data_dict = {
@@ -382,7 +382,7 @@ class BiocentralAPI:
             return taxonomy_data
 
     def cluster(
-        self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
+            self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
     ) -> BiocentralServerTask[Dict[str, str]]:
         """
         Clusters the provided sequences using pymmseqs on the biocentral server.
@@ -402,7 +402,7 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def train(
-        self, config: Dict[str, Any], training_data: List[SequenceData]
+            self, config: Dict[str, Any], training_data: List[SequenceData]
     ) -> BiocentralServerTask[BiotrainerModelResult]:
         """
         Trains a deep learning model using the provided configuration and training data via biotrainer.
@@ -451,7 +451,7 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def inference(
-        self, model_hash: str, inference_data: Dict[str, str]
+            self, model_hash: str, inference_data: Dict[str, str]
     ) -> BiocentralServerTask[BiotrainerInferenceResult]:
         """
         Run inference on a model trained via biocentral_server using given input data.
@@ -486,9 +486,9 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def predict(
-        self,
-        model_names: List[BiocentralPredictionModel],
-        sequence_data: Dict[str, str],
+            self,
+            model_names: List[BiocentralPredictionModel],
+            sequence_data: Dict[str, str],
     ) -> BiocentralServerTask[Dict[str, List[Prediction]]]:
         """
         Provides functionality to predict results based on specified pre-trained model names and sequence data.
@@ -506,7 +506,7 @@ class BiocentralAPI:
             model_name
             for model_name in model_names
             if len(model_name) == 0
-            or model_name not in BiocentralPredictionModel.__members__.values()
+               or model_name not in BiocentralPredictionModel.__members__.values()
         ]
         if len(invalid_model_names) > 0:
             raise ValueError(f"Invalid model names provided: {invalid_model_names}")
@@ -529,9 +529,9 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def al_screening_iteration(
-        self,
-        campaign_config: ActiveLearningScreeningCampaignConfig,
-        iteration_config: ActiveLearningScreeningIterationConfig,
+            self,
+            campaign_config: ActiveLearningScreeningCampaignConfig,
+            iteration_config: ActiveLearningScreeningIterationConfig,
     ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         if len(iteration_config.iteration_data) < 2:
             raise ValueError(
@@ -552,9 +552,9 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def al_engineering_iteration(
-        self,
-        campaign_config: ActiveLearningEngineeringCampaignConfig,
-        iteration_config: ActiveLearningEngineeringIterationConfig,
+            self,
+            campaign_config: ActiveLearningEngineeringCampaignConfig,
+            iteration_config: ActiveLearningEngineeringIterationConfig,
     ) -> BiocentralServerTask[ActiveLearningIterationResult]:
         BiocentralAPI._check_sequence_lengths(
             [
@@ -571,9 +571,9 @@ class BiocentralAPI:
             return biocentral_server_task
 
     def al_screening_simulation(
-        self,
-        campaign_config: ActiveLearningScreeningCampaignConfig,
-        simulation_config: ActiveLearningScreeningSimulationConfig,
+            self,
+            campaign_config: ActiveLearningScreeningCampaignConfig,
+            simulation_config: ActiveLearningScreeningSimulationConfig,
     ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
         if len(simulation_config.simulation_data) < 2:
             raise ValueError(
