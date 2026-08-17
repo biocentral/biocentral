@@ -111,18 +111,9 @@ class BiocentralAPI:
     @staticmethod
     def _make_configuration(url: str) -> Configuration:
         """Configuration for *url*, with the proxy wired from the environment.
-
-        urllib3 (unlike requests) ignores proxy env vars, so set it explicitly,
-        honoring scheme (HTTP_PROXY/HTTPS_PROXY) and NO_PROXY bypass.
+        Proxy config is now done in the openapi generator directly.
         """
         cfg = Configuration(host=url)
-        parsed = urllib.parse.urlparse(url)
-        proxies = urllib.request.getproxies_environment()
-        proxy = proxies.get(parsed.scheme)
-        if proxy and not urllib.request.proxy_bypass_environment(
-                parsed.netloc, proxies
-        ):
-            cfg.proxy = proxy
         return cfg
 
     # ----------------------- URL + Health utilities -----------------------

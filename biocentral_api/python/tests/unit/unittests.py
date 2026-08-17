@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 
 from biocentral_api import BiocentralAPI, batched
+from biocentral_api._generated.rest import should_bypass_proxies
 
 
 class TestProxyConfig(unittest.TestCase):
@@ -30,7 +31,17 @@ class TestProxyConfig(unittest.TestCase):
     def test_proxy_from_env(self):
         for name, env, url, expected in self.cases:
             with self.subTest(name), mock.patch.dict(os.environ, env, clear=True):
-                self.assertEqual(BiocentralAPI._make_configuration(url).proxy, expected)
+                configuration = BiocentralAPI._make_configuration(url=url)
+                effective_proxy = (
+                    configuration.proxy
+                    if configuration.proxy
+                    and not should_bypass_proxies(
+                        configuration.host, configuration.no_proxy or ""
+                    )
+                    else None
+                )
+
+                self.assertEqual(effective_proxy, expected)
 
 
 class TestBatching(unittest.TestCase):
