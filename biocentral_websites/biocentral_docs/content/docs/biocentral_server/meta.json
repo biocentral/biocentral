@@ -1,5 +1,5 @@
 {
   "title": "biocentral_server",
   "root": true,
-  "pages": ["index", "getting_started"]
+  "pages": ["index"]
 }

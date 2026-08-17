@@ -1,3 +1,9 @@
+---
+title: Biocentral Frontend Tutorial
+description: Learn how to use the biocentral frontend.
+icon: Rocket
+---
+
 # Biocentral - Getting Started Guide
 
 Welcome to Biocentral! Biocentral is a bioinformatics platform that allows you to work with your data

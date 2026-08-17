@@ -71,10 +71,9 @@ the [reference file](https://marks.hms.harvard.edu/proteingym/ProteinGym_v1.3/DM
 * **non-virus**: All other datasets.
 * **total**: **virus** and **non-virus** combined.
 
-> [!IMPORTANT]
-> As ProteinGym does not use a seed for bootstrapping the results, the evaluation results between `autoeval` and
-> the ProteinGym leaderboard can differ. Our experiments showed deviations between `+/- 0.01 to 0.025` points for SCC
-> on the aggregated results. Please consider this when comparing your results to the ProteinGym leaderboard.
+<Callout type="warn">
+As ProteinGym does not use a seed for bootstrapping the results, the evaluation results between `autoeval` and the ProteinGym leaderboard can differ. Our experiments showed deviations between `+/- 0.01 to 0.025` points for SCC on the aggregated results. Please consider this when comparing your results to the ProteinGym leaderboard.
+</Callout>
 
 *Please use a different output directory for different zero-shot methods, as the report is currently only able to
 capture the results of a single method at once.*
