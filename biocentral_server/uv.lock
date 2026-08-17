@@ -398,7 +398,6 @@ requires-dist = [
     { name = "torchmetrics", specifier = ">=1.9.0" },
     { name = "tqdm", specifier = ">=4.67.3,<5.0.0" },
     { name = "umap-learn", specifier = ">=0.5.7,<0.6.0" },
-    { name = "xformers", marker = "extra == 'esm-c'", specifier = ">=0.0.35,<0.1.0" },
 ]
 provides-extras = ["jupyter", "onnx-cpu", "onnx-gpu", "onnx-mac", "dev", "autoeval-frontend", "esm-c"]
 

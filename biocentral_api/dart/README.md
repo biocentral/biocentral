@@ -3,7 +3,7 @@
 ## Usage
 
 This library is primarily designed to be used within
-the [biocentral frontend](https://github.com/biocentral/biocentral). You can find usage examples there.
+the [biocentral ecosystem](https://github.com/biocentral/biocentral). You can find usage examples there.
 The openapi specification can be found [here](https://biocentral.rostlab.org/docs).
 
 ## Post-generation setup

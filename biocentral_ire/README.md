@@ -1,4 +1,4 @@
-# Biocentral
+# Biocentral - Integrated Research Environment (IRE)
 
 <p align="center">
   <img alt="biocentral logo" src="assets/biocentral_logo/biocentral_logo.png" />
@@ -11,7 +11,8 @@ Biomedical data, from lab to paper.
 Biocentral is an open-source, innovative bioinformatics platform designed to bridge the gap between the
 latest developments in bioinformatics and applications in molecular biology and diagnostic medicine.
 
-Check out our **getting started** [guide](docs/getting_started.md) to learn how to use biocentral.
+Check out our **getting started** [guide](https://docs.biocentral.cloud/biocentral-ire/getting_started) 
+to learn how to use biocentral.
 
 ### Key Features
 

@@ -3,6 +3,8 @@
 Bridges the [Biocentral](https://github.com/biocentral/biocentral) Python
 ecosystem with PyCharm (and any IntelliJ-based IDE with the Python plugin).
 
+**This Plugin is still under development and currently only serves as a Proof of Concept.**
+
 ## What it does
 
 Once installed, opening any `.fasta` / `.fa` / `.faa` / `.fna` file inside a

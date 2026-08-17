@@ -35,8 +35,9 @@ For more use cases, examples and documentation see our [docs](https://docs.bioce
 
 ## 📄 License
 
-Biocentral is open-source software licensed under the GNU General Public License v3.0. See the [LICENSE file](LICENSE)
-for details.
+Biocentral is open-source software. In general, it is licensed under the GNU General Public License v3.0. 
+See the [LICENSE file](LICENSE) for details.
+The license for subprojects may differ. If this is the case, the license is provided in the subproject's LICENSE file.
 
 ## 📜 Citation
 

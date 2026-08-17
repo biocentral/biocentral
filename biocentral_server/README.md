@@ -7,20 +7,21 @@ Compute functionality for biocentral. Provided via a dockerized FastAPI server.
 Learn how to best use the _biocentral_server_ functionality for your use case
 by taking the [tour](https://tour.biocentral.cloud/)!
 
-Or check out the [API](https://github.com/biocentral/biocentral_api) or [Frontend](https://app.biocentral.cloud)
+Or check out the [API](https://pypi.org/project/biocentral-api/) or [Frontend](https://app.biocentral.cloud)
 directly.
 
 ## Features and modules
 
 These are the currently provided modules:
 
-| Module        |                    Features                     | External Dependencies |
-| ------------- | :---------------------------------------------: | :-------------------: |
-| embeddings    |             Embed protein sequences             |     [biotrainer]      |
-| ppi           |     Work with protein-protein interactions      |     [hvi_toolkit]     |
-| predict       |   Create predictions from pre-trained models    |   [TMbed], [VespaG]   |
-| custom_models | Train and evaluate models trained on embeddings |     [biotrainer]      |
-| proteins      |             Work with protein data              |       [taxoniq]       |
+| Module          |                      Features                       | External Dependencies |
+|-----------------|:---------------------------------------------------:| :-------------------: |
+| active_learning | Active Learning for Protein Engineering / Screening |     [biotrainer]      |
+| embeddings      |               Embed protein sequences               |     [biotrainer]      |
+| ppi             |       Work with protein-protein interactions        |     [hvi_toolkit]     |
+| predict         |     Create predictions from pre-trained models      |   [TMbed], [VespaG]   |
+| custom_models   |   Train and evaluate models trained on embeddings   |     [biotrainer]      |
+| proteins        |               Work with protein data                |       [taxoniq]       |
 
 [biotrainer]: https://github.com/sacdallago/biotrainer
 [hvi_toolkit]: https://github.com/SebieF/hvi_toolkit
@@ -30,7 +31,7 @@ These are the currently provided modules:
 
 ## Installing and running
 
-See the docs on [how to get started](/docs/getting_started.md) with biocentral_server.
+See the docs on [how to get started](https://docs.biocentral.cloud/biocentral_server) with biocentral_server.
 
 For development, see the [development guide](/docs/Contributing/development_setup.md).
 
