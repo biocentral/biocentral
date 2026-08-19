@@ -31,6 +31,8 @@ from .utils import str2bool, Constants, get_logger
 
 logger = get_logger(__name__)
 
+__version__ = version("biocentral-server")
+
 
 def _setup_directories():
     required_directories = ["logs", "storage"]
@@ -127,7 +129,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Biocentral Server",
         description="API for biocentral services",
-        version="1.0.0",
+        version=__version__,
         lifespan=lifespan,
     )
 
@@ -158,8 +160,6 @@ def create_app() -> FastAPI:
     app.include_router(proteins_router, prefix=prefix)
 
     # Health check
-    __version__ = version("biocentral-server")
-
     @app.get("/health")
     async def health_check():
         return {"status": "healthy", "version": __version__}
