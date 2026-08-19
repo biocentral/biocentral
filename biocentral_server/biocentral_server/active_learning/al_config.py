@@ -160,8 +160,11 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
     iteration: int = Field(description="Iteration number")
-    base_sequences: List[str] = Field(
-        description="Sequences used to generate mutations", min_length=1
+    base_sequences: Optional[List[str]] = Field(
+        default=None,
+        description="Sequences used to generate mutations "
+        "(defaults to the wildtype sequence of the campaign)",
+        min_length=1,
     )
     training_data: List[SequenceData] = Field(
         description="List of training data for this iteration", min_length=1
@@ -185,7 +188,8 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_config(self):
-        if len(self.base_sequences) != len(set(self.base_sequences)):
+        base_sequences = self.base_sequences or []
+        if len(base_sequences) != len(set(base_sequences)):
             raise ValueError("base_sequences contains duplicate entries!")
 
         return self
