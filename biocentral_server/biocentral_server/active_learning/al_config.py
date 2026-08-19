@@ -139,7 +139,7 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         description="Optimization mode selection"
     )
     seed: Optional[int] = Field(
-        default=43, description="Random seed for reproducibility."
+        default=42, description="Random seed for reproducibility."
     )
     wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
 
