@@ -177,6 +177,11 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     n_suggestions: int = Field(
         description="Number of suggestions to propose from this iteration", ge=1
     )
+    n_mutations: int = Field(
+        default=1000,
+        description="Number of mutations to generate and score in this iteration",
+        ge=1,
+    )
 
     @field_validator("training_data")
     @classmethod
