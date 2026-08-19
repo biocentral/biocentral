@@ -1,5 +1,6 @@
 import torch
 import random
+import itertools
 import numpy as np
 import torchmetrics
 
@@ -27,20 +28,6 @@ from ..server_management import (
 )
 
 logger = get_logger(__name__)
-
-
-class _ActiveLearningSimulationFixedParameters:
-    @classmethod
-    def min_max_percentile(cls) -> float:
-        return 1  # 1% / 99%
-
-    @classmethod
-    def target_delta(cls) -> float:
-        return 0.5  # TODO Merge with interval task
-
-    @classmethod
-    def n_max_iterations(cls) -> int:
-        return 100
 
 
 class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
@@ -145,10 +132,8 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
 
     def _calculate_hits(self, iteration_suggestions: Set[str]) -> List[str]:
         """Calculate the number of target successes (hits) for the given iteration suggestions (seq_ids)."""
-        min_max_percentile = (
-            _ActiveLearningSimulationFixedParameters.min_max_percentile()
-        )
-        target_delta = _ActiveLearningSimulationFixedParameters.target_delta()
+        min_max_percentile = self.al_simulation_config.hit_percentile
+        target_delta = self.al_simulation_config.hit_target_delta
         suggestion_labels = {
             seq_id: self.all_labels_dict[seq_id] for seq_id in iteration_suggestions
         }
@@ -457,9 +442,12 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         n_total_hits = 0
         n_consecutive_failures = 0
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
-        for iteration_idx in range(
-            _ActiveLearningSimulationFixedParameters.n_max_iterations()
-        ):
+        n_max_iterations = self.al_simulation_config.convergence_config.n_max_iterations
+        # No iteration cap: run until another criterion fires or the data runs out
+        iterations = (
+            itertools.count() if n_max_iterations is None else range(n_max_iterations)
+        )
+        for iteration_idx in iterations:
             iteration = iteration_idx + 1
             if n_total_suggestions + n_start_data >= n_sim_data_total:
                 # No new data left
@@ -527,7 +515,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         # Max iterations exceeded without convergence
         logger.info("AL - Simulation max iterations exceeded without convergence!")
         self.al_simulation_result.stop_reasons = [
-            f"Maximum number of iterations ({_ActiveLearningSimulationFixedParameters.n_max_iterations()}) "
+            f"Maximum number of iterations ({n_max_iterations}) "
             f"exceeded without convergence!"
         ]
         return TaskDTO(
