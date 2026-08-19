@@ -74,3 +74,15 @@ class ActiveLearningEngineeringIterationRequest(BaseModel):
     iteration_config: ActiveLearningEngineeringIterationConfig = Field(
         description="Engineering iteration configuration"
     )
+
+    @model_validator(mode="after")
+    def validate_base_sequences(self):
+        wildtype_length = len(self.campaign_config.wildtype_sequence)
+        for base_sequence in self.iteration_config.base_sequences or []:
+            if len(base_sequence) != wildtype_length:
+                raise ValueError(
+                    "All base_sequences must have the same length as the "
+                    "wildtype sequence, indels are not supported"
+                )
+
+        return self
