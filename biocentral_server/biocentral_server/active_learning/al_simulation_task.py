@@ -109,7 +109,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         al_iteration_config = ActiveLearningScreeningIterationConfig(
             iteration=iteration_number,
             iteration_data=current_training_data,
-            coefficient=0.5,  # TODO Adjust coefficient dynamically
+            coefficient=self.al_simulation_config.coefficient,
             n_suggestions=n_to_suggest,
         )
 
