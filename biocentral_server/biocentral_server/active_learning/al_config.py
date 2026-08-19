@@ -192,6 +192,7 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
 
 
 class ActiveLearningConvergenceConfig(BaseModel):
+    #nitpick these are stopping criteria, not convergence criteria
     """Configuration for convergence criteria for active learning campaigns"""
 
     max_labels_budget: Optional[int] = Field(
@@ -213,11 +214,18 @@ class ActiveLearningConvergenceConfig(BaseModel):
         "('Stop if 3 rounds yield nothing')",
         ge=1,
     )
+    n_max_iterations: Optional[int] = Field(
+        default=100,
+        description="Hard upper limit on the number of iterations, "
+        "applied even if no other criterion is reached",
+        ge=1,
+    )
 
     @model_validator(mode="after")
     def validate_convergence_config(self):
         if (
-            self.max_labels_budget is None
+            self.n_max_iterations is None
+            and self.max_labels_budget is None
             and self.n_hits is None
             and self.max_consecutive_failures is None
         ):
@@ -252,6 +260,21 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
     )
     convergence_config: ActiveLearningConvergenceConfig = Field(
         description="Convergence criteria for the simulation"
+    )
+
+    # Configuration of what counts as a hit (target success)
+    hit_percentile: float = Field(
+        default=1.0,
+        description="Percentile of all labels that counts as a hit "
+        "(modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.",
+        gt=0.0,
+        lt=50.0,
+    )
+    hit_target_delta: float = Field(
+        default=0.5,
+        description="Absolute tolerance around the target value that counts as a hit "
+        "(mode: VALUE)",
+        gt=0.0,
     )
 
     @field_validator("simulation_data")
