@@ -54,7 +54,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
 
   Map<String, PerSequenceEmbedding>? perSequenceByEmbedderName(String? embedderName) {
     final embeddingMap = _getPerSequenceEmbeddings()[embedderName];
-    if(embeddingMap == null) {
+    if (embeddingMap == null) {
       return null;
     }
     return embeddingMap.filterNull<String, PerSequenceEmbedding>();
@@ -82,7 +82,7 @@ class EmbeddingsColumnWizard extends ColumnWizard {
 
   Map<String, PerResidueEmbedding>? perResidueByEmbedderName(String embedderName) {
     final embeddingMap = _getPerResidueEmbeddings()[embedderName];
-    if(embeddingMap == null) {
+    if (embeddingMap == null) {
       return null;
     }
     return embeddingMap.filterNull<String, PerResidueEmbedding>();
@@ -126,15 +126,9 @@ class EmbeddingsColumnWizard extends ColumnWizard {
   List<List<double>> _getEmbeddingsForType(String embedderName, EmbeddingType embeddingType) {
     switch (embeddingType) {
       case EmbeddingType.perSequence:
-        return perSequenceByEmbedderName(embedderName)!
-            .values
-            .map((emb) => emb.rawValues())
-            .toList();
+        return perSequenceByEmbedderName(embedderName)!.values.map((emb) => emb.rawValues()).toList();
       case EmbeddingType.perResidue:
-        return perResidueByEmbedderName(embedderName)!
-            .values
-            .expand((emb) => emb.rawValues())
-            .toList();
+        return perResidueByEmbedderName(embedderName)!.values.expand((emb) => emb.rawValues()).toList();
     }
   }
 

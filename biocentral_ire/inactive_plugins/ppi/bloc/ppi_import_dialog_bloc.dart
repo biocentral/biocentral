@@ -3,7 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_effects/bloc_effects.dart';
 import 'package:flutter/material.dart';
 
-
 mixin class PPIImportDialogEvent {}
 
 final class PPIImportDialogLoadFormatsEvent extends PPIImportDialogEvent {
@@ -50,7 +49,10 @@ final class PPIImportDialogState extends BiocentralSimpleMultiTypeUIState<PPIImp
   @override
   PPIImportDialogState updateFromUIEvent(BiocentralSimpleMultiTypeUIUpdateEvent event) {
     return PPIImportDialogState.selected(
-        availableFormatsWithDocs, getValueFromEvent(selectedFormat, event), getValueFromEvent(selectedFile, event),);
+      availableFormatsWithDocs,
+      getValueFromEvent(selectedFormat, event),
+      getValueFromEvent(selectedFile, event),
+    );
   }
 }
 

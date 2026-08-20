@@ -112,7 +112,7 @@ class _BiocentralInternalCommandViewState extends State<BiocentralInternalComman
           message: 'Add server',
           child: BiocentralButton(
             iconData: Icons.dns,
-            onTap: openServerConfigurationDialog, 
+            onTap: openServerConfigurationDialog,
           ),
         ),
       ],

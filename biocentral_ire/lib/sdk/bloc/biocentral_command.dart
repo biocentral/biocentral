@@ -339,7 +339,8 @@ final class BiocentralCommandLog<R> {
 
     final metaDataReconstructed = BiocentralCommandMetaData.deserialize(metaData);
 
-    final intermediateResult = BiocentralCommandResult.deserialize(jsonMap['intermediateResult']) as BiocentralCommandResult<R>;
+    final intermediateResult =
+        BiocentralCommandResult.deserialize(jsonMap['intermediateResult']) as BiocentralCommandResult<R>;
 
     final result = BiocentralCommandResult.deserialize(jsonMap['result']) as BiocentralCommandResult<R>;
 

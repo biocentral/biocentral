@@ -53,21 +53,22 @@ class ALPredictionErrorTrendView extends StatelessWidget {
   }
 
   /// Builds one record per iteration: (iteration, min, q1, q3, max, mean).
-  List<({int iteration, double min, double q1, double q3, double max, double mean})>
-      _computeStats(Map<String, Protein> proteinDatabase) {
-    final result =
-        <({int iteration, double min, double q1, double q3, double max, double mean})>[];
+  List<({int iteration, double min, double q1, double q3, double max, double mean})> _computeStats(
+      Map<String, Protein> proteinDatabase) {
+    final result = <({int iteration, double min, double q1, double q3, double max, double mean})>[];
     for (final (_, iterResult) in campaign.iterationResults) {
       final errors = _errorsForIteration(iterResult, proteinDatabase);
       if (errors.isEmpty) continue;
-      result.add((
-        iteration: iterResult.iteration,
-        min: errors.first,
-        q1: _quartile(errors, 0.25),
-        q3: _quartile(errors, 0.75),
-        max: errors.last,
-        mean: errors.reduce((a, b) => a + b) / errors.length,
-      ),);
+      result.add(
+        (
+          iteration: iterResult.iteration,
+          min: errors.first,
+          q1: _quartile(errors, 0.25),
+          q3: _quartile(errors, 0.75),
+          max: errors.last,
+          mean: errors.reduce((a, b) => a + b) / errors.length,
+        ),
+      );
     }
     return result;
   }
@@ -75,7 +76,8 @@ class ALPredictionErrorTrendView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
-      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
+      buildWhen: (previous, current) =>
+          previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
       builder: (context, state) {
         final stats = _computeStats(state.proteinDatabase);
         if (stats.isEmpty) return const SizedBox.shrink();
@@ -100,7 +102,8 @@ class ALPredictionErrorTrendView extends StatelessWidget {
             ),
             WidgetsToImage(
               controller: _exportController,
-              child: Container( // used to color background of screenshot the same as application
+              child: Container(
+                // used to color background of screenshot the same as application
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: SizedBox(
                   height: 300,

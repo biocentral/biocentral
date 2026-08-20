@@ -9,11 +9,10 @@ class AssetProteinDatasetContainer {
   );
 
   static final BiocentralAssetDataset amylasePET = BiocentralAssetDataset(
-    name: 'Amylase Mutations Expression Levels',
-    path: 'assets/example_datasets/protein/amylase_pet.fasta',
-    docs: 'Alpha Amylase (PDB: 1UA7) Single and Double Mutations with Normalized Expression Levels',
-    tutorialID: AnalyzeExampleDatasetTutorialID.amylaseDatasetSelector
-  );
+      name: 'Amylase Mutations Expression Levels',
+      path: 'assets/example_datasets/protein/amylase_pet.fasta',
+      docs: 'Alpha Amylase (PDB: 1UA7) Single and Double Mutations with Normalized Expression Levels',
+      tutorialID: AnalyzeExampleDatasetTutorialID.amylaseDatasetSelector);
 
   static List<BiocentralAssetDataset> assetProteinDatasets() {
     return [meltomeFLIP, amylasePET];

@@ -42,6 +42,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     _availableSourceSets.clear();
     _availableSourceSets.addAll(availableSourceSets);
   }
+
   SplitDataCommand? collectCommand() {
     final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
     if (_mode == null || database == null) {

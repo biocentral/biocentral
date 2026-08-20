@@ -8,7 +8,6 @@ import 'package:biocentral_api/biocentral_api.dart';
 
 /// Repository for managing Active Learning campaigns.
 class ALRepository with AutoSaving, StreamableDatabase<List<ALCampaign>> {
-
   @override
   late final BiocentralRepositoryAutoSaver autoSaver;
 
@@ -34,7 +33,7 @@ class ALRepository with AutoSaving, StreamableDatabase<List<ALCampaign>> {
   }
 
   void addNewCampaigns(List<ALCampaign> campaigns) {
-    for(final campaign in campaigns) {
+    for (final campaign in campaigns) {
       final internalName = campaign.internalName();
       _campaigns[internalName] = campaign;
     }
@@ -42,7 +41,8 @@ class ALRepository with AutoSaving, StreamableDatabase<List<ALCampaign>> {
     updateStream();
   }
 
-  void addNewResult(ALCampaign campaign, ActiveLearningScreeningIterationConfig config, ActiveLearningIterationResult result) {
+  void addNewResult(
+      ALCampaign campaign, ActiveLearningScreeningIterationConfig config, ActiveLearningIterationResult result) {
     campaign.addIterationResult(config, result);
     addNewCampaign(campaign); // Simply overwrite existing campaign
   }

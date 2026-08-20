@@ -6,17 +6,20 @@ class ONNXEmbedder {
 
   static (bool, String) validateFromSession(OrtSession session) {
     final inputNames = session.inputNames;
-    if(inputNames.length != requiredInputNames.length) {
-      return (false, 'Expected exactly ${requiredInputNames.length} input names for '
-          'onnx model (given: ${inputNames.length})!');
+    if (inputNames.length != requiredInputNames.length) {
+      return (
+        false,
+        'Expected exactly ${requiredInputNames.length} input names for '
+            'onnx model (given: ${inputNames.length})!'
+      );
     }
-    for(final inputName in inputNames) {
-      if(!requiredInputNames.contains(inputName)) {
+    for (final inputName in inputNames) {
+      if (!requiredInputNames.contains(inputName)) {
         return (false, 'Unknown input name for onnx model: $inputName');
       }
     }
     final outputCount = session.outputCount;
-    if(outputCount != requiredOutputCount) {
+    if (outputCount != requiredOutputCount) {
       return (false, 'Expected exactly $requiredOutputCount outputs for onnx model (given: $outputCount)!');
     }
     return (true, '');

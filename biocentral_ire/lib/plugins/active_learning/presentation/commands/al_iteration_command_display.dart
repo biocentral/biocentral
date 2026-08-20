@@ -155,7 +155,6 @@ class _ALIterationCommandDisplayState extends State<ALIterationCommandDisplay> {
     );
   }
 
-
   Widget buildIterationConfigSelection() {
     return AlIterationConfigDisplay(
       iteration: (_selectedCampaign?.iterationResults.length ?? 0) + 1,

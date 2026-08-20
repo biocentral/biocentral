@@ -33,7 +33,9 @@ class ALPlugin extends BiocentralPlugin
 
   @override
   ALRepository createListeningDatabase(
-      BiocentralProjectRepository projectRepository, BiocentralPythonCompanion companion,) {
+    BiocentralProjectRepository projectRepository,
+    BiocentralPythonCompanion companion,
+  ) {
     final repository = ALRepository(projectRepository);
     return repository;
   }

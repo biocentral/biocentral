@@ -5,7 +5,6 @@ import 'package:biocentral/sdk/presentation/plots/biocentral_bar_plot.dart';
 import 'package:collection/collection.dart';
 import 'package:ml_linalg/vector.dart';
 
-
 abstract class ColumnWizardFactory<T extends ColumnWizard> {
   T create({required String columnName, required Map<String, dynamic> valueMap});
 
@@ -54,7 +53,7 @@ abstract class ColumnWizard {
       return _keysWithMissingValues!;
     }
     final Set<String> keysWithMissingValues = {};
-    for(final (key, value) in valueMap.entriesRecord) {
+    for (final (key, value) in valueMap.entriesRecord) {
       if (_valueIsInvalid(value)) {
         keysWithMissingValues.add(key);
       }

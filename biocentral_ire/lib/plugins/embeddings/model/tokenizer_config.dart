@@ -12,14 +12,15 @@ class TokenizerConfig {
 
   final BiocentralConfigOption usesWhitespaces;
 
-  TokenizerConfig._internal(
-      {required this.eosToken,
-      required this.padToken,
-      required this.unkToken,
-      required this.vocab,
-      required this.charactersToReplace,
-      required this.replacementCharacter,
-      required this.usesWhitespaces,});
+  TokenizerConfig._internal({
+    required this.eosToken,
+    required this.padToken,
+    required this.unkToken,
+    required this.vocab,
+    required this.charactersToReplace,
+    required this.replacementCharacter,
+    required this.usesWhitespaces,
+  });
 
   factory TokenizerConfig.defaultConfig() {
     final defaultStringConstraints = BiocentralConfigConstraints(typeConstraint: String);

@@ -24,10 +24,13 @@ class _BiocentralSmallButtonState extends State<BiocentralSmallButton> {
       height: SizeConfig.safeBlockHorizontal(context) * 6,
       width: SizeConfig.safeBlockHorizontal(context) * 12,
       child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor, textStyle: Theme.of(context).textTheme.labelMedium,),
-          onPressed: widget.onTap,
-          child: Text(widget.label, style: const TextStyle(color: Colors.white)),),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).primaryColor,
+          textStyle: Theme.of(context).textTheme.labelMedium,
+        ),
+        onPressed: widget.onTap,
+        child: Text(widget.label, style: const TextStyle(color: Colors.white)),
+      ),
     );
   }
 }

@@ -51,4 +51,4 @@ dart_code_metrics:
 
 # Configure line length to 120
 formatter:
-  line_length: 120
+  page_width: 120

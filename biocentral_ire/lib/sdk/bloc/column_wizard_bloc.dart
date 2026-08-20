@@ -153,7 +153,8 @@ class ColumnWizardBloc extends Bloc<ColumnWizardEvent, ColumnWizardBlocState> {
 
       // TODO Should type be added here?
       // TODO columnName
-      final newColumn = BiocentralDatabaseColumn(name: state.selectedColumn ?? 'New-From-Wizard', values: result.newColumnValues);
+      final newColumn =
+          BiocentralDatabaseColumn(name: state.selectedColumn ?? 'New-From-Wizard', values: result.newColumnValues);
       final updatedColumnWizard = await newColumn.toColumnWizard(_columnWizardRepository);
 
       final (columnWizardHistory, customBuildFunctions) =

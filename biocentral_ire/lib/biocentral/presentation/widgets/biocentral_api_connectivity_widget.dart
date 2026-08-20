@@ -16,8 +16,7 @@ class BiocentralAPIConnectivityWidget extends StatelessWidget {
       stream: apiRepository.healthStatusStream,
       builder: (context, snapshot) {
         final healthStatusList = snapshot.data ?? [];
-        final connectionStatusAny =
-        healthStatusList.isEmpty ? false : healthStatusList.any((health) => health.healthy);
+        final connectionStatusAny = healthStatusList.isEmpty ? false : healthStatusList.any((health) => health.healthy);
         final connectionColor = connectionStatusAny == true ? Colors.green : Colors.red;
         final connectionMessage = connectionStatusAny == true ? 'Connected!' : 'Not connected';
         String tooltipMessage = 'Connection Status: \n\n';
@@ -48,5 +47,4 @@ class BiocentralAPIConnectivityWidget extends StatelessWidget {
       },
     );
   }
-
 }

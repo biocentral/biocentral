@@ -7,7 +7,9 @@ class NestedTooltipWidget extends StatefulWidget {
   final TextStyle? textStyle;
 
   const NestedTooltipWidget({
-    required this.text, required this.tooltipData, super.key,
+    required this.text,
+    required this.tooltipData,
+    super.key,
     this.textStyle,
   });
 
@@ -42,8 +44,12 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
     _activeTooltips.clear();
   }
 
-  void _showTooltip(BuildContext context, String key, Offset globalPosition,
-      Map<String, NestedTooltipData> tooltipData,) {
+  void _showTooltip(
+    BuildContext context,
+    String key,
+    Offset globalPosition,
+    Map<String, NestedTooltipData> tooltipData,
+  ) {
     final tooltipInfo = tooltipData[key];
     if (tooltipInfo == null) return;
 
@@ -118,38 +124,44 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
     for (final match in exp.allMatches(content)) {
       // Add text before the match
       if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: content.substring(lastIndex, match.start),
-          style: const TextStyle(color: Colors.white),
-        ),);
+        spans.add(
+          TextSpan(
+            text: content.substring(lastIndex, match.start),
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
       }
 
       // Add the clickable tooltip text
       final key = match.group(1)!;
-      spans.add(TextSpan(
-        text: key,
-        style: const TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-          decorationColor: Colors.blue,
+      spans.add(
+        TextSpan(
+          text: key,
+          style: const TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.blue,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              final RenderBox renderBox = context.findRenderObject() as RenderBox;
+              final position = renderBox.localToGlobal(Offset.zero);
+              _showTooltip(context, key, position, nestedData);
+            },
         ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-            final position = renderBox.localToGlobal(Offset.zero);
-            _showTooltip(context, key, position, nestedData);
-          },
-      ),);
+      );
 
       lastIndex = match.end;
     }
 
     // Add remaining text
     if (lastIndex < content.length) {
-      spans.add(TextSpan(
-        text: content.substring(lastIndex),
-        style: const TextStyle(color: Colors.white),
-      ),);
+      spans.add(
+        TextSpan(
+          text: content.substring(lastIndex),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
     }
 
     return RichText(
@@ -165,38 +177,44 @@ class _NestedTooltipWidgetState extends State<NestedTooltipWidget> {
     for (final match in exp.allMatches(widget.text)) {
       // Add text before the match
       if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: widget.text.substring(lastIndex, match.start),
-          style: widget.textStyle,
-        ),);
+        spans.add(
+          TextSpan(
+            text: widget.text.substring(lastIndex, match.start),
+            style: widget.textStyle,
+          ),
+        );
       }
 
       // Add the clickable tooltip text
       final key = match.group(1)!;
-      spans.add(TextSpan(
-        text: key,
-        style: (widget.textStyle ?? const TextStyle()).copyWith(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-          decorationColor: Colors.blue,
+      spans.add(
+        TextSpan(
+          text: key,
+          style: (widget.textStyle ?? const TextStyle()).copyWith(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.blue,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              final RenderBox renderBox = context.findRenderObject() as RenderBox;
+              final position = renderBox.localToGlobal(Offset.zero);
+              _showTooltip(context, key, position, widget.tooltipData);
+            },
         ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-            final position = renderBox.localToGlobal(Offset.zero);
-            _showTooltip(context, key, position, widget.tooltipData);
-          },
-      ),);
+      );
 
       lastIndex = match.end;
     }
 
     // Add remaining text
     if (lastIndex < widget.text.length) {
-      spans.add(TextSpan(
-        text: widget.text.substring(lastIndex),
-        style: widget.textStyle,
-      ),);
+      spans.add(
+        TextSpan(
+          text: widget.text.substring(lastIndex),
+          style: widget.textStyle,
+        ),
+      );
     }
 
     return CompositedTransformTarget(
