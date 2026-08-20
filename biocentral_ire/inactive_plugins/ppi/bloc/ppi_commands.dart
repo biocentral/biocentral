@@ -74,9 +74,11 @@ final class ImportPPIsCommand extends BiocentralCommand<Map<String, ProteinProte
   final String _loadedDataset;
   final String _datasetFormat;
 
-  ImportPPIsCommand(
-      {required BiocentralAPIRepository apiRepository, required String loadedDataset, required String datasetFormat,})
-      : _apiRepository = apiRepository,
+  ImportPPIsCommand({
+    required BiocentralAPIRepository apiRepository,
+    required String loadedDataset,
+    required String datasetFormat,
+  })  : _apiRepository = apiRepository,
         _loadedDataset = loadedDataset,
         _datasetFormat = datasetFormat;
 

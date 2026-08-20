@@ -43,8 +43,12 @@ Map<String, ProteinProteinInteraction> getInteractionsFromDatasetPPIStandardized
     final Protein interactor1 = Protein(interactor1ID, taxonomy: interactor1Taxonomy);
     final Protein interactor2 = Protein(interactor2ID, taxonomy: interactor2Taxonomy);
 
-    final ProteinProteinInteraction ppi = ProteinProteinInteraction(interactor1, interactor2, interacting,
-        experimentalConfidenceScore: experimentalConfidenceScore,);
+    final ProteinProteinInteraction ppi = ProteinProteinInteraction(
+      interactor1,
+      interactor2,
+      interacting,
+      experimentalConfidenceScore: experimentalConfidenceScore,
+    );
     ppis[ppi.getID()] = ppi;
   }
   return ppis;
@@ -80,14 +84,20 @@ Either<BiocentralException, BiocentralTestResult> parseTestResult(Map<String, dy
     testMetrics = jsonDecode(testResultMap['test_metrics'])?[''] ?? '';
   }
   if (success != null && testMetrics.isNotEmpty) {
-    return left(BiocentralParsingException(
+    return left(
+      BiocentralParsingException(
         message: 'Invalid type for received test result: '
-            'must be binary test or metric test. $testResultMap',),);
+            'must be binary test or metric test. $testResultMap',
+      ),
+    );
   }
   if (success == null && testMetrics.isEmpty) {
-    return left(BiocentralParsingException(
+    return left(
+      BiocentralParsingException(
         message: 'Invalid type for received test result: '
-            'must be binary test or metric test. $testResultMap',),);
+            'must be binary test or metric test. $testResultMap',
+      ),
+    );
   }
 
   final double? statistic = double.tryParse(testResultMap['test_statistic'].toString());

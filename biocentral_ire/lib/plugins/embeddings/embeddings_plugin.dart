@@ -143,16 +143,16 @@ class EmbeddingsPlugin extends BiocentralPlugin
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('embedding_db_info') && scannedFile.extension == 'json') {
               void loadingFunction(context) => getBiocentralCommandBloc(context).add(
-                BiocentralCommandExecuteEvent(
-                  command: LoadEmbeddingsDatabaseCommand(
-                    projectRepository: getBiocentralProjectRepository(context),
-                    embeddingsRepository: getDatabase(context),
-                    embeddingsDBInfo: scannedFile,
-                  ),
-                  visualizeResult: null,
-                  autoAccept: true,
-                ),
-              );
+                    BiocentralCommandExecuteEvent(
+                      command: LoadEmbeddingsDatabaseCommand(
+                        projectRepository: getBiocentralProjectRepository(context),
+                        embeddingsRepository: getDatabase(context),
+                        embeddingsDBInfo: scannedFile,
+                      ),
+                      visualizeResult: null,
+                      autoAccept: true,
+                    ),
+                  );
               loadingFunctions.add(loadingFunction);
             }
           }

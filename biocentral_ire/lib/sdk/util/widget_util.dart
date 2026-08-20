@@ -52,7 +52,11 @@ Widget withCondition({required bool condition, required Widget Function() childF
   return Container();
 }
 
-Future<void> exportWidgetAsPng({required ScaffoldMessengerState messenger, required BiocentralProjectRepository projectRepository, required WidgetsToImageController controller, required String defaultFileName}) async {
+Future<void> exportWidgetAsPng(
+    {required ScaffoldMessengerState messenger,
+    required BiocentralProjectRepository projectRepository,
+    required WidgetsToImageController controller,
+    required String defaultFileName}) async {
   final Uint8List? bytes = await controller.capturePng(pixelRatio: 3.0);
 
   if (bytes == null) {

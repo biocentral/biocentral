@@ -273,7 +273,9 @@ class _BiocentralMetricsTableState extends State<BiocentralMetricsTable> {
           final metric = datasetMetrics.firstWhere(
             (m) => m.name == metricName,
           );
-          return _buildCell(metric: metric,);
+          return _buildCell(
+            metric: metric,
+          );
         }),
       );
     }

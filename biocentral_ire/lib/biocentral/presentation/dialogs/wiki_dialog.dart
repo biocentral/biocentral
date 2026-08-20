@@ -60,23 +60,29 @@ class _WikiDialogState extends State<WikiDialog> with BiocentralDialogCloseMixin
 
   Widget buildDocSelection(WikiState state) {
     final List<ListTile> wikiTiles = state.wikiDocs.entries
-        .map((wikiEntry) => ListTile(
-              title: Text(wikiEntry.key),
-              onTap: () => setState(() {
-                _showTutorials = false;
-                _selectedDoc = wikiEntry.value;
-              }),
-            ),)
+        .map(
+          (wikiEntry) => ListTile(
+            title: Text(wikiEntry.key),
+            onTap: () => setState(() {
+              _showTutorials = false;
+              _selectedDoc = wikiEntry.value;
+            }),
+          ),
+        )
         .toList();
 
-    return ListView(shrinkWrap: true, children: [
-      ListTile(
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
           title: const Text('Tutorials'),
           onTap: () => setState(() {
-                _showTutorials = true;
-              }),),
-      ...wikiTiles,
-    ],);
+            _showTutorials = true;
+          }),
+        ),
+        ...wikiTiles,
+      ],
+    );
   }
 
   Widget buildDocStringBox() {
@@ -86,28 +92,34 @@ class _WikiDialogState extends State<WikiDialog> with BiocentralDialogCloseMixin
         width: SizeConfig.screenWidth(context) * 0.8,
         child: Column(
           children: [
-            ..._availableTutorials.map((tutorialContainer) => BiocentralSmallButton(
+            ..._availableTutorials.map(
+              (tutorialContainer) => BiocentralSmallButton(
                 onTap: () => startTutorial(tutorialContainer), // Wrap in function to ensure lazy loading
-                label: 'Start Tutorial: ${tutorialContainer.getName()}',),),
+                label: 'Start Tutorial: ${tutorialContainer.getName()}',
+              ),
+            ),
           ],
         ),
       );
     }
     return SizedBox(
-        height: SizeConfig.screenHeight(context) * 0.15,
-        width: SizeConfig.screenWidth(context) * 0.8,
-        child: SingleChildScrollView(
-            child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Colors.grey,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: MarkdownBody(
-                    data: _selectedDoc ?? '',
-                  ),
-                ),),),);
+      height: SizeConfig.screenHeight(context) * 0.15,
+      width: SizeConfig.screenWidth(context) * 0.8,
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            color: Colors.grey,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MarkdownBody(
+              data: _selectedDoc ?? '',
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override

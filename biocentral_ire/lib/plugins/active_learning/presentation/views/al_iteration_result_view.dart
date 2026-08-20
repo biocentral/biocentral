@@ -17,7 +17,6 @@ class ALIterationResultView extends StatefulWidget {
 
 class _ALIterationResultViewState extends State<ALIterationResultView>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
-
   int _selectedResultIndex = 0;
   late TabController _subTabController;
 
@@ -69,8 +68,7 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
             initialValue: hubState.selectedCampaign,
             selectableValues: hubState.campaigns,
             displayConversion: (campaign) => campaign.config.name,
-            onChangedCallback: (campaign) =>
-                context.read<ALHubBloc>().add(ALHubSelectCampaignEvent(campaign)),
+            onChangedCallback: (campaign) => context.read<ALHubBloc>().add(ALHubSelectCampaignEvent(campaign)),
           ),
         ),
         if (hubState.selectedCampaign != null) ...[
@@ -119,7 +117,8 @@ class _ALIterationResultViewState extends State<ALIterationResultView>
                 Text('Results for iteration: ${_selectedResultIndex + 1}'),
                 IconButton(
                   icon: const Icon(Icons.arrow_right),
-                  onPressed: _selectedResultIndex < totalIterations - 1 ? () => setState(() => _selectedResultIndex++) : null,
+                  onPressed:
+                      _selectedResultIndex < totalIterations - 1 ? () => setState(() => _selectedResultIndex++) : null,
                 ),
               ],
             ),

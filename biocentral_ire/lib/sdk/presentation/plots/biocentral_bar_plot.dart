@@ -207,7 +207,7 @@ class _BarPlotPainter extends CustomPainter {
 
     for (final dataPoint in data.indexed()) {
       final int i = dataPoint.$1;
-      final double value = dataPoint.$2.$2.abs();  // TODO All values are displayed as positive at the moment
+      final double value = dataPoint.$2.$2.abs(); // TODO All values are displayed as positive at the moment
       final double barHeight = (value / maxY) * plotSize.height;
       final double barLowerY = plotOffset.dy + plotSize.height - barHeight;
       final Rect rect = Rect.fromLTWH(
@@ -241,8 +241,8 @@ class _BarPlotPainter extends CustomPainter {
 
         // Vertical line (from lower bound to upper bound)
         canvas.drawLine(
-          Offset(barCenterX, clampedUpperY),    // TOP (upper bound)
-          Offset(barCenterX, clampedLowerY),    // BOTTOM (lower bound)
+          Offset(barCenterX, clampedUpperY), // TOP (upper bound)
+          Offset(barCenterX, clampedLowerY), // BOTTOM (lower bound)
           errorBarPaint,
         );
 

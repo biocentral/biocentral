@@ -30,10 +30,13 @@ final class BiocentralSideBarState extends Equatable {
   const BiocentralSideBarState(this.displayMode, this.showHelp);
 
   int? selectionIndex() {
-    switch(displayMode) {
-      case BiocentralSideBarDisplayMode.none: return null;
-      case BiocentralSideBarDisplayMode.help: return 0;
-      case BiocentralSideBarDisplayMode.commandLog: return 1;
+    switch (displayMode) {
+      case BiocentralSideBarDisplayMode.none:
+        return null;
+      case BiocentralSideBarDisplayMode.help:
+        return 0;
+      case BiocentralSideBarDisplayMode.commandLog:
+        return 1;
     }
   }
 
@@ -44,12 +47,12 @@ final class BiocentralSideBarState extends Equatable {
 class BiocentralSideBarBloc extends Bloc<BiocentralSideBarEvent, BiocentralSideBarState> {
   BiocentralSideBarBloc() : super(BiocentralSideBarState(BiocentralSideBarDisplayMode.defaultMode(), null)) {
     on<BiocentralSideBarChangeVisibilityEvent>((event, emit) async {
-      if(event.force) {
+      if (event.force) {
         return emit(BiocentralSideBarState(event.displayMode, event.showHelp));
       }
       var newDisplayMode = event.displayMode;
       final currentDisplayMode = state.displayMode;
-      if(newDisplayMode == currentDisplayMode) {
+      if (newDisplayMode == currentDisplayMode) {
         // TOGGLE DISABLE
         newDisplayMode = BiocentralSideBarDisplayMode.none;
       }

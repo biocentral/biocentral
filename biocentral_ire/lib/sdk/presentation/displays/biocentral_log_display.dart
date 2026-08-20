@@ -26,13 +26,15 @@ class BiocentralLogDisplay extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Card(
-          child: ExpansionTile(
-              leading: Text(log.getFormatTimeString(), style: titleLogStyle),
-              title: Text(
-                log.message,
-                style: getTextStyleByLog(log, context),
-              ),
-              children: [errorTile, stackTraceTile],),),
+        child: ExpansionTile(
+          leading: Text(log.getFormatTimeString(), style: titleLogStyle),
+          title: Text(
+            log.message,
+            style: getTextStyleByLog(log, context),
+          ),
+          children: [errorTile, stackTraceTile],
+        ),
+      ),
     );
   }
 

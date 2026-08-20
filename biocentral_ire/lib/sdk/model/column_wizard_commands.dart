@@ -8,12 +8,12 @@ final class ColumnWizardApplyColumnCommand extends BiocentralCommand<BiocentralD
   final String _newColumnName;
   final List<ColumnWizardHistoryEntry> _operationHistory;
 
-  ColumnWizardApplyColumnCommand(
-      {required BiocentralDatabase database,
-      required String originalColumnName,
-      required String newColumnName,
-      required List<ColumnWizardHistoryEntry> operationHistory,})
-      : _database = database,
+  ColumnWizardApplyColumnCommand({
+    required BiocentralDatabase database,
+    required String originalColumnName,
+    required String newColumnName,
+    required List<ColumnWizardHistoryEntry> operationHistory,
+  })  : _database = database,
         _originalColumnName = originalColumnName,
         _newColumnName = newColumnName,
         _operationHistory = operationHistory;
@@ -39,7 +39,7 @@ final class ColumnWizardApplyColumnCommand extends BiocentralCommand<BiocentralD
   @override
   void acceptResult(BiocentralCommandLog? resultLog) {
     final commandResult = resultLog?.result?.result;
-    if(commandResult != null && commandResult is BiocentralDatabaseUpdate) {
+    if (commandResult != null && commandResult is BiocentralDatabaseUpdate) {
       _database.acceptDatabaseUpdate(commandResult as BiocentralDatabaseUpdate<BioEntity>);
     }
   }

@@ -69,7 +69,6 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
   PlutoGridStateManager? stateManager;
   final PlutoGridMode plutoGridMode = PlutoGridMode.selectWithOneTap;
 
-
   @override
   bool get wantKeepAlive => true;
 
@@ -116,31 +115,33 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
   List<PlutoColumn> buildColumns(PPIDatabaseGridState state) {
     final List<PlutoColumn> result = List.from(_defaultInteractionColumns);
     for (String setColumnName in state.additionalColumns ?? {}) {
-      result.add(PlutoColumn(
-        title: setColumnName,
-        field: setColumnName,
-        type: PlutoColumnType.text(),
-        footerRenderer: (rendererContext) {
-          // TODO Change footer to show more meaningful information like train-val-test distribution
-          return PlutoAggregateColumnFooter(
-            rendererContext: rendererContext,
-            type: PlutoAggregateColumnType.count,
-            filter: (PlutoCell plutoCell) => plutoCell.value == '',
-            format: '#',
-            alignment: Alignment.center,
-            titleSpanBuilder: (text) {
-              return [
-                const TextSpan(
-                  text: 'Missing',
-                  style: TextStyle(color: Colors.red),
-                ),
-                const TextSpan(text: ': '),
-                TextSpan(text: text),
-              ];
-            },
-          );
-        },
-      ),);
+      result.add(
+        PlutoColumn(
+          title: setColumnName,
+          field: setColumnName,
+          type: PlutoColumnType.text(),
+          footerRenderer: (rendererContext) {
+            // TODO Change footer to show more meaningful information like train-val-test distribution
+            return PlutoAggregateColumnFooter(
+              rendererContext: rendererContext,
+              type: PlutoAggregateColumnType.count,
+              filter: (PlutoCell plutoCell) => plutoCell.value == '',
+              format: '#',
+              alignment: Alignment.center,
+              titleSpanBuilder: (text) {
+                return [
+                  const TextSpan(
+                    text: 'Missing',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  const TextSpan(text: ': '),
+                  TextSpan(text: text),
+                ];
+              },
+            );
+          },
+        ),
+      );
     }
     return result;
   }
@@ -154,9 +155,14 @@ class PPIDatabaseViewState extends State<PPIDatabaseView> with AutomaticKeepAliv
           'interactor1': PlutoCell(value: interaction.interactor1.id),
           'interactor2': PlutoCell(value: interaction.interactor2.id),
           'interacting': PlutoCell(value: interaction.interacting ? 1 : 0),
-        }..addAll(Map<String, PlutoCell>.fromEntries(state.additionalColumns?.map(
-                (columnName) => MapEntry(columnName, PlutoCell(value: interaction.attributes[columnName] ?? '')),) ??
-            {},),),
+        }..addAll(
+            Map<String, PlutoCell>.fromEntries(
+              state.additionalColumns?.map(
+                    (columnName) => MapEntry(columnName, PlutoCell(value: interaction.attributes[columnName] ?? '')),
+                  ) ??
+                  {},
+            ),
+          ),
       );
       rows.add(row);
     }

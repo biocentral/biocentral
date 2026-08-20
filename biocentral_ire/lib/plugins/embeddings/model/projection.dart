@@ -1,7 +1,7 @@
 import 'package:bio_flutter/bio_flutter.dart';
 
 class Projection {
-  final String id;  // TODO Might not be necessary (ProjectionData also has ID)
+  final String id; // TODO Might not be necessary (ProjectionData also has ID)
   final Map<String, String> config;
   final ProjectionData data;
 

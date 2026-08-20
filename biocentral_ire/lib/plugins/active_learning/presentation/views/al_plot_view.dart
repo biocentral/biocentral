@@ -36,10 +36,14 @@ class ALPlotView extends StatelessWidget {
     this.allData,
     this.fileNamePrefix,
     super.key,
-  }) : assert(data != null || allData != null, 'Either data or allData must be provided'),
+  })  : assert(data != null || allData != null, 'Either data or allData must be provided'),
         _suggestedResults = allData == null ? _buildSuggestedResults(data) : const [],
         _iterationData = allData != null ? _groupByIteration(allData) : const [],
-        minMaxValues = allData != null ? _calculateMinMax(_groupByIteration(allData).expand((e) => e.$2).toList(),) : _calculateMinMax(_buildSuggestedResults(data));
+        minMaxValues = allData != null
+            ? _calculateMinMax(
+                _groupByIteration(allData).expand((e) => e.$2).toList(),
+              )
+            : _calculateMinMax(_buildSuggestedResults(data));
 
   static List<ActiveLearningResult> _buildSuggestedResults(ActiveLearningIterationResult? data) {
     if (data == null) return [];
@@ -107,7 +111,8 @@ class ALPlotView extends StatelessWidget {
           Expanded(
             child: WidgetsToImage(
               controller: _exportController,
-              child: Container( // used to color background of screenshot the same as application
+              child: Container(
+                // used to color background of screenshot the same as application
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -335,12 +340,14 @@ class _ALCombinedPlotView extends StatelessWidget {
       final color = BiocentralStyle.alIterationColors[iteration % BiocentralStyle.alIterationColors.length];
       for (final result in results) {
         spotInfo.add((iteration, result.entityId, result.score.toDouble()));
-        spots.add(ScatterSpot(
-          counterX++,
-          result.score.toDouble(),
-          show: true,
-          dotPainter: FlDotCirclePainter(radius: 8, color: color),
-        ),);
+        spots.add(
+          ScatterSpot(
+            counterX++,
+            result.score.toDouble(),
+            show: true,
+            dotPainter: FlDotCirclePainter(radius: 8, color: color),
+          ),
+        );
       }
     }
 
@@ -366,7 +373,8 @@ class _ALCombinedPlotView extends StatelessWidget {
           Expanded(
             child: WidgetsToImage(
               controller: _exportController,
-              child: Container( // used to color background of screenshot the same as application
+              child: Container(
+                // used to color background of screenshot the same as application
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

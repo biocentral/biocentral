@@ -166,9 +166,7 @@ class _InferenceCommandDisplayState extends State<InferenceCommandDisplay> {
                 });
               },
               icon: const Icon(Icons.select_all),
-              label: Text(_selectedEntityIDs.length == _availableEntityIDs.length
-                  ? 'Deselect All'
-                  : 'Select All'),
+              label: Text(_selectedEntityIDs.length == _availableEntityIDs.length ? 'Deselect All' : 'Select All'),
             ),
             const SizedBox(width: 8),
             Text('${_selectedEntityIDs.length} / ${_availableEntityIDs.length} selected'),

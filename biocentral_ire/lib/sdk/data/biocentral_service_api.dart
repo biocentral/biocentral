@@ -23,21 +23,30 @@ enum StorageFileType {
 
   /// First one is default extension
   List<String> getPossibleExtensions() {
-    switch(this) {
-      case StorageFileType.input: return ['fasta'];
-      case StorageFileType.labels: return ['fasta'];
-      case StorageFileType.masks: return ['fasta'];
-      case StorageFileType.embeddings_per_residue: return ['h5'];
-      case StorageFileType.embeddings_per_sequence: return ['h5'];
-      case StorageFileType.biotrainer_config: return ['yml', 'yaml'];
-      case StorageFileType.biotrainer_logging: return ['log'];
-      case StorageFileType.biotrainer_result: return ['yml', 'yaml'];
-      case StorageFileType.biotrainer_checkpoint: return ['safetensors', 'onnx'];
+    switch (this) {
+      case StorageFileType.input:
+        return ['fasta'];
+      case StorageFileType.labels:
+        return ['fasta'];
+      case StorageFileType.masks:
+        return ['fasta'];
+      case StorageFileType.embeddings_per_residue:
+        return ['h5'];
+      case StorageFileType.embeddings_per_sequence:
+        return ['h5'];
+      case StorageFileType.biotrainer_config:
+        return ['yml', 'yaml'];
+      case StorageFileType.biotrainer_logging:
+        return ['log'];
+      case StorageFileType.biotrainer_result:
+        return ['yml', 'yaml'];
+      case StorageFileType.biotrainer_checkpoint:
+        return ['safetensors', 'onnx'];
     }
   }
 
   String getDefaultFileName() {
-    final fileName = switch(this) {
+    final fileName = switch (this) {
       StorageFileType.biotrainer_config => 'config',
       StorageFileType.biotrainer_logging => 'logger_out',
       StorageFileType.biotrainer_result => 'out',

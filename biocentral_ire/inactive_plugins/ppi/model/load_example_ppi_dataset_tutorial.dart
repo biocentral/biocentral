@@ -40,21 +40,30 @@ class LoadExampleInteractionDatasetTutorialContainer implements Tutorial {
       case final PPICommandView ppiCommandView:
         {
           final PPICommandBloc? interactionsCommandBloc = ppiCommandView.getPPICommandBloc(state);
-          tutorialRepository.registerKey(ExamplePPITutorialID.showExamplePPIDialogButton,
-              ppiCommandView.getExampleInteractionDatasetButtonKey(state),);
+          tutorialRepository.registerKey(
+            ExamplePPITutorialID.showExamplePPIDialogButton,
+            ppiCommandView.getExampleInteractionDatasetButtonKey(state),
+          );
           tutorialRepository.registerCondition(
-              ExamplePPITutorialID.examplePPIDatasetImported,
-              (timeout) => TutorialStepWithWaiting.conditionWithTimeout(
-                  timeout, () => interactionsCommandBloc?.state.isFinished() ?? false,),);
+            ExamplePPITutorialID.examplePPIDatasetImported,
+            (timeout) => TutorialStepWithWaiting.conditionWithTimeout(
+              timeout,
+              () => interactionsCommandBloc?.state.isFinished() ?? false,
+            ),
+          );
           break;
         }
       case final PPIExampleDatasetDialog ppiExampleDatasetDialog:
         {
           tutorialRepository.registerContext(
-              ExamplePPITutorialID.examplePPIDialogContext, ppiExampleDatasetDialog.getDialogContext(state),);
+            ExamplePPITutorialID.examplePPIDialogContext,
+            ppiExampleDatasetDialog.getDialogContext(state),
+          );
           tutorialRepository.registerKeys(ppiExampleDatasetDialog.getAssetDatasetKeys(state));
           tutorialRepository.registerKey(
-              ExamplePPITutorialID.examplePPIDialogImportButton, ppiExampleDatasetDialog.getImportButtonKey(state),);
+            ExamplePPITutorialID.examplePPIDialogImportButton,
+            ppiExampleDatasetDialog.getImportButtonKey(state),
+          );
           tutorialRepository.registerCondition(ExamplePPITutorialID.lyssavirusExamplePPIDatasetSelected,
               (timeout) async {
             bool condition() =>
@@ -70,21 +79,26 @@ class LoadExampleInteractionDatasetTutorialContainer implements Tutorial {
   @override
   List<TutorialStep> get tutorialSteps => [
         WidgetHighlightTutorialStep(
-            tutorialText: 'Click here to switch to the interaction commands',
-            tutorialID: ExamplePPITutorialID.ppiTabKey,),
+          tutorialText: 'Click here to switch to the interaction commands',
+          tutorialID: ExamplePPITutorialID.ppiTabKey,
+        ),
         WaitForConditionTutorialStep(tutorialID: ExamplePPITutorialID.ppiCommandTabActive),
         WidgetHighlightTutorialStep(
-            tutorialText: 'Click here to load the example interaction datasets',
-            tutorialID: ExamplePPITutorialID.showExamplePPIDialogButton,),
+          tutorialText: 'Click here to load the example interaction datasets',
+          tutorialID: ExamplePPITutorialID.showExamplePPIDialogButton,
+        ),
         WaitForContextTutorialStep(
           tutorialID: ExamplePPITutorialID.examplePPIDialogContext,
         ),
         WidgetHighlightTutorialStep(
-            tutorialText: 'Select the lyssavirus dataset',
-            tutorialID: ExamplePPITutorialID.lyssavirusExamplePPIDatasetSelector,),
+          tutorialText: 'Select the lyssavirus dataset',
+          tutorialID: ExamplePPITutorialID.lyssavirusExamplePPIDatasetSelector,
+        ),
         WaitForConditionTutorialStep(tutorialID: ExamplePPITutorialID.lyssavirusExamplePPIDatasetSelected),
         WidgetHighlightTutorialStep(
-            tutorialText: 'Import the dataset', tutorialID: ExamplePPITutorialID.examplePPIDialogImportButton,),
+          tutorialText: 'Import the dataset',
+          tutorialID: ExamplePPITutorialID.examplePPIDialogImportButton,
+        ),
         WaitForConditionTutorialStep(tutorialID: ExamplePPITutorialID.examplePPIDatasetImported),
         PlainTextTutorialStep(tutorialText: 'You have successfully imported the dataset! Tutorial finished..'),
       ];

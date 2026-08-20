@@ -39,7 +39,8 @@ class ALPredictionComparisonView extends StatelessWidget {
     return _plottableDataFromSingle(proteinDb, result!);
   }
 
-  List<(ActiveLearningResult, double, double)> _plottableDataFromSingle(Map<String, Protein> proteinDb, ActiveLearningIterationResult result) {
+  List<(ActiveLearningResult, double, double)> _plottableDataFromSingle(
+      Map<String, Protein> proteinDb, ActiveLearningIterationResult result) {
     final suggestionSet = result.suggestions.toSet();
     final entries = <(ActiveLearningResult, double, double)>[];
     for (final r in result.results) {
@@ -54,7 +55,8 @@ class ALPredictionComparisonView extends StatelessWidget {
     return entries;
   }
 
-  List<(ActiveLearningResult, double, double)> _plottableDataFromAll(Map<String, Protein> proteinDb, List<ActiveLearningIterationResult> allResults) {
+  List<(ActiveLearningResult, double, double)> _plottableDataFromAll(
+      Map<String, Protein> proteinDb, List<ActiveLearningIterationResult> allResults) {
     final entries = <(ActiveLearningResult, double, double)>[];
     for (final iterResult in allResults) {
       entries.addAll(_plottableDataFromSingle(proteinDb, iterResult));
@@ -65,7 +67,8 @@ class ALPredictionComparisonView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
-      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
+      buildWhen: (previous, current) =>
+          previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
       builder: (context, state) {
         final data = _plottableData(state.proteinDatabase);
         if (data.isEmpty) return const SizedBox.shrink();
@@ -91,7 +94,8 @@ class ALPredictionComparisonView extends StatelessWidget {
             ),
             WidgetsToImage(
               controller: _exportController,
-              child: Container( // used to color background of screenshot the same as application
+              child: Container(
+                // used to color background of screenshot the same as application
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(
                   children: [
@@ -152,7 +156,8 @@ class ALPredictionComparisonView extends StatelessWidget {
       barWidth: 0,
       color: BiocentralStyle.alPredictionLineColor,
       dotData: FlDotData(
-        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: BiocentralStyle.alPredictionLineColor),
+        getDotPainter: (_, __, ___, ____) =>
+            FlDotCirclePainter(radius: 7, color: BiocentralStyle.alPredictionLineColor),
       ),
     );
 
@@ -161,7 +166,8 @@ class ALPredictionComparisonView extends StatelessWidget {
       barWidth: 0,
       color: BiocentralStyle.alExperimentalLineColor,
       dotData: FlDotData(
-        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 7, color: BiocentralStyle.alExperimentalLineColor),
+        getDotPainter: (_, __, ___, ____) =>
+            FlDotCirclePainter(radius: 7, color: BiocentralStyle.alExperimentalLineColor),
       ),
     );
 
@@ -237,10 +243,14 @@ class ALPredictionComparisonView extends StatelessWidget {
     return LineTouchData(
       getTouchedSpotIndicator: (barData, spotIndexes) {
         if (barData == predictionSeries || barData == experimentalSeries) {
-          return spotIndexes.map((_) => const TouchedSpotIndicatorData(
-            FlLine(color: BiocentralStyle.alConnectorLineColor),
-            FlDotData(show: false),
-          ),).toList();
+          return spotIndexes
+              .map(
+                (_) => const TouchedSpotIndicatorData(
+                  FlLine(color: BiocentralStyle.alConnectorLineColor),
+                  FlDotData(show: false),
+                ),
+              )
+              .toList();
         }
         // Hide indicators on connector segments
         return spotIndexes.map((_) => null).toList();

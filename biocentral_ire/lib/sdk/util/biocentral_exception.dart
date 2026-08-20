@@ -5,9 +5,9 @@ sealed class BiocentralException implements Exception {
   final StackTrace? stackTrace;
   final String message;
 
-  BiocentralException({required this.message, this.error, this.stackTrace, log=true}) {
+  BiocentralException({required this.message, this.error, this.stackTrace, log = true}) {
     final String gitHubIssueLink = _createGitHubIssueLink(message, error, stackTrace);
-    if(log) {
+    if (log) {
       logger.e('$message\n$gitHubIssueLink', error: error, stackTrace: stackTrace);
     }
   }
@@ -65,12 +65,12 @@ class BiocentralPythonCompanionException extends BiocentralException {
   BiocentralPythonCompanionException({required super.message, super.error, super.stackTrace, super.log});
 }
 
-
 class BiocentralMissingServiceException extends BiocentralException {
   final String missingService;
 
   BiocentralMissingServiceException({required this.missingService, super.log})
       : super(
-            message: 'The server you are connected to does '
-                'not provide service $missingService that is required for your task!',);
+          message: 'The server you are connected to does '
+              'not provide service $missingService that is required for your task!',
+        );
 }

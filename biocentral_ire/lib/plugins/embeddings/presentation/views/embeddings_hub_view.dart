@@ -274,7 +274,7 @@ class _EmbeddingsHubViewState extends State<EmbeddingsHubView> with AutomaticKee
       child: FutureBuilder(
         future: embedding.getEmbedding(),
         builder: (context, asyncSnapshot) {
-          if(asyncSnapshot.data == null) {
+          if (asyncSnapshot.data == null) {
             return const CircularProgressIndicator();
           }
           final rawEmbeddingValues = asyncSnapshot.data?.rawValues();

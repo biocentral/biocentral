@@ -63,11 +63,13 @@ class ProteinDatabaseGridBloc extends Bloc<ProteinDatabaseGridEvent, ProteinData
       final proteins = event.proteins.values.toList();
       final additionalColumns = _proteinRepository.getAllCustomAttributeKeys();
 
-      emit(ProteinDatabaseGridState.loaded(
-        proteins,
-        additionalColumns,
-        state.selectedProtein,
-      ),);
+      emit(
+        ProteinDatabaseGridState.loaded(
+          proteins,
+          additionalColumns,
+          state.selectedProtein,
+        ),
+      );
     });
 
     _setupSubscription();

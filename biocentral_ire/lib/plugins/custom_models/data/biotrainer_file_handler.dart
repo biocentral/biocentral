@@ -7,7 +7,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:yaml/yaml.dart';
 
 class BiotrainerFileHandler {
-
   static Future<String> getBiotrainerInputFile(
     Type databaseType,
     Map<String, dynamic> entryMap,

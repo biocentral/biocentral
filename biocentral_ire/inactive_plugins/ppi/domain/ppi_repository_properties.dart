@@ -1,7 +1,6 @@
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:flutter/foundation.dart';
 
-
 enum PPIRepositoryProperty { unique, duplicates, hviDataset, mixedDataset }
 
 class PpiRepositoryProperties {

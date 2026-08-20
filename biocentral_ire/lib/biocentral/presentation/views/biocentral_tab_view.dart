@@ -11,25 +11,27 @@ class BiocentralTabView extends StatefulWidget {
 }
 
 class _BiocentralTabViewState extends State<BiocentralTabView> with AutomaticKeepAliveClientMixin {
-
   // LOGIC FUNCTIONS GO HERE
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return const Column(mainAxisSize: MainAxisSize.min, children: [
-      Flexible(flex: 2, child: BiocentralInternalCommandView()),
-      Flexible(
-        flex: 3,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(flex: 3, child: BiocentralCommandLogView()),
-            Flexible(flex: 2, child: BiocentralLogsDisplay()),
-          ],
+    return const Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(flex: 2, child: BiocentralInternalCommandView()),
+        Flexible(
+          flex: 3,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(flex: 3, child: BiocentralCommandLogView()),
+              Flexible(flex: 2, child: BiocentralLogsDisplay()),
+            ],
+          ),
         ),
-      ),
-    ],);
+      ],
+    );
   }
 
   @override

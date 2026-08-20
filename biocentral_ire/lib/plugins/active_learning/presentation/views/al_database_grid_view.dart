@@ -73,7 +73,8 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ALHubBloc, ALHubState>(
-      buildWhen: (previous, current) => previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
+      buildWhen: (previous, current) =>
+          previous.proteinDatabase != current.proteinDatabase || previous.selectedCampaign != current.selectedCampaign,
       builder: (context, state) {
         return Scaffold(
           body: LayoutBuilder(
@@ -139,9 +140,8 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
   /// Builds rows from the training results data
   List<PlutoRow> buildRows(Map<String, Protein> proteinDatabase) {
     final suggestionSet = widget.displayedResult?.suggestions.toSet() ?? {};
-    final lastIterationResult = widget.displayedResult?.results
-        .where((r) => suggestionSet.contains(r.entityId))
-        .toList() ?? [];
+    final lastIterationResult =
+        widget.displayedResult?.results.where((r) => suggestionSet.contains(r.entityId)).toList() ?? [];
     if (lastIterationResult.isEmpty) {
       return [];
     }
@@ -169,17 +169,19 @@ class _ALDatabaseGridViewState extends State<ALDatabaseGridView> {
       final suggestions = iterResult.results.where((r) => suggestionSet.contains(r.entityId)).toList();
       for (final alResult in suggestions) {
         final experimentalValue = proteinDatabase[alResult.entityId]?.attributes[widget.campaign.columnName];
-        rows.add(PlutoRow(
-          cells: {
-            'iteration': PlutoCell(value: iterResult.iteration),
-            'ranking': PlutoCell(value: ++index),
-            'proteinId': PlutoCell(value: alResult.entityId),
-            'score': PlutoCell(value: alResult.score.toStringAsFixed(Constants.maxDoublePrecision)),
-            'uncertainty': PlutoCell(value: alResult.uncertainty.toStringAsFixed(Constants.maxDoublePrecision)),
-            'prediction': PlutoCell(value: alResult.prediction),
-            'experiment': PlutoCell(value: experimentalValue ?? ''),
-          },
-        ),);
+        rows.add(
+          PlutoRow(
+            cells: {
+              'iteration': PlutoCell(value: iterResult.iteration),
+              'ranking': PlutoCell(value: ++index),
+              'proteinId': PlutoCell(value: alResult.entityId),
+              'score': PlutoCell(value: alResult.score.toStringAsFixed(Constants.maxDoublePrecision)),
+              'uncertainty': PlutoCell(value: alResult.uncertainty.toStringAsFixed(Constants.maxDoublePrecision)),
+              'prediction': PlutoCell(value: alResult.prediction),
+              'experiment': PlutoCell(value: experimentalValue ?? ''),
+            },
+          ),
+        );
       }
     }
     return rows;

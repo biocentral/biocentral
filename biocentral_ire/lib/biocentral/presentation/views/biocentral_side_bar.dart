@@ -66,10 +66,13 @@ class BiocentralSideBar extends StatelessWidget {
   }
 
   Widget buildSideBar(BiocentralSideBarState state) {
-    switch(state.displayMode) {
-      case BiocentralSideBarDisplayMode.help: return buildHelpSideBar(state);
-      case BiocentralSideBarDisplayMode.commandLog: return buildCommandLogSideBar(state);
-      case BiocentralSideBarDisplayMode.none: return Container();
+    switch (state.displayMode) {
+      case BiocentralSideBarDisplayMode.help:
+        return buildHelpSideBar(state);
+      case BiocentralSideBarDisplayMode.commandLog:
+        return buildCommandLogSideBar(state);
+      case BiocentralSideBarDisplayMode.none:
+        return Container();
     }
   }
 

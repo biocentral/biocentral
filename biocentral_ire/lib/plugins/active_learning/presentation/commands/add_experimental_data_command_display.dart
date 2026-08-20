@@ -78,8 +78,9 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ALHubBloc, ALHubState>(
-      listenWhen: (previous, current) => previous.selectedCampaign != current.selectedCampaign
-          || previous.selectedCampaignIterationCount != current.selectedCampaignIterationCount,
+      listenWhen: (previous, current) =>
+          previous.selectedCampaign != current.selectedCampaign ||
+          previous.selectedCampaignIterationCount != current.selectedCampaignIterationCount,
       listener: (context, state) {
         setState(() {
           _resetCampaignState(state.selectedCampaign);
@@ -178,7 +179,9 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
           final hasData = existing != null && existing.toString().isNotEmpty;
           return !hasData && !suggestionSet.contains(e.key) && !_extraData.containsKey(e.key);
         })
-        .map((e) => e.key).toList()..sort();
+        .map((e) => e.key)
+        .toList()
+      ..sort();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -192,22 +195,25 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
           key: _suggestionsAreaKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _addedData.keys.map((suggestion) => TextFormField(
-              decoration: InputDecoration(labelText: suggestion),
-              textAlign: TextAlign.center,
-              initialValue: _addedData[suggestion],
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              // TODO Improve validation
-              validator: (val) => val == null || val.isEmpty ? 'Value must not be empty!' : null,
-              onChanged: (val) {
-                setState(() {
-                  _addedData[suggestion] = val;
-                });
-              },
-            ),).toList(),
+            children: _addedData.keys
+                .map(
+                  (suggestion) => TextFormField(
+                    decoration: InputDecoration(labelText: suggestion),
+                    textAlign: TextAlign.center,
+                    initialValue: _addedData[suggestion],
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    // TODO Improve validation
+                    validator: (val) => val == null || val.isEmpty ? 'Value must not be empty!' : null,
+                    onChanged: (val) {
+                      setState(() {
+                        _addedData[suggestion] = val;
+                      });
+                    },
+                  ),
+                )
+                .toList(),
           ),
         ),
-
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Divider(),
@@ -248,39 +254,42 @@ class _AddExperimentalDataCommandDisplayState extends State<AddExperimentalDataC
               const SizedBox(width: 8),
               BiocentralSmallButton(
                 label: 'Stage',
-                onTap: _pendingExtraId != null && _extraValueController.text.isNotEmpty ? () {
-                  final id = _pendingExtraId!;
-                  final value = _extraValueController.text;
-                  _extraValueController.clear();
-                  setState(() {
-                    _extraData[id] = value;
-                    _pendingExtraId = null;
-                    _dropdownKey = UniqueKey();
-                  });
-                } : null,
+                onTap: _pendingExtraId != null && _extraValueController.text.isNotEmpty
+                    ? () {
+                        final id = _pendingExtraId!;
+                        final value = _extraValueController.text;
+                        _extraValueController.clear();
+                        setState(() {
+                          _extraData[id] = value;
+                          _pendingExtraId = null;
+                          _dropdownKey = UniqueKey();
+                        });
+                      }
+                    : null,
               ),
             ],
           ),
-
         if (_extraData.isNotEmpty) ...[
           const SizedBox(height: 8),
-          ..._extraData.entries.map((entry) => Card(
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
-            child: ListTile(
-              dense: true,
-              title: Text(entry.key, overflow: TextOverflow.ellipsis),
-              subtitle: Text(entry.value, style: Theme.of(context).textTheme.bodyMedium),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: 'Unstage',
-                onPressed: () {
-                  setState(() {
-                    _extraData.remove(entry.key);
-                  });
-                },
+          ..._extraData.entries.map(
+            (entry) => Card(
+              margin: const EdgeInsets.symmetric(vertical: 4.0),
+              child: ListTile(
+                dense: true,
+                title: Text(entry.key, overflow: TextOverflow.ellipsis),
+                subtitle: Text(entry.value, style: Theme.of(context).textTheme.bodyMedium),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Unstage',
+                  onPressed: () {
+                    setState(() {
+                      _extraData.remove(entry.key);
+                    });
+                  },
+                ),
               ),
             ),
-          ),),
+          ),
         ],
       ],
     );

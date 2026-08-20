@@ -224,7 +224,9 @@ final class ALExportCampaignCommand extends BiocentralCommand<String> {
     required BiocentralProjectRepository projectRepository,
     required ALCampaign campaign,
     required String filePath,
-  })  : _projectRepository = projectRepository, _campaign = campaign, _filePath = filePath;
+  })  : _projectRepository = projectRepository,
+        _campaign = campaign,
+        _filePath = filePath;
 
   @override
   Stream<BiocentralCommandLog<String>> execute() async* {
@@ -237,7 +239,9 @@ final class ALExportCampaignCommand extends BiocentralCommand<String> {
 
     final saveEither = await _projectRepository.handleExternalSave(
       fileName: fileName,
-      contentFunction: () async => jsonEncode({'campaigns': [_campaign.serialize()]}),
+      contentFunction: () async => jsonEncode({
+        'campaigns': [_campaign.serialize()]
+      }),
       dirPath: dirPath,
     );
     yield saveEither.match(

@@ -13,7 +13,8 @@ class LoggerService extends ChangeNotifier {
   LoggerService._(this._logger);
 
   static final LoggerService _instance = LoggerService._(
-      Logger(printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, methodCount: 8)),);
+    Logger(printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, methodCount: 8)),
+  );
 
   List<BiocentralLog> get logMessages => List.unmodifiable(_logMessages);
 

@@ -84,9 +84,13 @@ class _PPIViewState extends State<PPIView> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton(
-            onPressed: () => openProteinView(interaction.interactor1), child: Text(interaction.interactor1.id),),
+          onPressed: () => openProteinView(interaction.interactor1),
+          child: Text(interaction.interactor1.id),
+        ),
         ElevatedButton(
-            onPressed: () => openProteinView(interaction.interactor2), child: Text(interaction.interactor2.id),),
+          onPressed: () => openProteinView(interaction.interactor2),
+          child: Text(interaction.interactor2.id),
+        ),
       ],
     );
   }
