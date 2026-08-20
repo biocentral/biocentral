@@ -14,7 +14,6 @@ final class _ModelHubLoadInternalEvent extends ModelHubEvent {
   _ModelHubLoadInternalEvent(this.predictionModels);
 }
 
-
 @immutable
 final class ModelHubState extends Equatable {
   final List<PredictionModel> predictionModels;

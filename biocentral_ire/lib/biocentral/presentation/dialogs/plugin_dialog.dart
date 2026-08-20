@@ -20,8 +20,10 @@ class _PluginDialogState extends State<PluginDialog> with BiocentralDialogCloseM
     super.initState();
     final BiocentralPluginBloc biocentralPluginBloc = BlocProvider.of<BiocentralPluginBloc>(context);
     _selectedPlugins.addAll(biocentralPluginBloc.state.pluginManager.activePlugins);
-    _pluginTypeNames.addEntries(biocentralPluginBloc.state.pluginManager.allAvailablePlugins
-        .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)),);
+    _pluginTypeNames.addEntries(
+      biocentralPluginBloc.state.pluginManager.allAvailablePlugins
+          .map((plugin) => MapEntry(plugin.runtimeType, plugin.typeName)),
+    );
   }
 
   Set<BiocentralPlugin> getPluginsNecessaryForSelection(BiocentralPlugin selected, Set<BiocentralPlugin> allPlugins) {
@@ -80,8 +82,9 @@ class _PluginDialogState extends State<PluginDialog> with BiocentralDialogCloseM
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     BiocentralSmallButton(
-                        onTap: () => biocentralPluginBloc.add(BiocentralPluginReloadEvent(_selectedPlugins, context)),
-                        label: 'Apply changes',),
+                      onTap: () => biocentralPluginBloc.add(BiocentralPluginReloadEvent(_selectedPlugins, context)),
+                      label: 'Apply changes',
+                    ),
                     BiocentralSmallButton(onTap: closeDialog, label: 'Close'),
                   ],
                 ),
@@ -96,7 +99,8 @@ class _PluginDialogState extends State<PluginDialog> with BiocentralDialogCloseM
   Widget buildPluginSelection(BiocentralPluginBloc biocentralPluginBloc, BiocentralPluginState state) {
     return Column(
       children: [
-        ...state.pluginManager.allAvailablePlugins.map((plugin) => CheckboxListTile(
+        ...state.pluginManager.allAvailablePlugins.map(
+          (plugin) => CheckboxListTile(
             title: Text(plugin.typeName),
             subtitle:
                 Text('${plugin.getShortDescription()}\nDependencies: ${_formatDependencies(plugin.getDependencies())}'),
@@ -120,7 +124,9 @@ class _PluginDialogState extends State<PluginDialog> with BiocentralDialogCloseM
                   }
                 });
               }
-            },),),
+            },
+          ),
+        ),
       ],
     );
   }

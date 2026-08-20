@@ -22,10 +22,12 @@ class _BiocentralImportModeSelectionState extends State<BiocentralImportModeSele
   @override
   Widget build(BuildContext context) {
     return BiocentralDiscreteSelection<DatabaseImportMode>(
-        title: 'Import mode:',
-        selectableValues: DatabaseImportMode.values,
-        displayConversion: (DatabaseImportMode mode) => mode.name.capitalize(),
-        initialValue: DatabaseImportMode.defaultMode, // TODO This might be bug prone as it can conflict with the values set in parent widgets
-        onChangedCallback: widget.onChangedCallback,);
+      title: 'Import mode:',
+      selectableValues: DatabaseImportMode.values,
+      displayConversion: (DatabaseImportMode mode) => mode.name.capitalize(),
+      initialValue: DatabaseImportMode
+          .defaultMode, // TODO This might be bug prone as it can conflict with the values set in parent widgets
+      onChangedCallback: widget.onChangedCallback,
+    );
   }
 }

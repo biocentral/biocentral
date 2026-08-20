@@ -26,7 +26,7 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
   Map<String, double>? _composition;
 
   Future<Map<String, double>> composition() async {
-    if(_composition != null) {
+    if (_composition != null) {
       return _composition!;
     }
 
@@ -50,12 +50,12 @@ class SequenceColumnWizard extends ColumnWizard with CounterStats {
 
   /// Returns number of sequences for each found sequence length in the dataset
   Future<Map<int, int>> lengthCount() async {
-    if(_lengthCount != null) {
+    if (_lengthCount != null) {
       return _lengthCount!;
     }
 
     final Map<int, int> lengthCount = {};
-    for(final sequence in valueMap.values) {
+    for (final sequence in valueMap.values) {
       final length = sequence.seq.length;
       lengthCount.putIfAbsent(length, () => 0);
       final updatedCount = lengthCount[length]! + 1;

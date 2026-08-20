@@ -59,8 +59,12 @@ class _ALImportCampaignCommandDisplayState extends State<ALImportCampaignCommand
                   Text('${campaign.iterationResults.length} iteration(s); column: ${campaign.columnName}'),
                   const SizedBox(height: 2),
                   Text(
-                    conflicts ? 'A campaign with this name already exists and will be overwritten if you proceed!' : 'Campaign can be added without issues.',
-                    style: TextStyle(color: conflicts ? BiocentralStyle.alWarningTextColor : BiocentralStyle.alSuccessTextColor, fontStyle: FontStyle.italic),
+                    conflicts
+                        ? 'A campaign with this name already exists and will be overwritten if you proceed!'
+                        : 'Campaign can be added without issues.',
+                    style: TextStyle(
+                        color: conflicts ? BiocentralStyle.alWarningTextColor : BiocentralStyle.alSuccessTextColor,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ),

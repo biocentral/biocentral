@@ -394,9 +394,10 @@ final class TrainModelCommand extends BiocentralCommand<PredictionModel> {
         currentModel = currentModel.finishFromResult(biotrainerResult);
         yield log.finish(
           result: BiocentralCommandResult(currentModel, currentModel.getModelInformationMap()),
-          finalProgress: BiocentralCommandProgress(information: 'Finished training model!',
-              current: currentModel.holdOutResult?.getLastEpoch() ?? 1,
-              total: currentModel.holdOutResult?.getLastEpoch() ?? 1,
+          finalProgress: BiocentralCommandProgress(
+            information: 'Finished training model!',
+            current: currentModel.holdOutResult?.getLastEpoch() ?? 1,
+            total: currentModel.holdOutResult?.getLastEpoch() ?? 1,
           ),
         );
         return;

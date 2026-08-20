@@ -12,31 +12,33 @@ class PPIDatabaseTestsView extends StatefulWidget {
 }
 
 class PPIDatabaseTestsViewState extends State<PPIDatabaseTestsView> with AutomaticKeepAliveClientMixin {
-
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<PPIDatabaseTestsBloc, PPIDatabaseTestsState>(builder: (context, state) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: InputDecorator(
-          expands: true,
-          decoration: InputDecoration(
-            labelText: 'Database Tests:',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
+    return BlocBuilder<PPIDatabaseTestsBloc, PPIDatabaseTestsState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: InputDecorator(
+            expands: true,
+            decoration: InputDecoration(
+              labelText: 'Database Tests:',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                ...buildTestDisplays(state),
+              ],
             ),
           ),
-          child: Column(
-            children: [
-              ...buildTestDisplays(state),],
-          ),
-        ),
-      );
-    },);
+        );
+      },
+    );
   }
 
   List<Widget> buildTestDisplays(PPIDatabaseTestsState state) {

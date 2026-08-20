@@ -48,7 +48,7 @@ class _BiocentralMetricsPlotState extends State<BiocentralMetricsPlot> {
     final result = <(String, double, double?, double?)>[];
     for (final entry in widget.metrics.entries) {
       final metric = entry.value.firstWhereOrNull((m) => m.name == _selectedMetric);
-      if(metric != null) {
+      if (metric != null) {
         result.add((entry.key, metric.mean.toDouble(), metric.lower.toDouble(), metric.upper.toDouble()));
       }
     }

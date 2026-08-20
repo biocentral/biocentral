@@ -168,7 +168,6 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
   PlutoGridStateManager? stateManager;
   final PlutoGridMode plutoGridMode = PlutoGridMode.selectWithOneTap;
 
-
   @override
   bool get wantKeepAlive => true;
 
@@ -219,31 +218,33 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
   List<PlutoColumn> buildColumns(ProteinDatabaseGridState state) {
     final List<PlutoColumn> result = List.from(_defaultProteinColumns);
     for (String setColumnName in state.additionalColumns ?? {}) {
-      result.add(PlutoColumn(
-        title: setColumnName,
-        field: setColumnName,
-        type: PlutoColumnType.text(),
-        footerRenderer: (rendererContext) {
-          // TODO Change footer to show more meaningful information
-          return PlutoAggregateColumnFooter(
-            rendererContext: rendererContext,
-            type: PlutoAggregateColumnType.count,
-            filter: (PlutoCell plutoCell) => plutoCell.value == '',
-            format: '#',
-            alignment: Alignment.center,
-            titleSpanBuilder: (text) {
-              return [
-                const TextSpan(
-                  text: 'Missing',
-                  style: TextStyle(color: Colors.red),
-                ),
-                const TextSpan(text: ': '),
-                TextSpan(text: text),
-              ];
-            },
-          );
-        },
-      ),);
+      result.add(
+        PlutoColumn(
+          title: setColumnName,
+          field: setColumnName,
+          type: PlutoColumnType.text(),
+          footerRenderer: (rendererContext) {
+            // TODO Change footer to show more meaningful information
+            return PlutoAggregateColumnFooter(
+              rendererContext: rendererContext,
+              type: PlutoAggregateColumnType.count,
+              filter: (PlutoCell plutoCell) => plutoCell.value == '',
+              format: '#',
+              alignment: Alignment.center,
+              titleSpanBuilder: (text) {
+                return [
+                  const TextSpan(
+                    text: 'Missing',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  const TextSpan(text: ': '),
+                  TextSpan(text: text),
+                ];
+              },
+            );
+          },
+        ),
+      );
     }
     return result;
   }
@@ -260,9 +261,13 @@ class ProteinDatabaseViewState extends State<ProteinDatabaseView> with Automatic
           'taxonomyName': PlutoCell(value: protein.taxonomy.name ?? ''),
           'taxonomyFamily': PlutoCell(value: protein.taxonomy.family ?? ''),
           'target': PlutoCell(value: protein.attributes['TARGET']),
-        }..addAll(Map<String, PlutoCell>.fromEntries(state.additionalColumns
-                ?.map((columnName) => MapEntry(columnName, PlutoCell(value: protein.attributes[columnName] ?? ''))) ??
-            {},),),
+        }..addAll(
+            Map<String, PlutoCell>.fromEntries(
+              state.additionalColumns?.map(
+                      (columnName) => MapEntry(columnName, PlutoCell(value: protein.attributes[columnName] ?? ''))) ??
+                  {},
+            ),
+          ),
       );
       rows.add(row);
     }

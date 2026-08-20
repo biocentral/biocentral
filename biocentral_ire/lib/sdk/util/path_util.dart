@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class PathResolver {
   static String resolve(String projectDir, String? pluginDir, String? subDir, String? fileName) {
     String result = projectDir;
-    if(result.characters.last != '/') {
+    if (result.characters.last != '/') {
       result += '/';
     }
     result += pluginDir ?? '';
@@ -15,7 +15,6 @@ class PathResolver {
     result += fileName ?? '';
     return result;
   }
-
 
   static String? sanitize(String? path) {
     if (path == null) {
@@ -25,6 +24,7 @@ class PathResolver {
     }
   }
 }
+
 class PathScanner {
   /// Scans the provided directory and returns a PathScanResult containing:
   /// - The directory path
@@ -53,7 +53,6 @@ class PathScanner {
           subdirectoryResults[subdirName] = scanDirectory(entity.path);
         }
       }
-
     } catch (e) {
       throw DirectoryScanException('Error scanning directory: $e');
     }
@@ -110,12 +109,12 @@ class PathScanResult {
   PathScanResult(this.path, this.baseFiles, this.subdirectoryResults);
 
   Map<String, List<XFile>> getAllSubdirectoryFiles() {
-    if(subdirectoryResults.isEmpty) {
+    if (subdirectoryResults.isEmpty) {
       return {path: baseFiles};
     }
 
     final Map<String, List<XFile>> result = {};
-    for(final entry in subdirectoryResults.entries) {
+    for (final entry in subdirectoryResults.entries) {
       result.addAll(entry.value.getAllSubdirectoryFiles());
     }
 

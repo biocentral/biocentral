@@ -108,7 +108,9 @@ class _LoadModelCommandDisplayState extends State<LoadModelCommandDisplay> {
                       _configFile = xFile;
                     }),
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
                   BiocentralFilePathSelection(
                     defaultName: _outputFile?.name ?? '/path/to/output_file',
                     allowedExtensions: ['.yml', '.yaml'],
@@ -116,7 +118,9 @@ class _LoadModelCommandDisplayState extends State<LoadModelCommandDisplay> {
                       _outputFile = xFile;
                     }),
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
                   BiocentralFilePathSelection(
                     defaultName: _loggingFile?.name ?? '/path/to/logging_file',
                     allowedExtensions: ['.log'],
@@ -124,7 +128,9 @@ class _LoadModelCommandDisplayState extends State<LoadModelCommandDisplay> {
                       _loggingFile = xFile;
                     }),
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
                   BiocentralFilePathSelection(
                     defaultName: _checkpointFile?.name ?? 'path/to/checkpoint_file',
                     allowedExtensions: ['.safetensors', '.pt', '.onnx'],

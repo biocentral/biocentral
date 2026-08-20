@@ -24,7 +24,10 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
   }
 
   void onCalculate(
-      ColumnWizardBloc columnWizardBloc, ColumnWizardBlocState state, ColumnWizardOperation operation,) {
+    ColumnWizardBloc columnWizardBloc,
+    ColumnWizardBlocState state,
+    ColumnWizardOperation operation,
+  ) {
     if (state.columnWizard != null) {
       columnWizardBloc.add(ColumnWizardCalculateEvent(operation));
     }
@@ -33,9 +36,7 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
   void onApply(ColumnWizardBlocState state) {
     // TODO
     final operationHistory = state.columnWizardHistory?[state.selectedColumn] ?? [];
-    if (state.selectedColumn != null && state.columnWizard != null && operationHistory.isNotEmpty) {
-
-    }
+    if (state.selectedColumn != null && state.columnWizard != null && operationHistory.isNotEmpty) {}
   }
 
   @override
@@ -96,10 +97,12 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(operation?.getDisplayName() ?? 'Operation'),
-                        ...(operation?.getConfigMap() ?? {}).entries.map((entry) => Text(
-                          '${entry.key.capitalize()}: ${entry.value}',
-                          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
-                        ),),
+                        ...(operation?.getConfigMap() ?? {}).entries.map(
+                              (entry) => Text(
+                                '${entry.key.capitalize()}: ${entry.value}',
+                                style: Theme.of(context).textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
+                              ),
+                            ),
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.arrow_downward, color: Colors.white),
@@ -120,9 +123,9 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
   }
 
   Widget buildColumnWizardOperationSelection(
-      ColumnWizardBloc columnWizardBloc,
-      ColumnWizardBlocState state,
-      ) {
+    ColumnWizardBloc columnWizardBloc,
+    ColumnWizardBlocState state,
+  ) {
     final Set<ColumnOperationType> availableOperations = state.columnWizard?.getAvailableOperations() ?? {};
     if (availableOperations.isEmpty) {
       return Container();
@@ -130,7 +133,7 @@ class _ProteinInsightsViewState extends State<ProteinInsightsView> {
     return BiocentralDropdownMenu<ColumnOperationType>(
       key: _operationSelectionKey,
       dropdownMenuEntries:
-      availableOperations.map((operation) => DropdownMenuEntry(value: operation, label: operation.name)).toList(),
+          availableOperations.map((operation) => DropdownMenuEntry(value: operation, label: operation.name)).toList(),
       label: const Text('Select operation..'),
       onSelected: (ColumnOperationType? value) {
         if (value != null) {

@@ -30,12 +30,12 @@ class BiocentralDatabaseColumn {
 extension SetColumn on BiocentralDatabaseColumn {
   Set<SplitSet> detectSplitSets() {
     final splitSets = <SplitSet>{};
-    for(final (value) in values.values) {
+    for (final (value) in values.values) {
       final splitSet = SplitSet.values.firstWhereOrNull((splitSet) => splitSet.name == value.toString());
-      if(splitSet != null) {
+      if (splitSet != null) {
         splitSets.add(splitSet);
       }
-      if(splitSets.length == SplitSet.values.length) {
+      if (splitSets.length == SplitSet.values.length) {
         break; // all split sets are available, we can already stop here
       }
     }
@@ -44,9 +44,9 @@ extension SetColumn on BiocentralDatabaseColumn {
 
   String formatAsSplitSets() {
     final Map<SplitSet, int> splitDistribution = {};
-    for(final (value) in values.values) {
+    for (final (value) in values.values) {
       final splitSet = SplitSet.values.firstWhereOrNull((splitSet) => splitSet.name == value.toString());
-      if(splitSet == null) {
+      if (splitSet == null) {
         return 'Failed to detect splits!';
       }
       splitDistribution.putIfAbsent(splitSet, () => 0);
@@ -54,7 +54,7 @@ extension SetColumn on BiocentralDatabaseColumn {
       splitDistribution[splitSet] = (currentValue + 1);
     }
     String result = '';
-    for(final (splitSet, n) in splitDistribution.entriesRecord) {
+    for (final (splitSet, n) in splitDistribution.entriesRecord) {
       result += '${splitSet.name}: $n ';
     }
     return result;
@@ -64,21 +64,21 @@ extension SetColumn on BiocentralDatabaseColumn {
 extension TrainingColumn on BiocentralDatabaseColumn {
   Set<Protocol> detectPotentialTrainingProtocols({Map<String, String>? sequences}) {
     final result = Protocol.values.toSet();
-    for(final (key, value) in values.entriesRecord) {
-      if(result.isEmpty || value == null || value.toString().isEmpty) {
+    for (final (key, value) in values.entriesRecord) {
+      if (result.isEmpty || value == null || value.toString().isEmpty) {
         return {}; // Early stopping
       }
       final maybeSequence = sequences?[key];
-      if(maybeSequence != null && maybeSequence.isNotEmpty) {
+      if (maybeSequence != null && maybeSequence.isNotEmpty) {
         // TODO residuesToValue: Split ;
-        if(value.toString().length != maybeSequence.length) {
+        if (value.toString().length != maybeSequence.length) {
           // Mismatch between N residues and N targets
           result.remove(Protocol.residueToClass);
           result.remove(Protocol.residueToValue);
         }
       }
       final maybeDouble = double.tryParse(value);
-      if(maybeDouble == null) {
+      if (maybeDouble == null) {
         result.remove(Protocol.residuesToValue);
         result.remove(Protocol.sequenceToValue);
       }

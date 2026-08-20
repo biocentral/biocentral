@@ -1,6 +1,5 @@
 import 'package:biocentral/sdk/data/biocentral_task_dto.dart';
 
-
 extension PredictionModelsDTO on BiocentralDTO {
   String? get logFile => get<String>('log_file');
 

@@ -21,7 +21,10 @@ class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
     PPIRepositoryProperty.duplicates:
         BadgeProperties('Duplicates', Colors.red, 'Your dataset contains some duplicated interactions!'),
     PPIRepositoryProperty.hviDataset: BadgeProperties(
-        'Human-Virus Interactions', Colors.purple, 'Your dataset exclusively contains human-virus interactions!',),
+      'Human-Virus Interactions',
+      Colors.purple,
+      'Your dataset exclusively contains human-virus interactions!',
+    ),
     PPIRepositoryProperty.mixedDataset:
         BadgeProperties('Mixed\nInteractions', Colors.cyan, 'Your dataset contains interactions from various species'),
   };
@@ -61,11 +64,12 @@ class _PPIDatabaseBadgesState extends State<PPIDatabaseBadges> {
               splashColor: Theme.of(context).colorScheme.secondary,
               customBorder: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(50)),
               child: Align(
-                  child: Text(
-                    badgeProperties.text,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),),
+                child: Text(
+                  badgeProperties.text,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              ),
             ),
           ),
         ),

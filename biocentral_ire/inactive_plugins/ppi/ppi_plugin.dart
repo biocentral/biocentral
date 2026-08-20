@@ -16,9 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tutorial_system/tutorial_system.dart';
 
 class PpiPlugin extends BiocentralPlugin
-    with
-        BiocentralDatabasePluginMixin<PPIRepository>,
-        BiocentralTutorialPluginMixin {
+    with BiocentralDatabasePluginMixin<PPIRepository>, BiocentralTutorialPluginMixin {
   final GlobalKey ppiTabKey = GlobalKey();
 
   PpiPlugin(super.eventBus);
@@ -81,18 +79,22 @@ class PpiPlugin extends BiocentralPlugin
     final ppiColumnWizardBloc = ColumnWizardBloc(getDatabase(context), getBiocentralColumnWizardRepository(context))
       ..add(ColumnWizardLoadEvent());
 
-    eventBusSubscriptions.add(eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
-      ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
-      ppiPropertiesBloc.add(PPIPropertiesCalculateEvent());
-      ppiDatabaseTestsBloc.add(PPIDatabaseTestsLoadTestsEvent());
-      ppiColumnWizardBloc.add(ColumnWizardLoadEvent());
-    }),);
-
-    eventBusSubscriptions.add(eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
-      if (event.switchedTab == getTab()) {
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralDatabaseUpdatedEvent>().listen((event) {
         ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
-      }
-    }),);
+        ppiPropertiesBloc.add(PPIPropertiesCalculateEvent());
+        ppiDatabaseTestsBloc.add(PPIDatabaseTestsLoadTestsEvent());
+        ppiColumnWizardBloc.add(ColumnWizardLoadEvent());
+      }),
+    );
+
+    eventBusSubscriptions.add(
+      eventBus.on<BiocentralPluginTabSwitchedEvent>().listen((event) {
+        if (event.switchedTab == getTab()) {
+          ppiDatabaseGridBloc.add(PPIDatabaseGridLoadEvent());
+        }
+      }),
+    );
 
     return {
       BlocProvider<PPICommandBloc>.value(value: ppiCommandBloc): ppiCommandBloc,
@@ -124,8 +126,7 @@ class PpiPlugin extends BiocentralPlugin
           final List<void Function()> loadingFunctions = [];
           for (final scannedFile in scannedFiles) {
             if (scannedFile.name.contains('proteinproteininteraction.') && scannedFile.extension == 'fasta') {
-              void loadingFunction() => commandBloc
-                  ?.add(PPICommandLoadFromFileEvent(xFile: scannedFile));
+              void loadingFunction() => commandBloc?.add(PPICommandLoadFromFileEvent(xFile: scannedFile));
               loadingFunctions.add(loadingFunction);
             }
           }

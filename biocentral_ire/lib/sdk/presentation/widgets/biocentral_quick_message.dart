@@ -11,7 +11,11 @@ class BiocentralQuickMessage extends StatefulWidget {
   final Function() callback;
 
   const BiocentralQuickMessage({
-    required this.message, required this.child, required this.triggered, required this.callback, super.key,
+    required this.message,
+    required this.child,
+    required this.triggered,
+    required this.callback,
+    super.key,
   });
 
   @override
@@ -48,18 +52,19 @@ class _BiocentralQuickMessageState extends State<BiocentralQuickMessage> {
     return Stack(
       children: [
         StreamBuilder<double>(
-            stream: opacityStream(),
-            builder: (context, snapshot) {
-              return AnimatedOpacity(
-                duration: _duration,
-                opacity: snapshot.hasData ? snapshot.data! : 0.0,
-                onEnd: widget.callback(),
-                child: Padding(
-                  padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal(context)),
-                  child: Text(widget.message, style: Theme.of(context).textTheme.labelSmall),
-                ),
-              );
-            },),
+          stream: opacityStream(),
+          builder: (context, snapshot) {
+            return AnimatedOpacity(
+              duration: _duration,
+              opacity: snapshot.hasData ? snapshot.data! : 0.0,
+              onEnd: widget.callback(),
+              child: Padding(
+                padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal(context)),
+                child: Text(widget.message, style: Theme.of(context).textTheme.labelSmall),
+              ),
+            );
+          },
+        ),
         widget.child,
       ],
     );

@@ -14,8 +14,9 @@ class BiocentralPluginDirectory {
     Map<String, List<XFile>> scannedSubDirectories,
   ) createDirectoryLoadingEvents;
 
-  BiocentralPluginDirectory(
-      {required this.path,
-      required this.saveType,
-      required this.createDirectoryLoadingEvents,});
+  BiocentralPluginDirectory({
+    required this.path,
+    required this.saveType,
+    required this.createDirectoryLoadingEvents,
+  });
 }

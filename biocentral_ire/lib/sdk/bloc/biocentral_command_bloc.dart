@@ -79,7 +79,7 @@ class BiocentralCommandBloc extends Bloc<BiocentralCommandEvent, BiocentralComma
       await event.command.execute().forEach((commandLog) {
         emit(commandState.update(commandLog));
       });
-      if(event.autoAccept) {
+      if (event.autoAccept) {
         add(BiocentralCommandAcceptResultEvent());
       }
     });

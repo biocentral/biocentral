@@ -64,8 +64,7 @@ enum PPIDatabaseTestsDialogStatus { initial, loading, loaded, selected, errored 
 class PPIDatabaseTestsDialogBloc extends Bloc<PPIDatabaseTestsDialogEvent, PPIDatabaseTestsDialogState> {
   final PPIRepository _ppiRepository;
 
-  PPIDatabaseTestsDialogBloc(this._ppiRepository)
-      : super(const PPIDatabaseTestsDialogState.initial()) {
+  PPIDatabaseTestsDialogBloc(this._ppiRepository) : super(const PPIDatabaseTestsDialogState.initial()) {
     on<PPIDatabaseTestsDialogLoadTestsEvent>((event, emit) async {
       throw UnimplementedError();
       /*
