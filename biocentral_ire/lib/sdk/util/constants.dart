@@ -9,5 +9,7 @@ class Constants {
 
   static const String localHostServerURL = 'http://localhost:9540';
 
+  static const String officialServerURL = 'https://biocentral.rostlab.org';
+
   static const Duration autoSaveDebounceTime = Duration(seconds: 2);
 }

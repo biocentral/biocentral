@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
@@ -44,6 +45,8 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   late final AppLifecycleListener _exitListener;
 
+  StreamSubscription<String>? _serverFallbackSubscription; // for notification
+
   late TabController _tabController;
 
   BiocentralPluginState? cachedPluginState;
@@ -70,6 +73,14 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
     // Sidebar Key Handler
     ServicesBinding.instance.keyboard.addHandler(_handleSideBarKeyEvent);
+
+    // Notify on server fallback
+    _serverFallbackSubscription = context.read<BiocentralAPIRepository>().serverFallbackMessages.listen((message) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    });
   }
 
   @override
@@ -98,6 +109,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     _exitListener.dispose();
     _tabController.dispose();
     ServicesBinding.instance.keyboard.removeHandler(_handleSideBarKeyEvent);
+    _serverFallbackSubscription?.cancel();
     super.dispose();
   }
 
@@ -321,7 +333,7 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
                 builder: (context, state) {
                   return Switch(
                     value: state.isDarkMode,
-                    activeColor: Theme.of(context).secondaryHeaderColor,
+                    activeThumbColor: Theme.of(context).secondaryHeaderColor,
                     onChanged: (value) {
                       context.read<ThemeBloc>().add(ToggleThemeEvent(value));
                     },
