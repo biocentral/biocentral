@@ -25,7 +25,7 @@ void main() async {
   final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
   final BiocentralCommandLogRepository commandLogRepository = BiocentralCommandLogRepository(projectRepository);
   final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: false);
-  final BiocentralAPIRepository apiRepository = BiocentralAPIRepository(biocentralAPI);
+  final BiocentralAPIRepository apiRepository = await BiocentralAPIRepository.create(biocentralAPI);
   final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
   healthService.startMonitoring();
   final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
