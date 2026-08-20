@@ -7,6 +7,7 @@ import 'package:biocentral/biocentral/presentation/dialogs/info_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/plugin_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/welcome_dialog.dart';
 import 'package:biocentral/biocentral/presentation/dialogs/wiki_dialog.dart';
+import 'package:biocentral/biocentral/presentation/dialogs/server_config_dialog.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 
 class BiocentralInternalCommandView extends StatefulWidget {
@@ -66,6 +67,15 @@ class _BiocentralInternalCommandViewState extends State<BiocentralInternalComman
     );
   }
 
+  void openServerConfigurationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const ServerConfigDialog();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BiocentralCommandBar(
@@ -96,6 +106,13 @@ class _BiocentralInternalCommandViewState extends State<BiocentralInternalComman
           child: BiocentralButton(
             iconData: Icons.help_center,
             onTap: openWelcomeDialog,
+          ),
+        ),
+        BiocentralTooltip(
+          message: 'Add server',
+          child: BiocentralButton(
+            iconData: Icons.dns,
+            onTap: openServerConfigurationDialog, 
           ),
         ),
       ],
