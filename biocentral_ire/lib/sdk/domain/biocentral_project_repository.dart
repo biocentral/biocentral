@@ -37,6 +37,14 @@ class BiocentralProjectRepository with ProjectLoadingContext {
     return BiocentralProjectRepository(exists ? lastProjectDirectory : '');
   }
 
+  static Future<void> clearLastProjectDirectory() async {
+    if (kIsWeb) {
+      return;
+    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('lastProjectDirectory');
+  }
+
   void registerPluginDirectory(Type fileType, BiocentralPluginDirectory directory) {
     if (_registeredPluginDirectories.containsKey(fileType)) {
       throw Exception('Plugin type $fileType already registered for biocentral project repository directories!');
