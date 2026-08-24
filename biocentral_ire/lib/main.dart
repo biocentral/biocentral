@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_load_project_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
@@ -21,66 +23,132 @@ import 'package:tutorial_system/tutorial_system.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final EventBus eventBus = EventBus();
-  final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
-  final BiocentralCommandLogRepository commandLogRepository = BiocentralCommandLogRepository(projectRepository);
   final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: false);
   final BiocentralAPIRepository apiRepository = await BiocentralAPIRepository.create(biocentralAPI);
   final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
   healthService.startMonitoring();
   final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
-  final BiocentralPluginManager pluginManager = BiocentralPluginManager(
-    eventBus: eventBus,
-    projectRepository: projectRepository,
-    companion: pythonCompanion,
-  );
 
   runApp(
-    BiocentralApp(
-      eventBus: eventBus,
-      projectRepository: projectRepository,
-      commandLogRepository: commandLogRepository,
+    BiocentralProcessRoot(
       apiRepository: apiRepository,
-      pluginManager: pluginManager,
       pythonCompanion: pythonCompanion,
     ),
   );
 }
 
+/// Owns everything that must survive a "close project": the Python companion process,
+/// the remote API repository/health monitoring, and the app-exit hook that terminates
+/// the companion. Everything project-specific lives below [_projectKey] in
+/// [BiocentralProjectShell] and is torn down and rebuilt from scratch on every close.
 @immutable
-class BiocentralApp extends StatefulWidget {
-  final EventBus eventBus;
-  final BiocentralProjectRepository projectRepository;
-  final BiocentralCommandLogRepository commandLogRepository;
+class BiocentralProcessRoot extends StatefulWidget {
   final BiocentralAPIRepository apiRepository;
-  final BiocentralPluginManager pluginManager;
   final BiocentralPythonCompanion pythonCompanion;
 
-  const BiocentralApp({
-    required this.eventBus,
-    required this.projectRepository,
-    required this.commandLogRepository,
+  const BiocentralProcessRoot({
     required this.apiRepository,
-    required this.pluginManager,
     required this.pythonCompanion,
     super.key,
   });
 
   @override
-  State<BiocentralApp> createState() => _BiocentralAppState();
+  State<BiocentralProcessRoot> createState() => _BiocentralProcessRootState();
 }
 
-class _BiocentralAppState extends State<BiocentralApp> {
-  final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
-  late BiocentralAPIRepository cachedAPIRepository;
+class _BiocentralProcessRootState extends State<BiocentralProcessRoot> {
+  Key _projectKey = UniqueKey();
+
+  late final AppLifecycleListener _exitListener;
 
   @override
   void initState() {
     super.initState();
-    cachedAPIRepository = widget.apiRepository;
+    _exitListener = AppLifecycleListener(
+      onExitRequested: () async {
+        await widget.pythonCompanion.terminate();
+        return AppExitResponse.exit;
+      },
+    );
   }
 
-  /// Creates global repositories that are available to all plugins
+  @override
+  void dispose() {
+    _exitListener.dispose();
+    super.dispose();
+  }
+
+  Future<void> _closeProject() async {
+    await BiocentralProjectRepository.clearLastProjectDirectory();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _projectKey = UniqueKey();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<BiocentralAPIRepository>.value(value: widget.apiRepository),
+        RepositoryProvider<BiocentralPythonCompanion>.value(value: widget.pythonCompanion),
+        RepositoryProvider<CloseProjectController>.value(value: CloseProjectController(_closeProject)),
+      ],
+      child: BiocentralProjectShell(key: _projectKey),
+    );
+  }
+}
+
+/// Everything scoped to a single project directory.
+/// Recreated from scratch (fresh [EventBus], [BiocentralProjectRepository],
+/// [BiocentralCommandLogRepository], [BiocentralPluginManager] and all plugin state)
+/// every time [BiocentralProcessRoot] swaps its key
+class BiocentralProjectShell extends StatefulWidget {
+  const BiocentralProjectShell({super.key});
+
+  @override
+  State<BiocentralProjectShell> createState() => _BiocentralProjectShellState();
+}
+
+class _BiocentralProjectShellState extends State<BiocentralProjectShell> {
+  final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+
+  EventBus? _eventBus;
+  BiocentralProjectRepository? _projectRepository;
+  BiocentralCommandLogRepository? _commandLogRepository;
+  BiocentralPluginManager? _pluginManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeProject();
+  }
+
+  Future<void> _initializeProject() async {
+    final BiocentralPythonCompanion companion = context.read<BiocentralPythonCompanion>();
+    final EventBus eventBus = EventBus();
+    final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
+    final BiocentralCommandLogRepository commandLogRepository = BiocentralCommandLogRepository(projectRepository);
+    final BiocentralPluginManager pluginManager = BiocentralPluginManager(
+      eventBus: eventBus,
+      projectRepository: projectRepository,
+      companion: companion,
+    );
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _eventBus = eventBus;
+      _projectRepository = projectRepository;
+      _commandLogRepository = commandLogRepository;
+      _pluginManager = pluginManager;
+    });
+  }
+
+  /// Creates project-scoped global repositories that are available to all plugins
   List<RepositoryProvider> getGlobalRepositoryProviders(BuildContext context, BiocentralPluginManager pluginManager) {
     final BiocentralColumnWizardRepository biocentralColumnWizardRepository =
         BiocentralColumnWizardRepository.withDefaultWizards();
@@ -94,11 +162,9 @@ class _BiocentralAppState extends State<BiocentralApp> {
     );
 
     return [
-      RepositoryProvider<BiocentralProjectRepository>.value(value: widget.projectRepository),
-      RepositoryProvider<BiocentralCommandLogRepository>.value(value: widget.commandLogRepository),
-      RepositoryProvider<BiocentralPythonCompanion>.value(value: widget.pythonCompanion),
+      RepositoryProvider<BiocentralProjectRepository>.value(value: _projectRepository!),
+      RepositoryProvider<BiocentralCommandLogRepository>.value(value: _commandLogRepository!),
       RepositoryProvider<BiocentralDatabaseRepository>.value(value: biocentralDatabaseRepository),
-      RepositoryProvider<BiocentralAPIRepository>.value(value: cachedAPIRepository),
       // TODO Check if this works with reloading plugins
       RepositoryProvider<BiocentralColumnWizardRepository>.value(value: biocentralColumnWizardRepository),
       RepositoryProvider<TutorialRepository>.value(value: tutorialRepository),
@@ -107,13 +173,24 @@ class _BiocentralAppState extends State<BiocentralApp> {
 
   @override
   Widget build(BuildContext context) {
+    final EventBus? eventBus = _eventBus;
+    final BiocentralCommandLogRepository? commandLogRepository = _commandLogRepository;
+    final BiocentralPluginManager? pluginManager = _pluginManager;
+    final BiocentralProjectRepository? projectRepository = _projectRepository;
+
+    if (eventBus == null || commandLogRepository == null || pluginManager == null || projectRepository == null) {
+      return const MaterialApp(
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+    }
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<BiocentralCommandBloc>(
-          create: (context) => BiocentralCommandBloc(widget.eventBus, widget.commandLogRepository),
+          create: (context) => BiocentralCommandBloc(eventBus, commandLogRepository),
         ),
         BlocProvider<BiocentralPluginBloc>(
-          create: (context) => BiocentralPluginBloc(widget.eventBus, widget.pluginManager),
+          create: (context) => BiocentralPluginBloc(eventBus, pluginManager),
         ),
         BlocProvider<ThemeBloc>(
           create: (context) => ThemeBloc()..add(InitializeThemeEvent()),
@@ -137,8 +214,8 @@ class _BiocentralAppState extends State<BiocentralApp> {
                 title: 'Biocentral',
                 theme: themeState.isDarkMode ? BiocentralStyle.darkTheme : BiocentralStyle.lightTheme,
                 home: BiocentralAppHome(
-                  eventBus: widget.eventBus,
-                  isDirectoryPathSet: widget.projectRepository.isProjectDirectoryPathSet(),
+                  eventBus: eventBus,
+                  isDirectoryPathSet: projectRepository.isProjectDirectoryPathSet(),
                 ),
               );
             },
