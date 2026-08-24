@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:biocentral/biocentral/bloc/biocentral_command_log_bloc.dart';
 import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
@@ -13,7 +12,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
 import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
-import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
 import 'package:biocentral/sdk/domain/biocentral_command_log_repository.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
@@ -43,8 +41,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   late final BiocentralCommandLogBloc biocentralCommandLogBloc; // TODO Move to main?
 
-  late final AppLifecycleListener _exitListener;
-
   StreamSubscription<String>? _serverFallbackSubscription; // for notification
 
   late TabController _tabController;
@@ -60,13 +56,6 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
     // BLOCS
     createBlocs();
 
-    // HANDLE APP EXIT
-    _exitListener = AppLifecycleListener(
-      onExitRequested: () async {
-        await terminatePythonCompanion();
-        return AppExitResponse.exit;
-      },
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openWelcomeDialog();
     });
@@ -106,16 +95,10 @@ class _BiocentralMainViewState extends State<BiocentralMainView>
 
   @override
   void dispose() {
-    _exitListener.dispose();
     _tabController.dispose();
     ServicesBinding.instance.keyboard.removeHandler(_handleSideBarKeyEvent);
     _serverFallbackSubscription?.cancel();
     super.dispose();
-  }
-
-  Future<void> terminatePythonCompanion() async {
-    final pythonCompanion = context.read<BiocentralPythonCompanion>();
-    final terminated = await pythonCompanion.terminate();
   }
 
   void createBlocs() {
