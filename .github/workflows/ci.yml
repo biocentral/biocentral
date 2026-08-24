@@ -323,7 +323,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
-          flutter build windows --release
+          flutter build windows --release --verbose
       - name: Upload Windows build artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
@@ -371,7 +371,7 @@ jobs:
 
       - name: Get version
         id: get_version
-        run: echo "version=$(grep 'version:' biocentral_ire/pubspec.yaml | awk '{print $2}' | sed 's/+[0-9]*$//' | tr -d \"'\" | tr . -)" >> $GITHUB_OUTPUT
+        run: echo "version=$(grep 'version:' biocentral_ire/pubspec.yaml | awk '{print $2}' | sed 's/+[0-9]*$//' | tr -d "'" | tr . -)" >> $GITHUB_OUTPUT
 
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y wget libfuse2
