@@ -53,25 +53,23 @@ class _BiocentralCommandLogViewState extends State<BiocentralCommandLogView> {
             final length = logState.commandLogs.length + (_hasOperatingLog ? 1 : 0);
             return BiocentralLogContainer(
               title: 'Executed Commands',
-              logsWidget: Flexible(
-                child: SingleChildScrollView(
-                  controller: logScrollController,
-                  child: Column(
-                    children: List.generate(length, (index) {
-                      final buildArrow = index < length - 1;
-                      if (index < logState.commandLogs.length) {
-                        final BiocentralCommandLog log = logState.commandLogs[index];
-                        return Column(
-                          children: [
-                            buildCommandLogDisplay(log),
-                            if (buildArrow) const Icon(Icons.arrow_downward_rounded, color: Colors.white),
-                          ],
-                        );
-                      } else {
-                        return buildOperatingCommandLogDisplay(context.read<BiocentralCommandBloc>(), commandState);
-                      }
-                    }),
-                  ),
+              logsWidget: SingleChildScrollView(
+                controller: logScrollController,
+                child: Column(
+                  children: List.generate(length, (index) {
+                    final buildArrow = index < length - 1;
+                    if (index < logState.commandLogs.length) {
+                      final BiocentralCommandLog log = logState.commandLogs[index];
+                      return Column(
+                        children: [
+                          buildCommandLogDisplay(log),
+                          if (buildArrow) const Icon(Icons.arrow_downward_rounded, color: Colors.white),
+                        ],
+                      );
+                    } else {
+                      return buildOperatingCommandLogDisplay(context.read<BiocentralCommandBloc>(), commandState);
+                    }
+                  }),
                 ),
               ),
             );
