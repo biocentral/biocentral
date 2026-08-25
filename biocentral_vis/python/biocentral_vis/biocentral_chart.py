@@ -4,7 +4,7 @@ import altair as alt
 from pathlib import Path
 from biocentral_api import ProjectionResult
 from typing import List, Union, Dict, Any, Optional, Set, Callable
-from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult
+from biotrainer_core.data_classes import SequenceData, BiotrainerModelResult, Variant, VariantScore
 
 from .base import BiocentralVisualization
 from .datasets import (
@@ -12,6 +12,8 @@ from .datasets import (
     plot_split_distribution,
     plot_labels_by_split_distribution,
     plot_sequence_length_distribution,
+    plot_mutation_depth_distribution,
+    plot_variant_score_distribution,
 )
 from .projections import plot_projection_result
 from .models import plot_test_set_performance, plot_loss_curves
@@ -48,6 +50,16 @@ class BiocentralChart(BiocentralVisualization):
         Filter function must return True if the label should be considered for plotting. """
         chart, metadata = plot_labels_by_split_distribution(dataset, labels_filter)
         return cls("labels_by_split_distribution", chart, metadata)
+
+    @classmethod
+    def mutation_depth_distribution(cls, dataset: List[Variant]):
+        chart, metadata = plot_mutation_depth_distribution(dataset)
+        return cls("mutation_depth_distribution", chart, metadata)
+
+    @classmethod
+    def variant_score_distribution(cls, dataset: List[VariantScore]):
+        chart, metadata = plot_variant_score_distribution(dataset)
+        return cls("variant_score_distribution", chart, metadata)
 
     @classmethod
     def model_loss_curve(

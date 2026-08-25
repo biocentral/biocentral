@@ -8,6 +8,7 @@ dependencies = [
     "altair>=6.0.0",
     "vl-convert-python>=1.9.0.post1",
     "biocentral-api>=2.0.0,<3.0.0",
+    "biotrainer-core>=2.0.0,<3.0.0",
 ]
 
 [tool.uv]
@@ -15,3 +16,4 @@ exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 
 [tool.uv.sources]
 biocentral_api = { path = "../../biocentral_api/python", editable = true }
+biotrainer_core = { path = "../../biotrainer/biotrainer-core", editable = true }
