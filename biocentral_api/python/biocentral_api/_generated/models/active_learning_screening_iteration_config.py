@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,19 +25,14 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-
 class ActiveLearningScreeningIterationConfig(BaseModel):
     """
     Configuration for a single iteration of active learning
-    """  # noqa: E501
+    """ # noqa: E501
     iteration: StrictInt = Field(description="Iteration number")
-    iteration_data: Annotated[List[SequenceData], Field(min_length=2)] = Field(
-        description="List of sequence training data for this iteration")
-    coefficient: Union[
-        Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(
-        description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
-    n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(
-        description="Number of suggestions to propose from this iteration")
+    iteration_data: Annotated[List[SequenceData], Field(min_length=2)] = Field(description="List of sequence training data for this iteration")
+    coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
+    n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
     __properties: ClassVar[List[str]] = ["iteration", "iteration_data", "coefficient", "n_suggestions"]
 
     model_config = ConfigDict(
@@ -45,6 +41,7 @@ class ActiveLearningScreeningIterationConfig(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -97,9 +94,10 @@ class ActiveLearningScreeningIterationConfig(BaseModel):
 
         _obj = cls.model_validate({
             "iteration": obj.get("iteration"),
-            "iteration_data": [SequenceData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get(
-                "iteration_data") is not None else None,
+            "iteration_data": [SequenceData.from_dict(_item) for _item in obj["iteration_data"]] if obj.get("iteration_data") is not None else None,
             "coefficient": obj.get("coefficient"),
             "n_suggestions": obj.get("n_suggestions")
         })
         return _obj
+
+

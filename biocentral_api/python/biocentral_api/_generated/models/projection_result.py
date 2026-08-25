@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -25,11 +26,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ProjectionResult(BaseModel):
     """
     ProjectionResult
-    """  # noqa: E501
+    """ # noqa: E501
     protein_annotations: ProteinAnnotations
     projections_metadata: ProjectionsMetadata
     projections_data: ProjectionsData
@@ -41,6 +41,7 @@ class ProjectionResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -94,11 +95,10 @@ class ProjectionResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "protein_annotations": ProteinAnnotations.from_dict(obj["protein_annotations"]) if obj.get(
-                "protein_annotations") is not None else None,
-            "projections_metadata": ProjectionsMetadata.from_dict(obj["projections_metadata"]) if obj.get(
-                "projections_metadata") is not None else None,
-            "projections_data": ProjectionsData.from_dict(obj["projections_data"]) if obj.get(
-                "projections_data") is not None else None
+            "protein_annotations": ProteinAnnotations.from_dict(obj["protein_annotations"]) if obj.get("protein_annotations") is not None else None,
+            "projections_metadata": ProjectionsMetadata.from_dict(obj["projections_metadata"]) if obj.get("projections_metadata") is not None else None,
+            "projections_data": ProjectionsData.from_dict(obj["projections_data"]) if obj.get("projections_data") is not None else None
         })
         return _obj
+
+

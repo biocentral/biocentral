@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -40,22 +41,23 @@ class EmbeddingsApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def add_embeddings_api_v1_embeddings_service_add_embeddings_post(
-            self,
-            add_embeddings_request: AddEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        add_embeddings_request: AddEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> AddEmbeddingsResponse:
         """Add embeddings
 
@@ -83,7 +85,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._add_embeddings_api_v1_embeddings_service_add_embeddings_post_serialize(
             add_embeddings_request=add_embeddings_request,
@@ -109,22 +111,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def add_embeddings_api_v1_embeddings_service_add_embeddings_post_with_http_info(
-            self,
-            add_embeddings_request: AddEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        add_embeddings_request: AddEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[AddEmbeddingsResponse]:
         """Add embeddings
 
@@ -152,7 +155,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._add_embeddings_api_v1_embeddings_service_add_embeddings_post_serialize(
             add_embeddings_request=add_embeddings_request,
@@ -178,22 +181,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def add_embeddings_api_v1_embeddings_service_add_embeddings_post_without_preload_content(
-            self,
-            add_embeddings_request: AddEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        add_embeddings_request: AddEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Add embeddings
 
@@ -221,7 +225,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._add_embeddings_api_v1_embeddings_service_add_embeddings_post_serialize(
             add_embeddings_request=add_embeddings_request,
@@ -243,13 +247,14 @@ class EmbeddingsApi:
         )
         return response_data.response
 
+
     def _add_embeddings_api_v1_embeddings_service_add_embeddings_post_serialize(
-            self,
-            add_embeddings_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        add_embeddings_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -273,6 +278,7 @@ class EmbeddingsApi:
         # process the body parameter
         if add_embeddings_request is not None:
             _body_params = add_embeddings_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -315,21 +321,24 @@ class EmbeddingsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def common_embedders_api_v1_embeddings_service_common_embedders_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> List[CommonEmbedder]:
         """Get a list of common embedder names support by the server
 
@@ -355,7 +364,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._common_embedders_api_v1_embeddings_service_common_embedders_get_serialize(
             _request_auth=_request_auth,
@@ -378,21 +387,22 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def common_embedders_api_v1_embeddings_service_common_embedders_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[List[CommonEmbedder]]:
         """Get a list of common embedder names support by the server
 
@@ -418,7 +428,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._common_embedders_api_v1_embeddings_service_common_embedders_get_serialize(
             _request_auth=_request_auth,
@@ -441,21 +451,22 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def common_embedders_api_v1_embeddings_service_common_embedders_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Get a list of common embedder names support by the server
 
@@ -481,7 +492,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._common_embedders_api_v1_embeddings_service_common_embedders_get_serialize(
             _request_auth=_request_auth,
@@ -500,12 +511,13 @@ class EmbeddingsApi:
         )
         return response_data.response
 
+
     def _common_embedders_api_v1_embeddings_service_common_embedders_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -528,6 +540,7 @@ class EmbeddingsApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -535,6 +548,7 @@ class EmbeddingsApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -555,22 +569,25 @@ class EmbeddingsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def embed_api_v1_embeddings_service_embed_post(
-            self,
-            embed_request: EmbedRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        embed_request: EmbedRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Calculate embeddings
 
@@ -598,7 +615,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._embed_api_v1_embeddings_service_embed_post_serialize(
             embed_request=embed_request,
@@ -623,22 +640,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def embed_api_v1_embeddings_service_embed_post_with_http_info(
-            self,
-            embed_request: EmbedRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        embed_request: EmbedRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Calculate embeddings
 
@@ -666,7 +684,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._embed_api_v1_embeddings_service_embed_post_serialize(
             embed_request=embed_request,
@@ -691,22 +709,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def embed_api_v1_embeddings_service_embed_post_without_preload_content(
-            self,
-            embed_request: EmbedRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        embed_request: EmbedRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Calculate embeddings
 
@@ -734,7 +753,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._embed_api_v1_embeddings_service_embed_post_serialize(
             embed_request=embed_request,
@@ -755,13 +774,14 @@ class EmbeddingsApi:
         )
         return response_data.response
 
+
     def _embed_api_v1_embeddings_service_embed_post_serialize(
-            self,
-            embed_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        embed_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -785,6 +805,7 @@ class EmbeddingsApi:
         # process the body parameter
         if embed_request is not None:
             _body_params = embed_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -827,22 +848,25 @@ class EmbeddingsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post(
-            self,
-            get_missing_embeddings_request: GetMissingEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        get_missing_embeddings_request: GetMissingEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> GetMissingEmbeddingsResponse:
         """Check missing embeddings
 
@@ -870,7 +894,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_serialize(
             get_missing_embeddings_request=get_missing_embeddings_request,
@@ -896,22 +920,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_with_http_info(
-            self,
-            get_missing_embeddings_request: GetMissingEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        get_missing_embeddings_request: GetMissingEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[GetMissingEmbeddingsResponse]:
         """Check missing embeddings
 
@@ -939,7 +964,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_serialize(
             get_missing_embeddings_request=get_missing_embeddings_request,
@@ -965,22 +990,23 @@ class EmbeddingsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_without_preload_content(
-            self,
-            get_missing_embeddings_request: GetMissingEmbeddingsRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        get_missing_embeddings_request: GetMissingEmbeddingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Check missing embeddings
 
@@ -1008,7 +1034,7 @@ class EmbeddingsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_serialize(
             get_missing_embeddings_request=get_missing_embeddings_request,
@@ -1030,13 +1056,14 @@ class EmbeddingsApi:
         )
         return response_data.response
 
+
     def _get_missing_embeddings_api_v1_embeddings_service_get_missing_embeddings_post_serialize(
-            self,
-            get_missing_embeddings_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        get_missing_embeddings_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1060,6 +1087,7 @@ class EmbeddingsApi:
         # process the body parameter
         if get_missing_embeddings_request is not None:
             _body_params = get_missing_embeddings_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -1101,3 +1129,5 @@ class EmbeddingsApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

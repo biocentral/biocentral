@@ -38,7 +38,7 @@ Below, you can find a list of the most common embedders supported by biocentral:
 - ProstT5 = 'Rostlab/ProstT5'
 - ESM2_3B = 'facebook/esm2_t36_3B_UR50D'
 - ESM2_650M = 'facebook/esm2_t33_650M_UR50D'
-- ESM_8M = 'facebook/esm2_t6_8M_UR50D'
+- ESM2_8M = 'facebook/esm2_t6_8M_UR50D'
 - ONE_HOT_ENCODING = 'one_hot_encoding'
 - RANDOM_EMBEDDER = 'random_embedder'
 - AAOntology = 'AAOntology'

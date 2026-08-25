@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -39,22 +40,23 @@ class PpiApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post(
-            self,
-            auto_detect_format_request: AutoDetectFormatRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        auto_detect_format_request: AutoDetectFormatRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> DetectedFormatResponse:
         """Auto Detect Format By Header
 
@@ -81,7 +83,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_serialize(
             auto_detect_format_request=auto_detect_format_request,
@@ -107,22 +109,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_with_http_info(
-            self,
-            auto_detect_format_request: AutoDetectFormatRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        auto_detect_format_request: AutoDetectFormatRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[DetectedFormatResponse]:
         """Auto Detect Format By Header
 
@@ -149,7 +152,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_serialize(
             auto_detect_format_request=auto_detect_format_request,
@@ -175,22 +178,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_without_preload_content(
-            self,
-            auto_detect_format_request: AutoDetectFormatRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        auto_detect_format_request: AutoDetectFormatRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Auto Detect Format By Header
 
@@ -217,7 +221,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_serialize(
             auto_detect_format_request=auto_detect_format_request,
@@ -239,13 +243,14 @@ class PpiApi:
         )
         return response_data.response
 
+
     def _auto_detect_format_by_header_api_v1_ppi_service_auto_detect_format_post_serialize(
-            self,
-            auto_detect_format_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        auto_detect_format_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -269,6 +274,7 @@ class PpiApi:
         # process the body parameter
         if auto_detect_format_request is not None:
             _body_params = auto_detect_format_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -311,21 +317,24 @@ class PpiApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def formats_api_v1_ppi_service_formats_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> object:
         """Formats
 
@@ -350,7 +359,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._formats_api_v1_ppi_service_formats_get_serialize(
             _request_auth=_request_auth,
@@ -373,21 +382,22 @@ class PpiApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def formats_api_v1_ppi_service_formats_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[object]:
         """Formats
 
@@ -412,7 +422,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._formats_api_v1_ppi_service_formats_get_serialize(
             _request_auth=_request_auth,
@@ -435,21 +445,22 @@ class PpiApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def formats_api_v1_ppi_service_formats_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Formats
 
@@ -474,7 +485,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._formats_api_v1_ppi_service_formats_get_serialize(
             _request_auth=_request_auth,
@@ -493,12 +504,13 @@ class PpiApi:
         )
         return response_data.response
 
+
     def _formats_api_v1_ppi_service_formats_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -521,6 +533,7 @@ class PpiApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -528,6 +541,7 @@ class PpiApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -548,22 +562,25 @@ class PpiApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def import_dataset_api_v1_ppi_service_import_post(
-            self,
-            import_dataset_request: ImportDatasetRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        import_dataset_request: ImportDatasetRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ImportDatasetResponse:
         """Import Dataset
 
@@ -590,7 +607,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._import_dataset_api_v1_ppi_service_import_post_serialize(
             import_dataset_request=import_dataset_request,
@@ -616,22 +633,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def import_dataset_api_v1_ppi_service_import_post_with_http_info(
-            self,
-            import_dataset_request: ImportDatasetRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        import_dataset_request: ImportDatasetRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ImportDatasetResponse]:
         """Import Dataset
 
@@ -658,7 +676,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._import_dataset_api_v1_ppi_service_import_post_serialize(
             import_dataset_request=import_dataset_request,
@@ -684,22 +702,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def import_dataset_api_v1_ppi_service_import_post_without_preload_content(
-            self,
-            import_dataset_request: ImportDatasetRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        import_dataset_request: ImportDatasetRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Import Dataset
 
@@ -726,7 +745,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._import_dataset_api_v1_ppi_service_import_post_serialize(
             import_dataset_request=import_dataset_request,
@@ -748,13 +767,14 @@ class PpiApi:
         )
         return response_data.response
 
+
     def _import_dataset_api_v1_ppi_service_import_post_serialize(
-            self,
-            import_dataset_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        import_dataset_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -778,6 +798,7 @@ class PpiApi:
         # process the body parameter
         if import_dataset_request is not None:
             _body_params = import_dataset_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -820,22 +841,25 @@ class PpiApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def run_test_api_v1_ppi_service_dataset_tests_run_test_post(
-            self,
-            run_test_request: RunTestRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        run_test_request: RunTestRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RunTestResponse:
         """Run Test
 
@@ -862,7 +886,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._run_test_api_v1_ppi_service_dataset_tests_run_test_post_serialize(
             run_test_request=run_test_request,
@@ -888,22 +912,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def run_test_api_v1_ppi_service_dataset_tests_run_test_post_with_http_info(
-            self,
-            run_test_request: RunTestRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        run_test_request: RunTestRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[RunTestResponse]:
         """Run Test
 
@@ -930,7 +955,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._run_test_api_v1_ppi_service_dataset_tests_run_test_post_serialize(
             run_test_request=run_test_request,
@@ -956,22 +981,23 @@ class PpiApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def run_test_api_v1_ppi_service_dataset_tests_run_test_post_without_preload_content(
-            self,
-            run_test_request: RunTestRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        run_test_request: RunTestRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Run Test
 
@@ -998,7 +1024,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._run_test_api_v1_ppi_service_dataset_tests_run_test_post_serialize(
             run_test_request=run_test_request,
@@ -1020,13 +1046,14 @@ class PpiApi:
         )
         return response_data.response
 
+
     def _run_test_api_v1_ppi_service_dataset_tests_run_test_post_serialize(
-            self,
-            run_test_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        run_test_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1050,6 +1077,7 @@ class PpiApi:
         # process the body parameter
         if run_test_request is not None:
             _body_params = run_test_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -1092,21 +1120,24 @@ class PpiApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def tests_api_v1_ppi_service_dataset_tests_tests_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> object:
         """Tests
 
@@ -1131,7 +1162,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._tests_api_v1_ppi_service_dataset_tests_tests_get_serialize(
             _request_auth=_request_auth,
@@ -1154,21 +1185,22 @@ class PpiApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def tests_api_v1_ppi_service_dataset_tests_tests_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[object]:
         """Tests
 
@@ -1193,7 +1225,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._tests_api_v1_ppi_service_dataset_tests_tests_get_serialize(
             _request_auth=_request_auth,
@@ -1216,21 +1248,22 @@ class PpiApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def tests_api_v1_ppi_service_dataset_tests_tests_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Tests
 
@@ -1255,7 +1288,7 @@ class PpiApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._tests_api_v1_ppi_service_dataset_tests_tests_get_serialize(
             _request_auth=_request_auth,
@@ -1274,12 +1307,13 @@ class PpiApi:
         )
         return response_data.response
 
+
     def _tests_api_v1_ppi_service_dataset_tests_tests_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1302,6 +1336,7 @@ class PpiApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -1309,6 +1344,7 @@ class PpiApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -1328,3 +1364,5 @@ class PpiApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

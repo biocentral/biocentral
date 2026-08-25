@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,11 +24,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ResearchStats(BaseModel):
     """
     ResearchStats
-    """  # noqa: E501
+    """ # noqa: E501
     total_sequences_today: StrictInt = Field(description="Total number of sequences uploaded in the last 24 hours")
     total_sequences_all_time: StrictInt = Field(description="Total number of sequences uploaded in all time")
     avg_sequence_length: Union[StrictFloat, StrictInt] = Field(description="Average length of sequences uploaded")
@@ -35,8 +35,7 @@ class ResearchStats(BaseModel):
     top_embedders: Dict[str, Union[StrictFloat, StrictInt]] = Field(description="Top embedders based on usage")
     top_predictors: Dict[str, Union[StrictFloat, StrictInt]] = Field(description="Top prediction models based on usage")
     updated_at: datetime = Field(description="Timestamp of the last update")
-    __properties: ClassVar[List[str]] = ["total_sequences_today", "total_sequences_all_time", "avg_sequence_length",
-                                         "aa_distribution", "top_embedders", "top_predictors", "updated_at"]
+    __properties: ClassVar[List[str]] = ["total_sequences_today", "total_sequences_all_time", "avg_sequence_length", "aa_distribution", "top_embedders", "top_predictors", "updated_at"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -44,6 +43,7 @@ class ResearchStats(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -97,3 +97,5 @@ class ResearchStats(BaseModel):
             "updated_at": obj.get("updated_at")
         })
         return _obj
+
+

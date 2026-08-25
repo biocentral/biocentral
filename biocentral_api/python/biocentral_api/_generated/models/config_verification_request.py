@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ConfigVerificationRequest(BaseModel):
     """
     Request model for config verification
-    """  # noqa: E501
+    """ # noqa: E501
     config_dict: Dict[str, Any] = Field(description="Biotrainer configuration")
     __properties: ClassVar[List[str]] = ["config_dict"]
 
@@ -36,6 +36,7 @@ class ConfigVerificationRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -83,3 +84,5 @@ class ConfigVerificationRequest(BaseModel):
             "config_dict": obj.get("config_dict")
         })
         return _obj
+
+

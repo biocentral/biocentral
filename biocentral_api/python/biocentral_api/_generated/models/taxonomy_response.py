@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,11 +24,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class TaxonomyResponse(BaseModel):
     """
     TaxonomyResponse
-    """  # noqa: E501
+    """ # noqa: E501
     taxonomy: List[TaxonomyItem] = Field(description="List of taxonomy lookup results")
     __properties: ClassVar[List[str]] = ["taxonomy"]
 
@@ -37,6 +37,7 @@ class TaxonomyResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -88,7 +89,8 @@ class TaxonomyResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "taxonomy": [TaxonomyItem.from_dict(_item) for _item in obj["taxonomy"]] if obj.get(
-                "taxonomy") is not None else None
+            "taxonomy": [TaxonomyItem.from_dict(_item) for _item in obj["taxonomy"]] if obj.get("taxonomy") is not None else None
         })
         return _obj
+
+

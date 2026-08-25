@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,17 +24,13 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ActiveLearningConvergenceConfig(BaseModel):
     """
     Configuration for convergence criteria for active learning campaigns
-    """  # noqa: E501
-    max_labels_budget: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None,
-                                                                                  description="Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')")
-    n_hits: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None,
-                                                                       description="Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')")
-    max_consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None,
-                                                                                         description="Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')")
+    """ # noqa: E501
+    max_labels_budget: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')")
+    n_hits: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')")
+    max_consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')")
     __properties: ClassVar[List[str]] = ["max_labels_budget", "n_hits", "max_consecutive_failures"]
 
     model_config = ConfigDict(
@@ -42,6 +39,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -106,3 +104,5 @@ class ActiveLearningConvergenceConfig(BaseModel):
             "max_consecutive_failures": obj.get("max_consecutive_failures")
         })
         return _obj
+
+

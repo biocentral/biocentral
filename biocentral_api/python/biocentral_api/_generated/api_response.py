@@ -6,7 +6,6 @@ from pydantic import Field, StrictInt, StrictBytes, BaseModel
 
 T = TypeVar("T")
 
-
 class ApiResponse(BaseModel, Generic[T]):
     """
     API response object

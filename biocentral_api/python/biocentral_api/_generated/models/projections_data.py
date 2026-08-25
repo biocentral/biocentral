@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ProjectionsData(BaseModel):
     """
     ProjectionsData
-    """  # noqa: E501
+    """ # noqa: E501
     projection_name: List[StrictStr]
     identifier: List[StrictStr]
     x: List[Union[StrictFloat, StrictInt]]
@@ -40,6 +40,7 @@ class ProjectionsData(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -91,3 +92,5 @@ class ProjectionsData(BaseModel):
             "z": obj.get("z")
         })
         return _obj
+
+

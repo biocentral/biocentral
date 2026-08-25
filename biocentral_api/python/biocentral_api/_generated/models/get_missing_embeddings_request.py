@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class GetMissingEmbeddingsRequest(BaseModel):
     """
     Request model for checking missing embeddings
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     sequences: StrictStr = Field(description="JSON string containing sequence data")
     reduced: StrictBool = Field(description="Whether to check for reduced embeddings")
@@ -38,6 +38,7 @@ class GetMissingEmbeddingsRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -87,3 +88,5 @@ class GetMissingEmbeddingsRequest(BaseModel):
             "reduced": obj.get("reduced")
         })
         return _obj
+
+

@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,32 +24,24 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class TrainingResult(BaseModel):
     """
     Training results for each cross-validation split. 
-    """  # noqa: E501
+    """ # noqa: E501
     n_training_ids: Optional[StrictInt] = Field(default=None, description="Number of sequences in the training set")
     n_validation_ids: Optional[StrictInt] = Field(default=None, description="Number of sequences in the validation set")
     training_ids: Optional[List[StrictStr]] = Field(default=None, description="List of IDs in the training set")
     validation_ids: Optional[List[StrictStr]] = Field(default=None, description="List of IDs in the validation set")
-    split_hyper_params: Optional[Dict[str, Any]] = Field(default=None,
-                                                         description="Hyperparameters used for this split")
+    split_hyper_params: Optional[Dict[str, Any]] = Field(default=None, description="Hyperparameters used for this split")
     n_free_parameters: Optional[StrictInt] = Field(default=None, description="Number of free parameters in the model")
     start_time: Optional[StrictStr] = Field(default=None, description="Start time of the training process")
     end_time: Optional[StrictStr] = Field(default=None, description="End time of the training process")
-    elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                  description="Elapsed time in seconds for training")
-    training_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None,
-                                                                           description="Training losses for each epoch")
-    validation_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None,
-                                                                             description="Validation losses for each epoch")
+    elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Elapsed time in seconds for training")
+    training_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Training losses for each epoch")
+    validation_losses: Optional[List[Union[StrictFloat, StrictInt]]] = Field(default=None, description="Validation losses for each epoch")
     best_epoch_metrics: Optional[EpochMetrics] = Field(default=None, description="Best training epoch metrics")
     sanity_check_warnings: Optional[List[StrictStr]] = Field(default=None, description="Warnings from sanity checks")
-    __properties: ClassVar[List[str]] = ["n_training_ids", "n_validation_ids", "training_ids", "validation_ids",
-                                         "split_hyper_params", "n_free_parameters", "start_time", "end_time",
-                                         "elapsed_time", "training_losses", "validation_losses", "best_epoch_metrics",
-                                         "sanity_check_warnings"]
+    __properties: ClassVar[List[str]] = ["n_training_ids", "n_validation_ids", "training_ids", "validation_ids", "split_hyper_params", "n_free_parameters", "start_time", "end_time", "elapsed_time", "training_losses", "validation_losses", "best_epoch_metrics", "sanity_check_warnings"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -56,6 +49,7 @@ class TrainingResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -169,8 +163,9 @@ class TrainingResult(BaseModel):
             "elapsed_time": obj.get("elapsed_time"),
             "training_losses": obj.get("training_losses"),
             "validation_losses": obj.get("validation_losses"),
-            "best_epoch_metrics": EpochMetrics.from_dict(obj["best_epoch_metrics"]) if obj.get(
-                "best_epoch_metrics") is not None else None,
+            "best_epoch_metrics": EpochMetrics.from_dict(obj["best_epoch_metrics"]) if obj.get("best_epoch_metrics") is not None else None,
             "sanity_check_warnings": obj.get("sanity_check_warnings")
         })
         return _obj
+
+

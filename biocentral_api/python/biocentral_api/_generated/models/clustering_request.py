@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,16 +24,12 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ClusteringRequest(BaseModel):
     """
     ClusteringRequest
-    """  # noqa: E501
-    sequence_data: Dict[str, StrictStr] = Field(
-        description="Dictionary mapping sequence IDs to their amino acid sequence strings")
-    sequence_identity_threshold: Optional[Union[
-        Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(
-        default=0.3, description="Sequence identity threshold for clustering (between 0.0 and 1.0)")
+    """ # noqa: E501
+    sequence_data: Dict[str, StrictStr] = Field(description="Dictionary mapping sequence IDs to their amino acid sequence strings")
+    sequence_identity_threshold: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = Field(default=0.3, description="Sequence identity threshold for clustering (between 0.0 and 1.0)")
     __properties: ClassVar[List[str]] = ["sequence_data", "sequence_identity_threshold"]
 
     model_config = ConfigDict(
@@ -41,6 +38,7 @@ class ClusteringRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -86,7 +84,8 @@ class ClusteringRequest(BaseModel):
 
         _obj = cls.model_validate({
             "sequence_data": obj.get("sequence_data"),
-            "sequence_identity_threshold": obj.get("sequence_identity_threshold") if obj.get(
-                "sequence_identity_threshold") is not None else 0.3
+            "sequence_identity_threshold": obj.get("sequence_identity_threshold") if obj.get("sequence_identity_threshold") is not None else 0.3
         })
         return _obj
+
+

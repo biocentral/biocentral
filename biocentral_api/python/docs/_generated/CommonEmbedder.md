@@ -12,7 +12,7 @@ Common embedder model names
 
 * `ESM2_650M` (value: `'facebook/esm2_t33_650M_UR50D'`)
 
-* `ESM_8M` (value: `'facebook/esm2_t6_8M_UR50D'`)
+* `ESM2_8M` (value: `'facebook/esm2_t6_8M_UR50D'`)
 
 * `ONE_HOT_ENCODING` (value: `'one_hot_encoding'`)
 

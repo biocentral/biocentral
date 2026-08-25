@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,13 +23,11 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ConfigVerificationResponse(BaseModel):
     """
     Response model for config verification
-    """  # noqa: E501
-    error: Optional[StrictStr] = Field(default='',
-                                       description="Empty string if verification successful, error message otherwise")
+    """ # noqa: E501
+    error: Optional[StrictStr] = Field(default='', description="Empty string if verification successful, error message otherwise")
     __properties: ClassVar[List[str]] = ["error"]
 
     model_config = ConfigDict(
@@ -37,6 +36,7 @@ class ConfigVerificationResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -84,3 +84,5 @@ class ConfigVerificationResponse(BaseModel):
             "error": obj.get("error") if obj.get("error") is not None else ''
         })
         return _obj
+
+

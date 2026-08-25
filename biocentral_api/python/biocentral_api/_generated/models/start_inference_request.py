@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class StartInferenceRequest(BaseModel):
     """
     Request model for starting inference
-    """  # noqa: E501
+    """ # noqa: E501
     model_hash: StrictStr = Field(description="Hash identifier for the trained model to use for inference")
     sequence_data: Dict[str, StrictStr] = Field(description="Sequence data for inference (seq_id -> sequence)")
     __properties: ClassVar[List[str]] = ["model_hash", "sequence_data"]
@@ -37,6 +37,7 @@ class StartInferenceRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -85,3 +86,5 @@ class StartInferenceRequest(BaseModel):
             "sequence_data": obj.get("sequence_data")
         })
         return _obj
+
+

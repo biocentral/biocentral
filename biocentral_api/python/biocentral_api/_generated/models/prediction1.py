@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 from inspect import getfullargspec
 import json
@@ -23,7 +24,6 @@ from typing_extensions import Literal, Self
 from pydantic import Field
 
 PREDICTION1_ANY_OF_SCHEMAS = ["List[object]", "float", "str"]
-
 
 class Prediction1(BaseModel):
     """
@@ -40,7 +40,7 @@ class Prediction1(BaseModel):
         actual_instance: Optional[Union[List[object], float, str]] = None
     else:
         actual_instance: Any = None
-    any_of_schemas: Set[str] = {"List[object]", "float", "str"}
+    any_of_schemas: Set[str] = { "List[object]", "float", "str" }
 
     model_config = {
         "validate_assignment": True,
@@ -81,9 +81,7 @@ class Prediction1(BaseModel):
             error_messages.append(str(e))
         if error_messages:
             # no match
-            raise ValueError(
-                "No match found when setting the actual_instance in Prediction1 with anyOf schemas: List[object], float, str. Details: " + ", ".join(
-                    error_messages))
+            raise ValueError("No match found when setting the actual_instance in Prediction1 with anyOf schemas: List[object], float, str. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -126,9 +124,7 @@ class Prediction1(BaseModel):
 
         if error_messages:
             # no match
-            raise ValueError(
-                "No match found when deserializing the JSON string into Prediction1 with anyOf schemas: List[object], float, str. Details: " + ", ".join(
-                    error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Prediction1 with anyOf schemas: List[object], float, str. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -155,3 +151,5 @@ class Prediction1(BaseModel):
     def to_str(self) -> str:
         """Returns the string representation of the actual instance"""
         return pprint.pformat(self.model_dump())
+
+

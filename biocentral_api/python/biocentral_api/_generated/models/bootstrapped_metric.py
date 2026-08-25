@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class BootstrappedMetric(BaseModel):
     """
     BootstrappedMetric
-    """  # noqa: E501
+    """ # noqa: E501
     name: StrictStr = Field(description="Name of the metric")
     mean: Union[StrictFloat, StrictInt] = Field(description="Mean of the metric values")
     lower: Union[StrictFloat, StrictInt] = Field(description="Lower bound of the metric values")
@@ -34,8 +34,7 @@ class BootstrappedMetric(BaseModel):
     iterations: StrictInt = Field(description="Number of iterations used for bootstrapping")
     sample_size: StrictInt = Field(description="Sample size used for bootstrapping")
     confidence_level: Union[StrictFloat, StrictInt] = Field(description="Confidence level used for bootstrapping")
-    __properties: ClassVar[List[str]] = ["name", "mean", "lower", "upper", "iterations", "sample_size",
-                                         "confidence_level"]
+    __properties: ClassVar[List[str]] = ["name", "mean", "lower", "upper", "iterations", "sample_size", "confidence_level"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -43,6 +42,7 @@ class BootstrappedMetric(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -96,3 +96,5 @@ class BootstrappedMetric(BaseModel):
             "confidence_level": obj.get("confidence_level")
         })
         return _obj
+
+

@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,11 +24,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ResearchStatsResponse(BaseModel):
     """
     ResearchStatsResponse
-    """  # noqa: E501
+    """ # noqa: E501
     research_stats: ResearchStats = Field(description="Research statistics")
     __properties: ClassVar[List[str]] = ["research_stats"]
 
@@ -37,6 +37,7 @@ class ResearchStatsResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -84,7 +85,8 @@ class ResearchStatsResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "research_stats": ResearchStats.from_dict(obj["research_stats"]) if obj.get(
-                "research_stats") is not None else None
+            "research_stats": ResearchStats.from_dict(obj["research_stats"]) if obj.get("research_stats") is not None else None
         })
         return _obj
+
+

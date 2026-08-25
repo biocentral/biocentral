@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class OutputClass(BaseModel):
     """
     OutputClass
-    """  # noqa: E501
+    """ # noqa: E501
     shortcut: StrictStr = Field(description="Shortcut of the label")
     label: StrictStr = Field(description="Label of the class")
     description: StrictStr = Field(description="Description of the class")
@@ -38,6 +38,7 @@ class OutputClass(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -87,3 +88,5 @@ class OutputClass(BaseModel):
             "description": obj.get("description")
         })
         return _obj
+
+

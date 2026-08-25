@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class EmbedRequest(BaseModel):
     """
     EmbedRequest
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     reduce: Optional[StrictBool] = Field(default=False, description="Whether to use dimensionality reduction")
     sequence_data: Dict[str, StrictStr] = Field(description="Sequence data to embed (seq_id -> sequence)")
@@ -39,6 +39,7 @@ class EmbedRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -89,3 +90,5 @@ class EmbedRequest(BaseModel):
             "use_half_precision": obj.get("use_half_precision") if obj.get("use_half_precision") is not None else False
         })
         return _obj
+
+

@@ -10,7 +10,7 @@ const CommonEmbedder _$ProtT5 = const CommonEmbedder._('ProtT5');
 const CommonEmbedder _$ProstT5 = const CommonEmbedder._('ProstT5');
 const CommonEmbedder _$ESM2_3B = const CommonEmbedder._('ESM2_3B');
 const CommonEmbedder _$ESM2_650M = const CommonEmbedder._('ESM2_650M');
-const CommonEmbedder _$ESM_8M = const CommonEmbedder._('ESM_8M');
+const CommonEmbedder _$ESM2_8M = const CommonEmbedder._('ESM2_8M');
 const CommonEmbedder _$ONE_HOT_ENCODING =
     const CommonEmbedder._('ONE_HOT_ENCODING');
 const CommonEmbedder _$RANDOM_EMBEDDER =
@@ -30,8 +30,8 @@ CommonEmbedder _$valueOf(String name) {
       return _$ESM2_3B;
     case 'ESM2_650M':
       return _$ESM2_650M;
-    case 'ESM_8M':
-      return _$ESM_8M;
+    case 'ESM2_8M':
+      return _$ESM2_8M;
     case 'ONE_HOT_ENCODING':
       return _$ONE_HOT_ENCODING;
     case 'RANDOM_EMBEDDER':
@@ -53,7 +53,7 @@ final BuiltSet<CommonEmbedder> _$values =
   _$ProstT5,
   _$ESM2_3B,
   _$ESM2_650M,
-  _$ESM_8M,
+  _$ESM2_8M,
   _$ONE_HOT_ENCODING,
   _$RANDOM_EMBEDDER,
   _$AAOntology,
@@ -67,7 +67,7 @@ class _$CommonEmbedderMeta {
   CommonEmbedder get ProstT5 => _$ProstT5;
   CommonEmbedder get ESM2_3B => _$ESM2_3B;
   CommonEmbedder get ESM2_650M => _$ESM2_650M;
-  CommonEmbedder get ESM_8M => _$ESM_8M;
+  CommonEmbedder get ESM2_8M => _$ESM2_8M;
   CommonEmbedder get ONE_HOT_ENCODING => _$ONE_HOT_ENCODING;
   CommonEmbedder get RANDOM_EMBEDDER => _$RANDOM_EMBEDDER;
   CommonEmbedder get AAOntology => _$AAOntology;
@@ -92,7 +92,7 @@ class _$CommonEmbedderSerializer
     'ProstT5': 'Rostlab/ProstT5',
     'ESM2_3B': 'facebook/esm2_t36_3B_UR50D',
     'ESM2_650M': 'facebook/esm2_t33_650M_UR50D',
-    'ESM_8M': 'facebook/esm2_t6_8M_UR50D',
+    'ESM2_8M': 'facebook/esm2_t6_8M_UR50D',
     'ONE_HOT_ENCODING': 'one_hot_encoding',
     'RANDOM_EMBEDDER': 'random_embedder',
     'AAOntology': 'AAOntology',
@@ -104,7 +104,7 @@ class _$CommonEmbedderSerializer
     'Rostlab/ProstT5': 'ProstT5',
     'facebook/esm2_t36_3B_UR50D': 'ESM2_3B',
     'facebook/esm2_t33_650M_UR50D': 'ESM2_650M',
-    'facebook/esm2_t6_8M_UR50D': 'ESM_8M',
+    'facebook/esm2_t6_8M_UR50D': 'ESM2_8M',
     'one_hot_encoding': 'ONE_HOT_ENCODING',
     'random_embedder': 'RANDOM_EMBEDDER',
     'AAOntology': 'AAOntology',

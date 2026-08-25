@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,14 +25,12 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-
 class StartTrainingRequest(BaseModel):
     """
     StartTrainingRequest
-    """  # noqa: E501
+    """ # noqa: E501
     config_dict: Dict[str, Any] = Field(description="Biotrainer configuration")
-    training_data: Annotated[List[SequenceData], Field(min_length=1)] = Field(
-        description="List of sequence training data")
+    training_data: Annotated[List[SequenceData], Field(min_length=1)] = Field(description="List of sequence training data")
     __properties: ClassVar[List[str]] = ["config_dict", "training_data"]
 
     model_config = ConfigDict(
@@ -40,6 +39,7 @@ class StartTrainingRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -92,7 +92,8 @@ class StartTrainingRequest(BaseModel):
 
         _obj = cls.model_validate({
             "config_dict": obj.get("config_dict"),
-            "training_data": [SequenceData.from_dict(_item) for _item in obj["training_data"]] if obj.get(
-                "training_data") is not None else None
+            "training_data": [SequenceData.from_dict(_item) for _item in obj["training_data"]] if obj.get("training_data") is not None else None
         })
         return _obj
+
+

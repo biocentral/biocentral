@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class BiocentralServiceStats(BaseModel):
     """
     BiocentralServiceStats
-    """  # noqa: E501
+    """ # noqa: E501
     usable_cpu_count: StrictInt = Field(description="Number of usable CPU cores available to the process")
     embeddings_database_size: StrictInt = Field(description="Current size of the embeddings database in bytes")
     total_tasks: StrictInt = Field(description="Total number of tasks submitted since server startup")
@@ -35,8 +35,7 @@ class BiocentralServiceStats(BaseModel):
     cuda_available: StrictBool = Field(description="Whether CUDA GPU acceleration is available")
     cuda_device_names: List[StrictStr] = Field(description="List of names of available CUDA devices")
     cuda_device_count: StrictInt = Field(description="Number of available CUDA devices")
-    __properties: ClassVar[List[str]] = ["usable_cpu_count", "embeddings_database_size", "total_tasks", "running_tasks",
-                                         "queue_length", "cuda_available", "cuda_device_names", "cuda_device_count"]
+    __properties: ClassVar[List[str]] = ["usable_cpu_count", "embeddings_database_size", "total_tasks", "running_tasks", "queue_length", "cuda_available", "cuda_device_names", "cuda_device_count"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -44,6 +43,7 @@ class BiocentralServiceStats(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -98,3 +98,5 @@ class BiocentralServiceStats(BaseModel):
             "cuda_device_count": obj.get("cuda_device_count")
         })
         return _obj
+
+

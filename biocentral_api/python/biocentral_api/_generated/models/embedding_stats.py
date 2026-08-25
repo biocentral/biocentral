@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class EmbeddingStats(BaseModel):
     """
     EmbeddingStats
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr
     dims: StrictInt
     n_tracked: StrictInt
@@ -40,6 +40,7 @@ class EmbeddingStats(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -91,3 +92,5 @@ class EmbeddingStats(BaseModel):
             "max": obj.get("max")
         })
         return _obj
+
+

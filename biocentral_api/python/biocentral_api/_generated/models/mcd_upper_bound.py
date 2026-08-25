@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 from inspect import getfullargspec
 import json
@@ -23,7 +24,6 @@ from typing_extensions import Literal, Self
 from pydantic import Field
 
 MCDUPPERBOUND_ANY_OF_SCHEMAS = ["List[float]", "float"]
-
 
 class McdUpperBound(BaseModel):
     """
@@ -38,7 +38,7 @@ class McdUpperBound(BaseModel):
         actual_instance: Optional[Union[List[float], float]] = None
     else:
         actual_instance: Any = None
-    any_of_schemas: Set[str] = {"List[float]", "float"}
+    any_of_schemas: Set[str] = { "List[float]", "float" }
 
     model_config = {
         "validate_assignment": True,
@@ -76,9 +76,7 @@ class McdUpperBound(BaseModel):
             error_messages.append(str(e))
         if error_messages:
             # no match
-            raise ValueError(
-                "No match found when setting the actual_instance in McdUpperBound with anyOf schemas: List[float], float. Details: " + ", ".join(
-                    error_messages))
+            raise ValueError("No match found when setting the actual_instance in McdUpperBound with anyOf schemas: List[float], float. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -115,9 +113,7 @@ class McdUpperBound(BaseModel):
 
         if error_messages:
             # no match
-            raise ValueError(
-                "No match found when deserializing the JSON string into McdUpperBound with anyOf schemas: List[float], float. Details: " + ", ".join(
-                    error_messages))
+            raise ValueError("No match found when deserializing the JSON string into McdUpperBound with anyOf schemas: List[float], float. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -144,3 +140,5 @@ class McdUpperBound(BaseModel):
     def to_str(self) -> str:
         """Returns the string representation of the actual instance"""
         return pprint.pformat(self.model_dump())
+
+

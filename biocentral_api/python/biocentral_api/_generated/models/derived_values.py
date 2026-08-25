@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,35 +24,25 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class DerivedValues(BaseModel):
     """
     Derived values calculated during the training process. 
-    """  # noqa: E501
+    """ # noqa: E501
     biotrainer_version: Optional[StrictStr] = Field(default=None, description="Version of BioTrainer used for training")
-    class_int2str: Optional[Dict[str, StrictStr]] = Field(default=None,
-                                                          description="Mapping of class integers to class names")
-    class_str2int: Optional[Dict[str, StrictInt]] = Field(default=None,
-                                                          description="Mapping of class names to class integers")
-    computed_class_weights: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None,
-                                                                                       description="Class weights computed during training")
+    class_int2str: Optional[Dict[str, StrictStr]] = Field(default=None, description="Mapping of class integers to class names")
+    class_str2int: Optional[Dict[str, StrictInt]] = Field(default=None, description="Mapping of class names to class integers")
+    computed_class_weights: Optional[Dict[str, Union[StrictFloat, StrictInt]]] = Field(default=None, description="Class weights computed during training")
     embedding_stats: Optional[EmbeddingStats] = Field(default=None, description="Statistics of the embeddings")
     embeddings_file: Optional[StrictStr] = Field(default=None, description="Path to the embeddings file")
     model_hash: Optional[StrictStr] = Field(default=None, description="Hash of the model")
     n_classes: Optional[StrictInt] = Field(default=None, description="Number of classes in the dataset")
-    n_features: Optional[StrictInt] = Field(default=None,
-                                            description="Number of input features (e.g. embedding dimensions)")
+    n_features: Optional[StrictInt] = Field(default=None, description="Number of input features (e.g. embedding dimensions)")
     n_testing_ids: Optional[StrictInt] = Field(default=None, description="Number of sequences in the test set")
-    pipeline_elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                           description="Elapsed time in seconds for the pipeline")
+    pipeline_elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Elapsed time in seconds for the pipeline")
     pipeline_end_time: Optional[StrictStr] = Field(default=None, description="End time of the pipeline")
     pipeline_start_time: Optional[StrictStr] = Field(default=None, description="Start time of the pipeline")
-    training_elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                           description="Elapsed time in seconds for training")
-    __properties: ClassVar[List[str]] = ["biotrainer_version", "class_int2str", "class_str2int",
-                                         "computed_class_weights", "embedding_stats", "embeddings_file", "model_hash",
-                                         "n_classes", "n_features", "n_testing_ids", "pipeline_elapsed_time",
-                                         "pipeline_end_time", "pipeline_start_time", "training_elapsed_time"]
+    training_elapsed_time: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Elapsed time in seconds for training")
+    __properties: ClassVar[List[str]] = ["biotrainer_version", "class_int2str", "class_str2int", "computed_class_weights", "embedding_stats", "embeddings_file", "model_hash", "n_classes", "n_features", "n_testing_ids", "pipeline_elapsed_time", "pipeline_end_time", "pipeline_start_time", "training_elapsed_time"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -59,6 +50,7 @@ class DerivedValues(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -180,8 +172,7 @@ class DerivedValues(BaseModel):
             "class_int2str": obj.get("class_int2str"),
             "class_str2int": obj.get("class_str2int"),
             "computed_class_weights": obj.get("computed_class_weights"),
-            "embedding_stats": EmbeddingStats.from_dict(obj["embedding_stats"]) if obj.get(
-                "embedding_stats") is not None else None,
+            "embedding_stats": EmbeddingStats.from_dict(obj["embedding_stats"]) if obj.get("embedding_stats") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
             "model_hash": obj.get("model_hash"),
             "n_classes": obj.get("n_classes"),
@@ -193,3 +184,5 @@ class DerivedValues(BaseModel):
             "training_elapsed_time": obj.get("training_elapsed_time")
         })
         return _obj
+
+

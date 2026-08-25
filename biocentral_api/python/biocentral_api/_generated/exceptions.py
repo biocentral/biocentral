@@ -9,9 +9,9 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from typing import Any, Optional
 from typing_extensions import Self
-
 
 class OpenApiException(Exception):
     """The base exception class for all OpenAPIExceptions"""
@@ -103,13 +103,13 @@ class ApiKeyError(OpenApiException, KeyError):
 class ApiException(OpenApiException):
 
     def __init__(
-            self,
-            status=None,
-            reason=None,
-            http_resp=None,
-            *,
-            body: Optional[str] = None,
-            data: Optional[Any] = None,
+        self, 
+        status=None, 
+        reason=None, 
+        http_resp=None,
+        *,
+        body: Optional[str] = None,
+        data: Optional[Any] = None,
     ) -> None:
         self.status = status
         self.reason = reason
@@ -131,11 +131,11 @@ class ApiException(OpenApiException):
 
     @classmethod
     def from_response(
-            cls,
-            *,
-            http_resp,
-            body: Optional[str],
-            data: Optional[Any],
+        cls, 
+        *, 
+        http_resp, 
+        body: Optional[str], 
+        data: Optional[Any],
     ) -> Self:
         if http_resp.status == 400:
             raise BadRequestException(http_resp=http_resp, body=body, data=data)
@@ -162,7 +162,7 @@ class ApiException(OpenApiException):
 
     def __str__(self):
         """Custom error messages for exception"""
-        error_message = "({0})\n" \
+        error_message = "({0})\n"\
                         "Reason: {1}\n".format(self.status, self.reason)
         if self.headers:
             error_message += "HTTP response headers: {0}\n".format(

@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,11 +25,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ModelMetadataResponse(BaseModel):
     """
     ModelMetadataResponse
-    """  # noqa: E501
+    """ # noqa: E501
     metadata: Annotated[List[ModelMetadata], Field(min_length=1)] = Field(description="List of model metadata")
     __properties: ClassVar[List[str]] = ["metadata"]
 
@@ -38,6 +38,7 @@ class ModelMetadataResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -89,7 +90,8 @@ class ModelMetadataResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "metadata": [ModelMetadata.from_dict(_item) for _item in obj["metadata"]] if obj.get(
-                "metadata") is not None else None
+            "metadata": [ModelMetadata.from_dict(_item) for _item in obj["metadata"]] if obj.get("metadata") is not None else None
         })
         return _obj
+
+

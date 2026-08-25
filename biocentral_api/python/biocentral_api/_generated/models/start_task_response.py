@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class StartTaskResponse(BaseModel):
     """
     Response model for job submission
-    """  # noqa: E501
+    """ # noqa: E501
     task_id: StrictStr = Field(description="Unique task identifier for tracking the computation job")
     __properties: ClassVar[List[str]] = ["task_id"]
 
@@ -36,6 +36,7 @@ class StartTaskResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -83,3 +84,5 @@ class StartTaskResponse(BaseModel):
             "task_id": obj.get("task_id")
         })
         return _obj
+
+

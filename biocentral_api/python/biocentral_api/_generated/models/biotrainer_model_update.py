@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,14 +25,12 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class BiotrainerModelUpdate(BaseModel):
     """
     BiotrainerModelUpdate
-    """  # noqa: E501
+    """ # noqa: E501
     current_model_result: BiotrainerModelResult = Field(description="Current model result")
-    training_iteration: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = Field(default=None,
-                                                                                                  description="Current training iteration for fast updates of observers like tensorboard")
+    training_iteration: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = Field(default=None, description="Current training iteration for fast updates of observers like tensorboard")
     __properties: ClassVar[List[str]] = ["current_model_result", "training_iteration"]
 
     model_config = ConfigDict(
@@ -40,6 +39,7 @@ class BiotrainerModelUpdate(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -92,8 +92,9 @@ class BiotrainerModelUpdate(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "current_model_result": BiotrainerModelResult.from_dict(obj["current_model_result"]) if obj.get(
-                "current_model_result") is not None else None,
+            "current_model_result": BiotrainerModelResult.from_dict(obj["current_model_result"]) if obj.get("current_model_result") is not None else None,
             "training_iteration": obj.get("training_iteration")
         })
         return _obj
+
+

@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -25,22 +26,16 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-
 class ActiveLearningScreeningSimulationConfig(BaseModel):
     """
     Configuration for a simulation of active learning on a complete dataset
-    """  # noqa: E501
-    simulation_data: Annotated[List[SequenceData], Field(min_length=3)] = Field(
-        description="List of all sequence data for the simulation")
-    n_start: Optional[Annotated[int, Field(strict=True, ge=2)]] = Field(default=None,
-                                                                        description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)")
-    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=2)]] = Field(default=None,
-                                                                                 description="List of sequence IDs to start the simulated campaign")
-    n_suggestions_per_iteration: Annotated[int, Field(strict=True, ge=1)] = Field(
-        description="Number of suggestions to propose per iteration")
+    """ # noqa: E501
+    simulation_data: Annotated[List[SequenceData], Field(min_length=3)] = Field(description="List of all sequence data for the simulation")
+    n_start: Optional[Annotated[int, Field(strict=True, ge=2)]] = Field(default=None, description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)")
+    start_ids: Optional[Annotated[List[StrictStr], Field(min_length=2)]] = Field(default=None, description="List of sequence IDs to start the simulated campaign")
+    n_suggestions_per_iteration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose per iteration")
     convergence_config: ActiveLearningConvergenceConfig = Field(description="Convergence criteria for the simulation")
-    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration",
-                                         "convergence_config"]
+    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "convergence_config"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -48,6 +43,7 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -112,12 +108,12 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "simulation_data": [SequenceData.from_dict(_item) for _item in obj["simulation_data"]] if obj.get(
-                "simulation_data") is not None else None,
+            "simulation_data": [SequenceData.from_dict(_item) for _item in obj["simulation_data"]] if obj.get("simulation_data") is not None else None,
             "n_start": obj.get("n_start"),
             "start_ids": obj.get("start_ids"),
             "n_suggestions_per_iteration": obj.get("n_suggestions_per_iteration"),
-            "convergence_config": ActiveLearningConvergenceConfig.from_dict(obj["convergence_config"]) if obj.get(
-                "convergence_config") is not None else None
+            "convergence_config": ActiveLearningConvergenceConfig.from_dict(obj["convergence_config"]) if obj.get("convergence_config") is not None else None
         })
         return _obj
+
+

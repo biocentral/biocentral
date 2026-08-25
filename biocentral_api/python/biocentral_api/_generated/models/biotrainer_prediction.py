@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -28,17 +29,14 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class BiotrainerPrediction(BaseModel):
     """
     BiotrainerPrediction
-    """  # noqa: E501
+    """ # noqa: E501
     seq_id: StrictStr = Field(description="Sequence identifier")
     prediction: Prediction1
-    is_aggregated: Optional[StrictBool] = Field(default=False,
-                                                description="Whether the prediction is an aggregated per-residue prediction")
-    residue_index: Optional[StrictInt] = Field(default=None,
-                                               description="Residue index for non-collapsed per-residue predictions")
+    is_aggregated: Optional[StrictBool] = Field(default=False, description="Whether the prediction is an aggregated per-residue prediction")
+    residue_index: Optional[StrictInt] = Field(default=None, description="Residue index for non-collapsed per-residue predictions")
     raw_prediction: Optional[RawPrediction] = None
     mcd_predictions: Optional[List[Any]] = Field(default=None, description="All Monte-Carlo-Dropout predictions")
     mcd_mean: Optional[McdMean] = None
@@ -46,9 +44,7 @@ class BiotrainerPrediction(BaseModel):
     mcd_lower_bound: Optional[McdLowerBound] = None
     mcd_upper_bound: Optional[McdUpperBound] = None
     bald_score: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="BALD score")
-    __properties: ClassVar[List[str]] = ["seq_id", "prediction", "is_aggregated", "residue_index", "raw_prediction",
-                                         "mcd_predictions", "mcd_mean", "mcd_std", "mcd_lower_bound", "mcd_upper_bound",
-                                         "bald_score"]
+    __properties: ClassVar[List[str]] = ["seq_id", "prediction", "is_aggregated", "residue_index", "raw_prediction", "mcd_predictions", "mcd_mean", "mcd_std", "mcd_lower_bound", "mcd_upper_bound", "bald_score"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -56,6 +52,7 @@ class BiotrainerPrediction(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -162,15 +159,14 @@ class BiotrainerPrediction(BaseModel):
             "prediction": Prediction1.from_dict(obj["prediction"]) if obj.get("prediction") is not None else None,
             "is_aggregated": obj.get("is_aggregated") if obj.get("is_aggregated") is not None else False,
             "residue_index": obj.get("residue_index"),
-            "raw_prediction": RawPrediction.from_dict(obj["raw_prediction"]) if obj.get(
-                "raw_prediction") is not None else None,
+            "raw_prediction": RawPrediction.from_dict(obj["raw_prediction"]) if obj.get("raw_prediction") is not None else None,
             "mcd_predictions": obj.get("mcd_predictions"),
             "mcd_mean": McdMean.from_dict(obj["mcd_mean"]) if obj.get("mcd_mean") is not None else None,
             "mcd_std": McdStd.from_dict(obj["mcd_std"]) if obj.get("mcd_std") is not None else None,
-            "mcd_lower_bound": McdLowerBound.from_dict(obj["mcd_lower_bound"]) if obj.get(
-                "mcd_lower_bound") is not None else None,
-            "mcd_upper_bound": McdUpperBound.from_dict(obj["mcd_upper_bound"]) if obj.get(
-                "mcd_upper_bound") is not None else None,
+            "mcd_lower_bound": McdLowerBound.from_dict(obj["mcd_lower_bound"]) if obj.get("mcd_lower_bound") is not None else None,
+            "mcd_upper_bound": McdUpperBound.from_dict(obj["mcd_upper_bound"]) if obj.get("mcd_upper_bound") is not None else None,
             "bald_score": obj.get("bald_score")
         })
         return _obj
+
+

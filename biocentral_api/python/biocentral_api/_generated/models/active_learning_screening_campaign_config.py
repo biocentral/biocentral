@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,26 +25,20 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ActiveLearningScreeningCampaignConfig(BaseModel):
     """
     Configuration for an active learning screening campaign
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     name: StrictStr = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
-    target_lb: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                               description="Lower bound of the target value to optimize (mode: INTERVAL)")
-    target_ub: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                               description="Upper bound of the target value to optimize (mode: INTERVAL)")
-    target_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                  description="Target value to optimize (mode: VALUE)")
-    discrete_targets: Optional[List[StrictStr]] = Field(default=None,
-                                                        description="List of target labels (must be subset of all labels)")
-    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed",
-                                         "target_lb", "target_ub", "target_value", "discrete_targets"]
+    target_lb: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Lower bound of the target value to optimize (mode: INTERVAL)")
+    target_ub: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Upper bound of the target value to optimize (mode: INTERVAL)")
+    target_value: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Target value to optimize (mode: VALUE)")
+    discrete_targets: Optional[List[StrictStr]] = Field(default=None, description="List of target labels (must be subset of all labels)")
+    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "target_lb", "target_ub", "target_value", "discrete_targets"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,6 +46,7 @@ class ActiveLearningScreeningCampaignConfig(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -131,3 +127,5 @@ class ActiveLearningScreeningCampaignConfig(BaseModel):
             "discrete_targets": obj.get("discrete_targets")
         })
         return _obj
+
+

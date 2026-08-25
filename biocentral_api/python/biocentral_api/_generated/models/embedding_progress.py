@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class EmbeddingProgress(BaseModel):
     """
     EmbeddingProgress
-    """  # noqa: E501
+    """ # noqa: E501
     current: StrictInt = Field(description="Current progress")
     total: StrictInt = Field(description="Total number of embeddings to compute")
     __properties: ClassVar[List[str]] = ["current", "total"]
@@ -37,6 +37,7 @@ class EmbeddingProgress(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -85,3 +86,5 @@ class EmbeddingProgress(BaseModel):
             "total": obj.get("total")
         })
         return _obj
+
+

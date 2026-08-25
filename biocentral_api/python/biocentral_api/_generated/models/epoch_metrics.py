@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class EpochMetrics(BaseModel):
     """
     EpochMetrics
-    """  # noqa: E501
+    """ # noqa: E501
     epoch: StrictInt = Field(description="Epoch number")
     training: Dict[str, Any] = Field(description="Training metrics")
     validation: Dict[str, Any] = Field(description="Validation metrics")
@@ -38,6 +38,7 @@ class EpochMetrics(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -87,3 +88,5 @@ class EpochMetrics(BaseModel):
             "validation": obj.get("validation")
         })
         return _obj
+
+

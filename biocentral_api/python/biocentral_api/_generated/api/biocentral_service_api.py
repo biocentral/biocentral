@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -37,21 +38,22 @@ class BiocentralServiceApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def research_stats_api_v1_biocentral_service_research_stats_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ResearchStatsResponse:
         """Research Stats
 
@@ -76,7 +78,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._research_stats_api_v1_biocentral_service_research_stats_get_serialize(
             _request_auth=_request_auth,
@@ -99,21 +101,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def research_stats_api_v1_biocentral_service_research_stats_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ResearchStatsResponse]:
         """Research Stats
 
@@ -138,7 +141,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._research_stats_api_v1_biocentral_service_research_stats_get_serialize(
             _request_auth=_request_auth,
@@ -161,21 +164,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def research_stats_api_v1_biocentral_service_research_stats_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Research Stats
 
@@ -200,7 +204,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._research_stats_api_v1_biocentral_service_research_stats_get_serialize(
             _request_auth=_request_auth,
@@ -219,12 +223,13 @@ class BiocentralServiceApi:
         )
         return response_data.response
 
+
     def _research_stats_api_v1_biocentral_service_research_stats_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -247,6 +252,7 @@ class BiocentralServiceApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -254,6 +260,7 @@ class BiocentralServiceApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -274,21 +281,24 @@ class BiocentralServiceApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def stats_api_v1_biocentral_service_stats_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ServiceStatsResponse:
         """Stats
 
@@ -313,7 +323,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._stats_api_v1_biocentral_service_stats_get_serialize(
             _request_auth=_request_auth,
@@ -336,21 +346,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def stats_api_v1_biocentral_service_stats_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ServiceStatsResponse]:
         """Stats
 
@@ -375,7 +386,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._stats_api_v1_biocentral_service_stats_get_serialize(
             _request_auth=_request_auth,
@@ -398,21 +409,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def stats_api_v1_biocentral_service_stats_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Stats
 
@@ -437,7 +449,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._stats_api_v1_biocentral_service_stats_get_serialize(
             _request_auth=_request_auth,
@@ -456,12 +468,13 @@ class BiocentralServiceApi:
         )
         return response_data.response
 
+
     def _stats_api_v1_biocentral_service_stats_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -484,6 +497,7 @@ class BiocentralServiceApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -491,6 +505,7 @@ class BiocentralServiceApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -511,22 +526,25 @@ class BiocentralServiceApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def task_status_api_v1_biocentral_service_task_status_task_id_get(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaskStatusResponse:
         """Task Status
 
@@ -553,7 +571,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_api_v1_biocentral_service_task_status_task_id_get_serialize(
             task_id=task_id,
@@ -578,22 +596,23 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def task_status_api_v1_biocentral_service_task_status_task_id_get_with_http_info(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaskStatusResponse]:
         """Task Status
 
@@ -620,7 +639,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_api_v1_biocentral_service_task_status_task_id_get_serialize(
             task_id=task_id,
@@ -645,22 +664,23 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def task_status_api_v1_biocentral_service_task_status_task_id_get_without_preload_content(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Task Status
 
@@ -687,7 +707,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_api_v1_biocentral_service_task_status_task_id_get_serialize(
             task_id=task_id,
@@ -708,13 +728,14 @@ class BiocentralServiceApi:
         )
         return response_data.response
 
+
     def _task_status_api_v1_biocentral_service_task_status_task_id_get_serialize(
-            self,
-            task_id,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        task_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -739,6 +760,7 @@ class BiocentralServiceApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -746,6 +768,7 @@ class BiocentralServiceApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -766,22 +789,25 @@ class BiocentralServiceApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaskStatusResponse:
         """Task Status Resumed
 
@@ -808,7 +834,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_serialize(
             task_id=task_id,
@@ -833,22 +859,23 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_with_http_info(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaskStatusResponse]:
         """Task Status Resumed
 
@@ -875,7 +902,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_serialize(
             task_id=task_id,
@@ -900,22 +927,23 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_without_preload_content(
-            self,
-            task_id: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        task_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Task Status Resumed
 
@@ -942,7 +970,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_serialize(
             task_id=task_id,
@@ -963,13 +991,14 @@ class BiocentralServiceApi:
         )
         return response_data.response
 
+
     def _task_status_resumed_api_v1_biocentral_service_task_status_resumed_task_id_get_serialize(
-            self,
-            task_id,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        task_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -994,6 +1023,7 @@ class BiocentralServiceApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -1001,6 +1031,7 @@ class BiocentralServiceApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -1021,21 +1052,24 @@ class BiocentralServiceApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def welcome_message_api_v1_biocentral_service_welcome_message_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> object:
         """Welcome Message
 
@@ -1060,7 +1094,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._welcome_message_api_v1_biocentral_service_welcome_message_get_serialize(
             _request_auth=_request_auth,
@@ -1083,21 +1117,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def welcome_message_api_v1_biocentral_service_welcome_message_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[object]:
         """Welcome Message
 
@@ -1122,7 +1157,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._welcome_message_api_v1_biocentral_service_welcome_message_get_serialize(
             _request_auth=_request_auth,
@@ -1145,21 +1180,22 @@ class BiocentralServiceApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def welcome_message_api_v1_biocentral_service_welcome_message_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Welcome Message
 
@@ -1184,7 +1220,7 @@ class BiocentralServiceApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._welcome_message_api_v1_biocentral_service_welcome_message_get_serialize(
             _request_auth=_request_auth,
@@ -1203,12 +1239,13 @@ class BiocentralServiceApi:
         )
         return response_data.response
 
+
     def _welcome_message_api_v1_biocentral_service_welcome_message_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1231,6 +1268,7 @@ class BiocentralServiceApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -1238,6 +1276,7 @@ class BiocentralServiceApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -1257,3 +1296,5 @@ class BiocentralServiceApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

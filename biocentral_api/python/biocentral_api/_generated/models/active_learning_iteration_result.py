@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,15 +25,12 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ActiveLearningIterationResult(BaseModel):
     """
     ActiveLearningIterationResult
-    """  # noqa: E501
-    iteration: StrictInt = Field(
-        description="Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config)")
-    results: Annotated[List[ActiveLearningResult], Field(min_length=1)] = Field(
-        description="List of active learning results")
+    """ # noqa: E501
+    iteration: StrictInt = Field(description="Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config)")
+    results: Annotated[List[ActiveLearningResult], Field(min_length=1)] = Field(description="List of active learning results")
     suggestions: List[StrictStr] = Field(description="List of suggested entity IDs for next iteration")
     __properties: ClassVar[List[str]] = ["iteration", "results", "suggestions"]
 
@@ -42,6 +40,7 @@ class ActiveLearningIterationResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -94,8 +93,9 @@ class ActiveLearningIterationResult(BaseModel):
 
         _obj = cls.model_validate({
             "iteration": obj.get("iteration"),
-            "results": [ActiveLearningResult.from_dict(_item) for _item in obj["results"]] if obj.get(
-                "results") is not None else None,
+            "results": [ActiveLearningResult.from_dict(_item) for _item in obj["results"]] if obj.get("results") is not None else None,
             "suggestions": obj.get("suggestions")
         })
         return _obj
+
+

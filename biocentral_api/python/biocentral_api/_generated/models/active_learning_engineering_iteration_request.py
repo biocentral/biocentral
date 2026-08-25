@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -18,22 +19,18 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.active_learning_engineering_campaign_config import \
-    ActiveLearningEngineeringCampaignConfig
-from biocentral_api._generated.models.active_learning_engineering_iteration_config import \
-    ActiveLearningEngineeringIterationConfig
+from biocentral_api._generated.models.active_learning_engineering_campaign_config import ActiveLearningEngineeringCampaignConfig
+from biocentral_api._generated.models.active_learning_engineering_iteration_config import ActiveLearningEngineeringIterationConfig
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ActiveLearningEngineeringIterationRequest(BaseModel):
     """
     Request model for an active learning engineering iteration
-    """  # noqa: E501
+    """ # noqa: E501
     campaign_config: ActiveLearningEngineeringCampaignConfig = Field(description="Engineering campaign configuration")
-    iteration_config: ActiveLearningEngineeringIterationConfig = Field(
-        description="Engineering iteration configuration")
+    iteration_config: ActiveLearningEngineeringIterationConfig = Field(description="Engineering iteration configuration")
     __properties: ClassVar[List[str]] = ["campaign_config", "iteration_config"]
 
     model_config = ConfigDict(
@@ -42,6 +39,7 @@ class ActiveLearningEngineeringIterationRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -92,9 +90,9 @@ class ActiveLearningEngineeringIterationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "campaign_config": ActiveLearningEngineeringCampaignConfig.from_dict(obj["campaign_config"]) if obj.get(
-                "campaign_config") is not None else None,
-            "iteration_config": ActiveLearningEngineeringIterationConfig.from_dict(obj["iteration_config"]) if obj.get(
-                "iteration_config") is not None else None
+            "campaign_config": ActiveLearningEngineeringCampaignConfig.from_dict(obj["campaign_config"]) if obj.get("campaign_config") is not None else None,
+            "iteration_config": ActiveLearningEngineeringIterationConfig.from_dict(obj["iteration_config"]) if obj.get("iteration_config") is not None else None
         })
         return _obj
+
+

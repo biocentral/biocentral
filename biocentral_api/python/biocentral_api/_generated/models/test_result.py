@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,20 +25,15 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class TestResult(BaseModel):
     """
     Test results after training. 
-    """  # noqa: E501
-    inference_result: Optional[BiotrainerInferenceResult] = Field(default=None,
-                                                                  description="Plain test inference result")
-    bootstrapped_metrics: Optional[List[BootstrappedMetric]] = Field(default=None,
-                                                                     description="Bootstrapped test metrics")
-    baselines: Optional[Dict[str, List[BootstrappedMetric]]] = Field(default=None,
-                                                                     description="Bootstrapped baselines by method name")
+    """ # noqa: E501
+    inference_result: Optional[BiotrainerInferenceResult] = Field(default=None, description="Plain test inference result")
+    bootstrapped_metrics: Optional[List[BootstrappedMetric]] = Field(default=None, description="Bootstrapped test metrics")
+    baselines: Optional[Dict[str, List[BootstrappedMetric]]] = Field(default=None, description="Bootstrapped baselines by method name")
     sanity_check_warnings: Optional[List[StrictStr]] = Field(default=None, description="Warnings from sanity checks")
-    __properties: ClassVar[List[str]] = ["inference_result", "bootstrapped_metrics", "baselines",
-                                         "sanity_check_warnings"]
+    __properties: ClassVar[List[str]] = ["inference_result", "bootstrapped_metrics", "baselines", "sanity_check_warnings"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -45,6 +41,7 @@ class TestResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -128,11 +125,8 @@ class TestResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "inference_result": BiotrainerInferenceResult.from_dict(obj["inference_result"]) if obj.get(
-                "inference_result") is not None else None,
-            "bootstrapped_metrics": [BootstrappedMetric.from_dict(_item) for _item in
-                                     obj["bootstrapped_metrics"]] if obj.get(
-                "bootstrapped_metrics") is not None else None,
+            "inference_result": BiotrainerInferenceResult.from_dict(obj["inference_result"]) if obj.get("inference_result") is not None else None,
+            "bootstrapped_metrics": [BootstrappedMetric.from_dict(_item) for _item in obj["bootstrapped_metrics"]] if obj.get("bootstrapped_metrics") is not None else None,
             "baselines": {
                 _k: [BootstrappedMetric.from_dict(_item) for _item in _v] if _v is not None else None
                 for _k, _v in obj["baselines"].items()
@@ -142,3 +136,5 @@ class TestResult(BaseModel):
             "sanity_check_warnings": obj.get("sanity_check_warnings")
         })
         return _obj
+
+

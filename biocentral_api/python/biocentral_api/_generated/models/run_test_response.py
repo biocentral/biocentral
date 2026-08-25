@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,11 +24,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class RunTestResponse(BaseModel):
     """
     RunTestResponse
-    """  # noqa: E501
+    """ # noqa: E501
     test_result: PPITestResult
     __properties: ClassVar[List[str]] = ["test_result"]
 
@@ -37,6 +37,7 @@ class RunTestResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -87,3 +88,5 @@ class RunTestResponse(BaseModel):
             "test_result": PPITestResult.from_dict(obj["test_result"]) if obj.get("test_result") is not None else None
         })
         return _obj
+
+

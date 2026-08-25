@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import json
 from enum import Enum
@@ -29,7 +30,7 @@ class CommonEmbedder(str, Enum):
     ProstT5 = 'Rostlab/ProstT5'
     ESM2_3B = 'facebook/esm2_t36_3B_UR50D'
     ESM2_650M = 'facebook/esm2_t33_650M_UR50D'
-    ESM_8M = 'facebook/esm2_t6_8M_UR50D'
+    ESM2_8M = 'facebook/esm2_t6_8M_UR50D'
     ONE_HOT_ENCODING = 'one_hot_encoding'
     RANDOM_EMBEDDER = 'random_embedder'
     AAOntology = 'AAOntology'
@@ -40,3 +41,5 @@ class CommonEmbedder(str, Enum):
     def from_json(cls, json_str: str) -> Self:
         """Create an instance of CommonEmbedder from a JSON string"""
         return cls(json.loads(json_str))
+
+

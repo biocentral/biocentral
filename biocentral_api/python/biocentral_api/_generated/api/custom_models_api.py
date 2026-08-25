@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -41,22 +42,23 @@ class CustomModelsApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def config_options_api_v1_custom_models_service_config_options_protocol_get(
-            self,
-            protocol: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        protocol: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ConfigOptionsResponse:
         """Get configuration options for a protocol
 
@@ -84,7 +86,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._config_options_api_v1_custom_models_service_config_options_protocol_get_serialize(
             protocol=protocol,
@@ -110,22 +112,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def config_options_api_v1_custom_models_service_config_options_protocol_get_with_http_info(
-            self,
-            protocol: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        protocol: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ConfigOptionsResponse]:
         """Get configuration options for a protocol
 
@@ -153,7 +156,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._config_options_api_v1_custom_models_service_config_options_protocol_get_serialize(
             protocol=protocol,
@@ -179,22 +182,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def config_options_api_v1_custom_models_service_config_options_protocol_get_without_preload_content(
-            self,
-            protocol: StrictStr,
-            _request_timeout: Union[
-                None,
+        self,
+        protocol: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Get configuration options for a protocol
 
@@ -222,7 +226,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._config_options_api_v1_custom_models_service_config_options_protocol_get_serialize(
             protocol=protocol,
@@ -244,13 +248,14 @@ class CustomModelsApi:
         )
         return response_data.response
 
+
     def _config_options_api_v1_custom_models_service_config_options_protocol_get_serialize(
-            self,
-            protocol,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        protocol,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -275,6 +280,7 @@ class CustomModelsApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -282,6 +288,7 @@ class CustomModelsApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -302,22 +309,25 @@ class CustomModelsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def model_files_api_v1_custom_models_service_model_files_post(
-            self,
-            model_files_request: ModelFilesRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        model_files_request: ModelFilesRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> Dict[str, object]:
         """Retrieve model files
 
@@ -345,7 +355,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_files_api_v1_custom_models_service_model_files_post_serialize(
             model_files_request=model_files_request,
@@ -371,22 +381,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def model_files_api_v1_custom_models_service_model_files_post_with_http_info(
-            self,
-            model_files_request: ModelFilesRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        model_files_request: ModelFilesRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[Dict[str, object]]:
         """Retrieve model files
 
@@ -414,7 +425,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_files_api_v1_custom_models_service_model_files_post_serialize(
             model_files_request=model_files_request,
@@ -440,22 +451,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def model_files_api_v1_custom_models_service_model_files_post_without_preload_content(
-            self,
-            model_files_request: ModelFilesRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        model_files_request: ModelFilesRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Retrieve model files
 
@@ -483,7 +495,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_files_api_v1_custom_models_service_model_files_post_serialize(
             model_files_request=model_files_request,
@@ -505,13 +517,14 @@ class CustomModelsApi:
         )
         return response_data.response
 
+
     def _model_files_api_v1_custom_models_service_model_files_post_serialize(
-            self,
-            model_files_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        model_files_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -535,6 +548,7 @@ class CustomModelsApi:
         # process the body parameter
         if model_files_request is not None:
             _body_params = model_files_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -577,22 +591,25 @@ class CustomModelsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def start_inference_api_v1_custom_models_service_start_inference_post(
-            self,
-            start_inference_request: StartInferenceRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_inference_request: StartInferenceRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Start model inference
 
@@ -620,7 +637,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_inference_api_v1_custom_models_service_start_inference_post_serialize(
             start_inference_request=start_inference_request,
@@ -646,22 +663,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def start_inference_api_v1_custom_models_service_start_inference_post_with_http_info(
-            self,
-            start_inference_request: StartInferenceRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_inference_request: StartInferenceRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Start model inference
 
@@ -689,7 +707,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_inference_api_v1_custom_models_service_start_inference_post_serialize(
             start_inference_request=start_inference_request,
@@ -715,22 +733,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def start_inference_api_v1_custom_models_service_start_inference_post_without_preload_content(
-            self,
-            start_inference_request: StartInferenceRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_inference_request: StartInferenceRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Start model inference
 
@@ -758,7 +777,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_inference_api_v1_custom_models_service_start_inference_post_serialize(
             start_inference_request=start_inference_request,
@@ -780,13 +799,14 @@ class CustomModelsApi:
         )
         return response_data.response
 
+
     def _start_inference_api_v1_custom_models_service_start_inference_post_serialize(
-            self,
-            start_inference_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        start_inference_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -810,6 +830,7 @@ class CustomModelsApi:
         # process the body parameter
         if start_inference_request is not None:
             _body_params = start_inference_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -852,22 +873,25 @@ class CustomModelsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def start_training_api_v1_custom_models_service_start_training_post(
-            self,
-            start_training_request: StartTrainingRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_training_request: StartTrainingRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Start model training
 
@@ -895,7 +919,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_training_api_v1_custom_models_service_start_training_post_serialize(
             start_training_request=start_training_request,
@@ -921,22 +945,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def start_training_api_v1_custom_models_service_start_training_post_with_http_info(
-            self,
-            start_training_request: StartTrainingRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_training_request: StartTrainingRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Start model training
 
@@ -964,7 +989,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_training_api_v1_custom_models_service_start_training_post_serialize(
             start_training_request=start_training_request,
@@ -990,22 +1015,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def start_training_api_v1_custom_models_service_start_training_post_without_preload_content(
-            self,
-            start_training_request: StartTrainingRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        start_training_request: StartTrainingRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Start model training
 
@@ -1033,7 +1059,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._start_training_api_v1_custom_models_service_start_training_post_serialize(
             start_training_request=start_training_request,
@@ -1055,13 +1081,14 @@ class CustomModelsApi:
         )
         return response_data.response
 
+
     def _start_training_api_v1_custom_models_service_start_training_post_serialize(
-            self,
-            start_training_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        start_training_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1085,6 +1112,7 @@ class CustomModelsApi:
         # process the body parameter
         if start_training_request is not None:
             _body_params = start_training_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -1127,22 +1155,25 @@ class CustomModelsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def verify_config_api_v1_custom_models_service_verify_config_post(
-            self,
-            config_verification_request: ConfigVerificationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        config_verification_request: ConfigVerificationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ConfigVerificationResponse:
         """Verify configuration
 
@@ -1170,7 +1201,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._verify_config_api_v1_custom_models_service_verify_config_post_serialize(
             config_verification_request=config_verification_request,
@@ -1195,22 +1226,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def verify_config_api_v1_custom_models_service_verify_config_post_with_http_info(
-            self,
-            config_verification_request: ConfigVerificationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        config_verification_request: ConfigVerificationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ConfigVerificationResponse]:
         """Verify configuration
 
@@ -1238,7 +1270,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._verify_config_api_v1_custom_models_service_verify_config_post_serialize(
             config_verification_request=config_verification_request,
@@ -1263,22 +1295,23 @@ class CustomModelsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def verify_config_api_v1_custom_models_service_verify_config_post_without_preload_content(
-            self,
-            config_verification_request: ConfigVerificationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        config_verification_request: ConfigVerificationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Verify configuration
 
@@ -1306,7 +1339,7 @@ class CustomModelsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._verify_config_api_v1_custom_models_service_verify_config_post_serialize(
             config_verification_request=config_verification_request,
@@ -1327,13 +1360,14 @@ class CustomModelsApi:
         )
         return response_data.response
 
+
     def _verify_config_api_v1_custom_models_service_verify_config_post_serialize(
-            self,
-            config_verification_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        config_verification_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -1357,6 +1391,7 @@ class CustomModelsApi:
         # process the body parameter
         if config_verification_request is not None:
             _body_params = config_verification_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -1398,3 +1433,5 @@ class CustomModelsApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

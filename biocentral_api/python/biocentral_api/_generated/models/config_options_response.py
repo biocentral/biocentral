@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ConfigOptionsResponse(BaseModel):
     """
     ConfigOptionsResponse
-    """  # noqa: E501
+    """ # noqa: E501
     options: List[Any] = Field(description="List of configuration option dictionaries")
     __properties: ClassVar[List[str]] = ["options"]
 
@@ -36,6 +36,7 @@ class ConfigOptionsResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -83,3 +84,5 @@ class ConfigOptionsResponse(BaseModel):
             "options": obj.get("options")
         })
         return _obj
+
+

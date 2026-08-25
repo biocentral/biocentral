@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import ipaddress
 import io
 import json
@@ -64,10 +65,10 @@ def should_bypass_proxies(url: str, no_proxy: str) -> bool:
 
         entry = entry.lstrip('.')
         if (
-                host == entry
-                or host.endswith('.' + entry)
-                or host_and_port == entry
-                or host_and_port.endswith('.' + entry)
+            host == entry
+            or host.endswith('.' + entry)
+            or host_and_port == entry
+            or host_and_port.endswith('.' + entry)
         ):
             return True
 
@@ -133,6 +134,7 @@ class RESTClientObject:
         if configuration.tls_server_name:
             pool_args['server_hostname'] = configuration.tls_server_name
 
+
         if configuration.socket_options is not None:
             pool_args['socket_options'] = configuration.socket_options
 
@@ -143,7 +145,7 @@ class RESTClientObject:
         self.pool_manager: urllib3.PoolManager
 
         if configuration.proxy and not should_bypass_proxies(
-                configuration.host, configuration.no_proxy or ''
+            configuration.host, configuration.no_proxy or ''
         ):
             if is_socks_proxy_url(configuration.proxy):
                 from urllib3.contrib.socks import SOCKSProxyManager
@@ -158,13 +160,13 @@ class RESTClientObject:
             self.pool_manager = urllib3.PoolManager(**pool_args)
 
     def request(
-            self,
-            method,
-            url,
-            headers=None,
-            body=None,
-            post_params=None,
-            _request_timeout=None
+        self,
+        method,
+        url,
+        headers=None,
+        body=None,
+        post_params=None,
+        _request_timeout=None
     ):
         """Perform requests.
 
@@ -206,7 +208,7 @@ class RESTClientObject:
             elif (
                     isinstance(_request_timeout, tuple)
                     and len(_request_timeout) == 2
-            ):
+                ):
                 timeout = urllib3.Timeout(
                     connect=_request_timeout[0],
                     read=_request_timeout[1]
@@ -218,16 +220,16 @@ class RESTClientObject:
 
                 content_type = headers.get('Content-Type')
                 is_json = (
-                        not content_type
-                        or re.search('json', content_type, re.IGNORECASE)
+                    not content_type
+                    or re.search('json', content_type, re.IGNORECASE)
                 )
                 # JSON is valid YAML 1.2, so structured YAML bodies can use
                 # the existing JSON serializer:
                 # https://yaml.org/spec/1.2.2/#13-relation-to-json
                 is_structured_yaml = (
-                        content_type
-                        and re.search('yaml', content_type, re.IGNORECASE)
-                        and not isinstance(body, (str, bytes))
+                    content_type
+                    and re.search('yaml', content_type, re.IGNORECASE)
+                    and not isinstance(body, (str, bytes))
                 )
                 if is_json or is_structured_yaml:
                     request_body = None
@@ -257,7 +259,7 @@ class RESTClientObject:
                     # overwritten.
                     del headers['Content-Type']
                     # Ensures that dict objects are serialized
-                    post_params = [(a, json.dumps(b)) if isinstance(b, dict) else (a, b) for a, b in post_params]
+                    post_params = [(a, json.dumps(b)) if isinstance(b, dict) else (a,b) for a, b in post_params]
                     r = self.pool_manager.request(
                         method,
                         url,

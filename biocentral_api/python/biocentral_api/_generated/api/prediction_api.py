@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -35,21 +36,22 @@ class PredictionApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def model_metadata_api_v1_prediction_service_model_metadata_get(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ModelMetadataResponse:
         """Get predict model metadata
 
@@ -75,7 +77,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_metadata_api_v1_prediction_service_model_metadata_get_serialize(
             _request_auth=_request_auth,
@@ -98,21 +100,22 @@ class PredictionApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def model_metadata_api_v1_prediction_service_model_metadata_get_with_http_info(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ModelMetadataResponse]:
         """Get predict model metadata
 
@@ -138,7 +141,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_metadata_api_v1_prediction_service_model_metadata_get_serialize(
             _request_auth=_request_auth,
@@ -161,21 +164,22 @@ class PredictionApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def model_metadata_api_v1_prediction_service_model_metadata_get_without_preload_content(
-            self,
-            _request_timeout: Union[
-                None,
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Get predict model metadata
 
@@ -201,7 +205,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._model_metadata_api_v1_prediction_service_model_metadata_get_serialize(
             _request_auth=_request_auth,
@@ -220,12 +224,13 @@ class PredictionApi:
         )
         return response_data.response
 
+
     def _model_metadata_api_v1_prediction_service_model_metadata_get_serialize(
-            self,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -248,6 +253,7 @@ class PredictionApi:
         # process the form parameters
         # process the body parameter
 
+
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
@@ -255,6 +261,7 @@ class PredictionApi:
                     'application/json'
                 ]
             )
+
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -275,22 +282,25 @@ class PredictionApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def predict_api_v1_prediction_service_predict_post(
-            self,
-            prediction_request: PredictionRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        prediction_request: PredictionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Submit protein sequence prediction job
 
@@ -318,7 +328,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._predict_api_v1_prediction_service_predict_post_serialize(
             prediction_request=prediction_request,
@@ -344,22 +354,23 @@ class PredictionApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def predict_api_v1_prediction_service_predict_post_with_http_info(
-            self,
-            prediction_request: PredictionRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        prediction_request: PredictionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Submit protein sequence prediction job
 
@@ -387,7 +398,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._predict_api_v1_prediction_service_predict_post_serialize(
             prediction_request=prediction_request,
@@ -413,22 +424,23 @@ class PredictionApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def predict_api_v1_prediction_service_predict_post_without_preload_content(
-            self,
-            prediction_request: PredictionRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        prediction_request: PredictionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Submit protein sequence prediction job
 
@@ -456,7 +468,7 @@ class PredictionApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._predict_api_v1_prediction_service_predict_post_serialize(
             prediction_request=prediction_request,
@@ -478,13 +490,14 @@ class PredictionApi:
         )
         return response_data.response
 
+
     def _predict_api_v1_prediction_service_predict_post_serialize(
-            self,
-            prediction_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        prediction_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -508,6 +521,7 @@ class PredictionApi:
         # process the body parameter
         if prediction_request is not None:
             _body_params = prediction_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -549,3 +563,5 @@ class PredictionApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

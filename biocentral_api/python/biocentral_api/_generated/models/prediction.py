@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,21 +23,17 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class Prediction(BaseModel):
     """
     Base class for all model predictions.
-    """  # noqa: E501
+    """ # noqa: E501
     model_name: StrictStr = Field(description="Name of the model")
     prediction_name: StrictStr = Field(description="Name of the prediction")
     protocol: StrictStr = Field(description="Protocol name")
     value: Optional[Any]
-    value_lower: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                 description="Lower bound of the prediction")
-    value_upper: Optional[Union[StrictFloat, StrictInt]] = Field(default=None,
-                                                                 description="Upper bound of the prediction")
-    __properties: ClassVar[List[str]] = ["model_name", "prediction_name", "protocol", "value", "value_lower",
-                                         "value_upper"]
+    value_lower: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Lower bound of the prediction")
+    value_upper: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, description="Upper bound of the prediction")
+    __properties: ClassVar[List[str]] = ["model_name", "prediction_name", "protocol", "value", "value_lower", "value_upper"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -44,6 +41,7 @@ class Prediction(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -111,3 +109,5 @@ class Prediction(BaseModel):
             "value_upper": obj.get("value_upper")
         })
         return _obj
+
+

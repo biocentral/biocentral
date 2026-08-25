@@ -25,7 +25,7 @@ class CommonEmbedder extends EnumClass {
   static const CommonEmbedder ESM2_650M = _$ESM2_650M;
   /// Common embedder model names
   @BuiltValueEnumConst(wireName: r'facebook/esm2_t6_8M_UR50D')
-  static const CommonEmbedder ESM_8M = _$ESM_8M;
+  static const CommonEmbedder ESM2_8M = _$ESM2_8M;
   /// Common embedder model names
   @BuiltValueEnumConst(wireName: r'one_hot_encoding')
   static const CommonEmbedder ONE_HOT_ENCODING = _$ONE_HOT_ENCODING;

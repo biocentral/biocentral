@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class DetectedFormatResponse(BaseModel):
     """
     DetectedFormatResponse
-    """  # noqa: E501
+    """ # noqa: E501
     detected_format: StrictStr
     __properties: ClassVar[List[str]] = ["detected_format"]
 
@@ -36,6 +36,7 @@ class DetectedFormatResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -83,3 +84,5 @@ class DetectedFormatResponse(BaseModel):
             "detected_format": obj.get("detected_format")
         })
         return _obj
+
+

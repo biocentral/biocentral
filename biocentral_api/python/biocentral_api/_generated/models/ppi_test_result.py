@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,19 +23,17 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class PPITestResult(BaseModel):
     """
     PPITestResult
-    """  # noqa: E501
+    """ # noqa: E501
     success: StrictStr
     information: StrictStr
     test_metrics: StrictStr
     test_statistic: StrictStr
     p_value: StrictStr
     significance_level: Optional[Union[StrictFloat, StrictInt]]
-    __properties: ClassVar[List[str]] = ["success", "information", "test_metrics", "test_statistic", "p_value",
-                                         "significance_level"]
+    __properties: ClassVar[List[str]] = ["success", "information", "test_metrics", "test_statistic", "p_value", "significance_level"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -42,6 +41,7 @@ class PPITestResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -99,3 +99,5 @@ class PPITestResult(BaseModel):
             "significance_level": obj.get("significance_level")
         })
         return _obj
+
+

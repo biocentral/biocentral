@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -25,22 +26,18 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ModelOutput(BaseModel):
     """
     ModelOutput
-    """  # noqa: E501
+    """ # noqa: E501
     name: StrictStr = Field(description="Name of the output")
     description: StrictStr = Field(description="Description of the output")
     output_type: OutputType = Field(description="Type of output")
     value_type: StrictStr = Field(description="Type of output values")
-    classes: Optional[List[OutputClass]] = Field(default=None,
-                                                 description="List of output classes for categorical outputs")
-    value_range: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = Field(default=None,
-                                                                                           description="Value range of predictions for continous outputs")
+    classes: Optional[List[OutputClass]] = Field(default=None, description="List of output classes for categorical outputs")
+    value_range: Optional[Annotated[List[Any], Field(min_length=2, max_length=2)]] = Field(default=None, description="Value range of predictions for continous outputs")
     unit: Optional[StrictStr] = Field(default=None, description="Optional unit for numerical outputs")
-    __properties: ClassVar[List[str]] = ["name", "description", "output_type", "value_type", "classes", "value_range",
-                                         "unit"]
+    __properties: ClassVar[List[str]] = ["name", "description", "output_type", "value_type", "classes", "value_range", "unit"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -48,6 +45,7 @@ class ModelOutput(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -118,9 +116,10 @@ class ModelOutput(BaseModel):
             "description": obj.get("description"),
             "output_type": obj.get("output_type"),
             "value_type": obj.get("value_type"),
-            "classes": [OutputClass.from_dict(_item) for _item in obj["classes"]] if obj.get(
-                "classes") is not None else None,
+            "classes": [OutputClass.from_dict(_item) for _item in obj["classes"]] if obj.get("classes") is not None else None,
             "value_range": obj.get("value_range"),
             "unit": obj.get("unit")
         })
         return _obj
+
+

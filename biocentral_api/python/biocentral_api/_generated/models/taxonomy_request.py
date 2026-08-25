@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,11 +24,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class TaxonomyRequest(BaseModel):
     """
     TaxonomyRequest
-    """  # noqa: E501
+    """ # noqa: E501
     taxonomy_ids: Annotated[List[StrictInt], Field(min_length=1)] = Field(description="List of taxonomy ids")
     __properties: ClassVar[List[str]] = ["taxonomy_ids"]
 
@@ -37,6 +37,7 @@ class TaxonomyRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -84,3 +85,5 @@ class TaxonomyRequest(BaseModel):
             "taxonomy_ids": obj.get("taxonomy_ids")
         })
         return _obj
+
+

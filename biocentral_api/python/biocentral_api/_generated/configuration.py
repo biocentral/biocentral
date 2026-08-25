@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import copy
 import http.client as httplib
 import logging
@@ -21,6 +22,7 @@ from urllib.request import getproxies
 from typing_extensions import NotRequired, Self
 
 import urllib3
+
 
 JSON_SCHEMA_VALIDATION_KEYWORDS = {
     'multipleOf', 'maximum', 'exclusiveMaximum',
@@ -40,6 +42,7 @@ GenericAuthSetting = TypedDict(
     },
 )
 
+
 OAuth2AuthSetting = TypedDict(
     "OAuth2AuthSetting",
     {
@@ -49,6 +52,7 @@ OAuth2AuthSetting = TypedDict(
         "value": str,
     },
 )
+
 
 APIKeyAuthSetting = TypedDict(
     "APIKeyAuthSetting",
@@ -60,6 +64,7 @@ APIKeyAuthSetting = TypedDict(
     },
 )
 
+
 BasicAuthSetting = TypedDict(
     "BasicAuthSetting",
     {
@@ -69,6 +74,7 @@ BasicAuthSetting = TypedDict(
         "value": Optional[str],
     },
 )
+
 
 BearerFormatAuthSetting = TypedDict(
     "BearerFormatAuthSetting",
@@ -81,6 +87,7 @@ BearerFormatAuthSetting = TypedDict(
     },
 )
 
+
 BearerAuthSetting = TypedDict(
     "BearerAuthSetting",
     {
@@ -91,6 +98,7 @@ BearerAuthSetting = TypedDict(
     },
 )
 
+
 HTTPSignatureAuthSetting = TypedDict(
     "HTTPSignatureAuthSetting",
     {
@@ -100,6 +108,7 @@ HTTPSignatureAuthSetting = TypedDict(
         "value": None,
     },
 )
+
 
 AuthSettings = TypedDict(
     "AuthSettings",
@@ -174,37 +183,37 @@ class Configuration:
     _default: ClassVar[Optional[Self]] = None
 
     def __init__(
-            self,
-            host: Optional[str] = None,
-            api_key: Optional[Dict[str, str]] = None,
-            api_key_prefix: Optional[Dict[str, str]] = None,
-            username: Optional[str] = None,
-            password: Optional[str] = None,
-            access_token: Optional[str] = None,
-            server_index: Optional[int] = None,
-            server_variables: Optional[ServerVariablesT] = None,
-            server_operation_index: Optional[Dict[int, int]] = None,
-            server_operation_variables: Optional[Dict[int, ServerVariablesT]] = None,
-            ignore_operation_servers: bool = False,
-            ssl_ca_cert: Optional[str] = None,
-            retries: Optional[Union[int, urllib3.util.retry.Retry]] = None,
-            ca_cert_data: Optional[Union[str, bytes]] = None,
-            cert_file: Optional[str] = None,
-            key_file: Optional[str] = None,
-            verify_ssl: bool = True,
-            assert_hostname: Optional[bool] = None,
-            tls_server_name: Optional[str] = None,
-            connection_pool_maxsize: Optional[int] = None,
-            proxy: Optional[str] = None,
-            no_proxy: Optional[str] = None,
-            proxy_headers: Optional[Any] = None,
-            safe_chars_for_path_param: str = '',
-            client_side_validation: bool = True,
-            socket_options: Optional[Any] = None,
-            datetime_format: str = "%Y-%m-%dT%H:%M:%S.%f%z",
-            date_format: str = "%Y-%m-%d",
-            *,
-            debug: Optional[bool] = None,
+        self,
+        host: Optional[str]=None,
+        api_key: Optional[Dict[str, str]]=None,
+        api_key_prefix: Optional[Dict[str, str]]=None,
+        username: Optional[str]=None,
+        password: Optional[str]=None,
+        access_token: Optional[str]=None,
+        server_index: Optional[int]=None,
+        server_variables: Optional[ServerVariablesT]=None,
+        server_operation_index: Optional[Dict[int, int]]=None,
+        server_operation_variables: Optional[Dict[int, ServerVariablesT]]=None,
+        ignore_operation_servers: bool=False,
+        ssl_ca_cert: Optional[str]=None,
+        retries: Optional[Union[int, urllib3.util.retry.Retry]] = None,
+        ca_cert_data: Optional[Union[str, bytes]] = None,
+        cert_file: Optional[str]=None,
+        key_file: Optional[str]=None,
+        verify_ssl: bool=True,
+        assert_hostname: Optional[bool]=None,
+        tls_server_name: Optional[str]=None,
+        connection_pool_maxsize: Optional[int]=None,
+        proxy: Optional[str]=None,
+        no_proxy: Optional[str]=None,
+        proxy_headers: Optional[Any]=None,
+        safe_chars_for_path_param: str='',
+        client_side_validation: bool=True,
+        socket_options: Optional[Any]=None,
+        datetime_format: str="%Y-%m-%dT%H:%M:%S.%f%z",
+        date_format: str="%Y-%m-%d",
+        *,
+        debug: Optional[bool] = None,
     ) -> None:
         """Constructor
         """
@@ -342,7 +351,7 @@ class Configuration:
         """date format
         """
 
-    def __deepcopy__(self, memo: Dict[int, Any]) -> Self:
+    def __deepcopy__(self, memo:  Dict[int, Any]) -> Self:
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
@@ -479,7 +488,7 @@ class Configuration:
         self.__logger_format = value
         self.logger_formatter = logging.Formatter(self.__logger_format)
 
-    def get_api_key_with_prefix(self, identifier: str, alias: Optional[str] = None) -> Optional[str]:
+    def get_api_key_with_prefix(self, identifier: str, alias: Optional[str]=None) -> Optional[str]:
         """Gets API key (with prefix if set).
 
         :param identifier: The identifier of apiKey.
@@ -515,7 +524,7 @@ class Configuration:
             basic_auth=username + ':' + password
         ).get('authorization')
 
-    def auth_settings(self) -> AuthSettings:
+    def auth_settings(self)-> AuthSettings:
         """Gets Auth Settings dict for api client.
 
         :return: The Auth Settings information dict.
@@ -528,12 +537,12 @@ class Configuration:
 
         :return: The report for debugging.
         """
-        return "Python SDK Debug Report:\n" \
-               "OS: {env}\n" \
-               "Python Version: {pyversion}\n" \
-               "Version of the API: 1.0.0\n" \
-               "SDK Package Version: 1.0.0". \
-            format(env=sys.platform, pyversion=sys.version)
+        return "Python SDK Debug Report:\n"\
+               "OS: {env}\n"\
+               "Python Version: {pyversion}\n"\
+               "Version of the API: 1.0.0\n"\
+               "SDK Package Version: 1.0.0".\
+               format(env=sys.platform, pyversion=sys.version)
 
     def get_host_settings(self) -> List[HostSetting]:
         """Gets an array of host settings
@@ -548,10 +557,10 @@ class Configuration:
         ]
 
     def get_host_from_settings(
-            self,
-            index: Optional[int],
-            variables: Optional[ServerVariablesT] = None,
-            servers: Optional[List[HostSetting]] = None,
+        self,
+        index: Optional[int],
+        variables: Optional[ServerVariablesT]=None,
+        servers: Optional[List[HostSetting]]=None,
     ) -> str:
         """Gets host URL based on the index and variables
         :param index: array index of the host settings

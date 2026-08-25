@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -25,11 +26,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ModelMetadata(BaseModel):
     """
     ModelMetadata
-    """  # noqa: E501
+    """ # noqa: E501
     name: BiocentralPredictionModel = Field(description="Model name")
     protocol: Protocol = Field(description="Protocol of model predictions")
     description: StrictStr = Field(description="Model description")
@@ -40,10 +40,8 @@ class ModelMetadata(BaseModel):
     outputs: List[ModelOutput] = Field(description="List of descriptions of model outputs")
     model_size: StrictStr = Field(description="Size of the model in MB")
     embedder: StrictStr = Field(description="Name of the embedder used for the model")
-    training_data_link: Optional[StrictStr] = Field(default=None,
-                                                    description="Link to the training data used for training the model")
-    __properties: ClassVar[List[str]] = ["name", "protocol", "description", "authors", "model_link", "citation",
-                                         "licence", "outputs", "model_size", "embedder", "training_data_link"]
+    training_data_link: Optional[StrictStr] = Field(default=None, description="Link to the training data used for training the model")
+    __properties: ClassVar[List[str]] = ["name", "protocol", "description", "authors", "model_link", "citation", "licence", "outputs", "model_size", "embedder", "training_data_link"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,6 +49,7 @@ class ModelMetadata(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -114,10 +113,11 @@ class ModelMetadata(BaseModel):
             "model_link": obj.get("model_link"),
             "citation": obj.get("citation"),
             "licence": obj.get("licence"),
-            "outputs": [ModelOutput.from_dict(_item) for _item in obj["outputs"]] if obj.get(
-                "outputs") is not None else None,
+            "outputs": [ModelOutput.from_dict(_item) for _item in obj["outputs"]] if obj.get("outputs") is not None else None,
             "model_size": obj.get("model_size"),
             "embedder": obj.get("embedder"),
             "training_data_link": obj.get("training_data_link")
         })
         return _obj
+
+

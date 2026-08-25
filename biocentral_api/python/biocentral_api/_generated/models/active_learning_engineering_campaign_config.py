@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -24,19 +25,17 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ActiveLearningEngineeringCampaignConfig(BaseModel):
     """
     Configuration for an active learning engineering campaign
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     name: StrictStr = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     wildtype_sequence: StrictStr = Field(description="Wildtype sequence to engineer")
-    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed",
-                                         "wildtype_sequence"]
+    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -44,6 +43,7 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -101,3 +101,5 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
             "wildtype_sequence": obj.get("wildtype_sequence")
         })
         return _obj
+
+

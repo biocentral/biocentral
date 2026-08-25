@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -22,11 +23,10 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class ProjectionRequest(BaseModel):
     """
     Request model for projection
-    """  # noqa: E501
+    """ # noqa: E501
     embedder_name: StrictStr = Field(description="Name of the embedder model to use")
     sequence_data: Dict[str, StrictStr] = Field(description="Sequence data to embed (seq_id -> sequence)")
     method: StrictStr = Field(description="Projection method to use")
@@ -39,6 +39,7 @@ class ProjectionRequest(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -89,3 +90,5 @@ class ProjectionRequest(BaseModel):
             "config": obj.get("config")
         })
         return _obj
+
+

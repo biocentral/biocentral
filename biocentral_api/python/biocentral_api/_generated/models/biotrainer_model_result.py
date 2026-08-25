@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -26,18 +27,14 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class BiotrainerModelResult(BaseModel):
     """
     BiotrainerModelResult
-    """  # noqa: E501
+    """ # noqa: E501
     config: Optional[Dict[str, Any]] = Field(default=None, description="Training configuration parameters")
-    derived_values: Optional[DerivedValues] = Field(default=None,
-                                                    description="Values derived during the training process")
-    training_results: Optional[Dict[str, TrainingResult]] = Field(default=None,
-                                                                  description="Training results for each cross-validation split")
-    test_results: Optional[Dict[str, TestResult]] = Field(default=None,
-                                                          description="Test results after training for each test set")
+    derived_values: Optional[DerivedValues] = Field(default=None, description="Values derived during the training process")
+    training_results: Optional[Dict[str, TrainingResult]] = Field(default=None, description="Training results for each cross-validation split")
+    test_results: Optional[Dict[str, TestResult]] = Field(default=None, description="Test results after training for each test set")
     predictions: Optional[List[BiotrainerPrediction]] = Field(default=None, description="Predictions made by the model")
     __properties: ClassVar[List[str]] = ["config", "derived_values", "training_results", "test_results", "predictions"]
 
@@ -47,6 +44,7 @@ class BiotrainerModelResult(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -121,8 +119,7 @@ class BiotrainerModelResult(BaseModel):
 
         _obj = cls.model_validate({
             "config": obj.get("config"),
-            "derived_values": DerivedValues.from_dict(obj["derived_values"]) if obj.get(
-                "derived_values") is not None else None,
+            "derived_values": DerivedValues.from_dict(obj["derived_values"]) if obj.get("derived_values") is not None else None,
             "training_results": dict(
                 (_k, TrainingResult.from_dict(_v))
                 for _k, _v in obj["training_results"].items()
@@ -135,7 +132,8 @@ class BiotrainerModelResult(BaseModel):
             )
             if obj.get("test_results") is not None
             else None,
-            "predictions": [BiotrainerPrediction.from_dict(_item) for _item in obj["predictions"]] if obj.get(
-                "predictions") is not None else None
+            "predictions": [BiotrainerPrediction.from_dict(_item) for _item in obj["predictions"]] if obj.get("predictions") is not None else None
         })
         return _obj
+
+

@@ -9,17 +9,15 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from biocentral_api._generated.models.active_learning_engineering_iteration_request import \
-    ActiveLearningEngineeringIterationRequest
-from biocentral_api._generated.models.active_learning_screening_iteration_request import \
-    ActiveLearningScreeningIterationRequest
-from biocentral_api._generated.models.active_learning_screening_simulation_request import \
-    ActiveLearningScreeningSimulationRequest
+from biocentral_api._generated.models.active_learning_engineering_iteration_request import ActiveLearningEngineeringIterationRequest
+from biocentral_api._generated.models.active_learning_screening_iteration_request import ActiveLearningScreeningIterationRequest
+from biocentral_api._generated.models.active_learning_screening_simulation_request import ActiveLearningScreeningSimulationRequest
 from biocentral_api._generated.models.start_task_response import StartTaskResponse
 
 from biocentral_api._generated.api_client import ApiClient, RequestSerialized
@@ -39,22 +37,23 @@ class ActiveLearningApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post(
-            self,
-            active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Run one active learning engineering iteration
 
@@ -82,7 +81,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_serialize(
             active_learning_engineering_iteration_request=active_learning_engineering_iteration_request,
@@ -108,22 +107,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_with_http_info(
-            self,
-            active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Run one active learning engineering iteration
 
@@ -151,7 +151,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_serialize(
             active_learning_engineering_iteration_request=active_learning_engineering_iteration_request,
@@ -177,22 +177,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_without_preload_content(
-            self,
-            active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_engineering_iteration_request: ActiveLearningEngineeringIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Run one active learning engineering iteration
 
@@ -220,7 +221,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_serialize(
             active_learning_engineering_iteration_request=active_learning_engineering_iteration_request,
@@ -242,13 +243,14 @@ class ActiveLearningApi:
         )
         return response_data.response
 
+
     def _active_learning_engineering_iteration_api_v1_active_learning_service_engineering_iteration_post_serialize(
-            self,
-            active_learning_engineering_iteration_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        active_learning_engineering_iteration_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -272,6 +274,7 @@ class ActiveLearningApi:
         # process the body parameter
         if active_learning_engineering_iteration_request is not None:
             _body_params = active_learning_engineering_iteration_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -314,22 +317,25 @@ class ActiveLearningApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post(
-            self,
-            active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Run one active learning screening iteration
 
@@ -357,7 +363,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_serialize(
             active_learning_screening_iteration_request=active_learning_screening_iteration_request,
@@ -383,22 +389,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_with_http_info(
-            self,
-            active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Run one active learning screening iteration
 
@@ -426,7 +433,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_serialize(
             active_learning_screening_iteration_request=active_learning_screening_iteration_request,
@@ -452,22 +459,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_without_preload_content(
-            self,
-            active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_iteration_request: ActiveLearningScreeningIterationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Run one active learning screening iteration
 
@@ -495,7 +503,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_serialize(
             active_learning_screening_iteration_request=active_learning_screening_iteration_request,
@@ -517,13 +525,14 @@ class ActiveLearningApi:
         )
         return response_data.response
 
+
     def _active_learning_screening_iteration_api_v1_active_learning_service_screening_iteration_post_serialize(
-            self,
-            active_learning_screening_iteration_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        active_learning_screening_iteration_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -547,6 +556,7 @@ class ActiveLearningApi:
         # process the body parameter
         if active_learning_screening_iteration_request is not None:
             _body_params = active_learning_screening_iteration_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -589,22 +599,25 @@ class ActiveLearningApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post(
-            self,
-            active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Run a simulated active learning screening campaign
 
@@ -632,7 +645,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_serialize(
             active_learning_screening_simulation_request=active_learning_screening_simulation_request,
@@ -658,22 +671,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_with_http_info(
-            self,
-            active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Run a simulated active learning screening campaign
 
@@ -701,7 +715,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_serialize(
             active_learning_screening_simulation_request=active_learning_screening_simulation_request,
@@ -727,22 +741,23 @@ class ActiveLearningApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_without_preload_content(
-            self,
-            active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        active_learning_screening_simulation_request: ActiveLearningScreeningSimulationRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Run a simulated active learning screening campaign
 
@@ -770,7 +785,7 @@ class ActiveLearningApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_serialize(
             active_learning_screening_simulation_request=active_learning_screening_simulation_request,
@@ -792,13 +807,14 @@ class ActiveLearningApi:
         )
         return response_data.response
 
+
     def _active_learning_screening_simulation_api_v1_active_learning_service_screening_simulation_post_serialize(
-            self,
-            active_learning_screening_simulation_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        active_learning_screening_simulation_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -822,6 +838,7 @@ class ActiveLearningApi:
         # process the body parameter
         if active_learning_screening_simulation_request is not None:
             _body_params = active_learning_screening_simulation_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -863,3 +880,5 @@ class ActiveLearningApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

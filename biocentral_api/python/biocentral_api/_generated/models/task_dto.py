@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -19,8 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
-from biocentral_api._generated.models.active_learning_screening_simulation_result import \
-    ActiveLearningScreeningSimulationResult
+from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
 from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult
 from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
@@ -33,11 +33,10 @@ from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
 
-
 class TaskDTO(BaseModel):
     """
     TaskDTO
-    """  # noqa: E501
+    """ # noqa: E501
     status: TaskStatus
     error: Optional[StrictStr] = None
     predictions: Optional[Dict[str, List[Prediction]]] = None
@@ -52,10 +51,7 @@ class TaskDTO(BaseModel):
     projection_result: Optional[ProjectionResult] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result",
-                                         "biotrainer_inference_result", "embedding_progress", "embedded_sequences",
-                                         "embeddings", "embeddings_file", "clustered_data", "projection_result",
-                                         "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -63,6 +59,7 @@ class TaskDTO(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -217,24 +214,18 @@ class TaskDTO(BaseModel):
             }
             if obj.get("predictions") is not None
             else None,
-            "biotrainer_update": BiotrainerModelUpdate.from_dict(obj["biotrainer_update"]) if obj.get(
-                "biotrainer_update") is not None else None,
-            "biotrainer_result": BiotrainerModelResult.from_dict(obj["biotrainer_result"]) if obj.get(
-                "biotrainer_result") is not None else None,
-            "biotrainer_inference_result": BiotrainerInferenceResult.from_dict(
-                obj["biotrainer_inference_result"]) if obj.get("biotrainer_inference_result") is not None else None,
-            "embedding_progress": EmbeddingProgress.from_dict(obj["embedding_progress"]) if obj.get(
-                "embedding_progress") is not None else None,
+            "biotrainer_update": BiotrainerModelUpdate.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
+            "biotrainer_result": BiotrainerModelResult.from_dict(obj["biotrainer_result"]) if obj.get("biotrainer_result") is not None else None,
+            "biotrainer_inference_result": BiotrainerInferenceResult.from_dict(obj["biotrainer_inference_result"]) if obj.get("biotrainer_inference_result") is not None else None,
+            "embedding_progress": EmbeddingProgress.from_dict(obj["embedding_progress"]) if obj.get("embedding_progress") is not None else None,
             "embedded_sequences": obj.get("embedded_sequences"),
-            "embeddings": [SequenceData.from_dict(_item) for _item in obj["embeddings"]] if obj.get(
-                "embeddings") is not None else None,
+            "embeddings": [SequenceData.from_dict(_item) for _item in obj["embeddings"]] if obj.get("embeddings") is not None else None,
             "embeddings_file": obj.get("embeddings_file"),
             "clustered_data": obj.get("clustered_data"),
-            "projection_result": ProjectionResult.from_dict(obj["projection_result"]) if obj.get(
-                "projection_result") is not None else None,
-            "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get(
-                "al_iteration_result") is not None else None,
-            "al_simulation_result": ActiveLearningScreeningSimulationResult.from_dict(
-                obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
+            "projection_result": ProjectionResult.from_dict(obj["projection_result"]) if obj.get("projection_result") is not None else None,
+            "al_iteration_result": ActiveLearningIterationResult.from_dict(obj["al_iteration_result"]) if obj.get("al_iteration_result") is not None else None,
+            "al_simulation_result": ActiveLearningScreeningSimulationResult.from_dict(obj["al_simulation_result"]) if obj.get("al_simulation_result") is not None else None
         })
         return _obj
+
+

@@ -9,6 +9,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 import warnings
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -36,22 +37,23 @@ class ProteinsApi:
             api_client = ApiClient.get_default()
         self.api_client = api_client
 
+
     @validate_call
     def taxonomy_api_v1_protein_service_taxonomy_post(
-            self,
-            taxonomy_request: TaxonomyRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        taxonomy_request: TaxonomyRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaxonomyResponse:
         """Retrieve taxonomy data
 
@@ -79,7 +81,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._taxonomy_api_v1_protein_service_taxonomy_post_serialize(
             taxonomy_request=taxonomy_request,
@@ -105,22 +107,23 @@ class ProteinsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def taxonomy_api_v1_protein_service_taxonomy_post_with_http_info(
-            self,
-            taxonomy_request: TaxonomyRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        taxonomy_request: TaxonomyRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaxonomyResponse]:
         """Retrieve taxonomy data
 
@@ -148,7 +151,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._taxonomy_api_v1_protein_service_taxonomy_post_serialize(
             taxonomy_request=taxonomy_request,
@@ -174,22 +177,23 @@ class ProteinsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def taxonomy_api_v1_protein_service_taxonomy_post_without_preload_content(
-            self,
-            taxonomy_request: TaxonomyRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        taxonomy_request: TaxonomyRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Retrieve taxonomy data
 
@@ -217,7 +221,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._taxonomy_api_v1_protein_service_taxonomy_post_serialize(
             taxonomy_request=taxonomy_request,
@@ -239,13 +243,14 @@ class ProteinsApi:
         )
         return response_data.response
 
+
     def _taxonomy_api_v1_protein_service_taxonomy_post_serialize(
-            self,
-            taxonomy_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        taxonomy_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -269,6 +274,7 @@ class ProteinsApi:
         # process the body parameter
         if taxonomy_request is not None:
             _body_params = taxonomy_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -311,22 +317,25 @@ class ProteinsApi:
             _request_auth=_request_auth
         )
 
+
+
+
     @validate_call
     def trigger_protein_clustering_api_v1_protein_service_cluster_post(
-            self,
-            clustering_request: ClusteringRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        clustering_request: ClusteringRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> StartTaskResponse:
         """Calculate clustering
 
@@ -354,7 +363,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._trigger_protein_clustering_api_v1_protein_service_cluster_post_serialize(
             clustering_request=clustering_request,
@@ -379,22 +388,23 @@ class ProteinsApi:
             response_types_map=_response_types_map,
         ).data
 
+
     @validate_call
     def trigger_protein_clustering_api_v1_protein_service_cluster_post_with_http_info(
-            self,
-            clustering_request: ClusteringRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        clustering_request: ClusteringRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[StartTaskResponse]:
         """Calculate clustering
 
@@ -422,7 +432,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._trigger_protein_clustering_api_v1_protein_service_cluster_post_serialize(
             clustering_request=clustering_request,
@@ -447,22 +457,23 @@ class ProteinsApi:
             response_types_map=_response_types_map,
         )
 
+
     @validate_call
     def trigger_protein_clustering_api_v1_protein_service_cluster_post_without_preload_content(
-            self,
-            clustering_request: ClusteringRequest,
-            _request_timeout: Union[
-                None,
+        self,
+        clustering_request: ClusteringRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
                 Annotated[StrictFloat, Field(gt=0)],
-                Tuple[
-                    Annotated[StrictFloat, Field(gt=0)],
-                    Annotated[StrictFloat, Field(gt=0)]
-                ]
-            ] = None,
-            _request_auth: Optional[Dict[StrictStr, Any]] = None,
-            _content_type: Optional[StrictStr] = None,
-            _headers: Optional[Dict[StrictStr, Any]] = None,
-            _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
         """Calculate clustering
 
@@ -490,7 +501,7 @@ class ProteinsApi:
                             in the spec for a single request.
         :type _host_index: int, optional
         :return: Returns the result object.
-        """  # noqa: E501
+        """ # noqa: E501
 
         _param = self._trigger_protein_clustering_api_v1_protein_service_cluster_post_serialize(
             clustering_request=clustering_request,
@@ -511,13 +522,14 @@ class ProteinsApi:
         )
         return response_data.response
 
+
     def _trigger_protein_clustering_api_v1_protein_service_cluster_post_serialize(
-            self,
-            clustering_request,
-            _request_auth,
-            _content_type,
-            _headers,
-            _host_index,
+        self,
+        clustering_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
     ) -> RequestSerialized:
 
         _host = None
@@ -541,6 +553,7 @@ class ProteinsApi:
         # process the body parameter
         if clustering_request is not None:
             _body_params = clustering_request
+
 
         # set the HTTP header `Accept`
         if 'Accept' not in _header_params:
@@ -582,3 +595,5 @@ class ProteinsApi:
             _host=_host,
             _request_auth=_request_auth
         )
+
+

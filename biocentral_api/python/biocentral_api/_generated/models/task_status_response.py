@@ -11,6 +11,7 @@
     Do not edit the class manually.
 """  # noqa: E501
 
+
 from __future__ import annotations
 import pprint
 import re  # noqa: F401
@@ -23,13 +24,11 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-
 class TaskStatusResponse(BaseModel):
     """
     TaskStatusResponse
-    """  # noqa: E501
-    dtos: List[TaskDTO] = Field(
-        description="List of task DTOs generated during task execution since last request for the given task id")
+    """ # noqa: E501
+    dtos: List[TaskDTO] = Field(description="List of task DTOs generated during task execution since last request for the given task id")
     __properties: ClassVar[List[str]] = ["dtos"]
 
     model_config = ConfigDict(
@@ -38,6 +37,7 @@ class TaskStatusResponse(BaseModel):
         validate_assignment=True,
         protected_namespaces=(),
     )
+
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -92,3 +92,5 @@ class TaskStatusResponse(BaseModel):
             "dtos": [TaskDTO.from_dict(_item) for _item in obj["dtos"]] if obj.get("dtos") is not None else None
         })
         return _obj
+
+
