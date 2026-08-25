@@ -2,7 +2,7 @@
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 WORKDIR /app
 COPY . .
-COPY ../../biocentral_api/dart /app/biocentral_api/dart
+COPY ../../biocentral_api/dart ./biocentral_api/dart
 RUN flutter build web --release
 
 # Serve stage
