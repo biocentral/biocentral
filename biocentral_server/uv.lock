@@ -230,8 +230,7 @@ dependencies = [
     { name = "httpx" },
     { name = "hvi-toolkit" },
     { name = "junban" },
-    { name = "onnxruntime", marker = "sys_platform != 'linux'" },
-    { name = "onnxruntime-gpu", marker = "sys_platform == 'linux'" },
+    { name = "onnxruntime" },
     { name = "protspace" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic" },
@@ -243,6 +242,11 @@ dependencies = [
     { name = "tritonclient", extra = ["grpc"] },
     { name = "uvicorn" },
     { name = "vespag" },
+]
+
+[package.optional-dependencies]
+onnx-gpu = [
+    { name = "onnxruntime-gpu", marker = "sys_platform == 'linux'" },
 ]
 
 [package.dev-dependencies]
@@ -275,8 +279,8 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1,<0.30.0" },
     { name = "hvi-toolkit", git = "https://github.com/SebieF/hvi_toolkit.git?rev=maintenance%2Fupdate-biotrainer" },
     { name = "junban", specifier = ">=1.0.2,<1.1.0" },
-    { name = "onnxruntime", marker = "sys_platform != 'linux'", specifier = ">=1.25.1,<2.0.0" },
-    { name = "onnxruntime-gpu", marker = "sys_platform == 'linux'", specifier = ">=1.26.0,<1.28.0" },
+    { name = "onnxruntime", specifier = ">=1.25.1,<2.0.0" },
+    { name = "onnxruntime-gpu", marker = "sys_platform == 'linux' and extra == 'onnx-gpu'", specifier = ">=1.26.0,<1.28.0" },
     { name = "protspace", git = "https://github.com/tsenoner/protspace.git?subdirectory=apps%2Fprotspace&rev=v4.8.2" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4,<4.0.0" },
     { name = "pydantic", specifier = ">=2.13.4,<2.14.0" },
@@ -289,6 +293,7 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.51.0,<0.52.0" },
     { name = "vespag", git = "https://github.com/biocentral/VespaG.git?rev=onnx-deployment" },
 ]
+provides-extras = ["onnx-gpu"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -406,6 +411,7 @@ name = "biotrainer-core"
 version = "2.0.0"
 source = { editable = "../biotrainer/biotrainer-core" }
 dependencies = [
+    { name = "email-validator" },
     { name = "h5py" },
     { name = "numpy" },
     { name = "pandas" },
@@ -415,6 +421,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "email-validator", specifier = ">=2.3.0,<2.4.0" },
     { name = "h5py", specifier = ">=3.15.0,<4.0.0" },
     { name = "numpy", specifier = ">=2.4.1,<2.5.0" },
     { name = "pandas", specifier = ">=2.3.3" },
@@ -780,6 +787,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dnspython"
+version = "2.8.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/8b/57666417c0f90f08bcafa776861060426765fdb422eb10212086fb811d26/dnspython-2.8.0.tar.gz", hash = "sha256:181d3c6996452cb1189c4046c61599b84a5a86e099562ffde77d26984ff26d0f", size = 368251, upload-time = "2025-09-07T18:58:00.022Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ba/5a/18ad964b0086c6e62e2e7500f7edc89e3faa45033c71c1893d34eed2b2de/dnspython-2.8.0-py3-none-any.whl", hash = "sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af", size = 331094, upload-time = "2025-09-07T18:57:58.071Z" },
+]
+
+[[package]]
 name = "docstring-parser"
 version = "0.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -795,6 +811,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/2c/77/850bef8d72ffb9219f0b1aac23fbc1bf7d038ee6ea666f331fa273031aa2/einops-0.8.2.tar.gz", hash = "sha256:609da665570e5e265e27283aab09e7f279ade90c4f01bcfca111f3d3e13f2827", size = 56261, upload-time = "2026-01-26T04:13:17.638Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/09/f8d8f8f31e4483c10a906437b4ce31bdf3d6d417b73fe33f1a8b59e34228/einops-0.8.2-py3-none-any.whl", hash = "sha256:54058201ac7087911181bfec4af6091bb59380360f069276601256a76af08193", size = 65638, upload-time = "2026-01-26T04:13:18.546Z" },
+]
+
+[[package]]
+name = "email-validator"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+    { name = "idna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
 ]
 
 [[package]]
@@ -1935,6 +1964,8 @@ dependencies = [
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c3/b7/dd3a524ed93a820dff1af902d0412957ab12499953333e9daa01af5bc480/onnxruntime-1.27.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:a14c2ce45312def86b77aea651f46565e45960cf5f0721bfdff449165086ab76", size = 18433506, upload-time = "2026-06-15T22:43:47.026Z" },
+    { url = "https://files.pythonhosted.org/packages/84/86/c3b6b17745a1997d784dadc9bd88d713d2e6721139a5a0e885b28cfb79b1/onnxruntime-1.27.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c6fddce0539a4898c7bef35b052ffd37935b2190e35488eab99ce91887743ea1", size = 16438140, upload-time = "2026-06-15T22:42:40.666Z" },
+    { url = "https://files.pythonhosted.org/packages/26/81/24dd9b31b0fb912ee19ca53ac1c9764bfd79d58a2ccef564eb693be831a5/onnxruntime-1.27.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7c65a7438632d55dfbc8a02ee60bd6cf7dd9d1ba05a43d4b851452f32338e194", size = 18658316, upload-time = "2026-06-15T22:43:04.012Z" },
     { url = "https://files.pythonhosted.org/packages/4f/88/8ec9db1a4d126bb8b758992beb40d1249df171917d75f44a327eb5f20dda/onnxruntime-1.27.0-cp312-cp312-win_amd64.whl", hash = "sha256:20c321cf187ba496e648acf6b4cf90b4d398b0d17c2a77fdaeba365b908cc1c1", size = 13358769, upload-time = "2026-06-15T22:43:34.581Z" },
     { url = "https://files.pythonhosted.org/packages/ae/9f/fdad359dfcba7e7cd8815569b304a596531d4efa77a75d77f8b4981891a2/onnxruntime-1.27.0-cp312-cp312-win_arm64.whl", hash = "sha256:d0d1f68868e2ef30ef70998ba9bbbc5c305e9b17041e3936751c1b8aa6aade06", size = 13104440, upload-time = "2026-06-15T22:43:22.893Z" },
 ]

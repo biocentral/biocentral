@@ -47,7 +47,7 @@ ARG UV_EXTRA_INDEX_URL
 ENV UV_EXTRA_INDEX_URL=${UV_EXTRA_INDEX_URL}
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-sources --no-install-project --no-dev
+    uv sync --no-sources --all-extras --no-install-project --no-dev
 
 # Copy application files
 COPY --chown=biocentral-server-user:biocentral-server-user ./biocentral_server ./biocentral_server
@@ -55,7 +55,7 @@ COPY --chown=biocentral-server-user:biocentral-server-user worker.py .
 
 # Install project
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-sources --no-dev
+    uv sync --no-sources --all-extras --no-dev
 
 # Switch to non-root user
 USER biocentral-server-user
