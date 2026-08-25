@@ -1,5 +1,5 @@
 {
-  "title": "predict",
+  "title": "Predict: Use pretrained models to predict protein properties",
   "pagesIndex": "index",
   "pages": [
     "tmbed",

@@ -4,10 +4,10 @@
   "pages": [
     "index",
     "---Modules---",
-    "active_learning",
-    "predict",
+    "embed",
     "train",
-    "proteins",
-    "embed"
+    "predict",
+    "active_learning",
+    "proteins"
   ]
 }

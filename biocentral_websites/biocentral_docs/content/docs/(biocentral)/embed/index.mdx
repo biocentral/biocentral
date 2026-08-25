@@ -43,3 +43,23 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
     </Tab>
 </Tabs>
 
+## Common Embedder Models
+
+The following embedder models and baselines are primarily supported in biocentral. You can still provide
+any *huggingface* model string as an input to the API as well, as long as it is supported by *biotrainer*.
+
+### Protein Language Models
+
+- **ProtT5** (`Rostlab/prot_t5_xl_uniref50`): T5-based model pre-trained on UniRef50, excelling at capturing long-range dependencies in protein sequences.
+- **ProstT5** (`Rostlab/ProstT5`): Structure-aware T5 model that incorporates 3D structural information alongside sequence data.
+- **ESM2-3B** (`facebook/esm2_t36_3B_UR50D`): Large-scale evolutionary scale modeling transformer with 3 billion parameters, trained on UniRef50.
+- **ESM2-650M** (`facebook/esm2_t33_650M_UR50D`): Medium-sized ESM2 model with 650 million parameters, balancing performance and computational efficiency.
+- **ESM2-8M** (`facebook/esm2_t6_8M_UR50D`): Compact ESM2 model with 8 million parameters, ideal for quick sanity checks and fast analysis.
+
+### Baseline Embedders
+
+- **One-Hot Encoding** (`one_hot_encoding`): Simple binary encoding representing each amino acid as a unique vector.
+- **Random Embedder** (`random_embedder`): Generates random embeddings, useful as a baseline for comparison.
+- **AAOntology** (`AAOntology`): Embeddings based on amino acid properties and biochemical characteristics.
+- **BLOSUM62** (`blosum62`): Substitution matrix-based embeddings capturing evolutionary amino acid relationships.
+- **Length Embedder** (`length_embedder`): Encodes sequence information based on protein length.
