@@ -1,62 +1,43 @@
 # Biocentral
 
 <p align="center">
-  <img alt="biocentral logo" src="assets/biocentral_logo/biocentral_logo.png" />
+  <img alt="biocentral logo" src="_global/design/biocentral_logo.png" />
 <br />
 Biomedical data, from lab to paper.
 </p>
 
-## 🧬 About
+## About
 
-Biocentral is an open-source, innovative bioinformatics platform designed to bridge the gap between the
-latest developments in bioinformatics and applications in molecular biology and diagnostic medicine.
+Biocentral provides a rich ecosystem for connecting biomedical data and machine learning.
 
-Check out our **getting started** [guide](docs/getting_started.md) to learn how to use biocentral.
+## Quick Start
 
-### Key Features
+### Frontend (Integrated Research Environment)
 
-- **User-Friendly GUI**: Simplify complex protein data analysis, visualization, and modeling.
-- **One-Click AI Model Training**: Train AI models on your data with just a few clicks.
-- **Distributed Computing**: Run computational heavy operations on high-performance servers and
-  inspect the results on your personal machine.
-- **Take Your Data Everywhere**: All major desktop platforms (Windows, macOS, Linux) and browsers are supported.
-- **Open Source and FAIR**: Committed to open science and FAIR principles.
-- **Customizable Plugins**: Work only with the functionality that is fitting your specific research.
+Use now in your browser at [https://app.biocentral.cloud](https://app.biocentral.cloud)!
 
-## 🛠️ Installation
+### Python API
 
-Download and install the latest version for your operating system
-from [GitHub](https://github.com/biocentral/biocentral/releases), or use it directly in the
-[browser](https://app.biocentral.cloud).
+```shell
+pip install biocentral
+```
 
-**Current platform compatibility**:
+```python
+from biocentral import Biocentral
 
-| Platform       | Compatible | 
-|----------------|:----------:|
-| Web            |     ✅      | 
-| Linux          |     ✅      | 
-| Windows        |     ✅      | 
-| MacOS          |     ✅      | 
-| Android Tablet |     ❌      |
-| Apple Tablet   |     ❌      |
+biocentral = Biocentral(mode="api")  # Or local for execution on your machine
+embeddings = biocentral.embed(embedder_name="Rostlab/ProstT5", sequence_data={"Seq1": "PRTEIN"})
+```
 
-## 🤝 Contributing
+### Documentation
 
-We heartily welcome contributions! Check out our [contributing guidelines](Contributing.md) for details.
-
-If you are a researcher in any related field (biology, medicine, informatics, ...) and want to use biocentral
-for your work, please do not hesitate to get in touch in case you encounter any issues or want to participate in the
-development of *biocentral*: [info@biocentral.cloud](mailto:info@biocentral.cloud)
-
-## 📚 Documentation
-
-Comprehensive documentation, tutorials, and API references are
-available at [biocentral.cloud](https://biocentral.cloud).
+For more use cases, examples and documentation see our [docs](https://docs.biocentral.cloud).
 
 ## 📄 License
 
-Biocentral is open-source software licensed under the GNU General Public License v3.0. See the [LICENSE file](LICENSE)
-for details.
+Biocentral is open-source software. In general, it is licensed under the GNU General Public License v3.0. 
+See the [LICENSE file](LICENSE) for details.
+The license for subprojects may differ. If this is the case, the license is provided in the subproject's LICENSE file.
 
 ## 📜 Citation
 

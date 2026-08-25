@@ -1,0 +1,13 @@
+{
+  "title": "biocentral",
+  "root": true,
+  "pages": [
+    "index",
+    "---Modules---",
+    "embed",
+    "train",
+    "predict",
+    "active_learning",
+    "proteins"
+  ]
+}

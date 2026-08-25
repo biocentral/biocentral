@@ -1,0 +1,289 @@
+from __future__ import annotations
+
+from enum import Enum
+from typing import List, Optional
+from biotrainer_core.data_classes import SequenceData
+from pydantic import BaseModel, Field, model_validator, field_validator
+
+from ..server_management.shared_endpoint_models.embedder_base_model import (
+    EmbedderModelBase,
+)
+
+
+class ActiveLearningModelType(str, Enum):
+    GAUSSIAN_PROCESS = "GAUSSIAN_PROCESS"
+    FNN_MCD = "FNN_MCD"
+    RANDOM = "RANDOM"
+
+    @staticmethod
+    def from_string(status: str) -> ActiveLearningModelType:
+        return ActiveLearningModelType(status.upper())
+
+
+class ActiveLearningOptimizationMode(str, Enum):
+    INTERVAL = "INTERVAL"
+    VALUE = "VALUE"
+    MAXIMIZE = "MAXIMIZE"
+    MINIMIZE = "MINIMIZE"
+    DISCRETE = "DISCRETE"
+
+    @staticmethod
+    def from_string(status: str) -> ActiveLearningOptimizationMode:
+        return ActiveLearningOptimizationMode(status.upper())
+
+
+class ActiveLearningScreeningCampaignConfig(EmbedderModelBase):
+    """Configuration for an active learning screening campaign"""
+
+    name: str = Field(description="Name of the active learning campaign")
+    model_type: ActiveLearningModelType = Field(description="Type of model to use")
+    # embedder_name in EmbedderModelBase
+    optimization_mode: ActiveLearningOptimizationMode = Field(
+        description="Optimization mode selection"
+    )
+    seed: Optional[int] = Field(
+        default=42, description="Random seed for reproducibility."
+    )
+
+    """Configuration for continuous optimization"""
+    target_lb: Optional[float] = Field(
+        default=None,
+        description="Lower bound of the target value to optimize (mode: INTERVAL)",
+    )
+    target_ub: Optional[float] = Field(
+        default=None,
+        description="Upper bound of the target value to optimize (mode: INTERVAL)",
+    )
+    target_value: Optional[float] = Field(
+        default=None, description="Target value to optimize (mode: VALUE)"
+    )
+
+    @model_validator(mode="after")
+    def validate_continuous_config(self):
+        if self.optimization_mode != ActiveLearningOptimizationMode.DISCRETE:
+            if self.optimization_mode == ActiveLearningOptimizationMode.INTERVAL:
+                if self.target_lb is None and self.target_ub is None:
+                    raise ValueError(
+                        "Interval optimization needs target_lb or target_ub"
+                    )
+
+                # Set defaults
+                if self.target_lb is None:
+                    self.target_lb = float("-inf")
+                if self.target_ub is None:
+                    self.target_ub = float("inf")
+
+                if self.target_lb >= self.target_ub:
+                    raise ValueError("target_lb must be < target_ub")
+
+            elif self.optimization_mode == ActiveLearningOptimizationMode.VALUE:
+                if self.target_value is None:
+                    raise ValueError("Value optimization needs target_value")
+
+        return self
+
+    """Configuration for discrete optimization"""
+    discrete_targets: Optional[List[str]] = Field(
+        default=None, description="List of target labels (must be subset of all labels)"
+    )
+
+    @model_validator(mode="after")
+    def validate_discrete_config(self):
+        if self.optimization_mode == ActiveLearningOptimizationMode.DISCRETE:
+            discrete_targets_list = self.discrete_targets or []
+            if len(discrete_targets_list) == 0:
+                raise ValueError(
+                    "discrete_targets must be specified and "
+                    "contain at least one label for discrete optimization!"
+                )
+
+            discrete_targets_set = set(discrete_targets_list)
+            if len(discrete_targets_set) != len(discrete_targets_list):
+                raise ValueError("discrete_targets must not contain duplicate entries!")
+
+        return self
+
+
+class ActiveLearningScreeningIterationConfig(BaseModel):
+    """Configuration for a single iteration of active learning"""
+
+    iteration: int = Field(description="Iteration number")
+    iteration_data: List[SequenceData] = Field(
+        description="List of sequence training data for this iteration", min_length=2
+    )
+    coefficient: float = Field(
+        description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)",
+        ge=0.0,
+        le=1.0,
+    )
+    n_suggestions: int = Field(
+        description="Number of suggestions to propose from this iteration", ge=1
+    )
+
+    @field_validator("iteration_data")
+    @classmethod
+    def validate_iteration_data(cls, v: List[SequenceData]):
+        iteration_ids = [data_point.seq_id for data_point in v]
+        if len(iteration_ids) != len(set(iteration_ids)):
+            raise ValueError("iteration_data contains duplicate entries!")
+        return v
+
+
+class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
+    """Configuration for an active learning engineering campaign"""
+
+    name: str = Field(description="Name of the active learning campaign")
+    model_type: ActiveLearningModelType = Field(description="Type of model to use")
+    # embedder_name in EmbedderModelBase
+    optimization_mode: ActiveLearningOptimizationMode = Field(
+        description="Optimization mode selection"
+    )
+    seed: Optional[int] = Field(
+        default=43, description="Random seed for reproducibility."
+    )
+    wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
+
+    @model_validator(mode="after")
+    def validate_config(self):
+        if self.optimization_mode not in [
+            ActiveLearningOptimizationMode.MAXIMIZE,
+            ActiveLearningOptimizationMode.MINIMIZE,
+        ]:
+            raise ValueError(
+                "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
+            )
+
+        return self
+
+
+class ActiveLearningEngineeringIterationConfig(BaseModel):
+    """Configuration for a single iteration of active learning"""
+
+    iteration: int = Field(description="Iteration number")
+    base_sequences: List[str] = Field(
+        description="Sequences used to generate mutations", min_length=1
+    )
+    training_data: List[SequenceData] = Field(
+        description="List of training data for this iteration", min_length=1
+    )
+    coefficient: float = Field(
+        description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)",
+        ge=0.0,
+        le=1.0,
+    )
+    n_suggestions: int = Field(
+        description="Number of suggestions to propose from this iteration", ge=1
+    )
+
+    @field_validator("training_data")
+    @classmethod
+    def validate_training_data(cls, v: List[SequenceData]):
+        iteration_ids = [data_point.seq_id for data_point in v]
+        if len(iteration_ids) != len(set(iteration_ids)):
+            raise ValueError("iteration_data contains duplicate entries!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_config(self):
+        if len(self.base_sequences) != len(set(self.base_sequences)):
+            raise ValueError("base_sequences contains duplicate entries!")
+
+        return self
+
+
+class ActiveLearningConvergenceConfig(BaseModel):
+    """Configuration for convergence criteria for active learning campaigns"""
+
+    max_labels_budget: Optional[int] = Field(
+        default=None,
+        description="Maximum number of labels that can be tested in the lab"
+        " ('We can afford to test 100 proteins total')",
+        ge=1,
+    )
+    n_hits: Optional[int] = Field(
+        default=None,
+        description="Number of positive targets (hits) found before stopping"
+        " ('Stop when we find 10 good proteins')",
+        ge=1,
+    )
+    max_consecutive_failures: Optional[int] = Field(
+        default=None,
+        description="Maximum number of iterations in a row that "
+        "do not yield a new target "
+        "('Stop if 3 rounds yield nothing')",
+        ge=1,
+    )
+
+    @model_validator(mode="after")
+    def validate_convergence_config(self):
+        if (
+            self.max_labels_budget is None
+            and self.n_hits is None
+            and self.max_consecutive_failures is None
+        ):
+            raise ValueError(
+                "At least one of n_max_iterations, "
+                "max_labels_budget, "
+                "n_hits, "
+                "max_consecutive_failures must be specified!"
+            )
+        return self
+
+
+class ActiveLearningScreeningSimulationConfig(BaseModel):
+    """Configuration for a simulation of active learning on a complete dataset"""
+
+    simulation_data: List[SequenceData] = Field(
+        description="List of all sequence data for the simulation", min_length=3
+    )
+    n_start: Optional[int] = Field(
+        default=None,
+        description="Number of initial sequences to use for training (chosen randomly, seed from campaign config used)",
+        ge=2,  # 1 train, 1 val
+    )
+    start_ids: Optional[List[str]] = Field(
+        default=None,
+        description="List of sequence IDs to start the simulated campaign",
+        min_length=2,  # 1 train, 1 val
+    )
+
+    n_suggestions_per_iteration: int = Field(
+        description="Number of suggestions to propose per iteration", ge=1
+    )
+    convergence_config: ActiveLearningConvergenceConfig = Field(
+        description="Convergence criteria for the simulation"
+    )
+
+    @field_validator("simulation_data")
+    @classmethod
+    def validate_simulation_data(cls, v: List[SequenceData]):
+        simulation_ids = []
+        for seq_data in v:
+            label = seq_data.label
+            if label is None or label == "None" or label == "":
+                raise ValueError(
+                    "All sequence data must have a label for an active learning simulation!"
+                )
+            simulation_ids.append(seq_data.seq_id)
+        if len(simulation_ids) != len(set(simulation_ids)):
+            raise ValueError("simulation_data contains duplicate entries!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_start_data(self):
+        if self.n_start is not None and self.start_ids is not None:
+            raise ValueError("Cannot specify both n_start and start_ids")
+        if self.n_start:
+            if len(self.simulation_data) < self.n_start:
+                raise ValueError(f"Not enough sequence data for n_start={self.n_start}")
+        if self.start_ids:
+            start_ids_unique = set(self.start_ids)
+            if len(start_ids_unique) != len(self.start_ids):
+                raise ValueError("start_ids contains duplicate entries!")
+
+            simulation_ids = set(
+                [data_point.seq_id for data_point in self.simulation_data]
+            )
+            if not start_ids_unique.issubset(simulation_ids):
+                raise ValueError("start_ids not a subset of simulation_data ids!")
+        return self

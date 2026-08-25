@@ -1,0 +1,21 @@
+name: "Setup Simple Python Environment"
+description: "Checkout, set up Python 3.12, install uv, and install dependencies for a Python subproject"
+
+inputs:
+  working-directory:
+    description: "Working directory for dependency installation"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - uses: astral-sh/setup-uv@v7
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: uv sync --no-install-project --index-strategy unsafe-best-match

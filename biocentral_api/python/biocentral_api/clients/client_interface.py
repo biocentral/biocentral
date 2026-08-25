@@ -1,0 +1,53 @@
+from abc import ABC
+from tqdm.auto import tqdm
+from time import sleep
+from typing import Callable
+
+from .._generated import StartTaskResponse, ApiException
+from .._generated.exceptions import UnprocessableEntityException
+
+
+class ClientInterface(ABC):
+    @staticmethod
+    def _handle_error(e) -> None:
+        match e:
+            case UnprocessableEntityException():
+                if not e.data or not e.data.detail:
+                    raise e
+                first_detail = e.data.detail[0]
+                if first_detail is None:
+                    raise e  # Fallback
+                msg = first_detail.msg
+                raise UnprocessableEntityException(
+                    f"Unprocessable entity: {msg}"
+                ) from e
+        raise e
+
+    @staticmethod
+    def _submit_task(endpoint_caller: Callable) -> str:
+        max_retries = 2
+        for retry in range(max_retries):
+            try:
+                start_task_response: StartTaskResponse = endpoint_caller()
+                if start_task_response.task_id is None:
+                    raise Exception("No task id returned from server!")
+                return start_task_response.task_id
+            except ApiException as e:
+                retry_after = e.headers.get("retry-after", None)
+                if retry_after is None:
+                    ClientInterface._handle_error(e)
+                wait_seconds = int(retry_after) + 1
+
+                # Progress bar
+                print(f"Rate limit exceeded (attempt {retry + 1}/{max_retries})")
+                for _ in tqdm(
+                        range(wait_seconds),
+                        desc="Waiting",
+                        bar_format="{desc}: {bar} {remaining}s",
+                        ncols=60,
+                ):
+                    sleep(1)
+
+            except Exception as e:
+                raise e
+        raise Exception(f"Max retries ({max_retries}) exceeded - Failed to start task!")

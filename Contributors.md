@@ -4,14 +4,14 @@ SPDX-FileCopyrightText: the biocentral authors
 
 # Contributors
 
-If you would like to make contributions to this repository or any of the related projects, please certify 
-to the following Developer's Certificate of Origin (DCO) in [this repository](DCO). 
-Please confirm your certification to the DCO by adding a sign-of tag to all your commit messages and 
-adding your author name (e.g. `name surname <name@surname.com>`) to the following list of contributors 
+If you would like to make contributions to this repository or any of the related projects, please certify
+to the following Developer's Certificate of Origin (DCO) in [this repository](DCO).
+Please confirm your certification to the DCO by adding a sign-of tag to all your commit messages and
+adding your author name (e.g. `name surname <name@surname.com>`) to the following list of contributors
 and open a pull request, or include the change in your first contribution.
 
-If you are a developer who is authorized to contribute on behalf of your employer, 
-then please use your corporate email address in the signed-off-by tag. Otherwise, please 
+If you are a developer who is authorized to contribute on behalf of your employer,
+then please use your corporate email address in the signed-off-by tag. Otherwise, please
 use your personal email address.
 
 ## Sign-off Tag
@@ -28,3 +28,8 @@ Committing with `git commit -s` will add the sign-off at the end of the commit m
 
 - Sebastian Franz <sebastian.franz@tum.de>
 - Aeneas Tews <aeneas.tews@tum.de>
+- Yemliha Öner <32218322+yemlihaoner@users.noreply.github.com>
+- Arno Claude <61106168+arnoclaude@users.noreply.github.com>
+- Shuze Liu <shuze.liu@tum.de>
+- Deniz Öztürk <750282004C4DEC44@mytum.de>
+- Tobias Olenyi <tobias.olenyi@tum.de>

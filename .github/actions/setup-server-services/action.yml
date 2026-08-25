@@ -1,0 +1,56 @@
+name: "Setup Server Docker Services"
+description: "Prepare bind mount directories and start infrastructure services with Docker Compose for biocentral_server"
+
+inputs:
+  compose-command:
+    description: "Docker Compose up command"
+    required: false
+    default: "docker compose -f docker-compose.ci.yml --env-file .env.ci up -d --wait embeddings-db redis-jobs triton-model-init"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare bind mount directories
+      shell: bash
+      working-directory: biocentral_server
+      run: |
+        mkdir -p \
+          "$HOME/.cache/huggingface" \
+          ./storage/embeddings/postgres \
+          ./storage/files \
+          ./storage/server_temp_files \
+          ./storage/model-repository \
+          ./storage/redis \
+          ./assets
+
+    - name: Start services with Docker Compose
+      shell: bash
+      working-directory: biocentral_server
+      run: ${{ inputs.compose-command }}
+      env:
+        MODEL_DOWNLOADS: |
+          _bind_embed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv0.onnx
+          _bind_embed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv1.onnx
+          _bind_embed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv2.onnx
+          _bind_embed_cv3:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv3.onnx
+          _bind_embed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_bind_embed_cv4.onnx
+          _tmbed_cv0/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv0.onnx
+          _tmbed_cv1/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv1.onnx
+          _tmbed_cv2/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv2.onnx
+          _tmbed_cv3/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv3.onnx
+          _tmbed_cv4/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/_tmbed_cv4.onnx
+          prott5_sec/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/prott5_sec.onnx
+          seth/1:https://nextcloud.cit.tum.de/public.php/dav/files/CA9Dx2em9k8pBA3/seth.onnx
+
+    - name: "Fix bind mount permissions"
+      shell: bash
+      working-directory: biocentral_server
+      run: sudo chmod -R 777 ./storage ./assets
+    
+    - name: "Debug docker-compose state"
+      if: failure()
+      shell: bash
+      working-directory: biocentral_server
+      run: |
+        docker compose ps
+        docker compose logs

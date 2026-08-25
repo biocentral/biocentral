@@ -1,0 +1,310 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'task_dto.dart';
+
+// **************************************************************************
+// BuiltValueGenerator
+// **************************************************************************
+
+class _$TaskDTO extends TaskDTO {
+  @override
+  final TaskStatus status;
+  @override
+  final String? error;
+  @override
+  final BuiltMap<String, BuiltList<Prediction>>? predictions;
+  @override
+  final BiotrainerModelUpdate? biotrainerUpdate;
+  @override
+  final BiotrainerModelResult? biotrainerResult;
+  @override
+  final BiotrainerInferenceResult? biotrainerInferenceResult;
+  @override
+  final EmbeddingProgress? embeddingProgress;
+  @override
+  final BuiltMap<String, String>? embeddedSequences;
+  @override
+  final BuiltList<SequenceData>? embeddings;
+  @override
+  final String? embeddingsFile;
+  @override
+  final BuiltMap<String, BuiltList<String>>? clusteredData;
+  @override
+  final ProjectionResult? projectionResult;
+  @override
+  final ActiveLearningIterationResult? alIterationResult;
+  @override
+  final ActiveLearningScreeningSimulationResult? alSimulationResult;
+
+  factory _$TaskDTO([void Function(TaskDTOBuilder)? updates]) =>
+      (TaskDTOBuilder()..update(updates))._build();
+
+  _$TaskDTO._(
+      {required this.status,
+      this.error,
+      this.predictions,
+      this.biotrainerUpdate,
+      this.biotrainerResult,
+      this.biotrainerInferenceResult,
+      this.embeddingProgress,
+      this.embeddedSequences,
+      this.embeddings,
+      this.embeddingsFile,
+      this.clusteredData,
+      this.projectionResult,
+      this.alIterationResult,
+      this.alSimulationResult})
+      : super._();
+  @override
+  TaskDTO rebuild(void Function(TaskDTOBuilder) updates) =>
+      (toBuilder()..update(updates)).build();
+
+  @override
+  TaskDTOBuilder toBuilder() => TaskDTOBuilder()..replace(this);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(other, this)) return true;
+    return other is TaskDTO &&
+        status == other.status &&
+        error == other.error &&
+        predictions == other.predictions &&
+        biotrainerUpdate == other.biotrainerUpdate &&
+        biotrainerResult == other.biotrainerResult &&
+        biotrainerInferenceResult == other.biotrainerInferenceResult &&
+        embeddingProgress == other.embeddingProgress &&
+        embeddedSequences == other.embeddedSequences &&
+        embeddings == other.embeddings &&
+        embeddingsFile == other.embeddingsFile &&
+        clusteredData == other.clusteredData &&
+        projectionResult == other.projectionResult &&
+        alIterationResult == other.alIterationResult &&
+        alSimulationResult == other.alSimulationResult;
+  }
+
+  @override
+  int get hashCode {
+    var _$hash = 0;
+    _$hash = $jc(_$hash, status.hashCode);
+    _$hash = $jc(_$hash, error.hashCode);
+    _$hash = $jc(_$hash, predictions.hashCode);
+    _$hash = $jc(_$hash, biotrainerUpdate.hashCode);
+    _$hash = $jc(_$hash, biotrainerResult.hashCode);
+    _$hash = $jc(_$hash, biotrainerInferenceResult.hashCode);
+    _$hash = $jc(_$hash, embeddingProgress.hashCode);
+    _$hash = $jc(_$hash, embeddedSequences.hashCode);
+    _$hash = $jc(_$hash, embeddings.hashCode);
+    _$hash = $jc(_$hash, embeddingsFile.hashCode);
+    _$hash = $jc(_$hash, clusteredData.hashCode);
+    _$hash = $jc(_$hash, projectionResult.hashCode);
+    _$hash = $jc(_$hash, alIterationResult.hashCode);
+    _$hash = $jc(_$hash, alSimulationResult.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
+  }
+
+  @override
+  String toString() {
+    return (newBuiltValueToStringHelper(r'TaskDTO')
+          ..add('status', status)
+          ..add('error', error)
+          ..add('predictions', predictions)
+          ..add('biotrainerUpdate', biotrainerUpdate)
+          ..add('biotrainerResult', biotrainerResult)
+          ..add('biotrainerInferenceResult', biotrainerInferenceResult)
+          ..add('embeddingProgress', embeddingProgress)
+          ..add('embeddedSequences', embeddedSequences)
+          ..add('embeddings', embeddings)
+          ..add('embeddingsFile', embeddingsFile)
+          ..add('clusteredData', clusteredData)
+          ..add('projectionResult', projectionResult)
+          ..add('alIterationResult', alIterationResult)
+          ..add('alSimulationResult', alSimulationResult))
+        .toString();
+  }
+}
+
+class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
+  _$TaskDTO? _$v;
+
+  TaskStatus? _status;
+  TaskStatus? get status => _$this._status;
+  set status(TaskStatus? status) => _$this._status = status;
+
+  String? _error;
+  String? get error => _$this._error;
+  set error(String? error) => _$this._error = error;
+
+  MapBuilder<String, BuiltList<Prediction>>? _predictions;
+  MapBuilder<String, BuiltList<Prediction>> get predictions =>
+      _$this._predictions ??= MapBuilder<String, BuiltList<Prediction>>();
+  set predictions(MapBuilder<String, BuiltList<Prediction>>? predictions) =>
+      _$this._predictions = predictions;
+
+  BiotrainerModelUpdateBuilder? _biotrainerUpdate;
+  BiotrainerModelUpdateBuilder get biotrainerUpdate =>
+      _$this._biotrainerUpdate ??= BiotrainerModelUpdateBuilder();
+  set biotrainerUpdate(BiotrainerModelUpdateBuilder? biotrainerUpdate) =>
+      _$this._biotrainerUpdate = biotrainerUpdate;
+
+  BiotrainerModelResultBuilder? _biotrainerResult;
+  BiotrainerModelResultBuilder get biotrainerResult =>
+      _$this._biotrainerResult ??= BiotrainerModelResultBuilder();
+  set biotrainerResult(BiotrainerModelResultBuilder? biotrainerResult) =>
+      _$this._biotrainerResult = biotrainerResult;
+
+  BiotrainerInferenceResultBuilder? _biotrainerInferenceResult;
+  BiotrainerInferenceResultBuilder get biotrainerInferenceResult =>
+      _$this._biotrainerInferenceResult ??= BiotrainerInferenceResultBuilder();
+  set biotrainerInferenceResult(
+          BiotrainerInferenceResultBuilder? biotrainerInferenceResult) =>
+      _$this._biotrainerInferenceResult = biotrainerInferenceResult;
+
+  EmbeddingProgressBuilder? _embeddingProgress;
+  EmbeddingProgressBuilder get embeddingProgress =>
+      _$this._embeddingProgress ??= EmbeddingProgressBuilder();
+  set embeddingProgress(EmbeddingProgressBuilder? embeddingProgress) =>
+      _$this._embeddingProgress = embeddingProgress;
+
+  MapBuilder<String, String>? _embeddedSequences;
+  MapBuilder<String, String> get embeddedSequences =>
+      _$this._embeddedSequences ??= MapBuilder<String, String>();
+  set embeddedSequences(MapBuilder<String, String>? embeddedSequences) =>
+      _$this._embeddedSequences = embeddedSequences;
+
+  ListBuilder<SequenceData>? _embeddings;
+  ListBuilder<SequenceData> get embeddings =>
+      _$this._embeddings ??= ListBuilder<SequenceData>();
+  set embeddings(ListBuilder<SequenceData>? embeddings) =>
+      _$this._embeddings = embeddings;
+
+  String? _embeddingsFile;
+  String? get embeddingsFile => _$this._embeddingsFile;
+  set embeddingsFile(String? embeddingsFile) =>
+      _$this._embeddingsFile = embeddingsFile;
+
+  MapBuilder<String, BuiltList<String>>? _clusteredData;
+  MapBuilder<String, BuiltList<String>> get clusteredData =>
+      _$this._clusteredData ??= MapBuilder<String, BuiltList<String>>();
+  set clusteredData(MapBuilder<String, BuiltList<String>>? clusteredData) =>
+      _$this._clusteredData = clusteredData;
+
+  ProjectionResultBuilder? _projectionResult;
+  ProjectionResultBuilder get projectionResult =>
+      _$this._projectionResult ??= ProjectionResultBuilder();
+  set projectionResult(ProjectionResultBuilder? projectionResult) =>
+      _$this._projectionResult = projectionResult;
+
+  ActiveLearningIterationResultBuilder? _alIterationResult;
+  ActiveLearningIterationResultBuilder get alIterationResult =>
+      _$this._alIterationResult ??= ActiveLearningIterationResultBuilder();
+  set alIterationResult(
+          ActiveLearningIterationResultBuilder? alIterationResult) =>
+      _$this._alIterationResult = alIterationResult;
+
+  ActiveLearningScreeningSimulationResultBuilder? _alSimulationResult;
+  ActiveLearningScreeningSimulationResultBuilder get alSimulationResult =>
+      _$this._alSimulationResult ??=
+          ActiveLearningScreeningSimulationResultBuilder();
+  set alSimulationResult(
+          ActiveLearningScreeningSimulationResultBuilder? alSimulationResult) =>
+      _$this._alSimulationResult = alSimulationResult;
+
+  TaskDTOBuilder() {
+    TaskDTO._defaults(this);
+  }
+
+  TaskDTOBuilder get _$this {
+    final $v = _$v;
+    if ($v != null) {
+      _status = $v.status;
+      _error = $v.error;
+      _predictions = $v.predictions?.toBuilder();
+      _biotrainerUpdate = $v.biotrainerUpdate?.toBuilder();
+      _biotrainerResult = $v.biotrainerResult?.toBuilder();
+      _biotrainerInferenceResult = $v.biotrainerInferenceResult?.toBuilder();
+      _embeddingProgress = $v.embeddingProgress?.toBuilder();
+      _embeddedSequences = $v.embeddedSequences?.toBuilder();
+      _embeddings = $v.embeddings?.toBuilder();
+      _embeddingsFile = $v.embeddingsFile;
+      _clusteredData = $v.clusteredData?.toBuilder();
+      _projectionResult = $v.projectionResult?.toBuilder();
+      _alIterationResult = $v.alIterationResult?.toBuilder();
+      _alSimulationResult = $v.alSimulationResult?.toBuilder();
+      _$v = null;
+    }
+    return this;
+  }
+
+  @override
+  void replace(TaskDTO other) {
+    _$v = other as _$TaskDTO;
+  }
+
+  @override
+  void update(void Function(TaskDTOBuilder)? updates) {
+    if (updates != null) updates(this);
+  }
+
+  @override
+  TaskDTO build() => _build();
+
+  _$TaskDTO _build() {
+    _$TaskDTO _$result;
+    try {
+      _$result = _$v ??
+          _$TaskDTO._(
+            status: BuiltValueNullFieldError.checkNotNull(
+                status, r'TaskDTO', 'status'),
+            error: error,
+            predictions: _predictions?.build(),
+            biotrainerUpdate: _biotrainerUpdate?.build(),
+            biotrainerResult: _biotrainerResult?.build(),
+            biotrainerInferenceResult: _biotrainerInferenceResult?.build(),
+            embeddingProgress: _embeddingProgress?.build(),
+            embeddedSequences: _embeddedSequences?.build(),
+            embeddings: _embeddings?.build(),
+            embeddingsFile: embeddingsFile,
+            clusteredData: _clusteredData?.build(),
+            projectionResult: _projectionResult?.build(),
+            alIterationResult: _alIterationResult?.build(),
+            alSimulationResult: _alSimulationResult?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'predictions';
+        _predictions?.build();
+        _$failedField = 'biotrainerUpdate';
+        _biotrainerUpdate?.build();
+        _$failedField = 'biotrainerResult';
+        _biotrainerResult?.build();
+        _$failedField = 'biotrainerInferenceResult';
+        _biotrainerInferenceResult?.build();
+        _$failedField = 'embeddingProgress';
+        _embeddingProgress?.build();
+        _$failedField = 'embeddedSequences';
+        _embeddedSequences?.build();
+        _$failedField = 'embeddings';
+        _embeddings?.build();
+
+        _$failedField = 'clusteredData';
+        _clusteredData?.build();
+        _$failedField = 'projectionResult';
+        _projectionResult?.build();
+        _$failedField = 'alIterationResult';
+        _alIterationResult?.build();
+        _$failedField = 'alSimulationResult';
+        _alSimulationResult?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+            r'TaskDTO', _$failedField, e.toString());
+      }
+      rethrow;
+    }
+    replace(_$result);
+    return _$result;
+  }
+}
+
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint
