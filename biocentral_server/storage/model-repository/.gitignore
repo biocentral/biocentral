@@ -1,0 +1,32 @@
+# Keep Python model implementations
+!_internal_esm2_tokenizer/1/model.py
+!_internal_prott5_tokenizer/1/model.py
+!seth_postprocess/1/model.py
+
+# Ignore ONNX model files (large binary files)
+*.onnx
+*.pt
+*.pth
+*.h5
+*.bin
+*.bias
+*.weight
+onnx__*
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Keep configuration and structure
+!config.pbtxt
+!README.md
+!Dockerfile*
+!init_models.py

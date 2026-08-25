@@ -1,0 +1,30 @@
+---
+title: VespaG
+description: Mutation effect scoring for amino-acid substitutions on protein function.
+---
+
+### Summary
+
+- **Model name:** `VespaG`
+- **Task:** Predict effects of amino-acid variants
+- **Protocol:** `residue_to_class`
+- **Embedder:** `facebook/esm2_t36_3B_UR50D`
+- **Model size:** `2.6 MB`
+
+### Outputs
+
+#### variant_effect
+
+- **Description:** Effect of amino-acid mutations on protein function
+- **Output type:** `mutation`
+- **Value type:** `float`
+- **Value range:** `0` to `1`
+- **Unit:** `score`
+
+### References
+
+- **Authors:** Céline Marquet; Julius Schlensok; Marina Abakarova; Burkhard Rost; Elodie Laine
+- **Model link:** [github.com/JSchlensok/VespaG](https://github.com/JSchlensok/VespaG)
+- **Citation:** [doi.org/10.1093/bioinformatics/btae621](https://doi.org/10.1093/bioinformatics/btae621)
+- **License:** `GPL-3.0`
+- **Training data:** [zenodo.org/records/11085958](https://zenodo.org/records/11085958)

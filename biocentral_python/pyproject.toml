@@ -1,0 +1,44 @@
+[project]
+name = "biocentral"
+version = "2.0.0"
+description = "Unified Python access to the biocentral ecosystem."
+authors = [
+    { name = "Sebastian Franz", email = "sebastian.franz@tum.de" },
+]
+readme = "README.md"
+keywords = ["Biocentral", "Biotrainer", "Protein", "Embeddings", "Deep Learning"]
+requires-python = ">=3.12,<3.14"
+
+dependencies = [
+    "biocentral-api>=2.0.0,<3.0.0",
+    "biotrainer-core>=2.0.0,<3.0.0",
+    "biocentral-vis>=2.0.0,<3.0.0",
+    "click>=8.0.0,<9.0.0",
+    "platformdirs>=4.0.0,<5.0.0",
+    "ipykernel>=7.3.0",
+]
+
+[project.optional-dependencies]
+server = ["biocentral-server>=2.0.0,<3.0.0"]
+local = ["biotrainer>=2.0.0,<3.0.0"]
+all = ["biotrainer>=2.0.0,<3.0.0", "biocentral-server>=2.0.0,<3.0.0"]
+
+[tool.uv]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+
+[project.scripts]
+biocentral = "biocentral.cli:biocentral"
+
+[project.urls]
+Repository = "https://github.com/biocentral/biocentral"
+
+[tool.uv.sources]
+biocentral_api = { path = "../biocentral_api/python", editable = true }
+biocentral_vis = { path = "../biocentral_vis/python", editable = true }
+biocentral_server = { path = "../biocentral_server", editable = true }
+biotrainer = { path = "../biotrainer", editable = true }
+biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

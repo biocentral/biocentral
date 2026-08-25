@@ -1,0 +1,429 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ 'main', 'develop' ]
+  pull_request:
+    branches: [ 'main', 'develop' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+  actions: write
+
+# ──────────────────────────────────────────────────────────────
+#  Stage 1 – Unit Tests  (parallel, fast feedback)
+#  Stage 2 – Integration Tests  (needs running server)
+#  Stage 3 – Build Artifacts  (parallel, only after all tests)
+# ──────────────────────────────────────────────────────────────
+
+jobs:
+
+  # ════════════════════════════════════════════════════════════
+  #  Change Detection
+  # ════════════════════════════════════════════════════════════
+  changes:
+    name: "🔍 Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      api: ${{ steps.filter.outputs.api }}
+      vis: ${{ steps.filter.outputs.vis }}
+      python: ${{ steps.filter.outputs.python }}
+      ire: ${{ steps.filter.outputs.ire }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'biocentral_server/**'
+            api:
+              - 'biocentral_api/**'
+              - 'biocentral_server/**'
+            vis:
+              - 'biocentral_vis/**'
+            python:
+              - 'biocentral_python/**'
+              - 'biocentral_api/**'
+              - 'biocentral_vis/**'
+            ire:
+              - 'biocentral_ire/**'
+
+  # ════════════════════════════════════════════════════════════
+  #  Stage 1 – Unit Tests
+  # ════════════════════════════════════════════════════════════
+
+  server-unit-tests:
+    name: "🧪 Stage 1 · Server Unit Tests"
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_server
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-server-python
+
+      - name: "Run server unit tests"
+        run: |
+          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning"
+
+  vis-unit-tests:
+    name: "🧪 Stage 1 · Vis Unit Tests"
+    needs: changes
+    if: needs.changes.outputs.vis == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_vis/python
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-python-simple
+        with:
+          working-directory: biocentral_vis/python
+
+      # TODO: Add unit tests for biocentral_vis
+      - name: "Placeholder: No tests yet"
+        run: echo "⚠️  No unit tests for biocentral_vis yet – add tests under biocentral_vis/python/tests/"
+
+  api-unit-tests:
+    name: "🧪 Stage 1 · Api Unit Tests"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_api/python
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-python-simple
+        with:
+          working-directory: biocentral_api/python
+
+      - name: "Run api unit tests"
+        run: |
+          uv run pytest tests/unit/* -v -W "ignore::DeprecationWarning"
+
+  ire-unit-widget-tests:
+    name: "🧪 Stage 1 · IRE Unit & Widget Tests"
+    needs: changes
+    if: needs.changes.outputs.ire == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_ire
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-flutter-ire
+
+      - name: Run Flutter Unit and Widget Tests
+        run: flutter test
+
+  # ════════════════════════════════════════════════════════════
+  #  Stage 2 – Integration Tests (Server Integration deprecated and will be removed)
+  # ════════════════════════════════════════════════════════════
+
+  api-integration-tests:
+    name: "🔗 Stage 2 · API Integration Tests"
+    needs: [ changes, server-unit-tests ]
+    if: |
+      always() &&
+      needs.changes.outputs.api == 'true' &&
+      (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-server-python
+
+      - uses: ./.github/actions/setup-server-services
+
+      - name: "Start biocentral-server locally"
+        shell: bash
+        working-directory: biocentral_server
+        run: |
+          uv run python run-local.py &
+          # Wait for server to be ready
+          for i in {1..30}; do
+            if curl -s http://localhost:9540/health > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server..."
+            sleep 2
+          done
+
+      - name: Run API tests
+        working-directory: biocentral_api/python
+        run: uv run pytest tests/integration -v -W "ignore::DeprecationWarning"
+
+      - uses: ./.github/actions/setup-python-simple
+        with:
+          working-directory: biocentral_python
+
+      # TODO: Add equivalence tests comparing local and API backends
+      - name: "Placeholder: python-equivalence-tests"
+        run: echo "⚠️  No equivalence tests for biocentral_python yet – add tests under biocentral_python/tests/"
+
+  ire-integration-tests:
+    name: "🔗 Stage 2 · IRE Integration Tests"
+    needs: [ changes, ire-unit-widget-tests ]
+    if: |
+      always() &&
+      needs.changes.outputs.ire == 'true' &&
+      (needs.ire-unit-widget-tests.result == 'success' || needs.ire-unit-widget-tests.result == 'skipped')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_ire
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-flutter-ire
+
+      - name: Run Integration Tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: cd biocentral_ire && flutter test integration_test -d linux -r github
+
+  # ════════════════════════════════════════════════════════════
+  #  Stage 3 – Build Artifacts
+  # ════════════════════════════════════════════════════════════
+
+  build-server-docker:
+    name: "📦 Stage 3 · Build Server Docker Image"
+    needs:
+      - server-unit-tests
+      - api-integration-tests
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biocentral_server
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/biocentral-server
+          tags: |
+            type=sha,format=short
+            type=raw,value=ci
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: biocentral_server
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-ire-app:
+    name: "📦 Stage 3 · Build IRE App"
+    needs:
+      - ire-unit-widget-tests
+      - ire-integration-tests
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]  # TODO: macos-latest
+    defaults:
+      run:
+        working-directory: biocentral_ire
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Install Windows Dependencies
+        if: matrix.os == 'windows-latest'
+        run: choco install yq -y
+        shell: powershell
+
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang libgtk-3-dev unzip
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: biocentral_ire/pubspec.yaml
+      - run: |
+          flutter upgrade
+          flutter pub get
+
+      - name: Create Launcher Icons
+        run: dart run flutter_launcher_icons
+
+      - name: Build Windows Application
+        if: matrix.os == 'windows-latest'
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
+          flutter build windows --release --verbose
+      - name: Upload Windows build artifacts
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: biocentral_ire/build/windows/x64/runner/Release
+
+      - name: Build Linux Application
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+          flutter build linux --release
+        env:
+          SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages
+      - name: Upload Linux build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: biocentral_ire/build/linux/x64/release/bundle
+
+      - name: Build Web Application
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cp -r python_companion/ assets/
+          rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
+          flutter build web
+      - name: Upload Web build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: biocentral_ire/build/web
+
+  build-appimage:
+    name: "📦 Stage 3 · Build AppImage"
+    needs: build-ire-app
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Get version
+        id: get_version
+        run: echo "version=$(grep 'version:' biocentral_ire/pubspec.yaml | awk '{print $2}' | sed 's/+[0-9]*$//' | tr -d "'" | tr . -)" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget libfuse2
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux/
+
+      - name: Download AppImageKit
+        run: |
+          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+      - name: Prepare AppDir
+        run: |
+          mkdir -p biocentral.AppDir
+          cp -r build/linux/* biocentral.AppDir/
+          chmod +x biocentral.AppDir/biocentral
+
+      - name: Create AppRun file
+        run: |
+          cat > biocentral.AppDir/AppRun << EOF
+          #!/bin/sh
+          cd "\$(dirname "\$0")"
+          exec ./biocentral
+          EOF
+          chmod +x biocentral.AppDir/AppRun
+
+      - name: Create .desktop File
+        run: |
+          cat > biocentral.AppDir/biocentral.desktop << EOF
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Terminal=false
+          Name=Biocentral
+          Comment=Biomedical data, from lab to paper.
+          Exec=biocentral %u
+          Icon=biocentral_logo
+          Categories=Science;
+          EOF
+
+      - name: Copy Logo
+        run: cp biocentral_ire/assets/biocentral_logo/biocentral_logo.png biocentral.AppDir/
+
+      - name: Bundle AppImage
+        run: ARCH=x86_64 ./appimagetool-x86_64.AppImage biocentral.AppDir/ biocentral_v${{ steps.get_version.outputs.version }}.AppImage
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biocentral-appimage-v${{ steps.get_version.outputs.version }}
+          path: biocentral_*.AppImage

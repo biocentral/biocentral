@@ -1,0 +1,96 @@
+from typing import Annotated
+from fastapi import APIRouter, Depends, Request
+
+from biotrainer_core.data_classes import SequenceData
+from fastapi_limiter.depends import RateLimiter
+
+from .multi_prediction_task import MultiPredictionTask
+from .models import get_metadata_for_all_models, filter_models
+from .endpoint_models import PredictionRequest, ModelMetadataResponse
+
+from ..server_management import (
+    TaskManager,
+    UserManager,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    MetricsService,
+    StartTaskResponse,
+)
+
+router = APIRouter(
+    prefix="/prediction_service",
+    tags=["prediction"],
+    responses={404: {"description": "Not found"}},
+)
+
+
+# Endpoint to get all available model metadata
+@router.get(
+    "/model_metadata",
+    response_model=ModelMetadataResponse,
+    responses={},
+    summary="Get predict model metadata",
+    description="Get metadata for available prediction models",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
+)
+def model_metadata():
+    return ModelMetadataResponse(metadata=get_metadata_for_all_models())
+
+
+@router.post(
+    "/predict",
+    response_model=StartTaskResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Bad Request"},
+        404: {"model": NotFoundErrorResponse, "description": "Model not found"},
+    },
+    summary="Submit protein sequence prediction job",
+    description="Submit sequences for prediction using specified models and receive a task ID for tracking",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+)
+async def predict(
+    request_data: PredictionRequest,
+    request: Request,
+    metrics_service: Annotated[MetricsService, Depends(MetricsService)],
+):
+    """
+    Endpoint for protein sequence prediction using a single or multiple models
+    """
+    model_names = request_data.model_names
+    available_model_names = {model.name for model in get_metadata_for_all_models()}
+
+    # Check if all requested models exist
+    missing_models = [
+        name.name for name in model_names if name not in available_model_names
+    ]
+    if missing_models:
+        return NotFoundErrorResponse(
+            error=f"The following models were not found: {', '.join(missing_models)}",
+            error_code=404,
+        )
+
+    # Convert sequence input to SequenceData objects
+    sequence_input = [
+        SequenceData(seq_id=seq_id, seq=seq)
+        for seq_id, seq in request_data.sequence_input.items()
+    ]
+
+    # Get filtered models and create prediction task
+    models = filter_models(model_names=model_names)
+    prediction_task = MultiPredictionTask(
+        models=models,
+        sequence_input=sequence_input,
+        batch_size=1,  # TODO batch_size
+    )
+
+    # Record metrics
+    metrics_service.record_prediction_data(
+        sequences=request_data.sequence_input,
+        predictor_names=[m.name for m in models.keys()],
+    )
+
+    # Add task to task manager
+    user_id = await UserManager.get_user_id_from_request(req=request)
+    task_id = TaskManager().add_task(prediction_task, user_id=user_id)
+
+    return StartTaskResponse(task_id=task_id)

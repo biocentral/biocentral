@@ -1,15 +1,14 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
+title: ""
 labels: enhancement
-assignees: ''
-
+assignees: ""
 ---
 
 <!---
 Hello and thank you for contributing to biocentral and telling us about your new feature idea! :-)
-To keep our design as researcher- and user-friendly as possible, we use *user stories* to describe our features. You can learn more about them here, for example: 
+To keep our design as researcher- and user-friendly as possible, we use *user stories* to describe our features. You can learn more about them here, for example:
 https://github.com/awkale/user-story-best-practice
 
 Remember to use a meaningful title for your issue, at best a summary of your user story.

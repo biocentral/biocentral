@@ -1,0 +1,16 @@
+{
+  "title": "Predict: Use pretrained models to predict protein properties",
+  "pagesIndex": "index",
+  "pages": [
+    "tmbed",
+    "lightattention-membrane",
+    "lightattention-subcellular-localization",
+    "seth",
+    "udonpred",
+    "bindembed",
+    "prott5-conservation",
+    "prott5-secondary-structure",
+    "vespag",
+    "exotox"
+  ]
+}

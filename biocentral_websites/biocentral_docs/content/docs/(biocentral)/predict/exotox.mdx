@@ -1,0 +1,33 @@
+---
+title: ExoTox
+description: Sequence-level exotoxin classification for proteins.
+---
+
+### Summary
+
+- **Model name:** `ExoTox`
+- **Task:** Exotoxin prediction
+- **Protocol:** `sequence_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** `147.4 KB`
+
+### Outputs
+
+#### exotoxin
+
+- **Description:** Protein is an exotoxin or not
+- **Output type:** `per_sequence`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `NOT_EXOTOXIN` | Protein is not an exotoxin |
+| `EXOTOXIN` | Protein is an exotoxin |
+
+### References
+
+- **Authors:** Tanja Krueger; Damla A. Durmaz; Luisa F. Jimenez-Soto
+- **Model link:** [data.ub.uni-muenchen.de/576](https://data.ub.uni-muenchen.de/576/)
+- **Citation:** [doi.org/10.1186/s13040-025-00469-2](https://doi.org/10.1186/s13040-025-00469-2)
+- **License:** `CC BY 4.0`
+- **Training data:** [data.ub.uni-muenchen.de/576](https://data.ub.uni-muenchen.de/576/)

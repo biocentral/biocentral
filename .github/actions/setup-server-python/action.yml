@@ -1,0 +1,43 @@
+name: "Setup Server Python Environment"
+description: "Checkout, load .env.ci, set up Python 3.12, configure Git HTTPS, install uv, and install CPU-only PyTorch dependencies for biocentral_server"
+
+inputs:
+  uv-version:
+    description: "uv version to install (empty for latest)"
+    required: false
+    default: ""
+  uv-enable-cache:
+    description: "Enable uv cache"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Load environment variables from .env.ci
+      shell: bash
+      working-directory: biocentral_server
+      run: cat .env.ci >> $GITHUB_ENV
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Configure Git for HTTPS
+      shell: bash
+      run: |
+        git config --global url."https://github.com/".insteadOf git@github.com:
+
+    - uses: astral-sh/setup-uv@v7
+      with:
+        version: ${{ inputs.uv-version || '' }}
+        enable-cache: ${{ inputs.uv-enable-cache }}
+        cache-dependency-glob: ${{ inputs.uv-enable-cache == 'true' && 'uv.lock' || '' }}
+        cache-local-path: ${{ inputs.uv-enable-cache == 'true' && '/tmp/.uv-cache' || '' }}
+
+    - name: Install dependencies (CPU-only PyTorch)
+      shell: bash
+      working-directory: biocentral_server
+      run: uv sync --no-install-project --index-strategy unsafe-best-match
+      env:
+        UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu

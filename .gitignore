@@ -58,3 +58,5 @@ app.*.map.json
 /assets/python_companion.zip
 /assets/python_companion/
 /assets/python_companion.zip.hash
+/biocentral_python/dist/
+/biocentral_python/biocentral.egg-info/

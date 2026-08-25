@@ -1,0 +1,209 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_load_project_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_plugins_bloc.dart';
+import 'package:biocentral/biocentral/bloc/biocentral_sidebar_bloc.dart';
+import 'package:biocentral/biocentral/presentation/views/biocentral_load_project_view.dart';
+import 'package:biocentral/biocentral/presentation/views/biocentral_start_page_view.dart';
+import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral/sdk/bloc/biocentral_api_health_service.dart';
+import 'package:biocentral/sdk/bloc/theme/theme_bloc.dart';
+import 'package:biocentral/sdk/bloc/theme/theme_event.dart';
+import 'package:biocentral/sdk/bloc/theme/theme_state.dart';
+import 'package:biocentral/sdk/data/biocentral_python_companion.dart';
+import 'package:biocentral/sdk/domain/biocentral_command_log_repository.dart';
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:event_bus/event_bus.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tutorial_system/tutorial_system.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final EventBus eventBus = EventBus();
+  final BiocentralProjectRepository projectRepository = await BiocentralProjectRepository.fromLastProjectDirectory();
+  final BiocentralCommandLogRepository commandLogRepository = BiocentralCommandLogRepository(projectRepository);
+  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: false);
+  final BiocentralAPIRepository apiRepository = BiocentralAPIRepository(biocentralAPI);
+  final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
+  healthService.startMonitoring();
+  final BiocentralPythonCompanion pythonCompanion = await BiocentralPythonCompanion.startCompanion();
+  final BiocentralPluginManager pluginManager = BiocentralPluginManager(
+    eventBus: eventBus,
+    projectRepository: projectRepository,
+    companion: pythonCompanion,
+  );
+
+  runApp(
+    BiocentralApp(
+      eventBus: eventBus,
+      projectRepository: projectRepository,
+      commandLogRepository: commandLogRepository,
+      apiRepository: apiRepository,
+      pluginManager: pluginManager,
+      pythonCompanion: pythonCompanion,
+    ),
+  );
+}
+
+@immutable
+class BiocentralApp extends StatefulWidget {
+  final EventBus eventBus;
+  final BiocentralProjectRepository projectRepository;
+  final BiocentralCommandLogRepository commandLogRepository;
+  final BiocentralAPIRepository apiRepository;
+  final BiocentralPluginManager pluginManager;
+  final BiocentralPythonCompanion pythonCompanion;
+
+  const BiocentralApp({
+    required this.eventBus,
+    required this.projectRepository,
+    required this.commandLogRepository,
+    required this.apiRepository,
+    required this.pluginManager,
+    required this.pythonCompanion,
+    super.key,
+  });
+
+  @override
+  State<BiocentralApp> createState() => _BiocentralAppState();
+}
+
+class _BiocentralAppState extends State<BiocentralApp> {
+  final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+  late BiocentralAPIRepository cachedAPIRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    cachedAPIRepository = widget.apiRepository;
+  }
+
+  /// Creates global repositories that are available to all plugins
+  List<RepositoryProvider> getGlobalRepositoryProviders(BuildContext context, BiocentralPluginManager pluginManager) {
+    final BiocentralColumnWizardRepository biocentralColumnWizardRepository =
+        BiocentralColumnWizardRepository.withDefaultWizards();
+    final BiocentralDatabaseRepository biocentralDatabaseRepository = BiocentralDatabaseRepository();
+    final TutorialRepository tutorialRepository = TutorialRepository(globalNavigatorKey);
+
+    pluginManager.registerGlobalProperties(
+      biocentralColumnWizardRepository,
+      biocentralDatabaseRepository,
+      tutorialRepository,
+    );
+
+    return [
+      RepositoryProvider<BiocentralProjectRepository>.value(value: widget.projectRepository),
+      RepositoryProvider<BiocentralCommandLogRepository>.value(value: widget.commandLogRepository),
+      RepositoryProvider<BiocentralPythonCompanion>.value(value: widget.pythonCompanion),
+      RepositoryProvider<BiocentralDatabaseRepository>.value(value: biocentralDatabaseRepository),
+      RepositoryProvider<BiocentralAPIRepository>.value(value: cachedAPIRepository),
+      // TODO Check if this works with reloading plugins
+      RepositoryProvider<BiocentralColumnWizardRepository>.value(value: biocentralColumnWizardRepository),
+      RepositoryProvider<TutorialRepository>.value(value: tutorialRepository),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<BiocentralCommandBloc>(
+          create: (context) => BiocentralCommandBloc(widget.eventBus, widget.commandLogRepository),
+        ),
+        BlocProvider<BiocentralPluginBloc>(
+          create: (context) => BiocentralPluginBloc(widget.eventBus, widget.pluginManager),
+        ),
+        BlocProvider<ThemeBloc>(
+          create: (context) => ThemeBloc()..add(InitializeThemeEvent()),
+        ),
+        BlocProvider<BiocentralSideBarBloc>(
+          create: (context) => BiocentralSideBarBloc(),
+        ),
+      ],
+      child: BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
+        buildWhen: (sOld, sNew) =>
+            sOld.status == BiocentralPluginStatus.loading && sNew.status == BiocentralPluginStatus.loaded,
+        builder: (context, pluginState) => MultiRepositoryProvider(
+          providers: [
+            ...getGlobalRepositoryProviders(context, pluginState.pluginManager),
+            ...pluginState.pluginManager.getPluginRepositories(),
+          ],
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              return MaterialApp(
+                navigatorKey: globalNavigatorKey,
+                title: 'Biocentral',
+                theme: themeState.isDarkMode ? BiocentralStyle.darkTheme : BiocentralStyle.lightTheme,
+                home: BiocentralAppHome(
+                  eventBus: widget.eventBus,
+                  isDirectoryPathSet: widget.projectRepository.isProjectDirectoryPathSet(),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BiocentralAppHome extends StatelessWidget {
+  final EventBus eventBus;
+  final bool isDirectoryPathSet;
+
+  const BiocentralAppHome({required this.eventBus, required this.isDirectoryPathSet, super.key});
+
+  /// Creates global blocs that are available to all plugins
+  Map<BlocProvider, Bloc> getGlobalBlocProviders(BuildContext context) {
+    return {};
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<BiocentralPluginBloc, BiocentralPluginState>(
+      builder: (context, pluginState) => AnimatedSplashScreen(
+        backgroundColor: const Color.fromRGBO(0, 19, 58, 1.0),
+        duration: 1500,
+        splash: 'assets/biocentral_logo/biocentral_logo.png',
+        nextScreen: buildScreenAfterSplash(pluginState, context),
+      ),
+    );
+  }
+
+  Widget buildScreenAfterSplash(BiocentralPluginState pluginState, BuildContext context) {
+    // TODO [Refactoring] Handling the blocs here is dangerous, because rebuilding triggers side effects in event bus
+    final Map<BlocProvider, Bloc> globalBlocProviders = getGlobalBlocProviders(context);
+    final Map<BlocProvider, Bloc> pluginBlocProviders = pluginState.pluginManager.getPluginBlocs(context);
+    final Map<BlocProvider, Bloc> allBlocProviders = {...globalBlocProviders, ...pluginBlocProviders};
+
+    final projectRepository = context.read<BiocentralProjectRepository>();
+    if (kIsWeb || !isDirectoryPathSet) {
+      return BiocentralStartPageView(
+        providers: allBlocProviders.keys.toList(),
+        pluginManager: pluginState.pluginManager,
+        eventBus: eventBus,
+      );
+    } else {
+      return BlocProvider(
+        create: (context) => BiocentralLoadProjectBloc(
+          projectRepository,
+          context.read<BiocentralCommandLogRepository>(),
+          context.read<BiocentralCommandBloc>(),
+          projectRepository.getAllPluginDirectories(),
+        )..add(
+            BiocentralLoadProjectFromDirectoryEvent(
+              projectRepository.getProjectDirectoryPath(),
+              context,
+            ),
+          ),
+        child: BiocentralLoadProjectView(
+          providers: allBlocProviders.keys.toList(),
+          pluginManager: pluginState.pluginManager,
+          eventBus: eventBus,
+        ),
+      );
+    }
+  }
+}

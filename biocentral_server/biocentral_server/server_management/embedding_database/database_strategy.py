@@ -1,0 +1,70 @@
+import torch
+
+from typing import Optional, Dict, Tuple, List, Any, Generator
+from biotrainer_core.h5_files import EmbeddingDatabaseDTO
+
+
+class DatabaseStrategy:
+    def init_db(self, config):
+        raise NotImplementedError
+
+    def db_lookup(self, hash_key):
+        raise NotImplementedError
+
+    def save_embeddings(self, embeddings_data: List[EmbeddingDatabaseDTO]):
+        raise NotImplementedError
+
+    def get_embeddings(
+        self, sequences: Dict[str, str], embedder_name: str
+    ) -> Dict[str, Dict[str, Any]]:
+        raise NotImplementedError
+
+    def clear_embeddings(self, sequence=None, model_name=None):
+        raise NotImplementedError
+
+    def filter_existing_embeddings(
+        self, sequences: Dict[str, str], embedder_name: str, reduced: bool
+    ) -> Tuple[Dict[str, str], Dict[str, str]]:
+        raise NotImplementedError
+
+    def delete_embeddings_by_model(self, embedder_name: str) -> bool:
+        raise NotImplementedError
+
+    @staticmethod
+    def _sanity_check_embedding_lookup(sequence: str, document):
+        seq_len = len(sequence)
+        seq_len_lookup = document["metadata"]["sequence_length"]
+        if seq_len != seq_len_lookup:
+            raise Exception(
+                f"Sequence length mismatch for sequence lookup ({seq_len} != {seq_len_lookup}). "
+                f"This is extremely unlikely to have happened, please report at "
+                f"https://github.com/biocentral/biocentral/issues "
+                f"Sequence causing the issue: {sequence}"
+            )
+
+    @staticmethod
+    def compress_embedding(embedding):
+        raise NotImplementedError
+
+    @staticmethod
+    def _decompress_embedding(compressed) -> Optional[torch.Tensor]:
+        raise NotImplementedError
+
+    def get_database_size(self) -> int:
+        """
+        Get the current size of the database.
+
+        :return: Size in bytes
+        """
+        raise NotImplementedError
+
+    def cleanup_database(
+        self, older_than_days: int = 30, size_threshold: int = 10 * 1024 * 1024 * 1024
+    ) -> int:
+        raise NotImplementedError
+
+    def get_database_statistics(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def get_all_embeddings(self) -> Generator[EmbeddingDatabaseDTO, None, None]:
+        raise NotImplementedError

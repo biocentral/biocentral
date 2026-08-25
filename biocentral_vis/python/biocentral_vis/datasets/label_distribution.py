@@ -1,0 +1,254 @@
+import pandas as pd
+import altair as alt
+
+from typing import List, Optional, Callable
+from biotrainer_core.data_classes import SequenceData
+
+from ..base import SequenceDataUtils
+
+
+def _plot_label_distribution_per_sequence_discrete(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
+    # Collect rich data
+    data_by_label = {}
+    for record in dataset:
+        label = record.label
+        if label is None:
+            continue
+
+        skip = not labels_filter(label)
+        if skip:
+            continue
+
+        if label not in data_by_label:
+            data_by_label[label] = {
+                "label": label,
+                "count": 0,
+                "seq_ids": [],
+                "sets": {},
+            }
+
+        data_by_label[label]["count"] += 1
+        data_by_label[label]["seq_ids"].append(record.seq_id)
+
+        set_name = record.set or "unknown"
+        data_by_label[label]["sets"][set_name] = (
+            data_by_label[label]["sets"].get(set_name, 0) + 1
+        )
+
+    dataset_len = len(dataset)
+    # Create DataFrame for Altair
+    df = pd.DataFrame(list(data_by_label.values()))
+    df["percentage"] = (df["count"] / df["count"].sum() * 100).round(1)
+
+    # Create interactive chart
+    chart = (
+        alt.Chart(df)
+        .mark_bar(
+            cornerRadius=4,
+            opacity=0.8,
+        )
+        .encode(
+            x=alt.X("label:N", title="Class Label", axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y("count:Q", title="Number of Sequences"),
+            color=alt.Color(
+                "label:N", legend=None, scale=alt.Scale(scheme="tableau10")
+            ),
+            tooltip=[
+                alt.Tooltip("label:N", title="Label"),
+                alt.Tooltip("count:Q", title="Count"),
+                alt.Tooltip("percentage:Q", title="Percentage", format=".1f"),
+            ],
+        )
+        .properties(title="Label Distribution", width=400, height=300)
+    )
+    metadata = {"dataset_len": dataset_len}
+    return chart, metadata
+
+
+def _plot_label_distribution_per_sequence_continuous(
+    dataset: List[SequenceData],
+    labels_filter: Callable[[str], bool]
+):
+    labels_float = []
+    for seq_data in dataset:
+        label = seq_data.label
+        if label is None:
+            continue
+        skip = not labels_filter(label)
+        if skip:
+            continue
+        try:
+            labels_float.append(float(label))
+        except ValueError:
+            return _plot_label_distribution_per_sequence_discrete(dataset, labels_filter)
+
+    dataset_len = len(dataset)
+
+    # Create DataFrame with continuous labels
+    df = pd.DataFrame({"label": labels_float})
+
+    # Calculate statistics for tooltip
+    mean_val = df["label"].mean()
+    median_val = df["label"].median()
+    std_val = df["label"].std()
+
+    # Create histogram with automatic binning
+    chart = (
+        alt.Chart(df)
+        .mark_bar(cornerRadius=4, opacity=0.8, color="steelblue")
+        .encode(
+            x=alt.X("label:Q", title="Label Value", bin=alt.Bin(maxbins=30)),
+            y=alt.Y("count():Q", title="Number of Sequences"),
+            tooltip=[
+                alt.Tooltip(
+                    "label:Q",
+                    title="Label Range",
+                    bin=alt.Bin(maxbins=30),
+                    format=".2f",
+                ),
+                alt.Tooltip("count():Q", title="Count"),
+            ],
+        )
+        .properties(
+            title={
+                "text": "Label Distribution (Continuous)",
+                "subtitle": f"Mean: {mean_val:.2f} | Median: {median_val:.2f} | Std: {std_val:.2f}",
+            },
+            width=400,
+            height=300,
+        )
+    )
+
+    metadata = {"dataset_len": dataset_len}
+    return chart, metadata
+
+
+def _plot_label_distribution_per_residue_discrete(dataset: List[SequenceData],
+                                                  labels_filter: Callable[[str], bool]):
+    # Aggregate all per-residue labels across all proteins
+    data_by_label = {}
+    total_residues = 0
+    for record in dataset:
+        label = record.label
+        if label is None:
+            continue
+
+        for residue_label in label:
+            skip = not labels_filter(residue_label)
+            if skip:
+                continue
+            total_residues += 1
+            if residue_label not in data_by_label:
+                data_by_label[residue_label] = {
+                    "label": residue_label,
+                    "count": 0,
+                    "seq_ids": set(),
+                    "sets": {},
+                }
+
+            data_by_label[residue_label]["count"] += 1
+            if record.seq_id not in data_by_label[residue_label]["seq_ids"]:
+                data_by_label[residue_label]["seq_ids"].add(record.seq_id)
+
+            set_name = record.set or "unknown"
+            data_by_label[residue_label]["sets"][set_name] = (
+                data_by_label[residue_label]["sets"].get(set_name, 0) + 1
+            )
+
+    # Create DataFrame for Altair
+    df = pd.DataFrame(list(data_by_label.values()))
+    df["percentage"] = (df["count"] / df["count"].sum() * 100).round(1)
+
+    # Create interactive chart
+    chart = (
+        alt.Chart(df)
+        .mark_bar(
+            cornerRadius=4,
+            opacity=0.8,
+        )
+        .encode(
+            x=alt.X("label:N", title="Residue Label", axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y("count:Q", title="Number of Residues"),
+            color=alt.Color(
+                "label:N", legend=None, scale=alt.Scale(scheme="tableau10")
+            ),
+            tooltip=[
+                alt.Tooltip("label:N", title="Label"),
+                alt.Tooltip("count:Q", title="Count"),
+                alt.Tooltip("percentage:Q", title="Percentage", format=".1f"),
+            ],
+        )
+        .properties(title="Per-Residue Label Distribution", width=400, height=300)
+    )
+    metadata = {"dataset_len": len(dataset), "total_residues": total_residues}
+    return chart, metadata
+
+
+def _plot_label_distribution_per_residue_continuous(dataset: List[SequenceData], labels_filter: Callable[[str], bool]):
+    # Aggregate all per-residue continuous values across all proteins
+    all_values = []
+    for record in dataset:
+        label = record.label
+        if label is None:
+            continue
+        try:
+            delimiter = ";" if ";" in label else ","
+            all_values.extend([float(v) for v in label.split(delimiter) if labels_filter(v)])
+        except ValueError:
+            return _plot_label_distribution_per_residue_discrete(dataset, labels_filter)
+
+    total_residues = len(all_values)
+
+    # Create DataFrame with continuous labels
+    df = pd.DataFrame({"label": all_values})
+
+    # Calculate statistics for tooltip
+    mean_val = df["label"].mean()
+    median_val = df["label"].median()
+    std_val = df["label"].std()
+
+    # Create histogram with automatic binning
+    chart = (
+        alt.Chart(df)
+        .mark_bar(cornerRadius=4, opacity=0.8, color="steelblue")
+        .encode(
+            x=alt.X("label:Q", title="Residue Label Value", bin=alt.Bin(maxbins=30)),
+            y=alt.Y("count():Q", title="Number of Residues"),
+            tooltip=[
+                alt.Tooltip(
+                    "label:Q",
+                    title="Label Range",
+                    bin=alt.Bin(maxbins=30),
+                    format=".2f",
+                ),
+                alt.Tooltip("count():Q", title="Count"),
+            ],
+        )
+        .properties(
+            title={
+                "text": "Per-Residue Label Distribution (Continuous)",
+                "subtitle": f"Mean: {mean_val:.2f} | Median: {median_val:.2f} | Std: {std_val:.2f}",
+            },
+            width=400,
+            height=300,
+        )
+    )
+
+    metadata = {"dataset_len": len(dataset), "total_residues": total_residues}
+    return chart, metadata
+
+
+def plot_label_distribution(dataset: List[SequenceData], labels_filter: Optional[Callable[[str], bool]] = None):
+    labels_filter = labels_filter or (lambda x: True)
+    seq_utils = SequenceDataUtils(sequence_data=dataset)
+    is_discrete = seq_utils.is_discrete()
+    is_per_residue = seq_utils.is_per_residue()
+
+    if is_discrete:
+        if is_per_residue:
+            return _plot_label_distribution_per_residue_discrete(dataset, labels_filter=labels_filter)
+        return _plot_label_distribution_per_sequence_discrete(dataset, labels_filter=labels_filter)
+    # Continuous
+    if is_per_residue:
+        return _plot_label_distribution_per_residue_continuous(dataset, labels_filter=labels_filter)
+    return _plot_label_distribution_per_sequence_continuous(dataset, labels_filter=labels_filter)

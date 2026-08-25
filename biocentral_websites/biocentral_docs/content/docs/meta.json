@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "(biocentral)",
+    "biocentral_ire",
+    "biocentral_python",
+    "biocentral_cli",
+    "biocentral_server",
+    "biotrainer"
+  ]
+}

@@ -1,0 +1,33 @@
+---
+title: LightAttentionMembrane
+description: Protein membrane association prediction at sequence level.
+---
+
+### Summary
+
+- **Model name:** `LightAttentionMembrane`
+- **Task:** Prediction of protein membrane association
+- **Protocol:** `residues_to_class`
+- **Embedder:** `Rostlab/prot_t5_xl_uniref50`
+- **Model size:** Not specified
+
+### Outputs
+
+#### membrane
+
+- **Description:** Protein membrane association
+- **Output type:** `per_sequence`
+- **Value type:** `str`
+
+| Class | Meaning |
+| --- | --- |
+| `Membrane` | Protein is associated with membranes |
+| `Soluble` | Protein is soluble and not membrane-associated |
+
+### References
+
+- **Authors:** Stärk, Hannes; Dallago, Christian; Heinzinger, Michael; Rost, Burkhard
+- **Model link:** [github.com/HannesStark/protein-localization](https://github.com/HannesStark/protein-localization)
+- **Citation:** [doi.org/10.1093/bioadv/vbab035](https://doi.org/10.1093/bioadv/vbab035)
+- **License:** `MIT`
+- **Training data:** [data.bioembeddings.com/public/design](http://data.bioembeddings.com/public/design/)

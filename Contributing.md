@@ -33,57 +33,57 @@ We use a modified GitFlow workflow for this project. Here's an overview of the p
 ### Supporting Branches
 
 - Feature Branches:
-    - Name format: `<plugin_name>/feature/your-feature-name`
-    - Branch off from: `develop`
-    - Merge back into: `develop`
-    - Used for developing new features or enhancements.
+  - Name format: `<plugin_name>/feature/your-feature-name`
+  - Branch off from: `develop`
+  - Merge back into: `develop`
+  - Used for developing new features or enhancements.
 
 - Bugfix Branches:
-    - Name format: `<plugin_name>/bugfix/issue-description`
-    - Branch off from: `develop`
-    - Merge back into: `develop`
-    - Used for fixing non-critical bugs.
+  - Name format: `<plugin_name>/bugfix/issue-description`
+  - Branch off from: `develop`
+  - Merge back into: `develop`
+  - Used for fixing non-critical bugs.
 
 - Release Branches:
-    - Name format: `<plugin_name>/release/vX-Y-Z`
-    - Branch off from: `develop`
-    - Merge back into: `develop` and `main`
-    - Used for preparing a new production release.
+  - Name format: `<plugin_name>/release/vX-Y-Z`
+  - Branch off from: `develop`
+  - Merge back into: `develop` and `main`
+  - Used for preparing a new production release.
 
 - Hotfix Branches:
-    - Name format: `<plugin_name>/hotfix/issue-description`
-    - Branch off from: `main`
-    - Merge back into: `develop` and `main`
-    - Used for critical bugfixes that need to be addressed immediately.
+  - Name format: `<plugin_name>/hotfix/issue-description`
+  - Branch off from: `main`
+  - Merge back into: `develop` and `main`
+  - Used for critical bugfixes that need to be addressed immediately.
 
-If your contribution concerns the whole project or just the core biocentral application, please use 
+If your contribution concerns the whole project or just the core biocentral application, please use
 `biocentral/` instead of `<plugin_name>/` as prefix.
 
 ### Workflow Steps
 
 1. For a new feature or non-critical bug fix:
-    - Create a new feature or bugfix branch from `develop`.
-    - Work on your changes in this branch.
-    - When ready, create a pull request to merge your branch into `develop`.
+   - Create a new feature or bugfix branch from `develop`.
+   - Work on your changes in this branch.
+   - When ready, create a pull request to merge your branch into `develop`.
 
 2. For preparing a release:
-    - Create a release branch from `develop`.
-    - Make any final adjustments, version number updates, etc.
-    - Create a pull request to merge the release branch into `main`.
-    - After merging into `main`, also merge back into `develop`.
-    - Tag the merge commit in `main` with the version number.
+   - Create a release branch from `develop`.
+   - Make any final adjustments, version number updates, etc.
+   - Create a pull request to merge the release branch into `main`.
+   - After merging into `main`, also merge back into `develop`.
+   - Tag the merge commit in `main` with the version number.
 
 3. For critical hotfixes:
-    - Create a hotfix branch from `main`.
-    - Make your fixes.
-    - Create a pull request to merge into `main`.
-    - After merging into `main`, also merge into `develop`.
-    - Tag the merge commit in `main` with an updated version number.
+   - Create a hotfix branch from `main`.
+   - Make your fixes.
+   - Create a pull request to merge into `main`.
+   - After merging into `main`, also merge into `develop`.
+   - Tag the merge commit in `main` with an updated version number.
 
 ### Pull Requests
 
 1. Ensure your code adheres to the project's coding standards.
-2. Make sure your code is well-tested and adheres to the [testing guidelines](docs/Contributing/testing.md) 
+2. Make sure your code is well-tested and adheres to the [testing guidelines](docs/Contributing/testing.md)
 3. Update the README.md with details of changes to the interface, if applicable.
 4. Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would
    represent. The versioning scheme we use is [SemVer](http://semver.org/).
@@ -92,7 +92,7 @@ If your contribution concerns the whole project or just the core biocentral appl
 
 ## Developer Certificate of Origin and Licensing
 
-It must be ensured that everyone submitting a contribution to this repository is allowed to do this and does not violate 
+It must be ensured that everyone submitting a contribution to this repository is allowed to do this and does not violate
 copyrights of someone else. For that purpose you have to do some steps to meet our DCO requirements:
 
 1. Read our [contributors file](Contributors.md) carefully.
@@ -109,12 +109,12 @@ copyrights of someone else. For that purpose you have to do some steps to meet o
 
 ### Dart/Flutter
 
-* Name callbacks with on: onOpenXYZ, onUpdatedXYZ...
-* Organize widget states like this:
+- Name callbacks with on: onOpenXYZ, onUpdatedXYZ...
+- Organize widget states like this:
   1. Operational functions (like open dialog, initState)
   2. Build method (the standard flutter widget build method)
   3. Separated widget functions (any function that returns a widget as result)
-* Close dialogs before adding events to the bloc or eventBus or executing callbacks
+- Close dialogs before adding events to the bloc or eventBus or executing callbacks
 
 ### Documentation Styleguide
 
@@ -126,11 +126,11 @@ copyrights of someone else. For that purpose you have to do some steps to meet o
 
 This section lists the labels we use to help us track and manage issues and pull requests.
 
-* `bug` - Issues that are bugs.
-* `enhancement` - Issues that are feature requests.
-* `documentation` - Issues or pull requests related to documentation.
-* `maintenance` -  If you update parts of the project to newer versions, e.g. dependency updates or fixing examples.
-* `good first issue` - Good for newcomers.
-* `name_of_plugin` - Everything related to a specific plugin.
+- `bug` - Issues that are bugs.
+- `enhancement` - Issues that are feature requests.
+- `documentation` - Issues or pull requests related to documentation.
+- `maintenance` - If you update parts of the project to newer versions, e.g. dependency updates or fixing examples.
+- `good first issue` - Good for newcomers.
+- `name_of_plugin` - Everything related to a specific plugin.
 
 Thank you for contributing to `biocentral`!
