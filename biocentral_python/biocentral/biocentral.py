@@ -241,3 +241,21 @@ class Biocentral:
         predict_dat = self._parse_input_as_dict(sequence_data)
 
         return self._backend.predict(model_names, predict_dat)
+
+    def cluster(
+            self, sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            sequence_identity_threshold: float = 0.3
+    ) -> Dict[str, List[str]]:
+        """
+        Cluster sequences into groups based on sequence identity.
+
+        :param sequence_data: Dict of {id: sequence} or path to a FASTA file.
+        :param sequence_identity_threshold: Threshold for sequence identity.
+        :return: Dict mapping sequence IDs to cluster IDs.
+        """
+        cluster_dat = self._parse_input_as_dict(sequence_data)
+
+        if len(cluster_dat) <= 1:
+            raise ValueError("At least two sequences are required for clustering!")
+
+        return self._backend.cluster(cluster_dat, sequence_identity_threshold)
