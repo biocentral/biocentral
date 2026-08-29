@@ -374,7 +374,7 @@ class BiocentralAPI:
 
     def cluster(
             self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
-    ) -> BiocentralServerTask[Dict[str, str]]:
+    ) -> BiocentralServerTask[Dict[str, List[str]]]:
         """
         Clusters the provided sequences using pymmseqs on the biocentral server.
 
