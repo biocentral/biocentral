@@ -57,3 +57,9 @@ class BiocentralBackend(Protocol):
     ) -> Dict[str, List[Prediction]]:
         """Predict using pre-trained server-hosted models (server only)."""
         ...
+
+    def cluster(
+            self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
+    ) -> Dict[str, List[str]]:
+        """Cluster the provided sequences using pymmseqs."""
+        ...
