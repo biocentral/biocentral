@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import os
+import shutil
+import tempfile
+
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -50,11 +54,12 @@ class LocalBackend:
     def __init__(self, device: Optional[str] = None):
         try:
             import torch
+            import pymmseqs
             from biotrainer.training import BiotrainerModel
             from biotrainer.embedding import EmbeddingService
         except ImportError:
             raise ImportError(
-                "Local mode requires biotrainer. Install with: pip install biocentral[local]"
+                "Local mode requires biotrainer and pymmseqs. Install with: pip install biocentral[local]"
             )
         self._device = device
 
@@ -156,3 +161,68 @@ class LocalBackend:
             "Prediction from pre-trained server-hosted models is only available in API mode. "
             "Use Biocentral(mode='api') to access this feature."
         )
+
+    def cluster(
+            self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
+    ) -> Dict[str, List[str]]:
+        from pymmseqs.commands import easy_cluster, easy_linclust
+        # TODO Copied from the biocentral_server, logic should be centralized
+
+        # Create a dedicated temporary directory for all MMseqs operations
+        temp_dir = tempfile.mkdtemp(prefix="mmseqs_task_")
+
+        try:
+            temp_input_path = os.path.join(temp_dir, "input.fasta")
+            temp_output_prefix = os.path.join(temp_dir, "mmseqs_out")
+
+            # 1. Write sequence dictionary to temporary FASTA file
+            with open(temp_input_path, "w") as temp_input:
+                for seq_id, seq in sequence_data.items():
+                    temp_input.write(f">{seq_id}\n{seq}\n")
+
+            print("Running pymmseqs command from temporary FASTA file...")
+
+            # 2. Determine algorithm automatically based on sequence count
+            num_sequences = len(sequence_data)
+            use_linclust = num_sequences > 50000  # TODO Set to a high value for experimental reasons
+
+            if use_linclust:
+                easy_linclust(
+                    temp_input_path,
+                    temp_output_prefix,
+                    temp_dir,
+                    min_seq_id=sequence_identity_threshold,
+                )
+            else:
+                easy_cluster(
+                    temp_input_path,
+                    temp_output_prefix,
+                    temp_dir,
+                    min_seq_id=sequence_identity_threshold,
+                )
+
+            # 3. Parse the generated TSV file to map representatives to their cluster members
+            tsv_file = f"{temp_output_prefix}_cluster.tsv"
+            clustered_results: Dict[str, List[str]] = {}
+
+            if not os.path.exists(tsv_file):
+                raise FileNotFoundError(
+                    "MMseqs2 did not generate the expected TSV cluster file."
+                )
+
+            with open(tsv_file, "r") as f:
+                for line in f:
+                    parts = line.strip().split("\t")
+                    if len(parts) == 2:
+                        rep_id, member_id = parts[0], parts[1]
+                        if rep_id not in clustered_results:
+                            clustered_results[rep_id] = []
+                        clustered_results[rep_id].append(member_id)
+
+            # Return the mapped cluster IDs
+            return clustered_results
+
+        finally:
+            # 4. CLEANUP: Delete the entire temporary directory and its contents
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir, ignore_errors=True)

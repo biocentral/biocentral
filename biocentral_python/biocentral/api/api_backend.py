@@ -22,11 +22,11 @@ class APIBackend:
         self._api.wait_until_healthy(max_wait_seconds=30)
 
     def embed(
-        self,
-        embedder_name: str,
-        sequence_data: Dict[str, str],
-        reduce: bool = True,
-        use_half_precision: bool = False,
+            self,
+            embedder_name: str,
+            sequence_data: Dict[str, str],
+            reduce: bool = True,
+            use_half_precision: bool = False,
     ) -> EmbeddingsResult:
         task = self._api.embed(
             embedder_name,
@@ -37,23 +37,23 @@ class APIBackend:
         return task.run()
 
     def train(
-        self, config: Dict[str, Any], training_data: List[SequenceData]
+            self, config: Dict[str, Any], training_data: List[SequenceData]
     ) -> BiotrainerModelResult:
         task = self._api.train(config, training_data)
         return task.run()
 
     def inference(
-        self, model_hash: str, inference_data: Dict[str, str]
+            self, model_hash: str, inference_data: Dict[str, str]
     ) -> BiotrainerInferenceResult:
         task = self._api.inference(model_hash, inference_data)
         return task.run()
 
     def project(
-        self,
-        embedder_name: str,
-        method: str,
-        sequence_data: Dict[str, str],
-        projection_config: Dict[str, str],
+            self,
+            embedder_name: str,
+            method: str,
+            sequence_data: Dict[str, str],
+            projection_config: Dict[str, str],
     ) -> ProjectionResult:
         task = self._api.project(
             embedder_name, method, sequence_data, projection_config
@@ -61,8 +61,14 @@ class APIBackend:
         return task.run()
 
     def predict(
-        self, model_names: List[str], sequence_data: Dict[str, str]
+            self, model_names: List[str], sequence_data: Dict[str, str]
     ) -> Dict[str, List[Prediction]]:
         prediction_models = [BiocentralPredictionModel(name) for name in model_names]
         task = self._api.predict(prediction_models, sequence_data)
+        return task.run()
+
+    def cluster(
+            self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
+    ) -> Dict[str, List[str]]:
+        task = self._api.cluster(sequence_data, sequence_identity_threshold)
         return task.run()

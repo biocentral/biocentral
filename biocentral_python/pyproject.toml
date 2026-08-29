@@ -20,7 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 server = ["biocentral-server>=2.0.0,<3.0.0"]
-local = ["biotrainer>=2.0.0,<3.0.0"]
+local = ["biotrainer>=2.0.0,<3.0.0", "pymmseqs>=1.2.0"]
 all = ["biotrainer>=2.0.0,<3.0.0", "biocentral-server>=2.0.0,<3.0.0"]
 
 [tool.uv]
