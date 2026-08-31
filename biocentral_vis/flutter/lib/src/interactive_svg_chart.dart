@@ -5,8 +5,7 @@ import 'plot_data.dart';
 class InteractiveSvgChart extends StatefulWidget {
   final PlotData plotData;
 
-  const InteractiveSvgChart({Key? key, required this.plotData})
-      : super(key: key);
+  const InteractiveSvgChart({Key? key, required this.plotData}) : super(key: key);
 
   @override
   State<InteractiveSvgChart> createState() => _InteractiveSvgChartState();
@@ -90,8 +89,7 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
                             ..._buildInteractiveOverlays(),
 
                             // Tooltip
-                            if (hoveredPoint != null && tooltipPosition != null)
-                              _buildTooltip(),
+                            if (hoveredPoint != null && tooltipPosition != null) _buildTooltip(),
                           ],
                         ),
                       ),
@@ -122,9 +120,7 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
           height: isRect ? point.height! : (point.radius + 5) * 2,
           decoration: BoxDecoration(
             shape: isRect ? BoxShape.rectangle : BoxShape.circle,
-            border: isHovered
-                ? Border.all(color: Colors.blue, width: 2)
-                : null,
+            border: isHovered ? Border.all(color: Colors.blue, width: 2) : null,
             color: Colors.transparent,
           ),
         ),
@@ -320,10 +316,12 @@ class _InteractiveSvgChartState extends State<InteractiveSvgChart> {
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: statItems.map((item) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: item,
-          )).toList(),
+          children: statItems
+              .map((item) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: item,
+                  ))
+              .toList(),
         ),
       ),
     );

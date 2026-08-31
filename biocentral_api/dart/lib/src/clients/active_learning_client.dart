@@ -33,9 +33,10 @@ class ActiveLearningClient {
       ..campaignConfig.replace(campaignConfig)
       ..iterationConfig.replace(iterationConfig));
 
-    final taskId = await submitTask(() => alApi.activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost(
-          activeLearningScreeningIterationRequest: iterationRequest,
-        ));
+    final taskId =
+        await submitTask(() => alApi.activeLearningScreeningIterationApiV1ActiveLearningServiceScreeningIterationPost(
+              activeLearningScreeningIterationRequest: iterationRequest,
+            ));
     return BiocentralServerTask<ActiveLearningIterationResult>(taskId: taskId, api: api, dtoHandler: handler);
   }
 }

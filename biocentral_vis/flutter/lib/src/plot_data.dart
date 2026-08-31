@@ -41,9 +41,7 @@ class PlotMetadata {
     extra.remove('y_label');
 
     return PlotMetadata(
-      points: (json['points'] as List? ?? [])
-          .map((p) => InteractivePoint.fromJson(p))
-          .toList(),
+      points: (json['points'] as List? ?? []).map((p) => InteractivePoint.fromJson(p)).toList(),
       dimensions: PlotDimensions.fromJson(json['dimensions'] ?? {}),
       title: json['title'] ?? 'Chart',
       xLabel: json['x_label'] ?? '',

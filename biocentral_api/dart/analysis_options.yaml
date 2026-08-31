@@ -7,3 +7,7 @@ analyzer:
     - test/*.dart
   errors:
     deprecated_member_use_from_same_package: ignore
+
+# Configure line length to 120
+formatter:
+  page_width: 120

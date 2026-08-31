@@ -53,7 +53,8 @@ abstract class _BiocentralPythonCompanionStrategy {
 
   Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path);
 
-  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(String externalPath, String internalPath);
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
+      String externalPath, String internalPath);
 
   Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName);
 
@@ -120,7 +121,8 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
   }
 
   @override
-  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(String externalPath, String internalPath) async {
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
+      String externalPath, String internalPath) async {
     final Map<String, String> body = {'external_file_path': externalPath, 'internal_file_path': internalPath};
     final responseEither = await doPostRequest('sync_internal_h5', body);
     return responseEither.flatMap((r) => right(EmbeddingsFileInformation.fromCompanion(r as Map<String, dynamic>)));
@@ -251,7 +253,8 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
   }
 
   @override
-  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(String externalPath, String internalPath) async {
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
+      String externalPath, String internalPath) async {
     // TODO: implement syncInternalH5
     throw UnimplementedError();
   }
@@ -385,17 +388,16 @@ class BiocentralPythonCompanion {
     return _strategy.getH5Info(path);
   }
 
-  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(String externalPath, String internalPath) async {
+  Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
+      String externalPath, String internalPath) async {
     return _strategy.syncInternalH5(externalPath, internalPath);
   }
-
 
   Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName) async {
     return _strategy.getEmbedding(key, path, embedderName);
   }
 
-
-    Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) {
+  Future<Either<BiocentralException, Map<String, Embedding>>> loadH5File(Uint8List bytes, String embedderName) {
     return _strategy.loadH5File(bytes, embedderName);
   }
 

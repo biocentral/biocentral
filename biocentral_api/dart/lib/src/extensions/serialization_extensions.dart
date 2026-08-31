@@ -187,8 +187,8 @@ extension ALScreeningIterationConfigSerial on ActiveLearningScreeningIterationCo
   static ActiveLearningScreeningIterationConfig deserialize(Map<String, dynamic> jsonMap) {
     return ActiveLearningScreeningIterationConfig((b) => b
       ..iteration = jsonMap['iteration'] as int
-      ..iterationData = ListBuilder<SequenceData>((jsonMap['iteration_data'] as List)
-          .map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
+      ..iterationData = ListBuilder<SequenceData>(
+          (jsonMap['iteration_data'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
       ..nSuggestions = jsonMap['n_suggestions'] as int);
   }
@@ -206,7 +206,7 @@ extension ALResultSerial on ActiveLearningResult {
 
   static ActiveLearningResult deserialize(Map<String, dynamic> jsonMap) {
     return ActiveLearningResult(
-          (b) => b
+      (b) => b
         ..entityId = jsonMap['entity_id'] as String
         ..prediction = jsonMap['prediction'] as String
         ..uncertainty = jsonMap['uncertainty'] as num
