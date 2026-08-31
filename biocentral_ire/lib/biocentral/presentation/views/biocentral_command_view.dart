@@ -129,9 +129,7 @@ class _BiocentralInternalCommandViewState extends State<BiocentralInternalComman
           builder: (context, commandState) {
             final bool busy = commandState.isBusy();
             return BiocentralTooltip(
-              message: busy
-                  ? 'Cannot close the project while a command is running'
-                  : 'Close the current project',
+              message: busy ? 'Cannot close the project while a command is running' : 'Close the current project',
               child: BiocentralButton(
                 iconData: Icons.logout,
                 onTap: busy ? null : openCloseProjectDialog,

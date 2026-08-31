@@ -42,7 +42,7 @@ class BiocentralServerTask<T> {
         dtoHandler.updateProgress(dtos);
 
         // yield dtos
-        for(final dto in dtos) {
+        for (final dto in dtos) {
           yield (dto, null);
         }
 
@@ -60,7 +60,7 @@ class BiocentralServerTask<T> {
       } catch (err) {
         // ignore transient errors and continue polling
         print(err);
-        if(err is DioException) {
+        if (err is DioException) {
           print(err.response);
           final detail = err.response?.data["detail"];
           if (detail != null) {
