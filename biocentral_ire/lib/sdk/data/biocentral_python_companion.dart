@@ -196,6 +196,7 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
     SeriousPython.run(
       'assets/python_companion.zip',
       appFileName: 'python_companion_desktop.py',
+      stackSize: 8 * 1024 * 1024,
     );
   }
 

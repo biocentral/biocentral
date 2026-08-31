@@ -45,9 +45,9 @@ dependencies:
   ranking_system: ^0.0.1
   serious_python:
     git:
-      url: https://github.com/biocentral/serious-python.git
+      url: https://github.com/AeneasTews/serious-python.git
       path: src/serious_python
-      ref: feature/add-web-support
+      ref: fix/windir-cmake-path
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
   simple_icons: '^16.23.0'
@@ -71,6 +71,8 @@ flutter_launcher_icons:
   web:
     generate: true
   windows:
+    generate: true
+  macos:
     generate: true
   flutter_lints: "^4.0.0"
 
