@@ -11,7 +11,6 @@ class OrtSessionOptions {
 }
 
 class OrtSession {
-
   List<String> get inputNames => throw UnsupportedError('ONNX runtime is not supported on web platform');
 
   int get outputCount => throw UnsupportedError('ONNX runtime is not supported on web platform');

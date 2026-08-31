@@ -57,15 +57,18 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   @override
   Map<String, String>? getSequences() {
     final result = <String, String>{};
-    for(final protein in _getCurrentProteins()) {
+    for (final protein in _getCurrentProteins()) {
       result[protein.id] = protein.sequence.seq;
     }
     return result;
   }
 
   @override
-  List<SequenceTrainingData> getTrainingData(
-      {required String targetColumn, required String setColumn, String? maskColumn,}) {
+  List<SequenceTrainingData> getTrainingData({
+    required String targetColumn,
+    required String setColumn,
+    String? maskColumn,
+  }) {
     throw UnimplementedError(); // TODO [Feature] Enable training for ppis
   }
 
@@ -133,7 +136,7 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   @override
   void syncFromDatabase(Map<String, BioEntity> entities, DatabaseImportMode importMode) {
     // TODO Improve syncing condition, check for importMode, Future/await?
-    if(entities.isEmpty) {
+    if (entities.isEmpty) {
       return;
     }
     if (entities.entries.first.value is Protein) {
@@ -198,5 +201,4 @@ class PPIRepository extends BiocentralDatabase<ProteinProteinInteraction> {
   }
 
   List<PPIDatabaseTest> get associatedDatasetTests => List.from(_associatedDatasetTests);
-
 }

@@ -7,7 +7,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-
 @immutable
 class DownloadProgress {
   final int bytesReceived;
@@ -201,5 +200,4 @@ class BiocentralHubServerClient with HTTPClient {
     final leaderboardMapEither = await doPostRequest(BiocentralHubServerClient.publishLeaderboardEntryEndpoint, body);
     return leaderboardMapEither;
   }
-
 }

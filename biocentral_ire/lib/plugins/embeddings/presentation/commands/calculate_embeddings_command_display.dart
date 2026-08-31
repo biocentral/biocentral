@@ -82,8 +82,7 @@ class _CalculateEmbeddingsCommandDisplayState extends State<CalculateEmbeddingsC
             title: 'Select Mode (per-Residue or per-Sequence)',
             initialValue: _selectedEmbeddingType,
             selectableValues: EmbeddingType.values,
-            displayConversion: (embdType) =>
-                embdType.displayName(),
+            displayConversion: (embdType) => embdType.displayName(),
             onChangedCallback: (embdType) {
               setState(() {
                 _selectedEmbeddingType = embdType ?? _selectedEmbeddingType;

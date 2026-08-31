@@ -1,7 +1,6 @@
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
 
-
 class ColumnWizardDisplay extends StatelessWidget {
   final ColumnWizard columnWizard;
   final Widget Function(ColumnWizard)? customBuildFunction;
@@ -22,7 +21,7 @@ class ColumnWizardDisplay extends StatelessWidget {
   }
 
   Widget columnWizardDisplayFactory() {
-    if(customBuildFunction != null) {
+    if (customBuildFunction != null) {
       return customBuildFunction!(columnWizard);
     }
     return ColumnWizardGenericDisplay(columnWizard: columnWizard);

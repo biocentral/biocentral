@@ -15,7 +15,7 @@ export 'src/extensions/string_extensions.dart';
 export 'src/extensions/biotrainer_model_result_ext.dart';
 export 'src/model/training_result.dart' show TrainingResult;
 export 'src/model/test_result.dart' show TestResult;
-export 'src/model/biotrainer_model_result.dart' show BiotrainerModelResult;  // TODO: .config()
+export 'src/model/biotrainer_model_result.dart' show BiotrainerModelResult; // TODO: .config()
 export 'src/model/biotrainer_inference_result.dart' show BiotrainerInferenceResult;
 export 'src/model/biotrainer_model_update.dart' show BiotrainerModelUpdate;
 export 'src/model/projection_result.dart' show ProjectionResult;

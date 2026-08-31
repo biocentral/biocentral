@@ -46,7 +46,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
   void didUpdateWidget(covariant BiocentralStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
     // TODO Can be deleted?
-    if(oldWidget.metaData.runtimeType != widget.metaData.runtimeType) {
+    if (oldWidget.metaData.runtimeType != widget.metaData.runtimeType) {
       _setInitialLogo();
       _startLogoAnimation();
     }
@@ -85,7 +85,7 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.metaData == null) {
+    if (widget.metaData == null) {
       return Container();
     }
     final BiocentralCommandMetaData metaData = widget.metaData!;
@@ -108,15 +108,15 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
             period: const Duration(seconds: 3),
             enabled: _shimmer,
             child: AnimatedSwitcher(
-                    duration: _switchDuration,
-                    child: Image.asset(
-                      logo,
-                      key: ValueKey(logo),
-                      fit: BoxFit.contain,
-                      height: SizeConfig.screenWidth(context) * 0.04,
-                      width: SizeConfig.screenWidth(context) * 0.04,
-                    ),
-                  ),
+              duration: _switchDuration,
+              child: Image.asset(
+                logo,
+                key: ValueKey(logo),
+                fit: BoxFit.contain,
+                height: SizeConfig.screenWidth(context) * 0.04,
+                width: SizeConfig.screenWidth(context) * 0.04,
+              ),
+            ),
           ),
         ),
         SizedBox(
@@ -164,7 +164,8 @@ class _BiocentralStatusIndicatorState extends State<BiocentralStatusIndicator> {
         progress.isByteProgress ? bytesAsFormatString(progress.current) : progress.current.toString();
     final String hint = progress.hint?.trim() ?? '';
     if (progress.total != null) {
-      final String totalString = progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
+      final String totalString =
+          progress.isByteProgress ? bytesAsFormatString(progress.total!) : progress.total.toString();
       final percent = (progress.progress() ?? 0) * 100;
       return '$hint $currentString / $totalString (${percent.toStringAsFixed(0)}%)';
     } else {

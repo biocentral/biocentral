@@ -1,4 +1,3 @@
-
 import '../model/biotrainer_model_result.dart';
 import '../model/training_result.dart';
 

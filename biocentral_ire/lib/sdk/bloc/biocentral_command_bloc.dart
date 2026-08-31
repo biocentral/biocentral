@@ -56,6 +56,17 @@ class BiocentralCommandState extends Equatable {
     return currentCommandLog?.commandStatus == BiocentralCommandStatus.operating;
   }
 
+  bool isBusy() {
+    if (_currentCommand == null) {
+      return false;
+    }
+    if (currentCommandLog == null) {
+      return true;
+    }
+    return currentCommandLog!.commandStatus != BiocentralCommandStatus.finished &&
+        currentCommandLog!.commandStatus != BiocentralCommandStatus.errored;
+  }
+
   bool isFinished() {
     return currentCommandLog?.commandStatus == BiocentralCommandStatus.finished;
   }
@@ -65,7 +76,7 @@ class BiocentralCommandState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [currentCommandLog, visualizeResult];
+  List<Object?> get props => [_currentCommand, currentCommandLog, visualizeResult];
 }
 
 class BiocentralCommandBloc extends Bloc<BiocentralCommandEvent, BiocentralCommandState> {
@@ -76,10 +87,11 @@ class BiocentralCommandBloc extends Bloc<BiocentralCommandEvent, BiocentralComma
     on<BiocentralCommandExecuteEvent>((event, emit) async {
       // TODO CHECK THAT NOTHING IS RUNNING ALREADY
       final commandState = BiocentralCommandState.start(event.command, event.visualizeResult);
+      emit(commandState);
       await event.command.execute().forEach((commandLog) {
         emit(commandState.update(commandLog));
       });
-      if(event.autoAccept) {
+      if (event.autoAccept) {
         add(BiocentralCommandAcceptResultEvent());
       }
     });

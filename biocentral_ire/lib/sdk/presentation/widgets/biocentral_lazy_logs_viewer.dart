@@ -6,7 +6,9 @@ class BiocentralLazyLogsViewer extends StatefulWidget {
   final int logsPerPage;
 
   const BiocentralLazyLogsViewer({
-    required this.logs, required this.height, super.key,
+    required this.logs,
+    required this.height,
+    super.key,
     this.logsPerPage = 50,
   });
 
@@ -32,7 +34,7 @@ class _BiocentralLazyLogsViewerState extends State<BiocentralLazyLogsViewer> {
   @override
   void didUpdateWidget(covariant BiocentralLazyLogsViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(widget.logs.length != oldWidget.logs.length) {
+    if (widget.logs.length != oldWidget.logs.length) {
       _totalLogCount = widget.logs.length;
       _loadMoreLogs();
     }

@@ -17,7 +17,6 @@ import 'tasks/dto_handler.dart';
 import 'tasks/submit_task.dart';
 
 class _TrainingDtoHandler extends DtoHandler<BiotrainerModelResult> {
-
   @override
   BiotrainerModelResult? handle(List<TaskDTO> dtos) {
     for (final dto in dtos) {
@@ -42,7 +41,6 @@ class _InferenceDtoHandler extends DtoHandler<Map<String, List<Prediction>>> {
 }
 
 class CustomModelsClient {
-
   Future<List<dynamic>?> getConfigOptionsForProtocol({required gen.BiocentralApi api, required String protocol}) async {
     final cmApi = api.getCustomModelsApi();
     final resp = await cmApi.configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet(protocol: protocol);
@@ -87,8 +85,8 @@ class CustomModelsClient {
       ..configDict.replace(config.map((k, v) => MapEntry(k, JsonObject(v))))
       ..trainingData.replace(BuiltList<SequenceData>(trainingData)));
 
-    final taskId = await submitTask(() => cmApi
-        .startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest: startReq));
+    final taskId = await submitTask(
+        () => cmApi.startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest: startReq));
     return BiocentralServerTask<BiotrainerModelResult>(taskId: taskId, api: api, dtoHandler: handler);
   }
 
@@ -103,8 +101,8 @@ class CustomModelsClient {
       ..modelHash = modelHash
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData)));
 
-    final taskId = await submitTask(() => cmApi
-        .startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest: startReq));
+    final taskId = await submitTask(
+        () => cmApi.startInferenceApiV1CustomModelsServiceStartInferencePost(startInferenceRequest: startReq));
     return BiocentralServerTask<Map<String, List<Prediction>>>(
       taskId: taskId,
       api: api,

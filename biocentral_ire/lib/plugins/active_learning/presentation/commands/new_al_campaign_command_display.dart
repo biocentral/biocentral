@@ -154,8 +154,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
                   (_desiredTargetClass != null || isContinuousOptimizationModeSpecified()),
               childFunction: buildEmbedderSelection),
           withCondition(condition: _selectedEmbedder != null, childFunction: buildSurrogateModelSelection),
-          withCondition(
-              condition: _selectedSurrogateModel != null, childFunction: buildFirstIterationConfig),
+          withCondition(condition: _selectedSurrogateModel != null, childFunction: buildFirstIterationConfig),
         ].withPadding(
           const Padding(
             padding: EdgeInsetsGeometry.all(8.0),
@@ -167,17 +166,17 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
 
   Widget buildCampaignNameInput() {
     return TextFormField(
-          initialValue: _campaignName,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Campaign name',
-          ),
-          onChanged: (value) {
-            setState(() {
-              _campaignName = value.trim().isEmpty ? 'AL-Campaign' : value.trim();
-            });
-          },
-        );
+      initialValue: _campaignName,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Campaign name',
+      ),
+      onChanged: (value) {
+        setState(() {
+          _campaignName = value.trim().isEmpty ? 'AL-Campaign' : value.trim();
+        });
+      },
+    );
   }
 
   Widget buildDatasetSelection() {

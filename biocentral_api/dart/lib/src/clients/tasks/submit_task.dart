@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 
 import '../../model/start_task_response.dart' as gen;
 
-
 /// Submits a task-starting API call with retry-on-rate-limit behavior.
 ///
 /// Mirrors the Python client's retry logic:
@@ -25,8 +24,7 @@ Future<String> submitTask(Future<Response<gen.StartTaskResponse>> Function() end
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       // Headers are case-insensitive; use helper to extract value
-      final retryAfterHeader = e.response?.headers.value('retry-after') ??
-          e.response?.headers.value('Retry-After');
+      final retryAfterHeader = e.response?.headers.value('retry-after') ?? e.response?.headers.value('Retry-After');
       if (status != 429 || retryAfterHeader == null) {
         rethrow;
       }

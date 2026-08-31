@@ -1,7 +1,6 @@
 import '../model/bootstrapped_metric.dart';
 
 extension BootstrappedMetricExt on BootstrappedMetric {
-
   /// Determines if the metric is ascending: The lower the better
   ///
   /// Defaults to false
@@ -39,15 +38,14 @@ extension BootstrappedMetricExt on BootstrappedMetric {
   }
 
   BootstrappedMetric absolute() {
-    return BootstrappedMetric((b) =>
-      b..name = name
+    return BootstrappedMetric((b) => b
+      ..name = name
       ..mean = mean.abs()
       ..lower = lower.abs()
       ..upper = upper.abs()
       ..iterations = iterations
       ..sampleSize = sampleSize
-      ..confidenceLevel = confidenceLevel
-    );
+      ..confidenceLevel = confidenceLevel);
   }
 
   /// Calculate approximate symmetrical error range from lower and upper bounds

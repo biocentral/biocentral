@@ -26,10 +26,11 @@ class _BiocentralHoverScaleAnimationState extends State<BiocentralHoverScaleAnim
       onEnter: (pointerEnterEvent) => animationController.forward(),
       onExit: (pointerExitEvent) => animationController.reset(),
       child: Animate(
-          effects: const [ScaleEffect(begin: Offset(0.95, 0.95))],
-          controller: animationController,
-          autoPlay: false,
-          child: widget.child,),
+        effects: const [ScaleEffect(begin: Offset(0.95, 0.95))],
+        controller: animationController,
+        autoPlay: false,
+        child: widget.child,
+      ),
     );
   }
 

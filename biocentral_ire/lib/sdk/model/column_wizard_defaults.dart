@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:ml_linalg/vector.dart';
@@ -19,9 +18,13 @@ class IntColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return IntColumnWizard(
-        columnName,
-        Map.fromEntries(valueMap.entries.map(
-            (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())),),),);
+      columnName,
+      Map.fromEntries(
+        valueMap.entries.map(
+          (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())),
+        ),
+      ),
+    );
   }
 
   @override
@@ -45,13 +48,18 @@ class PerResidueIntColumnWizardFactory extends ColumnWizardFactory {
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return PerResidueIntColumnWizard(
       columnName,
-      Map.fromEntries(valueMap.entries.map(
-            (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())),),),);
+      Map.fromEntries(
+        valueMap.entries.map(
+          (entry) => MapEntry(entry.key, entry.value is int ? entry.value : int.parse(entry.value.toString())),
+        ),
+      ),
+    );
   }
 
   @override
   TypeDetector getTypeDetector() {
-    return TypeDetector(int, (value) => value is List<int> || value.toString().characters.all((c) => int.tryParse(c) != null));
+    return TypeDetector(
+        int, (value) => value is List<int> || value.toString().characters.all((c) => int.tryParse(c) != null));
   }
 }
 
@@ -75,9 +83,13 @@ class DoubleColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return DoubleColumnWizard(
-        columnName,
-        Map.fromEntries(valueMap.entries.map((entry) =>
-            MapEntry(entry.key, entry.value is double ? entry.value : double.parse(entry.value.toString())),),),);
+      columnName,
+      Map.fromEntries(
+        valueMap.entries.map(
+          (entry) => MapEntry(entry.key, entry.value is double ? entry.value : double.parse(entry.value.toString())),
+        ),
+      ),
+    );
   }
 
   @override
@@ -101,13 +113,18 @@ class PerResidueDoubleColumnWizardFactory extends ColumnWizardFactory {
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return PerResidueDoubleColumnWizard(
       columnName,
-      Map.fromEntries(valueMap.entries.map(
-            (entry) => MapEntry(entry.key, entry.value is int ? entry.value : double.parse(entry.value.toString())),),),);
+      Map.fromEntries(
+        valueMap.entries.map(
+          (entry) => MapEntry(entry.key, entry.value is int ? entry.value : double.parse(entry.value.toString())),
+        ),
+      ),
+    );
   }
 
   @override
   TypeDetector getTypeDetector() {
-    return TypeDetector(int, (value) => value is List<int> || value.toString().characters.all((c) => double.tryParse(c) != null));
+    return TypeDetector(
+        int, (value) => value is List<int> || value.toString().characters.all((c) => double.tryParse(c) != null));
   }
 }
 
@@ -131,7 +148,9 @@ class StringColumnWizardFactory extends ColumnWizardFactory {
   @override
   ColumnWizard create({required String columnName, required Map<String, dynamic> valueMap}) {
     return StringColumnWizard(
-        columnName, Map.fromEntries(valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString()))),);
+      columnName,
+      Map.fromEntries(valueMap.entries.map((entry) => MapEntry(entry.key, entry.value.toString()))),
+    );
   }
 
   @override

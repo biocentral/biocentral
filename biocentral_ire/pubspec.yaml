@@ -13,9 +13,7 @@ dependencies:
   auto_size_text: ^3.0.0
   bio_flutter: ^0.0.12
   biocentral_api:
-    git:
-      url: https://github.com/biocentral/biocentral_api.git
-      path: dart
+    path: ../biocentral_api/dart
   bloc: ^8.1.3
   bloc_effects: ^1.0.4
   collection: ^1.18.0
@@ -45,9 +43,9 @@ dependencies:
   ranking_system: ^0.0.1
   serious_python:
     git:
-      url: https://github.com/biocentral/serious-python.git
+      url: https://github.com/AeneasTews/serious-python.git
       path: src/serious_python
-      ref: feature/add-web-support
+      ref: fix/windir-cmake-path
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
   simple_icons: '^16.23.0'
@@ -71,6 +69,8 @@ flutter_launcher_icons:
   web:
     generate: true
   windows:
+    generate: true
+  macos:
     generate: true
   flutter_lints: "^4.0.0"
 

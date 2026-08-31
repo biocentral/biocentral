@@ -79,7 +79,6 @@ class PredictionModel extends Equatable {
     );
   }
 
-
   PredictionModel addLogs(List<String> logs) {
     return copyWith(trainingLogs: Set<String>.from(List.of(trainingLogs)..addAll(logs)).toList());
   }
