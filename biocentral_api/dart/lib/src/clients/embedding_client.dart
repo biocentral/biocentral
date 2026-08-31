@@ -63,22 +63,20 @@ class EmbeddingClient {
     bool useHalfPrecision = false,
   }) async {
     final embeddingsApi = api.getEmbeddingsApi();
-    final req = EmbedRequest((b) =>
-    b
+    final req = EmbedRequest((b) => b
       ..embedderName = embedderName
       ..reduce = reduce
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
       ..useHalfPrecision = useHalfPrecision);
 
-    final taskId = await submitTask(() =>
-        embeddingsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req));
+    final taskId = await submitTask(() => embeddingsApi.embedApiV1EmbeddingsServiceEmbedPost(embedRequest: req));
     final handler = _EmbedDtoHandler();
     return BiocentralServerTask<String>(taskId: taskId, api: api, dtoHandler: handler);
   }
 
   Future<Map<String, dynamic>?> projectionConfig({
     required gen.BiocentralApi api,
-}) async {
+  }) async {
     final projectionsApi = api.getProjectionsApi();
 
     final resp = await projectionsApi.projectionConfigApiV1ProjectionServiceProjectionConfigGet();
@@ -94,15 +92,13 @@ class EmbeddingClient {
     required Map<String, dynamic> config,
   }) async {
     final projectionsApi = api.getProjectionsApi();
-    final req = ProjectionRequest((b) =>
-    b
+    final req = ProjectionRequest((b) => b
       ..embedderName = embedderName
       ..method = method
       ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
-      ..config.replace(config.map((k, v) => MapEntry(k, JsonObject(v))))
-    );
-    final taskId = await submitTask(() =>
-        projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req));
+      ..config.replace(config.map((k, v) => MapEntry(k, JsonObject(v)))));
+    final taskId =
+        await submitTask(() => projectionsApi.projectApiV1ProjectionServiceProjectPost(projectionRequest: req));
     final handler = _ProjectionDTOHandler();
     return BiocentralServerTask<ProjectionResult>(taskId: taskId, api: api, dtoHandler: handler);
   }
