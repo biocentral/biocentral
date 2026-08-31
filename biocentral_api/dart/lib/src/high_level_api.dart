@@ -24,6 +24,7 @@ class BiocentralAPI {
   final bool localOnly;
 
   final List<BiocentralAPIHealth> _urlHealthStatus;
+  final String? _selectedUrl;
 
   static const String _apiURL = "https://biocentral.rostlab.org";
   static const String _localhostURL = "http://localhost:9540";
@@ -36,8 +37,10 @@ class BiocentralAPI {
       {required this.fixedURL,
       required this.apiToken,
       required this.localOnly,
-      required List<BiocentralAPIHealth> urlHealthStatus})
-      : _urlHealthStatus = urlHealthStatus;
+      required List<BiocentralAPIHealth> urlHealthStatus,
+      String? selectedUrl})
+      : _urlHealthStatus = urlHealthStatus,
+        _selectedUrl = selectedUrl;
 
   static Future<BiocentralAPI> createWithHealthCheck(
       {String? fixedUrl, String? apiToken, bool localOnly = false}) async {
@@ -64,11 +67,64 @@ class BiocentralAPI {
       final updatedHealthStatus = await healthCheck(healthStatus.url);
       updatedList.add(updatedHealthStatus);
     }
-    return BiocentralAPI._(fixedURL: fixedURL, apiToken: apiToken, localOnly: localOnly, urlHealthStatus: updatedList);
+    return BiocentralAPI._(
+        fixedURL: fixedURL,
+        apiToken: apiToken,
+        localOnly: localOnly,
+        urlHealthStatus: updatedList,
+        selectedUrl: _selectedUrl);
   }
 
   List<BiocentralAPIHealth> getHealthStatus() {
     return List.from(_urlHealthStatus);
+  }
+
+  String? get activeUrl => _getAvailableURL();
+
+  Future<BiocentralAPI> withUrl(String url) async {
+    if (fixedURL != null || _urlHealthStatus.any((healthStatus) => healthStatus.url == url)) {
+      return this;
+    }
+    final newHealthStatus = await healthCheck(url);
+    return BiocentralAPI._(
+        fixedURL: fixedURL,
+        apiToken: apiToken,
+        localOnly: localOnly,
+        urlHealthStatus: [..._urlHealthStatus, newHealthStatus],
+        selectedUrl: _selectedUrl);
+  }
+
+  BiocentralAPI withoutUrl(String url) {
+    if (fixedURL != null) {
+      return this;
+    }
+    return BiocentralAPI._(
+        fixedURL: fixedURL,
+        apiToken: apiToken,
+        localOnly: localOnly,
+        urlHealthStatus: _urlHealthStatus.where((healthStatus) => healthStatus.url != url).toList(),
+        selectedUrl: _selectedUrl == url ? null : _selectedUrl);
+  }
+
+  Future<BiocentralAPI> withSelectedUrl(String? url) async {
+    if (fixedURL != null) {
+      return this;
+    }
+    if (url == null) {
+      return BiocentralAPI._(
+          fixedURL: fixedURL,
+          apiToken: apiToken,
+          localOnly: localOnly,
+          urlHealthStatus: _urlHealthStatus,
+          selectedUrl: null);
+    }
+    final withEntry = await withUrl(url);
+    return BiocentralAPI._(
+        fixedURL: fixedURL,
+        apiToken: apiToken,
+        localOnly: localOnly,
+        urlHealthStatus: withEntry._urlHealthStatus,
+        selectedUrl: url);
   }
 
   static Future<(BiocentralServiceStats?, ResearchStats?)?> getStats(String url) async {
@@ -129,6 +185,13 @@ class BiocentralAPI {
   }
 
   String? _getAvailableURL() {
+    if (_selectedUrl != null) {
+      for (final healthStatus in _urlHealthStatus) {
+        if (healthStatus.url == _selectedUrl && healthStatus.healthy) {
+          return healthStatus.url;
+        }
+      }
+    }
     String? availableURL;
     for (final healthStatus in _urlHealthStatus) {
       if (healthStatus.healthy && _isLocalUrl(healthStatus.url)) {
