@@ -408,3 +408,97 @@ on<ProteinsCommandAddColumnEvent>((event, emit) async {
       });
     });
  */
+
+final class ClusterProteinsCommand extends BiocentralCommand<BiocentralDatabaseUpdate<Protein>> {
+  final BiocentralProjectRepository _biocentralProjectRepository;
+  final BiocentralAPIRepository _apiRepository;
+  final ProteinRepository _proteinRepository;
+
+  final double _sequenceIdentityThreshold;
+  final DatabaseImportMode _importMode;
+
+  ClusterProteinsCommand({
+    required BiocentralProjectRepository biocentralProjectRepository,
+    required BiocentralAPIRepository apiRepository,
+    required ProteinRepository proteinRepository,
+    double sequenceIdentityThreshold = 0.3,
+    required DatabaseImportMode importMode,
+  })  : _biocentralProjectRepository = biocentralProjectRepository,
+        _apiRepository = apiRepository,
+        _proteinRepository = proteinRepository,
+        _sequenceIdentityThreshold = sequenceIdentityThreshold,
+        _importMode = importMode;
+
+  @override
+  Stream<BiocentralCommandLog<BiocentralDatabaseUpdate<Protein>>> execute() async* {
+    BiocentralCommandLog<BiocentralDatabaseUpdate<Protein>> log = initLog();
+    yield log = log.logInfo(information: 'Clustering proteins with pymmseqs..');
+
+    final proteinMap = _proteinRepository.databaseToMap();
+    final sequenceData = proteinMap.map((k, v) => MapEntry(k, v.sequence.seq));
+
+    if (proteinMap.isEmpty) {
+      yield log.errored(error: 'No protein sequence data available to cluster!');
+      return;
+    }
+
+    final biocentralAPI = _apiRepository.getBiocentralAPI();
+
+    final biocentralTask = await biocentralAPI.cluster(
+      sequenceData: sequenceData,
+      sequenceIdentityThreshold: _sequenceIdentityThreshold,
+    );
+
+    Map<String, List<String>> clusters = {};
+    await for (final (dto, clusterResult) in biocentralTask.run()) {
+      if (clusterResult != null) {
+        clusters = clusterResult;
+      }
+    }
+
+    if (clusters.isEmpty) {
+      yield log.errored(error: 'Did not receive any cluster assignments!');
+      return;
+    }
+
+    final Map<String, String> proteinClusterMapping = {};
+    clusters.forEach((clusterId, memberIds) {
+      for (final memberId in memberIds) {
+        proteinClusterMapping[memberId] = clusterId;
+      }
+    });
+
+    final update = await _proteinRepository.addCustomAttributes(
+      'MMseqs2-Cluster-${(_sequenceIdentityThreshold * 100).toInt()}%',
+      proteinClusterMapping,
+    );
+
+    yield log.finish(
+      result: BiocentralCommandResult(update, update.serialize()),
+      finalProgress: BiocentralCommandProgress(
+        information: 'Finished clustering proteins!',
+        current: clusters.length,
+        total: clusters.length,
+      ),
+    );
+  }
+
+  @override
+  void acceptResult(BiocentralCommandLog? resultLog) {
+    final commandResult = resultLog?.result?.result;
+    if (commandResult != null && commandResult is BiocentralDatabaseUpdate) {
+      _proteinRepository.acceptDatabaseUpdate(commandResult as BiocentralDatabaseUpdate<Protein>);
+    }
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() {
+    return {
+      'sequenceIdentityThreshold': _sequenceIdentityThreshold,
+      'importMode': _importMode.name,
+    };
+  }
+
+  @override
+  String get typeName => 'ClusterProteinsCommand';
+}
