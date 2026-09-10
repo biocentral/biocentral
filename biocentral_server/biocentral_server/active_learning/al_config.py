@@ -200,9 +200,8 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
         return self
 
 
-class ActiveLearningConvergenceConfig(BaseModel):
-    #nitpick these are stopping criteria, not convergence criteria
-    """Configuration for convergence criteria for active learning campaigns"""
+class ActiveLearningStoppingConfig(BaseModel):
+    """Configuration for stopping criteria for active learning campaigns"""
 
     max_labels_budget: Optional[int] = Field(
         default=None,
@@ -231,7 +230,7 @@ class ActiveLearningConvergenceConfig(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_convergence_config(self):
+    def validate_stopping_config(self):
         if (
             self.n_max_iterations is None
             and self.max_labels_budget is None
@@ -274,8 +273,8 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
         ge=0.0,
         le=1.0,
     )
-    convergence_config: ActiveLearningConvergenceConfig = Field(
-        description="Convergence criteria for the simulation"
+    stopping_config: ActiveLearningStoppingConfig = Field(
+        description="Stopping criteria for the simulation"
     )
 
     # Configuration of what counts as a hit (target success)
