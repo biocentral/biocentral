@@ -53,7 +53,7 @@ class ActiveLearningScreeningSimulationResult(BaseModel):
     )
     stop_reasons: Optional[List[str]] = Field(
         default=None,
-        description="Reason(s) for stopping the simulation (convergence criteria reached)",
+        description="Reason(s) for stopping the simulation (stopping criteria reached)",
     )
     # iteration_results is kept empty and only filled by the api to decrease amount of data sent
     iteration_results: List[ActiveLearningIterationResult] = Field(
