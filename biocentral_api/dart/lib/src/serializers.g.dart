@@ -7,7 +7,6 @@ part of 'serializers.dart';
 // **************************************************************************
 
 Serializers _$serializers = (Serializers().toBuilder()
-      ..add(ActiveLearningConvergenceConfig.serializer)
       ..add(ActiveLearningEngineeringCampaignConfig.serializer)
       ..add(ActiveLearningEngineeringIterationConfig.serializer)
       ..add(ActiveLearningEngineeringIterationRequest.serializer)
@@ -21,6 +20,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ActiveLearningScreeningSimulationConfig.serializer)
       ..add(ActiveLearningScreeningSimulationRequest.serializer)
       ..add(ActiveLearningScreeningSimulationResult.serializer)
+      ..add(ActiveLearningStoppingConfig.serializer)
       ..add(AddEmbeddingsRequest.serializer)
       ..add(AddEmbeddingsResponse.serializer)
       ..add(AutoDetectFormatRequest.serializer)

@@ -60,7 +60,7 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     def _approximate_n_max_iterations(
             simulation_config: ActiveLearningScreeningSimulationConfig,
     ):
-        max_labels_budget = simulation_config.convergence_config.max_labels_budget
+        max_labels_budget = simulation_config.stopping_config.max_labels_budget
         if max_labels_budget is not None:
             return max_labels_budget // simulation_config.n_suggestions_per_iteration
         n_start_data = (

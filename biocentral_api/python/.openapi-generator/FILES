@@ -15,7 +15,6 @@ biocentral_api/_generated/api_response.py
 biocentral_api/_generated/configuration.py
 biocentral_api/_generated/exceptions.py
 biocentral_api/_generated/models/__init__.py
-biocentral_api/_generated/models/active_learning_convergence_config.py
 biocentral_api/_generated/models/active_learning_engineering_campaign_config.py
 biocentral_api/_generated/models/active_learning_engineering_iteration_config.py
 biocentral_api/_generated/models/active_learning_engineering_iteration_request.py
@@ -29,6 +28,7 @@ biocentral_api/_generated/models/active_learning_screening_iteration_request.py
 biocentral_api/_generated/models/active_learning_screening_simulation_config.py
 biocentral_api/_generated/models/active_learning_screening_simulation_request.py
 biocentral_api/_generated/models/active_learning_screening_simulation_result.py
+biocentral_api/_generated/models/active_learning_stopping_config.py
 biocentral_api/_generated/models/add_embeddings_request.py
 biocentral_api/_generated/models/add_embeddings_response.py
 biocentral_api/_generated/models/auto_detect_format_request.py
@@ -101,7 +101,6 @@ biocentral_api/_generated/models/validation_error.py
 biocentral_api/_generated/py.typed
 biocentral_api/_generated/rest.py
 docs/ActiveLearningApi.md
-docs/ActiveLearningConvergenceConfig.md
 docs/ActiveLearningEngineeringCampaignConfig.md
 docs/ActiveLearningEngineeringIterationConfig.md
 docs/ActiveLearningEngineeringIterationRequest.md
@@ -115,6 +114,7 @@ docs/ActiveLearningScreeningIterationRequest.md
 docs/ActiveLearningScreeningSimulationConfig.md
 docs/ActiveLearningScreeningSimulationRequest.md
 docs/ActiveLearningScreeningSimulationResult.md
+docs/ActiveLearningStoppingConfig.md
 docs/AddEmbeddingsRequest.md
 docs/AddEmbeddingsResponse.md
 docs/AutoDetectFormatRequest.md

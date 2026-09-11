@@ -20,7 +20,7 @@ part 'active_learning_screening_simulation_result.g.dart';
 /// * [iterationMetricsSuggestions] - Metrics (mae/acc) for each iteration on suggested data
 /// * [iterationHits] - Successful targets (hits) found in each iteration
 /// * [iterationConsecutiveFailures] - Number of consecutive failures since the last successful target was found
-/// * [stopReasons] - Reason(s) for stopping the simulation (convergence criteria reached)
+/// * [stopReasons] - Reason(s) for stopping the simulation (stopping criteria reached)
 /// * [iterationResults] - List of active learning iteration results
 @BuiltValue()
 abstract class ActiveLearningScreeningSimulationResult implements Built<ActiveLearningScreeningSimulationResult, ActiveLearningScreeningSimulationResultBuilder> {
@@ -48,7 +48,7 @@ abstract class ActiveLearningScreeningSimulationResult implements Built<ActiveLe
   @BuiltValueField(wireName: r'iteration_consecutive_failures')
   BuiltList<int>? get iterationConsecutiveFailures;
 
-  /// Reason(s) for stopping the simulation (convergence criteria reached)
+  /// Reason(s) for stopping the simulation (stopping criteria reached)
   @BuiltValueField(wireName: r'stop_reasons')
   BuiltList<String>? get stopReasons;
 

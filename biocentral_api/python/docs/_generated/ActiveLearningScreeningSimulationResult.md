@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **iteration_metrics_suggestions** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Metrics (mae/acc) for each iteration on suggested data | [optional] 
 **iteration_hits** | **List[List[str]]** | Successful targets (hits) found in each iteration | [optional] 
 **iteration_consecutive_failures** | **List[int]** | Number of consecutive failures since the last successful target was found | [optional] 
-**stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (convergence criteria reached) | [optional] 
+**stop_reasons** | **List[str]** | Reason(s) for stopping the simulation (stopping criteria reached) | [optional] 
 **iteration_results** | [**List[ActiveLearningIterationResult]**](ActiveLearningIterationResult.md) | List of active learning iteration results | [optional] 
 
 ## Example

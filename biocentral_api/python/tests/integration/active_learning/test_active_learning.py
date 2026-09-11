@@ -10,7 +10,7 @@ from biocentral_api import (
     ActiveLearningOptimizationMode,
     ActiveLearningModelType,
     ActiveLearningScreeningSimulationConfig,
-    ActiveLearningConvergenceConfig,
+    ActiveLearningStoppingConfig,
 )
 
 
@@ -91,7 +91,7 @@ class TestActiveLearning(unittest.TestCase):
             simulation_data=simulation_data,
             n_start=2,
             n_suggestions_per_iteration=1,
-            convergence_config=ActiveLearningConvergenceConfig(
+            stopping_config=ActiveLearningStoppingConfig(
                 max_labels_budget=3,
                 n_hits=2,
                 max_consecutive_failures=2,
