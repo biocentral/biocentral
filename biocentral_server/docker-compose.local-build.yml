@@ -1,0 +1,21 @@
+# Production topology, built from this checkout instead of the published image.
+#
+# docker-compose.yml pins ghcr.io/biocentral/biocentral_server/biocentral-server:latest for
+# both app services, so a plain `up` runs upstream's build and none of the local commits.
+# docker-compose.override.yml does build locally, but only under the "app" profile and with
+# development settings (bind-mounted source, SERVER_DEBUG, a reduced Triton model list,
+# redis-commander, dozzle). This file is the third combination: prod services, local image.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local-build.yml up -d --build
+#
+# Naming the -f files explicitly also stops Compose auto-loading the override file.
+services:
+  biocentral-server:
+    image: biocentral-server:local
+    build:
+      context: .
+
+  biocentral-worker:
+    image: biocentral-server:local
+    build:
+      context: .
