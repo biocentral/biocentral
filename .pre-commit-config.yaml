@@ -25,14 +25,24 @@ repos:
       - id: ruff-format
         exclude: ^biocentral_api/python/biocentral_api/_generated/
 
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
-      - id: prettier
-        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, markdown]
-
   - repo: local
     hooks:
+      # Declared locally rather than via pre-commit/mirrors-prettier: pre-commit installs
+      # a hook repo that ships a package.json as `git+file://...`, which npm >=11 refuses
+      # (EALLOWGIT). additional_dependencies takes the plain-package path instead.
+      - id: prettier
+        name: prettier
+        entry: prettier --write --ignore-unknown
+        language: node
+        additional_dependencies: ["prettier@4.0.0-alpha.8"]
+        types_or: [javascript, jsx, ts, tsx, css, scss, html, json, markdown]
+        # Exclude generated docs to not generate gigantic diff
+        exclude: |
+          (?x)^(
+            biocentral_api/openapi_spec/|
+            biocentral_api/python/docs/_generated/|
+            biocentral_api/dart/doc/_generated/
+          )
       - id: dart-format
         name: Dart Format
         entry: dart format
