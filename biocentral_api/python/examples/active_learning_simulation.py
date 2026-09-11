@@ -11,7 +11,7 @@ from biocentral_api import (
     ActiveLearningScreeningSimulationConfig,
     ActiveLearningOptimizationMode,
     ActiveLearningModelType,
-    ActiveLearningConvergenceConfig,
+    ActiveLearningStoppingConfig,
 )
 
 # TODO REMOVE LOCAL ONLY
@@ -42,7 +42,7 @@ simulation_config = ActiveLearningScreeningSimulationConfig(
     simulation_data=simulation_data,
     n_start=2,
     n_suggestions_per_iteration=1,  # Will be higher for most campaigns
-    convergence_config=ActiveLearningConvergenceConfig(
+    stopping_config=ActiveLearningStoppingConfig(
         max_labels_budget=3, n_hits=2, max_consecutive_failures=2
     ),
 )

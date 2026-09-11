@@ -17,7 +17,13 @@ class _$ActiveLearningScreeningSimulationConfig
   @override
   final int nSuggestionsPerIteration;
   @override
-  final ActiveLearningConvergenceConfig convergenceConfig;
+  final num? coefficient;
+  @override
+  final ActiveLearningStoppingConfig stoppingConfig;
+  @override
+  final num? hitPercentile;
+  @override
+  final num? hitTargetDelta;
 
   factory _$ActiveLearningScreeningSimulationConfig(
           [void Function(ActiveLearningScreeningSimulationConfigBuilder)?
@@ -30,7 +36,10 @@ class _$ActiveLearningScreeningSimulationConfig
       this.nStart,
       this.startIds,
       required this.nSuggestionsPerIteration,
-      required this.convergenceConfig})
+      this.coefficient,
+      required this.stoppingConfig,
+      this.hitPercentile,
+      this.hitTargetDelta})
       : super._();
   @override
   ActiveLearningScreeningSimulationConfig rebuild(
@@ -50,7 +59,10 @@ class _$ActiveLearningScreeningSimulationConfig
         nStart == other.nStart &&
         startIds == other.startIds &&
         nSuggestionsPerIteration == other.nSuggestionsPerIteration &&
-        convergenceConfig == other.convergenceConfig;
+        coefficient == other.coefficient &&
+        stoppingConfig == other.stoppingConfig &&
+        hitPercentile == other.hitPercentile &&
+        hitTargetDelta == other.hitTargetDelta;
   }
 
   @override
@@ -60,7 +72,10 @@ class _$ActiveLearningScreeningSimulationConfig
     _$hash = $jc(_$hash, nStart.hashCode);
     _$hash = $jc(_$hash, startIds.hashCode);
     _$hash = $jc(_$hash, nSuggestionsPerIteration.hashCode);
-    _$hash = $jc(_$hash, convergenceConfig.hashCode);
+    _$hash = $jc(_$hash, coefficient.hashCode);
+    _$hash = $jc(_$hash, stoppingConfig.hashCode);
+    _$hash = $jc(_$hash, hitPercentile.hashCode);
+    _$hash = $jc(_$hash, hitTargetDelta.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -73,7 +88,10 @@ class _$ActiveLearningScreeningSimulationConfig
           ..add('nStart', nStart)
           ..add('startIds', startIds)
           ..add('nSuggestionsPerIteration', nSuggestionsPerIteration)
-          ..add('convergenceConfig', convergenceConfig))
+          ..add('coefficient', coefficient)
+          ..add('stoppingConfig', stoppingConfig)
+          ..add('hitPercentile', hitPercentile)
+          ..add('hitTargetDelta', hitTargetDelta))
         .toString();
   }
 }
@@ -104,12 +122,25 @@ class ActiveLearningScreeningSimulationConfigBuilder
   set nSuggestionsPerIteration(int? nSuggestionsPerIteration) =>
       _$this._nSuggestionsPerIteration = nSuggestionsPerIteration;
 
-  ActiveLearningConvergenceConfigBuilder? _convergenceConfig;
-  ActiveLearningConvergenceConfigBuilder get convergenceConfig =>
-      _$this._convergenceConfig ??= ActiveLearningConvergenceConfigBuilder();
-  set convergenceConfig(
-          ActiveLearningConvergenceConfigBuilder? convergenceConfig) =>
-      _$this._convergenceConfig = convergenceConfig;
+  num? _coefficient;
+  num? get coefficient => _$this._coefficient;
+  set coefficient(num? coefficient) => _$this._coefficient = coefficient;
+
+  ActiveLearningStoppingConfigBuilder? _stoppingConfig;
+  ActiveLearningStoppingConfigBuilder get stoppingConfig =>
+      _$this._stoppingConfig ??= ActiveLearningStoppingConfigBuilder();
+  set stoppingConfig(ActiveLearningStoppingConfigBuilder? stoppingConfig) =>
+      _$this._stoppingConfig = stoppingConfig;
+
+  num? _hitPercentile;
+  num? get hitPercentile => _$this._hitPercentile;
+  set hitPercentile(num? hitPercentile) =>
+      _$this._hitPercentile = hitPercentile;
+
+  num? _hitTargetDelta;
+  num? get hitTargetDelta => _$this._hitTargetDelta;
+  set hitTargetDelta(num? hitTargetDelta) =>
+      _$this._hitTargetDelta = hitTargetDelta;
 
   ActiveLearningScreeningSimulationConfigBuilder() {
     ActiveLearningScreeningSimulationConfig._defaults(this);
@@ -122,7 +153,10 @@ class ActiveLearningScreeningSimulationConfigBuilder
       _nStart = $v.nStart;
       _startIds = $v.startIds?.toBuilder();
       _nSuggestionsPerIteration = $v.nSuggestionsPerIteration;
-      _convergenceConfig = $v.convergenceConfig.toBuilder();
+      _coefficient = $v.coefficient;
+      _stoppingConfig = $v.stoppingConfig.toBuilder();
+      _hitPercentile = $v.hitPercentile;
+      _hitTargetDelta = $v.hitTargetDelta;
       _$v = null;
     }
     return this;
@@ -154,7 +188,10 @@ class ActiveLearningScreeningSimulationConfigBuilder
                 nSuggestionsPerIteration,
                 r'ActiveLearningScreeningSimulationConfig',
                 'nSuggestionsPerIteration'),
-            convergenceConfig: convergenceConfig.build(),
+            coefficient: coefficient,
+            stoppingConfig: stoppingConfig.build(),
+            hitPercentile: hitPercentile,
+            hitTargetDelta: hitTargetDelta,
           );
     } catch (_) {
       late String _$failedField;
@@ -165,8 +202,8 @@ class ActiveLearningScreeningSimulationConfigBuilder
         _$failedField = 'startIds';
         _startIds?.build();
 
-        _$failedField = 'convergenceConfig';
-        convergenceConfig.build();
+        _$failedField = 'stoppingConfig';
+        stoppingConfig.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ActiveLearningScreeningSimulationConfig',
