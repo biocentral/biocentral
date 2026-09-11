@@ -6,16 +6,17 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'active_learning_convergence_config.g.dart';
+part 'active_learning_stopping_config.g.dart';
 
-/// Configuration for convergence criteria for active learning campaigns
+/// Configuration for stopping criteria for active learning campaigns
 ///
 /// Properties:
 /// * [maxLabelsBudget] - Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')
 /// * [nHits] - Number of positive targets (hits) found before stopping ('Stop when we find 10 good proteins')
 /// * [maxConsecutiveFailures] - Maximum number of iterations in a row that do not yield a new target ('Stop if 3 rounds yield nothing')
+/// * [nMaxIterations] - Hard upper limit on the number of iterations, applied even if no other criterion is reached
 @BuiltValue()
-abstract class ActiveLearningConvergenceConfig implements Built<ActiveLearningConvergenceConfig, ActiveLearningConvergenceConfigBuilder> {
+abstract class ActiveLearningStoppingConfig implements Built<ActiveLearningStoppingConfig, ActiveLearningStoppingConfigBuilder> {
   /// Maximum number of labels that can be tested in the lab ('We can afford to test 100 proteins total')
   @BuiltValueField(wireName: r'max_labels_budget')
   int? get maxLabelsBudget;
@@ -28,27 +29,32 @@ abstract class ActiveLearningConvergenceConfig implements Built<ActiveLearningCo
   @BuiltValueField(wireName: r'max_consecutive_failures')
   int? get maxConsecutiveFailures;
 
-  ActiveLearningConvergenceConfig._();
+  /// Hard upper limit on the number of iterations, applied even if no other criterion is reached
+  @BuiltValueField(wireName: r'n_max_iterations')
+  int? get nMaxIterations;
 
-  factory ActiveLearningConvergenceConfig([void updates(ActiveLearningConvergenceConfigBuilder b)]) = _$ActiveLearningConvergenceConfig;
+  ActiveLearningStoppingConfig._();
+
+  factory ActiveLearningStoppingConfig([void updates(ActiveLearningStoppingConfigBuilder b)]) = _$ActiveLearningStoppingConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningConvergenceConfigBuilder b) => b;
+  static void _defaults(ActiveLearningStoppingConfigBuilder b) => b
+      ..nMaxIterations = 100;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<ActiveLearningConvergenceConfig> get serializer => _$ActiveLearningConvergenceConfigSerializer();
+  static Serializer<ActiveLearningStoppingConfig> get serializer => _$ActiveLearningStoppingConfigSerializer();
 }
 
-class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer<ActiveLearningConvergenceConfig> {
+class _$ActiveLearningStoppingConfigSerializer implements PrimitiveSerializer<ActiveLearningStoppingConfig> {
   @override
-  final Iterable<Type> types = const [ActiveLearningConvergenceConfig, _$ActiveLearningConvergenceConfig];
+  final Iterable<Type> types = const [ActiveLearningStoppingConfig, _$ActiveLearningStoppingConfig];
 
   @override
-  final String wireName = r'ActiveLearningConvergenceConfig';
+  final String wireName = r'ActiveLearningStoppingConfig';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    ActiveLearningConvergenceConfig object, {
+    ActiveLearningStoppingConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     if (object.maxLabelsBudget != null) {
@@ -72,12 +78,19 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
         specifiedType: const FullType.nullable(int),
       );
     }
+    if (object.nMaxIterations != null) {
+      yield r'n_max_iterations';
+      yield serializers.serialize(
+        object.nMaxIterations,
+        specifiedType: const FullType(int),
+      );
+    }
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    ActiveLearningConvergenceConfig object, {
+    ActiveLearningStoppingConfig object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -88,7 +101,7 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required ActiveLearningConvergenceConfigBuilder result,
+    required ActiveLearningStoppingConfigBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -119,6 +132,14 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
           if (valueDes == null) continue;
           result.maxConsecutiveFailures = valueDes;
           break;
+        case r'n_max_iterations':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.nMaxIterations = valueDes;
+          break;
         default:
           unhandled.add(key);
           unhandled.add(value);
@@ -128,12 +149,12 @@ class _$ActiveLearningConvergenceConfigSerializer implements PrimitiveSerializer
   }
 
   @override
-  ActiveLearningConvergenceConfig deserialize(
+  ActiveLearningStoppingConfig deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = ActiveLearningConvergenceConfigBuilder();
+    final result = ActiveLearningStoppingConfigBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

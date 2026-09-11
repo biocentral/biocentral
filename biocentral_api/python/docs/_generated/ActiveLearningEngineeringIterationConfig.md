@@ -7,10 +7,11 @@ Configuration for a single iteration of active learning
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **iteration** | **int** | Iteration number | 
-**base_sequences** | **List[str]** | Sequences used to generate mutations | 
+**base_sequences** | **List[str]** | Sequences used to generate mutations (defaults to the wildtype sequence of the campaign) | [optional] 
 **training_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of training data for this iteration | 
 **coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
 **n_suggestions** | **int** | Number of suggestions to propose from this iteration | 
+**n_mutations** | **int** | Number of mutations to generate and score in this iteration | [optional] [default to 1000]
 
 ## Example
 

@@ -1,5 +1,4 @@
 doc/ActiveLearningApi.md
-doc/ActiveLearningConvergenceConfig.md
 doc/ActiveLearningEngineeringCampaignConfig.md
 doc/ActiveLearningEngineeringIterationConfig.md
 doc/ActiveLearningEngineeringIterationRequest.md
@@ -13,6 +12,7 @@ doc/ActiveLearningScreeningIterationRequest.md
 doc/ActiveLearningScreeningSimulationConfig.md
 doc/ActiveLearningScreeningSimulationRequest.md
 doc/ActiveLearningScreeningSimulationResult.md
+doc/ActiveLearningStoppingConfig.md
 doc/AddEmbeddingsRequest.md
 doc/AddEmbeddingsResponse.md
 doc/AutoDetectFormatRequest.md
@@ -108,7 +108,6 @@ lib/src/auth/basic_auth.dart
 lib/src/auth/bearer_auth.dart
 lib/src/auth/oauth.dart
 lib/src/date_serializer.dart
-lib/src/model/active_learning_convergence_config.dart
 lib/src/model/active_learning_engineering_campaign_config.dart
 lib/src/model/active_learning_engineering_iteration_config.dart
 lib/src/model/active_learning_engineering_iteration_request.dart
@@ -122,6 +121,7 @@ lib/src/model/active_learning_screening_iteration_request.dart
 lib/src/model/active_learning_screening_simulation_config.dart
 lib/src/model/active_learning_screening_simulation_request.dart
 lib/src/model/active_learning_screening_simulation_result.dart
+lib/src/model/active_learning_stopping_config.dart
 lib/src/model/add_embeddings_request.dart
 lib/src/model/add_embeddings_response.dart
 lib/src/model/auto_detect_format_request.dart
