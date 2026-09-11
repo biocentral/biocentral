@@ -222,7 +222,7 @@ class ActiveLearningStoppingConfig(BaseModel):
         "('Stop if 3 rounds yield nothing')",
         ge=1,
     )
-    n_max_iterations: Optional[int] = Field(
+    n_max_iterations: int = Field(
         default=100,
         description="Hard upper limit on the number of iterations, "
         "applied even if no other criterion is reached",
@@ -231,14 +231,15 @@ class ActiveLearningStoppingConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_stopping_config(self):
+        # n_max_iterations is a backstop with a default, not a criterion the caller
+        # chooses, so it does not satisfy this requirement on its own.
         if (
-            self.n_max_iterations is None
-            and self.max_labels_budget is None
+            self.max_labels_budget is None
             and self.n_hits is None
             and self.max_consecutive_failures is None
         ):
             raise ValueError(
-                "At least one of n_max_iterations, "
+                "At least one of "
                 "max_labels_budget, "
                 "n_hits, "
                 "max_consecutive_failures must be specified!"

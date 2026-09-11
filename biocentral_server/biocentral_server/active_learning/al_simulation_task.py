@@ -1,6 +1,5 @@
 import torch
 import random
-import itertools
 import numpy as np
 import torchmetrics
 
@@ -443,11 +442,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         n_consecutive_failures = 0
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
         n_max_iterations = self.al_simulation_config.stopping_config.n_max_iterations
-        # No iteration cap: run until another criterion fires or the data runs out
-        iterations = (
-            itertools.count() if n_max_iterations is None else range(n_max_iterations)
-        )
-        for iteration_idx in iterations:
+        for iteration_idx in range(n_max_iterations):
             iteration = iteration_idx + 1
             if n_total_suggestions + n_start_data >= n_sim_data_total:
                 # No new data left
