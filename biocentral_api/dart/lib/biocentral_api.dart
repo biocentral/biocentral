@@ -12,6 +12,7 @@ export 'src/model/bootstrapped_metric.dart' show BootstrappedMetric;
 export 'src/extensions/serialization_extensions.dart';
 export 'src/extensions/bootstrapped_metric_ext.dart';
 export 'src/extensions/string_extensions.dart';
+export 'src/extensions/enum_wire_name_extensions.dart';
 export 'src/extensions/biotrainer_model_result_ext.dart';
 export 'src/model/training_result.dart' show TrainingResult;
 export 'src/model/test_result.dart' show TestResult;
