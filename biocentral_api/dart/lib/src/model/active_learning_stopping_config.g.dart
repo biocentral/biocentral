@@ -1,43 +1,48 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'active_learning_convergence_config.dart';
+part of 'active_learning_stopping_config.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$ActiveLearningConvergenceConfig
-    extends ActiveLearningConvergenceConfig {
+class _$ActiveLearningStoppingConfig extends ActiveLearningStoppingConfig {
   @override
   final int? maxLabelsBudget;
   @override
   final int? nHits;
   @override
   final int? maxConsecutiveFailures;
+  @override
+  final int? nMaxIterations;
 
-  factory _$ActiveLearningConvergenceConfig(
-          [void Function(ActiveLearningConvergenceConfigBuilder)? updates]) =>
-      (ActiveLearningConvergenceConfigBuilder()..update(updates))._build();
+  factory _$ActiveLearningStoppingConfig(
+          [void Function(ActiveLearningStoppingConfigBuilder)? updates]) =>
+      (ActiveLearningStoppingConfigBuilder()..update(updates))._build();
 
-  _$ActiveLearningConvergenceConfig._(
-      {this.maxLabelsBudget, this.nHits, this.maxConsecutiveFailures})
+  _$ActiveLearningStoppingConfig._(
+      {this.maxLabelsBudget,
+      this.nHits,
+      this.maxConsecutiveFailures,
+      this.nMaxIterations})
       : super._();
   @override
-  ActiveLearningConvergenceConfig rebuild(
-          void Function(ActiveLearningConvergenceConfigBuilder) updates) =>
+  ActiveLearningStoppingConfig rebuild(
+          void Function(ActiveLearningStoppingConfigBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ActiveLearningConvergenceConfigBuilder toBuilder() =>
-      ActiveLearningConvergenceConfigBuilder()..replace(this);
+  ActiveLearningStoppingConfigBuilder toBuilder() =>
+      ActiveLearningStoppingConfigBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is ActiveLearningConvergenceConfig &&
+    return other is ActiveLearningStoppingConfig &&
         maxLabelsBudget == other.maxLabelsBudget &&
         nHits == other.nHits &&
-        maxConsecutiveFailures == other.maxConsecutiveFailures;
+        maxConsecutiveFailures == other.maxConsecutiveFailures &&
+        nMaxIterations == other.nMaxIterations;
   }
 
   @override
@@ -46,25 +51,27 @@ class _$ActiveLearningConvergenceConfig
     _$hash = $jc(_$hash, maxLabelsBudget.hashCode);
     _$hash = $jc(_$hash, nHits.hashCode);
     _$hash = $jc(_$hash, maxConsecutiveFailures.hashCode);
+    _$hash = $jc(_$hash, nMaxIterations.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'ActiveLearningConvergenceConfig')
+    return (newBuiltValueToStringHelper(r'ActiveLearningStoppingConfig')
           ..add('maxLabelsBudget', maxLabelsBudget)
           ..add('nHits', nHits)
-          ..add('maxConsecutiveFailures', maxConsecutiveFailures))
+          ..add('maxConsecutiveFailures', maxConsecutiveFailures)
+          ..add('nMaxIterations', nMaxIterations))
         .toString();
   }
 }
 
-class ActiveLearningConvergenceConfigBuilder
+class ActiveLearningStoppingConfigBuilder
     implements
-        Builder<ActiveLearningConvergenceConfig,
-            ActiveLearningConvergenceConfigBuilder> {
-  _$ActiveLearningConvergenceConfig? _$v;
+        Builder<ActiveLearningStoppingConfig,
+            ActiveLearningStoppingConfigBuilder> {
+  _$ActiveLearningStoppingConfig? _$v;
 
   int? _maxLabelsBudget;
   int? get maxLabelsBudget => _$this._maxLabelsBudget;
@@ -80,40 +87,47 @@ class ActiveLearningConvergenceConfigBuilder
   set maxConsecutiveFailures(int? maxConsecutiveFailures) =>
       _$this._maxConsecutiveFailures = maxConsecutiveFailures;
 
-  ActiveLearningConvergenceConfigBuilder() {
-    ActiveLearningConvergenceConfig._defaults(this);
+  int? _nMaxIterations;
+  int? get nMaxIterations => _$this._nMaxIterations;
+  set nMaxIterations(int? nMaxIterations) =>
+      _$this._nMaxIterations = nMaxIterations;
+
+  ActiveLearningStoppingConfigBuilder() {
+    ActiveLearningStoppingConfig._defaults(this);
   }
 
-  ActiveLearningConvergenceConfigBuilder get _$this {
+  ActiveLearningStoppingConfigBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _maxLabelsBudget = $v.maxLabelsBudget;
       _nHits = $v.nHits;
       _maxConsecutiveFailures = $v.maxConsecutiveFailures;
+      _nMaxIterations = $v.nMaxIterations;
       _$v = null;
     }
     return this;
   }
 
   @override
-  void replace(ActiveLearningConvergenceConfig other) {
-    _$v = other as _$ActiveLearningConvergenceConfig;
+  void replace(ActiveLearningStoppingConfig other) {
+    _$v = other as _$ActiveLearningStoppingConfig;
   }
 
   @override
-  void update(void Function(ActiveLearningConvergenceConfigBuilder)? updates) {
+  void update(void Function(ActiveLearningStoppingConfigBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  ActiveLearningConvergenceConfig build() => _build();
+  ActiveLearningStoppingConfig build() => _build();
 
-  _$ActiveLearningConvergenceConfig _build() {
+  _$ActiveLearningStoppingConfig _build() {
     final _$result = _$v ??
-        _$ActiveLearningConvergenceConfig._(
+        _$ActiveLearningStoppingConfig._(
           maxLabelsBudget: maxLabelsBudget,
           nHits: nHits,
           maxConsecutiveFailures: maxConsecutiveFailures,
+          nMaxIterations: nMaxIterations,
         );
     replace(_$result);
     return _$result;
