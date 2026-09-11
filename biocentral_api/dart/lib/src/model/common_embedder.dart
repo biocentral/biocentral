@@ -48,9 +48,6 @@ class CommonEmbedder extends EnumClass {
 
   static BuiltSet<CommonEmbedder> get values => _$values;
   static CommonEmbedder valueOf(String name) => _$valueOf(name);
-
-  String get wireName =>
-      (_$commonEmbedderSerializer as _$CommonEmbedderSerializer).serialize(Serializers(), this) as String;
 }
 
 /// Optionally, enum_class can generate a mixin to go with your enum for use
