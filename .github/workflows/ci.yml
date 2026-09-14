@@ -286,7 +286,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest ]  # TODO: macos-latest
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
     defaults:
       run:
         working-directory: biocentral_ire
@@ -344,6 +344,18 @@ jobs:
         with:
           name: linux-build
           path: biocentral_ire/build/linux/x64/release/bundle
+
+      - name: Build macOS Application
+        if: matrix.os == 'macos-latest'
+        run: |
+          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
+          flutter build macos --release
+      - name: Upload macOS build artifacts
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: biocentral_ire/build/macos/Build/Products/Release
 
       - name: Build Web Application
         if: matrix.os == 'ubuntu-latest'
