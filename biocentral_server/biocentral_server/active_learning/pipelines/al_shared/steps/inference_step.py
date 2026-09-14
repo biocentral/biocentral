@@ -186,7 +186,6 @@ class InferenceStep(PipelineStep[ALContext]):
         context: ALContext,
         task_type: Literal["classification", "regression"],
         uncertainty_strategy: Literal["constant", "random", "uniform"] = "constant",
-        seed: Optional[int] = None,
     ) -> Tuple[List, torch.Tensor, torch.Tensor]:
         """
         Random baseline that mimics the train_and_inference interface.
@@ -197,16 +196,12 @@ class InferenceStep(PipelineStep[ALContext]):
                 - 'constant': Use a constant uncertainty for all samples
                 - 'random': Sample random uncertainties
                 - 'uniform': All samples get the same fixed uncertainty value
-            seed: Random seed for reproducibility
 
         Returns:
             scores: tensor of shape (n_inference_data)
             means: predicted means
             uncertainties: predicted uncertainties
         """
-        if seed is not None:
-            torch.manual_seed(seed)
-
         train_data = context.training_data
         n_inference = len(context.inference_data)
         class_str2int = {
@@ -356,7 +351,7 @@ class InferenceStep(PipelineStep[ALContext]):
             preds, uncertainty, desirability = self._handle_biotrainer_result(context)
         else:
             preds, uncertainty, desirability = self._random_baseline_inference(
-                context, context.al_task_type, uncertainty_strategy="constant", seed=42
+                context, context.al_task_type, uncertainty_strategy="constant"
             )
         context.predictions = preds
         context.uncertainty = uncertainty
