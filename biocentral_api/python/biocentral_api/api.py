@@ -94,6 +94,8 @@ class BiocentralAPI:
                 _BiocentralAPIHealth(url=self.DEFAULT_LOCAL_URL, healthy=False)
             )
 
+        self._health_checked = False
+
     def _create_api_client(self) -> ApiClient:
         """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
         cfg = self._make_configuration(self._get_base_url())
@@ -133,6 +135,13 @@ class BiocentralAPI:
         return any(h in url for h in ["localhost", "127.0.0.1"])
 
     def _get_base_url(self) -> str:
+        # Health-check once before choosing, so a caller that never called
+        # wait_until_healthy() does not silently fall through to the first
+        # candidate -- which is the hosted server, not the local one.
+        # Skipped for a single candidate, where the outcome cannot change.
+        if not self._health_checked and len(self._url_health_status) > 1:
+            self._update_health_status()
+
         # Prefer first healthy URL if any, otherwise first candidate
         base_url = self._url_health_status[0].url
         for url_health in self._url_health_status:
@@ -163,6 +172,7 @@ class BiocentralAPI:
             )
             updated.append(updated_health_status)
         self._url_health_status = updated
+        self._health_checked = True
         return self._url_health_status
 
     @staticmethod
