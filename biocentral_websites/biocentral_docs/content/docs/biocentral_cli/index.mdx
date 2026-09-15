@@ -270,15 +270,15 @@ biocentral server dump --output my_backup.h5
 
 ### `server errors` — Analyze Server Logs
 
-Scan Docker and log file output for errors and display them in a readable format.
+Scan Docker and log file output for errors and display them interactively.
 
 ```shell
 biocentral server errors
 ```
 
-Browse errors interactively (navigate with `n`/`p`, quit with `q`):
+Dump all errors in a readable format (instead of interactive mode):
 ```shell
-biocentral server errors --interactive
+biocentral server errors --dump
 ```
 
 ---
