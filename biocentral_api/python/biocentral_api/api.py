@@ -32,6 +32,8 @@ from ._generated import (
     CommonEmbedder,
     Protocol,
     ProjectionResult,
+    BiocentralServiceStats,
+    BiocentralServiceApi,
 )
 from .clients import (
     BiocentralServerTask,
@@ -209,6 +211,12 @@ class BiocentralAPI:
                 return self
             time.sleep(poll_interval)
         raise TimeoutError("No healthy biocentral service became available in time")
+
+    def service_stats(self) -> BiocentralServiceStats:
+        with self._create_api_client() as api_client:
+            service_client = BiocentralServiceApi(api_client)
+            stats_response = service_client.stats_api_v1_biocentral_service_stats_get()
+            return stats_response.service_stats
 
     @staticmethod
     def _get_max_sequence_input_restriction(
