@@ -43,6 +43,46 @@ async def check_task_ownership(request: Request, task_id: str) -> Optional[TaskM
     return task_manager
 
 
+async def collect_service_stats(metrics_service = None):
+    def _get_usable_cpu_count():
+        try:
+            # Try to use psutil, which works on Windows, Linux, and macOS
+            return len(psutil.Process().cpu_affinity())
+        except AttributeError:
+            # If cpu_affinity is not available (e.g., on macOS), fall back to logical CPU count
+            return psutil.cpu_count(logical=True)
+
+    usable_cpu_count = _get_usable_cpu_count()
+
+    embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
+    embeddings_database_size = embeddings_db.get_database_size()
+
+    if metrics_service is None:
+        metrics_service = MetricsService()
+    total_tasks = await metrics_service.get_total_tasks()
+
+    running_tasks = TaskManager().get_current_number_of_running_tasks()
+    queue_length = TaskManager().get_current_number_of_queued_tasks()
+
+    cuda_available = torch.cuda.is_available()
+    cuda_device_count = torch.cuda.device_count() if cuda_available else 0
+    cuda_device_names = [
+        torch.cuda.get_device_name(i) for i in range(cuda_device_count)
+    ]
+
+    return ServiceStatsResponse(
+        service_stats=BiocentralServiceStats(
+            usable_cpu_count=usable_cpu_count,
+            embeddings_database_size=embeddings_database_size,
+            total_tasks=total_tasks,
+            running_tasks=running_tasks,
+            queue_length=queue_length,
+            cuda_available=cuda_available,
+            cuda_device_names=cuda_device_names,
+            cuda_device_count=cuda_device_count,
+        )
+    )
+
 @router.get(
     "/welcome_message",
 )
@@ -89,41 +129,7 @@ async def task_status_resumed(task_id: str, request: Request):
 # Endpoint to get some server statistics
 @router.get("/stats/", response_model=ServiceStatsResponse)
 async def stats(metrics_service: Annotated[MetricsService, Depends(MetricsService)]):
-    def _get_usable_cpu_count():
-        try:
-            # Try to use psutil, which works on Windows, Linux, and macOS
-            return len(psutil.Process().cpu_affinity())
-        except AttributeError:
-            # If cpu_affinity is not available (e.g., on macOS), fall back to logical CPU count
-            return psutil.cpu_count(logical=True)
-
-    usable_cpu_count = _get_usable_cpu_count()
-
-    embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-    embeddings_database_size = embeddings_db.get_database_size()
-
-    total_tasks = await metrics_service.get_total_tasks()
-    running_tasks = TaskManager().get_current_number_of_running_tasks()
-    queue_length = TaskManager().get_current_number_of_queued_tasks()
-
-    cuda_available = torch.cuda.is_available()
-    cuda_device_count = torch.cuda.device_count() if cuda_available else 0
-    cuda_device_names = [
-        torch.cuda.get_device_name(i) for i in range(cuda_device_count)
-    ]
-
-    return ServiceStatsResponse(
-        service_stats=BiocentralServiceStats(
-            usable_cpu_count=usable_cpu_count,
-            embeddings_database_size=embeddings_database_size,
-            total_tasks=total_tasks,
-            running_tasks=running_tasks,
-            queue_length=queue_length,
-            cuda_available=cuda_available,
-            cuda_device_names=cuda_device_names,
-            cuda_device_count=cuda_device_count,
-        )
-    )
+    return await collect_service_stats(metrics_service)
 
 
 @router.get("/research_stats/", response_model=ResearchStatsResponse)
