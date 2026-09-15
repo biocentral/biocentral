@@ -22,6 +22,8 @@ x-app-defaults: &app-defaults
     USE_TRITON: "true"
     MODEL_REPOSITORY_PATH: /app/models
     MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+    RATE_LIMIT_JOB_TIMES: ${RATE_LIMIT_JOB_TIMES:-60}
+    RATE_LIMIT_JOB_SECONDS: ${RATE_LIMIT_JOB_SECONDS:-60}
 
 services:
   biocentral-server:

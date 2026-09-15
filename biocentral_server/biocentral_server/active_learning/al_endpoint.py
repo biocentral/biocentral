@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi_limiter.depends import RateLimiter
 
 from .endpoint_models import (
     ActiveLearningScreeningIterationRequest,
@@ -13,7 +12,7 @@ from .al_iteration_tasks import (
     ActiveLearningEngineeringIterationTask,
 )
 
-from ..utils import get_logger
+from ..utils import get_logger, job_rate_limiter
 from ..server_management import (
     TaskManager,
     UserManager,
@@ -40,7 +39,7 @@ router = APIRouter(
     },
     summary="Run one active learning screening iteration",
     description="Submit an active learning screening iteration job",
-    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+    dependencies=[Depends(job_rate_limiter())],
 )
 async def active_learning_screening_iteration(
     request_data: ActiveLearningScreeningIterationRequest, request: Request
@@ -83,7 +82,7 @@ async def active_learning_screening_iteration(
     },
     summary="Run one active learning engineering iteration",
     description="Submit an active learning engineering iteration job",
-    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+    dependencies=[Depends(job_rate_limiter())],
 )
 async def active_learning_engineering_iteration(
     request_data: ActiveLearningEngineeringIterationRequest, request: Request
@@ -122,7 +121,7 @@ async def active_learning_engineering_iteration(
     },
     summary="Run a simulated active learning screening campaign",
     description="Submit an active learning screening simulation job",
-    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+    dependencies=[Depends(job_rate_limiter())],
 )
 async def active_learning_screening_simulation(
     request_data: ActiveLearningScreeningSimulationRequest, request: Request
