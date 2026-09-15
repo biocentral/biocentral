@@ -179,40 +179,116 @@ final class LoadModelCommand extends BiocentralCommand<PredictionModel> {
 
 final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<BioEntity>> {
   final BiocentralDatabase _database;
+  final BiocentralAPIRepository? _apiRepository;
   final SplitSetGenerationMode _mode;
   final SplitSetGenerationMethod _method;
   final SplitRatio _splitRatio;
+  final int? _seed;
 
   final BiocentralDatabaseColumn? _selectedSetColumn;
   final SplitSet? _subsplitSource;
   final SplitSet? _subsplitTarget;
+  final String? _selectedClusterColumn; 
+  final double? _clusteringThreshold;
 
   SplitDataCommand({
     required BiocentralDatabase database,
+    BiocentralAPIRepository? apiRepository,
     required SplitSetGenerationMode mode,
     required SplitSetGenerationMethod method,
     required SplitRatio splitRatio,
+    int? seed,
     BiocentralDatabaseColumn? selectedSetColumn,
     SplitSet? subsplitSource,
     SplitSet? subsplitTarget,
+    String? selectedClusterColumn,
+    double? clusteringThreshold, 
   })  : _database = database,
+        _apiRepository = apiRepository,
         _mode = mode,
         _method = method,
         _splitRatio = splitRatio,
+        _seed = seed,
         _selectedSetColumn = selectedSetColumn,
         _subsplitSource = subsplitSource,
-        _subsplitTarget = subsplitTarget;
+        _subsplitTarget = subsplitTarget,
+        _selectedClusterColumn = selectedClusterColumn, 
+        _clusteringThreshold = clusteringThreshold;
 
   @override
   Stream<BiocentralCommandLog<BiocentralDatabaseUpdate<BioEntity>>> execute() async* {
     BiocentralCommandLog<BiocentralDatabaseUpdate<BioEntity>> log = initLog();
     yield log = log.logInfo(information: 'Calculating splits with method $_method..');
 
+    Map<String, String>? entityIdToClusterId;
+
+    if (_method == SplitSetGenerationMethod.newCluster) {
+      if (_apiRepository == null) {
+        yield log.errored(error: 'Biocentral API repository is missing.');
+        return;
+      }
+
+      yield log = log.logInfo(information: 'Running MMseqs2 sequence clustering..');
+
+      final sequences = _database.getSequences();
+      if (sequences == null || sequences.isEmpty) {
+        yield log.errored(error: 'No sequences found in dataset to cluster.');
+        return;
+      }
+
+      final threshold = _clusteringThreshold ?? 0.3;
+      final api = _apiRepository!.getBiocentralAPI();
+
+      try {
+        final biocentralTask = await api.cluster(
+          sequenceData: sequences,
+          sequenceIdentityThreshold: threshold,
+        );
+
+        Map<String, List<String>> clusters = {};
+        await for (final (dto, clusterResult) in biocentralTask.run()) {
+          if (clusterResult != null) {
+            clusters = clusterResult;
+          }
+        }
+
+        if (clusters.isEmpty) {
+          yield log.errored(error: 'Did not receive any cluster assignments!');
+          return;
+        }
+
+        entityIdToClusterId = {};
+        clusters.forEach((clusterId, memberIds) {
+          for (final memberId in memberIds) {
+            entityIdToClusterId![memberId] = clusterId;
+          }
+        });
+
+        final clusterColName = 'MMseqs2-Cluster-${(threshold * 100).toInt()}%';
+        await _database.addCustomAttributes(clusterColName, entityIdToClusterId!);
+
+        yield log = log.logInfo(information: 'Clustering complete. Generating splits..');
+      } catch (e) {
+        yield log.errored(error: 'Failed clustering sequences: $e');
+        return;
+      }
+    } else if (_method == SplitSetGenerationMethod.existingCluster && _selectedClusterColumn != null) {
+      entityIdToClusterId = {};
+      for (final raw in _database.entitiesAsMaps()) {
+        final id = raw['id']?.toString() ?? '';
+        final attributes = raw['attributes'] as Map<String, dynamic>? ?? {};
+        final clusterId = attributes[_selectedClusterColumn]?.toString() ?? id;
+        entityIdToClusterId[id] = clusterId;
+      }
+    }
+
     SplitResult? splitResult;
     if (_mode == SplitSetGenerationMode.generateNew) {
       final Map<String, SplitSet> ids = SetGenerator(splitRatio: _splitRatio).splitByMethod(
         method: _method,
         ids: _database.databaseToMap().keys.toList(),
+        entityIdToClusterId: entityIdToClusterId, 
+        seed: _seed, 
       );
       final newColumnName = 'SET_${_method.name.toUpperCase()}';
       splitResult = SplitResult(ids, newColumnName);
@@ -235,6 +311,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         ids: existingIds,
         subsplitSource: subsplitSource,
         subsplitTarget: subsplitTarget,
+        entityIdToClusterId: entityIdToClusterId, 
+        seed: _seed, 
       );
 
       // TODO This adds the remaining sets values to the subsplit
@@ -282,13 +360,16 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
   @override
   Map<String, dynamic> getConfigMap() {
     return {
-      'databaseType': _database.getType(),
+      'databaseType': _database.getType().toString(),
       'mode': _mode.name,
       'method': _method.name,
       'splitRatio': _splitRatio.toString(),
+      'seed': _seed, 
       'selectedSetColumn': _selectedSetColumn?.name,
       'subsplitSource': _subsplitSource?.name,
       'subsplitTarget': _subsplitTarget?.name,
+      'selectedClusterColumn': _selectedClusterColumn,
+      'clusteringThreshold': _clusteringThreshold,
     };
   }
 
