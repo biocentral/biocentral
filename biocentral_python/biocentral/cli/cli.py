@@ -276,15 +276,15 @@ def stats():
 
 @server.command()
 @click.option(
-    "--interactive", is_flag=True, help="Interactive mode (next/previous error)"
+    "--dump", is_flag=True, help="Dump errors to terminal (instead of interactive mode)"
 )
-def errors(interactive):
+def errors(dump):
     """Analyze errors in logs."""
     try:
         from .server_cli import server as server_cli
 
         ctx = click.Context(server_cli)
-        ctx.invoke(server_cli.commands["errors"], interactive=interactive)
+        ctx.invoke(server_cli.commands["errors"], dump=dump)
     except ImportError:
         click.echo(
             "Server management requires biocentral_server. Install with: pip install biocentral[server]"
