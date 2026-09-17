@@ -575,7 +575,10 @@ class BiocentralAPI:
             self,
             campaign_config: ActiveLearningScreeningCampaignConfig,
             simulation_config: ActiveLearningScreeningSimulationConfig,
+            store_predictions: bool = True,
     ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
+        """Run a screening simulation.
+        """
         if len(simulation_config.simulation_data) < 2:
             raise ValueError(
                 "Not enough data provided for an active learning simulation."
@@ -590,6 +593,7 @@ class BiocentralAPI:
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
             biocentral_server_task = active_learning_client.al_simulation(
-                api_client, campaign_config, simulation_config
+                api_client, campaign_config, simulation_config,
+                store_predictions=store_predictions,
             )
             return biocentral_server_task

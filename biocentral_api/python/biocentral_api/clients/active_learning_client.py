@@ -49,9 +49,14 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
 
 
 class _ActiveLearningSimulationDTOHandler(DTOHandler):
-    def __init__(self, simulation_config: ActiveLearningScreeningSimulationConfig):
+    def __init__(
+            self,
+            simulation_config: ActiveLearningScreeningSimulationConfig,
+            store_predictions: bool = True,
+    ):
         self._iteration_results = {}  # Use dict to preserve order of results
         self._counted_iterations = set()  # track which iterations already moved the bar
+        self._store_predictions = store_predictions
         self._n_max_iterations = self._approximate_n_max_iterations(simulation_config)
         self._set_max_iterations_tqdm = False
 
@@ -74,8 +79,10 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     def handle_result(self, dtos: List[TaskDTO]):
         for dto in dtos:
             if dto.al_iteration_result is not None:
-                iteration_idx = dto.al_iteration_result.iteration
-                self._iteration_results[iteration_idx] = dto.al_iteration_result
+                iteration_result = dto.al_iteration_result
+                if not self._store_predictions:
+                    iteration_result.results = []
+                self._iteration_results[iteration_result.iteration] = iteration_result
             status = dto.status
             if status == TaskStatus.FINISHED:
                 al_simulation_result = dto.al_simulation_result
@@ -166,11 +173,12 @@ class ActiveLearningClient(ClientInterface):
             api_client: ApiClient,
             campaign_config: ActiveLearningScreeningCampaignConfig,
             simulation_config: ActiveLearningScreeningSimulationConfig,
+            store_predictions: bool = True,
     ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
         al_api = ActiveLearningApi(api_client)
 
         al_simulation_dto_handler = _ActiveLearningSimulationDTOHandler(
-            simulation_config=simulation_config
+            simulation_config=simulation_config, store_predictions=store_predictions
         )
 
         al_simulation_request = ActiveLearningScreeningSimulationRequest(
