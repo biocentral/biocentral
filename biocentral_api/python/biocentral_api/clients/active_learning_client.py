@@ -49,10 +49,9 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
 
 
 class _ActiveLearningSimulationDTOHandler(DTOHandler):
-    _iteration_results = {}  # Use dict to preserve order of results
-    _counted_iterations = set()  # track which iterations already moved the bar
-
     def __init__(self, simulation_config: ActiveLearningScreeningSimulationConfig):
+        self._iteration_results = {}  # Use dict to preserve order of results
+        self._counted_iterations = set()  # track which iterations already moved the bar
         self._n_max_iterations = self._approximate_n_max_iterations(simulation_config)
         self._set_max_iterations_tqdm = False
 
