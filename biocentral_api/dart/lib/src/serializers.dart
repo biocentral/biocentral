@@ -14,7 +14,6 @@ import 'package:built_value/iso_8601_date_time_serializer.dart';
 import 'package:biocentral_api/src/date_serializer.dart';
 import 'package:biocentral_api/src/model/date.dart';
 
-import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_campaign_config.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_iteration_config.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_iteration_request.dart';
@@ -28,6 +27,7 @@ import 'package:biocentral_api/src/model/active_learning_screening_iteration_req
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_config.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_request.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
+import 'package:biocentral_api/src/model/active_learning_stopping_config.dart';
 import 'package:biocentral_api/src/model/add_embeddings_request.dart';
 import 'package:biocentral_api/src/model/add_embeddings_response.dart';
 import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
@@ -102,7 +102,6 @@ import 'package:biocentral_api/src/model/validation_error.dart';
 part 'serializers.g.dart';
 
 @SerializersFor([
-  ActiveLearningConvergenceConfig,
   ActiveLearningEngineeringCampaignConfig,
   ActiveLearningEngineeringIterationConfig,
   ActiveLearningEngineeringIterationRequest,
@@ -116,6 +115,7 @@ part 'serializers.g.dart';
   ActiveLearningScreeningSimulationConfig,
   ActiveLearningScreeningSimulationRequest,
   ActiveLearningScreeningSimulationResult,
+  ActiveLearningStoppingConfig,
   AddEmbeddingsRequest,
   AddEmbeddingsResponse,
   AutoDetectFormatRequest,

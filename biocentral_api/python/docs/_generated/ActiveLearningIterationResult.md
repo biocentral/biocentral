@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**iteration** | **int** | Iteration number (zero indexed for simulations, otherwise matches the given number in the iteration config) | 
-**results** | [**List[ActiveLearningResult]**](ActiveLearningResult.md) | List of active learning results | 
+**iteration** | **int** | Iteration number (one-indexed for simulations, otherwise matches the given number in the iteration config) | 
+**results** | [**List[ActiveLearningResult]**](ActiveLearningResult.md) | List of active learning results, may be empty if the client asked not to store predictions | 
 **suggestions** | **List[str]** | List of suggested entity IDs for next iteration | 
 
 ## Example

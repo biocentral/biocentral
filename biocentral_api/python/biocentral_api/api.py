@@ -94,6 +94,8 @@ class BiocentralAPI:
                 _BiocentralAPIHealth(url=self.DEFAULT_LOCAL_URL, healthy=False)
             )
 
+        self._health_checked = False
+
     def _create_api_client(self) -> ApiClient:
         """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
         cfg = self._make_configuration(self._get_base_url())
@@ -133,6 +135,13 @@ class BiocentralAPI:
         return any(h in url for h in ["localhost", "127.0.0.1"])
 
     def _get_base_url(self) -> str:
+        # Health-check once before choosing, so a caller that never called
+        # wait_until_healthy() does not silently fall through to the first
+        # candidate -- which is the hosted server, not the local one.
+        # Skipped for a single candidate, where the outcome cannot change.
+        if not self._health_checked and len(self._url_health_status) > 1:
+            self._update_health_status()
+
         # Prefer first healthy URL if any, otherwise first candidate
         base_url = self._url_health_status[0].url
         for url_health in self._url_health_status:
@@ -163,6 +172,7 @@ class BiocentralAPI:
             )
             updated.append(updated_health_status)
         self._url_health_status = updated
+        self._health_checked = True
         return self._url_health_status
 
     @staticmethod
@@ -565,7 +575,10 @@ class BiocentralAPI:
             self,
             campaign_config: ActiveLearningScreeningCampaignConfig,
             simulation_config: ActiveLearningScreeningSimulationConfig,
+            store_predictions: bool = True,
     ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
+        """Run a screening simulation.
+        """
         if len(simulation_config.simulation_data) < 2:
             raise ValueError(
                 "Not enough data provided for an active learning simulation."
@@ -580,6 +593,7 @@ class BiocentralAPI:
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
             biocentral_server_task = active_learning_client.al_simulation(
-                api_client, campaign_config, simulation_config
+                api_client, campaign_config, simulation_config,
+                store_predictions=store_predictions,
             )
             return biocentral_server_task

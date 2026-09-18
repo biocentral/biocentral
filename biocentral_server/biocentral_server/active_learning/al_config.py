@@ -139,7 +139,7 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         description="Optimization mode selection"
     )
     seed: Optional[int] = Field(
-        default=43, description="Random seed for reproducibility."
+        default=42, description="Random seed for reproducibility."
     )
     wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
 
@@ -160,8 +160,11 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
     iteration: int = Field(description="Iteration number")
-    base_sequences: List[str] = Field(
-        description="Sequences used to generate mutations", min_length=1
+    base_sequences: Optional[List[str]] = Field(
+        default=None,
+        description="Sequences used to generate mutations "
+        "(defaults to the wildtype sequence of the campaign)",
+        min_length=1,
     )
     training_data: List[SequenceData] = Field(
         description="List of training data for this iteration", min_length=1
@@ -174,6 +177,11 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     n_suggestions: int = Field(
         description="Number of suggestions to propose from this iteration", ge=1
     )
+    n_mutations: int = Field(
+        default=1000,
+        description="Number of mutations to generate and score in this iteration",
+        ge=1,
+    )
 
     @field_validator("training_data")
     @classmethod
@@ -185,14 +193,15 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_config(self):
-        if len(self.base_sequences) != len(set(self.base_sequences)):
+        base_sequences = self.base_sequences or []
+        if len(base_sequences) != len(set(base_sequences)):
             raise ValueError("base_sequences contains duplicate entries!")
 
         return self
 
 
-class ActiveLearningConvergenceConfig(BaseModel):
-    """Configuration for convergence criteria for active learning campaigns"""
+class ActiveLearningStoppingConfig(BaseModel):
+    """Configuration for stopping criteria for active learning campaigns"""
 
     max_labels_budget: Optional[int] = Field(
         default=None,
@@ -213,16 +222,24 @@ class ActiveLearningConvergenceConfig(BaseModel):
         "('Stop if 3 rounds yield nothing')",
         ge=1,
     )
+    n_max_iterations: int = Field(
+        default=100,
+        description="Hard upper limit on the number of iterations, "
+        "applied even if no other criterion is reached",
+        ge=1,
+    )
 
     @model_validator(mode="after")
-    def validate_convergence_config(self):
+    def validate_stopping_config(self):
+        # n_max_iterations is a backstop with a default, not a criterion the caller
+        # chooses, so it does not satisfy this requirement on its own.
         if (
             self.max_labels_budget is None
             and self.n_hits is None
             and self.max_consecutive_failures is None
         ):
             raise ValueError(
-                "At least one of n_max_iterations, "
+                "At least one of "
                 "max_labels_budget, "
                 "n_hits, "
                 "max_consecutive_failures must be specified!"
@@ -250,8 +267,30 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
     n_suggestions_per_iteration: int = Field(
         description="Number of suggestions to propose per iteration", ge=1
     )
-    convergence_config: ActiveLearningConvergenceConfig = Field(
-        description="Convergence criteria for the simulation"
+    coefficient: float = Field(
+        default=0.5,
+        description="Exploitation-Exploration coefficient value, applied to every "
+        "iteration (must be between 0 and 1, 1 is maximum exploration)",
+        ge=0.0,
+        le=1.0,
+    )
+    stopping_config: ActiveLearningStoppingConfig = Field(
+        description="Stopping criteria for the simulation"
+    )
+
+    # Configuration of what counts as a hit (target success)
+    hit_percentile: float = Field(
+        default=1.0,
+        description="Percentile of all labels that counts as a hit "
+        "(modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.",
+        gt=0.0,
+        lt=50.0,
+    )
+    hit_target_delta: float = Field(
+        default=0.5,
+        description="Absolute tolerance around the target value that counts as a hit "
+        "(mode: VALUE)",
+        gt=0.0,
     )
 
     @field_validator("simulation_data")

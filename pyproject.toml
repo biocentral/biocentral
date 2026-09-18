@@ -15,7 +15,7 @@ exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 
 [project.optional-dependencies]
 generate = [
-    "openapi-generator-cli>=7.24.0",
+    "openapi-generator-cli==7.24.0",
     "biocentral-server>=2.0.0,<3.0.0"
 ]
 
