@@ -14,7 +14,7 @@ part 'active_learning_iteration_result.g.dart';
 ///
 /// Properties:
 /// * [iteration] - Iteration number (one-indexed for simulations, otherwise matches the given number in the iteration config)
-/// * [results] - List of active learning results
+/// * [results] - List of active learning results, may be empty if the client asked not to store predictions
 /// * [suggestions] - List of suggested entity IDs for next iteration
 @BuiltValue()
 abstract class ActiveLearningIterationResult implements Built<ActiveLearningIterationResult, ActiveLearningIterationResultBuilder> {
@@ -22,7 +22,7 @@ abstract class ActiveLearningIterationResult implements Built<ActiveLearningIter
   @BuiltValueField(wireName: r'iteration')
   int get iteration;
 
-  /// List of active learning results
+  /// List of active learning results, may be empty if the client asked not to store predictions
   @BuiltValueField(wireName: r'results')
   BuiltList<ActiveLearningResult> get results;
 
