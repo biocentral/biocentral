@@ -285,7 +285,19 @@ class ProteinRepository extends BiocentralDatabase<Protein> {
     }
     return Map.from(_proteins);
   }
+  List<String> getAvailableClusterColumns() {
+    final keys = getAllCustomAttributeKeys();
+    return keys.where((key) {
+      final lower = key.toLowerCase();
+      return key.startsWith('MMseqs2-Cluster') ||
+            lower.contains('cluster') ||
+            lower == 'repid';
+    }).toList()..sort();
+  }
+  // True if at least one cluster assignment column exists in the dataset
+  bool get hasClusteringData => getAvailableClusterColumns().isNotEmpty;
 }
+
 /*
   void handleGridChangedEvent(PlutoGridOnChangedEvent event) {
     int columnIndex = event.columnIdx;

@@ -2,7 +2,7 @@ enum SplitSet { train, val, test }
 
 enum SplitSetGenerationMode { generateNew, subsplitExisting }
 
-enum SplitSetGenerationMethod { random }
+enum SplitSetGenerationMethod { random, existingCluster, newCluster }
 
 class SplitRatio {
   final double r1;
@@ -47,5 +47,27 @@ class SplitResult {
       'splits': splits,
       'newColumnName': newColumnName,
     };
+  }
+}
+
+class ClusterSplitConfig {
+  final String clusterColumnName;
+  final int seed;
+
+  const ClusterSplitConfig({
+    required this.clusterColumnName,
+    this.seed = 42,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'clusterColumnName': clusterColumnName,
+    'seed': seed,
+  };
+
+  factory ClusterSplitConfig.fromJson(Map<String, dynamic> json) {
+    return ClusterSplitConfig(
+      clusterColumnName: json['clusterColumnName'] as String,
+      seed: json['seed'] as int? ?? 42,
+    );
   }
 }
