@@ -1,4 +1,19 @@
-enum SplitSet { train, val, test }
+enum SplitSet {
+  train,
+  val,
+  test,
+  member; // Non-representative cluster sequences
+
+  String get name {
+    return switch (this) {
+      SplitSet.train => 'Training',
+      SplitSet.val => 'Validation',
+      SplitSet.test => 'Test',
+      SplitSet.member => 'Member',
+    };
+  }
+  bool get isPartition => this != SplitSet.member; 
+}
 
 enum SplitSetGenerationMode { generateNew, subsplitExisting }
 
