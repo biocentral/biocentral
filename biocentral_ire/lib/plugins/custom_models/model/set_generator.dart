@@ -13,6 +13,7 @@ class SetGenerator {
     SplitSet? subsplitSource,
     SplitSet? subsplitTarget,
     Map<String, String>? entityIdToClusterId,
+    int? seed, 
 
   }) {
     assert(subsplitSource == null ? subsplitTarget == null : true);
@@ -22,8 +23,8 @@ class SetGenerator {
     switch (method) {
       case SplitSetGenerationMethod.random:
         return subsplit
-            ? randomSubsplit(ids: ids, subsplitSource: subsplitSource, subsplitTarget: subsplitTarget)
-            : randomFull(ids);
+            ? randomSubsplit(ids: ids, subsplitSource: subsplitSource, subsplitTarget: subsplitTarget, seed: seed,)
+            : randomFull(ids, seed: seed);
 
       case SplitSetGenerationMethod.existingCluster:
       
@@ -35,19 +36,20 @@ class SetGenerator {
                 entityIdToClusterId: clusterMap,
                 subsplitSource: subsplitSource!,
                 subsplitTarget: subsplitTarget!,
+                seed: seed, 
               )
-            : clusterFull(ids: ids, entityIdToClusterId: clusterMap);
+            : clusterFull(ids: ids, entityIdToClusterId: clusterMap, seed: seed,);
 
     }
   }
 
-  Map<String, SplitSet> randomFull(List<String> ids) {
+  Map<String, SplitSet> randomFull(List<String> ids, {int? seed}) {
     final (train, val, test) = splitRatio.full;
     final int rangeTrain = (train * 100).truncate();
     final int rangeValidation = rangeTrain + (val * 100).truncate();
 
     final Map<String, SplitSet> result = {};
-    final Random random = Random();
+    final Random random = seed != null ? Random(seed) : Random();
     for (String id in ids) {
       SplitSet set;
       final int randomValue = random.nextInt(100);
@@ -67,17 +69,18 @@ class SetGenerator {
     required List<String> ids,
     required SplitSet subsplitSource,
     required SplitSet subsplitTarget,
+    int? seed, 
   }) {
     final Map<String, SplitSet> result = {};
-    final Random random = Random();
+    final Random random = seed != null ? Random(seed) : Random();
 
     // Calculate how many should be moved to the new set
     final (source, target) = splitRatio.subsplit;
     final int numberOfItemsToMove = (ids.length * target).round();
 
     // Randomly select items to move
-    ids.shuffle(random);
-    final List<String> idsToMove = ids.take(numberOfItemsToMove).toList();
+    final List<String> shuffledIds = List.of(ids)..shuffle(random);
+    final List<String> idsToMove = shuffledIds.take(numberOfItemsToMove).toList();
 
     for (String id in ids) {
       if (idsToMove.contains(id)) {
@@ -93,9 +96,9 @@ class SetGenerator {
   Map<String, SplitSet> clusterFull({
     required List<String> ids,
     required Map<String, String> entityIdToClusterId,
-    int seed = 42,
+    int? seed,
   }) {
-    final rand = Random(seed);
+    final rand = seed != null ? Random(seed) : Random();
     final clusterToEntities = <String, List<String>>{};
     for (final id in ids) {
       final cluster = entityIdToClusterId[id] ?? id;
@@ -147,9 +150,9 @@ class SetGenerator {
     required Map<String, String> entityIdToClusterId,
     required SplitSet subsplitSource,
     required SplitSet subsplitTarget,
-    int seed = 42,
+    int? seed,
   }) {
-    final rand = Random(seed);
+    final rand = seed != null ? Random(seed) : Random();
     final clusterToEntities = <String, List<String>>{};
     for (final id in ids) {
       final cluster = entityIdToClusterId[id] ?? id;

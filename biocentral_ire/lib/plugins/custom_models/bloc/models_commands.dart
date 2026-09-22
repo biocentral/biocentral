@@ -183,6 +183,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
   final SplitSetGenerationMode _mode;
   final SplitSetGenerationMethod _method;
   final SplitRatio _splitRatio;
+  final int? _seed;
 
   final BiocentralDatabaseColumn? _selectedSetColumn;
   final SplitSet? _subsplitSource;
@@ -196,6 +197,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
     required SplitSetGenerationMode mode,
     required SplitSetGenerationMethod method,
     required SplitRatio splitRatio,
+    int? seed,
     BiocentralDatabaseColumn? selectedSetColumn,
     SplitSet? subsplitSource,
     SplitSet? subsplitTarget,
@@ -206,6 +208,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         _mode = mode,
         _method = method,
         _splitRatio = splitRatio,
+        _seed = seed,
         _selectedSetColumn = selectedSetColumn,
         _subsplitSource = subsplitSource,
         _subsplitTarget = subsplitTarget,
@@ -285,6 +288,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         method: _method,
         ids: _database.databaseToMap().keys.toList(),
         entityIdToClusterId: entityIdToClusterId, 
+        seed: _seed, 
       );
       final newColumnName = 'SET_${_method.name.toUpperCase()}';
       splitResult = SplitResult(ids, newColumnName);
@@ -308,6 +312,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         subsplitSource: subsplitSource,
         subsplitTarget: subsplitTarget,
         entityIdToClusterId: entityIdToClusterId, 
+        seed: _seed, 
       );
 
       // TODO This adds the remaining sets values to the subsplit
@@ -359,6 +364,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
       'mode': _mode.name,
       'method': _method.name,
       'splitRatio': _splitRatio.toString(),
+      'seed': _seed, 
       'selectedSetColumn': _selectedSetColumn?.name,
       'subsplitSource': _subsplitSource?.name,
       'subsplitTarget': _subsplitTarget?.name,
