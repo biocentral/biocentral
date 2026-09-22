@@ -60,3 +60,11 @@ app.*.map.json
 /assets/python_companion.zip.hash
 /biocentral_python/dist/
 /biocentral_python/biocentral.egg-info/
+
+# Python companion generated files
+assets/desktop/
+assets/functionality/
+assets/web/
+assets/python_companion_desktop.py
+assets/python_companion_web.py
+assets/requirements.txt
