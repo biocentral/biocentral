@@ -107,12 +107,12 @@ class SetGenerator {
 
     final clusters = clusterToEntities.keys.toList()..shuffle(rand);
     final (rTrain, rVal, rTest) = splitRatio.full;
-    final total = ids.length;
-
+    
+    final totalReps = clusters.length;
     final targets = {
-      SplitSet.train: total * rTrain,
-      SplitSet.val: total * rVal,
-      SplitSet.test: total * rTest,
+      SplitSet.train: totalReps * rTrain,
+      SplitSet.val: totalReps * rVal,
+      SplitSet.test: totalReps * rTest,
     };
     final counts = {
       SplitSet.train: 0,
@@ -121,25 +121,27 @@ class SetGenerator {
     };
 
     final result = <String, SplitSet>{};
-    for (final cluster in clusters) {
-      final members = clusterToEntities[cluster]!;
-      final memberCount = members.length;
+    for (final clusterRep in clusters) {
+      final members = clusterToEntities[clusterRep]!;
 
       // Select partition bucket furthest below desired target
       SplitSet bestSet = SplitSet.train;
       double maxDeficit = -double.infinity;
-      for (final s in SplitSet.values) {
+      for (final s in [SplitSet.train, SplitSet.val, SplitSet.test]) {
         final deficit = targets[s]! - counts[s]!;
         if (deficit > maxDeficit) {
           maxDeficit = deficit;
           bestSet = s;
         }
       }
+      result[clusterRep] = bestSet; 
+      counts[bestSet] = counts[bestSet]! + 1; 
 
       for (final member in members) {
-        result[member] = bestSet;
+        if (member != clusterRep){
+          result[member] = SplitSet.member;
+        }
       }
-      counts[bestSet] = counts[bestSet]! + memberCount;
     }
     return result;
   }
@@ -154,6 +156,7 @@ class SetGenerator {
   }) {
     final rand = seed != null ? Random(seed) : Random();
     final clusterToEntities = <String, List<String>>{};
+
     for (final id in ids) {
       final cluster = entityIdToClusterId[id] ?? id;
       clusterToEntities.putIfAbsent(cluster, () => []).add(id);
@@ -161,25 +164,31 @@ class SetGenerator {
 
     final clusters = clusterToEntities.keys.toList()..shuffle(rand);
     final (_, targetRatio) = splitRatio.subsplit;
-    final targetCount = ids.length * targetRatio;
+    final targetRepCount = (clusters.length * targetRatio).round(); 
 
     int currentTargetCount = 0;
     final result = <String, SplitSet>{};
 
-    for (final cluster in clusters) {
-      final members = clusterToEntities[cluster]!;
-      if (currentTargetCount + members.length <= targetCount || currentTargetCount == 0) {
-        for (final m in members) {
-          result[m] = subsplitTarget;
-        }
-        currentTargetCount += members.length;
+    for (final clusterRep in clusters) {
+      final members = clusterToEntities[clusterRep]!;
+      
+      final SplitSet assignedRepSet; 
+
+      if (currentTargetCount < targetRepCount || currentTargetCount == 0) {
+        assignedRepSet = subsplitTarget; 
+        currentTargetCount++; 
       } else {
-        for (final m in members) {
-          result[m] = subsplitSource;
+        assignedRepSet = subsplitSource; 
+      }
+      result[clusterRep] = assignedRepSet; 
+
+      for (final member in members){
+        if (member != clusterRep){
+          result[member] = SplitSet.member; 
         }
       }
     }
-    return result;
+    return result; 
   }
 
   static bool _inRange(int start, int end, int value) {

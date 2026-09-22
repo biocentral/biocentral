@@ -341,56 +341,50 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Text('Select which set to split:'),
-        Row(
-          children: [
-            Expanded(
-              child: BiocentralDropdownMenu<SplitSet>(
-                label: const Text('Source set..'),
-                dropdownMenuEntries: _availableSourceSets[_selectedSetColumn]
-                        ?.map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name))
-                        .toList() ??
-                    [],
-                onSelected: (SplitSet? value) {
-                  setState(() {
-                    _subsplitSource = value;
-                    applyConfiguratorHierarchy();
-                  });
-                },
-              ),
-            ),
-          ],
+        const SizedBox(height: 6),
+        BiocentralDropdownMenu<SplitSet>(
+          label: const Text('Source set..'),
+          dropdownMenuEntries: (_availableSourceSets[_selectedSetColumn] ?? {})
+              .where((SplitSet set) => set.isPartition)
+              .map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name))
+              .toList(),
+          onSelected: (SplitSet? value) {
+            setState(() {
+              _subsplitSource = value;
+              applyConfiguratorHierarchy();
+            });
+          },
         ),
       ],
     );
   }
 
   Widget buildNewSetNameSelection() {
-    final List<SplitSet> availableNames = SplitSet.values.where((set) => set != _subsplitSource).toList();
+    final List<SplitSet> availableNames = SplitSet.values
+        .where((set) => set != _subsplitSource && set.isPartition)
+        .toList();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Text('Select the name for the new subsplit:'),
-        Row(
-          children: [
-            Expanded(
-              child: BiocentralDropdownMenu<SplitSet>(
-                label: const Text('New set name..'),
-                dropdownMenuEntries: availableNames
-                    .map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name))
-                    .toList(),
-                onSelected: (SplitSet? value) {
-                  setState(() {
-                    _subsplitTarget = value;
-                    applyConfiguratorHierarchy();
-                  });
-                },
-              ),
-            ),
-          ],
+        const SizedBox(height: 6),
+        BiocentralDropdownMenu<SplitSet>(
+          label: const Text('New set name..'),
+          dropdownMenuEntries: availableNames
+              .map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name))
+              .toList(),
+          onSelected: (SplitSet? value) {
+            setState(() {
+              _subsplitTarget = value;
+              applyConfiguratorHierarchy();
+            });
+          },
         ),
       ],
     );
@@ -532,6 +526,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     return nonNullCount > 0;
   }
 
+
   String _calculateRandomBaseline() {
     if (_selectedTargetColumn == null || _method == null || _splitRatio == null) {
       return 'Select target';
@@ -542,9 +537,8 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     final entities = database.entitiesAsMaps();
     if (entities.isEmpty) return 'N/A';
 
-    // 1. Simulate the split in real-time using current parameters
     final ids = entities.map((e) => e['id']?.toString() ?? '').where((id) => id.isNotEmpty).toList();
-    
+
     Map<String, String>? clusterMap;
     if (_selectedClusterColumn != null) {
       clusterMap = {
@@ -562,7 +556,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
       subsplitTarget: _subsplitTarget,
     );
 
-    // 2. Separate training entities from evaluation (test/target) entities
     final isNumeric = _isColumnNumeric(_selectedTargetColumn!);
     final trainEntities = <Map<String, dynamic>>[];
     final testEntities = <Map<String, dynamic>>[];
@@ -575,12 +568,12 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
       } else if (assignedSet == SplitSet.test || assignedSet == _subsplitTarget) {
         testEntities.add(e);
       }
+      // SplitSet.member is omitted from baseline prior calculation
     }
 
     if (trainEntities.isEmpty || testEntities.isEmpty) return 'N/A';
 
     if (isNumeric) {
-      // Dummy predictor: learn mean on train, test RMSE on test set
       final trainVals = trainEntities
           .map((e) => double.tryParse(_getEntityAttribute(e, _selectedTargetColumn!)?.toString() ?? ''))
           .whereType<double>()
@@ -595,7 +588,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
       final testMse = testVals.map((v) => pow(v - trainMean, 2)).reduce((a, b) => a + b) / testVals.length;
       return 'RMSE: ${sqrt(testMse).toStringAsFixed(3)}';
     } else {
-      // Majority baseline: learn mode on train, compute accuracy on test set
       final trainCounts = <String, int>{};
       for (final e in trainEntities) {
         final raw = _getEntityAttribute(e, _selectedTargetColumn!);
@@ -607,10 +599,8 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
       }
       if (trainCounts.isEmpty) return 'N/A';
 
-      // Most frequent class in train
       final majorityClass = trainCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
 
-      // Evaluate accuracy of this guess on the test set
       int testCorrect = 0;
       int testTotal = 0;
       for (final e in testEntities) {
