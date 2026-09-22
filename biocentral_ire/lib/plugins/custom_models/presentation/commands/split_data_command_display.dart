@@ -14,6 +14,7 @@ import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 
 class SplitDataCommandDisplay extends StatefulWidget {
   const SplitDataCommandDisplay({super.key});
@@ -22,8 +23,8 @@ class SplitDataCommandDisplay extends StatefulWidget {
   State<SplitDataCommandDisplay> createState() => _SplitDataCommandDisplayState();
 }
 
-class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
-  final Set<SplitSetGenerationMethod> _availableMethods = const {SplitSetGenerationMethod.random};
+class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> { 
+  final Set<SplitSetGenerationMethod> _availableMethods = const {SplitSetGenerationMethod.random, SplitSetGenerationMethod.existingCluster,SplitSetGenerationMethod.newCluster,};
   final Map<BiocentralDatabaseColumn, Set<SplitSet>> _availableSourceSets = {};
 
   Type? _selectedDatabaseType = Protein;
@@ -34,6 +35,16 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
   SplitSet? _subsplitTarget;
   SplitSetGenerationMethod? _method;
   SplitRatio? _splitRatio;
+  String? _selectedClusterColumn;
+  double _clusteringThreshold = 0.3;
+
+  List<String> getDiscoveredClusterColumns() {
+    final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
+    if (database is ProteinRepository) {
+      return database.getAvailableClusterColumns();
+    }
+    return [];
+  }
 
   @override
   void initState() {
@@ -45,23 +56,32 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
   SplitDataCommand? collectCommand() {
     final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
+    final apiRepository = context.read<BiocentralAPIRepository>();
     if (_mode == null || database == null) {
       return null;
     }
+    if (_method == SplitSetGenerationMethod.existingCluster && _selectedClusterColumn == null) {
+      return null;
+    }
+
     if (_mode == SplitSetGenerationMode.generateNew) {
       if (_method != null && _splitRatio != null) {
-        return SplitDataCommand(database: database, mode: _mode!, method: _method!, splitRatio: _splitRatio!);
+        return SplitDataCommand(database: database, apiRepository: apiRepository, mode: _mode!, method: _method!, splitRatio: _splitRatio!, selectedClusterColumn: _selectedClusterColumn, clusteringThreshold: _clusteringThreshold,);
       }
     } else {
       if (_selectedSetColumn != null && _subsplitSource != null && _subsplitTarget == null) {
         return SplitDataCommand(
             database: database,
+            apiRepository: apiRepository,
             mode: _mode!,
             method: _method!,
             splitRatio: _splitRatio!,
             selectedSetColumn: _selectedSetColumn,
             subsplitSource: _subsplitSource,
-            subsplitTarget: _subsplitTarget);
+            subsplitTarget: _subsplitTarget, 
+            selectedClusterColumn: _selectedClusterColumn,
+            clusteringThreshold: _clusteringThreshold,
+          );
       }
     }
     return null;
@@ -90,6 +110,9 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     }
     if (_mode != null && _method != null) {
       _splitRatio ??= SplitRatio.defaultForMode(_mode!);
+    }
+    if (_method != SplitSetGenerationMethod.existingCluster) {
+      _selectedClusterColumn = null;
     }
   }
 
@@ -149,6 +172,14 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
           withCondition(
             condition: _mode == SplitSetGenerationMode.generateNew || _subsplitTarget != null,
             childFunction: buildMethodSelection,
+          ),
+          withCondition( 
+            condition: _method == SplitSetGenerationMethod.existingCluster,
+            childFunction: buildClusterColumnSelection,
+          ),
+          withCondition( 
+            condition: _method == SplitSetGenerationMethod.newCluster,
+            childFunction: buildNewClusterConfig,
           ),
           withCondition(condition: _method != null, childFunction: buildRatioSlider),
         ].withPadding(
@@ -318,6 +349,9 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
   }
 
   Widget buildMethodSelection() {
+    final clusterCols = getDiscoveredClusterColumns();
+    final hasClusters = clusterCols.isNotEmpty;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -328,19 +362,99 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
             Expanded(
               child: BiocentralDropdownMenu<SplitSetGenerationMethod>(
                 label: const Text('Method..'),
-                dropdownMenuEntries: _availableMethods
-                    .map(
-                      (SplitSetGenerationMethod method) =>
-                          DropdownMenuEntry<SplitSetGenerationMethod>(value: method, label: method.name),
-                    )
-                    .toList(),
+                initialSelection: _method,
+                dropdownMenuEntries: [
+                  const DropdownMenuEntry<SplitSetGenerationMethod>(
+                    value: SplitSetGenerationMethod.random,
+                    label: 'Random Split',
+                  ),
+                  DropdownMenuEntry<SplitSetGenerationMethod>(
+                    value: SplitSetGenerationMethod.existingCluster,
+                    label: 'Use Existing Clustering',
+                    enabled: hasClusters,
+                  ),
+                  const DropdownMenuEntry<SplitSetGenerationMethod>( // <--- ADD THIS
+                    value: SplitSetGenerationMethod.newCluster,
+                    label: 'Create New Clustering',
+                  ),
+                ],
                 onSelected: (SplitSetGenerationMethod? value) => setState(() {
                   _method = value;
+                  if (_method == SplitSetGenerationMethod.existingCluster && clusterCols.isNotEmpty) {
+                    _selectedClusterColumn = clusterCols.first;
+                  } else {
+                    _selectedClusterColumn = null;
+                  }
                   applyConfiguratorHierarchy();
                 }),
               ),
             ),
           ],
+        ),
+        if (!hasClusters)
+          const Padding(
+            padding: EdgeInsets.only(top: 6.0),
+            child: Text(
+              'No cluster columns found. Run MMseqs2 in the Proteins tab first.',
+              style: TextStyle(color: Colors.orange, fontSize: 12),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildClusterColumnSelection() {
+    final clusterCols = getDiscoveredClusterColumns();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Select the cluster column to use for grouping:'),
+        Row(
+          children: [
+            Expanded(
+              child: BiocentralDropdownMenu<String>(
+                label: const Text('Cluster Column..'),
+                initialSelection: _selectedClusterColumn,
+                dropdownMenuEntries: clusterCols
+                    .map((col) => DropdownMenuEntry<String>(value: col, label: col))
+                    .toList(),
+                onSelected: (String? value) => setState(() {
+                  _selectedClusterColumn = value;
+                }),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildNewClusterConfig() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Sequence Identity Threshold: ${(_clusteringThreshold * 100).toInt()}%',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Slider(
+          value: _clusteringThreshold,
+          min: 0.1,
+          max: 1.0,
+          divisions: 18,
+          label: '${(_clusteringThreshold * 100).toInt()}%',
+          onChanged: (double val) {
+            setState(() {
+              _clusteringThreshold = (val * 100).round() / 100;
+            });
+          },
+        ),
+        const Text(
+          'MMseqs2 will cluster sequences before partitioning.',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
       ],
     );
