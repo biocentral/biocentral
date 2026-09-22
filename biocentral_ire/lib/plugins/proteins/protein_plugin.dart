@@ -10,6 +10,7 @@ import 'package:biocentral/plugins/proteins/presentation/commands/protein_load_a
 import 'package:biocentral/plugins/proteins/presentation/commands/protein_load_commands_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/commands/protein_predict_command_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/commands/protein_taxonomy_command_display.dart';
+import 'package:biocentral/plugins/proteins/presentation/commands/protein_cluster_command_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/displays/sequence_column_wizard_display.dart';
 import 'package:biocentral/plugins/proteins/presentation/views/protein_hub_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -53,6 +54,7 @@ class ProteinPlugin extends BiocentralPlugin
       const ProteinLoadCommandDisplay(),
       const ProteinTaxonomyCommandDisplay(),
       const ProteinPredictCommandDisplay(),
+      const ProteinClusterCommandDisplay(),
       const ProteinExportCommandDisplay(),
       ProteinLoadAssetDatasetCommandDisplay(assetDatasets: AssetProteinDatasetContainer.assetProteinDatasets()),
     ];
