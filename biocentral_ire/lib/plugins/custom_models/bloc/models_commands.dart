@@ -277,7 +277,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
       for (final raw in _database.entitiesAsMaps()) {
         final id = raw['id']?.toString() ?? '';
         final attributes = raw['attributes'] as Map<String, dynamic>? ?? {};
-        final clusterId = attributes[_selectedClusterColumn]?.toString() ?? id;
+        final dynamic rawVal = raw[_selectedClusterColumn] ?? attributes[_selectedClusterColumn];
+        final clusterId = rawVal?.toString() ?? id; 
         entityIdToClusterId[id] = clusterId;
       }
     }
