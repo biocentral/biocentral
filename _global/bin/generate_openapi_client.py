@@ -116,6 +116,7 @@ def read_generated_files_list(files_list_path: Path):
 def prune_outdated_generated_code(lang_root: Path, generated_files: set):
     """Delete files under biocentral_api/_generated that are no longer generated.
 
+    Args:
     - lang_root: path to the python folder (e.g., repo/python)
     - generated_files: set of relative paths (as in .openapi-generator/FILES) rooted at lang_root
     """
@@ -153,19 +154,10 @@ def prune_outdated_generated_code_dart(
 ):
     """Delete Dart files the previous generation emitted that this one no longer does.
 
+    Args:
     - lang_root: path to the dart folder (e.g., repo/dart)
     - previous_files: .openapi-generator/FILES as it was *before* this generation
     - current_files: .openapi-generator/FILES as written by this generation
-
-    Only files the generator itself previously created are candidates for deletion.
-    Hand-written sources under lib/ (extensions/, clients/, tasks/, high_level_api.dart,
-    biocentral_api.dart) never appear in FILES, so they cannot be removed here -- unlike
-    the previous allow-list approach, which deleted anything under a generated directory
-    that nobody had remembered to add to an exclude list.
-
-    built_value's .g.dart part files are produced by build_runner rather than by the
-    generator, so they are absent from FILES; each stale .dart takes its sibling .g.dart
-    with it, otherwise renamed models leave orphaned part files behind.
     """
     stale = {p for p in previous_files - current_files if p.startswith("lib/")}
 
