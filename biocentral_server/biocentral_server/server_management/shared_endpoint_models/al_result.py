@@ -19,8 +19,7 @@ class ActiveLearningIterationResult(BaseModel):
         "otherwise matches the given number in the iteration config)"
     )
     results: List[ActiveLearningResult] = Field(
-        description="List of active learning results, may be empty if the client "
-        "asked not to store predictions"
+        description="List of active learning results"
     )
     suggestions: List[str] = Field(
         description="List of suggested entity IDs for next iteration"
