@@ -1,6 +1,7 @@
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
+import 'package:biocentral_api/src/clients/engineering_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
 
 import 'api.dart' as gen;
@@ -363,5 +364,15 @@ extension ActiveLearningAPI on BiocentralAPI {
   }) async {
     return ActiveLearningClient()
         .activeLearningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
+  }
+}
+
+extension ProteinEngineeringAPI on BiocentralAPI {
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> engineeringIteration({
+    required ActiveLearningEngineeringCampaignConfig campaignConfig,
+    required ActiveLearningEngineeringIterationConfig iterationConfig,
+  }) async {
+    return EngineeringClient()
+        .engineeringIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
   }
 }
