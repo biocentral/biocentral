@@ -4,6 +4,8 @@ import 'package:built_collection/built_collection.dart';
 
 import '../model/active_learning_screening_campaign_config.dart';
 import '../model/active_learning_screening_iteration_config.dart';
+import '../model/active_learning_engineering_campaign_config.dart';
+import '../model/active_learning_engineering_iteration_config.dart';
 import '../model/active_learning_iteration_result.dart';
 import '../model/active_learning_model_type.dart';
 import '../model/active_learning_optimization_mode.dart';
@@ -191,6 +193,51 @@ extension ALScreeningIterationConfigSerial on ActiveLearningScreeningIterationCo
           (jsonMap['iteration_data'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
       ..nSuggestions = jsonMap['n_suggestions'] as int);
+  }
+}
+
+extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignConfig {
+  Map<String, dynamic> serialize() {
+    return {
+      'name': name,
+      'embedderName': embedderName,
+      'modelType': modelType.name,
+      'optimizationMode': optimizationMode.name,
+      'seed': seed,
+      'wildtypeSequence': wildtypeSequence,
+    };
+  }
+
+  static ActiveLearningEngineeringCampaignConfig deserialize(Map<String, dynamic> jsonMap) {
+    return ActiveLearningEngineeringCampaignConfig((b) => b
+      ..name = jsonMap['name'] as String
+      ..embedderName = jsonMap['embedderName'] as String
+      ..modelType = ActiveLearningModelType.valueOf(jsonMap['modelType'] as String)
+      ..optimizationMode = ActiveLearningOptimizationMode.valueOf(jsonMap['optimizationMode'] as String)
+      ..seed = jsonMap['seed'] as int?
+      ..wildtypeSequence = jsonMap['wildtypeSequence'] as String);
+  }
+}
+
+extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIterationConfig {
+  Map<String, dynamic> serialize() {
+    return {
+      'iteration': iteration,
+      'baseSequences': baseSequences.toList(),
+      'trainingData': trainingData.map((data) => data.serialize()).toList(),
+      'coefficient': coefficient,
+      'nSuggestions': nSuggestions,
+    };
+  }
+
+  static ActiveLearningEngineeringIterationConfig deserialize(Map<String, dynamic> jsonMap) {
+    return ActiveLearningEngineeringIterationConfig((b) => b
+      ..iteration = jsonMap['iteration'] as int
+      ..baseSequences = ListBuilder<String>(List<String>.from(jsonMap['baseSequences'] as List))
+      ..trainingData = ListBuilder<SequenceData>(
+          (jsonMap['trainingData'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
+      ..coefficient = jsonMap['coefficient'] as num
+      ..nSuggestions = jsonMap['nSuggestions'] as int);
   }
 }
 
