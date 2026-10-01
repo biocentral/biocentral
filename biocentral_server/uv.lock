@@ -274,7 +274,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.3,<3.12.0" },
-    { name = "biotrainer", editable = "../biotrainer" },
+    { name = "biotrainer", git = "https://github.com/sacdallago/biotrainer.git?rev=v2.1.0" },
     { name = "blosc2", specifier = ">=4.2.0,<5.0.0" },
     { name = "circuitbreaker", specifier = ">=2.1.3,<2.2.0" },
     { name = "click", specifier = ">=8.4.2,<9.0.0" },
@@ -336,7 +336,7 @@ wheels = [
 [[package]]
 name = "biotrainer"
 version = "2.1.0"
-source = { editable = "../biotrainer" }
+source = { git = "https://github.com/sacdallago/biotrainer.git?rev=v2.1.0#d7ea8d44f805950f37086d614b3d14b76d052967" }
 dependencies = [
     { name = "aaanalysis" },
     { name = "accelerate" },
@@ -368,70 +368,20 @@ dependencies = [
     { name = "umap-learn" },
 ]
 
-[package.metadata]
-requires-dist = [
-    { name = "aaanalysis", specifier = ">=1.1.0,<1.2.0" },
-    { name = "accelerate", specifier = ">=1.15.0,<2.0.0" },
-    { name = "altair", marker = "extra == 'autoeval-frontend'", specifier = ">=6.3.0,<6.5.0" },
-    { name = "appdirs", specifier = ">=1.4.4" },
-    { name = "biotrainer-core", editable = "../biotrainer/biotrainer-core" },
-    { name = "blosum", specifier = ">=2.2.0,<2.3.0" },
-    { name = "build", marker = "extra == 'dev'", specifier = ">=1.5.0,<2.0.0" },
-    { name = "cyclopts", specifier = ">=4.22.0,<4.23.0" },
-    { name = "datasets", specifier = ">=5.0.1,<6.0.0" },
-    { name = "einops", specifier = ">=0.8.2,<0.9.0" },
-    { name = "gpytorch", specifier = ">=1.15.2,<2.0" },
-    { name = "h5py", specifier = ">=3.15.0,<4.0.0" },
-    { name = "junban", specifier = ">=1.0.3,<1.1.0" },
-    { name = "jupyter", marker = "extra == 'jupyter'", specifier = ">=1.1.1,<1.2.0" },
-    { name = "llvmlite", specifier = ">=0.49.0,<0.52.0" },
-    { name = "notebook", marker = "extra == 'jupyter'", specifier = ">=7.4.0,<7.7.0" },
-    { name = "numpy", specifier = ">=2.4.1,<2.6.0" },
-    { name = "onnx", specifier = ">=1.23.0,<1.25.0" },
-    { name = "onnxruntime", marker = "extra == 'onnx-cpu'", specifier = ">=1.25.0,<1.30.0" },
-    { name = "onnxruntime", marker = "extra == 'onnx-gpu'", specifier = ">=1.25.0,<1.30.0" },
-    { name = "onnxruntime", marker = "extra == 'onnx-mac'", specifier = ">=1.25.0,<1.30.0" },
-    { name = "onnxscript", specifier = ">=0.7.0,<0.8.0" },
-    { name = "peft", specifier = ">=0.21.0,<0.23.0" },
-    { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.10.0,<2.11.0" },
-    { name = "pydantic", specifier = ">=2.12.0,<2.15.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.1.1,<9.2.0" },
-    { name = "ruamel-yaml", specifier = ">=0.17.40,<0.18.0" },
-    { name = "safetensors", specifier = ">=0.4.4" },
-    { name = "scikit-learn", specifier = ">=1.5.1" },
-    { name = "scipy", specifier = ">=1.18.1,<1.20.0" },
-    { name = "sentencepiece", specifier = ">=0.2.0" },
-    { name = "streamlit", marker = "extra == 'autoeval-frontend'", specifier = ">=1.64.0,<1.65.0" },
-    { name = "tensorboard", specifier = ">=2.20.0,<2.22.0" },
-    { name = "torch", specifier = ">=2.11.0,<3.0.0" },
-    { name = "torchmetrics", specifier = ">=1.9.0" },
-    { name = "tqdm", specifier = ">=4.67.3,<5.0.0" },
-    { name = "transformers", specifier = ">=5.17.0,<5.20.0" },
-    { name = "umap-learn", specifier = ">=0.5.7,<0.6.0" },
-]
-provides-extras = ["jupyter", "onnx-cpu", "onnx-gpu", "onnx-mac", "dev", "autoeval-frontend"]
-
 [[package]]
 name = "biotrainer-core"
-version = "2.1.0"
-source = { editable = "../biotrainer/biotrainer-core" }
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "email-validator" },
     { name = "h5py" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "ruamel-yaml" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "email-validator", specifier = ">=2.3.0,<2.4.0" },
-    { name = "h5py", specifier = ">=3.15.0,<4.0.0" },
-    { name = "numpy", specifier = ">=2.4.1,<2.5.0" },
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pydantic", specifier = ">=2.12.3" },
-    { name = "ruamel-yaml", specifier = ">=0.17.40,<0.18.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/0b/67/e523307d64fd73c311c1fd272493125e1c02e89af3e90e317ea38d284989/biotrainer_core-2.0.0.tar.gz", hash = "sha256:3964dc45b57c56cbdf5a575fb0c8f1b36cb5f03a1db2aa99a8615d01bc67fa87", size = 30634, upload-time = "2026-07-24T10:52:48.202Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/0a/396e234b43142b5ad3bef5e775909f4d29f18844aed26b48ffd9264f41cc/biotrainer_core-2.0.0-py3-none-any.whl", hash = "sha256:56f9f5e55d5b53dde2949e7bacf1de9f1f3b320314ebe84aa8e6747bf3b7bef0", size = 43135, upload-time = "2026-07-24T10:52:46.763Z" },
 ]
 
 [[package]]
@@ -792,15 +742,6 @@ wheels = [
 ]
 
 [[package]]
-name = "dnspython"
-version = "2.8.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/8c/8b/57666417c0f90f08bcafa776861060426765fdb422eb10212086fb811d26/dnspython-2.8.0.tar.gz", hash = "sha256:181d3c6996452cb1189c4046c61599b84a5a86e099562ffde77d26984ff26d0f", size = 368251, upload-time = "2025-09-07T18:58:00.022Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/5a/18ad964b0086c6e62e2e7500f7edc89e3faa45033c71c1893d34eed2b2de/dnspython-2.8.0-py3-none-any.whl", hash = "sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af", size = 331094, upload-time = "2025-09-07T18:57:58.071Z" },
-]
-
-[[package]]
 name = "docstring-parser"
 version = "0.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -816,19 +757,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/2c/77/850bef8d72ffb9219f0b1aac23fbc1bf7d038ee6ea666f331fa273031aa2/einops-0.8.2.tar.gz", hash = "sha256:609da665570e5e265e27283aab09e7f279ade90c4f01bcfca111f3d3e13f2827", size = 56261, upload-time = "2026-01-26T04:13:17.638Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/09/f8d8f8f31e4483c10a906437b4ce31bdf3d6d417b73fe33f1a8b59e34228/einops-0.8.2-py3-none-any.whl", hash = "sha256:54058201ac7087911181bfec4af6091bb59380360f069276601256a76af08193", size = 65638, upload-time = "2026-01-26T04:13:18.546Z" },
-]
-
-[[package]]
-name = "email-validator"
-version = "2.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "dnspython" },
-    { name = "idna" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
 ]
 
 [[package]]
@@ -2273,9 +2201,13 @@ wheels = [
 [[package]]
 name = "protlabel"
 version = "4.8.2"
-source = { git = "https://github.com/tsenoner/protspace.git?subdirectory=apps%2Fprotspace%2Fpackages%2Fprotlabel&rev=v4.8.2#5b4a2ae099d53b16ce2395e9078b090a729eef1a" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/08/b4/a63f0e8f2d625246ad69b6a5c05fcb04ea0caa55ddb67836f83423d89cf9/protlabel-4.8.2.tar.gz", hash = "sha256:180e12235237a901b490447e068c8fda71bb8038dd67b552ce7ffeb72d798272", size = 16552, upload-time = "2026-07-21T08:01:36.142Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/ed/194e1b80c1c0f0e6e6fa1ccb41583cacf8cdd3a3b7bd3d17ff4773436648/protlabel-4.8.2-py3-none-any.whl", hash = "sha256:e6922dddb0f63bba6fa2adc3229f92079fdfb39faebac827dd1af4ae0f282697", size = 10207, upload-time = "2026-07-21T08:01:32.897Z" },
 ]
 
 [[package]]
