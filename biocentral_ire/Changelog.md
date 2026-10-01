@@ -1,5 +1,11 @@
 # Biocentral Changelog
 
+## v2.0.0
+
+* Monorepo update
+* Work on active learning plugin by @AeneasTews
+* Complete refactoring of command handling
+
 ## v1.1.0
 
 Paper review version.
