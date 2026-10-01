@@ -15,6 +15,20 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 
 PACKAGES = [
     {
+        "name": "biotrainer-core",
+        "target_version": "2.1.0",
+        "type": "pypi",
+        "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
+        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    },
+    {
+        "name": "biotrainer",
+        "target_version": "2.1.0",
+        "type": "pypi",
+        "path": PROJECT_ROOT / "biotrainer",
+        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    },
+    {
         "name": "biocentral_api",
         "type": "pypi",
         "path": PROJECT_ROOT / "biocentral_api" / "python",
@@ -158,7 +172,7 @@ def publish_dart(pkg: Dict):
     subprocess.run("dart pub publish", shell=True, cwd=str(cwd))
 
 def main():
-    target_version = "2.0.0" # Specified version number
+    default_target_version = "2.0.0" # Specified version number
     
     parser = argparse.ArgumentParser(description="Biocentral Build and Release Script")
     parser.add_argument("--dry-run", action="store_true", help="Execute in dry-run mode (default)")
@@ -172,7 +186,7 @@ def main():
         dry_run = False
         
     mode_str = "DRY RUN" if dry_run else "RELEASE"
-    print(f"=== Biocentral Release Script - Target Version: {target_version} ({mode_str} mode) ===")
+    print(f"=== Biocentral Release Script - Target Version: {default_target_version} ({mode_str} mode) ===")
 
     pypi_token = None
     if not dry_run:
@@ -181,6 +195,7 @@ def main():
     # Release loop
     summary = []
     for pkg in PACKAGES:
+        target_version = str(pkg.get("target_version", default_target_version))
         package_status = []
         print(f"\n--- Processing {pkg['name']} ({pkg['type']}) ---")
 
