@@ -38,6 +38,6 @@ runs:
     - name: Install dependencies (CPU-only PyTorch)
       shell: bash
       working-directory: biocentral_server
-      run: uv sync --no-install-project --index-strategy unsafe-best-match
+      run: uv sync --no-sources --no-install-project --index-strategy unsafe-best-match
       env:
         UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
