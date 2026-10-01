@@ -1,6 +1,8 @@
 # Biocentral API
 
 API packages for easy access to the functionality of the biocentral ecosystem.
+Part of [biocentral](https://github.com/biotrainer/biocentral) and the 
+[biocentral pypi package](https://pypi.org/project/biocentral/) (recommended package for most users).
 
 ## Supported languages
 
