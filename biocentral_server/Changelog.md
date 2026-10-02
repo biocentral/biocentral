@@ -1,5 +1,10 @@
 # biocentral_server Changelog
 
+## v2.0.1
+
+- Hotfix: Using fixed biotrainer version 2.1.1
+- Updating dependencies
+
 ## v2.0.0
 
 - Updating to biotrainer-core
