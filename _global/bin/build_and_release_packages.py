@@ -58,7 +58,8 @@ PACKAGES = [
         "type": "pypi",
         "target_version": "2.0.1",
         "path": PROJECT_ROOT / "biocentral_server",
-        "changelog": PROJECT_ROOT / "Changelog.md",
+        "changelog": PROJECT_ROOT / "biocentral_server" / "Changelog.md",
+        "version_check_only": True,
     },
     {
         "name": "biocentral",
@@ -111,7 +112,7 @@ def check_version_in_changelog(pkg: Dict, version: str) -> bool:
     if not changelog_path or not changelog_path.exists():
         print(f"Warning: Changelog not found for {pkg['name']} at {changelog_path}")
         return False
-    
+
     with open(changelog_path, "r") as f:
         content = f.read()
         return version in content
@@ -165,7 +166,7 @@ def upload_python(pkg: Dict, pypi_token: str):
     env["TWINE_USERNAME"] = "__token__"
     env["TWINE_PASSWORD"] = pypi_token
     
-    run_command("uv run twine upload dist/*", cwd, env=env)
+    run_command("uv run twine upload --verbose dist/*", cwd, env=env)
 
 def build_dart(pkg: Dict) -> bool:
     cwd = pkg["path"]
