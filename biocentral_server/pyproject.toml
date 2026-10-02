@@ -73,6 +73,15 @@ build-backend = "hatchling.build"
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "biocentral_server/",
+    "pyproject.toml",
+    "README.md",
+    "Changelog.md",
+    "LICENSE",
+]
+
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
 markers = [
