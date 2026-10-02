@@ -6,6 +6,12 @@ requires-python = "==3.12.*"
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
+[options.exclude-newer-package]
+pillow = false
+biotrainer-core = false
+numpy = false
+biotrainer = false
+
 [manifest]
 overrides = [{ name = "perf-analyzer", marker = "sys_platform == 'linux'", specifier = ">=2.59.1" }]
 
@@ -212,7 +218,7 @@ wheels = [
 
 [[package]]
 name = "biocentral-server"
-version = "2.0.0"
+version = "2.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "apscheduler" },
@@ -282,7 +288,7 @@ requires-dist = [
     { name = "pyrate-limiter", specifier = ">=3.0.0" },
     { name = "python-dotenv", specifier = ">=1.2.2,<2.0.0" },
     { name = "rq", specifier = ">=2.8.0,<3.0.0" },
-    { name = "taxoniq", specifier = ">=1.0.3,<2.0.0" },
+    { name = "taxoniq", specifier = ">=1.0.1,<2.0.0" },
     { name = "tmbed", git = "https://github.com/biocentral/TMbed.git?rev=onnx-deployment" },
     { name = "tritonclient", extras = ["grpc"], specifier = ">=2.68.0" },
     { name = "uvicorn", specifier = ">=0.51.0,<0.52.0" },

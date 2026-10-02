@@ -91,10 +91,7 @@ override-dependencies = [
     "perf-analyzer>=2.59.1; sys_platform == 'linux'",
 ]
 exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
-exclude-newer-package = {
-    biotrainer = false,
-    biotrainer-core = false
-}  # Except for biotrainer
+exclude-newer-package = { biotrainer = false, biotrainer-core = false, pillow = false, numpy = false }  # Except for biotrainer, temporary workaround for pillow and numpy
 
 [tool.coverage.run]
 source = ["biocentral_server"]
