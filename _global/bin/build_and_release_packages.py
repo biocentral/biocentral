@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 import subprocess
 import getpass
@@ -16,14 +15,14 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 PACKAGES = [
     {
         "name": "biotrainer-core",
-        "target_version": "2.1.0",
+        "target_version": "2.1.1",
         "type": "pypi",
         "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
         "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
     },
     {
         "name": "biotrainer",
-        "target_version": "2.1.0",
+        "target_version": "2.1.1",
         "type": "pypi",
         "path": PROJECT_ROOT / "biotrainer",
         "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
@@ -52,6 +51,13 @@ PACKAGES = [
         "name": "biocentral_vis",
         "type": "pypi",
         "path": PROJECT_ROOT / "biocentral_vis" / "python",
+        "changelog": PROJECT_ROOT / "Changelog.md",
+    },
+    {
+        "name": "biocentral_server",
+        "type": "pypi",
+        "target_version": "2.0.1",
+        "path": PROJECT_ROOT / "biocentral_server",
         "changelog": PROJECT_ROOT / "Changelog.md",
     },
     {
@@ -249,6 +255,7 @@ def main():
             package_status.append(f"WARNING: Could not check deployment status: {e}")
 
         if not pkg_version_ok or not pkg_changelog_ok:
+            _print_package_summary(pkg, target_version, package_status)
             print(f"\nVerification failed for {pkg['name']}.")
             choice = input("Continue anyway? (y/n): ")
             if choice.lower() != 'y':
