@@ -13,25 +13,33 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 
 PACKAGES = [
+    #{
+    #    "name": "biotrainer-core",
+    #    "target_version": "2.1.1",
+    #    "type": "pypi",
+    #    "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
+    #    "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    #},
+    #{
+    #    "name": "biotrainer",
+    #    "target_version": "2.1.1",
+    #    "type": "pypi",
+    #    "path": PROJECT_ROOT / "biotrainer",
+    #    "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    #},
+    #{
+    #    "name": "biocentral_ire",
+    #    "target_version": "2.0.0+1",
+    #    "path": PROJECT_ROOT / "biocentral_ire",
+    #    "changelog": PROJECT_ROOT / "biocentral_ire" / "Changelog.md",
+    #    "version_check_only": True,
+    #    "type": "pub.dev",
+    #},
     {
-        "name": "biotrainer-core",
-        "target_version": "2.1.1",
-        "type": "pypi",
-        "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
-        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
-    },
-    {
-        "name": "biotrainer",
-        "target_version": "2.1.1",
-        "type": "pypi",
-        "path": PROJECT_ROOT / "biotrainer",
-        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
-    },
-    {
-        "name": "biocentral_ire",
+        "name": "biocentral_status",
         "target_version": "2.0.0+1",
-        "path": PROJECT_ROOT / "biocentral_ire",
-        "changelog": PROJECT_ROOT / "biocentral_ire" / "Changelog.md",
+        "path": PROJECT_ROOT / "biocentral_websites/biocentral_status",
+        "changelog": PROJECT_ROOT / "Changelog.md",
         "version_check_only": True,
         "type": "pub.dev",
     },
