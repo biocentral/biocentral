@@ -267,13 +267,6 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
     n_suggestions_per_iteration: int = Field(
         description="Number of suggestions to propose per iteration", ge=1
     )
-    coefficient: float = Field(
-        default=0.5,
-        description="Exploitation-Exploration coefficient value, applied to every "
-        "iteration (must be between 0 and 1, 1 is maximum exploration)",
-        ge=0.0,
-        le=1.0,
-    )
     stopping_config: ActiveLearningStoppingConfig = Field(
         description="Stopping criteria for the simulation"
     )
