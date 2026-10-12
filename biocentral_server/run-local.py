@@ -1,10 +1,12 @@
 import os
+import argparse
 import multiprocessing
 
 from worker import run_worker as start_rq_worker
 from dotenv import load_dotenv
 
 from biocentral_server.main import run_server
+from biocentral_server.utils import Constants
 
 # Load local environment variables
 load_dotenv(os.getenv("ENV_FILE", ".env"))
@@ -30,14 +32,19 @@ def start_workers(num_workers: int = 1):
 
 
 if __name__ == "__main__":
-    num_workers = 1
+    parser = argparse.ArgumentParser(description="Run the server with local RQ workers")
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=Constants.SERVER_DEFAULT_PORT)
+    parser.add_argument("--workers", type=int, default=1)
+    args = parser.parse_args()
+    num_workers = args.workers
 
     print(f"Starting {num_workers} RQ worker processes")
     worker_processes = start_workers(num_workers)
 
     try:
         # Run the server in the main process
-        run_server()
+        run_server(host=args.host, port=args.port)
     finally:
         # Ensure all workers are terminated when server stops
         print("Shutting down worker processes...")
