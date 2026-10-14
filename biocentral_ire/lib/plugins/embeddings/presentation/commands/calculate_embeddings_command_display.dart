@@ -33,7 +33,7 @@ class _CalculateEmbeddingsCommandDisplayState extends State<CalculateEmbeddingsC
         pythonCompanion: context.read(),
         embeddingsRepository: context.read(),
         embeddingType: _selectedEmbeddingType,
-        embedderName: _selectedEmbedder!.wireName,
+        embedderName: _selectedEmbedder!.name,
       );
     }
     return null;

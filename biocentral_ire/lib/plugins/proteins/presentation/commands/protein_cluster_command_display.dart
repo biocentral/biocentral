@@ -1,5 +1,4 @@
 import 'package:biocentral/plugins/proteins/bloc/proteins_commands.dart';
-import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command_availability.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';

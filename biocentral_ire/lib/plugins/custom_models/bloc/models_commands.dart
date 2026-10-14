@@ -220,7 +220,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
     BiocentralCommandLog<BiocentralDatabaseUpdate<BioEntity>> log = initLog();
     yield log = log.logInfo(information: 'Calculating splits with method $_method..');
 
-    Map<String, String>? entityIdToClusterId;
+    // >>> CHANGED SECTION: Use Map<String, List<String>> clusters for SetGenerator
+    Map<String, List<String>>? clusters;
 
     if (_method == SplitSetGenerationMethod.newCluster) {
       if (_apiRepository == null) {
@@ -245,27 +246,29 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
           sequenceIdentityThreshold: threshold,
         );
 
-        Map<String, List<String>> clusters = {};
+        Map<String, List<String>> receivedClusters = {};
         await for (final (dto, clusterResult) in biocentralTask.run()) {
           if (clusterResult != null) {
-            clusters = clusterResult;
+            receivedClusters = clusterResult;
           }
         }
 
-        if (clusters.isEmpty) {
+        if (receivedClusters.isEmpty) {
           yield log.errored(error: 'Did not receive any cluster assignments!');
           return;
         }
 
-        entityIdToClusterId = {};
+        clusters = receivedClusters;
+
+        final Map<String, String> entityIdToClusterId = {};
         clusters.forEach((clusterId, memberIds) {
           for (final memberId in memberIds) {
-            entityIdToClusterId![memberId] = clusterId;
+            entityIdToClusterId[memberId] = clusterId;
           }
         });
 
         final clusterColName = 'MMseqs2-Cluster-${(threshold * 100).toInt()}%';
-        await _database.addCustomAttributes(clusterColName, entityIdToClusterId!);
+        await _database.addCustomAttributes(clusterColName, entityIdToClusterId);
 
         yield log = log.logInfo(information: 'Clustering complete. Generating splits..');
       } catch (e) {
@@ -273,13 +276,13 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         return;
       }
     } else if (_method == SplitSetGenerationMethod.existingCluster && _selectedClusterColumn != null) {
-      entityIdToClusterId = {};
+      clusters = {};
       for (final raw in _database.entitiesAsMaps()) {
         final id = raw['id']?.toString() ?? '';
         final attributes = raw['attributes'] as Map<String, dynamic>? ?? {};
         final dynamic rawVal = raw[_selectedClusterColumn] ?? attributes[_selectedClusterColumn];
-        final clusterId = rawVal?.toString() ?? id; 
-        entityIdToClusterId[id] = clusterId;
+        final clusterId = rawVal?.toString() ?? id;
+        clusters.putIfAbsent(clusterId, () => []).add(id);
       }
     }
 
@@ -288,8 +291,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
       final Map<String, SplitSet> ids = SetGenerator(splitRatio: _splitRatio).splitByMethod(
         method: _method,
         ids: _database.databaseToMap().keys.toList(),
-        entityIdToClusterId: entityIdToClusterId, 
-        seed: _seed, 
+        clusters: clusters,
+        seed: _seed,
       );
       final newColumnName = 'SET_${_method.name.toUpperCase()}';
       splitResult = SplitResult(ids, newColumnName);
@@ -312,8 +315,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
         ids: existingIds,
         subsplitSource: subsplitSource,
         subsplitTarget: subsplitTarget,
-        entityIdToClusterId: entityIdToClusterId, 
-        seed: _seed, 
+        clusters: clusters,
+        seed: _seed,
       );
 
       // TODO This adds the remaining sets values to the subsplit
@@ -336,6 +339,8 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
       final newColumnName = '${sourceColumnName}_SUBSPLIT';
       splitResult = SplitResult(subsplitResult, newColumnName);
     }
+    // <<< END CHANGED SECTION
+
     final databaseUpdate = await _database.addCustomAttributes(
       splitResult.newColumnName,
       splitResult.splits.map((key, value) => MapEntry(key, value.name)),
@@ -365,7 +370,7 @@ final class SplitDataCommand extends BiocentralCommand<BiocentralDatabaseUpdate<
       'mode': _mode.name,
       'method': _method.name,
       'splitRatio': _splitRatio.toString(),
-      'seed': _seed, 
+      'seed': _seed,
       'selectedSetColumn': _selectedSetColumn?.name,
       'subsplitSource': _subsplitSource?.name,
       'subsplitTarget': _subsplitTarget?.name,
