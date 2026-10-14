@@ -12,9 +12,8 @@ class SetGenerator {
     required List<String> ids,
     SplitSet? subsplitSource,
     SplitSet? subsplitTarget,
-    Map<String, String>? entityIdToClusterId,
-    int? seed, 
-
+    Map<String, List<String>>? clusters,
+    int? seed,
   }) {
     assert(subsplitSource == null ? subsplitTarget == null : true);
     assert(subsplitTarget == null ? subsplitSource == null : true);
@@ -23,23 +22,28 @@ class SetGenerator {
     switch (method) {
       case SplitSetGenerationMethod.random:
         return subsplit
-            ? randomSubsplit(ids: ids, subsplitSource: subsplitSource, subsplitTarget: subsplitTarget, seed: seed,)
+            ? randomSubsplit(
+                ids: ids,
+                subsplitSource: subsplitSource,
+                subsplitTarget: subsplitTarget,
+                seed: seed,
+              )
             : randomFull(ids, seed: seed);
 
       case SplitSetGenerationMethod.existingCluster:
-      
       case SplitSetGenerationMethod.newCluster:
-        final clusterMap = entityIdToClusterId ?? {for (var id in ids) id: id};
+        final resolvedClusters = clusters ?? {for (var id in ids) id: [id]};
         return subsplit
             ? clusterSubsplit(
-                ids: ids,
-                entityIdToClusterId: clusterMap,
+                clusters: resolvedClusters,
                 subsplitSource: subsplitSource!,
                 subsplitTarget: subsplitTarget!,
-                seed: seed, 
+                seed: seed,
               )
-            : clusterFull(ids: ids, entityIdToClusterId: clusterMap, seed: seed,);
-
+            : clusterFull(
+                clusters: resolvedClusters,
+                seed: seed,
+              );
     }
   }
 
@@ -69,16 +73,14 @@ class SetGenerator {
     required List<String> ids,
     required SplitSet subsplitSource,
     required SplitSet subsplitTarget,
-    int? seed, 
+    int? seed,
   }) {
     final Map<String, SplitSet> result = {};
     final Random random = seed != null ? Random(seed) : Random();
 
-    // Calculate how many should be moved to the new set
     final (source, target) = splitRatio.subsplit;
     final int numberOfItemsToMove = (ids.length * target).round();
 
-    // Randomly select items to move
     final List<String> shuffledIds = List.of(ids)..shuffle(random);
     final List<String> idsToMove = shuffledIds.take(numberOfItemsToMove).toList();
 
@@ -92,23 +94,17 @@ class SetGenerator {
 
     return result;
   }
+
   /// Cluster-aware full partition using greedy bin-packing
   Map<String, SplitSet> clusterFull({
-    required List<String> ids,
-    required Map<String, String> entityIdToClusterId,
+    required Map<String, List<String>> clusters,
     int? seed,
   }) {
     final rand = seed != null ? Random(seed) : Random();
-    final clusterToEntities = <String, List<String>>{};
-    for (final id in ids) {
-      final cluster = entityIdToClusterId[id] ?? id;
-      clusterToEntities.putIfAbsent(cluster, () => []).add(id);
-    }
-
-    final clusters = clusterToEntities.keys.toList()..shuffle(rand);
+    final clusterReps = clusters.keys.toList()..shuffle(rand);
     final (rTrain, rVal, rTest) = splitRatio.full;
-    
-    final totalReps = clusters.length;
+
+    final totalReps = clusterReps.length;
     final targets = {
       SplitSet.train: totalReps * rTrain,
       SplitSet.val: totalReps * rVal,
@@ -121,10 +117,9 @@ class SetGenerator {
     };
 
     final result = <String, SplitSet>{};
-    for (final clusterRep in clusters) {
-      final members = clusterToEntities[clusterRep]!;
+    for (final clusterRep in clusterReps) {
+      final members = clusters[clusterRep] ?? [clusterRep];
 
-      // Select partition bucket furthest below desired target
       SplitSet bestSet = SplitSet.train;
       double maxDeficit = -double.infinity;
       for (final s in [SplitSet.train, SplitSet.val, SplitSet.test]) {
@@ -134,11 +129,11 @@ class SetGenerator {
           bestSet = s;
         }
       }
-      result[clusterRep] = bestSet; 
-      counts[bestSet] = counts[bestSet]! + 1; 
+      result[clusterRep] = bestSet;
+      counts[bestSet] = counts[bestSet]! + 1;
 
       for (final member in members) {
-        if (member != clusterRep){
+        if (member != clusterRep) {
           result[member] = SplitSet.member;
         }
       }
@@ -148,47 +143,38 @@ class SetGenerator {
 
   /// Cluster-aware subsplit using greedy bin-packing
   Map<String, SplitSet> clusterSubsplit({
-    required List<String> ids,
-    required Map<String, String> entityIdToClusterId,
+    required Map<String, List<String>> clusters,
     required SplitSet subsplitSource,
     required SplitSet subsplitTarget,
     int? seed,
   }) {
     final rand = seed != null ? Random(seed) : Random();
-    final clusterToEntities = <String, List<String>>{};
-
-    for (final id in ids) {
-      final cluster = entityIdToClusterId[id] ?? id;
-      clusterToEntities.putIfAbsent(cluster, () => []).add(id);
-    }
-
-    final clusters = clusterToEntities.keys.toList()..shuffle(rand);
+    final clusterReps = clusters.keys.toList()..shuffle(rand);
     final (_, targetRatio) = splitRatio.subsplit;
-    final targetRepCount = (clusters.length * targetRatio).round(); 
+    final targetRepCount = (clusters.length * targetRatio).round();
 
     int currentTargetCount = 0;
     final result = <String, SplitSet>{};
 
-    for (final clusterRep in clusters) {
-      final members = clusterToEntities[clusterRep]!;
-      
-      final SplitSet assignedRepSet; 
+    for (final clusterRep in clusterReps) {
+      final members = clusters[clusterRep] ?? [clusterRep];
 
+      final SplitSet assignedRepSet;
       if (currentTargetCount < targetRepCount || currentTargetCount == 0) {
-        assignedRepSet = subsplitTarget; 
-        currentTargetCount++; 
+        assignedRepSet = subsplitTarget;
+        currentTargetCount++;
       } else {
-        assignedRepSet = subsplitSource; 
+        assignedRepSet = subsplitSource;
       }
-      result[clusterRep] = assignedRepSet; 
+      result[clusterRep] = assignedRepSet;
 
-      for (final member in members){
-        if (member != clusterRep){
-          result[member] = SplitSet.member; 
+      for (final member in members) {
+        if (member != clusterRep) {
+          result[member] = SplitSet.member;
         }
       }
     }
-    return result; 
+    return result;
   }
 
   static bool _inRange(int start, int end, int value) {

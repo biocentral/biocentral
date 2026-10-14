@@ -85,7 +85,7 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
       return ActiveLearningScreeningCampaignConfig(
         (b) => b
           ..name = _campaignName
-          ..embedderName = _selectedEmbedder!.wireName
+          ..embedderName = _selectedEmbedder!.name
           ..discreteTargets = ListBuilder<String>(_desiredTargetClass != null ? [_desiredTargetClass] : [])
           ..modelType = _selectedSurrogateModel
           ..optimizationMode = _selectedOptimizationMode

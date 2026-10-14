@@ -1,19 +1,17 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:biocentral/plugins/custom_models/model/hbi_service.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/custom_models/bloc/models_commands.dart';
-import 'package:biocentral/plugins/custom_models/data/biotrainer_output_dir_handler.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command_availability.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral/sdk/model/split_set.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_directory_path_selection.dart';
-import 'package:biocentral/sdk/presentation/widgets/biocentral_file_path_selection.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_ratio_slider.dart';
-import 'package:biocentral/sdk/util/path_util.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
-import 'package:cross_file/cross_file.dart';
+import 'package:biocentral_api/biocentral_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
@@ -26,8 +24,12 @@ class SplitDataCommandDisplay extends StatefulWidget {
   State<SplitDataCommandDisplay> createState() => _SplitDataCommandDisplayState();
 }
 
-class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> { 
-  final Set<SplitSetGenerationMethod> _availableMethods = const {SplitSetGenerationMethod.random, SplitSetGenerationMethod.existingCluster,SplitSetGenerationMethod.newCluster,};
+class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
+  final Set<SplitSetGenerationMethod> _availableMethods = const {
+    SplitSetGenerationMethod.random,
+    SplitSetGenerationMethod.existingCluster,
+    SplitSetGenerationMethod.newCluster,
+  };
   final Map<BiocentralDatabaseColumn, Set<SplitSet>> _availableSourceSets = {};
 
   Type? _selectedDatabaseType = Protein;
@@ -47,6 +49,20 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
   // Target column for evaluation & HBI
   String? _selectedTargetColumn;
+
+  // HBI Evaluation & Plot State
+  Timer? _debounceTimer;
+  bool _isEvaluatingHBI = false;
+  String? _hbiErrorMessage;
+
+  // BootstrappedMetric from Backend
+  List<BootstrappedMetric>? _splitHbiMetrics;
+  List<BootstrappedMetric>? _clusterHbiMetrics;
+
+  //Cluster distribution data for plotting
+  Map<String, List<String>>? _computedClusters;
+
+  final double _eValueThreshold = 1e-3;
 
   List<String> getDiscoveredClusterColumns() {
     final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
@@ -83,6 +99,140 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     }).toList();
   }
 
+  void triggerAutoEvaluation() {
+    _debounceTimer?.cancel();
+
+    // Verify all mandatory preconditions are satisfied
+    if (_selectedDatabaseType == null ||
+        _selectedTargetColumn == null ||
+        _mode == null ||
+        _method == null ||
+        _splitRatio == null) {
+      return;
+    }
+    if (_method == SplitSetGenerationMethod.existingCluster && _selectedClusterColumn == null) {
+      return;
+    }
+    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+      _runDualHbiEvaluation();
+    });
+  }
+
+  Future<void> _runDualHbiEvaluation() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isEvaluatingHBI = true;
+      _hbiErrorMessage = null;
+    });
+
+    try {
+      final database = context.read<BiocentralDatabaseRepository>().getFromType(_selectedDatabaseType);
+      final apiRepository = context.read<BiocentralAPIRepository>();
+      if (database == null) return;
+
+      final entities = database.entitiesAsMaps();
+      final ids = entities.map((e) => e['id']?.toString() ?? '').where((id) => id.isNotEmpty).toList();
+
+      // 1. Resolve existing clusters if applicable
+      Map<String, List<String>>? clusters;
+      if (_selectedClusterColumn != null) {
+        clusters = {};
+        for (final e in entities) {
+          final id = e['id']?.toString() ?? '';
+          final clusterId = _getEntityAttribute(e, _selectedClusterColumn!)?.toString() ?? id;
+          clusters.putIfAbsent(clusterId, () => []).add(id);
+        }
+      }
+
+      // 2. Compute partition mapping
+      final splitMapping = SetGenerator(splitRatio: _splitRatio!).splitByMethod(
+        method: _method!,
+        ids: ids,
+        clusters: clusters,
+        seed: _useSeed ? _seed : null,
+        subsplitSource: _subsplitSource,
+        subsplitTarget: _subsplitTarget,
+      );
+
+      final isNumeric = _isColumnNumeric(_selectedTargetColumn!);
+      final trainSeqs = <String, String>{};
+      final querySeqs = <String, String>{};
+      final trainLabels = <String, dynamic>{};
+      final queryLabels = <String, dynamic>{};
+      final allSeqs = <String, String>{};
+      final allTargets = <String, dynamic>{};
+
+      for (final e in entities) {
+        final id = e['id']?.toString() ?? '';
+        final seq = e['sequence']?.toString() ?? '';
+        final rawVal = _getEntityAttribute(e, _selectedTargetColumn!);
+        final val = isNumeric ? double.tryParse(rawVal?.toString() ?? '') : rawVal?.toString();
+
+        if (id.isEmpty || val == null) continue;
+
+        allSeqs[id] = seq;
+        allTargets[id] = val;
+
+        final split = splitMapping[id];
+        if (split == SplitSet.train || split == _subsplitSource) {
+          trainSeqs[id] = seq;
+          trainLabels[id] = val;
+        } else if (split == SplitSet.test || split == _subsplitTarget) {
+          querySeqs[id] = seq;
+          queryLabels[id] = val;
+        }
+      }
+
+      // 3. Prepare requests matching endpoint_models.py
+
+      final datasetHash = '${_selectedDatabaseType?.toString() ?? 'default'}_${entities.length}';
+
+      // 4. Instantiate the service with the currently active URL
+      final activeUrl = apiRepository.getBiocentralAPI().activeUrl ?? 'http://127.0.0.1:8000';
+      final hbiService = HbiClientService(basePath: activeUrl);
+
+      // 5. Fire both concurrently
+      final splitFuture = hbiService.executeSplitHbi(
+        trainSeqs: trainSeqs,
+        querySeqs: querySeqs,
+        trainLabels: trainLabels,
+        queryLabels: queryLabels,
+        isNumeric: isNumeric,
+        evalueCutoff: _eValueThreshold,
+        minSeqId: 0.0,
+        iterations: 30,
+      );
+
+      final clusterFuture = hbiService.executeClusterHbi(
+        datasetHash: datasetHash,
+        sequenceData: allSeqs,
+        targetData: allTargets,
+        sequenceIdentityThreshold: _clusteringThreshold,
+        isNumeric: isNumeric,
+        iterations: 30,
+      );
+
+      final results = await Future.wait([splitFuture, clusterFuture]);
+      final splitResponse = results[0] as SplitHBIResponse?;
+      final clusterResponse = results[1] as ClusterHBIResponse?;
+
+      if (!mounted) return;
+      setState(() {
+        _splitHbiMetrics = splitResponse?.metrics.toList();
+        _clusterHbiMetrics = clusterResponse?.metrics.toList();
+        _computedClusters = clusterResponse?.clusters.toMap().map((k, v) => MapEntry(k, v.toList()));
+        _isEvaluatingHBI = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isEvaluatingHBI = false;
+        _hbiErrorMessage = 'Failed to compute HBI leakage: $e';
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -104,23 +254,32 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
     if (_mode == SplitSetGenerationMode.generateNew) {
       if (_method != null && _splitRatio != null) {
-        return SplitDataCommand(database: database, apiRepository: apiRepository, mode: _mode!, method: _method!, splitRatio: _splitRatio!, seed: effectiveSeed, selectedClusterColumn: _selectedClusterColumn, clusteringThreshold: _clusteringThreshold,);
+        return SplitDataCommand(
+          database: database,
+          apiRepository: apiRepository,
+          mode: _mode!,
+          method: _method!,
+          splitRatio: _splitRatio!,
+          seed: effectiveSeed,
+          selectedClusterColumn: _selectedClusterColumn,
+          clusteringThreshold: _clusteringThreshold,
+        );
       }
     } else {
       if (_selectedSetColumn != null && _subsplitSource != null && _subsplitTarget == null) {
         return SplitDataCommand(
-            database: database,
-            apiRepository: apiRepository,
-            mode: _mode!,
-            method: _method!,
-            splitRatio: _splitRatio!,
-            seed: effectiveSeed,
-            selectedSetColumn: _selectedSetColumn,
-            subsplitSource: _subsplitSource,
-            subsplitTarget: _subsplitTarget, 
-            selectedClusterColumn: _selectedClusterColumn,
-            clusteringThreshold: _clusteringThreshold,
-          );
+          database: database,
+          apiRepository: apiRepository,
+          mode: _mode!,
+          method: _method!,
+          splitRatio: _splitRatio!,
+          seed: effectiveSeed,
+          selectedSetColumn: _selectedSetColumn,
+          subsplitSource: _subsplitSource,
+          subsplitTarget: _subsplitTarget,
+          selectedClusterColumn: _selectedClusterColumn,
+          clusteringThreshold: _clusteringThreshold,
+        );
       }
     }
     return null;
@@ -153,6 +312,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     if (_method != SplitSetGenerationMethod.existingCluster) {
       _selectedClusterColumn = null;
     }
+    triggerAutoEvaluation();
   }
 
   Map<BiocentralDatabaseColumn, Set<SplitSet>> getAvailableSourceSets() {
@@ -363,9 +523,8 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
   }
 
   Widget buildNewSetNameSelection() {
-    final List<SplitSet> availableNames = SplitSet.values
-        .where((set) => set != _subsplitSource && set.isPartition)
-        .toList();
+    final List<SplitSet> availableNames =
+        SplitSet.values.where((set) => set != _subsplitSource && set.isPartition).toList();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -376,9 +535,8 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         const SizedBox(height: 6),
         BiocentralDropdownMenu<SplitSet>(
           label: const Text('New set name..'),
-          dropdownMenuEntries: availableNames
-              .map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name))
-              .toList(),
+          dropdownMenuEntries:
+              availableNames.map((SplitSet set) => DropdownMenuEntry<SplitSet>(value: set, label: set.name)).toList(),
           onSelected: (SplitSet? value) {
             setState(() {
               _subsplitTarget = value;
@@ -405,21 +563,26 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
               child: BiocentralDropdownMenu<SplitSetGenerationMethod>(
                 label: const Text('Method..'),
                 initialSelection: _method,
-                dropdownMenuEntries: [
-                  const DropdownMenuEntry<SplitSetGenerationMethod>(
-                    value: SplitSetGenerationMethod.random,
-                    label: 'Random Split',
-                  ),
-                  DropdownMenuEntry<SplitSetGenerationMethod>(
-                    value: SplitSetGenerationMethod.existingCluster,
-                    label: 'Use Existing Clustering',
-                    enabled: hasClusters,
-                  ),
-                  const DropdownMenuEntry<SplitSetGenerationMethod>( // <--- ADD THIS
-                    value: SplitSetGenerationMethod.newCluster,
-                    label: 'Create New Clustering',
-                  ),
-                ],
+                dropdownMenuEntries: _availableMethods.map((method) {
+                  switch (method) {
+                    case SplitSetGenerationMethod.random:
+                      return const DropdownMenuEntry(
+                        value: SplitSetGenerationMethod.random,
+                        label: 'Random Split',
+                      );
+                    case SplitSetGenerationMethod.existingCluster:
+                      return DropdownMenuEntry(
+                        value: SplitSetGenerationMethod.existingCluster,
+                        label: 'Use Existing Clustering',
+                        enabled: hasClusters,
+                      );
+                    case SplitSetGenerationMethod.newCluster:
+                      return const DropdownMenuEntry(
+                        value: SplitSetGenerationMethod.newCluster,
+                        label: 'Create New Clustering',
+                      );
+                  }
+                }).toList(),
                 onSelected: (SplitSetGenerationMethod? value) => setState(() {
                   _method = value;
                   if (_method == SplitSetGenerationMethod.existingCluster && clusterCols.isNotEmpty) {
@@ -458,11 +621,10 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         BiocentralDropdownMenu<String>(
           label: const Text('Cluster Column..'),
           initialSelection: _selectedClusterColumn,
-          dropdownMenuEntries: clusterCols
-              .map((col) => DropdownMenuEntry<String>(value: col, label: col))
-              .toList(),
+          dropdownMenuEntries: clusterCols.map((col) => DropdownMenuEntry<String>(value: col, label: col)).toList(),
           onSelected: (String? value) => setState(() {
             _selectedClusterColumn = value;
+            triggerAutoEvaluation();
           }),
         ),
       ],
@@ -487,6 +649,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
           onChanged: (double val) {
             setState(() {
               _clusteringThreshold = (val * 100).round() / 100;
+              triggerAutoEvaluation();
             });
           },
         ),
@@ -526,7 +689,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     return nonNullCount > 0;
   }
 
-
   String _calculateRandomBaseline() {
     if (_selectedTargetColumn == null || _method == null || _splitRatio == null) {
       return 'Select target';
@@ -539,18 +701,20 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
     final ids = entities.map((e) => e['id']?.toString() ?? '').where((id) => id.isNotEmpty).toList();
 
-    Map<String, String>? clusterMap;
+    Map<String, List<String>>? clusters;
     if (_selectedClusterColumn != null) {
-      clusterMap = {
-        for (final e in entities)
-          e['id'].toString(): _getEntityAttribute(e, _selectedClusterColumn!)?.toString() ?? e['id'].toString()
-      };
+      clusters = {};
+      for (final e in entities) {
+        final id = e['id']?.toString() ?? '';
+        final clusterId = _getEntityAttribute(e, _selectedClusterColumn!)?.toString() ?? id;
+        clusters.putIfAbsent(clusterId, () => []).add(id);
+      }
     }
 
     final splitMapping = SetGenerator(splitRatio: _splitRatio!).splitByMethod(
       method: _method!,
       ids: ids,
-      entityIdToClusterId: clusterMap,
+      clusters: clusters,
       seed: _useSeed ? _seed : null,
       subsplitSource: _subsplitSource,
       subsplitTarget: _subsplitTarget,
@@ -619,59 +783,145 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     }
   }
 
+  String _formatMetric(BootstrappedMetric? metric, bool isNumeric) {
+    if (metric == null) return 'N/A';
+    if (isNumeric) {
+      return '${metric.mean.toStringAsFixed(3)} [${metric.lower.toStringAsFixed(3)}, ${metric.upper.toStringAsFixed(3)}]';
+    } else {
+      return '${(metric.mean * 100).toStringAsFixed(1)}% [${(metric.lower * 100).toStringAsFixed(1)}%, ${(metric.upper * 100).toStringAsFixed(1)}%]';
+    }
+  }
+
   Widget buildHbiPreviewCard() {
     final isSelected = _selectedTargetColumn != null;
+    final isNumeric = isSelected ? _isColumnNumeric(_selectedTargetColumn!) : false;
     final baseline = _calculateRandomBaseline();
+
+    final splitMetric = _splitHbiMetrics?.isNotEmpty == true ? _splitHbiMetrics!.first : null;
+    final clusterMetric = _clusterHbiMetrics?.isNotEmpty == true ? _clusterHbiMetrics!.first : null;
 
     return Container(
       margin: const EdgeInsets.only(top: 12.0),
-      padding: const EdgeInsets.all(14.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: Colors.blueGrey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics_outlined, size: 18, color: Colors.blueGrey),
+              const Icon(Icons.analytics_outlined, size: 20, color: Colors.blueGrey),
               const SizedBox(width: 8),
               const Text(
-                'Split Leakage & Evaluation Preview',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                'Real-Time Homology Leakage & Baseline Evaluation',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const Spacer(),
-              if (isSelected)
+              if (_isEvaluatingHBI)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else if (isSelected)
                 Chip(
                   label: Text(
-                    _isColumnNumeric(_selectedTargetColumn!) ? 'Regression' : 'Classification',
+                    isNumeric ? 'Regression (RMSE)' : 'Classification (Acc)',
                     style: const TextStyle(fontSize: 11),
                   ),
                   visualDensity: VisualDensity.compact,
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildMetricTile(
                 title: 'Random Baseline',
-                value: isSelected ? baseline : 'Select target column',
-                subtitle: 'Dummy guess prior',
+                value: isSelected ? baseline : 'Select target',
+                subtitle: isNumeric ? 'Mean Dummy Prior' : 'Majority Class Prior',
               ),
               _buildMetricTile(
-                title: 'HBI Test Leakage',
-                value: isSelected ? 'Pending engine' : 'Select target column',
-                subtitle: 'Nearest-neighbor seq sim',
-                isPending: true,
+                title: 'Split HBI (Train → Test)',
+                value: _isEvaluatingHBI
+                    ? 'Updating...'
+                    : (isSelected ? _formatMetric(splitMetric, isNumeric) : 'Select target'),
+                subtitle: 'Cross-split homology (easy_search)',
+                isPending: _isEvaluatingHBI,
+              ),
+              _buildMetricTile(
+                title: 'Cluster HBI (Intra-Cluster)',
+                value: _isEvaluatingHBI
+                    ? 'Updating...'
+                    : (isSelected ? _formatMetric(clusterMetric, isNumeric) : 'Select target'),
+                subtitle: 'Cluster rep → member transfer',
+                isPending: _isEvaluatingHBI,
               ),
             ],
           ),
+          if (_computedClusters != null && _computedClusters!.isNotEmpty) ...[
+            const Divider(height: 28),
+            const Text(
+              'Automated Cluster Size Distribution',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.blueGrey),
+            ),
+            const SizedBox(height: 8),
+            _buildClusterHistogram(_computedClusters!),
+          ],
+          if (_hbiErrorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _hbiErrorMessage!,
+              style: const TextStyle(color: Colors.red, fontSize: 11),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildClusterHistogram(Map<String, List<String>> clusters) {
+    // Generate cluster size frequency bins: 1, 2-5, 6-10, 11-20, >20
+    final sizes = clusters.values.map((m) => m.length).toList();
+    final bins = <String, int>{
+      '1': sizes.where((s) => s == 1).length,
+      '2–5': sizes.where((s) => s >= 2 && s <= 5).length,
+      '6–10': sizes.where((s) => s >= 6 && s <= 10).length,
+      '11–20': sizes.where((s) => s >= 11 && s <= 20).length,
+      '>20': sizes.where((s) => s > 20).length,
+    };
+    final maxCount = bins.values.fold<int>(1, (prev, curr) => curr > prev ? curr : prev);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: bins.entries.map((entry) {
+        final double barHeight = (entry.value / maxCount) * 50.0;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('${entry.value}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Container(
+                  height: barHeight.clamp(4.0, 50.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade400,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(entry.key, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -711,11 +961,10 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         BiocentralDropdownMenu<String>(
           label: const Text('Target Column..'),
           initialSelection: _selectedTargetColumn,
-          dropdownMenuEntries: targets
-              .map((col) => DropdownMenuEntry<String>(value: col, label: col))
-              .toList(),
+          dropdownMenuEntries: targets.map((col) => DropdownMenuEntry<String>(value: col, label: col)).toList(),
           onSelected: (String? value) => setState(() {
             _selectedTargetColumn = value;
+            triggerAutoEvaluation();
           }),
         ),
       ],
@@ -737,6 +986,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
                   onChanged: (bool? val) {
                     setState(() {
                       _useSeed = val ?? false;
+                      triggerAutoEvaluation();
                     });
                   },
                 ),
@@ -753,6 +1003,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
                 onPressed: () {
                   setState(() {
                     _seed = Random().nextInt(1025);
+                    triggerAutoEvaluation();
                   });
                 },
               ),
@@ -768,6 +1019,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
             onChanged: (double val) {
               setState(() {
                 _seed = val.round();
+                triggerAutoEvaluation();
               });
             },
           ),
@@ -794,6 +1046,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
           setState(() {
             _splitRatio = SplitRatio.fromRecord(ratios);
             applyConfiguratorHierarchy();
+            triggerAutoEvaluation();
           });
         },
       );
