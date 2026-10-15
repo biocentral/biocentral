@@ -92,6 +92,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         self,
         iteration_number: int,
         n_total_suggestions: int,
+        coefficient: float,
         current_training_data: List[SequenceData],
         embeddings: List[SequenceData],
         update_dto_callback: Callable,
@@ -108,7 +109,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         al_iteration_config = ActiveLearningScreeningIterationConfig(
             iteration=iteration_number,
             iteration_data=current_training_data,
-            coefficient=0.5,  # TODO Adjust coefficient dynamically
+            coefficient=coefficient,
             n_suggestions=n_to_suggest,
         )
 
@@ -128,6 +129,16 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             raise Exception("No AL iteration result received!")
 
         return al_iteration_dto.al_iteration_result
+
+    @staticmethod
+    def _compute_next_coefficient(coefficient: float, n_iteration_hits: int) -> float:
+        """Exploration coefficient for the next round, given the hits of the last one.
+
+        TODO implement
+        """
+        step = 0.1
+        coefficient += -step if n_iteration_hits > 0 else step
+        return min(1.0, max(0.0, coefficient))
 
     def _calculate_hits(self, iteration_suggestions: Set[str]) -> List[str]:
         """Calculate the number of target successes (hits) for the given iteration suggestions (seq_ids)."""
@@ -440,6 +451,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         n_total_suggestions = 0
         n_total_hits = 0
         n_consecutive_failures = 0
+        coefficient = 0.5
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
         n_max_iterations = self.al_simulation_config.stopping_config.n_max_iterations
         for iteration_idx in range(n_max_iterations):
@@ -459,6 +471,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             al_iteration_result = self._run_single_iteration(
                 iteration_number=iteration,
                 n_total_suggestions=n_total_suggestions,
+                coefficient=coefficient,
                 current_training_data=current_data_with_masking,
                 embeddings=embeddings,
                 update_dto_callback=update_dto_callback,
@@ -476,6 +489,8 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             n_consecutive_failures = (
                 0 if n_iteration_hits > 0 else n_consecutive_failures + 1
             )
+            coefficient = self._compute_next_coefficient(coefficient, n_iteration_hits)
+            logger.info(f"Coefficient for iteration {iteration + 1}: {coefficient}")
             self._update_metrics(
                 iteration_hits=iteration_hits,
                 n_consecutive_failures=n_consecutive_failures,
