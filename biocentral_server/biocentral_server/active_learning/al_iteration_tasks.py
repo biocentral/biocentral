@@ -9,6 +9,7 @@ from .al_config import (
     ActiveLearningEngineeringCampaignConfig,
     ActiveLearningEngineeringIterationConfig,
 )
+from .delta_embeddings import with_delta_embeddings
 
 from ..utils import get_logger
 from ..custom_models import BiotrainerTempTask
@@ -61,6 +62,8 @@ class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
             )
             if error_dto:
                 return error_dto
+        # TODO(delta-embeddings): Subtract each sequence's wildtype here, named wildtypes
+        #  from the campaign config, assigned per sequence via a WILDTYPE attribute
         assert (
             embeddings is not None and len(embeddings) > 0
         ), "embeddings is None after pre-embedding before active learning iteration!"
@@ -102,17 +105,25 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
         # Seed all random generators for reproducibility
         seed_all(self.al_campaign_config.seed)
 
-        al_iteration_result = al_engineering_pipeline(
-            al_campaign_config=self.al_campaign_config,
-            al_iteration_config=self.al_iteration_config,
-            embedding_subtask_wrapper=lambda sequence_input: self._pre_embed_with_db(
+        def embedding_subtask_wrapper(sequence_input: List[SequenceData]):
+            return self._pre_embed_with_db(
                 embedder_name=self.al_campaign_config.embedder_name,
                 sequence_input=sequence_input,
                 reduced=True,
                 update_dto_callback=update_dto_callback,
                 custom_tokenizer_config=None,
                 seed=self.al_campaign_config.seed,
-            ),
+            )
+
+        if self.al_campaign_config.use_delta_embeddings:
+            embedding_subtask_wrapper = with_delta_embeddings(
+                embedding_subtask_wrapper, self.al_campaign_config.wildtype_sequence
+            )
+
+        al_iteration_result = al_engineering_pipeline(
+            al_campaign_config=self.al_campaign_config,
+            al_iteration_config=self.al_iteration_config,
+            embedding_subtask_wrapper=embedding_subtask_wrapper,
             biotrainer_subtask_wrapper=lambda config,
             input_data: _biotrainer_subtask_wrapper(
                 run_subtask=self.run_subtask,

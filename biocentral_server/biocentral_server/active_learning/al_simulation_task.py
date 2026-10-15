@@ -548,5 +548,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         assert (
             embeddings is not None
         ), "embeddings is None after pre-embedding before active learning iteration!"
+        # TODO(delta-embeddings): Subtract each sequence's wildtype once here, before the
+        #  iterations reuse the embeddings (see ActiveLearningScreeningIterationTask)
 
         return self._run_simulation(embeddings, update_dto_callback)
