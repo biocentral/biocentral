@@ -24,7 +24,14 @@ class AcquisitionStep(PipelineStep[ALContext]):
 
     @staticmethod
     def _upper_confidence_bound(desirability, uncertainty, beta):
-        """Calculate acquisition score as desirability + beta * uncertainty. (Upper Confidence Bound)"""
+        """Calculate acquisition score as desirability + beta * uncertainty. (Upper Confidence Bound)
+
+        Note: The terms are not normalized, so for a model whose predicted standard deviations
+        are small compared to the spread of its predicted values, even beta = 1 mostly picks the
+        most desirable variants. Normalizing both terms to [0, 1] would make beta comparable
+        across datasets, rounds and models (and fix the unit mismatch between class probability
+        and BALD score for DISCRETE), but would discard how confident the model actually is.
+        """
         acquisition = desirability + beta * uncertainty
         return acquisition
 
