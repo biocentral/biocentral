@@ -5,6 +5,7 @@ from typing import List, Optional
 from biotrainer_core.data_classes import SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
 
+from .delta_embeddings import is_baseline_embedder
 from ..server_management.shared_endpoint_models.embedder_base_model import (
     EmbedderModelBase,
 )
@@ -34,6 +35,9 @@ class ActiveLearningOptimizationMode(str, Enum):
 
 class ActiveLearningScreeningCampaignConfig(EmbedderModelBase):
     """Configuration for an active learning screening campaign"""
+
+    # TODO(delta-embeddings): Add use_delta_embeddings and wildtype_sequences
+    #  (name -> sequence), validated against the data in the request models
 
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
@@ -142,6 +146,11 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         default=42, description="Random seed for reproducibility."
     )
     wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
+    use_delta_embeddings: bool = Field(
+        default=False,
+        description="Use each sequence's embedding minus the wildtype embedding as model "
+        "input (protein language model embedders only)",
+    )
 
     @model_validator(mode="after")
     def validate_config(self):
@@ -151,6 +160,11 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         ]:
             raise ValueError(
                 "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
+            )
+        if self.use_delta_embeddings and is_baseline_embedder(self.embedder_name):
+            raise ValueError(
+                "Delta embeddings require a protein language model, "
+                f"{self.embedder_name} is a baseline embedder!"
             )
 
         return self
