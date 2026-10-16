@@ -21,7 +21,10 @@ def get_embedder_name_db(embedder_name: str, use_half_precision: bool) -> str:
 
 
 def compute_memory_encodings(
-    embedder_name: str, all_seqs: Dict[str, str], reduced: bool
+    embedder_name: str,
+    all_seqs: Dict[str, str],
+    reduced: bool,
+    seed: Optional[int] = None,
 ) -> List[SequenceData]:
     """Compute encodings (e.g. one_hot_encoding) that are not stored in the database."""
 
@@ -31,6 +34,7 @@ def compute_memory_encodings(
         custom_tokenizer_config=None,
         device=DeviceService.embedding_device(embedder_name=embedder_name),
         force_biotrainer=True,
+        seed=seed,
     )
     emb_records = list(
         embedding_service.generate_embeddings(
