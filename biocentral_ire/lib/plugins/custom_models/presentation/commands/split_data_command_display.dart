@@ -44,7 +44,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
   // Seed configuration
   bool _useSeed = true;
-  int _seed = 42;
+  int _seed = biocentralDefaultSeed;
 
   // Target column for evaluation & HBI
   String? _selectedTargetColumn;
