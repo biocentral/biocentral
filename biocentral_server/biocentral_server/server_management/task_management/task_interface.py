@@ -94,6 +94,7 @@ class PreEmbedMixin:
         reduced: bool,
         update_dto_callback: Optional[Callable] = None,
         custom_tokenizer_config: Optional[Dict[str, Any]] = None,
+        seed: Optional[int] = None,
     ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
         from ...embeddings import (
             LoadEmbeddingsTask,
@@ -105,6 +106,7 @@ class PreEmbedMixin:
             reduced=reduced,
             use_half_precision=False,
             custom_tokenizer_config=custom_tokenizer_config,
+            seed=seed,
         )
         load_dto = None
         # TaskInterface is expected to be a base class of any class using this mixin
