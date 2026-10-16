@@ -89,7 +89,8 @@ class _NewALCampaignCommandDisplayState extends State<NewALCampaignCommandDispla
           ..modelType = _selectedSurrogateModel
           ..optimizationMode = _selectedOptimizationMode
           ..targetLb = _targetLb
-          ..targetUb = _targetUb,
+          ..targetUb = _targetUb
+          ..seed = dateSeed(),
       );
     }
     return null;

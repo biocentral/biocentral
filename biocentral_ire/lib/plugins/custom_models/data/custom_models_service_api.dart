@@ -1,4 +1,5 @@
 import 'package:biocentral/sdk/model/biocentral_config.dart';
+import 'package:biocentral/sdk/util/seed_util.dart';
 
 List<BiocentralConfigOption> filterBiotrainerOptionsForBiocentral(List<BiocentralConfigOption> options) {
   const Set<String> ignoreCategories = {'input_files'};
@@ -14,5 +15,21 @@ List<BiocentralConfigOption> filterBiotrainerOptionsForBiocentral(List<Biocentra
   };
   return options
       .where((option) => !ignoreCategories.contains(option.category) && !ignoreNames.contains(option.name))
+      .map(_withBiocentralDefault)
       .toList();
+}
+
+/// Replaces biotrainer's default seed with today's, see [dateSeed].
+BiocentralConfigOption _withBiocentralDefault(BiocentralConfigOption option) {
+  if (option.name != 'seed') {
+    return option;
+  }
+  return BiocentralConfigOption(
+    name: option.name,
+    required: option.required,
+    defaultValue: dateSeed(),
+    category: option.category,
+    description: option.description,
+    constraints: option.constraints,
+  );
 }

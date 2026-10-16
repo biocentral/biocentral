@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:biocentral/sdk/model/column_wizard_abstract.dart';
+import 'package:biocentral/sdk/util/seed_util.dart';
 import 'package:flutter/material.dart';
 
 abstract class ColumnWizardOperation {
@@ -20,7 +21,7 @@ final class ColumnWizardOperationResult {
 }
 
 class ColumnWizardShuffleOperation extends ColumnWizardOperation {
-  static const int defaultSeed = 42;
+  static int get defaultSeed => dateSeed();
 
   final int seed;
 

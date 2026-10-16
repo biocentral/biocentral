@@ -1,3 +1,5 @@
+import 'package:biocentral/sdk/util/seed_util.dart';
+
 enum SplitSet {
   train,
   val,
@@ -69,10 +71,10 @@ class ClusterSplitConfig {
   final String clusterColumnName;
   final int seed;
 
-  const ClusterSplitConfig({
+  ClusterSplitConfig({
     required this.clusterColumnName,
-    this.seed = 42,
-  });
+    int? seed,
+  }) : seed = seed ?? dateSeed();
 
   Map<String, dynamic> toJson() => {
     'clusterColumnName': clusterColumnName,
@@ -82,7 +84,7 @@ class ClusterSplitConfig {
   factory ClusterSplitConfig.fromJson(Map<String, dynamic> json) {
     return ClusterSplitConfig(
       clusterColumnName: json['clusterColumnName'] as String,
-      seed: json['seed'] as int? ?? 42,
+      seed: json['seed'] as int?,
     );
   }
 }
