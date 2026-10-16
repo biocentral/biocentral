@@ -8,7 +8,6 @@ import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/bloc/biocentral_command_availability.dart';
 import 'package:biocentral/sdk/domain/biocentral_database_column.dart';
 import 'package:biocentral/sdk/presentation/widgets/biocentral_command_widget.dart';
-import 'package:biocentral/sdk/util/library_extensions_util.dart';
 import 'package:biocentral/sdk/util/widget_util.dart';
 import 'package:biocentral_api/biocentral_api.dart';
 import 'package:built_collection/src/list.dart';
