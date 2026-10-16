@@ -28,6 +28,7 @@ class EngineeringPipelineContext(ALContext):
         iteration: int,  # Number of the iteration
         coefficient: float,
         n_suggestions: int,
+        seed: int,
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,
         al_target_ub: Optional[float] = None,
@@ -42,6 +43,7 @@ class EngineeringPipelineContext(ALContext):
             iteration=iteration,
             coefficient=coefficient,
             n_suggestions=n_suggestions,
+            seed=seed,
             al_target_value=al_target_value,
             al_target_lb=al_target_lb,
             al_target_ub=al_target_ub,

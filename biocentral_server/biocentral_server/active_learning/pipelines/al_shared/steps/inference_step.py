@@ -1,13 +1,13 @@
-import torch
+from typing import Dict, List, Literal, Optional, Tuple
 
-from junban import PipelineStep
-from typing import Dict, Optional, Tuple, Literal, List
+import numpy as np
+import torch
 from biotrainer_core.data_classes import SequenceData
+from junban import PipelineStep
 
 from ....al_config import (
     ActiveLearningOptimizationMode,
 )
-
 from ..al_context import ALContext
 
 
@@ -181,6 +181,11 @@ class InferenceStep(PipelineStep[ALContext]):
 
         return uncertainty
 
+    @staticmethod
+    def _round_seed(seed: int, iteration: int) -> int:
+        # Mix instead of adding to avoid date-based seed just increasing to subsequent dates
+        return int(np.random.SeedSequence([seed, iteration]).generate_state(1)[0])
+
     def _random_baseline_inference(
         self,
         context: ALContext,
@@ -213,20 +218,24 @@ class InferenceStep(PipelineStep[ALContext]):
             label.lower(): idx
             for idx, label in enumerate(list(context.all_labels_in_data or {}))
         }
-        if task_type == "classification":
-            means, preds, uncertainty = self._random_classification_predictions(
-                train_data=train_data,
-                n_inference=n_inference,
-                discrete_targets=context.al_discrete_targets,
-                uncertainty_strategy=uncertainty_strategy,
-                class_str2int=class_str2int,
-            )
-        else:  # regression
-            means, preds, uncertainty = self._random_regression_predictions(
-                train_data=train_data,
-                n_inference=n_inference,
-                uncertainty_strategy=uncertainty_strategy,
-            )
+        # Draw from a stream of this round's own: the iteration task reseeds the global RNG
+        # with the same campaign seed every round, which would replay the same draws.
+        with torch.random.fork_rng(devices=[]):
+            torch.manual_seed(self._round_seed(context.seed, context.iteration))
+            if task_type == "classification":
+                means, preds, uncertainty = self._random_classification_predictions(
+                    train_data=train_data,
+                    n_inference=n_inference,
+                    discrete_targets=context.al_discrete_targets,
+                    uncertainty_strategy=uncertainty_strategy,
+                    class_str2int=class_str2int,
+                )
+            else:  # regression
+                means, preds, uncertainty = self._random_regression_predictions(
+                    train_data=train_data,
+                    n_inference=n_inference,
+                    uncertainty_strategy=uncertainty_strategy,
+                )
         desirability = self._calculate_desirability(
             context=context,
             predicted_means=torch.tensor(means),

@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from biotrainer_core.data_classes import SequenceData
 from biotrainer.embedding import get_predefined_embedder_names
@@ -65,12 +65,31 @@ class CalculateEmbeddingsTask(TaskInterface):
 class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
     """Calculate embeddings, but store them in RAM, not in the database (OHE, Random, etc.)"""
 
+    def __init__(
+        self,
+        embedder_name: str,
+        sequence_input: List[SequenceData],
+        reduced: bool,
+        use_half_precision: bool,
+        seed: Optional[int] = None,
+    ):
+        super().__init__(
+            embedder_name=embedder_name,
+            sequence_input=sequence_input,
+            reduced=reduced,
+            use_half_precision=use_half_precision,
+        )
+        self.seed = seed
+
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         assert self.embedder_name in get_predefined_embedder_names()
 
         all_seqs = self._read_sequence_input()
         memory_embeddings = compute_memory_encodings(
-            embedder_name=self.embedder_name, all_seqs=all_seqs, reduced=self.reduced
+            embedder_name=self.embedder_name,
+            all_seqs=all_seqs,
+            reduced=self.reduced,
+            seed=self.seed,
         )
         len_memory_embeddings = len(memory_embeddings)
         update_dto_callback(
@@ -95,12 +114,14 @@ class LoadEmbeddingsTask(TaskInterface):
         reduced: bool,
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
+        seed: Optional[int] = None,  # Only used by embedders that draw at random
     ):
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
         self.custom_tokenizer_config = custom_tokenizer_config
+        self.seed = seed
 
     def _handle_memory_embedding(self):
         memory_task = _MemoryEmbeddingsTask(
@@ -108,6 +129,7 @@ class LoadEmbeddingsTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=self.reduced,
             use_half_precision=False,
+            seed=self.seed,
         )
         memory_dto = None
         for dto in self.run_subtask(memory_task):
