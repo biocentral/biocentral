@@ -21,6 +21,7 @@ class ALContext(PipelineContext):
         iteration: int,  # Number of the iteration
         coefficient: float,
         n_suggestions: int,
+        seed: int,  # Campaign seed, set by the client
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,
         al_target_ub: Optional[float] = None,
@@ -40,6 +41,7 @@ class ALContext(PipelineContext):
         self.iteration = iteration
         self.coefficient = coefficient
         self.n_suggestions = n_suggestions
+        self.seed = seed
 
         self.al_target_value = al_target_value
         self.al_target_lb = al_target_lb

@@ -57,6 +57,7 @@ class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
                 sequence_input=iteration_data,
                 reduced=True,
                 update_dto_callback=update_dto_callback,
+                seed=self.al_campaign_config.seed,
             )
             if error_dto:
                 return error_dto
@@ -110,6 +111,7 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
                 reduced=True,
                 update_dto_callback=update_dto_callback,
                 custom_tokenizer_config=None,
+                seed=self.al_campaign_config.seed,
             ),
             biotrainer_subtask_wrapper=lambda config,
             input_data: _biotrainer_subtask_wrapper(
