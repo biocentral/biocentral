@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/plugins/custom_models/model/set_generator.dart';
+import 'package:biocentral_api/src/model/cluster_hbi_response.dart';
+import 'package:biocentral_api/src/model/split_hbi_response.dart';
 
 class SplitDataCommandDisplay extends StatefulWidget {
   const SplitDataCommandDisplay({super.key});
@@ -189,7 +191,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
       final datasetHash = '${_selectedDatabaseType?.toString() ?? 'default'}_${entities.length}';
 
       // 4. Instantiate the service with the currently active URL
-      final activeUrl = apiRepository.getBiocentralAPI().activeUrl ?? 'http://127.0.0.1:8000';
+      final activeUrl = apiRepository.getBiocentralAPI().activeUrl ?? 'http://127.0.0.1:9540';
       final hbiService = HbiClientService(basePath: activeUrl);
 
       // 5. Fire both concurrently
@@ -200,7 +202,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         queryLabels: queryLabels,
         isNumeric: isNumeric,
         evalueCutoff: _eValueThreshold,
-        minSeqId: 0.0,
         iterations: 30,
       );
 
@@ -643,7 +644,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         Slider(
           value: _clusteringThreshold,
           min: 0.1,
-          max: 1.0,
           divisions: 18,
           label: '${(_clusteringThreshold * 100).toInt()}%',
           onChanged: (double val) {
@@ -802,72 +802,76 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
     return Container(
       margin: const EdgeInsets.only(top: 12.0),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(10.0),
         border: Border.all(color: Colors.blueGrey.shade200),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics_outlined, size: 20, color: Colors.blueGrey),
-              const SizedBox(width: 8),
-              const Text(
-                'Real-Time Homology Leakage & Baseline Evaluation',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              const Icon(Icons.analytics_outlined, size: 18, color: Colors.blueGrey),
+              const SizedBox(width: 6),
+              const Expanded(
+                child: Text(
+                  'Homology & Baseline Leakage',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const Spacer(),
               if (_isEvaluatingHBI)
                 const SizedBox(
-                  width: 16,
-                  height: 16,
+                  width: 14,
+                  height: 14,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               else if (isSelected)
-                Chip(
-                  label: Text(
-                    isNumeric ? 'Regression (RMSE)' : 'Classification (Acc)',
-                    style: const TextStyle(fontSize: 11),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.shade100,
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  visualDensity: VisualDensity.compact,
+                  child: Text(
+                    isNumeric ? 'RMSE' : 'Accuracy',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blueGrey.shade900),
+                  ),
                 ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildMetricTile(
-                title: 'Random Baseline',
-                value: isSelected ? baseline : 'Select target',
-                subtitle: isNumeric ? 'Mean Dummy Prior' : 'Majority Class Prior',
-              ),
-              _buildMetricTile(
-                title: 'Split HBI (Train → Test)',
-                value: _isEvaluatingHBI
-                    ? 'Updating...'
-                    : (isSelected ? _formatMetric(splitMetric, isNumeric) : 'Select target'),
-                subtitle: 'Cross-split homology (easy_search)',
-                isPending: _isEvaluatingHBI,
-              ),
-              _buildMetricTile(
-                title: 'Cluster HBI (Intra-Cluster)',
-                value: _isEvaluatingHBI
-                    ? 'Updating...'
-                    : (isSelected ? _formatMetric(clusterMetric, isNumeric) : 'Select target'),
-                subtitle: 'Cluster rep → member transfer',
-                isPending: _isEvaluatingHBI,
-              ),
-            ],
+          const SizedBox(height: 12),
+          // Vertical stack of metrics for sidebar fit
+          _buildMetricRow(
+            title: 'Random Baseline',
+            value: isSelected ? baseline : 'Select target',
+            subtitle: isNumeric ? 'Mean Dummy Prior' : 'Majority Class Prior',
+          ),
+          const Divider(height: 14),
+          _buildMetricRow(
+            title: 'Split HBI (Train → Test)',
+            value: _isEvaluatingHBI
+                ? 'Updating...'
+                : (isSelected ? _formatMetric(splitMetric, isNumeric) : 'Select target'),
+            subtitle: 'Cross-split homology (easy_search)',
+            isPending: _isEvaluatingHBI,
+          ),
+          const Divider(height: 14),
+          _buildMetricRow(
+            title: 'Cluster HBI (Intra-Cluster)',
+            value: _isEvaluatingHBI
+                ? 'Updating...'
+                : (isSelected ? _formatMetric(clusterMetric, isNumeric) : 'Select target'),
+            subtitle: 'Cluster rep → member transfer',
+            isPending: _isEvaluatingHBI,
           ),
           if (_computedClusters != null && _computedClusters!.isNotEmpty) ...[
-            const Divider(height: 28),
+            const Divider(height: 20),
             const Text(
-              'Automated Cluster Size Distribution',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.blueGrey),
+              'Cluster Size Distribution',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.blueGrey),
             ),
             const SizedBox(height: 8),
             _buildClusterHistogram(_computedClusters!),
@@ -925,26 +929,40 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
     );
   }
 
-  Widget _buildMetricTile({
+  Widget _buildMetricRow({
     required String title,
     required String value,
     required String subtitle,
     bool isPending = false,
   }) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: isPending ? Colors.orange.shade700 : Colors.black87,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isPending ? Colors.orange.shade700 : Colors.black87,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 2),
-        Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        const SizedBox(height: 1),
+        Text(
+          subtitle,
+          style: const TextStyle(fontSize: 9, color: Colors.grey),
+        ),
       ],
     );
   }
@@ -1012,7 +1030,6 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         if (_useSeed)
           Slider(
             value: _seed.toDouble(),
-            min: 0,
             max: 1024,
             divisions: 1024,
             label: '$_seed',

@@ -35,6 +35,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(BiotrainerModelUpdate.serializer)
       ..add(BiotrainerPrediction.serializer)
       ..add(BootstrappedMetric.serializer)
+      ..add(ClusterHBIRequest.serializer)
+      ..add(ClusterHBIResponse.serializer)
       ..add(ClusteringRequest.serializer)
       ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
@@ -81,6 +83,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(RunTestResponse.serializer)
       ..add(SequenceData.serializer)
       ..add(ServiceStatsResponse.serializer)
+      ..add(SplitHBIRequest.serializer)
+      ..add(SplitHBIResponse.serializer)
       ..add(StartInferenceRequest.serializer)
       ..add(StartTaskResponse.serializer)
       ..add(StartTrainingRequest.serializer)
@@ -120,6 +124,9 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
           () => ListBuilder<BootstrappedMetric>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
             const FullType(
@@ -129,6 +136,15 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType(BuiltList, const [const FullType(String)])
+          ]),
+          () => MapBuilder<String, BuiltList<String>>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(LocationInner)]),
           () => ListBuilder<LocationInner>())
@@ -309,12 +325,42 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
           const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
               BuiltMap, const [const FullType(String), const FullType(int)]),
           () => MapBuilder<String, int>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(num)]),
           () => MapBuilder<String, num>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
