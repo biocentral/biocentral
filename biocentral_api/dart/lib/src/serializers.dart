@@ -40,6 +40,8 @@ import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/biotrainer_prediction.dart';
 import 'package:biocentral_api/src/model/bootstrapped_metric.dart';
+import 'package:biocentral_api/src/model/cluster_hbi_request.dart';
+import 'package:biocentral_api/src/model/cluster_hbi_response.dart';
 import 'package:biocentral_api/src/model/clustering_request.dart';
 import 'package:biocentral_api/src/model/common_embedder.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
@@ -86,6 +88,8 @@ import 'package:biocentral_api/src/model/run_test_request.dart';
 import 'package:biocentral_api/src/model/run_test_response.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:biocentral_api/src/model/service_stats_response.dart';
+import 'package:biocentral_api/src/model/split_hbi_request.dart';
+import 'package:biocentral_api/src/model/split_hbi_response.dart';
 import 'package:biocentral_api/src/model/start_inference_request.dart';
 import 'package:biocentral_api/src/model/start_task_response.dart';
 import 'package:biocentral_api/src/model/start_training_request.dart';
@@ -128,6 +132,8 @@ part 'serializers.g.dart';
   BiotrainerModelUpdate,
   BiotrainerPrediction,
   BootstrappedMetric,
+  ClusterHBIRequest,
+  ClusterHBIResponse,
   ClusteringRequest,
   CommonEmbedder,
   ConfigOptionsResponse,
@@ -174,6 +180,8 @@ part 'serializers.g.dart';
   RunTestResponse,
   SequenceData,
   ServiceStatsResponse,
+  SplitHBIRequest,
+  SplitHBIResponse,
   StartInferenceRequest,
   StartTaskResponse,
   StartTrainingRequest,

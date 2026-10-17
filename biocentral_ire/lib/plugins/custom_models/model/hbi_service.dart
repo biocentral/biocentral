@@ -14,7 +14,7 @@ class HbiClientService {
 
   HbiClientService({String? basePath})
       : _api = BiocentralApi(
-          dio: Dio(BaseOptions(baseUrl: basePath ?? 'http://127.0.0.1:8000')),
+          dio: Dio(BaseOptions(baseUrl: basePath ?? 'http://127.0.0.1:9540')),
         ).getCustomModelsApi();
 
   /// Execute Cluster-based HBI
