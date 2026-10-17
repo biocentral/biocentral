@@ -36,8 +36,8 @@ class SetGenerator {
         return subsplit
             ? clusterSubsplit(
                 clusters: resolvedClusters,
-                subsplitSource: subsplitSource!,
-                subsplitTarget: subsplitTarget!,
+                subsplitSource: subsplitSource,
+                subsplitTarget: subsplitTarget,
                 seed: seed,
               )
             : clusterFull(
