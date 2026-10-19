@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:biocentral/plugins/custom_models/model/hbi_service.dart';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/custom_models/bloc/models_commands.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
@@ -16,8 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:biocentral/plugins/proteins/domain/protein_repository.dart';
 import 'package:biocentral/plugins/custom_models/model/set_generator.dart';
-import 'package:biocentral_api/src/model/cluster_hbi_response.dart';
-import 'package:biocentral_api/src/model/split_hbi_response.dart';
 
 class SplitDataCommandDisplay extends StatefulWidget {
   const SplitDataCommandDisplay({super.key});
@@ -190,12 +187,9 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
 
       final datasetHash = '${_selectedDatabaseType?.toString() ?? 'default'}_${entities.length}';
 
-      // 4. Instantiate the service with the currently active URL
-      final activeUrl = apiRepository.getBiocentralAPI().activeUrl ?? 'http://127.0.0.1:9540';
-      final hbiService = HbiClientService(basePath: activeUrl);
-
-      // 5. Fire both concurrently
-      final splitFuture = hbiService.executeSplitHbi(
+      // 4. Fire both concurrently
+      final api = apiRepository.getBiocentralAPI();
+      final splitFuture = api.splitHbi(
         trainSeqs: trainSeqs,
         querySeqs: querySeqs,
         trainLabels: trainLabels,
@@ -205,7 +199,7 @@ class _SplitDataCommandDisplayState extends State<SplitDataCommandDisplay> {
         iterations: 30,
       );
 
-      final clusterFuture = hbiService.executeClusterHbi(
+      final clusterFuture = api.clusterHbi(
         datasetHash: datasetHash,
         sequenceData: allSeqs,
         targetData: allTargets,
