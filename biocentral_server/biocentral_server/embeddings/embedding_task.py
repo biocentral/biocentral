@@ -44,20 +44,24 @@ class CalculateEmbeddingsTask(TaskInterface):
         all_seqs = self._read_sequence_input()
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        for progress in compute_embeddings(
-            embedder_name=self.embedder_name,
-            custom_tokenizer_config=self.custom_tokenizer_config,
-            all_seqs=all_seqs,
-            reduced=self.reduced,
-            use_half_precision=self.use_half_precision,
-            embeddings_db=embeddings_db,
-        ):
-            update_dto_callback(
-                TaskDTO(
-                    status=TaskStatus.RUNNING,
-                    embedding_progress=progress,
+        # Subtask exceptions are lost in their thread, so return them as the result
+        try:
+            for progress in compute_embeddings(
+                embedder_name=self.embedder_name,
+                custom_tokenizer_config=self.custom_tokenizer_config,
+                all_seqs=all_seqs,
+                reduced=self.reduced,
+                use_half_precision=self.use_half_precision,
+                embeddings_db=embeddings_db,
+            ):
+                update_dto_callback(
+                    TaskDTO(
+                        status=TaskStatus.RUNNING,
+                        embedding_progress=progress,
+                    )
                 )
-            )
+        except Exception as e:
+            return TaskDTO.errored(f"Calculating embeddings failed: {e}")
 
         return TaskDTO(status=TaskStatus.FINISHED, embedded_sequences=all_seqs)
 
@@ -163,6 +167,8 @@ class LoadEmbeddingsTask(TaskInterface):
             if calculate_dto.embedding_progress is not None:
                 update_dto_callback(calculate_dto)
 
+        if calculate_dto and calculate_dto.status == TaskStatus.FAILED:
+            return calculate_dto
         if not calculate_dto or calculate_dto.embedded_sequences is None:
             return TaskDTO.errored("Calculating of embeddings failed before loading!")
 

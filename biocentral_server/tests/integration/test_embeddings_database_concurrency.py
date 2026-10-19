@@ -106,6 +106,67 @@ def test_overlapping_saves_in_different_orders_do_not_deadlock(embedder_name):
     assert len(loaded) == 2
 
 
+def test_failed_save_raises(embedder_name):
+    """A save the database rejects must not look like a successful one."""
+    database = EmbeddingsDatabase(postgres_config=POSTGRES_CONFIG)
+    row_without_key = database._prepare_embedding_data(
+        hash_key=None,
+        seq_len=8,
+        embedder_name=embedder_name,
+        embd_per_sequence=torch.ones(4),
+        embd_per_residue=None,
+        keep=False,
+    )
+
+    with pytest.raises(psycopg.errors.NotNullViolation):
+        database.strategy.save_embeddings([row_without_key])
+
+
+def test_save_that_loses_a_deadlock_is_retried(embedder_name):
+    """A writer locking out of key order still makes Postgres abort the save once."""
+    database = EmbeddingsDatabase(postgres_config=POSTGRES_CONFIG)
+    first, second = sorted(
+        [
+            SequenceData(seq_id="a", seq="MKTAYIAK"),
+            SequenceData(seq_id="b", seq="MKTAYIAR"),
+        ],
+        key=lambda record: record.get_hash(),
+    )
+    records = [record.copy_with_embedding(torch.ones(4)) for record in (first, second)]
+
+    errors = []
+
+    def save():
+        try:
+            database.save_embeddings(
+                embd_records=records, embedder_name=embedder_name, reduced=True
+            )
+        except Exception as error:  # noqa: BLE001
+            errors.append(error)
+
+    insert = (
+        "INSERT INTO embeddings (sequence_hash, embedder_name) VALUES (%s, %s) "
+        "ON CONFLICT (sequence_hash, embedder_name) DO NOTHING"
+    )
+    with psycopg.connect(**POSTGRES_CONFIG) as other_writer:
+        # B first, then A: the reverse of the save's key order
+        other_writer.execute(insert, [second.get_hash(), embedder_name])
+        saving = threading.Thread(target=save)
+        saving.start()
+        _wait_for_blocked_insert()
+        other_writer.execute(insert, [first.get_hash(), embedder_name])
+        other_writer.commit()
+        saving.join(timeout=15)
+
+    assert errors == []
+    sequences = {record.get_hash(): record.seq for record in records}
+    loaded = database.get_embeddings(
+        sequences=sequences, embedder_name=embedder_name, reduced=True
+    )
+    assert len(loaded) == 2
+    assert all(record.embedding is not None for record in loaded)
+
+
 def test_reading_does_not_wait_for_rows_another_job_is_writing(embedder_name):
     """Loading cached embeddings must not block on rows a concurrent save holds.
 
