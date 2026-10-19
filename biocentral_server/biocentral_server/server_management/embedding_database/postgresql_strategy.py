@@ -86,9 +86,14 @@ class PostgreSQLStrategy(DatabaseStrategy):
         return torch.from_numpy(numpy_array)
 
     def save_embeddings(self, embeddings_data: List[EmbeddingDatabaseDTO]):
+        # Write in primary key order so concurrent jobs saving the same rows in different
+        # orders don't deadlock
         embeddings_data = [
             embd_data.compressed(self.compress_embedding).to_tuple()
-            for embd_data in embeddings_data
+            for embd_data in sorted(
+                embeddings_data,
+                key=lambda embd_data: (embd_data.hash_key, embd_data.embedder_name),
+            )
         ]
         try:
             with self._get_connection() as conn:
