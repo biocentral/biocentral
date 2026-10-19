@@ -26,9 +26,13 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _generate_random_mutations(
         wildtype_sequence: str, training_data_sequences: Set[str], n_mutations: int
     ) -> List[str]:
-        mutations = set()
+        # Sets of strings iterate in a per-process order, so seeded runs in different
+        # workers would draw different amino acids and number the mutations differently
+        mutations = {}
         n_max_tries = n_mutations * 2
-        selectable_aa_dict = {aa: list(set(STANDARD_AAS) - {aa}) for aa in STANDARD_AAS}
+        selectable_aa_dict = {
+            aa: sorted(set(STANDARD_AAS) - {aa}) for aa in STANDARD_AAS
+        }
 
         for attempt in range(n_max_tries):
             random_idx = random.randint(0, len(wildtype_sequence) - 1)
@@ -48,7 +52,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
             ), "Mutated sequence does not contain the mutation!"
             if mutated_seq in training_data_sequences:
                 continue
-            mutations.add(mutated_seq)
+            mutations[mutated_seq] = None
 
             if len(mutations) == n_mutations:
                 break
