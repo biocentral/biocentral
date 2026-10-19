@@ -104,3 +104,44 @@ def test_overlapping_saves_in_different_orders_do_not_deadlock(embedder_name):
     )
     assert all(record.embedding is not None for record in loaded)
     assert len(loaded) == 2
+
+
+def test_reading_does_not_wait_for_rows_another_job_is_writing(embedder_name):
+    """Loading cached embeddings must not block on rows a concurrent save holds.
+
+    A reader that waits while holding locks of its own can deadlock with that save, and
+    then loses every embedding it had already read.
+    """
+    database = EmbeddingsDatabase(postgres_config=POSTGRES_CONFIG)
+    records = [
+        SequenceData(seq_id="a", seq="MKTAYIAK").copy_with_embedding(torch.ones(4)),
+        SequenceData(seq_id="b", seq="MKTAYIAR").copy_with_embedding(torch.ones(4)),
+    ]
+    database.save_embeddings(
+        embd_records=records, embedder_name=embedder_name, reduced=True
+    )
+    sequences = {record.get_hash(): record.seq for record in records}
+
+    loaded = []
+    with psycopg.connect(**POSTGRES_CONFIG) as other_writer:
+        other_writer.execute(
+            "UPDATE embeddings SET last_accessed = CURRENT_TIMESTAMP "
+            "WHERE sequence_hash = %s AND embedder_name = %s",
+            [records[0].get_hash(), embedder_name],
+        )
+        reading = threading.Thread(
+            target=lambda: loaded.extend(
+                database.get_embeddings(
+                    sequences=sequences, embedder_name=embedder_name, reduced=True
+                )
+            )
+        )
+        reading.start()
+        reading.join(timeout=3)
+        still_waiting = reading.is_alive()
+        other_writer.commit()
+        reading.join(timeout=10)
+
+    assert not still_waiting, "get_embeddings waited for the other writer's row lock"
+    assert len(loaded) == 2
+    assert all(record.embedding is not None for record in loaded)
