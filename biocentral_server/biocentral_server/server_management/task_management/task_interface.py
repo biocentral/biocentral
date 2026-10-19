@@ -115,6 +115,8 @@ class PreEmbedMixin:
 
         if not load_dto:
             return TaskDTO.errored("Could not compute embeddings!"), []
+        if load_dto.status == TaskStatus.FAILED:
+            return load_dto, []
 
         embeddings: List[SequenceData] = load_dto.embeddings
         if embeddings is None or len(embeddings) == 0:
