@@ -68,7 +68,7 @@ class _CalculateProjectionCommandDisplayState extends State<CalculateProjectionC
         apiRepository: context.read(),
         biocentralDatabaseRepository: context.read(),
         projectionsRepository: context.read(),
-        embedderName: _selectedEmbedder!.name,
+        embedderName: _selectedEmbedder!.wireName,
         projectionMethod: _selectedMethod!,
         projectionConfig: _projectionConfigByMethod[_selectedMethod]!.asStringMap(),
       );
