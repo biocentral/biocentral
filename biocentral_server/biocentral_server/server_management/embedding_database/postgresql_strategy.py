@@ -136,17 +136,22 @@ class PostgreSQLStrategy(DatabaseStrategy):
 
                     db_results = cur.fetchall()
 
-                    # Update access tracking (async)
+                    # Update access tracking (async). Rows locked by a concurrent save are
+                    # skipped: waiting for them while holding our own locks can deadlock
                     if db_results:
                         found_hashes = [row[0] for row in db_results]
                         cur.execute(
-                            f"""
-                                           UPDATE embeddings
-                                           SET last_accessed = CURRENT_TIMESTAMP,
-                                               access_count = access_count + 1
-                                           WHERE sequence_hash IN ({placeholders}) AND embedder_name = %s
-                                       """,
-                            found_hashes + [embedder_name],
+                            """
+                            UPDATE embeddings
+                            SET last_accessed = CURRENT_TIMESTAMP,
+                                access_count  = access_count + 1
+                            WHERE (sequence_hash, embedder_name) IN (SELECT sequence_hash, embedder_name
+                                                                     FROM embeddings
+                                                                     WHERE sequence_hash = ANY (%s)
+                                                                       AND embedder_name = %s
+                                                                         FOR UPDATE SKIP LOCKED)
+                            """,
+                            [found_hashes, embedder_name],
                         )
                     conn.commit()
 
