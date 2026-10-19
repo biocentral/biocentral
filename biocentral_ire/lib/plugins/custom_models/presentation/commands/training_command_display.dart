@@ -60,8 +60,8 @@ class _TrainModelCommandDisplayState extends State<TrainModelCommandDisplay> {
         _selectedProtocol != null &&
         _protocolConfig != null) {
       final trainingConfiguration = _protocolConfig!.asStringMap();
-      trainingConfiguration['protocol'] = _selectedProtocol!.name;
-      trainingConfiguration['embedder_name'] = _selectedEmbedder!.name;
+      trainingConfiguration['protocol'] = _selectedProtocol!.wireName;
+      trainingConfiguration['embedder_name'] = _selectedEmbedder!.wireName;
       final filteredConfig = trainingConfiguration.filter((v) => v != 'null');
       return TrainModelCommand(
         apiRepository: context.read(),
@@ -80,7 +80,7 @@ class _TrainModelCommandDisplayState extends State<TrainModelCommandDisplay> {
       return null;
     }
     final protocolConfig =
-        await apiRepository.getBiocentralAPI().getConfigOptionsForProtocol(protocol: _selectedProtocol!.name);
+        await apiRepository.getBiocentralAPI().getConfigOptionsForProtocol(protocol: _selectedProtocol!.wireName);
     if (protocolConfig == null) {
       return null;
     }

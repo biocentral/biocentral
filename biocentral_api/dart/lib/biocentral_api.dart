@@ -9,6 +9,8 @@ export 'src/high_level_api.dart'
     show BiocentralAPI, BiocentralAPIHealth, CustomModelsAPI, EmbeddingAPI, PredictAPI, ProteinsAPI, ActiveLearningAPI;
 export 'src/model/model_metadata.dart' show ModelMetadata;
 export 'src/model/bootstrapped_metric.dart' show BootstrappedMetric;
+export 'src/model/cluster_hbi_response.dart' show ClusterHBIResponse;
+export 'src/model/split_hbi_response.dart' show SplitHBIResponse;
 export 'src/extensions/serialization_extensions.dart';
 export 'src/extensions/bootstrapped_metric_ext.dart';
 export 'src/extensions/string_extensions.dart';

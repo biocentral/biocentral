@@ -1,10 +1,14 @@
 import 'package:biocentral_api/src/api.dart' as gen;
+import 'package:biocentral_api/src/model/cluster_hbi_request.dart';
+import 'package:biocentral_api/src/model/cluster_hbi_response.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
+import 'package:biocentral_api/src/model/split_hbi_request.dart';
+import 'package:biocentral_api/src/model/split_hbi_response.dart';
 import 'package:biocentral_api/src/model/start_inference_request.dart';
 import 'package:biocentral_api/src/model/start_training_request.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
@@ -108,5 +112,61 @@ class CustomModelsClient {
       api: api,
       dtoHandler: _InferenceDtoHandler(),
     );
+  }
+
+  /// HBI baseline within sequence clusters (synchronous).
+  Future<ClusterHBIResponse?> clusterHbi({
+    required gen.BiocentralApi api,
+    required String datasetHash,
+    required Map<String, dynamic> targetData,
+    Map<String, String>? sequenceData,
+    num sequenceIdentityThreshold = 0.3,
+    bool isNumeric = false,
+    int iterations = 100,
+  }) async {
+    final cmApi = api.getCustomModelsApi();
+    final request = ClusterHBIRequestBuilder()
+      ..datasetHash = datasetHash
+      ..targetData = MapBuilder<String, JsonObject?>(_toJsonObjects(targetData))
+      ..sequenceIdentityThreshold = sequenceIdentityThreshold
+      ..isNumeric = isNumeric
+      ..iterations = iterations;
+    if (sequenceData != null) {
+      request.sequenceData = MapBuilder<String, String>(sequenceData);
+    }
+
+    final resp = await cmApi.clusterHbiApiV1CustomModelsServiceClusterHbiPost(clusterHBIRequest: request.build());
+    return resp.data;
+  }
+
+  /// HBI baseline from train to query split (synchronous).
+  Future<SplitHBIResponse?> splitHbi({
+    required gen.BiocentralApi api,
+    required Map<String, String> trainSeqs,
+    required Map<String, String> querySeqs,
+    required Map<String, dynamic> trainLabels,
+    required Map<String, dynamic> queryLabels,
+    num evalueCutoff = 0.001,
+    num minSeqId = 0.0,
+    bool isNumeric = false,
+    int iterations = 100,
+  }) async {
+    final cmApi = api.getCustomModelsApi();
+    final request = SplitHBIRequestBuilder()
+      ..trainSeqs = MapBuilder<String, String>(trainSeqs)
+      ..querySeqs = MapBuilder<String, String>(querySeqs)
+      ..trainLabels = MapBuilder<String, JsonObject?>(_toJsonObjects(trainLabels))
+      ..queryLabels = MapBuilder<String, JsonObject?>(_toJsonObjects(queryLabels))
+      ..evalueCutoff = evalueCutoff
+      ..minSeqId = minSeqId
+      ..isNumeric = isNumeric
+      ..iterations = iterations;
+
+    final resp = await cmApi.splitHbiApiV1CustomModelsServiceSplitHbiPost(splitHBIRequest: request.build());
+    return resp.data;
+  }
+
+  Map<String, JsonObject?> _toJsonObjects(Map<String, dynamic> values) {
+    return values.map((k, v) => MapEntry(k, v != null ? JsonObject(v) : null));
   }
 }
