@@ -94,7 +94,7 @@ def _compute_embeddings_implementation(
             batch.append(embd_record)
             if len(batch) >= max_batch_size:
                 embeddings_db.save_embeddings(
-                    embd_records=batch, embedder_name=embedder_name, reduced=reduced
+                    embd_records=batch, embedder_name=embedder_name_db, reduced=reduced
                 )
                 progress += len(batch)
                 logger.info(f"Embedding progress: {progress} / {total_seqs}")
