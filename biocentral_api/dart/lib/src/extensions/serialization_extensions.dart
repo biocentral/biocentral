@@ -223,7 +223,7 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
   Map<String, dynamic> serialize() {
     return {
       'iteration': iteration,
-      'baseSequences': baseSequences.toList(),
+      'baseSequences': baseSequences?.toList(),
       'trainingData': trainingData.map((data) => data.serialize()).toList(),
       'coefficient': coefficient,
       'nSuggestions': nSuggestions,
@@ -233,7 +233,9 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
   static ActiveLearningEngineeringIterationConfig deserialize(Map<String, dynamic> jsonMap) {
     return ActiveLearningEngineeringIterationConfig((b) => b
       ..iteration = jsonMap['iteration'] as int
-      ..baseSequences = ListBuilder<String>(List<String>.from(jsonMap['baseSequences'] as List))
+      ..baseSequences = jsonMap['baseSequences'] != null
+          ? ListBuilder<String>(List<String>.from(jsonMap['baseSequences'] as List))
+          : null
       ..trainingData = ListBuilder<SequenceData>(
           (jsonMap['trainingData'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
