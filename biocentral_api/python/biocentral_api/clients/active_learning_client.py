@@ -49,10 +49,9 @@ class _ActiveLearningIterationDTOHandler(DTOHandler):
 
 
 class _ActiveLearningSimulationDTOHandler(DTOHandler):
-    _iteration_results = {}  # Use dict to preserve order of results
-    _counted_iterations = set()  # track which iterations already moved the bar
-
     def __init__(self, simulation_config: ActiveLearningScreeningSimulationConfig):
+        self._iteration_results = {}  # Use dict to preserve order of results
+        self._counted_iterations = set()  # track which iterations already moved the bar
         self._n_max_iterations = self._approximate_n_max_iterations(simulation_config)
         self._set_max_iterations_tqdm = False
 
@@ -60,7 +59,7 @@ class _ActiveLearningSimulationDTOHandler(DTOHandler):
     def _approximate_n_max_iterations(
             simulation_config: ActiveLearningScreeningSimulationConfig,
     ):
-        max_labels_budget = simulation_config.convergence_config.max_labels_budget
+        max_labels_budget = simulation_config.stopping_config.max_labels_budget
         if max_labels_budget is not None:
             return max_labels_budget // simulation_config.n_suggestions_per_iteration
         n_start_data = (
@@ -162,7 +161,7 @@ class ActiveLearningClient(ClientInterface):
             task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler
         )
 
-    def al_simulation(
+    def al_screening_simulation(
             self,
             api_client: ApiClient,
             campaign_config: ActiveLearningScreeningCampaignConfig,

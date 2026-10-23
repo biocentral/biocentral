@@ -31,6 +31,8 @@ from .utils import str2bool, Constants, get_logger
 
 logger = get_logger(__name__)
 
+__version__ = version("biocentral-server")
+
 
 def _setup_directories():
     required_directories = ["logs", "storage"]
@@ -127,7 +129,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Biocentral Server",
         description="API for biocentral services",
-        version="1.0.0",
+        version=__version__,
         lifespan=lifespan,
     )
 
@@ -158,8 +160,6 @@ def create_app() -> FastAPI:
     app.include_router(proteins_router, prefix=prefix)
 
     # Health check
-    __version__ = version("biocentral-server")
-
     @app.get("/health")
     async def health_check():
         return {"status": "healthy", "version": __version__}
@@ -185,7 +185,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 
-def run_server():
+def run_server(host: str = "0.0.0.0", port: int = Constants.SERVER_DEFAULT_PORT):
     """Run the server"""
     debug = str2bool(str(os.environ.get("SERVER_DEBUG", "True")))
 
@@ -194,16 +194,15 @@ def run_server():
     if debug:
         uvicorn.run(
             "biocentral_server.main:app",
-            host="0.0.0.0",
-            port=Constants.SERVER_DEFAULT_PORT,
+            host=host,
+            port=port,
             reload=True,
+            reload_dirs=[os.path.dirname(__file__)],
             log_level="info",
         )
     else:
         # For production
-        uvicorn.run(
-            app, host="0.0.0.0", port=Constants.SERVER_DEFAULT_PORT, log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
 
 if __name__ == "__main__":

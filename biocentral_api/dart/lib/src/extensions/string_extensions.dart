@@ -1,5 +1,6 @@
 import '../model/common_embedder.dart';
 import '../model/protocol.dart';
+import 'enum_wire_name_extensions.dart';
 
 extension StringExtension on String {
   String capitalize() {

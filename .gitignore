@@ -69,3 +69,6 @@ assets/web/
 assets/python_companion_desktop.py
 assets/python_companion_web.py
 assets/requirements.txt
+
+# Node
+/node_modules/

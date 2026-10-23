@@ -357,11 +357,19 @@ extension ProteinsAPI on BiocentralAPI {
 }
 
 extension ActiveLearningAPI on BiocentralAPI {
-  Future<BiocentralServerTask<ActiveLearningIterationResult>> activeLearningIteration({
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alScreeningIteration({
     required ActiveLearningScreeningCampaignConfig campaignConfig,
     required ActiveLearningScreeningIterationConfig iterationConfig,
   }) async {
     return ActiveLearningClient()
-        .activeLearningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
+        .alScreeningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
+  }
+
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alEngineeringIteration({
+    required ActiveLearningEngineeringCampaignConfig campaignConfig,
+    required ActiveLearningEngineeringIterationConfig iterationConfig,
+  }) async {
+    return ActiveLearningClient()
+        .alEngineeringIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
   }
 }

@@ -29,20 +29,6 @@ from ..server_management import (
 logger = get_logger(__name__)
 
 
-class _ActiveLearningSimulationFixedParameters:
-    @classmethod
-    def min_max_percentile(cls) -> float:
-        return 1  # 1% / 99%
-
-    @classmethod
-    def target_delta(cls) -> float:
-        return 0.5  # TODO Merge with interval task
-
-    @classmethod
-    def n_max_iterations(cls) -> int:
-        return 100
-
-
 class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
     def __init__(
         self,
@@ -106,14 +92,15 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         self,
         iteration_number: int,
         n_total_suggestions: int,
+        coefficient: float,
         current_training_data: List[SequenceData],
         embeddings: List[SequenceData],
         update_dto_callback: Callable,
     ) -> ActiveLearningIterationResult:
         # Limit number of suggestions per iteration to budget if applicable
-        if self.al_simulation_config.convergence_config.max_labels_budget is not None:
+        if self.al_simulation_config.stopping_config.max_labels_budget is not None:
             n_to_suggest = min(
-                self.al_simulation_config.convergence_config.max_labels_budget
+                self.al_simulation_config.stopping_config.max_labels_budget
                 - n_total_suggestions,
                 self.al_simulation_config.n_suggestions_per_iteration,
             )
@@ -122,7 +109,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         al_iteration_config = ActiveLearningScreeningIterationConfig(
             iteration=iteration_number,
             iteration_data=current_training_data,
-            coefficient=0.5,  # TODO Adjust coefficient dynamically
+            coefficient=coefficient,
             n_suggestions=n_to_suggest,
         )
 
@@ -143,12 +130,20 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
 
         return al_iteration_dto.al_iteration_result
 
+    @staticmethod
+    def _compute_next_coefficient(coefficient: float, n_iteration_hits: int) -> float:
+        """Exploration coefficient for the next round, given the hits of the last one.
+
+        TODO implement
+        """
+        step = 0.1
+        coefficient += -step if n_iteration_hits > 0 else step
+        return min(1.0, max(0.0, coefficient))
+
     def _calculate_hits(self, iteration_suggestions: Set[str]) -> List[str]:
         """Calculate the number of target successes (hits) for the given iteration suggestions (seq_ids)."""
-        min_max_percentile = (
-            _ActiveLearningSimulationFixedParameters.min_max_percentile()
-        )
-        target_delta = _ActiveLearningSimulationFixedParameters.target_delta()
+        min_max_percentile = self.al_simulation_config.hit_percentile
+        target_delta = self.al_simulation_config.hit_target_delta
         suggestion_labels = {
             seq_id: self.all_labels_dict[seq_id] for seq_id in iteration_suggestions
         }
@@ -236,41 +231,41 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                 assert len(correct) == len(set(correct)), f"Found duplicates: {correct}"
                 return correct
 
-    def _check_convergence(
+    def _check_stopping_criteria(
         self,
         n_total_suggestions: int,
         n_total_hits: int,
         n_consecutive_failures: int,
     ) -> Tuple[bool, List[str]]:
-        convergence_config = self.al_simulation_config.convergence_config
+        stopping_config = self.al_simulation_config.stopping_config
         max_labels_exceeded = (
-            n_total_suggestions >= convergence_config.max_labels_budget
-            if convergence_config.max_labels_budget is not None
+            n_total_suggestions >= stopping_config.max_labels_budget
+            if stopping_config.max_labels_budget is not None
             else False
         )
         n_hits_reached = (
-            n_total_hits >= convergence_config.n_hits
-            if convergence_config.n_hits is not None
+            n_total_hits >= stopping_config.n_hits
+            if stopping_config.n_hits is not None
             else False
         )
         consecutive_failures_exceeded = (
-            n_consecutive_failures >= convergence_config.max_consecutive_failures
-            if convergence_config.max_consecutive_failures is not None
+            n_consecutive_failures >= stopping_config.max_consecutive_failures
+            if stopping_config.max_consecutive_failures is not None
             else False
         )
         if max_labels_exceeded or n_hits_reached or consecutive_failures_exceeded:
             mle_message = (
-                f"Max labels budget ({convergence_config.max_labels_budget}) exceeded!"
+                f"Max labels budget ({stopping_config.max_labels_budget}) exceeded!"
                 if max_labels_exceeded
                 else None
             )
             n_hits_message = (
-                f"Number of hits ({convergence_config.n_hits}) accomplished!"
+                f"Number of hits ({stopping_config.n_hits}) accomplished!"
                 if n_hits_reached
                 else None
             )
             cfe_message = (
-                f"Consecutive failures ({convergence_config.max_consecutive_failures}) exceeded!"
+                f"Consecutive failures ({stopping_config.max_consecutive_failures}) exceeded!"
                 if consecutive_failures_exceeded
                 else None
             )
@@ -456,10 +451,10 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         n_total_suggestions = 0
         n_total_hits = 0
         n_consecutive_failures = 0
+        coefficient = 0.5
         n_sim_data_total = len(self.al_simulation_config.simulation_data)
-        for iteration_idx in range(
-            _ActiveLearningSimulationFixedParameters.n_max_iterations()
-        ):
+        n_max_iterations = self.al_simulation_config.stopping_config.n_max_iterations
+        for iteration_idx in range(n_max_iterations):
             iteration = iteration_idx + 1
             if n_total_suggestions + n_start_data >= n_sim_data_total:
                 # No new data left
@@ -476,6 +471,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             al_iteration_result = self._run_single_iteration(
                 iteration_number=iteration,
                 n_total_suggestions=n_total_suggestions,
+                coefficient=coefficient,
                 current_training_data=current_data_with_masking,
                 embeddings=embeddings,
                 update_dto_callback=update_dto_callback,
@@ -493,20 +489,22 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             n_consecutive_failures = (
                 0 if n_iteration_hits > 0 else n_consecutive_failures + 1
             )
+            coefficient = self._compute_next_coefficient(coefficient, n_iteration_hits)
+            logger.info(f"Coefficient for iteration {iteration + 1}: {coefficient}")
             self._update_metrics(
                 iteration_hits=iteration_hits,
                 n_consecutive_failures=n_consecutive_failures,
                 al_iteration_result=al_iteration_result,
             )
 
-            # Check convergence
-            converged, stop_reasons = self._check_convergence(
+            # Check stopping criteria
+            should_stop, stop_reasons = self._check_stopping_criteria(
                 n_total_suggestions=n_total_suggestions,
                 n_total_hits=n_total_hits,
                 n_consecutive_failures=n_consecutive_failures,
             )
-            if converged:
-                logger.info(f"AL - Simulation converged after {iteration} iterations!")
+            if should_stop:
+                logger.info(f"AL - Simulation stopped after {iteration} iterations!")
                 self.al_simulation_result.stop_reasons = stop_reasons
                 return TaskDTO(
                     status=TaskStatus.FINISHED,
@@ -524,11 +522,11 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                 for data_point in current_data_with_masking
             ]
 
-        # Max iterations exceeded without convergence
-        logger.info("AL - Simulation max iterations exceeded without convergence!")
+        # Max iterations exceeded without any other stopping criterion
+        logger.info("AL - Simulation max iterations exceeded without stopping!")
         self.al_simulation_result.stop_reasons = [
-            f"Maximum number of iterations ({_ActiveLearningSimulationFixedParameters.n_max_iterations()}) "
-            f"exceeded without convergence!"
+            f"Maximum number of iterations ({n_max_iterations}) "
+            f"exceeded without meeting any other stopping criterion!"
         ]
         return TaskDTO(
             status=TaskStatus.FINISHED, al_simulation_result=self.al_simulation_result

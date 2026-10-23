@@ -1,7 +1,3 @@
-//
-// AUTO-GENERATED FILE, DO NOT MODIFY!
-//
-
 // Convenience exports for custom clients built atop the generated API
 
 export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask;
@@ -14,6 +10,7 @@ export 'src/model/split_hbi_response.dart' show SplitHBIResponse;
 export 'src/extensions/serialization_extensions.dart';
 export 'src/extensions/bootstrapped_metric_ext.dart';
 export 'src/extensions/string_extensions.dart';
+export 'src/extensions/enum_wire_name_extensions.dart';
 export 'src/extensions/biotrainer_model_result_ext.dart';
 export 'src/model/training_result.dart' show TrainingResult;
 export 'src/model/test_result.dart' show TestResult;
@@ -32,6 +29,8 @@ export 'src/model/research_stats.dart' show ResearchStats;
 export 'src/model/common_embedder.dart' show CommonEmbedder;
 export 'src/model/active_learning_screening_campaign_config.dart' show ActiveLearningScreeningCampaignConfig;
 export 'src/model/active_learning_screening_iteration_config.dart' show ActiveLearningScreeningIterationConfig;
+export 'src/model/active_learning_engineering_campaign_config.dart' show ActiveLearningEngineeringCampaignConfig;
+export 'src/model/active_learning_engineering_iteration_config.dart' show ActiveLearningEngineeringIterationConfig;
 export 'src/model/active_learning_model_type.dart' show ActiveLearningModelType;
 export 'src/model/active_learning_optimization_mode.dart' show ActiveLearningOptimizationMode;
 export 'src/model/active_learning_iteration_result.dart' show ActiveLearningIterationResult;

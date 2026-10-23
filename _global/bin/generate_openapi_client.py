@@ -116,6 +116,7 @@ def read_generated_files_list(files_list_path: Path):
 def prune_outdated_generated_code(lang_root: Path, generated_files: set):
     """Delete files under biocentral_api/_generated that are no longer generated.
 
+    Args:
     - lang_root: path to the python folder (e.g., repo/python)
     - generated_files: set of relative paths (as in .openapi-generator/FILES) rooted at lang_root
     """
@@ -148,62 +149,31 @@ def prune_outdated_generated_code(lang_root: Path, generated_files: set):
             pass
 
 
-def prune_outdated_generated_code_dart(lang_root: Path, generated_files: set):
-    """Delete generated Dart files under lib/ that are no longer generated.
+def prune_outdated_generated_code_dart(
+    lang_root: Path, previous_files: set, current_files: set
+):
+    """Delete Dart files the previous generation emitted that this one no longer does.
 
+    Args:
     - lang_root: path to the dart folder (e.g., repo/dart)
-    - generated_files: set of relative paths (as in .openapi-generator/FILES) rooted at lang_root
-
-    Safety: Only prune within directories that contain generated files (as reported in FILES),
-    so manual Dart sources in other lib/ subfolders (e.g., lib/src/clients) are not touched.
+    - previous_files: .openapi-generator/FILES as it was *before* this generation
+    - current_files: .openapi-generator/FILES as written by this generation
     """
-    excluded_dirs = ["clients", "tasks"]
-    excluded_files = ["high_level_api.dart"]
-    target_rel_prefix = "lib/"
-    lib_dir = lang_root / "lib"
+    stale = {p for p in previous_files - current_files if p.startswith("lib/")}
 
-    if not lib_dir.exists():
-        return
-
-    # Build the allow-list for files under lib/
-    allow = {p for p in generated_files if p.startswith(target_rel_prefix)}
-
-    # Build set of directories that contain generated files; limit pruning to these
-    prune_dirs = set()
-    for p in allow:
-        d = (lang_root / p).parent
-        # Ensure the directory is within lib/
-        try:
-            d.relative_to(lib_dir)
-            prune_dirs.add(d)
-        except ValueError:
-            # Outside lib/, ignore
-            continue
-
-    # Also include lib root if there are generated files directly under lib/
-    has_lib_root_files = any(Path(p).parent.as_posix() == "lib" for p in allow)
-    if has_lib_root_files:
-        prune_dirs.add(lib_dir)
-
-    # Normalize allow to absolute Path objects for faster membership checks
-    allow_abs = {(lang_root / p).as_posix() for p in allow}
-
-    # Walk each prune_dir subtree and delete files not present in allow list
-    for dir_root in sorted(prune_dirs):
-        for root, _, files in os.walk(dir_root, topdown=False):
-            if root.split("/")[-1] in excluded_dirs:
+    for rel in sorted(stale):
+        candidates = [rel]
+        if rel.endswith(".dart") and not rel.endswith(".g.dart"):
+            candidates.append(rel[: -len(".dart")] + ".g.dart")
+        for candidate in candidates:
+            full_path = lang_root / candidate
+            if not full_path.is_file():
                 continue
-            for fname in files:
-                if fname in excluded_files:
-                    continue
-                full_path = Path(root) / fname
-                if full_path.as_posix() not in allow_abs:
-                    rel_from_lang = full_path.relative_to(lang_root).as_posix()
-                    print(f"Removing outdated generated Dart file: {rel_from_lang}")
-                    try:
-                        full_path.unlink()
-                    except Exception as e:
-                        print(f"Failed to remove {full_path}: {e}")
+            print(f"Removing outdated generated Dart file: {candidate}")
+            try:
+                full_path.unlink()
+            except Exception as e:
+                print(f"Failed to remove {full_path}: {e}")
 
 
 def git_add_generated_files(lang_root: Path, language: str):
@@ -410,6 +380,11 @@ def generate_dart(openapi_spec: Path, dart_target_dir: Path):
 
     existing_manual_docs = list(os.listdir(temp_docs_dir))
 
+    # Snapshot the generator's own file list before it is overwritten; the prune step
+    # below uses it to tell generated files apart from hand-written ones.
+    files_list_path = output_dir / ".openapi-generator" / "FILES"
+    previous_files = read_generated_files_list(files_list_path)
+
     # Prepare the openapi-generator command
     generator_command = [
         "openapi-generator-cli",
@@ -465,11 +440,11 @@ def generate_dart(openapi_spec: Path, dart_target_dir: Path):
     else:
         print("No generated documentation found to move")
 
-    # After generation and (optional) doc move, prune outdated Dart generated files based on the current FILES list
-    files_list_path = output_dir / ".openapi-generator" / "FILES"
-    generated_files = read_generated_files_list(files_list_path)
-    if generated_files:
-        prune_outdated_generated_code_dart(output_dir, generated_files)
+    # Prune files the previous run generated that this one did not. previous_files was
+    # captured before the generator overwrote FILES.
+    current_files = read_generated_files_list(files_list_path)
+    if current_files:
+        prune_outdated_generated_code_dart(output_dir, previous_files, current_files)
     else:
         print("Warning: No generated files list found for Dart; skipping prune step.")
 
