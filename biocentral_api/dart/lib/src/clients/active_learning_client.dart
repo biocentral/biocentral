@@ -22,7 +22,7 @@ class _ActiveLearningIterationDTOHandler extends DtoHandler<ActiveLearningIterat
 
 class ActiveLearningClient {
   /// Start a prediction task using provided model names and sequences.
-  Future<BiocentralServerTask<ActiveLearningIterationResult>> activeLearningIteration({
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alScreeningIteration({
     required gen.BiocentralApi api,
     required ActiveLearningScreeningCampaignConfig campaignConfig,
     required ActiveLearningScreeningIterationConfig iterationConfig,
@@ -42,7 +42,7 @@ class ActiveLearningClient {
   }
 
   /// Start an active learning engineering iteration.
-  Future<BiocentralServerTask<ActiveLearningIterationResult>> engineeringIteration({
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alEngineeringIteration({
     required gen.BiocentralApi api,
     required ActiveLearningEngineeringCampaignConfig campaignConfig,
     required ActiveLearningEngineeringIterationConfig iterationConfig,

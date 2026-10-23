@@ -597,7 +597,7 @@ class BiocentralAPI:
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
-            biocentral_server_task = active_learning_client.al_simulation(
+            biocentral_server_task = active_learning_client.al_screening_simulation(
                 api_client, campaign_config, simulation_config
             )
             return biocentral_server_task

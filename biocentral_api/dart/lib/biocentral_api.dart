@@ -2,15 +2,7 @@
 
 export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask;
 export 'src/high_level_api.dart'
-    show
-        BiocentralAPI,
-        BiocentralAPIHealth,
-        CustomModelsAPI,
-        EmbeddingAPI,
-        PredictAPI,
-        ProteinsAPI,
-        ActiveLearningAPI,
-        ProteinEngineeringAPI;
+    show BiocentralAPI, BiocentralAPIHealth, CustomModelsAPI, EmbeddingAPI, PredictAPI, ProteinsAPI, ActiveLearningAPI;
 export 'src/model/model_metadata.dart' show ModelMetadata;
 export 'src/model/bootstrapped_metric.dart' show BootstrappedMetric;
 export 'src/model/cluster_hbi_response.dart' show ClusterHBIResponse;
