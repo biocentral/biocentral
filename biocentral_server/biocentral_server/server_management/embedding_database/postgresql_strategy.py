@@ -153,8 +153,10 @@ class PostgreSQLStrategy(DatabaseStrategy):
 
                     db_results = cur.fetchall()
 
-                    # Update access tracking (async). Rows locked by a concurrent save are
-                    # skipped: waiting for them while holding our own locks can deadlock
+                    # Update access tracking (async). Rows locked by another transaction
+                    # are skipped since waiting for them while holding won locks can
+                    # deadlock. Cost of the skip is irrelevant since it is at most an
+                    # increment of access_count.
                     if db_results:
                         found_hashes = [row[0] for row in db_results]
                         cur.execute(
