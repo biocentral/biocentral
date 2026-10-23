@@ -1,5 +1,7 @@
+import time
 import torch
 import blosc2
+import random
 import psycopg
 import numpy as np
 
@@ -12,6 +14,11 @@ from .database_strategy import DatabaseStrategy
 from ...utils import get_logger
 
 logger = get_logger(__name__)
+
+# Attempts per save
+_SAVE_ATTEMPTS = 3
+# Own generator for the retry jitter: the global one is seeded for reproducible AL runs
+_retry_jitter = random.Random()
 
 
 class PostgreSQLStrategy(DatabaseStrategy):
@@ -86,30 +93,45 @@ class PostgreSQLStrategy(DatabaseStrategy):
         return torch.from_numpy(numpy_array)
 
     def save_embeddings(self, embeddings_data: List[EmbeddingDatabaseDTO]):
+        # Write in primary key order so concurrent jobs saving the same rows in different
+        # orders don't deadlock
         embeddings_data = [
             embd_data.compressed(self.compress_embedding).to_tuple()
-            for embd_data in embeddings_data
+            for embd_data in sorted(
+                embeddings_data,
+                key=lambda embd_data: (embd_data.hash_key, embd_data.embedder_name),
+            )
         ]
-        try:
-            with self._get_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.executemany(
-                        """
-                        INSERT INTO embeddings
-                        (sequence_hash, sequence_length, access_count, created_at, last_accessed, embedder_name, per_sequence, per_residue, keep)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        ON CONFLICT (sequence_hash, embedder_name) DO UPDATE SET last_accessed = EXCLUDED.last_accessed,
-                                                                                 per_sequence  = COALESCE(EXCLUDED.per_sequence, embeddings.per_sequence),
-                                                                                 per_residue   = COALESCE(EXCLUDED.per_residue, embeddings.per_residue),
-                                                                                 keep          = EXCLUDED.keep
-                        """,
-                        embeddings_data,
-                    )
-                conn.commit()
-            return True
-        except Exception as e:
-            logger.error(f"Error saving embeddings: {e}")
-            return False
+        for attempt in range(1, _SAVE_ATTEMPTS + 1):
+            try:
+                with self._get_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.executemany(
+                            """
+                            INSERT INTO embeddings
+                            (sequence_hash, sequence_length, access_count, created_at, last_accessed, embedder_name, per_sequence, per_residue, keep)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (sequence_hash, embedder_name) DO UPDATE SET last_accessed = EXCLUDED.last_accessed,
+                                                                                     per_sequence  = COALESCE(EXCLUDED.per_sequence, embeddings.per_sequence),
+                                                                                     per_residue   = COALESCE(EXCLUDED.per_residue, embeddings.per_residue),
+                                                                                     keep          = EXCLUDED.keep
+                            """,
+                            embeddings_data,
+                        )
+                    conn.commit()
+                return True
+            except psycopg.errors.DeadlockDetected as e:
+                if attempt == _SAVE_ATTEMPTS:
+                    logger.error(f"Error saving embeddings: {e}")
+                    raise
+                logger.warning(
+                    f"Deadlock while saving embeddings, retrying ({attempt}/{_SAVE_ATTEMPTS})"
+                )
+                # Jittered, so the transactions that deadlocked do not collide again
+                time.sleep(_retry_jitter.uniform(0.1, 0.5) * attempt)
+            except Exception as e:
+                logger.error(f"Error saving embeddings: {e}")
+                raise
 
     def get_embeddings(
         self, sequences: Dict[str, str], embedder_name: str
@@ -131,17 +153,24 @@ class PostgreSQLStrategy(DatabaseStrategy):
 
                     db_results = cur.fetchall()
 
-                    # Update access tracking (async)
+                    # Update access tracking (async). Rows locked by another transaction
+                    # are skipped since waiting for them while holding won locks can
+                    # deadlock. Cost of the skip is irrelevant since it is at most an
+                    # increment of access_count.
                     if db_results:
                         found_hashes = [row[0] for row in db_results]
                         cur.execute(
-                            f"""
-                                           UPDATE embeddings
-                                           SET last_accessed = CURRENT_TIMESTAMP,
-                                               access_count = access_count + 1
-                                           WHERE sequence_hash IN ({placeholders}) AND embedder_name = %s
-                                       """,
-                            found_hashes + [embedder_name],
+                            """
+                            UPDATE embeddings
+                            SET last_accessed = CURRENT_TIMESTAMP,
+                                access_count  = access_count + 1
+                            WHERE (sequence_hash, embedder_name) IN (SELECT sequence_hash, embedder_name
+                                                                     FROM embeddings
+                                                                     WHERE sequence_hash = ANY (%s)
+                                                                       AND embedder_name = %s
+                                                                         FOR UPDATE SKIP LOCKED)
+                            """,
+                            [found_hashes, embedder_name],
                         )
                     conn.commit()
 
