@@ -1,7 +1,3 @@
-//
-// AUTO-GENERATED FILE, DO NOT MODIFY!
-//
-
 // Convenience exports for custom clients built atop the generated API
 
 export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask;
