@@ -543,6 +543,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             sequence_input=simulation_data,
             reduced=True,
             update_dto_callback=update_dto_callback,
+            seed=self.al_campaign_config.seed,
         )
         if error_dto:
             return error_dto
