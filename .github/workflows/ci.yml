@@ -312,9 +312,8 @@ jobs:
         with:
           channel: stable
           flutter-version-file: biocentral_ire/pubspec.yaml
-      - run: |
-          flutter upgrade
-          flutter pub get
+          cache: true
+      - run: flutter pub get
 
       - name: Create Launcher Icons
         run: dart run flutter_launcher_icons

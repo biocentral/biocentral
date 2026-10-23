@@ -14,6 +14,7 @@ runs:
       with:
         channel: stable
         flutter-version-file: biocentral_ire/pubspec.yaml
+        cache: true
 
     - name: Get Flutter dependencies
       shell: bash
