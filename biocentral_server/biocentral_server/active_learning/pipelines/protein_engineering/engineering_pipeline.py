@@ -31,6 +31,7 @@ def al_engineering_pipeline(
         al_training_data=al_iteration_config.training_data,
         base_sequences=al_iteration_config.base_sequences
         or [al_campaign_config.wildtype_sequence],
+        wildtype_sequence=al_campaign_config.wildtype_sequence,
         embedding_subtask_wrapper=embedding_subtask_wrapper,
         biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
         iteration=al_iteration_config.iteration,
