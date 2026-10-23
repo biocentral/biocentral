@@ -21,6 +21,7 @@ class EngineeringPipelineContext(ALContext):
         embedder_name: str,
         al_training_data: List[SequenceData],
         base_sequences: List[str],
+        wildtype_sequence: str,
         embedding_subtask_wrapper: Callable[
             [List[SequenceData]], Tuple[Optional[TaskDTO], List[SequenceData]]
         ],
@@ -59,6 +60,7 @@ class EngineeringPipelineContext(ALContext):
 
         # Mutation Generation Step
         self.base_sequences = base_sequences
+        self.wildtype_sequence = wildtype_sequence
         self.n_mutations = n_mutations
         self.mutation_depth: int = 1  # TODO CONFIG
         self.mutations: Optional[List[str]] = None

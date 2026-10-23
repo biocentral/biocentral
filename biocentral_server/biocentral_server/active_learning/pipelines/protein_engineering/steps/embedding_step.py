@@ -1,24 +1,7 @@
 from junban import PipelineStep
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import SequenceData, Variant
 
 from ..engineering_pipeline_context import EngineeringPipelineContext
-
-
-def mutation_descriptor(parent_sequence: str, variant_sequence: str) -> str:
-    """Describe substitutions relative to the round's parent using one-based positions"""
-    if len(parent_sequence) != len(variant_sequence):
-        raise ValueError("Mutation descriptors do not support insertions or deletions")
-
-    substitutions = [
-        f"{parent}{position}{variant}"
-        for position, (parent, variant) in enumerate(
-            zip(parent_sequence, variant_sequence), start=1
-        )
-        if parent != variant
-    ]
-    if not substitutions:
-        raise ValueError("A mutation must differ from its parent sequence")
-    return ":".join(substitutions)
 
 
 class EmbeddingStep(PipelineStep[EngineeringPipelineContext]):
@@ -43,7 +26,12 @@ class EmbeddingStep(PipelineStep[EngineeringPipelineContext]):
     ) -> EngineeringPipelineContext:
         mutations = context.mutations
         mutations_seq_data = [
-            SequenceData(seq_id=mutation_descriptor(context.base_sequences[0], mutation), seq=mutation)
+            SequenceData(
+                seq_id=Variant.from_sequences(
+                    context.wildtype_sequence, mutation
+                ).to_string(),
+                seq=mutation,
+            )
             for mutation in mutations
         ]
         mutation_data_hashed = {
