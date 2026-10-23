@@ -40,6 +40,7 @@ jobs:
           filters: |
             server:
               - 'biocentral_server/**'
+              - '.github/**'
             api:
               - 'biocentral_api/**'
               - 'biocentral_server/**'
@@ -51,6 +52,8 @@ jobs:
               - 'biocentral_vis/**'
             ire:
               - 'biocentral_ire/**'
+              - 'biocentral_api/dart/**'
+              - '.github/**'
 
   # ════════════════════════════════════════════════════════════
   #  Stage 1 – Unit Tests
@@ -225,10 +228,12 @@ jobs:
   build-server-docker:
     name: "📦 Stage 3 · Build Server Docker Image"
     needs:
+      - changes
       - server-unit-tests
       - api-integration-tests
     if: |
       always() &&
+      (github.event_name != 'pull_request' || needs.changes.outputs.server == 'true') &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
@@ -277,10 +282,12 @@ jobs:
   build-ire-app:
     name: "📦 Stage 3 · Build IRE App"
     needs:
+      - changes
       - ire-unit-widget-tests
       - ire-integration-tests
     if: |
       always() &&
+      (github.event_name != 'pull_request' || needs.changes.outputs.ire == 'true') &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     runs-on: ${{ matrix.os }}
@@ -312,9 +319,8 @@ jobs:
         with:
           channel: stable
           flutter-version-file: biocentral_ire/pubspec.yaml
-      - run: |
-          flutter upgrade
-          flutter pub get
+          cache: true
+      - run: flutter pub get
 
       - name: Create Launcher Icons
         run: dart run flutter_launcher_icons
