@@ -161,7 +161,7 @@ class ActiveLearningClient(ClientInterface):
             task_id=task_id, api_client=api_client, dto_handler=al_iteration_dto_handler
         )
 
-    def al_simulation(
+    def al_screening_simulation(
             self,
             api_client: ApiClient,
             campaign_config: ActiveLearningScreeningCampaignConfig,

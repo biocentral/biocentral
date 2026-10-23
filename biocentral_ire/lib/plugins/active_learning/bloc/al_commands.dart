@@ -101,7 +101,7 @@ class ALIterationCommand extends BiocentralCommand<ActiveLearningIterationResult
     );
 
     final biocentralAPI = _apiRepository.getBiocentralAPI();
-    final biocentralTask = await biocentralAPI.activeLearningIteration(
+    final biocentralTask = await biocentralAPI.alScreeningIteration(
       campaignConfig: _campaign.config,
       iterationConfig: _iterationConfig,
     );
