@@ -29,7 +29,11 @@ dependencies = [
     "click>=8.4.2,<9.0.0",
     "pyrate-limiter>=3.0.0",
     # Git Dependencies
-    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@2d7e150823a226bdf34543685eaa3b584fb78544",
+    # Fork pin: carries Variant.from_sequences, not yet in an upstream release.
+    # biotrainer-core is a separate distribution, so it has to be pinned alongside;
+    # CI and Docker run `uv sync --no-sources` and would otherwise take 2.1.1 from PyPI.
+    "biotrainer @ git+https://github.com/JSchlensok/biotrainer.git@a3efd746a4a58648598d0e9b29b83c50e17f197a",
+    "biotrainer-core @ git+https://github.com/JSchlensok/biotrainer.git@a3efd746a4a58648598d0e9b29b83c50e17f197a#subdirectory=biotrainer-core",
     #"biotrainer>=2.0.0,<2.1.0",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v4.8.2#subdirectory=apps/protspace",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
@@ -62,6 +66,9 @@ dev = [
 
 [tool.uv.sources]
 biotrainer = { path = "../biotrainer", editable = true }
+# Mirrors the biotrainer source so local work uses the submodule; the git pin above
+# only applies under --no-sources (CI, Docker).
+biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"
