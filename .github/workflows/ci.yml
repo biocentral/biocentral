@@ -78,7 +78,7 @@ jobs:
 
       - name: "Run server unit tests"
         run: |
-          uv run pytest tests/unit/ -v -W "ignore::DeprecationWarning"
+          uv run --no-sync pytest tests/unit/ -v -W "ignore::DeprecationWarning"
 
   vis-unit-tests:
     name: "🧪 Stage 1 · Vis Unit Tests"
@@ -173,7 +173,7 @@ jobs:
         shell: bash
         working-directory: biocentral_server
         run: |
-          uv run python run-local.py &
+          uv run --no-sync python run-local.py &
           # Wait for server to be ready
           for i in {1..30}; do
             if curl -s http://localhost:9540/health > /dev/null; then
