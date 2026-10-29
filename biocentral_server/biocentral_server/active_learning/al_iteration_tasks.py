@@ -96,10 +96,12 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
         self,
         al_campaign_config: ActiveLearningEngineeringCampaignConfig,
         al_iteration_config: ActiveLearningEngineeringIterationConfig,
+        candidate_pool: Optional[List[str]] = None,
     ):
         super().__init__()
         self.al_campaign_config = al_campaign_config
         self.al_iteration_config = al_iteration_config
+        self.candidate_pool = candidate_pool
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Seed all random generators for reproducibility
@@ -131,6 +133,7 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
                 config=config,
                 input_data=input_data,
             ),
+            candidate_pool=self.candidate_pool,
         )
 
         logger.info(f"AL Engineering - Suggestions: {al_iteration_result.suggestions}")
