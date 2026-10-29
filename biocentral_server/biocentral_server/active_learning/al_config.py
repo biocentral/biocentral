@@ -261,8 +261,8 @@ class ActiveLearningStoppingConfig(BaseModel):
         return self
 
 
-class ActiveLearningScreeningSimulationConfig(BaseModel):
-    """Configuration for a simulation of active learning on a complete dataset"""
+class _ActiveLearningSimulationConfig(BaseModel):
+    """Fields and checks shared by screening and engineering simulations"""
 
     simulation_data: List[SequenceData] = Field(
         description="List of all sequence data for the simulation", min_length=3
@@ -292,12 +292,6 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
         "(modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.",
         gt=0.0,
         lt=50.0,
-    )
-    hit_target_delta: float = Field(
-        default=0.5,
-        description="Absolute tolerance around the target value that counts as a hit "
-        "(mode: VALUE)",
-        gt=0.0,
     )
 
     @field_validator("simulation_data")
@@ -332,4 +326,47 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
             )
             if not start_ids_unique.issubset(simulation_ids):
                 raise ValueError("start_ids not a subset of simulation_data ids!")
+        return self
+
+
+class ActiveLearningScreeningSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulation of active learning on a complete dataset"""
+
+    hit_target_delta: float = Field(
+        default=0.5,
+        description="Absolute tolerance around the target value that counts as a hit "
+        "(mode: VALUE)",
+        gt=0.0,
+    )
+
+
+class ActiveLearningEngineeringSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulated engineering campaign over a labelled landscape.
+
+    Each round scores candidates drawn from simulation_data, so every suggestion has a
+    label to reveal. Engineering campaigns only maximize or minimize, so there is no
+    hit_target_delta.
+    """
+
+    n_candidates_per_iteration: int = Field(
+        default=1000,
+        description="Number of unlabelled landscape variants to score per iteration",
+        ge=1,
+    )
+
+    @field_validator("simulation_data")
+    @classmethod
+    def validate_unique_sequences(cls, v: List[SequenceData]):
+        # Suggestions are matched back to the landscape by sequence
+        sequences = [data_point.seq for data_point in v]
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("simulation_data contains duplicate sequences!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_candidates(self):
+        if self.n_candidates_per_iteration < self.n_suggestions_per_iteration:
+            raise ValueError(
+                "n_candidates_per_iteration must be at least n_suggestions_per_iteration"
+            )
         return self
