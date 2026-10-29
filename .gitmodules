@@ -1,4 +1,4 @@
 [submodule "biotrainer"]
 	path = biotrainer
-	url = https://github.com/sacdallago/biotrainer.git
-	branch = develop
+	url = https://github.com/JSchlensok/biotrainer.git
+	branch = feat/variant-from-sequences
