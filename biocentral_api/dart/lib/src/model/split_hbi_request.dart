@@ -242,4 +242,3 @@ class _$SplitHBIRequestSerializer implements PrimitiveSerializer<SplitHBIRequest
   }
 }
 
-

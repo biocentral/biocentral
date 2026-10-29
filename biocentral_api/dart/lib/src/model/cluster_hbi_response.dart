@@ -124,4 +124,3 @@ class _$ClusterHBIResponseSerializer implements PrimitiveSerializer<ClusterHBIRe
   }
 }
 
-

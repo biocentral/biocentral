@@ -17,6 +17,8 @@ import 'package:biocentral_api/src/model/date.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_campaign_config.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_iteration_config.dart';
 import 'package:biocentral_api/src/model/active_learning_engineering_iteration_request.dart';
+import 'package:biocentral_api/src/model/active_learning_engineering_simulation_config.dart';
+import 'package:biocentral_api/src/model/active_learning_engineering_simulation_request.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
 import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
@@ -109,6 +111,8 @@ part 'serializers.g.dart';
   ActiveLearningEngineeringCampaignConfig,
   ActiveLearningEngineeringIterationConfig,
   ActiveLearningEngineeringIterationRequest,
+  ActiveLearningEngineeringSimulationConfig,
+  ActiveLearningEngineeringSimulationRequest,
   ActiveLearningIterationResult,
   ActiveLearningModelType,
   ActiveLearningOptimizationMode,
