@@ -205,6 +205,7 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       'optimizationMode': optimizationMode.name,
       'seed': seed,
       'wildtypeSequence': wildtypeSequence,
+      'useDeltaEmbeddings': useDeltaEmbeddings,
     };
   }
 
@@ -215,7 +216,8 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       ..modelType = ActiveLearningModelType.valueOf(jsonMap['modelType'] as String)
       ..optimizationMode = ActiveLearningOptimizationMode.valueOf(jsonMap['optimizationMode'] as String)
       ..seed = jsonMap['seed'] as int?
-      ..wildtypeSequence = jsonMap['wildtypeSequence'] as String);
+      ..wildtypeSequence = jsonMap['wildtypeSequence'] as String
+      ..useDeltaEmbeddings = jsonMap['useDeltaEmbeddings'] as bool?);
   }
 }
 
