@@ -7,6 +7,7 @@ from .al_config import (
     ActiveLearningEngineeringIterationConfig,
     ActiveLearningOptimizationMode,
     ActiveLearningScreeningSimulationConfig,
+    ActiveLearningEngineeringSimulationConfig,
 )
 
 
@@ -82,6 +83,29 @@ class ActiveLearningEngineeringIterationRequest(BaseModel):
             if len(base_sequence) != wildtype_length:
                 raise ValueError(
                     "All base_sequences must have the same length as the "
+                    "wildtype sequence, indels are not supported"
+                )
+
+        return self
+
+
+class ActiveLearningEngineeringSimulationRequest(BaseModel):
+    """Request model for an active learning engineering simulation"""
+
+    campaign_config: ActiveLearningEngineeringCampaignConfig = Field(
+        description="Engineering campaign configuration"
+    )
+    simulation_config: ActiveLearningEngineeringSimulationConfig = Field(
+        description="Simulation configuration"
+    )
+
+    @model_validator(mode="after")
+    def validate_sequence_lengths(self):
+        wildtype_length = len(self.campaign_config.wildtype_sequence)
+        for data_point in self.simulation_config.simulation_data:
+            if len(data_point.seq) != wildtype_length:
+                raise ValueError(
+                    "All simulation_data sequences must have the same length as the "
                     "wildtype sequence, indels are not supported"
                 )
 

@@ -5,9 +5,13 @@ from .endpoint_models import (
     ActiveLearningScreeningIterationRequest,
     ActiveLearningEngineeringIterationRequest,
     ActiveLearningScreeningSimulationRequest,
+    ActiveLearningEngineeringSimulationRequest,
 )
 
-from .al_simulation_task import ActiveLearningScreeningSimulationTask
+from .al_simulation_task import (
+    ActiveLearningScreeningSimulationTask,
+    ActiveLearningEngineeringSimulationTask,
+)
 from .al_iteration_tasks import (
     ActiveLearningScreeningIterationTask,
     ActiveLearningEngineeringIterationTask,
@@ -151,6 +155,40 @@ async def active_learning_screening_simulation(
 
     # Launch AL process
     al_process = ActiveLearningScreeningSimulationTask(
+        al_campaign_config=request_data.campaign_config,
+        al_simulation_config=request_data.simulation_config,
+    )
+    task_manager.add_task(task=al_process, task_id=task_id, user_id=user_id)
+
+    return StartTaskResponse(task_id=task_id)
+
+
+@router.post(
+    "/engineering_simulation",
+    response_model=StartTaskResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Validation Error"},
+    },
+    summary="Run a simulated active learning engineering campaign",
+    description="Submit an active learning engineering simulation job",
+    dependencies=[Depends(RateLimiter(times=2, seconds=60))],
+)
+async def active_learning_engineering_simulation(
+    request_data: ActiveLearningEngineeringSimulationRequest, request: Request
+):
+    """Run a simulated engineering campaign over a labelled landscape.
+
+    Each iteration scores a sample of unlabelled landscape variants through the
+    engineering pipeline and reveals the labels of its suggestions.
+    """
+    user_id = await UserManager.get_user_id_from_request(req=request)
+
+    task_manager = TaskManager()
+    task_id = task_manager.get_unique_task_id(
+        task=ActiveLearningEngineeringSimulationTask
+    )
+
+    al_process = ActiveLearningEngineeringSimulationTask(
         al_campaign_config=request_data.campaign_config,
         al_simulation_config=request_data.simulation_config,
     )
