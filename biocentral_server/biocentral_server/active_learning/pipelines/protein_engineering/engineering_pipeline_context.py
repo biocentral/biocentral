@@ -31,6 +31,7 @@ class EngineeringPipelineContext(ALContext):
         n_suggestions: int,
         seed: int,
         n_mutations: int,
+        candidate_pool: Optional[List[str]] = None,
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,
         al_target_ub: Optional[float] = None,
@@ -62,5 +63,7 @@ class EngineeringPipelineContext(ALContext):
         self.base_sequences = base_sequences
         self.wildtype_sequence = wildtype_sequence
         self.n_mutations = n_mutations
+        # Sequences to score instead of generating mutations, e.g. a labelled landscape
+        self.candidate_pool = candidate_pool
         self.mutation_depth: int = 1  # TODO CONFIG
         self.mutations: Optional[List[str]] = None
