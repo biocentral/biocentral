@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **optimizationMode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **wildtypeSequence** | **String** | Wildtype sequence to engineer | 
+**useDeltaEmbeddings** | **bool** | Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only) | [optional] [default to false]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

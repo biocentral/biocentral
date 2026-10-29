@@ -18,6 +18,8 @@ biocentral_api/_generated/models/__init__.py
 biocentral_api/_generated/models/active_learning_engineering_campaign_config.py
 biocentral_api/_generated/models/active_learning_engineering_iteration_config.py
 biocentral_api/_generated/models/active_learning_engineering_iteration_request.py
+biocentral_api/_generated/models/active_learning_engineering_simulation_config.py
+biocentral_api/_generated/models/active_learning_engineering_simulation_request.py
 biocentral_api/_generated/models/active_learning_iteration_result.py
 biocentral_api/_generated/models/active_learning_model_type.py
 biocentral_api/_generated/models/active_learning_optimization_mode.py
@@ -41,6 +43,8 @@ biocentral_api/_generated/models/biotrainer_model_result.py
 biocentral_api/_generated/models/biotrainer_model_update.py
 biocentral_api/_generated/models/biotrainer_prediction.py
 biocentral_api/_generated/models/bootstrapped_metric.py
+biocentral_api/_generated/models/cluster_hbi_request.py
+biocentral_api/_generated/models/cluster_hbi_response.py
 biocentral_api/_generated/models/clustering_request.py
 biocentral_api/_generated/models/common_embedder.py
 biocentral_api/_generated/models/config_options_response.py
@@ -86,6 +90,8 @@ biocentral_api/_generated/models/research_stats_response.py
 biocentral_api/_generated/models/run_test_request.py
 biocentral_api/_generated/models/run_test_response.py
 biocentral_api/_generated/models/service_stats_response.py
+biocentral_api/_generated/models/split_hbi_request.py
+biocentral_api/_generated/models/split_hbi_response.py
 biocentral_api/_generated/models/start_inference_request.py
 biocentral_api/_generated/models/start_task_response.py
 biocentral_api/_generated/models/start_training_request.py
@@ -104,6 +110,8 @@ docs/ActiveLearningApi.md
 docs/ActiveLearningEngineeringCampaignConfig.md
 docs/ActiveLearningEngineeringIterationConfig.md
 docs/ActiveLearningEngineeringIterationRequest.md
+docs/ActiveLearningEngineeringSimulationConfig.md
+docs/ActiveLearningEngineeringSimulationRequest.md
 docs/ActiveLearningIterationResult.md
 docs/ActiveLearningModelType.md
 docs/ActiveLearningOptimizationMode.md
@@ -128,6 +136,8 @@ docs/BiotrainerModelResult.md
 docs/BiotrainerModelUpdate.md
 docs/BiotrainerPrediction.md
 docs/BootstrappedMetric.md
+docs/ClusterHBIRequest.md
+docs/ClusterHBIResponse.md
 docs/ClusteringRequest.md
 docs/CommonEmbedder.md
 docs/ConfigOptionsResponse.md
@@ -181,6 +191,8 @@ docs/RunTestRequest.md
 docs/RunTestResponse.md
 docs/SequenceData.md
 docs/ServiceStatsResponse.md
+docs/SplitHBIRequest.md
+docs/SplitHBIResponse.md
 docs/StartInferenceRequest.md
 docs/StartTaskResponse.md
 docs/StartTrainingRequest.md

@@ -19,6 +19,7 @@ part 'active_learning_engineering_campaign_config.g.dart';
 /// * [optimizationMode] - Optimization mode selection
 /// * [seed] - Random seed for reproducibility.
 /// * [wildtypeSequence] - Wildtype sequence to engineer
+/// * [useDeltaEmbeddings] - Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
 @BuiltValue()
 abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLearningEngineeringCampaignConfig, ActiveLearningEngineeringCampaignConfigBuilder> {
   /// Name of the embedder model to use
@@ -47,12 +48,17 @@ abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLe
   @BuiltValueField(wireName: r'wildtype_sequence')
   String get wildtypeSequence;
 
+  /// Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+  @BuiltValueField(wireName: r'use_delta_embeddings')
+  bool? get useDeltaEmbeddings;
+
   ActiveLearningEngineeringCampaignConfig._();
 
   factory ActiveLearningEngineeringCampaignConfig([void updates(ActiveLearningEngineeringCampaignConfigBuilder b)]) = _$ActiveLearningEngineeringCampaignConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningEngineeringCampaignConfigBuilder b) => b;
+  static void _defaults(ActiveLearningEngineeringCampaignConfigBuilder b) => b
+      ..useDeltaEmbeddings = false;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningEngineeringCampaignConfig> get serializer => _$ActiveLearningEngineeringCampaignConfigSerializer();
@@ -102,6 +108,13 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
       object.wildtypeSequence,
       specifiedType: const FullType(String),
     );
+    if (object.useDeltaEmbeddings != null) {
+      yield r'use_delta_embeddings';
+      yield serializers.serialize(
+        object.useDeltaEmbeddings,
+        specifiedType: const FullType(bool),
+      );
+    }
   }
 
   @override
@@ -167,6 +180,14 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
             specifiedType: const FullType(String),
           ) as String;
           result.wildtypeSequence = valueDes;
+          break;
+        case r'use_delta_embeddings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
+          result.useDeltaEmbeddings = valueDes;
           break;
         default:
           unhandled.add(key);
