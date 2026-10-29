@@ -20,6 +20,8 @@ class _$ActiveLearningEngineeringCampaignConfig
   final int? seed;
   @override
   final String wildtypeSequence;
+  @override
+  final bool? useDeltaEmbeddings;
 
   factory _$ActiveLearningEngineeringCampaignConfig(
           [void Function(ActiveLearningEngineeringCampaignConfigBuilder)?
@@ -33,7 +35,8 @@ class _$ActiveLearningEngineeringCampaignConfig
       required this.modelType,
       required this.optimizationMode,
       this.seed,
-      required this.wildtypeSequence})
+      required this.wildtypeSequence,
+      this.useDeltaEmbeddings})
       : super._();
   @override
   ActiveLearningEngineeringCampaignConfig rebuild(
@@ -54,7 +57,8 @@ class _$ActiveLearningEngineeringCampaignConfig
         modelType == other.modelType &&
         optimizationMode == other.optimizationMode &&
         seed == other.seed &&
-        wildtypeSequence == other.wildtypeSequence;
+        wildtypeSequence == other.wildtypeSequence &&
+        useDeltaEmbeddings == other.useDeltaEmbeddings;
   }
 
   @override
@@ -66,6 +70,7 @@ class _$ActiveLearningEngineeringCampaignConfig
     _$hash = $jc(_$hash, optimizationMode.hashCode);
     _$hash = $jc(_$hash, seed.hashCode);
     _$hash = $jc(_$hash, wildtypeSequence.hashCode);
+    _$hash = $jc(_$hash, useDeltaEmbeddings.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -79,7 +84,8 @@ class _$ActiveLearningEngineeringCampaignConfig
           ..add('modelType', modelType)
           ..add('optimizationMode', optimizationMode)
           ..add('seed', seed)
-          ..add('wildtypeSequence', wildtypeSequence))
+          ..add('wildtypeSequence', wildtypeSequence)
+          ..add('useDeltaEmbeddings', useDeltaEmbeddings))
         .toString();
   }
 }
@@ -118,6 +124,11 @@ class ActiveLearningEngineeringCampaignConfigBuilder
   set wildtypeSequence(String? wildtypeSequence) =>
       _$this._wildtypeSequence = wildtypeSequence;
 
+  bool? _useDeltaEmbeddings;
+  bool? get useDeltaEmbeddings => _$this._useDeltaEmbeddings;
+  set useDeltaEmbeddings(bool? useDeltaEmbeddings) =>
+      _$this._useDeltaEmbeddings = useDeltaEmbeddings;
+
   ActiveLearningEngineeringCampaignConfigBuilder() {
     ActiveLearningEngineeringCampaignConfig._defaults(this);
   }
@@ -131,6 +142,7 @@ class ActiveLearningEngineeringCampaignConfigBuilder
       _optimizationMode = $v.optimizationMode;
       _seed = $v.seed;
       _wildtypeSequence = $v.wildtypeSequence;
+      _useDeltaEmbeddings = $v.useDeltaEmbeddings;
       _$v = null;
     }
     return this;
@@ -168,6 +180,7 @@ class ActiveLearningEngineeringCampaignConfigBuilder
               wildtypeSequence,
               r'ActiveLearningEngineeringCampaignConfig',
               'wildtypeSequence'),
+          useDeltaEmbeddings: useDeltaEmbeddings,
         );
     replace(_$result);
     return _$result;

@@ -207,4 +207,3 @@ class _$ClusterHBIRequestSerializer implements PrimitiveSerializer<ClusterHBIReq
   }
 }
 
-

@@ -17,8 +17,6 @@ class _$ActiveLearningScreeningSimulationConfig
   @override
   final int nSuggestionsPerIteration;
   @override
-  final num? coefficient;
-  @override
   final ActiveLearningStoppingConfig stoppingConfig;
   @override
   final num? hitPercentile;
@@ -36,7 +34,6 @@ class _$ActiveLearningScreeningSimulationConfig
       this.nStart,
       this.startIds,
       required this.nSuggestionsPerIteration,
-      this.coefficient,
       required this.stoppingConfig,
       this.hitPercentile,
       this.hitTargetDelta})
@@ -59,7 +56,6 @@ class _$ActiveLearningScreeningSimulationConfig
         nStart == other.nStart &&
         startIds == other.startIds &&
         nSuggestionsPerIteration == other.nSuggestionsPerIteration &&
-        coefficient == other.coefficient &&
         stoppingConfig == other.stoppingConfig &&
         hitPercentile == other.hitPercentile &&
         hitTargetDelta == other.hitTargetDelta;
@@ -72,7 +68,6 @@ class _$ActiveLearningScreeningSimulationConfig
     _$hash = $jc(_$hash, nStart.hashCode);
     _$hash = $jc(_$hash, startIds.hashCode);
     _$hash = $jc(_$hash, nSuggestionsPerIteration.hashCode);
-    _$hash = $jc(_$hash, coefficient.hashCode);
     _$hash = $jc(_$hash, stoppingConfig.hashCode);
     _$hash = $jc(_$hash, hitPercentile.hashCode);
     _$hash = $jc(_$hash, hitTargetDelta.hashCode);
@@ -88,7 +83,6 @@ class _$ActiveLearningScreeningSimulationConfig
           ..add('nStart', nStart)
           ..add('startIds', startIds)
           ..add('nSuggestionsPerIteration', nSuggestionsPerIteration)
-          ..add('coefficient', coefficient)
           ..add('stoppingConfig', stoppingConfig)
           ..add('hitPercentile', hitPercentile)
           ..add('hitTargetDelta', hitTargetDelta))
@@ -122,10 +116,6 @@ class ActiveLearningScreeningSimulationConfigBuilder
   set nSuggestionsPerIteration(int? nSuggestionsPerIteration) =>
       _$this._nSuggestionsPerIteration = nSuggestionsPerIteration;
 
-  num? _coefficient;
-  num? get coefficient => _$this._coefficient;
-  set coefficient(num? coefficient) => _$this._coefficient = coefficient;
-
   ActiveLearningStoppingConfigBuilder? _stoppingConfig;
   ActiveLearningStoppingConfigBuilder get stoppingConfig =>
       _$this._stoppingConfig ??= ActiveLearningStoppingConfigBuilder();
@@ -153,7 +143,6 @@ class ActiveLearningScreeningSimulationConfigBuilder
       _nStart = $v.nStart;
       _startIds = $v.startIds?.toBuilder();
       _nSuggestionsPerIteration = $v.nSuggestionsPerIteration;
-      _coefficient = $v.coefficient;
       _stoppingConfig = $v.stoppingConfig.toBuilder();
       _hitPercentile = $v.hitPercentile;
       _hitTargetDelta = $v.hitTargetDelta;
@@ -188,7 +177,6 @@ class ActiveLearningScreeningSimulationConfigBuilder
                 nSuggestionsPerIteration,
                 r'ActiveLearningScreeningSimulationConfig',
                 'nSuggestionsPerIteration'),
-            coefficient: coefficient,
             stoppingConfig: stoppingConfig.build(),
             hitPercentile: hitPercentile,
             hitTargetDelta: hitTargetDelta,
