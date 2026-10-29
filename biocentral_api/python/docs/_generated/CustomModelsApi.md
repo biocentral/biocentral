@@ -4,12 +4,83 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**cluster_hbi_api_v1_custom_models_service_cluster_hbi_post**](CustomModelsApi.md#cluster_hbi_api_v1_custom_models_service_cluster_hbi_post) | **POST** /api/v1/custom_models_service/cluster-hbi/ | Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
 [**config_options_api_v1_custom_models_service_config_options_protocol_get**](CustomModelsApi.md#config_options_api_v1_custom_models_service_config_options_protocol_get) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
 [**model_files_api_v1_custom_models_service_model_files_post**](CustomModelsApi.md#model_files_api_v1_custom_models_service_model_files_post) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
+[**split_hbi_api_v1_custom_models_service_split_hbi_post**](CustomModelsApi.md#split_hbi_api_v1_custom_models_service_split_hbi_post) | **POST** /api/v1/custom_models_service/split-hbi/ | Evaluate homology transfer between dataset splits via easy_search lookup
 [**start_inference_api_v1_custom_models_service_start_inference_post**](CustomModelsApi.md#start_inference_api_v1_custom_models_service_start_inference_post) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**start_training_api_v1_custom_models_service_start_training_post**](CustomModelsApi.md#start_training_api_v1_custom_models_service_start_training_post) | **POST** /api/v1/custom_models_service/start_training | Start model training
 [**verify_config_api_v1_custom_models_service_verify_config_post**](CustomModelsApi.md#verify_config_api_v1_custom_models_service_verify_config_post) | **POST** /api/v1/custom_models_service/verify_config/ | Verify configuration
 
+
+# **cluster_hbi_api_v1_custom_models_service_cluster_hbi_post**
+> ClusterHBIResponse cluster_hbi_api_v1_custom_models_service_cluster_hbi_post(cluster_hbi_request)
+
+Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
+
+### Example
+
+
+```python
+import biocentral_api._generated
+from biocentral_api._generated.models.cluster_hbi_request import ClusterHBIRequest
+from biocentral_api._generated.models.cluster_hbi_response import ClusterHBIResponse
+from biocentral_api._generated.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = biocentral_api._generated.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with biocentral_api._generated.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    cluster_hbi_request = biocentral_api._generated.ClusterHBIRequest() # ClusterHBIRequest | 
+
+    try:
+        # Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
+        api_response = api_instance.cluster_hbi_api_v1_custom_models_service_cluster_hbi_post(cluster_hbi_request)
+        print("The response of CustomModelsApi->cluster_hbi_api_v1_custom_models_service_cluster_hbi_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CustomModelsApi->cluster_hbi_api_v1_custom_models_service_cluster_hbi_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **cluster_hbi_request** | [**ClusterHBIRequest**](ClusterHBIRequest.md)|  | 
+
+### Return type
+
+[**ClusterHBIResponse**](ClusterHBIResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **config_options_api_v1_custom_models_service_config_options_protocol_get**
 > ConfigOptionsResponse config_options_api_v1_custom_models_service_config_options_protocol_get(protocol)
@@ -149,6 +220,75 @@ No authorization required
 **200** | Successful Response |  -  |
 **404** | Not Found |  -  |
 **400** | Bad Request |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **split_hbi_api_v1_custom_models_service_split_hbi_post**
+> SplitHBIResponse split_hbi_api_v1_custom_models_service_split_hbi_post(split_hbi_request)
+
+Evaluate homology transfer between dataset splits via easy_search lookup
+
+### Example
+
+
+```python
+import biocentral_api._generated
+from biocentral_api._generated.models.split_hbi_request import SplitHBIRequest
+from biocentral_api._generated.models.split_hbi_response import SplitHBIResponse
+from biocentral_api._generated.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = biocentral_api._generated.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with biocentral_api._generated.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
+    split_hbi_request = biocentral_api._generated.SplitHBIRequest() # SplitHBIRequest | 
+
+    try:
+        # Evaluate homology transfer between dataset splits via easy_search lookup
+        api_response = api_instance.split_hbi_api_v1_custom_models_service_split_hbi_post(split_hbi_request)
+        print("The response of CustomModelsApi->split_hbi_api_v1_custom_models_service_split_hbi_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CustomModelsApi->split_hbi_api_v1_custom_models_service_split_hbi_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **split_hbi_request** | [**SplitHBIRequest**](SplitHBIRequest.md)|  | 
+
+### Return type
+
+[**SplitHBIResponse**](SplitHBIResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
 **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
