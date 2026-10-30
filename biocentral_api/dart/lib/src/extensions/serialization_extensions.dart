@@ -227,6 +227,7 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
       'trainingData': trainingData.map((data) => data.serialize()).toList(),
       'coefficient': coefficient,
       'nSuggestions': nSuggestions,
+      'nMutations': nMutations,
     };
   }
 
@@ -239,7 +240,8 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
       ..trainingData = ListBuilder<SequenceData>(
           (jsonMap['trainingData'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
-      ..nSuggestions = jsonMap['nSuggestions'] as int);
+      ..nSuggestions = jsonMap['nSuggestions'] as int
+      ..nMutations = jsonMap['nMutations'] as int?);
   }
 }
 

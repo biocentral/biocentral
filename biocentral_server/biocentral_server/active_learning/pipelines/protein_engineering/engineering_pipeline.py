@@ -31,11 +31,13 @@ def al_engineering_pipeline(
         al_training_data=al_iteration_config.training_data,
         base_sequences=al_iteration_config.base_sequences
         or [al_campaign_config.wildtype_sequence],
+        wildtype_sequence=al_campaign_config.wildtype_sequence,
         embedding_subtask_wrapper=embedding_subtask_wrapper,
         biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
         iteration=al_iteration_config.iteration,
         coefficient=al_iteration_config.coefficient,
         n_suggestions=al_iteration_config.n_suggestions,
+        seed=al_campaign_config.seed,
         n_mutations=al_iteration_config.n_mutations,
         all_labels_in_data=None,
     )

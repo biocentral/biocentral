@@ -59,6 +59,8 @@ class TrainModelStep(PipelineStep[ALContext]):
             "protocol": protocol,
             "num_epochs": num_epochs,
             "patience": patience,
+            # Otherwise biotrainer seeds training with its own default
+            "seed": context.seed,
         }
 
         embedder_name = context.embedder_name.lower()
