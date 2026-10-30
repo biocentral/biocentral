@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **optimization_mode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **wildtype_sequence** | **str** | Wildtype sequence to engineer | 
+**use_delta_embeddings** | **bool** | Use each sequence&#39;s embedding minus the wildtype embedding as model input (protein language model embedders only) | [optional] [default to False]
 
 ## Example
 

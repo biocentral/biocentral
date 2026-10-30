@@ -1,5 +1,5 @@
 from junban import Pipeline
-from typing import Callable
+from typing import Callable, List, Optional
 
 from ..al_shared import (
     AcquisitionStep,
@@ -23,6 +23,7 @@ def al_engineering_pipeline(
     al_iteration_config: ActiveLearningEngineeringIterationConfig,
     embedding_subtask_wrapper: Callable,
     biotrainer_subtask_wrapper: Callable,
+    candidate_pool: Optional[List[str]] = None,
 ) -> ActiveLearningIterationResult:
     pipeline_context = EngineeringPipelineContext(
         al_optimization_mode=al_campaign_config.optimization_mode,
@@ -31,12 +32,15 @@ def al_engineering_pipeline(
         al_training_data=al_iteration_config.training_data,
         base_sequences=al_iteration_config.base_sequences
         or [al_campaign_config.wildtype_sequence],
+        wildtype_sequence=al_campaign_config.wildtype_sequence,
         embedding_subtask_wrapper=embedding_subtask_wrapper,
         biotrainer_subtask_wrapper=biotrainer_subtask_wrapper,
         iteration=al_iteration_config.iteration,
         coefficient=al_iteration_config.coefficient,
         n_suggestions=al_iteration_config.n_suggestions,
+        seed=al_campaign_config.seed,
         n_mutations=al_iteration_config.n_mutations,
+        candidate_pool=candidate_pool,
         all_labels_in_data=None,
     )
     steps = [

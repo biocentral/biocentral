@@ -158,4 +158,3 @@ class _$SplitHBIResponseSerializer implements PrimitiveSerializer<SplitHBIRespon
   }
 }
 
-

@@ -4,12 +4,18 @@ import numpy as np
 import torchmetrics
 
 from biotrainer_core.functions.seeding import seed_all
-from biotrainer_core.data_classes import SequenceData
-from typing import Callable, Tuple, List, Optional, Set, Dict
+from biotrainer_core.data_classes import SequenceData, Variant
+from typing import Callable, Tuple, List, Optional, Set, Dict, Union
 from biotrainer.shared import SimpleTorchMetricsCalculator, Bootstrapper
 
-from .al_iteration_tasks import ActiveLearningScreeningIterationTask
+from .al_iteration_tasks import (
+    ActiveLearningEngineeringIterationTask,
+    ActiveLearningScreeningIterationTask,
+)
 from .al_config import (
+    ActiveLearningEngineeringCampaignConfig,
+    ActiveLearningEngineeringIterationConfig,
+    ActiveLearningEngineeringSimulationConfig,
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningIterationConfig,
     ActiveLearningScreeningSimulationConfig,
@@ -29,11 +35,22 @@ from ..server_management import (
 logger = get_logger(__name__)
 
 
-class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
+class ActiveLearningSimulationTask(TaskInterface, PreEmbedMixin):
+    """Round loop shared by simulations: reveal labels, count hits, track metrics, stop.
+
+    Subclasses decide how a single iteration is run.
+    """
+
     def __init__(
         self,
-        al_campaign_config: ActiveLearningScreeningCampaignConfig,
-        al_simulation_config: ActiveLearningScreeningSimulationConfig,
+        al_campaign_config: Union[
+            ActiveLearningScreeningCampaignConfig,
+            ActiveLearningEngineeringCampaignConfig,
+        ],
+        al_simulation_config: Union[
+            ActiveLearningScreeningSimulationConfig,
+            ActiveLearningEngineeringSimulationConfig,
+        ],
     ):
         super().__init__()
         self.al_campaign_config = al_campaign_config
@@ -91,34 +108,24 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
     def _run_single_iteration(
         self,
         iteration_number: int,
-        n_total_suggestions: int,
+        n_to_suggest: int,
         coefficient: float,
         current_training_data: List[SequenceData],
-        embeddings: List[SequenceData],
         update_dto_callback: Callable,
     ) -> ActiveLearningIterationResult:
-        # Limit number of suggestions per iteration to budget if applicable
-        if self.al_simulation_config.stopping_config.max_labels_budget is not None:
-            n_to_suggest = min(
-                self.al_simulation_config.stopping_config.max_labels_budget
-                - n_total_suggestions,
-                self.al_simulation_config.n_suggestions_per_iteration,
-            )
-        else:
-            n_to_suggest = self.al_simulation_config.n_suggestions_per_iteration
-        al_iteration_config = ActiveLearningScreeningIterationConfig(
-            iteration=iteration_number,
-            iteration_data=current_training_data,
-            coefficient=coefficient,
-            n_suggestions=n_to_suggest,
-        )
+        raise NotImplementedError
 
-        al_iteration_task = ActiveLearningScreeningIterationTask(
-            al_campaign_config=self.al_campaign_config,
-            al_iteration_config=al_iteration_config,
-            embeddings=embeddings,
-            all_labels_in_data=self.all_discrete_labels_set,
-        )
+    def _canonicalize_iteration_result(
+        self,
+        al_iteration_result: ActiveLearningIterationResult,
+        update_dto_callback: Callable,
+    ) -> ActiveLearningIterationResult:
+        """Express the result's entity ids as simulation_data seq_ids."""
+        return al_iteration_result
+
+    def _run_iteration_task(
+        self, al_iteration_task: TaskInterface, update_dto_callback: Callable
+    ) -> ActiveLearningIterationResult:
         al_iteration_dto: Optional[TaskDTO] = None
         for current_dto in self.run_subtask(al_iteration_task):
             al_iteration_dto = current_dto
@@ -143,7 +150,6 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
     def _calculate_hits(self, iteration_suggestions: Set[str]) -> List[str]:
         """Calculate the number of target successes (hits) for the given iteration suggestions (seq_ids)."""
         min_max_percentile = self.al_simulation_config.hit_percentile
-        target_delta = self.al_simulation_config.hit_target_delta
         suggestion_labels = {
             seq_id: self.all_labels_dict[seq_id] for seq_id in iteration_suggestions
         }
@@ -191,6 +197,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                 ), f"Found duplicates: {under_percentile}"
                 return under_percentile
             case ActiveLearningOptimizationMode.VALUE:
+                target_delta = self.al_simulation_config.hit_target_delta
                 target_value = self.al_campaign_config.target_value
                 suggestion_labels_float = {
                     seq_id: float(label) for seq_id, label in suggestion_labels.items()
@@ -441,9 +448,7 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
         else:
             self._update_regression_metrics(al_iteration_result)
 
-    def _run_simulation(
-        self, embeddings: List[SequenceData], update_dto_callback: Callable
-    ):
+    def _run_simulation(self, update_dto_callback: Callable):
         # Set seed for simulation reproducibility
         seed_all(self.al_campaign_config.seed)
 
@@ -467,14 +472,25 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
                     al_simulation_result=self.al_simulation_result,
                 )
 
+            # Limit number of suggestions per iteration to budget if applicable
+            stopping_config = self.al_simulation_config.stopping_config
+            n_to_suggest = self.al_simulation_config.n_suggestions_per_iteration
+            if stopping_config.max_labels_budget is not None:
+                n_to_suggest = min(
+                    stopping_config.max_labels_budget - n_total_suggestions,
+                    n_to_suggest,
+                )
+
             # Run iteration
-            al_iteration_result = self._run_single_iteration(
-                iteration_number=iteration,
-                n_total_suggestions=n_total_suggestions,
-                coefficient=coefficient,
-                current_training_data=current_data_with_masking,
-                embeddings=embeddings,
-                update_dto_callback=update_dto_callback,
+            al_iteration_result = self._canonicalize_iteration_result(
+                self._run_single_iteration(
+                    iteration_number=iteration,
+                    n_to_suggest=n_to_suggest,
+                    coefficient=coefficient,
+                    current_training_data=current_data_with_masking,
+                    update_dto_callback=update_dto_callback,
+                ),
+                update_dto_callback,
             )
 
             # Update iteration metrics
@@ -532,6 +548,32 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             status=TaskStatus.FINISHED, al_simulation_result=self.al_simulation_result
         )
 
+
+class ActiveLearningScreeningSimulationTask(ActiveLearningSimulationTask):
+    def _run_single_iteration(
+        self,
+        iteration_number: int,
+        n_to_suggest: int,
+        coefficient: float,
+        current_training_data: List[SequenceData],
+        update_dto_callback: Callable,
+    ) -> ActiveLearningIterationResult:
+        al_iteration_config = ActiveLearningScreeningIterationConfig(
+            iteration=iteration_number,
+            iteration_data=current_training_data,
+            coefficient=coefficient,
+            n_suggestions=n_to_suggest,
+        )
+        return self._run_iteration_task(
+            ActiveLearningScreeningIterationTask(
+                al_campaign_config=self.al_campaign_config,
+                al_iteration_config=al_iteration_config,
+                embeddings=self._embeddings,
+                all_labels_in_data=self.all_discrete_labels_set,
+            ),
+            update_dto_callback,
+        )
+
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Embed all simulation data
         simulation_data = self.al_simulation_config.simulation_data
@@ -541,11 +583,105 @@ class ActiveLearningScreeningSimulationTask(TaskInterface, PreEmbedMixin):
             sequence_input=simulation_data,
             reduced=True,
             update_dto_callback=update_dto_callback,
+            seed=self.al_campaign_config.seed,
         )
         if error_dto:
             return error_dto
         assert (
             embeddings is not None
         ), "embeddings is None after pre-embedding before active learning iteration!"
+        # TODO(delta-embeddings): Subtract each sequence's wildtype once here, before the
+        #  iterations reuse the embeddings (see ActiveLearningScreeningIterationTask)
+        self._embeddings = embeddings
 
-        return self._run_simulation(embeddings, update_dto_callback)
+        return self._run_simulation(update_dto_callback)
+
+
+class ActiveLearningEngineeringSimulationTask(ActiveLearningSimulationTask):
+    """Simulates an engineering campaign over a labelled landscape.
+
+    Each iteration scores a fresh sample of unlabelled landscape variants through the
+    engineering pipeline, so its features (e.g. delta embeddings) apply, and every
+    suggestion has a label to reveal.
+    """
+
+    def __init__(
+        self,
+        al_campaign_config: ActiveLearningEngineeringCampaignConfig,
+        al_simulation_config: ActiveLearningEngineeringSimulationConfig,
+    ):
+        super().__init__(al_campaign_config, al_simulation_config)
+        # Suggestions come back as variant descriptors, matched to the landscape by sequence
+        self.seq_id_by_sequence: Dict[str, str] = {
+            data_point.seq: data_point.seq_id
+            for data_point in al_simulation_config.simulation_data
+        }
+        self.candidate_pool: List[str] = list(self.seq_id_by_sequence)
+
+    def _run_single_iteration(
+        self,
+        iteration_number: int,
+        n_to_suggest: int,
+        coefficient: float,
+        current_training_data: List[SequenceData],
+        update_dto_callback: Callable,
+    ) -> ActiveLearningIterationResult:
+        al_iteration_config = ActiveLearningEngineeringIterationConfig(
+            iteration=iteration_number,
+            training_data=[
+                data_point
+                for data_point in current_training_data
+                if data_point.get_set() == "train"
+            ],
+            coefficient=coefficient,
+            n_suggestions=n_to_suggest,
+            n_mutations=self.al_simulation_config.n_candidates_per_iteration,
+        )
+        return self._run_iteration_task(
+            ActiveLearningEngineeringIterationTask(
+                al_campaign_config=self.al_campaign_config,
+                al_iteration_config=al_iteration_config,
+                candidate_pool=self.candidate_pool,
+            ),
+            update_dto_callback,
+        )
+
+    def _seq_id(self, entity_id: str) -> str:
+        sequence = Variant.parse(entity_id).get_mutant_sequence(
+            self.al_campaign_config.wildtype_sequence
+        )
+        if sequence not in self.seq_id_by_sequence:
+            raise ValueError(
+                f"Suggested variant {entity_id} is not in simulation_data!"
+            )
+        return self.seq_id_by_sequence[sequence]
+
+    def _canonicalize_iteration_result(
+        self,
+        al_iteration_result: ActiveLearningIterationResult,
+        update_dto_callback: Callable,
+    ) -> ActiveLearningIterationResult:
+        canonical = al_iteration_result.model_copy(
+            update={
+                "results": [
+                    result.model_copy(
+                        update={"entity_id": self._seq_id(result.entity_id)}
+                    )
+                    for result in al_iteration_result.results
+                ],
+                "suggestions": [
+                    self._seq_id(entity_id)
+                    for entity_id in al_iteration_result.suggestions
+                ],
+            }
+        )
+        # Clients assemble iteration_results from these updates, keyed by iteration, so
+        # this replaces the one the iteration subtask reported with descriptor ids
+        update_dto_callback(
+            TaskDTO(status=TaskStatus.RUNNING, al_iteration_result=canonical)
+        )
+        return canonical
+
+    def run_task(self, update_dto_callback: Callable) -> TaskDTO:
+        # No pre-embedding: each iteration embeds its own candidates via the database
+        return self._run_simulation(update_dto_callback)

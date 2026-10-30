@@ -18,7 +18,6 @@ part 'active_learning_screening_simulation_config.g.dart';
 /// * [nStart] - Number of initial sequences to use for training (chosen randomly, seed from campaign config used)
 /// * [startIds] - List of sequence IDs to start the simulated campaign
 /// * [nSuggestionsPerIteration] - Number of suggestions to propose per iteration
-/// * [coefficient] - Exploitation-Exploration coefficient value, applied to every iteration (must be between 0 and 1, 1 is maximum exploration)
 /// * [stoppingConfig] - Stopping criteria for the simulation
 /// * [hitPercentile] - Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.
 /// * [hitTargetDelta] - Absolute tolerance around the target value that counts as a hit (mode: VALUE)
@@ -40,10 +39,6 @@ abstract class ActiveLearningScreeningSimulationConfig implements Built<ActiveLe
   @BuiltValueField(wireName: r'n_suggestions_per_iteration')
   int get nSuggestionsPerIteration;
 
-  /// Exploitation-Exploration coefficient value, applied to every iteration (must be between 0 and 1, 1 is maximum exploration)
-  @BuiltValueField(wireName: r'coefficient')
-  num? get coefficient;
-
   /// Stopping criteria for the simulation
   @BuiltValueField(wireName: r'stopping_config')
   ActiveLearningStoppingConfig get stoppingConfig;
@@ -62,7 +57,6 @@ abstract class ActiveLearningScreeningSimulationConfig implements Built<ActiveLe
 
   @BuiltValueHook(initializeBuilder: true)
   static void _defaults(ActiveLearningScreeningSimulationConfigBuilder b) => b
-      ..coefficient = 0.5
       ..hitPercentile = 1.0
       ..hitTargetDelta = 0.5;
 
@@ -106,13 +100,6 @@ class _$ActiveLearningScreeningSimulationConfigSerializer implements PrimitiveSe
       object.nSuggestionsPerIteration,
       specifiedType: const FullType(int),
     );
-    if (object.coefficient != null) {
-      yield r'coefficient';
-      yield serializers.serialize(
-        object.coefficient,
-        specifiedType: const FullType(num),
-      );
-    }
     yield r'stopping_config';
     yield serializers.serialize(
       object.stoppingConfig,
@@ -184,14 +171,6 @@ class _$ActiveLearningScreeningSimulationConfigSerializer implements PrimitiveSe
             specifiedType: const FullType(int),
           ) as int;
           result.nSuggestionsPerIteration = valueDes;
-          break;
-        case r'coefficient':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType.nullable(num),
-          ) as num?;
-          if (valueDes == null) continue;
-          result.coefficient = valueDes;
           break;
         case r'stopping_config':
           final valueDes = serializers.deserialize(
