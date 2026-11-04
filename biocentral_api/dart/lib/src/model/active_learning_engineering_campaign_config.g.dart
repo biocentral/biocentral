@@ -22,6 +22,8 @@ class _$ActiveLearningEngineeringCampaignConfig
   final String wildtypeSequence;
   @override
   final bool? useDeltaEmbeddings;
+  @override
+  final BuiltList<String>? allowedSubstitutions;
 
   factory _$ActiveLearningEngineeringCampaignConfig(
           [void Function(ActiveLearningEngineeringCampaignConfigBuilder)?
@@ -36,7 +38,8 @@ class _$ActiveLearningEngineeringCampaignConfig
       required this.optimizationMode,
       this.seed,
       required this.wildtypeSequence,
-      this.useDeltaEmbeddings})
+      this.useDeltaEmbeddings,
+      this.allowedSubstitutions})
       : super._();
   @override
   ActiveLearningEngineeringCampaignConfig rebuild(
@@ -58,7 +61,8 @@ class _$ActiveLearningEngineeringCampaignConfig
         optimizationMode == other.optimizationMode &&
         seed == other.seed &&
         wildtypeSequence == other.wildtypeSequence &&
-        useDeltaEmbeddings == other.useDeltaEmbeddings;
+        useDeltaEmbeddings == other.useDeltaEmbeddings &&
+        allowedSubstitutions == other.allowedSubstitutions;
   }
 
   @override
@@ -71,6 +75,7 @@ class _$ActiveLearningEngineeringCampaignConfig
     _$hash = $jc(_$hash, seed.hashCode);
     _$hash = $jc(_$hash, wildtypeSequence.hashCode);
     _$hash = $jc(_$hash, useDeltaEmbeddings.hashCode);
+    _$hash = $jc(_$hash, allowedSubstitutions.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -85,7 +90,8 @@ class _$ActiveLearningEngineeringCampaignConfig
           ..add('optimizationMode', optimizationMode)
           ..add('seed', seed)
           ..add('wildtypeSequence', wildtypeSequence)
-          ..add('useDeltaEmbeddings', useDeltaEmbeddings))
+          ..add('useDeltaEmbeddings', useDeltaEmbeddings)
+          ..add('allowedSubstitutions', allowedSubstitutions))
         .toString();
   }
 }
@@ -129,6 +135,12 @@ class ActiveLearningEngineeringCampaignConfigBuilder
   set useDeltaEmbeddings(bool? useDeltaEmbeddings) =>
       _$this._useDeltaEmbeddings = useDeltaEmbeddings;
 
+  ListBuilder<String>? _allowedSubstitutions;
+  ListBuilder<String> get allowedSubstitutions =>
+      _$this._allowedSubstitutions ??= ListBuilder<String>();
+  set allowedSubstitutions(ListBuilder<String>? allowedSubstitutions) =>
+      _$this._allowedSubstitutions = allowedSubstitutions;
+
   ActiveLearningEngineeringCampaignConfigBuilder() {
     ActiveLearningEngineeringCampaignConfig._defaults(this);
   }
@@ -143,6 +155,7 @@ class ActiveLearningEngineeringCampaignConfigBuilder
       _seed = $v.seed;
       _wildtypeSequence = $v.wildtypeSequence;
       _useDeltaEmbeddings = $v.useDeltaEmbeddings;
+      _allowedSubstitutions = $v.allowedSubstitutions?.toBuilder();
       _$v = null;
     }
     return this;
@@ -163,25 +176,41 @@ class ActiveLearningEngineeringCampaignConfigBuilder
   ActiveLearningEngineeringCampaignConfig build() => _build();
 
   _$ActiveLearningEngineeringCampaignConfig _build() {
-    final _$result = _$v ??
-        _$ActiveLearningEngineeringCampaignConfig._(
-          embedderName: BuiltValueNullFieldError.checkNotNull(embedderName,
-              r'ActiveLearningEngineeringCampaignConfig', 'embedderName'),
-          name: BuiltValueNullFieldError.checkNotNull(
-              name, r'ActiveLearningEngineeringCampaignConfig', 'name'),
-          modelType: BuiltValueNullFieldError.checkNotNull(modelType,
-              r'ActiveLearningEngineeringCampaignConfig', 'modelType'),
-          optimizationMode: BuiltValueNullFieldError.checkNotNull(
-              optimizationMode,
-              r'ActiveLearningEngineeringCampaignConfig',
-              'optimizationMode'),
-          seed: seed,
-          wildtypeSequence: BuiltValueNullFieldError.checkNotNull(
-              wildtypeSequence,
-              r'ActiveLearningEngineeringCampaignConfig',
-              'wildtypeSequence'),
-          useDeltaEmbeddings: useDeltaEmbeddings,
-        );
+    _$ActiveLearningEngineeringCampaignConfig _$result;
+    try {
+      _$result = _$v ??
+          _$ActiveLearningEngineeringCampaignConfig._(
+            embedderName: BuiltValueNullFieldError.checkNotNull(embedderName,
+                r'ActiveLearningEngineeringCampaignConfig', 'embedderName'),
+            name: BuiltValueNullFieldError.checkNotNull(
+                name, r'ActiveLearningEngineeringCampaignConfig', 'name'),
+            modelType: BuiltValueNullFieldError.checkNotNull(modelType,
+                r'ActiveLearningEngineeringCampaignConfig', 'modelType'),
+            optimizationMode: BuiltValueNullFieldError.checkNotNull(
+                optimizationMode,
+                r'ActiveLearningEngineeringCampaignConfig',
+                'optimizationMode'),
+            seed: seed,
+            wildtypeSequence: BuiltValueNullFieldError.checkNotNull(
+                wildtypeSequence,
+                r'ActiveLearningEngineeringCampaignConfig',
+                'wildtypeSequence'),
+            useDeltaEmbeddings: useDeltaEmbeddings,
+            allowedSubstitutions: _allowedSubstitutions?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'allowedSubstitutions';
+        _allowedSubstitutions?.build();
+      } catch (e) {
+        throw BuiltValueNestedFieldError(
+            r'ActiveLearningEngineeringCampaignConfig',
+            _$failedField,
+            e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

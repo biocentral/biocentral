@@ -13,6 +13,8 @@ Name | Type | Description | Notes
 **stopping_config** | [**ActiveLearningStoppingConfig**](ActiveLearningStoppingConfig.md) | Stopping criteria for the simulation | 
 **hit_percentile** | **float** | Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels. | [optional] [default to 1.0]
 **n_candidates_per_iteration** | **int** | Number of unlabelled landscape variants to score per iteration | [optional] [default to 1000]
+**generate_candidates** | **bool** | Build each round&#39;s candidates by mutating the variants measured so far, keeping only those the landscape contains, instead of drawing them from the landscape uniformly | [optional] [default to False]
+**n_substitutions** | **int** | Substitutions each generated candidate carries against its base sequence (generate_candidates only) | [optional] [default to 1]
 
 ## Example
 
