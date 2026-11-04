@@ -19,6 +19,8 @@ part 'active_learning_engineering_iteration_config.g.dart';
 /// * [coefficient] - Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
 /// * [nSuggestions] - Number of suggestions to propose from this iteration
 /// * [nMutations] - Number of mutations to generate and score in this iteration
+/// * [nSubstitutions] - Substitutions each generated candidate carries against its base sequence
+/// * [generateCandidates] - Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains
 @BuiltValue()
 abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringIterationConfigBuilder> {
   /// Iteration number
@@ -45,13 +47,23 @@ abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveL
   @BuiltValueField(wireName: r'n_mutations')
   int? get nMutations;
 
+  /// Substitutions each generated candidate carries against its base sequence
+  @BuiltValueField(wireName: r'n_substitutions')
+  int? get nSubstitutions;
+
+  /// Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains
+  @BuiltValueField(wireName: r'generate_candidates')
+  bool? get generateCandidates;
+
   ActiveLearningEngineeringIterationConfig._();
 
   factory ActiveLearningEngineeringIterationConfig([void updates(ActiveLearningEngineeringIterationConfigBuilder b)]) = _$ActiveLearningEngineeringIterationConfig;
 
   @BuiltValueHook(initializeBuilder: true)
   static void _defaults(ActiveLearningEngineeringIterationConfigBuilder b) => b
-      ..nMutations = 1000;
+      ..nMutations = 1000
+      ..nSubstitutions = 1
+      ..generateCandidates = false;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningEngineeringIterationConfig> get serializer => _$ActiveLearningEngineeringIterationConfigSerializer();
@@ -101,6 +113,20 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
       yield serializers.serialize(
         object.nMutations,
         specifiedType: const FullType(int),
+      );
+    }
+    if (object.nSubstitutions != null) {
+      yield r'n_substitutions';
+      yield serializers.serialize(
+        object.nSubstitutions,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.generateCandidates != null) {
+      yield r'generate_candidates';
+      yield serializers.serialize(
+        object.generateCandidates,
+        specifiedType: const FullType(bool),
       );
     }
   }
@@ -169,6 +195,22 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
           ) as int?;
           if (valueDes == null) continue;
           result.nMutations = valueDes;
+          break;
+        case r'n_substitutions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.nSubstitutions = valueDes;
+          break;
+        case r'generate_candidates':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
+          result.generateCandidates = valueDes;
           break;
         default:
           unhandled.add(key);

@@ -206,6 +206,7 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       'seed': seed,
       'wildtypeSequence': wildtypeSequence,
       'useDeltaEmbeddings': useDeltaEmbeddings,
+      'allowedSubstitutions': allowedSubstitutions?.toList(),
     };
   }
 
@@ -217,7 +218,10 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       ..optimizationMode = ActiveLearningOptimizationMode.valueOf(jsonMap['optimizationMode'] as String)
       ..seed = jsonMap['seed'] as int?
       ..wildtypeSequence = jsonMap['wildtypeSequence'] as String
-      ..useDeltaEmbeddings = jsonMap['useDeltaEmbeddings'] as bool?);
+      ..useDeltaEmbeddings = jsonMap['useDeltaEmbeddings'] as bool?
+      ..allowedSubstitutions = jsonMap['allowedSubstitutions'] != null
+          ? ListBuilder<String>(List<String>.from(jsonMap['allowedSubstitutions'] as List))
+          : null);
   }
 }
 
@@ -230,6 +234,8 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
       'coefficient': coefficient,
       'nSuggestions': nSuggestions,
       'nMutations': nMutations,
+      'nSubstitutions': nSubstitutions,
+      'generateCandidates': generateCandidates,
     };
   }
 
@@ -243,7 +249,9 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
           (jsonMap['trainingData'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
       ..nSuggestions = jsonMap['nSuggestions'] as int
-      ..nMutations = jsonMap['nMutations'] as int?);
+      ..nMutations = jsonMap['nMutations'] as int?
+      ..nSubstitutions = jsonMap['nSubstitutions'] as int?
+      ..generateCandidates = jsonMap['generateCandidates'] as bool?);
   }
 }
 

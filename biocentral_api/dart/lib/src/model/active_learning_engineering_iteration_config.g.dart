@@ -20,6 +20,10 @@ class _$ActiveLearningEngineeringIterationConfig
   final int nSuggestions;
   @override
   final int? nMutations;
+  @override
+  final int? nSubstitutions;
+  @override
+  final bool? generateCandidates;
 
   factory _$ActiveLearningEngineeringIterationConfig(
           [void Function(ActiveLearningEngineeringIterationConfigBuilder)?
@@ -33,7 +37,9 @@ class _$ActiveLearningEngineeringIterationConfig
       required this.trainingData,
       required this.coefficient,
       required this.nSuggestions,
-      this.nMutations})
+      this.nMutations,
+      this.nSubstitutions,
+      this.generateCandidates})
       : super._();
   @override
   ActiveLearningEngineeringIterationConfig rebuild(
@@ -54,7 +60,9 @@ class _$ActiveLearningEngineeringIterationConfig
         trainingData == other.trainingData &&
         coefficient == other.coefficient &&
         nSuggestions == other.nSuggestions &&
-        nMutations == other.nMutations;
+        nMutations == other.nMutations &&
+        nSubstitutions == other.nSubstitutions &&
+        generateCandidates == other.generateCandidates;
   }
 
   @override
@@ -66,6 +74,8 @@ class _$ActiveLearningEngineeringIterationConfig
     _$hash = $jc(_$hash, coefficient.hashCode);
     _$hash = $jc(_$hash, nSuggestions.hashCode);
     _$hash = $jc(_$hash, nMutations.hashCode);
+    _$hash = $jc(_$hash, nSubstitutions.hashCode);
+    _$hash = $jc(_$hash, generateCandidates.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -79,7 +89,9 @@ class _$ActiveLearningEngineeringIterationConfig
           ..add('trainingData', trainingData)
           ..add('coefficient', coefficient)
           ..add('nSuggestions', nSuggestions)
-          ..add('nMutations', nMutations))
+          ..add('nMutations', nMutations)
+          ..add('nSubstitutions', nSubstitutions)
+          ..add('generateCandidates', generateCandidates))
         .toString();
   }
 }
@@ -118,6 +130,16 @@ class ActiveLearningEngineeringIterationConfigBuilder
   int? get nMutations => _$this._nMutations;
   set nMutations(int? nMutations) => _$this._nMutations = nMutations;
 
+  int? _nSubstitutions;
+  int? get nSubstitutions => _$this._nSubstitutions;
+  set nSubstitutions(int? nSubstitutions) =>
+      _$this._nSubstitutions = nSubstitutions;
+
+  bool? _generateCandidates;
+  bool? get generateCandidates => _$this._generateCandidates;
+  set generateCandidates(bool? generateCandidates) =>
+      _$this._generateCandidates = generateCandidates;
+
   ActiveLearningEngineeringIterationConfigBuilder() {
     ActiveLearningEngineeringIterationConfig._defaults(this);
   }
@@ -131,6 +153,8 @@ class ActiveLearningEngineeringIterationConfigBuilder
       _coefficient = $v.coefficient;
       _nSuggestions = $v.nSuggestions;
       _nMutations = $v.nMutations;
+      _nSubstitutions = $v.nSubstitutions;
+      _generateCandidates = $v.generateCandidates;
       _$v = null;
     }
     return this;
@@ -164,6 +188,8 @@ class ActiveLearningEngineeringIterationConfigBuilder
             nSuggestions: BuiltValueNullFieldError.checkNotNull(nSuggestions,
                 r'ActiveLearningEngineeringIterationConfig', 'nSuggestions'),
             nMutations: nMutations,
+            nSubstitutions: nSubstitutions,
+            generateCandidates: generateCandidates,
           );
     } catch (_) {
       late String _$failedField;
