@@ -318,7 +318,7 @@ class BiocentralAPI:
     def embed(
             self,
             embedder_name: Union[str, CommonEmbedder],
-            sequence_data: Union[str, Dict[str, str]],
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
             reduce: Optional[bool] = True,
             use_half_precision: Optional[bool] = False,
     ) -> BiocentralServerTask[EmbeddingsResult]:
@@ -328,8 +328,9 @@ class BiocentralAPI:
         :param embedder_name: The name of the embedder to be used for generating embeddings.
             Can be any valid huggingface string identifier or a CommonEmbedder enum value.
             Examples: "one_hot_encoding", "Rostlab/prot_t5_xl_uniref50", "random_embedder"
-        :param sequence_data: A dictionary containing the sequence data or a path to a fasta file
-            for which embeddings should be calculated. Must have at least one and maximum 1,000 sequences.
+        :param sequence_data: A dictionary containing the sequence data, a list of SequenceData objects
+            or a path to a fasta file for which embeddings should be calculated.
+            Must have at least one and maximum 1,000 sequences.
         :param reduce: Specifies whether the embeddings should be reduced to per-sequence or not. Defaults to True.
         :param use_half_precision: Indicates whether half-precision should be used for embeddings to
             minimize memory usage. Defaults to False.
