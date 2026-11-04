@@ -98,6 +98,46 @@ class TestConfig:
             not in ActiveLearningEngineeringSimulationConfig.model_fields
         )
 
+    def test_allowed_substitutions_are_checked_against_the_wildtype(self):
+        # A position convention mismatch is the failure worth catching here: left alone
+        # it reads as a generator that simply never proposes anything scoreable
+        with pytest.raises(ValidationError, match="disagrees with the wildtype"):
+            _campaign(allowed_substitutions=["W1V"])
+
+    def test_allowed_substitutions_must_lie_inside_the_wildtype(self):
+        with pytest.raises(ValidationError, match="outside the wildtype"):
+            _campaign(allowed_substitutions=["A9V"])
+
+    def test_allowed_substitutions_matching_the_wildtype_are_accepted(self):
+        assert _campaign(
+            allowed_substitutions=["A1V", "C2V"]
+        ).allowed_substitutions == [
+            "A1V",
+            "C2V",
+        ]
+
+
+class TestBaseSequences:
+    def test_the_wildtype_and_everything_measured_are_bases(self):
+        task = _task()
+        measured = [
+            SequenceData(seq_id="A1V", seq="VCDEFG", label="1"),
+            SequenceData(seq_id="C2V", seq="AVDEFG", label="2"),
+        ]
+        assert task._base_sequences(measured) == [WILDTYPE, "VCDEFG", "AVDEFG"]
+
+    def test_the_wildtype_is_a_base_even_when_the_landscape_omits_it(self):
+        # NucB has no wildtype row; without this the generator could only ever propose
+        # substitutions at positions it had already measured
+        task = _task()
+        measured = [SequenceData(seq_id="A1V", seq="VCDEFG", label="1")]
+        assert task._base_sequences(measured)[0] == WILDTYPE
+
+    def test_a_measured_wildtype_is_not_duplicated(self):
+        task = _task()
+        measured = [SequenceData(seq_id="WT", seq=WILDTYPE, label="0")]
+        assert task._base_sequences(measured) == [WILDTYPE]
+
 
 class TestOracle:
     def test_descriptor_maps_back_to_landscape_id(self):

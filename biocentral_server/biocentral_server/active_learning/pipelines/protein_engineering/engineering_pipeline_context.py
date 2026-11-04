@@ -31,6 +31,9 @@ class EngineeringPipelineContext(ALContext):
         n_suggestions: int,
         seed: int,
         n_mutations: int,
+        n_substitutions: int = 1,
+        generate_candidates: bool = False,
+        allowed_substitutions: Optional[List[str]] = None,
         candidate_pool: Optional[List[str]] = None,
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,
@@ -63,7 +66,12 @@ class EngineeringPipelineContext(ALContext):
         self.base_sequences = base_sequences
         self.wildtype_sequence = wildtype_sequence
         self.n_mutations = n_mutations
+        self.n_substitutions = n_substitutions
+        # Substitutions the generator may draw from, as wildtype-relative descriptors.
+        # None allows any standard amino acid at any position.
+        self.allowed_substitutions = allowed_substitutions
         # Sequences to score instead of generating mutations, e.g. a labelled landscape
         self.candidate_pool = candidate_pool
-        self.mutation_depth: int = 1  # TODO CONFIG
+        # Generate candidates even with a pool, keeping only those the pool contains
+        self.generate_candidates = generate_candidates
         self.mutations: Optional[List[str]] = None
