@@ -23,7 +23,7 @@ class BiocentralBackend(Protocol):
     def embed(
         self,
         embedder_name: str,
-        sequence_data: Dict[str, str],
+        sequence_data: List[SequenceData],
         reduce: bool = True,
         use_half_precision: bool = False,
     ) -> EmbeddingsResult:
