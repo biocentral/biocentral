@@ -40,6 +40,9 @@ def al_engineering_pipeline(
         n_suggestions=al_iteration_config.n_suggestions,
         seed=al_campaign_config.seed,
         n_mutations=al_iteration_config.n_mutations,
+        n_substitutions=al_iteration_config.n_substitutions,
+        generate_candidates=al_iteration_config.generate_candidates,
+        allowed_substitutions=al_campaign_config.allowed_substitutions,
         candidate_pool=candidate_pool,
         all_labels_in_data=None,
     )

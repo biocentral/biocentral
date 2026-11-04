@@ -626,16 +626,20 @@ class ActiveLearningEngineeringSimulationTask(ActiveLearningSimulationTask):
         current_training_data: List[SequenceData],
         update_dto_callback: Callable,
     ) -> ActiveLearningIterationResult:
+        training_data = [
+            data_point
+            for data_point in current_training_data
+            if data_point.get_set() == "train"
+        ]
         al_iteration_config = ActiveLearningEngineeringIterationConfig(
             iteration=iteration_number,
-            training_data=[
-                data_point
-                for data_point in current_training_data
-                if data_point.get_set() == "train"
-            ],
+            base_sequences=self._base_sequences(training_data),
+            training_data=training_data,
             coefficient=coefficient,
             n_suggestions=n_to_suggest,
             n_mutations=self.al_simulation_config.n_candidates_per_iteration,
+            n_substitutions=self.al_simulation_config.n_substitutions,
+            generate_candidates=self.al_simulation_config.generate_candidates,
         )
         return self._run_iteration_task(
             ActiveLearningEngineeringIterationTask(
@@ -645,6 +649,19 @@ class ActiveLearningEngineeringSimulationTask(ActiveLearningSimulationTask):
             ),
             update_dto_callback,
         )
+
+    def _base_sequences(self, training_data: List[SequenceData]) -> List[str]:
+        """The wildtype plus everything measured so far, for the generator to mutate.
+
+        Generating from the measured variants is what lets a campaign reach the
+        multi-substitution region, where most of a combinatorial landscape lives. The
+        wildtype is added explicitly rather than relied on to be among them: a landscape
+        need not contain its own wildtype row, and without it the generator could only
+        ever propose substitutions at positions it had already measured.
+        """
+        wildtype_sequence = self.al_campaign_config.wildtype_sequence
+        measured = [data_point.seq for data_point in training_data]
+        return list(dict.fromkeys([wildtype_sequence] + measured))
 
     def _seq_id(self, entity_id: str) -> str:
         sequence = Variant.parse(entity_id).get_mutant_sequence(
