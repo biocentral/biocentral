@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType
 from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode
 from typing import Optional, Set
@@ -36,7 +37,8 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     wildtype_sequence: StrictStr = Field(description="Wildtype sequence to engineer")
     use_delta_embeddings: Optional[StrictBool] = Field(default=False, description="Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)")
-    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence", "use_delta_embeddings"]
+    allowed_substitutions: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, description="Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.")
+    __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence", "use_delta_embeddings", "allowed_substitutions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -82,6 +84,11 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
         if self.seed is None and "seed" in self.model_fields_set:
             _dict['seed'] = None
 
+        # set to None if allowed_substitutions (nullable) is None
+        # and model_fields_set contains the field
+        if self.allowed_substitutions is None and "allowed_substitutions" in self.model_fields_set:
+            _dict['allowed_substitutions'] = None
+
         return _dict
 
     @classmethod
@@ -100,7 +107,8 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
             "optimization_mode": obj.get("optimization_mode"),
             "seed": obj.get("seed"),
             "wildtype_sequence": obj.get("wildtype_sequence"),
-            "use_delta_embeddings": obj.get("use_delta_embeddings") if obj.get("use_delta_embeddings") is not None else False
+            "use_delta_embeddings": obj.get("use_delta_embeddings") if obj.get("use_delta_embeddings") is not None else False,
+            "allowed_substitutions": obj.get("allowed_substitutions")
         })
         return _obj
 

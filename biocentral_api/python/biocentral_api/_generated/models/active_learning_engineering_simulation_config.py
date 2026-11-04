@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_stopping_config import ActiveLearningStoppingConfig
@@ -37,7 +37,9 @@ class ActiveLearningEngineeringSimulationConfig(BaseModel):
     stopping_config: ActiveLearningStoppingConfig = Field(description="Stopping criteria for the simulation")
     hit_percentile: Optional[Union[Annotated[float, Field(lt=50.0, strict=True, gt=0.0)], Annotated[int, Field(lt=50, strict=True, gt=0)]]] = Field(default=1.0, description="Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.")
     n_candidates_per_iteration: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1000, description="Number of unlabelled landscape variants to score per iteration")
-    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "stopping_config", "hit_percentile", "n_candidates_per_iteration"]
+    generate_candidates: Optional[StrictBool] = Field(default=False, description="Build each round's candidates by mutating the variants measured so far, keeping only those the landscape contains, instead of drawing them from the landscape uniformly")
+    n_substitutions: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, description="Substitutions each generated candidate carries against its base sequence (generate_candidates only)")
+    __properties: ClassVar[List[str]] = ["simulation_data", "n_start", "start_ids", "n_suggestions_per_iteration", "stopping_config", "hit_percentile", "n_candidates_per_iteration", "generate_candidates", "n_substitutions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -116,7 +118,9 @@ class ActiveLearningEngineeringSimulationConfig(BaseModel):
             "n_suggestions_per_iteration": obj.get("n_suggestions_per_iteration"),
             "stopping_config": ActiveLearningStoppingConfig.from_dict(obj["stopping_config"]) if obj.get("stopping_config") is not None else None,
             "hit_percentile": obj.get("hit_percentile") if obj.get("hit_percentile") is not None else 1.0,
-            "n_candidates_per_iteration": obj.get("n_candidates_per_iteration") if obj.get("n_candidates_per_iteration") is not None else 1000
+            "n_candidates_per_iteration": obj.get("n_candidates_per_iteration") if obj.get("n_candidates_per_iteration") is not None else 1000,
+            "generate_candidates": obj.get("generate_candidates") if obj.get("generate_candidates") is not None else False,
+            "n_substitutions": obj.get("n_substitutions") if obj.get("n_substitutions") is not None else 1
         })
         return _obj
 

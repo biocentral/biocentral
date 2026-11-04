@@ -21,6 +21,8 @@ part 'active_learning_engineering_simulation_config.g.dart';
 /// * [stoppingConfig] - Stopping criteria for the simulation
 /// * [hitPercentile] - Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.
 /// * [nCandidatesPerIteration] - Number of unlabelled landscape variants to score per iteration
+/// * [generateCandidates] - Build each round's candidates by mutating the variants measured so far, keeping only those the landscape contains, instead of drawing them from the landscape uniformly
+/// * [nSubstitutions] - Substitutions each generated candidate carries against its base sequence (generate_candidates only)
 @BuiltValue()
 abstract class ActiveLearningEngineeringSimulationConfig implements Built<ActiveLearningEngineeringSimulationConfig, ActiveLearningEngineeringSimulationConfigBuilder> {
   /// List of all sequence data for the simulation
@@ -51,6 +53,14 @@ abstract class ActiveLearningEngineeringSimulationConfig implements Built<Active
   @BuiltValueField(wireName: r'n_candidates_per_iteration')
   int? get nCandidatesPerIteration;
 
+  /// Build each round's candidates by mutating the variants measured so far, keeping only those the landscape contains, instead of drawing them from the landscape uniformly
+  @BuiltValueField(wireName: r'generate_candidates')
+  bool? get generateCandidates;
+
+  /// Substitutions each generated candidate carries against its base sequence (generate_candidates only)
+  @BuiltValueField(wireName: r'n_substitutions')
+  int? get nSubstitutions;
+
   ActiveLearningEngineeringSimulationConfig._();
 
   factory ActiveLearningEngineeringSimulationConfig([void updates(ActiveLearningEngineeringSimulationConfigBuilder b)]) = _$ActiveLearningEngineeringSimulationConfig;
@@ -58,7 +68,9 @@ abstract class ActiveLearningEngineeringSimulationConfig implements Built<Active
   @BuiltValueHook(initializeBuilder: true)
   static void _defaults(ActiveLearningEngineeringSimulationConfigBuilder b) => b
       ..hitPercentile = 1.0
-      ..nCandidatesPerIteration = 1000;
+      ..nCandidatesPerIteration = 1000
+      ..generateCandidates = false
+      ..nSubstitutions = 1;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningEngineeringSimulationConfig> get serializer => _$ActiveLearningEngineeringSimulationConfigSerializer();
@@ -116,6 +128,20 @@ class _$ActiveLearningEngineeringSimulationConfigSerializer implements Primitive
       yield r'n_candidates_per_iteration';
       yield serializers.serialize(
         object.nCandidatesPerIteration,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.generateCandidates != null) {
+      yield r'generate_candidates';
+      yield serializers.serialize(
+        object.generateCandidates,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.nSubstitutions != null) {
+      yield r'n_substitutions';
+      yield serializers.serialize(
+        object.nSubstitutions,
         specifiedType: const FullType(int),
       );
     }
@@ -194,6 +220,22 @@ class _$ActiveLearningEngineeringSimulationConfigSerializer implements Primitive
           ) as int?;
           if (valueDes == null) continue;
           result.nCandidatesPerIteration = valueDes;
+          break;
+        case r'generate_candidates':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
+          result.generateCandidates = valueDes;
+          break;
+        case r'n_substitutions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.nSubstitutions = valueDes;
           break;
         default:
           unhandled.add(key);

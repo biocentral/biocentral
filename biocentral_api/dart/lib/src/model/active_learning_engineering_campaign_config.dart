@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
 import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:built_value/built_value.dart';
@@ -20,6 +21,7 @@ part 'active_learning_engineering_campaign_config.g.dart';
 /// * [seed] - Random seed for reproducibility.
 /// * [wildtypeSequence] - Wildtype sequence to engineer
 /// * [useDeltaEmbeddings] - Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+/// * [allowedSubstitutions] - Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.
 @BuiltValue()
 abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLearningEngineeringCampaignConfig, ActiveLearningEngineeringCampaignConfigBuilder> {
   /// Name of the embedder model to use
@@ -51,6 +53,10 @@ abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLe
   /// Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
   @BuiltValueField(wireName: r'use_delta_embeddings')
   bool? get useDeltaEmbeddings;
+
+  /// Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.
+  @BuiltValueField(wireName: r'allowed_substitutions')
+  BuiltList<String>? get allowedSubstitutions;
 
   ActiveLearningEngineeringCampaignConfig._();
 
@@ -113,6 +119,13 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
       yield serializers.serialize(
         object.useDeltaEmbeddings,
         specifiedType: const FullType(bool),
+      );
+    }
+    if (object.allowedSubstitutions != null) {
+      yield r'allowed_substitutions';
+      yield serializers.serialize(
+        object.allowedSubstitutions,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
       );
     }
   }
@@ -188,6 +201,14 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
           ) as bool?;
           if (valueDes == null) continue;
           result.useDeltaEmbeddings = valueDes;
+          break;
+        case r'allowed_substitutions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
+          result.allowedSubstitutions.replace(valueDes);
           break;
         default:
           unhandled.add(key);

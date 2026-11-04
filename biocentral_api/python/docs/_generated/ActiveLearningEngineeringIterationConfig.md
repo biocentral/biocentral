@@ -12,6 +12,8 @@ Name | Type | Description | Notes
 **coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
 **n_suggestions** | **int** | Number of suggestions to propose from this iteration | 
 **n_mutations** | **int** | Number of mutations to generate and score in this iteration | [optional] [default to 1000]
+**n_substitutions** | **int** | Substitutions each generated candidate carries against its base sequence | [optional] [default to 1]
+**generate_candidates** | **bool** | Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains | [optional] [default to False]
 
 ## Example
 
