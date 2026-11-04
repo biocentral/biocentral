@@ -172,7 +172,7 @@ class Biocentral:
         :param use_half_precision: Use half precision to reduce memory. Defaults to False.
         :return: EmbeddingsResult containing the computed embeddings.
         """
-        seq_dat = self._parse_input_as_dict(sequence_data)
+        seq_dat = self._parse_input_as_sequence_data(sequence_data)
 
         return self._backend.embed(
             embedder_name, seq_dat, reduce=reduce, use_half_precision=use_half_precision
