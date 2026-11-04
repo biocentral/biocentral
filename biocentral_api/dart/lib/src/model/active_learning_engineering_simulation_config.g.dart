@@ -22,6 +22,10 @@ class _$ActiveLearningEngineeringSimulationConfig
   final num? hitPercentile;
   @override
   final int? nCandidatesPerIteration;
+  @override
+  final bool? generateCandidates;
+  @override
+  final int? nSubstitutions;
 
   factory _$ActiveLearningEngineeringSimulationConfig(
           [void Function(ActiveLearningEngineeringSimulationConfigBuilder)?
@@ -36,7 +40,9 @@ class _$ActiveLearningEngineeringSimulationConfig
       required this.nSuggestionsPerIteration,
       required this.stoppingConfig,
       this.hitPercentile,
-      this.nCandidatesPerIteration})
+      this.nCandidatesPerIteration,
+      this.generateCandidates,
+      this.nSubstitutions})
       : super._();
   @override
   ActiveLearningEngineeringSimulationConfig rebuild(
@@ -58,7 +64,9 @@ class _$ActiveLearningEngineeringSimulationConfig
         nSuggestionsPerIteration == other.nSuggestionsPerIteration &&
         stoppingConfig == other.stoppingConfig &&
         hitPercentile == other.hitPercentile &&
-        nCandidatesPerIteration == other.nCandidatesPerIteration;
+        nCandidatesPerIteration == other.nCandidatesPerIteration &&
+        generateCandidates == other.generateCandidates &&
+        nSubstitutions == other.nSubstitutions;
   }
 
   @override
@@ -71,6 +79,8 @@ class _$ActiveLearningEngineeringSimulationConfig
     _$hash = $jc(_$hash, stoppingConfig.hashCode);
     _$hash = $jc(_$hash, hitPercentile.hashCode);
     _$hash = $jc(_$hash, nCandidatesPerIteration.hashCode);
+    _$hash = $jc(_$hash, generateCandidates.hashCode);
+    _$hash = $jc(_$hash, nSubstitutions.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -85,7 +95,9 @@ class _$ActiveLearningEngineeringSimulationConfig
           ..add('nSuggestionsPerIteration', nSuggestionsPerIteration)
           ..add('stoppingConfig', stoppingConfig)
           ..add('hitPercentile', hitPercentile)
-          ..add('nCandidatesPerIteration', nCandidatesPerIteration))
+          ..add('nCandidatesPerIteration', nCandidatesPerIteration)
+          ..add('generateCandidates', generateCandidates)
+          ..add('nSubstitutions', nSubstitutions))
         .toString();
   }
 }
@@ -132,6 +144,16 @@ class ActiveLearningEngineeringSimulationConfigBuilder
   set nCandidatesPerIteration(int? nCandidatesPerIteration) =>
       _$this._nCandidatesPerIteration = nCandidatesPerIteration;
 
+  bool? _generateCandidates;
+  bool? get generateCandidates => _$this._generateCandidates;
+  set generateCandidates(bool? generateCandidates) =>
+      _$this._generateCandidates = generateCandidates;
+
+  int? _nSubstitutions;
+  int? get nSubstitutions => _$this._nSubstitutions;
+  set nSubstitutions(int? nSubstitutions) =>
+      _$this._nSubstitutions = nSubstitutions;
+
   ActiveLearningEngineeringSimulationConfigBuilder() {
     ActiveLearningEngineeringSimulationConfig._defaults(this);
   }
@@ -146,6 +168,8 @@ class ActiveLearningEngineeringSimulationConfigBuilder
       _stoppingConfig = $v.stoppingConfig.toBuilder();
       _hitPercentile = $v.hitPercentile;
       _nCandidatesPerIteration = $v.nCandidatesPerIteration;
+      _generateCandidates = $v.generateCandidates;
+      _nSubstitutions = $v.nSubstitutions;
       _$v = null;
     }
     return this;
@@ -181,6 +205,8 @@ class ActiveLearningEngineeringSimulationConfigBuilder
             stoppingConfig: stoppingConfig.build(),
             hitPercentile: hitPercentile,
             nCandidatesPerIteration: nCandidatesPerIteration,
+            generateCandidates: generateCandidates,
+            nSubstitutions: nSubstitutions,
           );
     } catch (_) {
       late String _$failedField;
