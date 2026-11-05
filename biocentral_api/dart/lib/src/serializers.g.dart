@@ -10,6 +10,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ActiveLearningEngineeringCampaignConfig.serializer)
       ..add(ActiveLearningEngineeringIterationConfig.serializer)
       ..add(ActiveLearningEngineeringIterationRequest.serializer)
+      ..add(ActiveLearningEngineeringSimulationConfig.serializer)
+      ..add(ActiveLearningEngineeringSimulationRequest.serializer)
       ..add(ActiveLearningIterationResult.serializer)
       ..add(ActiveLearningModelType.serializer)
       ..add(ActiveLearningOptimizationMode.serializer)
@@ -167,6 +169,15 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SequenceData)]),
           () => ListBuilder<SequenceData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())

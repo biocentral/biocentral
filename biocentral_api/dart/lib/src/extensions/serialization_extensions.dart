@@ -205,6 +205,8 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       'optimizationMode': optimizationMode.name,
       'seed': seed,
       'wildtypeSequence': wildtypeSequence,
+      'useDeltaEmbeddings': useDeltaEmbeddings,
+      'allowedSubstitutions': allowedSubstitutions?.toList(),
     };
   }
 
@@ -215,7 +217,11 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       ..modelType = ActiveLearningModelType.valueOf(jsonMap['modelType'] as String)
       ..optimizationMode = ActiveLearningOptimizationMode.valueOf(jsonMap['optimizationMode'] as String)
       ..seed = jsonMap['seed'] as int?
-      ..wildtypeSequence = jsonMap['wildtypeSequence'] as String);
+      ..wildtypeSequence = jsonMap['wildtypeSequence'] as String
+      ..useDeltaEmbeddings = jsonMap['useDeltaEmbeddings'] as bool?
+      ..allowedSubstitutions = jsonMap['allowedSubstitutions'] != null
+          ? ListBuilder<String>(List<String>.from(jsonMap['allowedSubstitutions'] as List))
+          : null);
   }
 }
 
@@ -227,6 +233,9 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
       'trainingData': trainingData.map((data) => data.serialize()).toList(),
       'coefficient': coefficient,
       'nSuggestions': nSuggestions,
+      'nMutations': nMutations,
+      'nSubstitutions': nSubstitutions,
+      'generateCandidates': generateCandidates,
     };
   }
 
@@ -239,7 +248,10 @@ extension EngineeringIterationConfigSerial on ActiveLearningEngineeringIteration
       ..trainingData = ListBuilder<SequenceData>(
           (jsonMap['trainingData'] as List).map((e) => SequenceDataSerial.deserialize(e as Map<String, dynamic>)))
       ..coefficient = jsonMap['coefficient'] as num
-      ..nSuggestions = jsonMap['nSuggestions'] as int);
+      ..nSuggestions = jsonMap['nSuggestions'] as int
+      ..nMutations = jsonMap['nMutations'] as int?
+      ..nSubstitutions = jsonMap['nSubstitutions'] as int?
+      ..generateCandidates = jsonMap['generateCandidates'] as bool?);
   }
 }
 

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List, Optional
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import Mutation, SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
 
+from .delta_embeddings import is_baseline_embedder
 from ..server_management.shared_endpoint_models.embedder_base_model import (
     EmbedderModelBase,
 )
@@ -34,6 +35,9 @@ class ActiveLearningOptimizationMode(str, Enum):
 
 class ActiveLearningScreeningCampaignConfig(EmbedderModelBase):
     """Configuration for an active learning screening campaign"""
+
+    # TODO(delta-embeddings): Add use_delta_embeddings and wildtype_sequences
+    #  (name -> sequence), validated against the data in the request models
 
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
@@ -142,6 +146,19 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         default=42, description="Random seed for reproducibility."
     )
     wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
+    use_delta_embeddings: bool = Field(
+        default=False,
+        description="Use each sequence's embedding minus the wildtype embedding as model "
+        "input (protein language model embedders only)",
+    )
+    allowed_substitutions: Optional[List[str]] = Field(
+        default=None,
+        description="Substitutions the generator may draw from, as wildtype-relative "
+        "descriptors such as V39A. None allows any standard amino acid at any position. "
+        "A position's alphabet is the wildtype residue plus every residue named for it, "
+        "so reverting to the wildtype is always part of the design space.",
+        min_length=1,
+    )
 
     @model_validator(mode="after")
     def validate_config(self):
@@ -152,6 +169,27 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
             raise ValueError(
                 "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
             )
+        if self.use_delta_embeddings and is_baseline_embedder(self.embedder_name):
+            raise ValueError(
+                "Delta embeddings require a protein language model, "
+                f"{self.embedder_name} is a baseline embedder!"
+            )
+        # A position convention mismatch would otherwise surface as a generator that
+        # silently proposes nothing a landscape can score
+        for substitution in self.allowed_substitutions or []:
+            mutation = Mutation.parse(substitution)
+            index = mutation.get_pos()
+            if index >= len(self.wildtype_sequence):
+                raise ValueError(
+                    f"Substitution {substitution} lies outside the wildtype sequence "
+                    f"of length {len(self.wildtype_sequence)}!"
+                )
+            if self.wildtype_sequence[index] != mutation.wt:
+                raise ValueError(
+                    f"Substitution {substitution} disagrees with the wildtype sequence, "
+                    f"which has '{self.wildtype_sequence[index]}' at position "
+                    f"{mutation.position}!"
+                )
 
         return self
 
@@ -181,6 +219,17 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
         default=1000,
         description="Number of mutations to generate and score in this iteration",
         ge=1,
+    )
+    n_substitutions: int = Field(
+        default=1,
+        description="Substitutions each generated candidate carries against its base "
+        "sequence",
+        ge=1,
+    )
+    generate_candidates: bool = Field(
+        default=False,
+        description="Generate candidates even when a candidate pool is supplied, keeping "
+        "only the generated sequences the pool contains",
     )
 
     @field_validator("training_data")
@@ -247,8 +296,8 @@ class ActiveLearningStoppingConfig(BaseModel):
         return self
 
 
-class ActiveLearningScreeningSimulationConfig(BaseModel):
-    """Configuration for a simulation of active learning on a complete dataset"""
+class _ActiveLearningSimulationConfig(BaseModel):
+    """Fields and checks shared by screening and engineering simulations"""
 
     simulation_data: List[SequenceData] = Field(
         description="List of all sequence data for the simulation", min_length=3
@@ -278,12 +327,6 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
         "(modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.",
         gt=0.0,
         lt=50.0,
-    )
-    hit_target_delta: float = Field(
-        default=0.5,
-        description="Absolute tolerance around the target value that counts as a hit "
-        "(mode: VALUE)",
-        gt=0.0,
     )
 
     @field_validator("simulation_data")
@@ -318,4 +361,59 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
             )
             if not start_ids_unique.issubset(simulation_ids):
                 raise ValueError("start_ids not a subset of simulation_data ids!")
+        return self
+
+
+class ActiveLearningScreeningSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulation of active learning on a complete dataset"""
+
+    hit_target_delta: float = Field(
+        default=0.5,
+        description="Absolute tolerance around the target value that counts as a hit "
+        "(mode: VALUE)",
+        gt=0.0,
+    )
+
+
+class ActiveLearningEngineeringSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulated engineering campaign over a labelled landscape.
+
+    Each round scores candidates drawn from simulation_data, so every suggestion has a
+    label to reveal. Engineering campaigns only maximize or minimize, so there is no
+    hit_target_delta.
+    """
+
+    n_candidates_per_iteration: int = Field(
+        default=1000,
+        description="Number of unlabelled landscape variants to score per iteration",
+        ge=1,
+    )
+    generate_candidates: bool = Field(
+        default=False,
+        description="Build each round's candidates by mutating the variants measured so "
+        "far, keeping only those the landscape contains, instead of drawing them from the "
+        "landscape uniformly",
+    )
+    n_substitutions: int = Field(
+        default=1,
+        description="Substitutions each generated candidate carries against its base "
+        "sequence (generate_candidates only)",
+        ge=1,
+    )
+
+    @field_validator("simulation_data")
+    @classmethod
+    def validate_unique_sequences(cls, v: List[SequenceData]):
+        # Suggestions are matched back to the landscape by sequence
+        sequences = [data_point.seq for data_point in v]
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("simulation_data contains duplicate sequences!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_candidates(self):
+        if self.n_candidates_per_iteration < self.n_suggestions_per_iteration:
+            raise ValueError(
+                "n_candidates_per_iteration must be at least n_suggestions_per_iteration"
+            )
         return self

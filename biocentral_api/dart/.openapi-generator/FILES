@@ -2,6 +2,8 @@ doc/ActiveLearningApi.md
 doc/ActiveLearningEngineeringCampaignConfig.md
 doc/ActiveLearningEngineeringIterationConfig.md
 doc/ActiveLearningEngineeringIterationRequest.md
+doc/ActiveLearningEngineeringSimulationConfig.md
+doc/ActiveLearningEngineeringSimulationRequest.md
 doc/ActiveLearningIterationResult.md
 doc/ActiveLearningModelType.md
 doc/ActiveLearningOptimizationMode.md
@@ -26,6 +28,8 @@ doc/BiotrainerModelResult.md
 doc/BiotrainerModelUpdate.md
 doc/BiotrainerPrediction.md
 doc/BootstrappedMetric.md
+doc/ClusterHBIRequest.md
+doc/ClusterHBIResponse.md
 doc/ClusteringRequest.md
 doc/CommonEmbedder.md
 doc/ConfigOptionsResponse.md
@@ -79,6 +83,8 @@ doc/RunTestRequest.md
 doc/RunTestResponse.md
 doc/SequenceData.md
 doc/ServiceStatsResponse.md
+doc/SplitHBIRequest.md
+doc/SplitHBIResponse.md
 doc/StartInferenceRequest.md
 doc/StartTaskResponse.md
 doc/StartTrainingRequest.md
@@ -111,6 +117,8 @@ lib/src/date_serializer.dart
 lib/src/model/active_learning_engineering_campaign_config.dart
 lib/src/model/active_learning_engineering_iteration_config.dart
 lib/src/model/active_learning_engineering_iteration_request.dart
+lib/src/model/active_learning_engineering_simulation_config.dart
+lib/src/model/active_learning_engineering_simulation_request.dart
 lib/src/model/active_learning_iteration_result.dart
 lib/src/model/active_learning_model_type.dart
 lib/src/model/active_learning_optimization_mode.dart
@@ -134,6 +142,8 @@ lib/src/model/biotrainer_model_result.dart
 lib/src/model/biotrainer_model_update.dart
 lib/src/model/biotrainer_prediction.dart
 lib/src/model/bootstrapped_metric.dart
+lib/src/model/cluster_hbi_request.dart
+lib/src/model/cluster_hbi_response.dart
 lib/src/model/clustering_request.dart
 lib/src/model/common_embedder.dart
 lib/src/model/config_options_response.dart
@@ -181,6 +191,8 @@ lib/src/model/run_test_request.dart
 lib/src/model/run_test_response.dart
 lib/src/model/sequence_data.dart
 lib/src/model/service_stats_response.dart
+lib/src/model/split_hbi_request.dart
+lib/src/model/split_hbi_response.dart
 lib/src/model/start_inference_request.dart
 lib/src/model/start_task_response.dart
 lib/src/model/start_training_request.dart

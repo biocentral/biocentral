@@ -25,6 +25,7 @@ from ._generated import (
     ActiveLearningScreeningIterationConfig,
     ActiveLearningIterationResult,
     ActiveLearningScreeningSimulationConfig,
+    ActiveLearningEngineeringSimulationConfig,
     ActiveLearningEngineeringIterationConfig,
     ActiveLearningEngineeringCampaignConfig,
     ActiveLearningScreeningSimulationResult,
@@ -598,6 +599,34 @@ class BiocentralAPI:
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
             biocentral_server_task = active_learning_client.al_screening_simulation(
+                api_client, campaign_config, simulation_config
+            )
+            return biocentral_server_task
+
+    def al_engineering_simulation(
+        self,
+        campaign_config: ActiveLearningEngineeringCampaignConfig,
+        simulation_config: ActiveLearningEngineeringSimulationConfig,
+    ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
+        """Simulate an engineering campaign over a labelled landscape.
+
+        Each iteration scores a sample of unlabelled landscape variants through the
+        engineering pipeline, so features such as delta embeddings apply.
+        """
+        if len(simulation_config.simulation_data) < 2:
+            raise ValueError(
+                "Not enough data provided for an active learning simulation."
+            )
+        BiocentralAPI._check_sequence_lengths(
+            [
+                simulation_data_point.seq
+                for simulation_data_point in simulation_config.simulation_data
+            ]
+        )
+
+        active_learning_client = ActiveLearningClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = active_learning_client.al_engineering_simulation(
                 api_client, campaign_config, simulation_config
             )
             return biocentral_server_task

@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/active_learning_optimization_mode.dart';
 import 'package:biocentral_api/src/model/active_learning_model_type.dart';
 import 'package:built_value/built_value.dart';
@@ -19,6 +20,8 @@ part 'active_learning_engineering_campaign_config.g.dart';
 /// * [optimizationMode] - Optimization mode selection
 /// * [seed] - Random seed for reproducibility.
 /// * [wildtypeSequence] - Wildtype sequence to engineer
+/// * [useDeltaEmbeddings] - Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+/// * [allowedSubstitutions] - Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.
 @BuiltValue()
 abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLearningEngineeringCampaignConfig, ActiveLearningEngineeringCampaignConfigBuilder> {
   /// Name of the embedder model to use
@@ -47,12 +50,21 @@ abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLe
   @BuiltValueField(wireName: r'wildtype_sequence')
   String get wildtypeSequence;
 
+  /// Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+  @BuiltValueField(wireName: r'use_delta_embeddings')
+  bool? get useDeltaEmbeddings;
+
+  /// Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.
+  @BuiltValueField(wireName: r'allowed_substitutions')
+  BuiltList<String>? get allowedSubstitutions;
+
   ActiveLearningEngineeringCampaignConfig._();
 
   factory ActiveLearningEngineeringCampaignConfig([void updates(ActiveLearningEngineeringCampaignConfigBuilder b)]) = _$ActiveLearningEngineeringCampaignConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningEngineeringCampaignConfigBuilder b) => b;
+  static void _defaults(ActiveLearningEngineeringCampaignConfigBuilder b) => b
+      ..useDeltaEmbeddings = false;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningEngineeringCampaignConfig> get serializer => _$ActiveLearningEngineeringCampaignConfigSerializer();
@@ -102,6 +114,20 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
       object.wildtypeSequence,
       specifiedType: const FullType(String),
     );
+    if (object.useDeltaEmbeddings != null) {
+      yield r'use_delta_embeddings';
+      yield serializers.serialize(
+        object.useDeltaEmbeddings,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.allowedSubstitutions != null) {
+      yield r'allowed_substitutions';
+      yield serializers.serialize(
+        object.allowedSubstitutions,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+      );
+    }
   }
 
   @override
@@ -167,6 +193,22 @@ class _$ActiveLearningEngineeringCampaignConfigSerializer implements PrimitiveSe
             specifiedType: const FullType(String),
           ) as String;
           result.wildtypeSequence = valueDes;
+          break;
+        case r'use_delta_embeddings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
+          result.useDeltaEmbeddings = valueDes;
+          break;
+        case r'allowed_substitutions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
+          result.allowedSubstitutions.replace(valueDes);
           break;
         default:
           unhandled.add(key);

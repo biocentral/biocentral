@@ -14,6 +14,8 @@ Name | Type | Description | Notes
 **coefficient** | **num** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
 **nSuggestions** | **int** | Number of suggestions to propose from this iteration | 
 **nMutations** | **int** | Number of mutations to generate and score in this iteration | [optional] [default to 1000]
+**nSubstitutions** | **int** | Substitutions each generated candidate carries against its base sequence | [optional] [default to 1]
+**generateCandidates** | **bool** | Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains | [optional] [default to false]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
