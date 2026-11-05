@@ -28,8 +28,8 @@ dependencies = [
     "junban>=1.0.2,<1.1.0",
     "click>=8.4.2,<9.0.0",
     "pyrate-limiter>=3.0.0",
-    # Git Dependencies
-    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@v2.1.1",
+    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@a6c097a04f98814fe88bb942974f883d296ddb01",
+    "biotrainer-core @ git+https://github.com/sacdallago/biotrainer.git@a6c097a04f98814fe88bb942974f883d296ddb01#subdirectory=biotrainer-core",
     #"biotrainer>=2.0.0,<2.1.0",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v4.8.2#subdirectory=apps/protspace",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
@@ -62,6 +62,9 @@ dev = [
 
 [tool.uv.sources]
 biotrainer = { path = "../biotrainer", editable = true }
+# Mirrors the biotrainer source so local work uses the submodule; the git pin above
+# only applies under --no-sources (CI, Docker).
+biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"

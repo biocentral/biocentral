@@ -21,6 +21,7 @@ class EngineeringPipelineContext(ALContext):
         embedder_name: str,
         al_training_data: List[SequenceData],
         base_sequences: List[str],
+        wildtype_sequence: str,
         embedding_subtask_wrapper: Callable[
             [List[SequenceData]], Tuple[Optional[TaskDTO], List[SequenceData]]
         ],
@@ -28,6 +29,7 @@ class EngineeringPipelineContext(ALContext):
         iteration: int,  # Number of the iteration
         coefficient: float,
         n_suggestions: int,
+        seed: int,
         n_mutations: int,
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,
@@ -43,6 +45,7 @@ class EngineeringPipelineContext(ALContext):
             iteration=iteration,
             coefficient=coefficient,
             n_suggestions=n_suggestions,
+            seed=seed,
             al_target_value=al_target_value,
             al_target_lb=al_target_lb,
             al_target_ub=al_target_ub,
@@ -57,6 +60,7 @@ class EngineeringPipelineContext(ALContext):
 
         # Mutation Generation Step
         self.base_sequences = base_sequences
+        self.wildtype_sequence = wildtype_sequence
         self.n_mutations = n_mutations
         self.mutation_depth: int = 1  # TODO CONFIG
         self.mutations: Optional[List[str]] = None
