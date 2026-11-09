@@ -31,8 +31,8 @@ DOUBLES = {"MCKEFG", "MCWEFG"}
 
 def _generate(bases, n_substitutions=1, excluded=frozenset(), pool=None, n=100, seed=0):
     return MutationGenerationStep._randomly_generate_candidates(
-        bases=list(bases),
-        design_space=MutationGenerationStep._design_space(ALLOWED, WILDTYPE),
+        base_sequences=list(bases),
+        design_space=MutationGenerationStep._design_space(WILDTYPE, ALLOWED),
         n_substitutions=n_substitutions,
         excluded=set(excluded),
         pool=pool,
@@ -44,19 +44,19 @@ def _generate(bases, n_substitutions=1, excluded=frozenset(), pool=None, n=100, 
 class TestDesignSpace:
     def test_alphabet_includes_the_wildtype_residue(self):
         # Reverting to the wildtype is part of a design space, so it must be drawable
-        assert MutationGenerationStep._design_space(ALLOWED, WILDTYPE) == {
+        assert MutationGenerationStep._design_space(WILDTYPE, ALLOWED) == {
             0: ["A", "M"],
             2: ["D", "K", "W"],
         }
 
     def test_without_a_design_space_every_position_takes_any_residue(self):
-        space = MutationGenerationStep._design_space(None, "AC")
+        space = MutationGenerationStep._design_space("AC", None)
         assert space == {0: sorted(STANDARD_AAS), 1: sorted(STANDARD_AAS)}
 
-    def test_proposals_per_base_sums_over_position_subsets(self):
+    def test_num_reachable_sequences_sums_over_position_subsets(self):
         # Alternatives [1, 2]: three singles, and one double of 1 * 2
-        assert MutationGenerationStep._proposals_per_base([1, 2], 1) == 3
-        assert MutationGenerationStep._proposals_per_base([1, 2], 2) == 2
+        assert MutationGenerationStep._num_reachable_sequences([1, 2], 1) == 3
+        assert MutationGenerationStep._num_reachable_sequences([1, 2], 2) == 2
 
 
 class TestGeneration:
@@ -147,8 +147,8 @@ GENERATE = (
     ".mutation_generation_step import MutationGenerationStep\n"
     "wildtype = 'MKTAYIAKQRQISFVKSHFSRQ'\n"
     "print(json.dumps(MutationGenerationStep._randomly_generate_candidates("
-    "bases=[wildtype],"
-    "design_space=MutationGenerationStep._design_space(None, wildtype),"
+    "base_sequences=[wildtype],"
+    "design_space=MutationGenerationStep._design_space(wildtype, None),"
     "n_substitutions=1, excluded=set(), pool=None, n_candidates=50,"
     "rng=random.Random(42))))"
 )

@@ -10,10 +10,7 @@ from .....utils import get_logger
 
 logger = get_logger(__name__)
 
-# A work bound rather than a statistical one: roughly a second of string operations.
-# Only reached when the pool rejects nearly every proposal, and the round then proceeds
-# with what was found.
-MAX_DRAWS = 1_000_000
+MAX_DRAWS = 1_000_000  # rule-of-thumb
 
 
 class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
@@ -37,14 +34,14 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
 
     @staticmethod
     def _design_space(
-        allowed_substitutions: Optional[List[str]], wildtype_sequence: str
+        wildtype_sequence: str, allowed_substitutions: Optional[List[str]]
     ) -> Dict[int, List[str]]:
         """Residues each position may take, keyed by 0-based index.
 
-        A position's alphabet holds the wildtype residue alongside every residue named for
-        it, so reverting to the wildtype is part of the design space. Without an explicit
-        set every position takes any standard amino acid, which is what an engineering
-        campaign outside a simulation has always done.
+        Notes:
+            Defaults to all standard amino acids for each position.
+
+            Includes wildtype residue at each position.
         """
         if allowed_substitutions is None:
             return {
@@ -59,17 +56,17 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         return {index: sorted(alphabets[index]) for index in sorted(alphabets)}
 
     @staticmethod
-    def _proposals_per_base(alternatives: Sequence[int], n_substitutions: int) -> int:
-        """How many distinct sequences one base admits at exactly n_substitutions.
+    def _num_reachable_sequences(num_alternatives: Sequence[int], n_substitutions: int) -> int:
+        """Counts how many unique sequences are reachable at n_substitutions from a base sequence in n_substitutions.
 
-        Every choice of n_substitutions positions contributes the product of its
-        per-position alternative counts, which is what the elementary symmetric polynomial
-        of that degree sums over all such choices.
+        Args:
+            num_alternatives: Number of alternative residues allowed for each position.
+            n_substitutions: Number of positions to mutate.
         """
         counts = [0] * (n_substitutions + 1)
         counts[0] = 1
-        for alternative_count in alternatives:
-            for degree in range(min(n_substitutions, len(alternatives)), 0, -1):
+        for alternative_count in num_alternatives:
+            for degree in range(min(n_substitutions, len(num_alternatives)), 0, -1):
                 counts[degree] += counts[degree - 1] * alternative_count
         return counts[n_substitutions]
 
@@ -77,7 +74,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _sample_candidates(
         pool: List[str], excluded: Set[str], n_candidates: int, rng: random.Random
     ) -> List[str]:
-        """Up to n_candidates distinct pool members outside excluded, in random order."""
+        """Sample up to n_candidates distinct pool members in random order."""
         # Permute indices rather than iterate a set, so seeded runs agree across workers
         sampled = {}
         for index in rng.sample(range(len(pool)), len(pool)):
@@ -91,7 +88,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     @classmethod
     def _randomly_generate_candidates(
         cls,
-        bases: List[str],
+        base_sequences: List[str],
         design_space: Dict[int, List[str]],
         n_substitutions: int,
         excluded: Set[str],
@@ -99,21 +96,32 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         n_candidates: int,
         rng: random.Random,
     ) -> List[str]:
-        """Distinct sequences, each exactly n_substitutions away from one of the bases.
+        """Randomly draw distinct candidates by substituting residues in the bases.
 
-        Substitutions are drawn only from design_space, and when a pool is given only the
-        sequences it holds survive, so a simulation can never suggest a variant its
-        landscape has no label for.
+        Args:
+            base_sequences: Sequences to mutate; each draw picks one uniformly.
+            design_space: Residues allowed at each 0-based position.
+            n_substitutions: Number of positions substituted per candidate.
+            excluded: Sequences that aren't allowed to be returned.
+            pool: If given, only sequences in it are returned.
+            n_candidates: Number of candidates to draw.
+            rng: Source of all randomness, so seeded runs are reproducible.
 
-        The target is capped by how many distinct sequences the bases actually admit: a
-        design space smaller than n_candidates is collected as far as it goes instead of
-        being drawn against a budget it can never satisfy.
+        Returns:
+            Up to n_candidates sequences, each exactly n_substitutions away from the
+            base it was drawn from.
+
+        Notes:
+            Returns fewer than n_candidates if the bases admit fewer valid sequences
+            or MAX_DRAWS is reached first.
+
+            Sequences are ordered by draw.
         """
         positions = sorted(design_space)
         if len(positions) < n_substitutions:
             return []
 
-        reachable = len(bases) * cls._proposals_per_base(
+        reachable = len(base_sequences) * cls._num_reachable_sequences(
             [len(design_space[index]) - 1 for index in positions], n_substitutions
         )
         target = min(n_candidates, reachable)
@@ -121,7 +129,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         for _ in range(MAX_DRAWS):
             if len(generated) == target:
                 break
-            base = bases[rng.randrange(len(bases))]
+            base = base_sequences[rng.randrange(len(base_sequences))]
             candidate = list(base)
             for index in rng.sample(positions, n_substitutions):
                 choices = [
@@ -160,9 +168,9 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         # Repeated bases would weight their own neighbourhoods more heavily
         bases = list(dict.fromkeys(context.base_sequences))
         candidates = self._randomly_generate_candidates(
-            bases=bases,
+            base_sequences=bases,
             design_space=self._design_space(
-                context.allowed_substitutions, context.wildtype_sequence
+                context.wildtype_sequence, context.allowed_substitutions
             ),
             n_substitutions=context.n_substitutions,
             excluded=excluded,
