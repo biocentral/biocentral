@@ -164,21 +164,22 @@ class BiocentralLoadProjectBloc extends Bloc<BiocentralLoadProjectEvent, Biocent
   }
 
   Future<void> _executeLoadingFunction(void Function(BuildContext) loadFunction, BuildContext context) async {
+    if (_commandBloc.state.isBusy()) {
+      throw StateError('Finish the active command in Activity before loading a project.');
+    }
+    var started = false;
     final completer = Completer<void>();
     late StreamSubscription subscription;
 
     subscription = _commandBloc.stream.listen(
       (commandBlocState) {
-        if (commandBlocState.isFinished()) {
-          if (!completer.isCompleted) {
-            completer.complete();
-          }
-        } else if (commandBlocState.isErrored()) {
-          if (!completer.isCompleted) {
-            completer.completeError(
-              commandBlocState.currentCommandLog?.metaData.error ?? 'Loading failed with unknown error',
-            );
-          }
+        if (commandBlocState.isBusy()) {
+          started = true;
+        }
+        if (commandBlocState.isErrored() && !completer.isCompleted) {
+          completer.completeError(commandBlocState.currentCommandLog?.metaData.error ?? 'Loading failed');
+        } else if (started && commandBlocState.isIdle() && !completer.isCompleted) {
+          completer.complete();
         }
       },
       onError: (error) {

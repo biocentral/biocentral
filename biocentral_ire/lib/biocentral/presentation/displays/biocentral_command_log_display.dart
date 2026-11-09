@@ -43,7 +43,7 @@ class _BiocentralCommandLogViewState extends State<BiocentralCommandLogView> {
   Widget build(BuildContext context) {
     return BlocBuilder<BiocentralCommandBloc, BiocentralCommandState>(
       builder: (context, commandState) {
-        final newOperatingLog = commandState.currentCommandLog != null;
+        final newOperatingLog = commandState.isBusy() && commandState.currentCommandLog != null;
         if (!_hasOperatingLog && newOperatingLog) {
           onNewLogAdded();
         }
