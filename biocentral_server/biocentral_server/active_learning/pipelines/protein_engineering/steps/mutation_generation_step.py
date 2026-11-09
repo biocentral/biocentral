@@ -89,7 +89,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         return list(sampled)
 
     @classmethod
-    def _generate_candidates(
+    def _randomly_generate_candidates(
         cls,
         bases: List[str],
         design_space: Dict[int, List[str]],
@@ -159,7 +159,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
 
         # Repeated bases would weight their own neighbourhoods more heavily
         bases = list(dict.fromkeys(context.base_sequences))
-        candidates = self._generate_candidates(
+        candidates = self._randomly_generate_candidates(
             bases=bases,
             design_space=self._design_space(
                 context.allowed_substitutions, context.wildtype_sequence
