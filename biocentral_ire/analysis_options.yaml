@@ -52,3 +52,12 @@ dart_code_metrics:
 # Configure line length to 120
 formatter:
   page_width: 120
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

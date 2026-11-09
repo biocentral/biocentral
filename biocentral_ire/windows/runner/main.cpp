@@ -18,6 +18,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
   flutter::DartProject project(L"data");
+  project.set_enable_flutter_gpu(true);
+  project.set_impeller_switch(flutter::ImpellerSwitch::Enabled);
 
   std::vector<std::string> command_line_arguments =
       GetCommandLineArguments();
