@@ -29,19 +29,19 @@ from biocentral_server.server_management import (
     ActiveLearningResult,
 )
 
-WILDTYPE = "ACDEFG"
+WILDTYPE = "SEQV"
 
 
 def _landscape():
-    """Wildtype plus every single substitution to V, labelled by position."""
+    """Wildtype plus every single substitution to W, labelled by position."""
     pool = [SequenceData(seq_id="WT", seq=WILDTYPE, label="0.0")]
     for position, residue in enumerate(WILDTYPE):
-        if residue == "V":
+        if residue == "W":
             continue
-        variant = WILDTYPE[:position] + "V" + WILDTYPE[position + 1 :]
+        variant = WILDTYPE[:position] + "W" + WILDTYPE[position + 1 :]
         pool.append(
             SequenceData(
-                seq_id=f"{residue}{position + 1}V", seq=variant, label=str(position + 1)
+                seq_id=f"{residue}{position + 1}W", seq=variant, label=str(position + 1)
             )
         )
     return pool
@@ -64,7 +64,7 @@ def _simulation(**overrides):
     return ActiveLearningEngineeringSimulationConfig(
         **{
             "simulation_data": _landscape(),
-            "start_ids": ["WT", "A1V"],
+            "start_ids": ["WT", "S1W"],
             "n_suggestions_per_iteration": 1,
             "n_candidates_per_iteration": 3,
             "stopping_config": ActiveLearningStoppingConfig(max_labels_budget=2),
@@ -106,37 +106,36 @@ class TestConfig:
 
     def test_allowed_substitutions_must_lie_inside_the_wildtype(self):
         with pytest.raises(ValidationError, match="outside the wildtype"):
-            _campaign(allowed_substitutions=["A9V"])
+            _campaign(allowed_substitutions=["S9V"])
 
     def test_allowed_substitutions_matching_the_wildtype_are_accepted(self):
         assert _campaign(
-            allowed_substitutions=["A1V", "C2V"]
+            allowed_substitutions=["S1V", "E2W"]
         ).allowed_substitutions == [
-            "A1V",
-            "C2V",
+            "S1V",
+            "E2W",
         ]
 
     def test_substitutions_at_same_position_are_accepted(self):
         assert _campaign(
-            allowed_substitutions=["A1C", "A1V", "C2V"]
-        ).allowed_substitutions == ["A1C", "A1V", "C2V"
-        ]
+            allowed_substitutions=["S1V", "S1W", "E2A"]
+        ).allowed_substitutions == ["S1V", "S1W", "E2A"]
 
 
 class TestBaseSequences:
     def test_the_wildtype_and_everything_measured_are_bases(self):
         task = _task()
         measured = [
-            SequenceData(seq_id="A1V", seq="VCDEFG", label="1"),
-            SequenceData(seq_id="C2V", seq="AVDEFG", label="2"),
+            SequenceData(seq_id="S1W", seq="WEQV", label="1"),
+            SequenceData(seq_id="E2W", seq="SWQV", label="2"),
         ]
-        assert task._base_sequences(measured) == [WILDTYPE, "VCDEFG", "AVDEFG"]
+        assert task._base_sequences(measured) == [WILDTYPE, "WEQV", "SWQV"]
 
     def test_the_wildtype_is_a_base_even_when_the_landscape_omits_it(self):
         # NucB has no wildtype row; without this the generator could only ever propose
         # substitutions at positions it had already measured
         task = _task()
-        measured = [SequenceData(seq_id="A1V", seq="VCDEFG", label="1")]
+        measured = [SequenceData(seq_id="S1W", seq="WEQV", label="1")]
         assert task._base_sequences(measured)[0] == WILDTYPE
 
     def test_a_measured_wildtype_is_not_duplicated(self):
@@ -148,14 +147,14 @@ class TestBaseSequences:
 class TestOracle:
     def test_descriptor_maps_back_to_landscape_id(self):
         task = _task()
-        assert task._seq_id("C2V") == "C2V"
-        assert task._seq_id("A1V") == "A1V"
+        assert task._seq_id("E2W") == "E2W"
+        assert task._seq_id("S1W") == "S1W"
 
     def test_variant_outside_the_landscape_is_named(self):
         task = _task()
         # Valid descriptor against the wildtype, but no such landscape member
-        with pytest.raises(ValueError, match="A1W"):
-            task._seq_id("A1W")
+        with pytest.raises(ValueError, match="S1C"):
+            task._seq_id("S1C")
 
     def test_descriptor_disagreeing_with_the_wildtype_raises(self):
         task = _task()
@@ -169,15 +168,15 @@ class TestOracle:
             iteration=1,
             results=[
                 ActiveLearningResult(
-                    entity_id="C2V", prediction="1.0", uncertainty=0.1, score=0.5
+                    entity_id="E2W", prediction="1.0", uncertainty=0.1, score=0.5
                 )
             ],
-            suggestions=["C2V"],
+            suggestions=["E2W"],
         )
         canonical = task._canonicalize_iteration_result(raw, recorded.append)
 
-        assert canonical.suggestions == ["C2V"]
-        assert [r.entity_id for r in canonical.results] == ["C2V"]
+        assert canonical.suggestions == ["E2W"]
+        assert [r.entity_id for r in canonical.results] == ["E2W"]
         # The client rebuilds iteration_results from these updates
         assert recorded and recorded[-1].al_iteration_result is canonical
 
@@ -254,19 +253,19 @@ class TestRoundLoop:
                 stopping_config=ActiveLearningStoppingConfig(max_labels_budget=3),
             )
         )
-        seen, dto = self._run(task, [["C2V", "D3V"], ["E4V"]])
+        seen, dto = self._run(task, [["E2W", "Q3W"], ["V4W"]])
         assert [round_["n_to_suggest"] for round_ in seen] == [2, 1]
         assert dto.al_simulation_result.stop_reasons
 
     def test_suggestions_become_labelled_training_data(self):
         task = _task()
-        seen, _ = self._run(task, [["C2V"], ["D3V"]])
+        seen, _ = self._run(task, [["E2W"], ["Q3W"]])
         # Two start ids, then one revealed per round
         assert [round_["n_labelled"] for round_ in seen][:2] == [2, 3]
 
     def test_hits_are_counted_against_landscape_labels(self):
         task = _task()
-        _, dto = self._run(task, [["F5V"], ["D3V"]])
+        _, dto = self._run(task, [["V4W"], ["Q3W"]])
         result = dto.al_simulation_result
         assert result.iteration_hits
         # Hits are reported as landscape ids, not descriptors
