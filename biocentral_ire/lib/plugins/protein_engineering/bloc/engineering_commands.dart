@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:cross_file/cross_file.dart';
-import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/amino_acid_restrictions.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/engineering_repository.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/sequence_validation.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/structure_sequence.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
+import 'package:biocentral_api/biocentral_api.dart';
+import 'package:cross_file/cross_file.dart';
 
 /// An atomic scientific change with complete before/after provenance.
 abstract class EngineeringChangeCommand extends BiocentralCommand<EngineeringCampaign> {

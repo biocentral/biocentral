@@ -84,7 +84,7 @@ class EngineeringHubBloc extends Bloc<EngineeringHubEvent, EngineeringHubState> 
           campaigns: state.campaigns,
           selectedId: state.selectedId,
           section: event.section,
-          roundIndex: event.roundIndex == null || count == 0 ? null : event.roundIndex!.clamp(0, count - 1),
+          roundIndex: count == 0 ? null : (event.roundIndex ?? state.roundIndex)?.clamp(0, count - 1),
         ),
       );
     });
