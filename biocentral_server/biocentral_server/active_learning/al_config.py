@@ -5,7 +5,7 @@ from typing import List, Optional
 from biotrainer_core.data_classes import Mutation, SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
 
-from .delta_embeddings import is_baseline_embedder
+from .delta_embeddings import DELTA_INCOMPATIBLE_EMBEDDERS
 from ..server_management.shared_endpoint_models.embedder_base_model import (
     EmbedderModelBase,
 )
@@ -146,7 +146,7 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
     use_delta_embeddings: bool = Field(
         default=False,
         description="Use each sequence's embedding minus the wildtype embedding as model "
-        "input (protein language model embedders only)",
+        "input (only supported for residue-aware embedders)"
     )
     allowed_substitutions: Optional[List[str]] = Field(
         default=None,
@@ -166,10 +166,13 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
             raise ValueError(
                 "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
             )
-        if self.use_delta_embeddings and is_baseline_embedder(self.embedder_name):
+        if (
+            self.use_delta_embeddings
+            and self.embedder_name in DELTA_INCOMPATIBLE_EMBEDDERS
+        ):
             raise ValueError(
-                "Delta embeddings require a protein language model, "
-                f"{self.embedder_name} is a baseline embedder!"
+                "Delta embeddings need an embedder that encodes the residues, "
+                f"which {self.embedder_name} does not!"
             )
         # A position convention mismatch would otherwise surface as a generator that
         # silently proposes nothing a landscape can score
