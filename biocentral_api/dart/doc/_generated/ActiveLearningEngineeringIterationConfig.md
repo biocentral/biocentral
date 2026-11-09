@@ -8,11 +8,11 @@ import 'package:biocentral_api/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**iteration** | **int** | Iteration number | 
-**baseSequences** | **BuiltList&lt;String&gt;** | Sequences used to generate mutations (defaults to the wildtype sequence of the campaign) | [optional] 
-**trainingData** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) | List of training data for this iteration | 
-**coefficient** | **num** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
-**nSuggestions** | **int** | Number of suggestions to propose from this iteration | 
+**iteration** | **int** | Iteration number |
+**baseSequences** | **BuiltList&lt;String&gt;** | Sequences used to generate mutations (defaults to the wildtype sequence of the campaign) | [optional]
+**trainingData** | [**BuiltList&lt;SequenceData&gt;**](SequenceData.md) | List of training data for this iteration |
+**coefficient** | **num** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) |
+**nSuggestions** | **int** | Number of suggestions to propose from this iteration |
 **nMutations** | **int** | Number of mutations to generate and score in this iteration | [optional] [default to 1000]
 **candidateSequences** | **BuiltList&lt;String&gt;** | Explicit permitted sequences to score instead of generating mutations | [optional]
 

@@ -6,9 +6,9 @@ Configuration for stopping criteria for active learning campaigns
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**max_labels_budget** | **int** | Maximum number of labels that can be tested in the lab (&#39;We can afford to test 100 proteins total&#39;) | [optional] 
-**n_hits** | **int** | Number of positive targets (hits) found before stopping (&#39;Stop when we find 10 good proteins&#39;) | [optional] 
-**max_consecutive_failures** | **int** | Maximum number of iterations in a row that do not yield a new target (&#39;Stop if 3 rounds yield nothing&#39;) | [optional] 
+**max_labels_budget** | **int** | Maximum number of labels that can be tested in the lab (&#39;We can afford to test 100 proteins total&#39;) | [optional]
+**n_hits** | **int** | Number of positive targets (hits) found before stopping (&#39;Stop when we find 10 good proteins&#39;) | [optional]
+**max_consecutive_failures** | **int** | Maximum number of iterations in a row that do not yield a new target (&#39;Stop if 3 rounds yield nothing&#39;) | [optional]
 **n_max_iterations** | **int** | Hard upper limit on the number of iterations, applied even if no other criterion is reached | [optional] [default to 100]
 
 ## Example
