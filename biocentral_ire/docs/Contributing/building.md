@@ -13,10 +13,14 @@ Overview how to build biocentral for different platforms locally.
 For serious_python, you need to add this environment variable to your run configuration:
 
 ```shell
+export SERIOUS_PYTHON_VERSION=3.12
+export SERIOUS_PYTHON_APP="$(pwd)/build/python-app"
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 flutter run -d linux
 
 # For IDE config
+SERIOUS_PYTHON_VERSION=3.12
+SERIOUS_PYTHON_APP=/absolute/path/to/biocentral/build/python-app
 SERIOUS_PYTHON_SITE_PACKAGES=/absolute/path/to/biocentral/build/site-packages
 ```
 
@@ -31,6 +35,8 @@ dart run flutter_launcher_icons
 Build python companion via `serious_python` package command before building the flutter app:
 
 ```shell
+export SERIOUS_PYTHON_VERSION=3.12
+export SERIOUS_PYTHON_APP="$(pwd)/build/python-app"
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 # Windows
 dart run serious_python:main package python_companion/ -p Windows -r -r -r python_companion/requirements.txt
@@ -39,8 +45,6 @@ dart run serious_python:main package python_companion/ -p Linux -r -r -r python_
 # macOS
 dart run serious_python:main package python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
 
-cp -r python_companion/ assets/
-rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
 ```
 
 ## Linux
@@ -88,9 +92,7 @@ cp assets/biocentral_logo/biocentral_logo.png releases/current/biocentral.AppDir
 
 ## Web
 
-```shell
-flutter build web
-```
+Web support and the IRE web build are temporarily suspended.
 
 ## Windows
 

@@ -26,4 +26,6 @@ runs:
       working-directory: biocentral_ire
       run: dart run serious_python:main package python_companion/ -p Linux -r -r -r python_companion/requirements.txt
       env:
+        SERIOUS_PYTHON_VERSION: '3.12'
+        SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/python-app
         SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages
