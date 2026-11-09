@@ -240,6 +240,15 @@ final class LoadEngineeringCampaignCommand extends BiocentralCommand<List<Engine
   Stream<BiocentralCommandLog<List<EngineeringCampaign>>> execute() async* {
     final source = input ?? EngineeringInput(name: file!.name, format: 'json', bytes: await file!.readAsBytes());
     final campaigns = decodeEngineeringCampaigns(utf8.decode(source.bytes));
+    for (final campaign in campaigns) {
+      final structure = campaign.wildtypeStructureMmcif;
+      if (structure != null) {
+        final parsed = await MmcifParser.parse(structure);
+        if (matchWildtypeStructure(parsed.structure, campaign.wildtypeSequence) == null) {
+          throw FormatException('The structure in "${campaign.config.name}" does not match its wildtype.');
+        }
+      }
+    }
     yield initLog().finish(
       result: BiocentralCommandResult(campaigns, {
         'campaignIds': campaigns.map((campaign) => campaign.id).toList(),

@@ -285,7 +285,9 @@ class EngineeringRound {
   );
 }
 
-/// An applied measurement; null fitness explicitly means did not express.
+/// A measurement value; null fitness on an applied entry means did not express.
+///
+/// A sequence without an entry in [EngineeringCampaign.measurements] is untested.
 class MeasuredVariant extends Equatable {
   final String seqId;
   final String sequence;
