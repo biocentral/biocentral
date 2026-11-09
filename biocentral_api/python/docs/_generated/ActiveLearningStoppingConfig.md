@@ -29,5 +29,3 @@ active_learning_stopping_config_dict = active_learning_stopping_config_instance.
 active_learning_stopping_config_from_dict = ActiveLearningStoppingConfig.from_dict(active_learning_stopping_config_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
-
-
