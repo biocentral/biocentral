@@ -61,6 +61,10 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _execute(
         self, context: EngineeringPipelineContext
     ) -> EngineeringPipelineContext:
+        if context.candidate_sequences is not None:
+            context.mutations = list(context.candidate_sequences)
+            return context
+
         base_sequences = context.base_sequences
         wildtype_sequence = base_sequences[0]  # TODO handle multiple base sequences
 

@@ -38,6 +38,7 @@ def al_engineering_pipeline(
         n_suggestions=al_iteration_config.n_suggestions,
         seed=al_campaign_config.seed,
         n_mutations=al_iteration_config.n_mutations,
+        candidate_sequences=al_iteration_config.candidate_sequences,
         all_labels_in_data=None,
     )
     steps = [

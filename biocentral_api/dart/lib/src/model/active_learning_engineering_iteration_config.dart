@@ -19,6 +19,7 @@ part 'active_learning_engineering_iteration_config.g.dart';
 /// * [coefficient] - Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
 /// * [nSuggestions] - Number of suggestions to propose from this iteration
 /// * [nMutations] - Number of mutations to generate and score in this iteration
+/// * [candidateSequences] - Explicit permitted sequences to score instead of generating mutations
 @BuiltValue()
 abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringIterationConfigBuilder> {
   /// Iteration number
@@ -44,6 +45,10 @@ abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveL
   /// Number of mutations to generate and score in this iteration
   @BuiltValueField(wireName: r'n_mutations')
   int? get nMutations;
+
+  /// Explicit permitted sequences to score instead of generating mutations
+  @BuiltValueField(wireName: r'candidate_sequences')
+  BuiltList<String>? get candidateSequences;
 
   ActiveLearningEngineeringIterationConfig._();
 
@@ -101,6 +106,13 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
       yield serializers.serialize(
         object.nMutations,
         specifiedType: const FullType(int),
+      );
+    }
+    if (object.candidateSequences != null) {
+      yield r'candidate_sequences';
+      yield serializers.serialize(
+        object.candidateSequences,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
       );
     }
   }
@@ -169,6 +181,14 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
           ) as int?;
           if (valueDes == null) continue;
           result.nMutations = valueDes;
+          break;
+        case r'candidate_sequences':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
+          result.candidateSequences.replace(valueDes);
           break;
         default:
           unhandled.add(key);

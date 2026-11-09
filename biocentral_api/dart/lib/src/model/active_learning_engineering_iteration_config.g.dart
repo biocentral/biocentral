@@ -20,6 +20,8 @@ class _$ActiveLearningEngineeringIterationConfig
   final int nSuggestions;
   @override
   final int? nMutations;
+  @override
+  final BuiltList<String>? candidateSequences;
 
   factory _$ActiveLearningEngineeringIterationConfig(
           [void Function(ActiveLearningEngineeringIterationConfigBuilder)?
@@ -33,7 +35,8 @@ class _$ActiveLearningEngineeringIterationConfig
       required this.trainingData,
       required this.coefficient,
       required this.nSuggestions,
-      this.nMutations})
+      this.nMutations,
+      this.candidateSequences})
       : super._();
   @override
   ActiveLearningEngineeringIterationConfig rebuild(
@@ -54,7 +57,8 @@ class _$ActiveLearningEngineeringIterationConfig
         trainingData == other.trainingData &&
         coefficient == other.coefficient &&
         nSuggestions == other.nSuggestions &&
-        nMutations == other.nMutations;
+        nMutations == other.nMutations &&
+        candidateSequences == other.candidateSequences;
   }
 
   @override
@@ -66,6 +70,7 @@ class _$ActiveLearningEngineeringIterationConfig
     _$hash = $jc(_$hash, coefficient.hashCode);
     _$hash = $jc(_$hash, nSuggestions.hashCode);
     _$hash = $jc(_$hash, nMutations.hashCode);
+    _$hash = $jc(_$hash, candidateSequences.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -79,7 +84,8 @@ class _$ActiveLearningEngineeringIterationConfig
           ..add('trainingData', trainingData)
           ..add('coefficient', coefficient)
           ..add('nSuggestions', nSuggestions)
-          ..add('nMutations', nMutations))
+          ..add('nMutations', nMutations)
+          ..add('candidateSequences', candidateSequences))
         .toString();
   }
 }
@@ -118,6 +124,12 @@ class ActiveLearningEngineeringIterationConfigBuilder
   int? get nMutations => _$this._nMutations;
   set nMutations(int? nMutations) => _$this._nMutations = nMutations;
 
+  ListBuilder<String>? _candidateSequences;
+  ListBuilder<String> get candidateSequences =>
+      _$this._candidateSequences ??= ListBuilder<String>();
+  set candidateSequences(ListBuilder<String>? candidateSequences) =>
+      _$this._candidateSequences = candidateSequences;
+
   ActiveLearningEngineeringIterationConfigBuilder() {
     ActiveLearningEngineeringIterationConfig._defaults(this);
   }
@@ -131,6 +143,7 @@ class ActiveLearningEngineeringIterationConfigBuilder
       _coefficient = $v.coefficient;
       _nSuggestions = $v.nSuggestions;
       _nMutations = $v.nMutations;
+      _candidateSequences = $v.candidateSequences?.toBuilder();
       _$v = null;
     }
     return this;
@@ -164,6 +177,7 @@ class ActiveLearningEngineeringIterationConfigBuilder
             nSuggestions: BuiltValueNullFieldError.checkNotNull(nSuggestions,
                 r'ActiveLearningEngineeringIterationConfig', 'nSuggestions'),
             nMutations: nMutations,
+            candidateSequences: _candidateSequences?.build(),
           );
     } catch (_) {
       late String _$failedField;
@@ -172,6 +186,9 @@ class ActiveLearningEngineeringIterationConfigBuilder
         _baseSequences?.build();
         _$failedField = 'trainingData';
         trainingData.build();
+
+        _$failedField = 'candidateSequences';
+        _candidateSequences?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ActiveLearningEngineeringIterationConfig',
