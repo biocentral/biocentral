@@ -116,6 +116,12 @@ class TestConfig:
             "C2V",
         ]
 
+    def test_substitutions_at_same_position_are_accepted(self):
+        assert _campaign(
+            allowed_substitutions=["A1C", "A1V", "C2V"]
+        ).allowed_substitutions == ["A1C", "A1V", "C2V"
+        ]
+
 
 class TestBaseSequences:
     def test_the_wildtype_and_everything_measured_are_bases(self):
