@@ -241,6 +241,12 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
                             initialValue: widget.source?.id,
                             decoration: const InputDecoration(labelText: 'Start from an existing campaign'),
                             items: [
+                              // The draft owns its source snapshot even if that campaign is deleted.
+                              if (widget.source != null &&
+                                  !context.read<EngineeringHubBloc>().state.campaigns.any(
+                                    (campaign) => campaign.id == widget.source!.id,
+                                  ))
+                                DropdownMenuItem(value: widget.source!.id, child: Text(widget.source!.config.name)),
                               for (final campaign in context.read<EngineeringHubBloc>().state.campaigns)
                                 DropdownMenuItem(value: campaign.id, child: Text(campaign.config.name)),
                             ],
