@@ -62,8 +62,6 @@ class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
             )
             if error_dto:
                 return error_dto
-        # TODO(delta-embeddings): Subtract each sequence's wildtype here, named wildtypes
-        #  from the campaign config, assigned per sequence via a WILDTYPE attribute
         assert (
             embeddings is not None and len(embeddings) > 0
         ), "embeddings is None after pre-embedding before active learning iteration!"
