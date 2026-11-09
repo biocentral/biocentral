@@ -28,14 +28,25 @@ from .._generated import (
 
 
 class EmbeddingsResult:
-    def __init__(self, hash2id: Dict[str, str], embeddings_file_str: str):
+    def __init__(self, hash2id: Dict[str, str],
+                 embeddings_file_str: Optional[str] = None,
+                 hash2emb: Optional[Dict[str, np.ndarray]] = None):
+        """
+
+        :param hash2id: Mandatory hash2id dictionary
+        :param embeddings_file_str: Optional file path or string bytes data (useful for remote API)
+        :param hash2emb: Optional Dict of hashed ids to embeddings (useful for local API)
+        """
+        if embeddings_file_str is None and hash2emb is None:
+            raise ValueError("Either embeddings_file_str or hash2emb must be provided")
+
         self._hash2id = hash2id
         self._id2hash = {v: k for k, v in hash2id.items()}
-        self._embeddings_file_str: Optional[str] = embeddings_file_str
+        self._embeddings_file_str = embeddings_file_str
 
         # Cached
         self.__embeddings_file_handle = None  # h5 file handle
-        self.__id2emb = None  # Hashed ids -> Embedding
+        self.__hash2emb = hash2emb  # Hashed ids -> Embedding
 
     def merge(self, other: EmbeddingsResult) -> EmbeddingsResult:
         """
@@ -48,14 +59,14 @@ class EmbeddingsResult:
         :return: Merged EmbeddingsResult
         """
         hash2id_combined = {**self._hash2id, **other._hash2id}
-        own_id2emb = self._id2emb()
-        other_id2emb = other._id2emb()
+        own_id2emb = self._hash2emb()
+        other_id2emb = other._hash2emb()
         new_result = EmbeddingsResult(
             hash2id=hash2id_combined, embeddings_file_str=self._embeddings_file_str
         )
-        new_result.__id2emb = {**own_id2emb, **other_id2emb}
+        new_result.__hash2emb = {**own_id2emb, **other_id2emb}
         assert len(new_result._id2hash) == len(new_result._hash2id)
-        if len(own_id2emb) + len(other_id2emb) != len(new_result._id2emb()):
+        if len(own_id2emb) + len(other_id2emb) != len(new_result._hash2emb()):
             warnings.warn(
                 "Merging embeddings resulted in different number of embeddings! "
                 "This means that you tried to merge results that contain the same ids, which might not be"
@@ -65,7 +76,7 @@ class EmbeddingsResult:
 
     def _lazy_read_handle(self):
         """Return cached handle or lazily read embeddings string"""
-        assert self.__id2emb is None, "Lazy reading called after id2emb already exists!"
+        assert self.__hash2emb is None, "Lazy reading called after id2emb already exists!"
 
         if self.__embeddings_file_handle is not None:
             return self.__embeddings_file_handle
@@ -75,23 +86,32 @@ class EmbeddingsResult:
                 "No embeddings file string available! This is probably due to a failed merge."
             )
 
-        h5_bytes = base64.b64decode(self._embeddings_file_str)
-        h5_io = io.BytesIO(h5_bytes)
+        h5_io = None
+        try:
+            maybe_path = Path(self._embeddings_file_str)
+            if maybe_path.exists() and maybe_path.is_file() and maybe_path.suffix == ".h5":
+                h5_io = io.FileIO(maybe_path, "r")
+        except Exception:
+            h5_io = None
+
+        if not h5_io:
+            h5_bytes = base64.b64decode(self._embeddings_file_str)
+            h5_io = io.BytesIO(h5_bytes)
         self.__embeddings_file_handle = h5py.File(h5_io, "r")
         return self.__embeddings_file_handle
 
-    def _id2emb(self):
-        if self.__id2emb is not None:
-            return self.__id2emb
+    def _hash2emb(self):
+        if self.__hash2emb is not None:
+            return self.__hash2emb
         # Read embeddings
         embeddings_file_handle = self._lazy_read_handle()
         id2emb = {
             hash_idx: np.array(embedding)
             for (hash_idx, embedding) in embeddings_file_handle.items()
         }
-        self.__id2emb = id2emb
+        self.__hash2emb = id2emb
         embeddings_file_handle.close()
-        return self.__id2emb
+        return self.__hash2emb
 
     def to_dict(self, hashed_ids: Optional[bool] = False) -> Dict[str, np.ndarray]:
         """
@@ -101,22 +121,22 @@ class EmbeddingsResult:
         :return: Dictionary of sequence/hash ids and embeddings as numpy arrays
         """
         if hashed_ids:
-            return dict(self._id2emb())
+            return dict(self._hash2emb())
         else:
             seqid2emb = {
-                self._hash2id[idx]: embd for idx, embd in self._id2emb().items()
+                self._hash2id[seq_hash]: embd for seq_hash, embd in self._hash2emb().items()
             }
             return seqid2emb
 
     def to_list(self) -> List:
         """Get the list of embeddings as lists"""
-        id2emb = self._id2emb()
-        return [embd.tolist() for embd in id2emb.values()]
+        hash2emb = self._hash2emb()
+        return [embd.tolist() for embd in hash2emb.values()]
 
     def to_numpy(self) -> np.ndarray:
         """Get the stacked numpy array of all embeddings"""
-        id2emb = self._id2emb()
-        return np.stack(list(id2emb.values()))
+        hash2emb = self._hash2emb()
+        return np.stack(list(hash2emb.values()))
 
     def __getitem__(self, item: str) -> Optional[np.ndarray]:
         """Get a specific embedding for a particular id (can be both, sequence id or sequence hash)"""
@@ -132,8 +152,8 @@ class EmbeddingsResult:
             except Exception:
                 raise KeyError(f"No embedding found for id {item}")
 
-        if self.__id2emb is not None:
-            return _retrieve(self.__id2emb)
+        if self.__hash2emb is not None:
+            return _retrieve(self.__hash2emb)
         # Lazy get from handle
         embeddings_file_handle = self._lazy_read_handle()
         return _retrieve(embeddings_file_handle)
