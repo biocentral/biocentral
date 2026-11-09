@@ -36,9 +36,6 @@ class ActiveLearningOptimizationMode(str, Enum):
 class ActiveLearningScreeningCampaignConfig(EmbedderModelBase):
     """Configuration for an active learning screening campaign"""
 
-    # TODO(delta-embeddings): Add use_delta_embeddings and wildtype_sequences
-    #  (name -> sequence), validated against the data in the request models
-
     name: str = Field(description="Name of the active learning campaign")
     model_type: ActiveLearningModelType = Field(description="Type of model to use")
     # embedder_name in EmbedderModelBase
