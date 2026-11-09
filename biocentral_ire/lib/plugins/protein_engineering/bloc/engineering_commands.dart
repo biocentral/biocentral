@@ -22,15 +22,19 @@ abstract class EngineeringChangeCommand extends BiocentralCommand<EngineeringCam
   Stream<BiocentralCommandLog<EngineeringCampaign>> execute() async* {
     final log = initLog();
     yield log;
+    await validate();
     if (repository.campaign(after.id)?.revision != before?.revision) {
       yield log.errored(error: 'Campaign changed since this operation was prepared.');
       return;
     }
     yield log.finish(
-      result: BiocentralCommandResult(after, {'campaign': after.serialize()}),
+      result: BiocentralCommandResult(after, {'campaignId': after.id, 'revision': after.revision}),
       finalProgress: const BiocentralCommandProgress(information: 'Change ready', current: 1, total: 1),
     );
   }
+
+  /// Validates inputs before calculating an unapplied campaign revision.
+  Future<void> validate() async {}
 
   @override
   void acceptResult(BiocentralCommandLog? resultLog) {
@@ -38,19 +42,26 @@ abstract class EngineeringChangeCommand extends BiocentralCommand<EngineeringCam
       repository.replace(after, expectedRevision: before?.revision);
     }
   }
-
-  @override
-  Map<String, dynamic> getConfigMap() => {
-    'campaignId': after.id,
-    'before': before?.serialize(),
-    'after': after.serialize(),
-  };
 }
 
 /// Creates a campaign, optionally recording the campaign used to prefill its draft.
 final class NewEngineeringCampaignCommand extends EngineeringChangeCommand {
   NewEngineeringCampaignCommand({required super.repository, required EngineeringCampaign campaign})
     : super(after: campaign);
+
+  @override
+  Future<void> validate() async {
+    final content = after.wildtypeStructureMmcif;
+    if (content != null) {
+      final parsed = await MmcifParser.parse(content);
+      if (matchWildtypeStructure(parsed.structure, after.wildtypeSequence) == null) {
+        throw const FormatException('The uploaded structure does not match the final wildtype sequence.');
+      }
+    }
+  }
+
+  @override
+  Map<String, dynamic> getConfigMap() => {'campaign': after.serialize()};
 
   @override
   String get typeName => 'NewEngineeringCampaignCommand';
@@ -66,6 +77,14 @@ final class UpdateEngineeringRestrictionsCommand extends EngineeringChangeComman
          before: campaign,
          after: campaign.copyWith(aminoAcidRestrictions: restrictions),
        );
+
+  @override
+  Map<String, dynamic> getConfigMap() => {
+    'campaignId': after.id,
+    'expectedRevision': before!.revision,
+    'before': before!.aminoAcidRestrictions.serialize(),
+    'after': after.aminoAcidRestrictions.serialize(),
+  };
 
   @override
   String get typeName => 'UpdateEngineeringRestrictionsCommand';
@@ -111,6 +130,25 @@ final class AddEngineeringMeasurementsCommand extends EngineeringChangeCommand {
   }
 
   @override
+  Map<String, dynamic> getConfigMap() => {
+    'campaignId': after.id,
+    'expectedRevision': before!.revision,
+    'measurements': [
+      for (final entry in after.measurements.entries)
+        if (!identical(before!.measurements[entry.key], entry.value))
+          {
+            'sequence': entry.key,
+            'before': before!.measurements[entry.key]?.serialize(),
+            'after': entry.value.serialize(),
+          },
+    ],
+    'inputs': [
+      for (final entry in after.inputs.entries)
+        if (!before!.inputs.containsKey(entry.key)) entry.value.serialize(),
+    ],
+  };
+
+  @override
   String get typeName => 'AddEngineeringMeasurementsCommand';
 }
 
@@ -133,7 +171,7 @@ final class UploadWildtypeStructureCommand extends BiocentralCommand<Engineering
     }
     final updated = campaign.copyWith(inputs: {...campaign.inputs, input.id: input}, structureInputId: input.id);
     yield log.finish(
-      result: BiocentralCommandResult(updated, {'campaign': updated.serialize()}),
+      result: BiocentralCommandResult(updated, {'campaignId': updated.id, 'structureInputId': input.id}),
       finalProgress: const BiocentralCommandProgress(information: 'Structure validated', current: 1, total: 1),
     );
   }
@@ -166,7 +204,7 @@ final class DeleteEngineeringCampaignCommand extends BiocentralCommand<Engineeri
   @override
   Stream<BiocentralCommandLog<EngineeringCampaign>> execute() async* {
     yield initLog().finish(
-      result: BiocentralCommandResult(campaign, {'deletedCampaign': campaign.serialize()}),
+      result: BiocentralCommandResult(campaign, {'campaignId': campaign.id}),
       finalProgress: const BiocentralCommandProgress(information: 'Deletion ready', current: 1, total: 1),
     );
   }
@@ -195,14 +233,23 @@ final class LoadEngineeringCampaignCommand extends BiocentralCommand<List<Engine
   LoadEngineeringCampaignCommand({required this.repository, required this.input, required this.mode}) : file = null;
 
   LoadEngineeringCampaignCommand.fromFile({required this.repository, required XFile campaignFile, required this.mode})
-      : file = campaignFile, input = null;
+    : file = campaignFile,
+      input = null;
 
   @override
   Stream<BiocentralCommandLog<List<EngineeringCampaign>>> execute() async* {
     final source = input ?? EngineeringInput(name: file!.name, format: 'json', bytes: await file!.readAsBytes());
     final campaigns = decodeEngineeringCampaigns(utf8.decode(source.bytes));
     yield initLog().finish(
-      result: BiocentralCommandResult(campaigns, {'campaignIds': campaigns.map((campaign) => campaign.id).toList()}),
+      result: BiocentralCommandResult(campaigns, {
+        'campaignIds': campaigns.map((campaign) => campaign.id).toList(),
+        'source': source.serialize(),
+        'replacedCampaigns': [
+          for (final campaign in campaigns)
+            if (mode == DatabaseImportMode.overwrite && repository.campaign(campaign.id) != null)
+              repository.campaign(campaign.id)!.serialize(),
+        ],
+      }),
       finalProgress: const BiocentralCommandProgress(information: 'Campaign file validated', current: 1, total: 1),
     );
   }
@@ -214,7 +261,12 @@ final class LoadEngineeringCampaignCommand extends BiocentralCommand<List<Engine
   }
 
   @override
-  Map<String, dynamic> getConfigMap() => {'input': input?.serialize(), 'file': file?.name, 'mode': mode.name, 'schemaVersion': 1};
+  Map<String, dynamic> getConfigMap() => {
+    'input': input?.serialize(),
+    'file': file?.name,
+    'mode': mode.name,
+    'schemaVersion': 1,
+  };
 
   @override
   String get typeName => 'LoadEngineeringCampaignCommand';
@@ -287,11 +339,16 @@ final class RunEngineeringRoundCommand extends BiocentralCommand<EngineeringCamp
   Stream<BiocentralCommandLog<EngineeringCampaign>> execute() async* {
     var log = initLog();
     yield log;
+    if (repository.campaign(campaign.id)?.revision != campaign.revision) {
+      yield log.errored(error: 'Campaign changed before the round was submitted.');
+      return;
+    }
     final startedAt = DateTime.now();
     final task = await apiRepository.getBiocentralAPI().alEngineeringIteration(
       campaignConfig: campaign.config,
       iterationConfig: iteration,
     );
+    yield log = log.logInfo(information: 'Server task ${task.taskId}');
     await for (final (dto, result) in task.run()) {
       if (result != null) {
         final round = EngineeringRound(

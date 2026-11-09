@@ -1,18 +1,22 @@
 import 'dart:math';
 
 import 'package:biocentral/plugins/protein_engineering/domain/sequence_validation.dart';
+import 'package:equatable/equatable.dart';
 
 /// Matches the server's default number of randomly generated mutations per round.
 const defaultCandidatesPerRound = 1000;
 
 /// Amino acids that must not be introduced at a set of 1-based positions.
-class PositionRestriction {
+class PositionRestriction extends Equatable {
   final Set<int> positions;
   final Set<String> excludedAminoAcids;
 
   PositionRestriction({required Set<int> positions, required Set<String> excludedAminoAcids})
     : positions = Set.unmodifiable(positions),
       excludedAminoAcids = Set.unmodifiable(excludedAminoAcids);
+
+  @override
+  List<Object?> get props => [positions, excludedAminoAcids];
 
   factory PositionRestriction.deserialize(Map<String, dynamic> jsonMap) {
     return PositionRestriction(
@@ -27,7 +31,7 @@ class PositionRestriction {
 }
 
 /// Which amino acids a campaign may introduce: excluded everywhere, plus per-position rules.
-class AminoAcidRestrictions {
+class AminoAcidRestrictions extends Equatable {
   final Set<String> globallyExcluded;
   final List<PositionRestriction> positionRestrictions;
 
@@ -35,9 +39,14 @@ class AminoAcidRestrictions {
     Set<String> globallyExcluded = const {},
     List<PositionRestriction> positionRestrictions = const [],
   }) : globallyExcluded = Set.unmodifiable(globallyExcluded),
-       positionRestrictions = List.unmodifiable(positionRestrictions);
+       positionRestrictions = List.unmodifiable(
+         positionRestrictions.where((rule) => rule.positions.isNotEmpty && rule.excludedAminoAcids.isNotEmpty),
+       );
 
   const AminoAcidRestrictions.empty() : globallyExcluded = const {}, positionRestrictions = const [];
+
+  @override
+  List<Object?> get props => [globallyExcluded, positionRestrictions];
 
   bool get isEmpty =>
       globallyExcluded.isEmpty &&

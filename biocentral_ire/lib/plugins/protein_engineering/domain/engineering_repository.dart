@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:biocentral/sdk/domain/biocentral_repository_auto_saver.dart';
@@ -38,11 +40,17 @@ class EngineeringRepository with AutoSaving, StreamableDatabase<List<Engineering
 
   /// Applies a completely validated import in a single repository update.
   void importCampaigns(List<EngineeringCampaign> campaigns, {required DatabaseImportMode mode}) {
+    final updates = <String, EngineeringCampaign>{};
     for (final campaign in campaigns) {
-      if (mode == DatabaseImportMode.overwrite || !_campaigns.containsKey(campaign.id)) {
-        _campaigns[campaign.id] = campaign;
+      final current = _campaigns[campaign.id];
+      if (current == null) {
+        updates[campaign.id] = campaign;
+      } else if (mode == DatabaseImportMode.overwrite) {
+        // Importing an older or equal revision must still invalidate local drafts.
+        updates[campaign.id] = campaign.copyWith(revision: max(current.revision, campaign.revision) + 1);
       }
     }
+    _campaigns.addAll(updates);
     _publish();
   }
 
