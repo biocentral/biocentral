@@ -30,7 +30,7 @@ DOUBLES = {"MCKEFG", "MCWEFG"}
 
 
 def _generate(bases, n_substitutions=1, excluded=frozenset(), pool=None, n=100, seed=0):
-    return MutationGenerationStep._generate_candidates(
+    return MutationGenerationStep._randomly_generate_candidates(
         bases=list(bases),
         design_space=MutationGenerationStep._design_space(ALLOWED, WILDTYPE),
         n_substitutions=n_substitutions,
@@ -146,7 +146,7 @@ GENERATE = (
     "from biocentral_server.active_learning.pipelines.protein_engineering.steps"
     ".mutation_generation_step import MutationGenerationStep\n"
     "wildtype = 'MKTAYIAKQRQISFVKSHFSRQ'\n"
-    "print(json.dumps(MutationGenerationStep._generate_candidates("
+    "print(json.dumps(MutationGenerationStep._randomly_generate_candidates("
     "bases=[wildtype],"
     "design_space=MutationGenerationStep._design_space(None, wildtype),"
     "n_substitutions=1, excluded=set(), pool=None, n_candidates=50,"
