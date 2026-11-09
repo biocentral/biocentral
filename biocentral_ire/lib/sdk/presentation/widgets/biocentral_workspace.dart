@@ -276,10 +276,32 @@ class BiocentralWizard extends StatelessWidget {
   final List<Step> steps;
   final VoidCallback? onContinue;
   final VoidCallback? onBack;
+  final String continueLabel;
 
-  const BiocentralWizard({required this.currentStep, required this.steps, this.onContinue, this.onBack, super.key});
+  const BiocentralWizard({
+    required this.currentStep,
+    required this.steps,
+    this.onContinue,
+    this.onBack,
+    this.continueLabel = 'Continue',
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) =>
-      Stepper(currentStep: currentStep, steps: steps, onStepContinue: onContinue, onStepCancel: onBack);
+  Widget build(BuildContext context) => Stepper(
+    currentStep: currentStep,
+    steps: steps,
+    onStepContinue: onContinue,
+    onStepCancel: onBack,
+    controlsBuilder: (context, details) => Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Row(
+        children: [
+          if (onBack != null) OutlinedButton(onPressed: details.onStepCancel, child: const Text('Back')),
+          const Spacer(),
+          ElevatedButton(onPressed: details.onStepContinue, child: Text(continueLabel)),
+        ],
+      ),
+    ),
+  );
 }
