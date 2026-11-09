@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Callable, List, Optional, Tuple
 
-from biotrainer.embedding import BASELINE_EMBEDDERS
 from biotrainer_core.data_classes import SequenceData
 
 from ..server_management import TaskDTO
@@ -17,12 +16,10 @@ EmbeddingSubtaskWrapper = Callable[
     [List[SequenceData]], Tuple[Optional[TaskDTO], List[SequenceData]]
 ]
 
-_BASELINE_EMBEDDERS = {name.lower() for name in BASELINE_EMBEDDERS}
-
-
-def is_baseline_embedder(embedder_name: str) -> bool:
-    """Whether the embedder is a biotrainer baseline rather than a protein language model."""
-    return embedder_name.lower() in _BASELINE_EMBEDDERS
+# Sequence-unaware embedders
+DELTA_INCOMPATIBLE_EMBEDDERS = frozenset(
+    {"random_embedder", "constant_embedder", "length_embedder"}
+)
 
 
 def with_delta_embeddings(
