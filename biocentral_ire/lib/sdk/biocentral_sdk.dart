@@ -51,3 +51,7 @@ export 'util/repository_util.dart';
 export 'util/seed_util.dart';
 export 'util/size_config.dart';
 export 'util/type_util.dart';
+
+export 'presentation/style/biocentral_workspace_theme.dart';
+export 'presentation/widgets/biocentral_workspace.dart';
+export 'presentation/dialogs/biocentral_workspace_dialog.dart';
