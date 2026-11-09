@@ -12,9 +12,10 @@ from biocentral_api import (
     ProjectionResult,
 )
 from biocentral_api.clients import EmbeddingsResult
+from biotrainer_core.data_classes import SequenceData
 
 from .base import BiocentralBackend
-
+from .persistence import BiocentralLocalDatabase
 
 class Biocentral:
     """Unified entry point to the biocentral ecosystem.
@@ -49,6 +50,7 @@ class Biocentral:
         :param custom_api: Custom BiocentralAPI instance (api mode only).
         :param device: Device for local computation, e.g. "cuda" or "cpu" (local mode only).
         """
+        self._database = BiocentralLocalDatabase()
         self._mode = mode
 
         if mode == "api":
@@ -67,6 +69,10 @@ class Biocentral:
     @property
     def mode(self) -> str:
         return self._mode
+
+    @property
+    def database(self) -> BiocentralLocalDatabase:
+        return self._database
 
     @staticmethod
     def _read_fasta(sequence_data: str) -> List[SequenceData]:
