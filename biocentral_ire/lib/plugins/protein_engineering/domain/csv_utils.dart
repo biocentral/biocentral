@@ -7,7 +7,9 @@ class CsvTable {
   final List<String> header;
   final List<List<String>> rows;
 
-  const CsvTable({required this.delimiter, required this.header, required this.rows});
+  CsvTable({required this.delimiter, required List<String> header, required List<List<String>> rows})
+    : header = List.unmodifiable(header),
+      rows = List.unmodifiable(rows.map((row) => List<String>.unmodifiable(row)));
 
   /// Index of the first header that is one of [names], or -1.
   int column(List<String> names) => header.indexWhere(names.contains);
@@ -22,20 +24,61 @@ class CsvTable {
 /// Parses [content], or returns null if it has no lines. Handles Excel's byte order mark,
 /// quoted fields, and ";" as delimiter (spreadsheets in some locales save that way).
 CsvTable? readCsvTable(String content) {
-  final lines = content
-      .replaceFirst('\uFEFF', '')
-      .split(RegExp(r'\r?\n'))
-      .where((line) => line.trim().isNotEmpty)
-      .toList();
-  if (lines.isEmpty) {
-    return null;
+  final source = content.replaceFirst('\uFEFF', '');
+  if (source.trim().isEmpty) return null;
+  var quoted = false;
+  var commas = 0;
+  var semicolons = 0;
+  for (var i = 0; i < source.length; i++) {
+    if (source[i] == '"') quoted = !quoted;
+    if (!quoted && source[i] == ',') commas++;
+    if (!quoted && source[i] == ';') semicolons++;
+    if (!quoted && (source[i] == '\n' || source[i] == '\r')) {
+      break;
+    }
   }
-  final delimiter = lines.first.contains(';') && !lines.first.contains(',') ? ';' : ',';
-  return CsvTable(
-    delimiter: delimiter,
-    header: _splitCsvLine(lines.first, delimiter).map((name) => name.toLowerCase()).toList(),
-    rows: [for (final line in lines.skip(1)) _splitCsvLine(line, delimiter)],
-  );
+  final delimiter = semicolons > commas ? ';' : ',';
+  final rows = <List<String>>[];
+  var row = <String>[];
+  var field = StringBuffer();
+  quoted = false;
+  void finishRow() {
+    row.add(field.toString().trim());
+    if (row.any((value) => value.isNotEmpty)) rows.add(row);
+    row = [];
+    field = StringBuffer();
+  }
+
+  for (var i = 0; i < source.length; i++) {
+    final char = source[i];
+    if (char == '"') {
+      if (quoted && i + 1 < source.length && source[i + 1] == '"') {
+        field.write('"');
+        i++;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (!quoted && char == delimiter) {
+      row.add(field.toString().trim());
+      field = StringBuffer();
+    } else if (!quoted && (char == '\n' || char == '\r')) {
+      finishRow();
+      if (char == '\r' && i + 1 < source.length && source[i + 1] == '\n') i++;
+    } else {
+      field.write(char);
+    }
+  }
+  if (quoted) throw const FormatException('CSV contains an unterminated quoted field.');
+  finishRow();
+  if (rows.isEmpty) return null;
+  final header = rows.first.map((name) => name.toLowerCase()).toList();
+  if (header.toSet().length != header.length) throw const FormatException('CSV contains duplicate column names.');
+  for (var index = 1; index < rows.length; index++) {
+    if (rows[index].length > header.length) {
+      throw FormatException('Row ${index + 1} has more fields than the header. Check the delimiter and quoted values.');
+    }
+  }
+  return CsvTable(delimiter: delimiter, header: header, rows: rows.skip(1).toList());
 }
 
 /// A measured value: a number, or a "did not express" marker. Null if [raw] is neither.
@@ -45,30 +88,9 @@ CsvTable? readCsvTable(String content) {
     return (didNotExpress: true, value: null);
   }
   final value = double.tryParse(delimiter == ';' ? raw.replaceAll(',', '.') : raw);
-  return value == null ? null : (didNotExpress: false, value: value);
+  return value == null || !value.isFinite ? null : (didNotExpress: false, value: value);
 }
 
-/// Splits one CSV line, honoring double-quoted fields (as written by Excel and others).
-List<String> _splitCsvLine(String line, String delimiter) {
-  final fields = <String>[];
-  final current = StringBuffer();
-  var inQuotes = false;
-  for (var i = 0; i < line.length; i++) {
-    final char = line[i];
-    if (char == '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
-        current.write('"');
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char == delimiter && !inQuotes) {
-      fields.add(current.toString().trim());
-      current.clear();
-    } else {
-      current.write(char);
-    }
-  }
-  fields.add(current.toString().trim());
-  return fields;
-}
+/// Encodes one CSV record, preserving delimiters and quotes inside field values.
+String encodeCsvRecord(Iterable<String> values) =>
+    values.map((value) => value.contains(RegExp('[",\r\n]')) ? '"${value.replaceAll('"', '""')}"' : value).join(',');
