@@ -275,3 +275,29 @@ Official references consulted during planning:
 ## 15. Remaining implementation-time checks
 
 These are concrete discovery tasks, not permission to expand scope: verify the pinned structure viewer/preview SDK builds and renders on desktop; identify code-generation commands; inspect all task-stream and command-state consumers; inspect exact project close/autosave behavior; confirm imported artifact sizes; verify reference wizard/file/table details while implementing each page. No runnable UI was launched during this base-and-plan task, so pixel-level parity has not yet been verified. Any genuinely new user-facing choice is proposed before implementation.
+
+## 16. Implementation status (2026-11-10)
+
+Implemented on `biocentral/feature/reusable-engineering-ui`, based on upstream
+develop, in `/private/tmp/biocentral-reusable-engineering-ui`. The original local
+prototype checkout remains unchanged as reference.
+
+The shared command lifecycle and terminating typed task failures, desktop SDK/
+viewer dependencies, scoped workspace components, immutable versioned storage,
+explicit candidate API/server contract, logged scientific commands, CSV flows,
+wizard, overview, rounds/history, lineage, restriction Apply/Discard and structure
+selection are implemented. Registration follows current plugin/repository/Bloc
+conventions. Existing Activity/progress is reused. Imports advance local revisions;
+draft baseline checks protect replaced data. Desktop CI specifies Python 3.12 and
+a native app staging directory; the IRE web build is suspended. Other plugin UIs
+have not been migrated.
+
+See [component reuse guidance](reusable_workspace_components.md) and the
+[manual acceptance checklist](engineering_manual_verification.md).
+
+Engineering Dart analysis passes without findings. Full app analysis reports no
+errors, with existing warnings/info elsewhere. A macOS build succeeded before the
+final integration edits. The user subsequently confirmed launch after renaming an
+old project. Final scientific workflows and visual acceptance await user manual
+testing. No further computer-use verification or new automated tests are requested.
+The branch has not been pushed and no PR has been opened.
