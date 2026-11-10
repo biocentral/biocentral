@@ -1,10 +1,4 @@
-import 'dart:math';
-
-import 'package:biocentral/plugins/protein_engineering/domain/sequence_validation.dart';
 import 'package:equatable/equatable.dart';
-
-/// Matches the server's default number of randomly generated mutations per round.
-const defaultCandidatesPerRound = 1000;
 
 /// Amino acids that must not be introduced at a set of 1-based positions.
 class PositionRestriction extends Equatable {
@@ -30,7 +24,9 @@ class PositionRestriction extends Equatable {
   }
 }
 
-/// Which amino acids a campaign may introduce: excluded everywhere, plus per-position rules.
+/// Recorded mutation exclusions, global and per-position.
+///
+/// These settings are retained for provenance; backend enforcement is not implemented.
 class AminoAcidRestrictions extends Equatable {
   final Set<String> globallyExcluded;
   final List<PositionRestriction> positionRestrictions;
@@ -51,45 +47,6 @@ class AminoAcidRestrictions extends Equatable {
   bool get isEmpty =>
       globallyExcluded.isEmpty &&
       positionRestrictions.every((rule) => rule.positions.isEmpty || rule.excludedAminoAcids.isEmpty);
-
-  /// Amino acids that may replace [currentResidue] at the 1-based [position].
-  Set<String> allowedAt(int position, String currentResidue) {
-    final allowed = standardAminoAcids.difference(globallyExcluded)..remove(currentResidue);
-    for (final rule in positionRestrictions) {
-      if (rule.positions.contains(position)) {
-        allowed.removeAll(rule.excludedAminoAcids);
-      }
-    }
-    return allowed;
-  }
-
-  /// All allowed single mutants of [parentSequence], minus [knownSequences].
-  List<String> singleMutants(String parentSequence, {Set<String> knownSequences = const {}}) {
-    final mutants = <String>[];
-    for (var i = 0; i < parentSequence.length; i++) {
-      for (final aa in allowedAt(i + 1, parentSequence[i])) {
-        final mutant = parentSequence.substring(0, i) + aa + parentSequence.substring(i + 1);
-        if (!knownSequences.contains(mutant)) {
-          mutants.add(mutant);
-        }
-      }
-    }
-    return mutants;
-  }
-
-  /// Like the server's own mutation generation, scores a random sample instead of every mutant.
-  List<String> sampleCandidates(
-    String parentSequence, {
-    Set<String> knownSequences = const {},
-    int maxCount = defaultCandidatesPerRound,
-    Random? random,
-  }) {
-    final mutants = singleMutants(parentSequence, knownSequences: knownSequences);
-    if (mutants.length <= maxCount) {
-      return mutants;
-    }
-    return (mutants..shuffle(random)).sublist(0, maxCount);
-  }
 
   factory AminoAcidRestrictions.deserialize(Map<String, dynamic>? jsonMap) {
     if (jsonMap == null) {

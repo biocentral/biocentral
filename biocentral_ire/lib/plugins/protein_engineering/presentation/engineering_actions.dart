@@ -198,7 +198,7 @@ class _EngineeringRoundDialogState extends State<_EngineeringRoundDialog> {
           if (!widget.campaign.aminoAcidRestrictions.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 12),
-              child: Text('Applied amino acid restrictions will be enforced for this round.'),
+              child: Text('Mutation restrictions are recorded but are not currently enforced by the backend.'),
             ),
           if (measured.isEmpty) const Text('Enter at least one measured fitness before running a round.'),
           if (_error != null)

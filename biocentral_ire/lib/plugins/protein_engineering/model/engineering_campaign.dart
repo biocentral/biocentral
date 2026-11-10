@@ -232,6 +232,8 @@ class EngineeringRound {
   final String parentSequence;
   final DateTime startedAt;
   final DateTime? finishedAt;
+
+  /// Recorded settings at submission time; the backend does not yet enforce them.
   final AminoAcidRestrictions restrictions;
   final List<String> inputIds;
   final String? taskId;

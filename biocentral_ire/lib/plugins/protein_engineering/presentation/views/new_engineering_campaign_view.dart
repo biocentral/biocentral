@@ -405,6 +405,10 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
                             'Random seed',
                             validator: (value) => int.tryParse(value ?? '') == null ? 'Enter an integer.' : null,
                           ),
+                          const BiocentralNotice(
+                            message: 'Mutation restrictions are saved with the campaign but are not currently enforced by the backend.',
+                          ),
+                          const SizedBox(height: 12),
                           EngineeringRestrictionsEditor(
                             initialValue: _restrictions ?? const AminoAcidRestrictions.empty(),
                             sequenceLength: _wildtype.length,

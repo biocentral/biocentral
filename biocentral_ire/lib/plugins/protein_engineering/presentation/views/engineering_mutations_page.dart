@@ -56,7 +56,7 @@ class _EngineeringMutationsPageState extends State<EngineeringMutationsPage> wit
       children: [
         BiocentralPageHeader(
           title: 'Mutation settings',
-          description: 'Choose which amino acids may be introduced.',
+          description: 'Record mutation restrictions. Backend enforcement is not implemented yet.',
           actions: [
             TextButton(
               onPressed: () => setState(() {

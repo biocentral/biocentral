@@ -84,6 +84,8 @@ errors. FAILED and timeout end the async generator.
 
 Engineering documents use `schemaVersion: 1` and reject legacy documents.
 Campaign/round/input snapshots are immutable. Original CSV/mmCIF bytes and hashes
-are retained, and each round captures its actual request and restrictions.
+are retained, and each round captures its actual request and recorded restrictions.
+The backend generates all mutants. Restriction settings are currently saved and
+logged only; they are not enforced until backend support is implemented.
 Exports are self-contained, so large inputs increase project/export size. There
 is no external artifact store or compatibility migration in this version.
