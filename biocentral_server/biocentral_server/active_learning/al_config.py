@@ -146,7 +146,7 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
     use_delta_embeddings: bool = Field(
         default=False,
         description="Use each sequence's embedding minus the wildtype embedding as model "
-        "input (only supported for residue-aware embedders)"
+        "input (only supported for residue-aware embedders)",
     )
     allowed_substitutions: Optional[List[str]] = Field(
         default=None,
