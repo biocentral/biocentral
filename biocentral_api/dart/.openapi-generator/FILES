@@ -59,6 +59,7 @@ doc/ModelFilesRequest.md
 doc/ModelMetadata.md
 doc/ModelMetadataResponse.md
 doc/ModelOutput.md
+doc/Mutation.md
 doc/NotFoundErrorResponse.md
 doc/OutputClass.md
 doc/OutputType.md
@@ -171,6 +172,7 @@ lib/src/model/model_files_request.dart
 lib/src/model/model_metadata.dart
 lib/src/model/model_metadata_response.dart
 lib/src/model/model_output.dart
+lib/src/model/mutation.dart
 lib/src/model/not_found_error_response.dart
 lib/src/model/output_class.dart
 lib/src/model/output_type.dart

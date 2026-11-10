@@ -65,6 +65,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
       ..add(ModelOutput.serializer)
+      ..add(Mutation.serializer)
       ..add(NotFoundErrorResponse.serializer)
       ..add(OutputClass.serializer)
       ..add(OutputType.serializer)
@@ -157,6 +158,9 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(ModelOutput)]),
           () => ListBuilder<ModelOutput>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Mutation)]),
+          () => ListBuilder<Mutation>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(OutputClass)]),
           () => ListBuilder<OutputClass>())
       ..addBuilderFactory(
@@ -175,9 +179,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SequenceData)]),
           () => ListBuilder<SequenceData>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())

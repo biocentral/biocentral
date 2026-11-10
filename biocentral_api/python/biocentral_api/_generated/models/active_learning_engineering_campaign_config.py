@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType
 from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode
+from biocentral_api._generated.models.mutation import Mutation
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -37,7 +38,7 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     wildtype_sequence: StrictStr = Field(description="Wildtype sequence to engineer")
     use_delta_embeddings: Optional[StrictBool] = Field(default=False, description="Use each sequence's embedding minus the wildtype embedding as model input (only supported for residue-aware embedders)")
-    allowed_substitutions: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, description="Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.")
+    allowed_substitutions: Optional[Annotated[List[Mutation], Field(min_length=1)]] = Field(default=None, description="Wildtype-relative substitutions the generator may draw from. None allows any standard amino acid at any position. The design space always includes the wildtype residue at every position")
     __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence", "use_delta_embeddings", "allowed_substitutions"]
 
     model_config = ConfigDict(
@@ -79,6 +80,13 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in allowed_substitutions (list)
+        _items = []
+        if self.allowed_substitutions:
+            for _item_allowed_substitutions in self.allowed_substitutions:
+                if _item_allowed_substitutions:
+                    _items.append(_item_allowed_substitutions.to_dict())
+            _dict['allowed_substitutions'] = _items
         # set to None if seed (nullable) is None
         # and model_fields_set contains the field
         if self.seed is None and "seed" in self.model_fields_set:
@@ -108,7 +116,7 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
             "seed": obj.get("seed"),
             "wildtype_sequence": obj.get("wildtype_sequence"),
             "use_delta_embeddings": obj.get("use_delta_embeddings") if obj.get("use_delta_embeddings") is not None else False,
-            "allowed_substitutions": obj.get("allowed_substitutions")
+            "allowed_substitutions": [Mutation.from_dict(_item) for _item in obj["allowed_substitutions"]] if obj.get("allowed_substitutions") is not None else None
         })
         return _obj
 
