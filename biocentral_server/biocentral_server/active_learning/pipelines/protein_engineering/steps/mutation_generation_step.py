@@ -76,7 +76,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
     def _sample_candidates(
         pool: List[str], excluded: Set[str], n_candidates: int, rng: random.Random
     ) -> List[str]:
-        """Sample up to n_candidates distinct pool members in random order."""
+        """Randomly sample up to n_candidates distinct pool members not in excluded."""
         # Permute indices rather than iterate a set, so seeded runs agree across workers
         sampled = {}
         for index in rng.sample(range(len(pool)), len(pool)):
@@ -168,9 +168,9 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
             return context
 
         # Repeated bases would weight their own neighbourhoods more heavily
-        bases = list(dict.fromkeys(context.base_sequences))
+        base_sequences = list(dict.fromkeys(context.base_sequences))
         candidates = self._randomly_generate_candidates(
-            base_sequences=bases,
+            base_sequences=base_sequences,
             design_space=self._design_space(
                 context.wildtype_sequence, context.allowed_substitutions
             ),
@@ -188,7 +188,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
             logger.info(
                 f"Iteration {context.iteration}: generated {len(candidates)} of "
                 f"{context.n_mutations} candidates requested, limited by the design space "
-                f"reachable from {len(bases)} base sequences."
+                f"reachable from {len(base_sequences)} base sequences."
             )
         context.mutations = candidates
 
