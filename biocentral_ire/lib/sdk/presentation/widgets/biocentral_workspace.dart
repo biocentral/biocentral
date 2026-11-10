@@ -182,7 +182,15 @@ class BiocentralMetricCard extends StatelessWidget {
       children: [
         Text(label),
         const SizedBox(height: 8),
-        Text(value, style: Theme.of(context).textTheme.headlineMedium),
+        Tooltip(
+          message: value,
+          child: Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
         if (detail != null) Text(detail!),
       ],
     ),
@@ -289,6 +297,7 @@ class BiocentralWizard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Stepper(
+    type: StepperType.horizontal,
     currentStep: currentStep,
     steps: steps,
     onStepContinue: onContinue,

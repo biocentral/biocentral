@@ -141,7 +141,7 @@ class _EngineeringRoundDialogState extends State<_EngineeringRoundDialog> {
               IconButton(onPressed: () => setState(() => _suggestions++), icon: const Icon(Icons.add)),
             ],
           ),
-          const Text('How adventurous should the picks be?'),
+          const Text('Exploration–exploitation balance'),
           Slider(
             value: _coefficient,
             divisions: 10,
@@ -150,7 +150,7 @@ class _EngineeringRoundDialogState extends State<_EngineeringRoundDialog> {
           ),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Stick to the best'), Text('Search widely')],
+            children: [Text('Prioritize predicted performance'), Text('Explore uncertain variants')],
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<_StartingPoint>(

@@ -110,9 +110,42 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
     }
   }
 
+  void _validateTrainingMeasurements() {
+    var hasMeasurement =
+        double.tryParse(_fitness.text)?.isFinite == true ||
+        (widget.source?.wildtypeSequence == _wildtype &&
+            widget.source!.measurements.values.any((value) => value.fitness != null));
+    final sources = [
+      if (_seedInput != null) utf8.decode(_seedInput!.bytes),
+      if (_seedRows.isNotEmpty)
+        'variant,measured\n${_seedRows.map((row) => encodeCsvRecord([row.$1.text, row.$2.text])).join('\n')}',
+    ];
+    for (final content in sources) {
+      final data = parseSeedDataCsv(content, _wildtype);
+      if (data.errors.isNotEmpty) throw FormatException(data.errors.join('\n'));
+      hasMeasurement =
+          hasMeasurement || data.wildtypeFitness != null || data.measurements.any((value) => value.fitness != null);
+    }
+    if (!hasMeasurement) {
+      throw const FormatException(
+        'Add a numeric wildtype measurement or at least one measured mutant. '
+        'The model needs measured training data to suggest the first round. Did not express does not count as a numeric measurement.',
+      );
+    }
+  }
+
   void _continue() {
-    final forms = _step == 2 ? _stepForms : [_stepForms[_step]];
-    if (!forms.every((key) => key.currentState?.validate() ?? false) || (_step > 0 && _restrictions == null)) return;
+    if (_step < 2 && !(_stepForms[_step].currentState?.validate() ?? false)) return;
+    if (_step > 0 && _restrictions == null) return;
+    if (_step == 0) {
+      try {
+        _validateTrainingMeasurements();
+      } on FormatException catch (error) {
+        setState(() => _error = error.message);
+        return;
+      }
+    }
+    setState(() => _error = null);
     if (_step < 2) {
       setState(() => _step++);
       return;
@@ -167,6 +200,9 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
           roundFound: 0,
           fitness: wildtypeFitness,
         );
+      }
+      if (!measurements.values.any((value) => value.fitness != null)) {
+        throw const FormatException('Add at least one numeric wildtype or mutant measurement before creating a campaign.');
       }
       final campaign = EngineeringCampaign(
         config: ActiveLearningEngineeringCampaignConfig(
@@ -260,6 +296,7 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
                               }
                             },
                           ),
+                          const SizedBox(height: 16),
                           DropdownButtonFormField<Protein>(
                             decoration: const InputDecoration(labelText: 'Choose a protein from the project'),
                             items: [
@@ -304,6 +341,10 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
                           ),
                           if (_seedInput != null) Text(_seedInput!.name),
                           _field(_fitness, 'Wildtype measurement', validator: _finiteOrEmpty),
+                          const Text(
+                            'Provide a numeric wildtype measurement or at least one measured mutant '
+                            '(below or via CSV). The model needs measured training data for the first round.',
+                          ),
                           for (final row in _seedRows)
                             Row(
                               children: [
@@ -350,6 +391,7 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
                             ],
                             onChanged: (value) => setState(() => _direction = value!),
                           ),
+                          const SizedBox(height: 20),
                           EngineeringModelSelection(
                             embedderName: _embedder.text,
                             modelType: _model,

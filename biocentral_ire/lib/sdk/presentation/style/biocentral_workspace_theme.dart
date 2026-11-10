@@ -65,6 +65,9 @@ class BiocentralWorkspaceTheme extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
         ),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7))),
+      ),
       textTheme: const TextTheme(
         headlineMedium: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
         titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
