@@ -9,7 +9,7 @@ import random
 
 import pytest
 from pydantic import ValidationError
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import Mutation, SequenceData
 
 from biocentral_server.active_learning.al_config import (
     ActiveLearningEngineeringCampaignConfig,
@@ -60,6 +60,10 @@ def _campaign(**overrides):
     )
 
 
+def _substitutions(*descriptors):
+    return [Mutation.parse(descriptor) for descriptor in descriptors]
+
+
 def _simulation(**overrides):
     return ActiveLearningEngineeringSimulationConfig(
         **{
@@ -102,24 +106,29 @@ class TestConfig:
         # A position convention mismatch is the failure worth catching here: left alone
         # it reads as a generator that simply never proposes anything scoreable
         with pytest.raises(ValidationError, match="disagrees with the wildtype"):
-            _campaign(allowed_substitutions=["W1V"])
+            _campaign(allowed_substitutions=_substitutions("W1V"))
 
     def test_allowed_substitutions_must_lie_inside_the_wildtype(self):
         with pytest.raises(ValidationError, match="outside the wildtype"):
-            _campaign(allowed_substitutions=["S9V"])
+            _campaign(allowed_substitutions=_substitutions("S9V"))
 
     def test_allowed_substitutions_matching_the_wildtype_are_accepted(self):
-        assert _campaign(
-            allowed_substitutions=["S1V", "E2W"]
-        ).allowed_substitutions == [
-            "S1V",
-            "E2W",
-        ]
+        substitutions = _substitutions("S1V", "E2W")
+        assert _campaign(allowed_substitutions=substitutions).allowed_substitutions == (
+            substitutions
+        )
 
     def test_substitutions_at_same_position_are_accepted(self):
-        assert _campaign(
-            allowed_substitutions=["S1V", "S1W", "E2A"]
-        ).allowed_substitutions == ["S1V", "S1W", "E2A"]
+        substitutions = _substitutions("S1V", "S1W", "E2A")
+        assert _campaign(allowed_substitutions=substitutions).allowed_substitutions == (
+            substitutions
+        )
+
+    def test_allowed_substitutions_validate_from_json(self):
+        campaign = _campaign(
+            allowed_substitutions=[{"wt": "S", "position": 1, "mt": "V"}]
+        )
+        assert campaign.allowed_substitutions == _substitutions("S1V")
 
 
 class TestBaseSequences:

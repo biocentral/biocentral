@@ -148,12 +148,11 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         description="Use each sequence's embedding minus the wildtype embedding as model "
         "input (only supported for residue-aware embedders)",
     )
-    allowed_substitutions: Optional[List[str]] = Field(
+    allowed_substitutions: Optional[List[Mutation]] = Field(
         default=None,
-        description="Substitutions the generator may draw from, as wildtype-relative "
-        "descriptors such as V39A. None allows any standard amino acid at any position. "
-        "A position's alphabet is the wildtype residue plus every residue named for it, "
-        "so reverting to the wildtype is always part of the design space.",
+        description="Wildtype-relative substitutions the generator may draw from. None "
+        "allows any standard amino acid at any position. "
+        "The design space always includes the wildtype residue at every position",
         min_length=1,
     )
 
@@ -176,17 +175,16 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
             )
         # A position convention mismatch would otherwise surface as a generator that
         # silently proposes nothing a landscape can score
-        for substitution in self.allowed_substitutions or []:
-            mutation = Mutation.parse(substitution)
+        for mutation in self.allowed_substitutions or []:
             index = mutation.get_pos()
             if index >= len(self.wildtype_sequence):
                 raise ValueError(
-                    f"Substitution {substitution} lies outside the wildtype sequence "
+                    f"Substitution {mutation.to_string()} lies outside the wildtype sequence "
                     f"of length {len(self.wildtype_sequence)}!"
                 )
             if self.wildtype_sequence[index] != mutation.wt:
                 raise ValueError(
-                    f"Substitution {substitution} disagrees with the wildtype sequence, "
+                    f"Substitution {mutation.to_string()} disagrees with the wildtype sequence, "
                     f"which has '{self.wildtype_sequence[index]}' at position "
                     f"{mutation.position}!"
                 )
