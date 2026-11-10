@@ -69,6 +69,7 @@ from biocentral_api._generated.models.model_files_request import ModelFilesReque
 from biocentral_api._generated.models.model_metadata import ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse
 from biocentral_api._generated.models.model_output import ModelOutput
+from biocentral_api._generated.models.mutation import Mutation
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse
 from biocentral_api._generated.models.output_class import OutputClass
 from biocentral_api._generated.models.output_type import OutputType

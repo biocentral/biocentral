@@ -92,6 +92,7 @@ __all__ = [
     "ModelMetadata",
     "ModelMetadataResponse",
     "ModelOutput",
+    "Mutation",
     "NotFoundErrorResponse",
     "OutputClass",
     "OutputType",
@@ -207,6 +208,7 @@ from biocentral_api._generated.models.model_files_request import ModelFilesReque
 from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
 from biocentral_api._generated.models.model_output import ModelOutput as ModelOutput
+from biocentral_api._generated.models.mutation import Mutation as Mutation
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse as NotFoundErrorResponse
 from biocentral_api._generated.models.output_class import OutputClass as OutputClass
 from biocentral_api._generated.models.output_type import OutputType as OutputType

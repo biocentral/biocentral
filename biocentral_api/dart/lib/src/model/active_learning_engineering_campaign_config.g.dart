@@ -23,7 +23,7 @@ class _$ActiveLearningEngineeringCampaignConfig
   @override
   final bool? useDeltaEmbeddings;
   @override
-  final BuiltList<String>? allowedSubstitutions;
+  final BuiltList<Mutation>? allowedSubstitutions;
 
   factory _$ActiveLearningEngineeringCampaignConfig(
           [void Function(ActiveLearningEngineeringCampaignConfigBuilder)?
@@ -135,10 +135,10 @@ class ActiveLearningEngineeringCampaignConfigBuilder
   set useDeltaEmbeddings(bool? useDeltaEmbeddings) =>
       _$this._useDeltaEmbeddings = useDeltaEmbeddings;
 
-  ListBuilder<String>? _allowedSubstitutions;
-  ListBuilder<String> get allowedSubstitutions =>
-      _$this._allowedSubstitutions ??= ListBuilder<String>();
-  set allowedSubstitutions(ListBuilder<String>? allowedSubstitutions) =>
+  ListBuilder<Mutation>? _allowedSubstitutions;
+  ListBuilder<Mutation> get allowedSubstitutions =>
+      _$this._allowedSubstitutions ??= ListBuilder<Mutation>();
+  set allowedSubstitutions(ListBuilder<Mutation>? allowedSubstitutions) =>
       _$this._allowedSubstitutions = allowedSubstitutions;
 
   ActiveLearningEngineeringCampaignConfigBuilder() {
