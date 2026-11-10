@@ -1,6 +1,4 @@
 import 'package:bio_flutter/bio_flutter.dart';
-import 'package:biocentral/plugins/protein_engineering/domain/mutation_descriptor.dart';
-import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 import 'package:flutter/painting.dart' show Color;
 
 /// mmCIF three-letter residue codes to their one-letter amino acid code.
@@ -98,47 +96,4 @@ Map<ResidueKey, Color> highlightsForCandidate({
     }
   }
   return highlights;
-}
-
-/// One structure-viewer dropdown entry: a display label and the mutant's full resolved sequence.
-class StructureCandidate {
-  final String label;
-  final String sequence;
-
-  const StructureCandidate({required this.label, required this.sequence});
-
-  @override
-  bool operator ==(Object other) => other is StructureCandidate && other.label == label && other.sequence == sequence;
-
-  @override
-  int get hashCode => Object.hash(label, sequence);
-}
-
-/// Resolvable suggestions from one round, for the structure viewer's dropdown.
-List<StructureCandidate> structureCandidatesForRound(EngineeringRound round) {
-  final suggestionSet = round.result.suggestions.toSet();
-  final candidates = <StructureCandidate>[];
-  for (final entityId in suggestionSet) {
-    try {
-      final substitutions = parseMutationDescriptor(entityId);
-      final sequence = applySubstitutions(round.parentSequence, substitutions);
-      if (sequence != null) {
-        candidates.add(StructureCandidate(label: formatSubstitutions(substitutions), sequence: sequence));
-      }
-    } on UnresolvableVariantException {
-      // Skip candidates the current server can't resolve to a sequence yet.
-    }
-  }
-  return candidates;
-}
-
-/// Resolvable suggestions across every round so far, deduplicated by sequence.
-List<StructureCandidate> structureCandidatesForAllRounds(List<EngineeringRound> rounds) {
-  final bySequence = <String, StructureCandidate>{};
-  for (final round in rounds) {
-    for (final candidate in structureCandidatesForRound(round)) {
-      bySequence[candidate.sequence] = candidate;
-    }
-  }
-  return bySequence.values.toList();
 }
