@@ -36,7 +36,7 @@ class ActiveLearningEngineeringCampaignConfig(BaseModel):
     optimization_mode: ActiveLearningOptimizationMode = Field(description="Optimization mode selection")
     seed: Optional[StrictInt] = Field(default=None, description="Random seed for reproducibility.")
     wildtype_sequence: StrictStr = Field(description="Wildtype sequence to engineer")
-    use_delta_embeddings: Optional[StrictBool] = Field(default=False, description="Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)")
+    use_delta_embeddings: Optional[StrictBool] = Field(default=False, description="Use each sequence's embedding minus the wildtype embedding as model input (only supported for residue-aware embedders)")
     allowed_substitutions: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, description="Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.")
     __properties: ClassVar[List[str]] = ["embedder_name", "name", "model_type", "optimization_mode", "seed", "wildtype_sequence", "use_delta_embeddings", "allowed_substitutions"]
 
