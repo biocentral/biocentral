@@ -80,3 +80,23 @@ application launch. Further computer-use verification is intentionally omitted.
 Report the action, campaign/round, visible error and relevant Activity entry for
 failures. Feedback on spacing, density and prototype parity is useful too; exact
 visual parity has not been verified.
+
+## Follow-up corrections
+
+- Wizard steps should run horizontally. Check spacing between the two source
+  dropdowns and between optimization direction and model selection, and matching
+  Back/Continue corner radii.
+- Advancing from Start without any numeric measurement should explain what is
+  missing. A numeric WT measurement or measured mutant/CSV permits advancement;
+  DNE alone does not. WT specifically remains optional.
+- Overview metrics should have equal dimensions and metrics/plots should adapt to
+  the available width. All three plots label rounds and the measured quantity or
+  prediction error, including units where supplied.
+- Run against localhost with one-hot encoding and the random model. A local API
+  diagnostic returned 12 predictions and 8 suggestions; the Dart resolver recovered
+  12 candidate rows including all 8 suggestions. Opaque identifiers and parent
+  residue mismatches were rejected by the response validator. These checks do not
+  constitute visual verification of the table.
+- New unusable responses should fail the round command without applying it. Saved
+  unusable rounds should show the specific response problem in Rounds/History;
+  bench export should explain the problem instead of writing blank sequences.
