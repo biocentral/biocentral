@@ -12,6 +12,7 @@ import subprocess
 import sys
 import types
 
+from biotrainer_core.data_classes import Mutation
 from biotrainer_core.utils.constants import STANDARD_AAS
 
 from biocentral_server.active_learning.pipelines.protein_engineering.steps import (
@@ -24,7 +25,7 @@ from biocentral_server.active_learning.pipelines.protein_engineering.steps.mutat
 WILDTYPE = "ACDEFG"
 # Position 1 may hold A or M, position 3 may hold D, K or W. Three single substitutions
 # and two doubles are reachable from the wildtype, which is small enough to enumerate.
-ALLOWED = ["A1M", "D3K", "D3W"]
+ALLOWED = [Mutation.parse(descriptor) for descriptor in ("A1M", "D3K", "D3W")]
 SINGLES = {"MCDEFG", "ACKEFG", "ACWEFG"}
 DOUBLES = {"MCKEFG", "MCWEFG"}
 
