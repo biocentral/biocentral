@@ -181,7 +181,7 @@ class _EngineeringRoundDialogState extends State<_EngineeringRoundDialog> {
               decoration: const InputDecoration(labelText: 'Measured variant'),
               items: [
                 for (final value in measured)
-                  DropdownMenuItem(value: value, child: Text('${value.seqId} (${value.fitness})')),
+                  DropdownMenuItem(value: value, child: Text('${value.seqId} (${value.fitness!.toStringAsFixed(2)})')),
               ],
               onChanged: (value) => setState(() => _chosenVariant = value),
             ),

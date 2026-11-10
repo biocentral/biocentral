@@ -79,19 +79,19 @@ class EngineeringOverviewPage extends StatelessWidget {
                                 best.sequence,
                               )?.replaceAll(':', ' + ') ??
                               'Wildtype',
-                    best?.fitness?.toString(),
+                    best?.fitness?.toStringAsFixed(2),
                   ),
                   (
                     'Over wildtype',
                     bestOverWildtype(campaign)?.toStringAsFixed(2) ?? '—',
-                    'baseline ${campaign.wildtypeFitness ?? '—'}',
+                    'baseline ${campaign.wildtypeFitness?.toStringAsFixed(2) ?? '—'}',
                   ),
                   ('Rounds completed', '${campaign.rounds.length}', null),
                   ('Variants measured', '${campaign.measurements.length}', null),
                 ])
                   SizedBox(
                     width: metricWidth,
-                    height: 160,
+                    height: 116,
                     child: BiocentralMetricCard(label: label, value: value, detail: detail),
                   ),
               ],
@@ -162,7 +162,7 @@ class EngineeringOverviewPage extends StatelessWidget {
                   for (final value in campaign.measurements.values.toList().reversed.take(5))
                     ListTile(
                       title: Text(value.seqId),
-                      trailing: Text(value.didNotExpress ? 'Did not express' : '${value.fitness}'),
+                      trailing: Text(value.didNotExpress ? 'Did not express' : value.fitness!.toStringAsFixed(2)),
                     ),
                 ],
               ),

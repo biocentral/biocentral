@@ -33,7 +33,7 @@ class EngineeringCandidatesGrid extends StatelessWidget {
       ? 'Untested'
       : measurement.didNotExpress
       ? 'Did not express'
-      : measurement.fitness.toString();
+      : measurement.fitness!.toStringAsFixed(2);
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +48,8 @@ class EngineeringCandidatesGrid extends StatelessWidget {
           candidate.uncertainty,
           candidate.score,
           candidate.suggested,
+          measurements[candidate.variant.sequence],
+          drafts[candidate.variant.sequence],
           _measurementLabel(measurements[candidate.variant.sequence]),
           drafts.containsKey(candidate.variant.sequence) ? _measurementLabel(drafts[candidate.variant.sequence]) : null,
         ],
@@ -62,24 +64,24 @@ class EngineeringCandidatesGrid extends StatelessWidget {
         PlutoColumn(
           title: 'Predicted',
           field: 'prediction',
-          type: PlutoColumnType.number(format: '0.############', applyFormatOnInit: false),
-          renderer: (cell) => Text(cell.cell.value?.toString() ?? '—'),
+          type: PlutoColumnType.number(format: '0.00', applyFormatOnInit: false),
+          renderer: (cell) => Text((cell.cell.value as num?)?.toStringAsFixed(2) ?? '—'),
           readOnly: true,
           width: 100,
         ),
         PlutoColumn(
           title: 'Uncertainty',
           field: 'uncertainty',
-          type: PlutoColumnType.number(format: '0.############', applyFormatOnInit: false),
-          renderer: (cell) => Text(cell.cell.value?.toString() ?? '—'),
+          type: PlutoColumnType.number(format: '0.00', applyFormatOnInit: false),
+          renderer: (cell) => Text((cell.cell.value as num?)?.toStringAsFixed(2) ?? '—'),
           readOnly: true,
           width: 110,
         ),
         PlutoColumn(
           title: 'Score',
           field: 'score',
-          type: PlutoColumnType.number(format: '0.############', applyFormatOnInit: false),
-          renderer: (cell) => Text(cell.cell.value?.toString() ?? '—'),
+          type: PlutoColumnType.number(format: '0.00', applyFormatOnInit: false),
+          renderer: (cell) => Text((cell.cell.value as num?)?.toStringAsFixed(2) ?? '—'),
           readOnly: true,
           width: 90,
         ),

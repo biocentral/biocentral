@@ -186,7 +186,7 @@ class BiocentralMetricCard extends StatelessWidget {
           message: value,
           child: Text(
             value,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
