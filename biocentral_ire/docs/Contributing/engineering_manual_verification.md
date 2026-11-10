@@ -20,7 +20,7 @@ application launch. Further computer-use verification is intentionally omitted.
 - Visit Overview, Rounds, History, Lineage, Mutations and Settings; switch between
   campaigns and resize. Check dialogs, plots and narrow layouts. Other plugin
   themes should remain unchanged; Settings should have no invented controls.
-- Open a round from Overview/Lineage and select another via the dropdown. Sidebar
+- Open a round from Overview/Lineage and select another via the round tabs. Sidebar
   bench export should use the selected round. Activity opens the existing log.
 
 ## Restrictions and structures
@@ -100,3 +100,10 @@ visual parity has not been verified.
 - New unusable responses should fail the round command without applying it. Saved
   unusable rounds should show the specific response problem in Rounds/History;
   bench export should explain the problem instead of writing blank sequences.
+
+- Follow-up visual checks: overview metric cards are 116 px high; expanded lineage
+  sequence nodes match the reference at 156 × 42 px, with correctly attached edges.
+  Round tabs should follow Overview/Lineage navigation and sidebar bench exports,
+  compact and scroll with many rounds, and update after adding/importing rounds.
+  Scientific table values display two decimals while editors and exports retain
+  their original precision.

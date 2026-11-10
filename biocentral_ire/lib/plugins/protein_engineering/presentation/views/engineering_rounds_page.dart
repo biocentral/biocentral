@@ -5,6 +5,7 @@ import 'package:biocentral/plugins/protein_engineering/domain/round_response.dar
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/engineering_actions.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/widgets/engineering_candidates_grid.dart';
+import 'package:biocentral/plugins/protein_engineering/presentation/widgets/engineering_round_tabs.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/widgets/engineering_structure_view.dart';
 import 'package:biocentral/sdk/biocentral_sdk.dart';
 import 'package:flutter/material.dart';
@@ -197,15 +198,13 @@ class _EngineeringRoundsPageState extends State<EngineeringRoundsPage> with Auto
             child: BiocentralNotice(message: issue, icon: Icons.error_outline),
           ),
         if (!widget.history && campaign.rounds.isNotEmpty)
-          DropdownButton<int>(
-            value: campaign.rounds.indexOf(round!),
-            items: [
-              for (var index = 0; index < campaign.rounds.length; index++)
-                DropdownMenuItem(value: index, child: Text('Round ${campaign.rounds[index].sentConfig.iteration}')),
-            ],
-            onChanged: (value) {
-              widget.onRoundSelected?.call(value!);
-            },
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: EngineeringRoundTabs(
+              iterations: [for (final current in campaign.rounds) current.sentConfig.iteration],
+              selectedIndex: campaign.rounds.indexOf(round!),
+              onSelected: widget.onRoundSelected,
+            ),
           ),
         Wrap(
           spacing: 8,
