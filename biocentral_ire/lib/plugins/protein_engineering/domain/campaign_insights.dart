@@ -73,16 +73,6 @@ List<double> predictionErrors(EngineeringCampaign campaign, EngineeringRound rou
   return errors;
 }
 
-/// The average absolute difference between a round's predictions and what was actually
-/// measured for the same variant, across every round. Null if nothing overlaps yet.
-double? meanAbsoluteError(EngineeringCampaign campaign) {
-  final errors = [for (final round in campaign.rounds) ...predictionErrors(campaign, round).map((e) => e.abs())];
-  if (errors.isEmpty) {
-    return null;
-  }
-  return errors.reduce((a, b) => a + b) / errors.length;
-}
-
 /// Five-number summary of a set of values, for box plots.
 class BoxSummary {
   final double min;

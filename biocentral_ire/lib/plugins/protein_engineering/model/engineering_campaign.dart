@@ -139,8 +139,6 @@ class EngineeringCampaign {
     }
   }
 
-  String internalName() => id;
-
   String? get wildtypeStructureMmcif => structureInputId == null ? null : utf8.decode(inputs[structureInputId]!.bytes);
 
   /// Replaces an applied scientific value while preserving identity and history.

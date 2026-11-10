@@ -24,8 +24,6 @@ class MeasurementImport {
        errors = List.unmodifiable(errors);
 
   bool get canImport => errors.isEmpty && newMeasurements.isNotEmpty;
-
-  Set<int> get rounds => {for (final variant in newMeasurements) variant.roundFound};
 }
 
 /// Every suggested variant of every round, as the measurement it would become.

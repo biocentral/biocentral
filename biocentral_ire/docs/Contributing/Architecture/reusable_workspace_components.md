@@ -32,7 +32,7 @@ BiocentralWorkspaceTheme(
 )
 ```
 
-Use Flutter's `ColorScheme` and `TextTheme`. `BiocentralWorkspaceColors` adds success, warning and muted colors. Read them from a context below the scoped theme. Use a `Builder` below that theme when launching dialogs from its creator.
+Use Flutter's `ColorScheme` and `TextTheme`. `BiocentralWorkspaceColors` adds the success color. Read them from a context below the scoped theme. Use a `Builder` below that theme when launching dialogs from its creator.
 
 | Component | Responsibility |
 | --- | --- |

@@ -13,22 +13,9 @@ class SeedData {
   /// Problems that make the data unsafe to use, e.g. "Row 4: "abc" is not a number."
   final List<String> errors;
 
-  /// Rows without a value, i.e. not measured.
-  final int blank;
-
-  SeedData({
-    required List<SeedMeasurement> measurements,
-    this.wildtypeFitness,
-    List<String> errors = const [],
-    this.blank = 0,
-  }) : measurements = List.unmodifiable(measurements),
-       errors = List.unmodifiable(errors);
-
-  const SeedData._empty() : measurements = const [], wildtypeFitness = null, errors = const [], blank = 0;
-
-  static const empty = SeedData._empty();
-
-  int get count => measurements.length + (wildtypeFitness == null ? 0 : 1);
+  SeedData({required List<SeedMeasurement> measurements, this.wildtypeFitness, List<String> errors = const []})
+    : measurements = List.unmodifiable(measurements),
+      errors = List.unmodifiable(errors);
 }
 
 const _valueColumnNames = ['measured', 'value', 'fitness', 'label'];
@@ -58,7 +45,6 @@ SeedData parseSeedDataCsv(String content, String wildtypeSequence) {
   final errors = <String>[];
   final seen = <String>{};
   double? wildtypeFitness;
-  var blank = 0;
 
   for (var i = 0; i < table.rows.length; i++) {
     final rowName = CsvTable.rowName(i);
@@ -66,7 +52,6 @@ SeedData parseSeedDataCsv(String content, String wildtypeSequence) {
 
     final rawValue = field(valueColumn);
     if (rawValue.isEmpty) {
-      blank++;
       continue;
     }
 
@@ -102,7 +87,7 @@ SeedData parseSeedDataCsv(String content, String wildtypeSequence) {
     );
   }
 
-  return SeedData(measurements: measurements, wildtypeFitness: wildtypeFitness, errors: errors, blank: blank);
+  return SeedData(measurements: measurements, wildtypeFitness: wildtypeFitness, errors: errors);
 }
 
 /// The full sequence a row describes, or an error explaining why it can't be used.
@@ -139,24 +124,4 @@ SeedData parseSeedDataCsv(String content, String wildtypeSequence) {
     return (null, '"$rawVariant" does not match the wildtype (check positions and original residues).');
   }
   return (sequence, null);
-}
-
-/// An existing campaign's measurements as starting data for a new campaign. Every variant becomes
-/// round-0 data relative to the wildtype, since the new campaign starts without rounds.
-SeedData seedDataFromCampaign(EngineeringCampaign campaign) {
-  final wildtype = campaign.wildtypeSequence;
-  final measurements = <SeedMeasurement>[];
-  double? wildtypeFitness = campaign.wildtypeFitness;
-  for (final variant in campaign.measurements.values) {
-    if (variant.sequence == wildtype) {
-      wildtypeFitness = variant.fitness ?? wildtypeFitness;
-      continue;
-    }
-    final descriptor = wildtypeRelativeDescriptor(wildtype, variant.sequence);
-    if (descriptor == null) {
-      continue; // Different length; can't be expressed as substitutions.
-    }
-    measurements.add(SeedMeasurement(substitutions: parseMutationDescriptor(descriptor), fitness: variant.fitness));
-  }
-  return SeedData(measurements: measurements, wildtypeFitness: wildtypeFitness);
 }
