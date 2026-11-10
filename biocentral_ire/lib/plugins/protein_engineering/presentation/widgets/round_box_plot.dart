@@ -5,12 +5,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 /// Axis titles for charts with rounds on the x-axis: whole rounds only, no top or right axis.
-FlTitlesData roundAxisTitles(BuildContext context) {
+FlTitlesData roundAxisTitles(BuildContext context, {required String valueLabel}) {
   final labelStyle = TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant);
   return FlTitlesData(
     topTitles: const AxisTitles(),
     rightTitles: const AxisTitles(),
     leftTitles: AxisTitles(
+      axisNameWidget: Text(valueLabel, style: labelStyle),
+      axisNameSize: 22,
       sideTitles: SideTitles(
         showTitles: true,
         reservedSize: 44,
@@ -28,6 +30,8 @@ FlTitlesData roundAxisTitles(BuildContext context) {
       ),
     ),
     bottomTitles: AxisTitles(
+      axisNameWidget: Text('Round', style: labelStyle),
+      axisNameSize: 22,
       sideTitles: SideTitles(
         showTitles: true,
         interval: 1,
@@ -49,8 +53,9 @@ class RoundBoxPlot extends StatelessWidget {
 
   /// Emphasizes y = 0 and keeps it in view; meaningful for differences such as prediction errors.
   final bool showZeroLine;
+  final String valueLabel;
 
-  const RoundBoxPlot({required this.series, this.showZeroLine = false, super.key});
+  const RoundBoxPlot({required this.series, required this.valueLabel, this.showZeroLine = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +73,7 @@ class RoundBoxPlot extends StatelessWidget {
         maxX: series.last.$1 + 0.5,
         minY: low - padding,
         maxY: high + padding,
-        titlesData: roundAxisTitles(context),
+        titlesData: roundAxisTitles(context, valueLabel: valueLabel),
         gridData: FlGridData(
           drawVerticalLine: false,
           getDrawingHorizontalLine: (value) => showZeroLine && value == 0
