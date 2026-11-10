@@ -28,6 +28,7 @@ from .embeddings import embeddings_router, projection_router
 from .biocentral_service import router as biocentral_service_router
 
 from .utils import str2bool, Constants, get_logger
+from .biocentral_service import run_deep_health_check
 
 logger = get_logger(__name__)
 
@@ -163,6 +164,11 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health_check():
         return {"status": "healthy", "version": __version__}
+
+    # Deep health check
+    @app.get("/health/deep")
+    async def deep_health_check():
+        return await run_deep_health_check()
 
     # Landing page
     assets_dir = Path(os.environ.get("ASSETS_DIR", "assets/"))
