@@ -45,6 +45,25 @@ extension SequenceDataSerial on SequenceData {
   }
 }
 
+extension MutationSerial on Mutation {
+  Map<String, dynamic> serialize() {
+    return {
+      'wt': wt,
+      'position': position,
+      'mt': mt,
+      'one_indexed': oneIndexed,
+    };
+  }
+
+  static Mutation deserialize(Map<String, dynamic> jsonMap) {
+    return Mutation((b) => b
+      ..wt = jsonMap['wt'] as String
+      ..position = jsonMap['position'] as int
+      ..mt = jsonMap['mt'] as String
+      ..oneIndexed = jsonMap['one_indexed'] as bool?);
+  }
+}
+
 extension BiotrainerModelResultSerial on BiotrainerModelResult {
   Map<String, dynamic> serialize() {
     return standardSerializers.serializeWith(BiotrainerModelResult.serializer, this) as Map<String, dynamic>;
@@ -206,7 +225,7 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       'seed': seed,
       'wildtypeSequence': wildtypeSequence,
       'useDeltaEmbeddings': useDeltaEmbeddings,
-      'allowedSubstitutions': allowedSubstitutions?.toList(),
+      'allowedSubstitutions': allowedSubstitutions?.map((mutation) => mutation.serialize()).toList(),
     };
   }
 
@@ -220,7 +239,8 @@ extension EngineeringCampaignConfigSerial on ActiveLearningEngineeringCampaignCo
       ..wildtypeSequence = jsonMap['wildtypeSequence'] as String
       ..useDeltaEmbeddings = jsonMap['useDeltaEmbeddings'] as bool?
       ..allowedSubstitutions = jsonMap['allowedSubstitutions'] != null
-          ? ListBuilder<String>(List<String>.from(jsonMap['allowedSubstitutions'] as List))
+          ? ListBuilder<Mutation>((jsonMap['allowedSubstitutions'] as List)
+              .map((e) => MutationSerial.deserialize(e as Map<String, dynamic>)))
           : null);
   }
 }

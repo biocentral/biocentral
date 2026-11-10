@@ -70,6 +70,7 @@ import 'package:biocentral_api/src/model/model_files_request.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/model_metadata_response.dart';
 import 'package:biocentral_api/src/model/model_output.dart';
+import 'package:biocentral_api/src/model/mutation.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/output_class.dart';
 import 'package:biocentral_api/src/model/output_type.dart';
@@ -164,6 +165,7 @@ part 'serializers.g.dart';
   ModelMetadata,
   ModelMetadataResponse,
   ModelOutput,
+  Mutation,
   NotFoundErrorResponse,
   OutputClass,
   OutputType,
@@ -223,6 +225,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType(num)]),
         () => MapBuilder<String, num>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(Mutation)]),
+        () => ListBuilder<Mutation>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(Prediction)]),

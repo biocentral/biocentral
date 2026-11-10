@@ -71,6 +71,7 @@ biocentral_api/_generated/models/model_files_request.py
 biocentral_api/_generated/models/model_metadata.py
 biocentral_api/_generated/models/model_metadata_response.py
 biocentral_api/_generated/models/model_output.py
+biocentral_api/_generated/models/mutation.py
 biocentral_api/_generated/models/not_found_error_response.py
 biocentral_api/_generated/models/output_class.py
 biocentral_api/_generated/models/output_type.py
@@ -167,6 +168,7 @@ docs/ModelFilesRequest.md
 docs/ModelMetadata.md
 docs/ModelMetadataResponse.md
 docs/ModelOutput.md
+docs/Mutation.md
 docs/NotFoundErrorResponse.md
 docs/OutputClass.md
 docs/OutputType.md

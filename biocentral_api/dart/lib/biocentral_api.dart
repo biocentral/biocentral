@@ -30,6 +30,7 @@ export 'src/model/common_embedder.dart' show CommonEmbedder;
 export 'src/model/active_learning_screening_campaign_config.dart' show ActiveLearningScreeningCampaignConfig;
 export 'src/model/active_learning_screening_iteration_config.dart' show ActiveLearningScreeningIterationConfig;
 export 'src/model/active_learning_engineering_campaign_config.dart' show ActiveLearningEngineeringCampaignConfig;
+export 'src/model/mutation.dart' show Mutation;
 export 'src/model/active_learning_engineering_iteration_config.dart' show ActiveLearningEngineeringIterationConfig;
 export 'src/model/active_learning_model_type.dart' show ActiveLearningModelType;
 export 'src/model/active_learning_optimization_mode.dart' show ActiveLearningOptimizationMode;
