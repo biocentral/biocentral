@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/amino_acid_restrictions.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/engineering_repository.dart';
+import 'package:biocentral/plugins/protein_engineering/domain/round_response.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/sequence_validation.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/structure_sequence.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
@@ -360,6 +361,11 @@ final class RunEngineeringRoundCommand extends BiocentralCommand<EngineeringCamp
     yield log = log.logInfo(information: 'Server task ${task.taskId}');
     await for (final (dto, result) in task.run()) {
       if (result != null) {
+        final issue = engineeringResponseIssue(result, parentSequence: parentSequence, iteration: iteration.iteration);
+        if (issue != null) {
+          yield log.errored(error: 'Unusable engineering response: $issue No round was applied.');
+          return;
+        }
         final round = EngineeringRound(
           campaignConfig: campaign.config,
           sentConfig: iteration,

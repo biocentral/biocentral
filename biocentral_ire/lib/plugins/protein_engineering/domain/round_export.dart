@@ -1,9 +1,16 @@
 import 'package:biocentral/plugins/protein_engineering/domain/csv_utils.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/mutation_descriptor.dart';
+import 'package:biocentral/plugins/protein_engineering/domain/round_response.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 
 /// Exports suggestions with a blank measured-value column for experimental results.
 String roundCandidatesToCsv(EngineeringRound round) {
+  final issue = engineeringResponseIssue(
+    round.result,
+    parentSequence: round.parentSequence,
+    iteration: round.sentConfig.iteration,
+  );
+  if (issue != null) throw FormatException('Cannot export an unusable round: $issue');
   final suggestionSet = round.result.suggestions.toSet();
   final suggestions = round.result.results.where((r) => suggestionSet.contains(r.entityId)).toList();
 

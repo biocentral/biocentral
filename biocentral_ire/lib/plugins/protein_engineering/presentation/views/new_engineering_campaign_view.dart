@@ -202,7 +202,9 @@ class _NewEngineeringCampaignViewState extends State<NewEngineeringCampaignView>
         );
       }
       if (!measurements.values.any((value) => value.fitness != null)) {
-        throw const FormatException('Add at least one numeric wildtype or mutant measurement before creating a campaign.');
+        throw const FormatException(
+          'Add at least one numeric wildtype or mutant measurement before creating a campaign.',
+        );
       }
       final campaign = EngineeringCampaign(
         config: ActiveLearningEngineeringCampaignConfig(

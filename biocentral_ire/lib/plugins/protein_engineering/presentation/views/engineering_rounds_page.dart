@@ -1,6 +1,7 @@
 import 'package:biocentral/plugins/protein_engineering/bloc/engineering_commands.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/campaign_candidates.dart';
 import 'package:biocentral/plugins/protein_engineering/domain/engineering_repository.dart';
+import 'package:biocentral/plugins/protein_engineering/domain/round_response.dart';
 import 'package:biocentral/plugins/protein_engineering/model/engineering_campaign.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/engineering_actions.dart';
 import 'package:biocentral/plugins/protein_engineering/presentation/widgets/engineering_candidates_grid.dart';
@@ -120,6 +121,17 @@ class _EngineeringRoundsPageState extends State<EngineeringRoundsPage> with Auto
             0,
             campaign.rounds.length - 1,
           )];
+    final responseIssues = <String>[
+      for (final current in widget.history ? campaign.rounds : [if (round != null) round])
+        if (engineeringResponseIssue(
+              current.result,
+              parentSequence: current.parentSequence,
+              iteration: current.sentConfig.iteration,
+            )
+            case final String issue)
+          'Round ${current.sentConfig.iteration}: $issue '
+              'Run a new round against the matching backend to obtain usable variants.',
+    ];
     final candidates = engineeringCandidates(campaign, round: widget.history ? null : round);
     final rows = candidates.where((candidate) {
       final measurement = campaign.measurements[candidate.variant.sequence];
@@ -179,6 +191,11 @@ class _EngineeringRoundsPageState extends State<EngineeringRoundsPage> with Auto
           ],
         ),
         const SizedBox(height: 16),
+        for (final issue in responseIssues)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: BiocentralNotice(message: issue, icon: Icons.error_outline),
+          ),
         if (!widget.history && campaign.rounds.isNotEmpty)
           DropdownButton<int>(
             value: campaign.rounds.indexOf(round!),
