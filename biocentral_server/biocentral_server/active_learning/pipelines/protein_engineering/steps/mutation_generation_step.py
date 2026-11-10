@@ -56,7 +56,9 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
         return {index: sorted(alphabets[index]) for index in sorted(alphabets)}
 
     @staticmethod
-    def _num_reachable_sequences(num_alternatives: Sequence[int], n_substitutions: int) -> int:
+    def _num_reachable_sequences(
+        num_alternatives: Sequence[int], n_substitutions: int
+    ) -> int:
         """Counts how many unique sequences are reachable at n_substitutions from a base sequence in n_substitutions.
 
         Args:
