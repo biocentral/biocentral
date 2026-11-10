@@ -17,7 +17,11 @@ class BiocentralServerTask<T> {
   final gen.BiocentralApi api; // generated API root for creating endpoint clients
   final DtoHandler<T> dtoHandler;
 
-  BiocentralServerTask({required this.taskId, required this.api, required this.dtoHandler});
+  BiocentralServerTask({
+    required this.taskId,
+    required this.api,
+    required this.dtoHandler,
+  });
 
   Future<TaskStatusResponse> _fetchStatus(BiocentralServiceApi biocentralServiceApi) async {
     final resp = await biocentralServiceApi.taskStatusApiV1BiocentralServiceTaskStatusTaskIdGet(taskId: taskId);
@@ -28,18 +32,18 @@ class BiocentralServerTask<T> {
   Stream<(TaskDTO?, T?)> run({void Function(List<TaskDTO> dtos)? onProgress}) async* {
     final biocentralApi = api.getBiocentralServiceApi();
 
-    for (var attempt = 0; attempt < maxTries; attempt++) {
-      final TaskStatusResponse response;
+    for (int i = 0; i < maxTries; i++) {
+      final TaskStatusResponse statusResp;
       try {
-        response = await _fetchStatus(biocentralApi);
+        statusResp = await _fetchStatus(biocentralApi);
       } on DioException {
         // A transport failure does not establish that the server task failed.
-        await Future<void>.delayed(pollInterval);
+        await Future.delayed(pollInterval);
         continue;
       }
 
-      final dtos = response.dtos.toList(growable: false);
-      onProgress?.call(dtos);
+      final dtos = statusResp.dtos.toList(growable: false);
+      if (onProgress != null) onProgress(dtos);
       dtoHandler.updateProgress(dtos);
       for (final dto in dtos) {
         yield (dto, null);
@@ -57,7 +61,7 @@ class BiocentralServerTask<T> {
         yield (null, result);
         return;
       }
-      await Future<void>.delayed(pollInterval);
+      await Future.delayed(pollInterval);
     }
     yield* Stream<(TaskDTO?, T?)>.error(BiocentralTaskFailure(taskId: taskId, message: 'Task polling timed out.'));
   }

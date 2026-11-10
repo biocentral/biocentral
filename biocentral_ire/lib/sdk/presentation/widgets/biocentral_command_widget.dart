@@ -21,7 +21,7 @@ class BiocentralCommandWidget extends StatefulWidget {
   final String executeButtonLabel;
   final Widget Function() parameterSelection; // Lazy building parameter selection
   final BiocentralCommand? Function()
-  collectCommand; // Callback to be executed directly after command widget was pressed
+      collectCommand; // Callback to be executed directly after command widget was pressed
   final Widget Function(BiocentralCommandLog) visualizeResult;
 
   final BiocentralCommandAvailability commandAvailability;
@@ -119,11 +119,16 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              IconButton.filled(onPressed: widget.commandAvailability.available ? _expand : null, icon: widget.icon),
+              IconButton.filled(
+                onPressed: widget.commandAvailability.available ? _expand : null,
+                icon: widget.icon,
+              ),
               const SizedBox(width: 8),
               Text(
                 widget.name,
-                style: TextStyle(color: widget.commandAvailability.available ? null : Colors.grey[600]),
+                style: TextStyle(
+                  color: widget.commandAvailability.available ? null : Colors.grey[600],
+                ),
               ),
             ],
           ),

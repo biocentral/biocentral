@@ -15,11 +15,10 @@ final class BiocentralCommandExecuteEvent<R> extends BiocentralCommandEvent {
   final Widget Function(BiocentralCommandLog)? visualizeResult;
   final bool autoAccept; // Automatically accept the result after calculation successfully finished
 
-  BiocentralCommandExecuteEvent({
-    required this.command,
-    required this.visualizeResult,
-    required this.autoAccept,
-  }); // Function to visualize result (progress)
+  BiocentralCommandExecuteEvent(
+      {required this.command,
+      required this.visualizeResult,
+      required this.autoAccept}); // Function to visualize result (progress)
 }
 
 final class BiocentralCommandAcceptResultEvent extends BiocentralCommandEvent {
@@ -42,7 +41,10 @@ class BiocentralCommandState extends Equatable {
 
   const BiocentralCommandState(this._currentCommand, this.currentCommandLog, this.visualizeResult);
 
-  const BiocentralCommandState.idle() : _currentCommand = null, currentCommandLog = null, visualizeResult = null;
+  const BiocentralCommandState.idle()
+      : _currentCommand = null,
+        currentCommandLog = null,
+        visualizeResult = null;
 
   const BiocentralCommandState.start(this._currentCommand, this.visualizeResult) : currentCommandLog = null;
 
@@ -157,13 +159,5 @@ class BiocentralCommandBloc extends Bloc<BiocentralCommandEvent, BiocentralComma
     DatabaseImportMode importMode = DatabaseImportMode.defaultMode,
   }) async {
     _eventBus.fire(BiocentralDatabaseSyncEvent(entities, importMode));
-  }
-
-  void updateDatabases() async {
-    _eventBus.fire(BiocentralDatabaseUpdatedEvent());
-  }
-
-  void finishedResumableCommand(BiocentralCommandLog finishedCommand) async {
-    _eventBus.fire(BiocentralResumableCommandFinishedEvent(finishedCommand));
   }
 }

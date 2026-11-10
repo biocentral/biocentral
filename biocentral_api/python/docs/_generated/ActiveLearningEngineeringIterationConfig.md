@@ -6,11 +6,11 @@ Configuration for a single iteration of active learning
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**iteration** | **int** | Iteration number |
-**base_sequences** | **List[str]** | Sequences used to generate mutations (defaults to the wildtype sequence of the campaign) | [optional]
-**training_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of training data for this iteration |
-**coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) |
-**n_suggestions** | **int** | Number of suggestions to propose from this iteration |
+**iteration** | **int** | Iteration number | 
+**base_sequences** | **List[str]** | Sequences used to generate mutations (defaults to the wildtype sequence of the campaign) | [optional] 
+**training_data** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) | List of training data for this iteration | 
+**coefficient** | **float** | Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration) | 
+**n_suggestions** | **int** | Number of suggestions to propose from this iteration | 
 **n_mutations** | **int** | Number of mutations to generate and score in this iteration | [optional] [default to 1000]
 
 ## Example
@@ -31,3 +31,5 @@ active_learning_engineering_iteration_config_dict = active_learning_engineering_
 active_learning_engineering_iteration_config_from_dict = ActiveLearningEngineeringIterationConfig.from_dict(active_learning_engineering_iteration_config_dict)
 ```
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+
