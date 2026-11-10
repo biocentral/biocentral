@@ -183,12 +183,6 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
         ge=1,
     )
 
-    candidate_sequences: Optional[List[str]] = Field(
-        default=None,
-        description="Explicit permitted sequences to score instead of generating mutations",
-        min_length=1,
-    )
-
     @field_validator("training_data")
     @classmethod
     def validate_training_data(cls, v: List[SequenceData]):
@@ -202,16 +196,6 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
         base_sequences = self.base_sequences or []
         if len(base_sequences) != len(set(base_sequences)):
             raise ValueError("base_sequences contains duplicate entries!")
-
-        candidates = self.candidate_sequences
-        if candidates is not None:
-            if len(candidates) != len(set(candidates)):
-                raise ValueError("candidate_sequences contains duplicate entries!")
-            standard_aas = set("ACDEFGHIKLMNPQRSTVWY")
-            lengths = {len(point.seq) for point in self.training_data}
-            for sequence in candidates:
-                if not sequence or set(sequence) - standard_aas or len(sequence) not in lengths:
-                    raise ValueError("candidate_sequences must contain valid amino-acid sequences matching training length")
 
         return self
 

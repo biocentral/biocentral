@@ -13,7 +13,6 @@
 
 
 from __future__ import annotations
-from biotrainer_core.data_classes import SequenceData
 import pprint
 import re  # noqa: F401
 import json
@@ -24,6 +23,7 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import SequenceData
 
 class ActiveLearningEngineeringIterationConfig(BaseModel):
     """
@@ -35,8 +35,7 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     coefficient: Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)")
     n_suggestions: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of suggestions to propose from this iteration")
     n_mutations: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1000, description="Number of mutations to generate and score in this iteration")
-    candidate_sequences: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, description="Explicit permitted sequences to score instead of generating mutations")
-    __properties: ClassVar[List[str]] = ["iteration", "base_sequences", "training_data", "coefficient", "n_suggestions", "n_mutations", "candidate_sequences"]
+    __properties: ClassVar[List[str]] = ["iteration", "base_sequences", "training_data", "coefficient", "n_suggestions", "n_mutations"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -89,11 +88,6 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
         if self.base_sequences is None and "base_sequences" in self.model_fields_set:
             _dict['base_sequences'] = None
 
-        # set to None if candidate_sequences (nullable) is None
-        # and model_fields_set contains the field
-        if self.candidate_sequences is None and "candidate_sequences" in self.model_fields_set:
-            _dict['candidate_sequences'] = None
-
         return _dict
 
     @classmethod
@@ -111,8 +105,7 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
             "training_data": [SequenceData.from_dict(_item) for _item in obj["training_data"]] if obj.get("training_data") is not None else None,
             "coefficient": obj.get("coefficient"),
             "n_suggestions": obj.get("n_suggestions"),
-            "n_mutations": obj.get("n_mutations") if obj.get("n_mutations") is not None else 1000,
-            "candidate_sequences": obj.get("candidate_sequences")
+            "n_mutations": obj.get("n_mutations") if obj.get("n_mutations") is not None else 1000
         })
         return _obj
 
