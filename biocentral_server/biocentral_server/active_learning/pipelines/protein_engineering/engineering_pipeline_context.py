@@ -1,5 +1,5 @@
 from typing import List, Callable, Optional, Set, Tuple
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import Mutation, SequenceData
 
 from ..al_shared import ALContext
 
@@ -33,7 +33,7 @@ class EngineeringPipelineContext(ALContext):
         n_mutations: int,
         n_substitutions: int = 1,
         generate_candidates: bool = False,
-        allowed_substitutions: Optional[List[str]] = None,
+        allowed_substitutions: Optional[List[Mutation]] = None,
         candidate_pool: Optional[List[str]] = None,
         al_target_value: Optional[float] = None,
         al_target_lb: Optional[float] = None,

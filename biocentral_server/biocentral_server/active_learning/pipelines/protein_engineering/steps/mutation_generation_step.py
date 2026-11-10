@@ -34,7 +34,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
 
     @staticmethod
     def _design_space(
-        wildtype_sequence: str, allowed_substitutions: Optional[List[str]]
+        wildtype_sequence: str, allowed_substitutions: Optional[List[Mutation]]
     ) -> Dict[int, List[str]]:
         """Residues each position may take, keyed by 0-based index.
 
@@ -49,8 +49,7 @@ class MutationGenerationStep(PipelineStep[EngineeringPipelineContext]):
             }
 
         alphabets: Dict[int, Set[str]] = {}
-        for substitution in allowed_substitutions:
-            mutation = Mutation.parse(substitution)
+        for mutation in allowed_substitutions:
             index = mutation.get_pos()
             alphabets.setdefault(index, {wildtype_sequence[index]}).add(mutation.mt)
         return {index: sorted(alphabets[index]) for index in sorted(alphabets)}
