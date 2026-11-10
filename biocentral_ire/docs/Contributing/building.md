@@ -1,10 +1,6 @@
 ## Pinned desktop SDK
 
-Use FVM with the revision in `.fvmrc` (Flutter 3.50 preview). Run `fvm flutter pub get`,
-`fvm flutter run -d macos` (or linux/windows), and `fvm dart` for Dart commands.
-The pinned bio_flutter viewer requires Flutter GPU and Impeller; desktop runners enable both.
-Web support is temporarily suspended. The desktop companion requires serious_python 5 and archive 4.
-Set `SERIOUS_PYTHON_VERSION=3.12` when packaging and running the companion to match its native dependencies.
+Use FVM with the revision in `.fvmrc` (Flutter 3.50 preview). Run `fvm flutter pub get`, `fvm flutter run -d macos` (or linux/windows), and `fvm dart` for Dart commands. The pinned bio_flutter viewer requires Flutter GPU and Impeller; desktop runners enable both. Web support is temporarily suspended. The desktop companion requires serious_python 5 and archive 4. Set `SERIOUS_PYTHON_VERSION=3.12` when packaging and running the companion to match its native dependencies.
 
 # Building
 
