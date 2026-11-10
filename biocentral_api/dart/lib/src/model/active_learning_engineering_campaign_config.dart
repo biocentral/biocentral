@@ -20,7 +20,7 @@ part 'active_learning_engineering_campaign_config.g.dart';
 /// * [optimizationMode] - Optimization mode selection
 /// * [seed] - Random seed for reproducibility.
 /// * [wildtypeSequence] - Wildtype sequence to engineer
-/// * [useDeltaEmbeddings] - Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+/// * [useDeltaEmbeddings] - Use each sequence's embedding minus the wildtype embedding as model input (only supported for residue-aware embedders)
 /// * [allowedSubstitutions] - Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position's alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space.
 @BuiltValue()
 abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLearningEngineeringCampaignConfig, ActiveLearningEngineeringCampaignConfigBuilder> {
@@ -50,7 +50,7 @@ abstract class ActiveLearningEngineeringCampaignConfig implements Built<ActiveLe
   @BuiltValueField(wireName: r'wildtype_sequence')
   String get wildtypeSequence;
 
-  /// Use each sequence's embedding minus the wildtype embedding as model input (protein language model embedders only)
+  /// Use each sequence's embedding minus the wildtype embedding as model input (only supported for residue-aware embedders)
   @BuiltValueField(wireName: r'use_delta_embeddings')
   bool? get useDeltaEmbeddings;
 

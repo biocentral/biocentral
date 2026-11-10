@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **optimization_mode** | [**ActiveLearningOptimizationMode**](ActiveLearningOptimizationMode.md) | Optimization mode selection | 
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **wildtype_sequence** | **str** | Wildtype sequence to engineer | 
-**use_delta_embeddings** | **bool** | Use each sequence&#39;s embedding minus the wildtype embedding as model input (protein language model embedders only) | [optional] [default to False]
+**use_delta_embeddings** | **bool** | Use each sequence&#39;s embedding minus the wildtype embedding as model input (only supported for residue-aware embedders) | [optional] [default to False]
 **allowed_substitutions** | **List[str]** | Substitutions the generator may draw from, as wildtype-relative descriptors such as V39A. None allows any standard amino acid at any position. A position&#39;s alphabet is the wildtype residue plus every residue named for it, so reverting to the wildtype is always part of the design space. | [optional] 
 
 ## Example
