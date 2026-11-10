@@ -43,7 +43,7 @@ class _BiocentralCommandLogViewState extends State<BiocentralCommandLogView> {
   Widget build(BuildContext context) {
     return BlocBuilder<BiocentralCommandBloc, BiocentralCommandState>(
       builder: (context, commandState) {
-        final newOperatingLog = commandState.currentCommandLog != null;
+        final newOperatingLog = commandState.isBusy() && commandState.currentCommandLog != null;
         if (!_hasOperatingLog && newOperatingLog) {
           onNewLogAdded();
         }
@@ -323,7 +323,7 @@ class _BiocentralCommandLogViewState extends State<BiocentralCommandLogView> {
       message: 'Discard result (nothing has changed in your database)',
       child: ElevatedButton.icon(
         onPressed: () {
-          commandBloc.add(BiocentralCommandDiscardResultEvent());
+          commandBloc.add(BiocentralCommandDiscardResultEvent(log));
           setState(() {
             _hasOperatingLog = false;
           });
@@ -350,7 +350,7 @@ class _BiocentralCommandLogViewState extends State<BiocentralCommandLogView> {
         BiocentralTooltip(
           message: 'Accept result and sync to database',
           child: ElevatedButton.icon(
-            onPressed: () => commandBloc.add(BiocentralCommandAcceptResultEvent()),
+            onPressed: () => commandBloc.add(BiocentralCommandAcceptResultEvent(log)),
             icon: const Icon(Icons.check, color: Colors.white),
             label: const Text('Accept'),
             style: ElevatedButton.styleFrom(

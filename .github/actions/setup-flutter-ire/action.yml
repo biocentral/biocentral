@@ -12,8 +12,8 @@ runs:
 
     - uses: subosito/flutter-action@v2
       with:
-        channel: stable
-        flutter-version-file: biocentral_ire/pubspec.yaml
+        channel: master
+        flutter-version: cf97bfbcb9f508a35cfdc451f4c2d19e30ad6b7c
         cache: true
 
     - name: Get Flutter dependencies
@@ -24,6 +24,8 @@ runs:
     - name: Build companion app
       shell: bash
       working-directory: biocentral_ire
-      run: dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+      run: dart run serious_python:main package python_companion/ -p Linux -r -r -r python_companion/requirements.txt
       env:
+        SERIOUS_PYTHON_VERSION: '3.12'
+        SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/python-app
         SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages

@@ -2,20 +2,24 @@ name: biocentral
 version: '2.0.0+1'
 publish_to: none
 environment:
-  sdk: ">=3.5.0"
-  flutter: 3.38.10
+  sdk: ">=3.14.0-111.0.dev <4.0.0"
+  flutter: 3.50.0-0.1.pre
 description: "Biomedical data, from lab to paper."
 
 dependencies:
   animated_splash_screen: ^1.3.0
-  archive: ^3.6.1
+  archive: ^4.0.1
   async: ^2.11.0
   auto_size_text: ^3.0.0
-  bio_flutter: ^0.0.12
+  bio_flutter:
+    git:
+      url: https://github.com/AeneasTews/bio_flutter.git
+      ref: ae19684f34db2a872860c9277dee4af144d74822
   biocentral_api:
     path: ../biocentral_api/dart
   bloc: ^8.1.3
   bloc_effects: ^1.0.4
+  built_collection: ^5.1.1
   collection: ^1.18.0
   cross_file: ^0.3.4+1
   crypto: ^3.0.3
@@ -42,11 +46,7 @@ dependencies:
   pluto_grid: ^8.0.0
   provider: ^6.1.2
   ranking_system: ^0.0.1
-  serious_python:
-    git:
-      url: https://github.com/AeneasTews/serious-python.git
-      path: src/serious_python
-      ref: fix/windir-cmake-path
+  serious_python: ^5.0.0
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
   simple_icons: '^16.23.0'
@@ -82,7 +82,6 @@ flutter:
     - "assets/biocentral_logo/"
     - "assets/example_datasets/interaction/"
     - "assets/example_datasets/protein/"
-    - "assets/python_companion.zip" # TODO: Could be optimized not to be included on the web platform
     - "assets/python_companion/"
     - "assets/python_companion/web/"
     - "assets/python_companion/desktop/"

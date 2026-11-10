@@ -33,43 +33,48 @@ class BiocentralServerTask<T> {
     final biocentralApi = api.getBiocentralServiceApi();
 
     for (int i = 0; i < maxTries; i++) {
+      final TaskStatusResponse statusResp;
       try {
-        final statusResp = await _fetchStatus(biocentralApi);
-        final dtos = statusResp.dtos.toList(growable: false);
+        statusResp = await _fetchStatus(biocentralApi);
+      } on DioException {
+        // A transport failure does not establish that the server task failed.
+        await Future.delayed(pollInterval);
+        continue;
+      }
 
-        // progress callback
-        if (onProgress != null) onProgress(dtos);
-        dtoHandler.updateProgress(dtos);
-
-        // yield dtos
-        for (final dto in dtos) {
-          yield (dto, null);
-        }
-
-        // try to extract final result
-        final result = dtoHandler.handle(dtos);
-        if (result != null) {
-          yield (null, result);
+      final dtos = statusResp.dtos.toList(growable: false);
+      if (onProgress != null) onProgress(dtos);
+      dtoHandler.updateProgress(dtos);
+      for (final dto in dtos) {
+        yield (dto, null);
+      }
+      for (final dto in dtos) {
+        if (dto.status == TaskStatus.FAILED) {
+          yield* Stream<(TaskDTO?, T?)>.error(
+            BiocentralTaskFailure(taskId: taskId, message: dto.error ?? 'Task failed.', status: dto.status),
+          );
           return;
         }
-
-        // also stop on explicit FAILED to avoid unnecessary waits
-        if (dtos.any((d) => d.status == TaskStatus.FAILED)) {
-          yield (null, null);
-        }
-      } catch (err) {
-        // ignore transient errors and continue polling
-        print(err);
-        if (err is DioException) {
-          print(err.response);
-          final detail = err.response?.data["detail"];
-          if (detail != null) {
-            print(detail);
-          }
-        }
+      }
+      final result = dtoHandler.handle(dtos);
+      if (result != null) {
+        yield (null, result);
+        return;
       }
       await Future.delayed(pollInterval);
     }
-    yield (null, null); // timeout
+    yield* Stream<(TaskDTO?, T?)>.error(BiocentralTaskFailure(taskId: taskId, message: 'Task polling timed out.'));
   }
+}
+
+/// A terminal server-task failure, including the original server message.
+final class BiocentralTaskFailure implements Exception {
+  final String taskId;
+  final String message;
+  final TaskStatus? status;
+
+  const BiocentralTaskFailure({required this.taskId, required this.message, this.status});
+
+  @override
+  String toString() => 'Task $taskId: $message';
 }

@@ -87,6 +87,9 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
   void executeCommand() {
     final BiocentralCommandBloc commandBloc = context.read<BiocentralCommandBloc>();
     final BiocentralSideBarBloc sideBarBloc = context.read<BiocentralSideBarBloc>();
+    if (commandBloc.state.isBusy()) {
+      return;
+    }
     final command = widget.collectCommand();
     if (command != null) {
       sideBarBloc.add(
@@ -104,6 +107,7 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final busy = context.select<BiocentralCommandBloc, bool>((bloc) => bloc.state.isBusy());
     final notifier = BiocentralCommandGroupScope.maybeOf(context);
     final isExpanded = notifier != null ? notifier.value == _token : _selected;
 
@@ -168,7 +172,7 @@ class _BiocentralCommandWidgetState extends State<BiocentralCommandWidget> {
             const Text('Automatically accept result'),
             const SizedBox(width: 16),
             ElevatedButton.icon(
-              onPressed: executeCommand,
+              onPressed: busy ? null : executeCommand,
               icon: const Icon(Icons.play_circle_outline),
               label: Text(widget.executeButtonLabel.toUpperCase()),
             ),

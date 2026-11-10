@@ -1,3 +1,7 @@
+## Pinned desktop SDK
+
+Use FVM with the revision in `.fvmrc` (Flutter 3.50 preview). Run `fvm flutter pub get`, `fvm flutter run -d macos` (or linux/windows), and `fvm dart` for Dart commands. The pinned bio_flutter viewer requires Flutter GPU and Impeller; desktop runners enable both. Web support is temporarily suspended. The desktop companion requires serious_python 5 and archive 4. Set `SERIOUS_PYTHON_VERSION=3.12` when packaging and running the companion to match its native dependencies.
+
 # Building
 
 Overview how to build biocentral for different platforms locally.
@@ -5,10 +9,14 @@ Overview how to build biocentral for different platforms locally.
 For serious_python, you need to add this environment variable to your run configuration:
 
 ```shell
+export SERIOUS_PYTHON_VERSION=3.12
+export SERIOUS_PYTHON_APP="$(pwd)/build/python-app"
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 flutter run -d linux
 
 # For IDE config
+SERIOUS_PYTHON_VERSION=3.12
+SERIOUS_PYTHON_APP=/absolute/path/to/biocentral/build/python-app
 SERIOUS_PYTHON_SITE_PACKAGES=/absolute/path/to/biocentral/build/site-packages
 ```
 
@@ -23,18 +31,16 @@ dart run flutter_launcher_icons
 Build python companion via `serious_python` package command before building the flutter app:
 
 ```shell
+export SERIOUS_PYTHON_VERSION=3.12
+export SERIOUS_PYTHON_APP="$(pwd)/build/python-app"
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 # Windows
-dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
+dart run serious_python:main package python_companion/ -p Windows -r -r -r python_companion/requirements.txt
 # Linux
-dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+dart run serious_python:main package python_companion/ -p Linux -r -r -r python_companion/requirements.txt
 # macOS
-dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
-# Web
-dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Pyodide -r -r -r python_companion/requirements.txt
+dart run serious_python:main package python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
 
-cp -r python_companion/ assets/
-rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
 ```
 
 ## Linux
@@ -82,9 +88,7 @@ cp assets/biocentral_logo/biocentral_logo.png releases/current/biocentral.AppDir
 
 ## Web
 
-```shell
-flutter build web
-```
+Web support and the IRE web build are temporarily suspended.
 
 ## Windows
 

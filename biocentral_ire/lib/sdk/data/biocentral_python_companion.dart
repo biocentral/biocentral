@@ -194,9 +194,7 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
   @override
   Future<void> startCompanion() async {
     SeriousPython.run(
-      'assets/python_companion.zip',
       appFileName: 'python_companion_desktop.py',
-      stackSize: 8 * 1024 * 1024,
     );
   }
 
@@ -315,7 +313,6 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
   @override
   Future<void> startCompanion() async {
     SeriousPython.run(
-      'assets/python_companion.zip',
       appFileName: 'python_companion_web.py',
       modulePaths: ['python_companion/web', 'python_companion/functionality'],
       environmentVariables: {'PYODIDE_COMMAND': 'setup', 'PYODIDE_DATA': ''},
@@ -328,7 +325,6 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
   Future<String?> runPythonCommand({required Map<String, String>? environmentVariables}) async {
     Future<Either<BiocentralException, String?>> eitherWrapper() async {
       final result = await SeriousPython.run(
-        'assets/python_companion.zip',
         appFileName: 'python_companion_web.py',
         modulePaths: [
           'python_companion/web',

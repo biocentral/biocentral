@@ -290,6 +290,9 @@ jobs:
       (github.event_name != 'pull_request' || needs.changes.outputs.ire == 'true') &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
+    env:
+      SERIOUS_PYTHON_VERSION: '3.12'
+      SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/python-app
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -317,8 +320,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
-          flutter-version-file: biocentral_ire/pubspec.yaml
+          channel: master
+          flutter-version: cf97bfbcb9f508a35cfdc451f4c2d19e30ad6b7c
           cache: true
       - run: flutter pub get
 
@@ -328,7 +331,7 @@ jobs:
       - name: Build Windows Application
         if: matrix.os == 'windows-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package python_companion/ -p Windows -r -r -r python_companion/requirements.txt
           flutter build windows --release --verbose
       - name: Upload Windows build artifacts
         if: matrix.os == 'windows-latest'
@@ -340,7 +343,7 @@ jobs:
       - name: Build Linux Application
         if: matrix.os == 'ubuntu-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package python_companion/ -p Linux -r -r -r python_companion/requirements.txt
           flutter build linux --release
         env:
           SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages
@@ -354,7 +357,7 @@ jobs:
       - name: Build macOS Application
         if: matrix.os == 'macos-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
           flutter build macos --release
       - name: Upload macOS build artifacts
         if: matrix.os == 'macos-latest'
@@ -362,19 +365,6 @@ jobs:
         with:
           name: macos-build
           path: biocentral_ire/build/macos/Build/Products/Release
-
-      - name: Build Web Application
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cp -r python_companion/ assets/
-          rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
-          flutter build web
-      - name: Upload Web build artifacts
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: biocentral_ire/build/web
 
   build-appimage:
     name: "📦 Stage 3 · Build AppImage"

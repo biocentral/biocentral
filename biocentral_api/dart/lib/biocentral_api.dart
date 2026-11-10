@@ -1,6 +1,6 @@
 // Convenience exports for custom clients built atop the generated API
 
-export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask;
+export 'src/clients/tasks/biocentral_server_task.dart' show BiocentralServerTask, BiocentralTaskFailure;
 export 'src/high_level_api.dart'
     show BiocentralAPI, BiocentralAPIHealth, CustomModelsAPI, EmbeddingAPI, PredictAPI, ProteinsAPI, ActiveLearningAPI;
 export 'src/model/model_metadata.dart' show ModelMetadata;
