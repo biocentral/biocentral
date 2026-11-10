@@ -168,6 +168,8 @@ class BiocentralSectionCard extends StatelessWidget {
 }
 
 /// A formatted metric value and its label; callers perform domain calculations.
+///
+/// Reserves one detail line so sibling cards have equal natural heights.
 class BiocentralMetricCard extends StatelessWidget {
   final String label;
   final String value;
@@ -178,9 +180,10 @@ class BiocentralMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BiocentralSectionCard(
     child: Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
+        Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 8),
         Tooltip(
           message: value,
@@ -191,7 +194,7 @@ class BiocentralMetricCard extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
-        if (detail != null) Text(detail!),
+        Text(detail ?? ' ', maxLines: 1, overflow: TextOverflow.ellipsis),
       ],
     ),
   );

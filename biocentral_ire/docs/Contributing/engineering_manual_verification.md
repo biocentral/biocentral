@@ -101,7 +101,7 @@ visual parity has not been verified.
   unusable rounds should show the specific response problem in Rounds/History;
   bench export should explain the problem instead of writing blank sequences.
 
-- Follow-up visual checks: overview metric cards are 116 px high; expanded lineage
+- Follow-up visual checks: overview metric cards share a compact natural height without overflow; expanded lineage
   sequence nodes match the reference at 156 × 42 px, with correctly attached edges.
   Round tabs should follow Overview/Lineage navigation and sidebar bench exports,
   compact and scroll with many rounds, and update after adding/importing rounds.

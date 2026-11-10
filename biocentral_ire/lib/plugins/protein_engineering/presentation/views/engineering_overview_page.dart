@@ -91,7 +91,6 @@ class EngineeringOverviewPage extends StatelessWidget {
                 ])
                   SizedBox(
                     width: metricWidth,
-                    height: 116,
                     child: BiocentralMetricCard(label: label, value: value, detail: detail),
                   ),
               ],
