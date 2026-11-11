@@ -7,9 +7,8 @@ import torch
 import psycopg
 from redis.asyncio import Redis
 
-from .server_management.file_management import FileManager
-from .server_management.triton_client import TritonClientConfig
-
+from ..server_management.file_management import FileManager
+from ..server_management.triton_client import TritonClientConfig
 from ..utils import get_logger
 
 logger = get_logger(__name__)
