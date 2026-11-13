@@ -12,7 +12,7 @@ def _plot_mutation_depth_distribution(dataset: List[Variant]):
     data_by_depth = {}
     for depth in mutation_depths:
         depth_key = str(depth)
-        if depth > 15:
+        if depth >= 15:
             depth_key = "15+"
             depth = 15
         if depth_key not in data_by_depth:
@@ -36,7 +36,14 @@ def _plot_mutation_depth_distribution(dataset: List[Variant]):
             opacity=0.8,
         )
         .encode(
-            x=alt.X("depth:N", title="Mutation Depth", axis=alt.Axis(labelAngle=-45)),
+            x=alt.X(
+                "depth:N",
+                title="Mutation Depth",
+                axis=alt.Axis(
+                    labelAngle=-45,
+                    labelExpr="datum.value == '15' ? '15+' : datum.value"
+                )
+            ),
             y=alt.Y("count:Q", title="Number of Variants"),
             color=alt.Color(
                 "depth:N", legend=None, scale=alt.Scale(scheme="tableau10")
