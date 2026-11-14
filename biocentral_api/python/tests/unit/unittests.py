@@ -97,5 +97,31 @@ class TestBatching(unittest.TestCase):
         self.assertEqual(batches[0], [1, 2, 3])
 
 
+class TestPerplexityClient(unittest.TestCase):
+    def test_perplexity_dto_handler(self):
+        from biocentral_api.clients.proteins_client import _PerplexityDTOHandler
+        from biocentral_api._generated.models import TaskDTO, TaskStatus, PerplexityResult, ZeroShotMethod
+
+        handler = _PerplexityDTOHandler()
+        perp_res = PerplexityResult(method=ZeroShotMethod.PERPLEXITY, seq2perplexity={"seq1": 1.23})
+        dtos = [
+            TaskDTO(status=TaskStatus.FINISHED, perplexity_result=perp_res)
+        ]
+        result = handler.handle_result(dtos)
+        self.assertEqual(result, perp_res)
+
+        pending_dtos = [TaskDTO(status=TaskStatus.PENDING)]
+        self.assertIsNone(handler.handle_result(pending_dtos))
+
+    def test_biocentral_api_perplexity(self):
+        from biocentral_api import BiocentralAPI
+        api = BiocentralAPI(fixed_server_url="http://localhost:9540", local_only=True)
+        with mock.patch("biocentral_api.clients.proteins_client.ProteinsClient.perplexity") as mock_perp:
+            mock_perp.return_value = "mock_task"
+            task = api.perplexity({"seq1": "MKTL"}, "facebook/esm2_t6_8M_UR50D")
+            self.assertEqual(task, "mock_task")
+            mock_perp.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()

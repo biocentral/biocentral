@@ -14,6 +14,7 @@ from ._generated.models import (
     Prediction,
     BiotrainerModelResult,
     BiotrainerInferenceResult,
+    PerplexityResult,
 )
 from ._generated import (
     ApiClient,
@@ -35,6 +36,7 @@ from ._generated import (
     ProjectionResult,
     BiocentralServiceStats,
     BiocentralServiceApi,
+    ZeroShotMethod,
 )
 from .clients import (
     BiocentralServerTask,
@@ -629,5 +631,22 @@ class BiocentralAPI:
         with self._create_api_client() as api_client:
             biocentral_server_task = active_learning_client.al_engineering_simulation(
                 api_client, campaign_config, simulation_config
+            )
+            return biocentral_server_task
+
+    def perplexity(
+            self,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            plm_name: str,
+    ) -> BiocentralServerTask[PerplexityResult]:
+        """Compute (pseudo)perplexity for a given sequence using a given PLM."""
+        sequence_data = self._handle_sequence_input(sequence_data, embedder_name=None)
+        sequence_data_dict = {
+            seq_data.seq_id: seq_data.seq for seq_data in sequence_data
+        }
+        proteins_client = ProteinsClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = proteins_client.perplexity(
+                api_client, sequence_data_dict, plm_name
             )
             return biocentral_server_task

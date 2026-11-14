@@ -1,5 +1,7 @@
 import 'package:biocentral_api/src/api.dart' as gen;
 import 'package:biocentral_api/src/model/clustering_request.dart';
+import 'package:biocentral_api/src/model/perplexity_request.dart';
+import 'package:biocentral_api/src/model/perplexity_result.dart';
 import 'package:biocentral_api/src/model/task_dto.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/taxonomy_item.dart';
@@ -16,6 +18,18 @@ class _ClusterDtoHandler extends DtoHandler<Map<String, List<String>>> {
     for (final dto in dtos) {
       if (dto.status == TaskStatus.FINISHED) {
         return dto.clusteredData?.asMap().map((k, v) => MapEntry(k, v.toList()));
+      }
+    }
+    return null;
+  }
+}
+
+class _PerplexityDtoHandler extends DtoHandler<PerplexityResult> {
+  @override
+  PerplexityResult? handle(List<TaskDTO> dtos) {
+    for (final dto in dtos) {
+      if (dto.status == TaskStatus.FINISHED) {
+        return dto.perplexityResult;
       }
     }
     return null;
@@ -62,6 +76,31 @@ class ProteinsClient {
       taskId: taskId,
       api: api,
       dtoHandler: _ClusterDtoHandler(),
+    );
+  }
+
+  Future<BiocentralServerTask<PerplexityResult>> perplexity({
+    required gen.BiocentralApi api,
+    required Map<String, String> sequenceData,
+    required String plmName,
+  }) async {
+    assert(sequenceData.isNotEmpty, 'No sequences provided');
+    final seqValues = sequenceData.values.toList();
+    assert(seqValues.length == seqValues.toSet().length, 'Duplicate sequences provided');
+
+    final proteinsApi = api.getProteinsApi();
+    final perplexityRequest = PerplexityRequest((b) => b
+      ..sequenceData.replace(BuiltMap<String, String>(sequenceData))
+      ..plmName = plmName);
+
+    final taskId = await submitTask(
+      () => proteinsApi.triggerProteinPerplexityApiV1ProteinServicePerplexityPost(perplexityRequest: perplexityRequest),
+    );
+
+    return BiocentralServerTask<PerplexityResult>(
+      taskId: taskId,
+      api: api,
+      dtoHandler: _PerplexityDtoHandler(),
     );
   }
 }

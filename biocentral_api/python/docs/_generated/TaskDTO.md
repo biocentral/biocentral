@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **str** |  | [optional] 
+**perplexity_result** | [**PerplexityResult**](PerplexityResult.md) |  | [optional] 
 **predictions** | **Dict[str, List[Prediction]]** |  | [optional] 
 **biotrainer_update** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
 **biotrainer_result** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 

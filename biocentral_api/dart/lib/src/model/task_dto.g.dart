@@ -12,6 +12,8 @@ class _$TaskDTO extends TaskDTO {
   @override
   final String? error;
   @override
+  final PerplexityResult? perplexityResult;
+  @override
   final BuiltMap<String, BuiltList<Prediction>>? predictions;
   @override
   final BiotrainerModelUpdate? biotrainerUpdate;
@@ -42,6 +44,7 @@ class _$TaskDTO extends TaskDTO {
   _$TaskDTO._(
       {required this.status,
       this.error,
+      this.perplexityResult,
       this.predictions,
       this.biotrainerUpdate,
       this.biotrainerResult,
@@ -68,6 +71,7 @@ class _$TaskDTO extends TaskDTO {
     return other is TaskDTO &&
         status == other.status &&
         error == other.error &&
+        perplexityResult == other.perplexityResult &&
         predictions == other.predictions &&
         biotrainerUpdate == other.biotrainerUpdate &&
         biotrainerResult == other.biotrainerResult &&
@@ -87,6 +91,7 @@ class _$TaskDTO extends TaskDTO {
     var _$hash = 0;
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, error.hashCode);
+    _$hash = $jc(_$hash, perplexityResult.hashCode);
     _$hash = $jc(_$hash, predictions.hashCode);
     _$hash = $jc(_$hash, biotrainerUpdate.hashCode);
     _$hash = $jc(_$hash, biotrainerResult.hashCode);
@@ -108,6 +113,7 @@ class _$TaskDTO extends TaskDTO {
     return (newBuiltValueToStringHelper(r'TaskDTO')
           ..add('status', status)
           ..add('error', error)
+          ..add('perplexityResult', perplexityResult)
           ..add('predictions', predictions)
           ..add('biotrainerUpdate', biotrainerUpdate)
           ..add('biotrainerResult', biotrainerResult)
@@ -134,6 +140,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   String? _error;
   String? get error => _$this._error;
   set error(String? error) => _$this._error = error;
+
+  PerplexityResultBuilder? _perplexityResult;
+  PerplexityResultBuilder get perplexityResult =>
+      _$this._perplexityResult ??= PerplexityResultBuilder();
+  set perplexityResult(PerplexityResultBuilder? perplexityResult) =>
+      _$this._perplexityResult = perplexityResult;
 
   MapBuilder<String, BuiltList<Prediction>>? _predictions;
   MapBuilder<String, BuiltList<Prediction>> get predictions =>
@@ -219,6 +231,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
     if ($v != null) {
       _status = $v.status;
       _error = $v.error;
+      _perplexityResult = $v.perplexityResult?.toBuilder();
       _predictions = $v.predictions?.toBuilder();
       _biotrainerUpdate = $v.biotrainerUpdate?.toBuilder();
       _biotrainerResult = $v.biotrainerResult?.toBuilder();
@@ -257,6 +270,7 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             status: BuiltValueNullFieldError.checkNotNull(
                 status, r'TaskDTO', 'status'),
             error: error,
+            perplexityResult: _perplexityResult?.build(),
             predictions: _predictions?.build(),
             biotrainerUpdate: _biotrainerUpdate?.build(),
             biotrainerResult: _biotrainerResult?.build(),
@@ -273,6 +287,8 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'perplexityResult';
+        _perplexityResult?.build();
         _$failedField = 'predictions';
         _predictions?.build();
         _$failedField = 'biotrainerUpdate';

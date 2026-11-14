@@ -10,6 +10,7 @@ from biocentral_api import (
     BiocentralAPI,
     SequenceData,
     ProjectionResult,
+    PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
 from biotrainer_core.data_classes import SequenceData
@@ -265,3 +266,19 @@ class Biocentral:
             raise ValueError("At least two sequences are required for clustering!")
 
         return self._backend.cluster(cluster_dat, sequence_identity_threshold)
+
+    def perplexity(
+            self,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            plm_name: str,
+    ) -> PerplexityResult:
+        """
+        Calculate (pseudo)perplexity for given sequences using a protein language model.
+
+        :param sequence_data: Dict of {id: sequence} or path to a FASTA file or list of SequenceData.
+        :param plm_name: Name of the PLM (e.g. "facebook/esm2_t6_8M_UR50D", "prot_bert", "nferruz/ProtGPT2", etc.).
+        :return: PerplexityResult containing the method (PERPLEXITY or PSEUDOPERPLEXITY) and mapping of sequence IDs to perplexity scores.
+        """
+        perplexity_dat = self._parse_input_as_dict(sequence_data)
+
+        return self._backend.perplexity(perplexity_dat, plm_name)

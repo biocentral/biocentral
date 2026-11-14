@@ -25,6 +25,7 @@ from biocentral_api._generated.models.biotrainer_inference_result import Biotrai
 from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult
 from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
+from biocentral_api._generated.models.perplexity_result import PerplexityResult
 from biocentral_api._generated.models.prediction import Prediction
 from biocentral_api._generated.models.projection_result import ProjectionResult
 from biocentral_api._generated.models.task_status import TaskStatus
@@ -39,6 +40,7 @@ class TaskDTO(BaseModel):
     """ # noqa: E501
     status: TaskStatus
     error: Optional[StrictStr] = None
+    perplexity_result: Optional[PerplexityResult] = None
     predictions: Optional[Dict[str, List[Prediction]]] = None
     biotrainer_update: Optional[BiotrainerModelUpdate] = None
     biotrainer_result: Optional[BiotrainerModelResult] = None
@@ -51,7 +53,7 @@ class TaskDTO(BaseModel):
     projection_result: Optional[ProjectionResult] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "perplexity_result", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -92,6 +94,9 @@ class TaskDTO(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of perplexity_result
+        if self.perplexity_result:
+            _dict['perplexity_result'] = self.perplexity_result.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each value in predictions (dict of array)
         _field_dict_of_array = {}
         if self.predictions:
@@ -133,6 +138,11 @@ class TaskDTO(BaseModel):
         # and model_fields_set contains the field
         if self.error is None and "error" in self.model_fields_set:
             _dict['error'] = None
+
+        # set to None if perplexity_result (nullable) is None
+        # and model_fields_set contains the field
+        if self.perplexity_result is None and "perplexity_result" in self.model_fields_set:
+            _dict['perplexity_result'] = None
 
         # set to None if predictions (nullable) is None
         # and model_fields_set contains the field
@@ -208,6 +218,7 @@ class TaskDTO(BaseModel):
         _obj = cls.model_validate({
             "status": obj.get("status"),
             "error": obj.get("error"),
+            "perplexity_result": PerplexityResult.from_dict(obj["perplexity_result"]) if obj.get("perplexity_result") is not None else None,
             "predictions": {
                 _k: [Prediction.from_dict(_item) for _item in _v] if _v is not None else None
                 for _k, _v in obj["predictions"].items()

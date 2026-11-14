@@ -26,7 +26,7 @@ from .endpoint_models import (
     SplitHBIRequest,
     SplitHBIResponse,
 )
-from biocentral_server.proteins.proteins_task import (
+from biocentral_server.proteins.clustering_task import (
     run_pymmseqs_clustering,
 )
 from .hbi_service import (

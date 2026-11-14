@@ -20,6 +20,8 @@ from ._generated import (
     Protocol,
     Prediction,
     ProjectionResult,
+    PerplexityResult,
+    ZeroShotMethod,
 )
 from .utils import batched
 
@@ -45,5 +47,7 @@ __all__ = [
     "Protocol",
     "Prediction",
     "ProjectionResult",
+    "PerplexityResult",
+    "ZeroShotMethod",
     "batched",
 ]

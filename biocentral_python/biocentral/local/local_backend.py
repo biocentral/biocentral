@@ -13,6 +13,7 @@ from biocentral_api import (
     Prediction,
     SequenceData,
     ProjectionResult,
+    PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
 
@@ -218,3 +219,35 @@ class LocalBackend:
             # 4. CLEANUP: Delete the entire temporary directory and its contents
             if os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def perplexity(
+            self, sequence_data: Dict[str, str], plm_name: str
+    ) -> PerplexityResult:
+        from biotrainer.bioengineer import BioEngineer
+        from biotrainer_core.data_classes import ZeroShotMethod
+        from biocentral_api import ZeroShotMethod as APIZeroShotMethod
+
+        bioengineer = BioEngineer.from_name(name=plm_name, device=self._device)
+        result_dict = {}
+
+        supported_methods = bioengineer.model_wrapper.supported_methods()
+        if ZeroShotMethod.PERPLEXITY in supported_methods:
+            perplexity_method = APIZeroShotMethod.PERPLEXITY
+            for seq_id, seq in sequence_data.items():
+                perplexity = bioengineer.model_wrapper._compute_perplexity(seq)
+                result_dict[seq_id] = perplexity
+        elif ZeroShotMethod.PSEUDOPERPLEXITY in supported_methods:
+            perplexity_method = APIZeroShotMethod.PSEUDOPERPLEXITY
+            for seq_id, seq in sequence_data.items():
+                pseudoperplexity = bioengineer.model_wrapper._compute_pseudoperplexity(seq)
+                result_dict[seq_id] = pseudoperplexity
+        else:
+            raise ValueError(
+                f"Neither {ZeroShotMethod.PERPLEXITY} nor "
+                f"{ZeroShotMethod.PSEUDOPERPLEXITY} supported for model: {plm_name}!"
+            )
+
+        return PerplexityResult(
+            method=perplexity_method,
+            seq2perplexity=result_dict,
+        )

@@ -75,6 +75,8 @@ biocentral_api/_generated/models/mutation.py
 biocentral_api/_generated/models/not_found_error_response.py
 biocentral_api/_generated/models/output_class.py
 biocentral_api/_generated/models/output_type.py
+biocentral_api/_generated/models/perplexity_request.py
+biocentral_api/_generated/models/perplexity_result.py
 biocentral_api/_generated/models/ppi_test_result.py
 biocentral_api/_generated/models/prediction.py
 biocentral_api/_generated/models/prediction1.py
@@ -105,6 +107,7 @@ biocentral_api/_generated/models/taxonomy_response.py
 biocentral_api/_generated/models/test_result.py
 biocentral_api/_generated/models/training_result.py
 biocentral_api/_generated/models/validation_error.py
+biocentral_api/_generated/models/zero_shot_method.py
 biocentral_api/_generated/py.typed
 biocentral_api/_generated/rest.py
 docs/ActiveLearningApi.md
@@ -173,6 +176,8 @@ docs/NotFoundErrorResponse.md
 docs/OutputClass.md
 docs/OutputType.md
 docs/PPITestResult.md
+docs/PerplexityRequest.md
+docs/PerplexityResult.md
 docs/PpiApi.md
 docs/Prediction.md
 docs/Prediction1.md
@@ -207,3 +212,4 @@ docs/TaxonomyResponse.md
 docs/TestResult.md
 docs/TrainingResult.md
 docs/ValidationError.md
+docs/ZeroShotMethod.md

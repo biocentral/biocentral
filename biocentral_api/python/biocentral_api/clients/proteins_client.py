@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tqdm import tqdm
 from typing import List, Optional, Dict
 
@@ -11,6 +13,8 @@ from .._generated import (
     TaxonomyItem,
     TaxonomyResponse,
     ClusteringRequest,
+    PerplexityRequest,
+    PerplexityResult,
     TaskDTO,
     TaskStatus,
 )
@@ -43,6 +47,35 @@ class _ClusterDTOHandler(DTOHandler):
 
     def get_tqdm_initial_description(self) -> str:
         return "Running clustering.."
+
+
+class _PerplexityDTOHandler(DTOHandler):
+    def handle_result(self, dtos: List[TaskDTO]):
+        for dto in dtos:
+            status = dto.status
+            if status == TaskStatus.FINISHED:
+                return dto.perplexity_result
+
+        return None
+
+    def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:
+        for dto in dtos:
+            status = dto.status
+            match status:
+                case TaskStatus.PENDING:
+                    pbar.set_description("Waiting for perplexity task to start..")
+                case TaskStatus.RUNNING:
+                    pbar.set_description("Calculating perplexity..")
+                case TaskStatus.FINISHED:
+                    pbar.set_description("Finished calculating perplexity!")
+                    break
+                case TaskStatus.FAILED:
+                    pbar.set_description("Calculating perplexity failed!")
+                    break
+        return pbar
+
+    def get_tqdm_initial_description(self) -> str:
+        return "Running perplexity calculation.."
 
 
 class ProteinsClient(ClientInterface):
@@ -92,5 +125,33 @@ class ProteinsClient(ClientInterface):
         cluster_dto_handler = _ClusterDTOHandler()
         biocentral_server_task = BiocentralServerTask(
             task_id=task_id, api_client=api_client, dto_handler=cluster_dto_handler
+        )
+        return biocentral_server_task
+
+    def perplexity(
+            self,
+            api_client: ApiClient,
+            sequence_data: Dict[str, str],
+            plm_name: str,
+    ) -> BiocentralServerTask[PerplexityResult]:
+        assert len(sequence_data) > 0, "No sequences provided"
+        assert len(sequence_data.values()) == len(
+            set(sequence_data.values())
+        ), "Duplicate sequences provided"
+
+        api_instance = ProteinsApi(api_client)
+        perplexity_request = PerplexityRequest(
+            sequence_data=sequence_data,
+            plm_name=plm_name,
+        )
+        task_id = self._submit_task(
+            endpoint_caller=lambda: api_instance.trigger_protein_perplexity_api_v1_protein_service_perplexity_post(
+                perplexity_request
+            )
+        )
+
+        perplexity_dto_handler = _PerplexityDTOHandler()
+        biocentral_server_task = BiocentralServerTask(
+            task_id=task_id, api_client=api_client, dto_handler=perplexity_dto_handler
         )
         return biocentral_server_task
