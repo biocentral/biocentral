@@ -218,14 +218,26 @@ class Biocentral:
         :return: BiotrainerInferenceResult with predictions.
         """
         inference_dat = self._parse_input_as_dict(inference_data)
-        if isinstance(model_result, BiotrainerModelResult):
-            model_hash = model_result.derived_values.model_hash
+        if hasattr(model_result, "derived_values"):
+            derived_values = model_result.derived_values
+            if hasattr(derived_values, "model_hash"):
+                model_hash = derived_values.model_hash
+            elif isinstance(derived_values, dict):
+                model_hash = derived_values.get("model_hash")
+            else:
+                model_hash = getattr(derived_values, "model_hash", None)
+            if model_hash is None:
+                raise ValueError(
+                    "Model hash is None. Please provide a valid model hash or BiotrainerModelResult."
+                )
+        elif isinstance(model_result, dict):
+            model_hash = model_result.get("derived_values", {}).get("model_hash") or model_result.get("model_hash")
             if model_hash is None:
                 raise ValueError(
                     "Model hash is None. Please provide a valid model hash or BiotrainerModelResult."
                 )
         else:
-            model_hash = model_result
+            model_hash = str(model_result)
         return self._backend.inference(model_hash, inference_dat)
 
     def project(

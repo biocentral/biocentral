@@ -22,6 +22,14 @@ server = ["biocentral-server>=2.0.0,<3.0.0"]
 local = ["biotrainer>=2.0.0,<3.0.0", "pymmseqs>=1.2.0"]
 all = ["biotrainer>=2.0.0,<3.0.0", "biocentral-server>=2.0.0,<3.0.0"]
 
+[dependency-groups]
+dev = [
+    "pytest>=7.2.1",
+    "pytest-cov>=2.8.1",
+    "biotrainer>=2.0.0,<3.0.0",
+    "pymmseqs>=1.2.0",
+]
+
 [tool.uv]
 exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 

@@ -1,7 +1,6 @@
-from biocentral_api import BiocentralAPI, BiocentralPredictionModel
+from biocentral import Biocentral, BiocentralPredictionModel
 
-biocentral_api = BiocentralAPI()
-biocentral_api.wait_until_healthy(max_wait_seconds=10)
+bc = Biocentral(mode="api")
 
 model_names = [BiocentralPredictionModel.TMBED]
 sequence_data = {
@@ -10,7 +9,7 @@ sequence_data = {
     "Seq3": "PRTSSSLAMAM",
     "Seq4": "SEQWENCEAWMMWW",
 }
-result = biocentral_api.predict(
+result = bc.predict(
     model_names=model_names, sequence_data=sequence_data
-).run()
+)
 print(result)

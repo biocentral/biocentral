@@ -4,9 +4,8 @@ BETA
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
 
+from biocentral import Biocentral, SequenceData
 from biocentral_api import (
-    BiocentralAPI,
-    SequenceData,
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningSimulationConfig,
     ActiveLearningOptimizationMode,
@@ -14,8 +13,7 @@ from biocentral_api import (
     ActiveLearningStoppingConfig,
 )
 
-# TODO REMOVE LOCAL ONLY
-biocentral_api = BiocentralAPI(local_only=True)
+bc = Biocentral(mode="api")
 
 # Create campaign config (for all iterations)
 campaign_config = ActiveLearningScreeningCampaignConfig(
@@ -46,8 +44,8 @@ simulation_config = ActiveLearningScreeningSimulationConfig(
         max_labels_budget=3, n_hits=2, max_consecutive_failures=2
     ),
 )
-# Run iteration
-simulation_results = biocentral_api.al_screening_simulation(
+# Run iteration via bc.api
+simulation_results = bc.api.al_screening_simulation(
     campaign_config, simulation_config
 ).run_with_progress()
 print(f"Simulation results: {simulation_results}")
