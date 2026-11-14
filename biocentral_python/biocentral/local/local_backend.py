@@ -230,19 +230,18 @@ class LocalBackend:
     ) -> PerplexityResult:
         from biotrainer.bioengineer import BioEngineer
         from biotrainer_core.data_classes import ZeroShotMethod
-        from biocentral_api import ZeroShotMethod as APIZeroShotMethod
 
         bioengineer = BioEngineer.from_name(name=plm_name, device=self._device)
         result_dict = {}
 
         supported_methods = bioengineer.model_wrapper.supported_methods()
         if ZeroShotMethod.PERPLEXITY in supported_methods:
-            perplexity_method = APIZeroShotMethod.PERPLEXITY
+            perplexity_method = ZeroShotMethod.PERPLEXITY
             for seq_id, seq in sequence_data.items():
                 perplexity = bioengineer.model_wrapper._compute_perplexity(seq)
                 result_dict[seq_id] = perplexity
         elif ZeroShotMethod.PSEUDOPERPLEXITY in supported_methods:
-            perplexity_method = APIZeroShotMethod.PSEUDOPERPLEXITY
+            perplexity_method = ZeroShotMethod.PSEUDOPERPLEXITY
             for seq_id, seq in sequence_data.items():
                 pseudoperplexity = bioengineer.model_wrapper._compute_pseudoperplexity(seq)
                 result_dict[seq_id] = pseudoperplexity
