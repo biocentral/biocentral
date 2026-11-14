@@ -155,7 +155,7 @@ jobs:
     needs: [ changes, server-unit-tests ]
     if: |
       always() &&
-      needs.changes.outputs.api == 'true' &&
+      (needs.changes.outputs.api == 'true' || needs.changes.outputs.python == 'true') &&
       (needs.server-unit-tests.result == 'success' || needs.server-unit-tests.result == 'skipped')
     runs-on: ubuntu-latest
 
@@ -192,9 +192,9 @@ jobs:
         with:
           working-directory: biocentral_python
 
-      # TODO: Add equivalence tests comparing local and API backends
-      - name: "Placeholder: python-equivalence-tests"
-        run: echo "⚠️  No equivalence tests for biocentral_python yet – add tests under biocentral_python/tests/"
+      - name: Run Python integration & equivalence tests
+        working-directory: biocentral_python
+        run: uv run pytest tests/integration -v -W "ignore::DeprecationWarning"
 
   ire-integration-tests:
     name: "🔗 Stage 2 · IRE Integration Tests"

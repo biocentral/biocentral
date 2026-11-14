@@ -133,7 +133,12 @@ class LocalBackend:
             SequenceData(seq_id=seq_id, seq=seq)
             for seq_id, seq in inference_data.items()
         ]
-        return model.predict(model_input=model_input)
+        result = model.predict(model_input=model_input)
+        hash2id = {
+            seq_record.get_hash(): seq_record.seq_id
+            for seq_record in model_input
+        }
+        return result.replace_seq_ids(hash2id=hash2id)
 
     def project(
             self,

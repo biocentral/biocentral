@@ -4,9 +4,11 @@ BETA
 This API feature is currently in BETA state. Some configurations might not work as expected.
 """
 
-from biocentral_api import (
-    BiocentralAPI,
+from biocentral import (
+    Biocentral,
     SequenceData,
+)
+from biocentral_api import (
     ActiveLearningScreeningCampaignConfig,
     ActiveLearningScreeningIterationConfig,
     ActiveLearningEngineeringCampaignConfig,
@@ -17,7 +19,7 @@ from biocentral_api import (
 
 
 def demonstrate_al_screening():
-    biocentral_api = BiocentralAPI(local_only=True)
+    bc = Biocentral(mode="api")
 
     # Create campaign config (for all iterations)
     campaign_config = ActiveLearningScreeningCampaignConfig(
@@ -51,8 +53,8 @@ def demonstrate_al_screening():
         iteration=1,  # Iteration Index
     )
 
-    # Run iteration
-    iteration_result = biocentral_api.al_screening_iteration(
+    # Run iteration via bc.api
+    iteration_result = bc.api.al_screening_iteration(
         campaign_config, iteration_config
     ).run_with_progress()
     print(f"Screening iteration results: {iteration_result.results}")
@@ -60,7 +62,7 @@ def demonstrate_al_screening():
 
 
 def demonstrate_al_engineering():
-    biocentral_api = BiocentralAPI(local_only=True)
+    bc = Biocentral(mode="api")
 
     # Define sequence to optimize
     wildtype_sequence = "TSSLFPHPRL"
@@ -89,8 +91,8 @@ def demonstrate_al_engineering():
         iteration=1,
     )
 
-    # Run iteration
-    iteration_result = biocentral_api.al_engineering_iteration(
+    # Run iteration via bc.api
+    iteration_result = bc.api.al_engineering_iteration(
         campaign_config, iteration_config
     ).run_with_progress()
     print(f"Engineering iteration results: {iteration_result.results}")

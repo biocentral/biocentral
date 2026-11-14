@@ -1,8 +1,7 @@
-from biocentral_api import BiocentralAPI, SequenceData, CommonEmbedder, Protocol
+from biocentral import Biocentral, SequenceData, CommonEmbedder, Protocol
 
-biocentral_api = BiocentralAPI().wait_until_healthy(max_wait_seconds=30)
+bc = Biocentral(mode="api")
 
-# OHE
 config = {
     "embedder_name": CommonEmbedder.ProtT5,
     "model_choice": "FNN",
@@ -21,9 +20,9 @@ training_data = [
     SequenceData(seq_id="Seq7", seq="PRSEQ", label="Soluble", set="test", mask=None),
 ]
 
-training_result = biocentral_api.train(
+training_result = bc.train(
     config=config, training_data=training_data
-).run_with_progress()
+)
 print(f"Training result dict: {training_result}")
 
 model_hash = training_result.derived_values.model_hash
@@ -33,7 +32,7 @@ inference_data = {
     "Seq9": "SEQPRT",
 }
 
-inference_result = biocentral_api.inference(
-    model_hash=model_hash, inference_data=inference_data
-).run_with_progress()
+inference_result = bc.inference(
+    model_result=training_result, inference_data=inference_data
+)
 print(f"Inference result dict: {inference_result}")
