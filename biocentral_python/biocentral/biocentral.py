@@ -8,14 +8,13 @@ from biocentral_api import (
     BiotrainerInferenceResult,
     Prediction,
     BiocentralAPI,
-    SequenceData,
     ProjectionResult,
     PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
 from biotrainer_core.data_classes import SequenceData
 
-from .base import BiocentralBackend
+from .base import BiocentralBackend, NotAvailableError
 from .persistence import BiocentralLocalDatabase
 
 class Biocentral:
@@ -74,6 +73,15 @@ class Biocentral:
     @property
     def database(self) -> BiocentralLocalDatabase:
         return self._database
+
+    @property
+    def api(self) -> BiocentralAPI:
+        """Access the underlying BiocentralAPI client for advanced/server-only operations."""
+        if self._mode != "api":
+            raise NotAvailableError(
+                "Direct API access is only available when Biocentral is initialized in 'api' mode."
+            )
+        return self._backend._api
 
     @staticmethod
     def _read_fasta(sequence_data: str) -> List[SequenceData]:
