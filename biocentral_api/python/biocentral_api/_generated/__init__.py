@@ -97,6 +97,8 @@ __all__ = [
     "OutputClass",
     "OutputType",
     "PPITestResult",
+    "PerplexityRequest",
+    "PerplexityResult",
     "Prediction",
     "Prediction1",
     "PredictionRequest",
@@ -127,6 +129,7 @@ __all__ = [
     "TestResult",
     "TrainingResult",
     "ValidationError",
+    "ZeroShotMethod",
 ]
 
 # import apis into sdk package
@@ -213,6 +216,8 @@ from biocentral_api._generated.models.not_found_error_response import NotFoundEr
 from biocentral_api._generated.models.output_class import OutputClass as OutputClass
 from biocentral_api._generated.models.output_type import OutputType as OutputType
 from biocentral_api._generated.models.ppi_test_result import PPITestResult as PPITestResult
+from biocentral_api._generated.models.perplexity_request import PerplexityRequest as PerplexityRequest
+from biocentral_api._generated.models.perplexity_result import PerplexityResult as PerplexityResult
 from biocentral_api._generated.models.prediction import Prediction as Prediction
 from biocentral_api._generated.models.prediction1 import Prediction1 as Prediction1
 from biocentral_api._generated.models.prediction_request import PredictionRequest as PredictionRequest
@@ -242,5 +247,6 @@ from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse 
 from biocentral_api._generated.models.test_result import TestResult as TestResult
 from biocentral_api._generated.models.training_result import TrainingResult as TrainingResult
 from biocentral_api._generated.models.validation_error import ValidationError as ValidationError
-from biotrainer_core.data_classes import SequenceData  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import SequenceData as SequenceData  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import ZeroShotMethod as ZeroShotMethod  # Intentional export of biotrainer-core model to keep compatibility
 

@@ -10,6 +10,7 @@ from biocentral_api import (
     BiocentralPredictionModel,
     SequenceData,
     ProjectionResult,
+    PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
 
@@ -71,4 +72,10 @@ class APIBackend:
             self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
     ) -> Dict[str, List[str]]:
         task = self._api.cluster(sequence_data, sequence_identity_threshold)
+        return task.run()
+
+    def perplexity(
+            self, sequence_data: Dict[str, str], plm_name: str
+    ) -> PerplexityResult:
+        task = self._api.perplexity(sequence_data, plm_name)
         return task.run()

@@ -75,6 +75,8 @@ import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/output_class.dart';
 import 'package:biocentral_api/src/model/output_type.dart';
 import 'package:biocentral_api/src/model/ppi_test_result.dart';
+import 'package:biocentral_api/src/model/perplexity_request.dart';
+import 'package:biocentral_api/src/model/perplexity_result.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/prediction1.dart';
 import 'package:biocentral_api/src/model/prediction_request.dart';
@@ -105,6 +107,7 @@ import 'package:biocentral_api/src/model/taxonomy_response.dart';
 import 'package:biocentral_api/src/model/test_result.dart';
 import 'package:biocentral_api/src/model/training_result.dart';
 import 'package:biocentral_api/src/model/validation_error.dart';
+import 'package:biocentral_api/src/model/zero_shot_method.dart';
 
 part 'serializers.g.dart';
 
@@ -170,6 +173,8 @@ part 'serializers.g.dart';
   OutputClass,
   OutputType,
   PPITestResult,
+  PerplexityRequest,
+  PerplexityResult,
   Prediction,
   Prediction1,
   PredictionRequest,
@@ -200,6 +205,7 @@ part 'serializers.g.dart';
   TestResult,
   TrainingResult,
   ValidationError,
+  ZeroShotMethod,
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(

@@ -11,6 +11,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**taxonomyApiV1ProteinServiceTaxonomyPost**](ProteinsApi.md#taxonomyapiv1proteinservicetaxonomypost) | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data
 [**triggerProteinClusteringApiV1ProteinServiceClusterPost**](ProteinsApi.md#triggerproteinclusteringapiv1proteinserviceclusterpost) | **POST** /api/v1/protein_service/cluster/ | Calculate clustering
+[**triggerProteinPerplexityApiV1ProteinServicePerplexityPost**](ProteinsApi.md#triggerproteinperplexityapiv1proteinserviceperplexitypost) | **POST** /api/v1/protein_service/perplexity/ | Calculate perplexity
 
 
 # **taxonomyApiV1ProteinServiceTaxonomyPost**
@@ -83,6 +84,49 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **clusteringRequest** | [**ClusteringRequest**](ClusteringRequest.md)|  | 
+
+### Return type
+
+[**StartTaskResponse**](StartTaskResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **triggerProteinPerplexityApiV1ProteinServicePerplexityPost**
+> StartTaskResponse triggerProteinPerplexityApiV1ProteinServicePerplexityPost(perplexityRequest)
+
+Calculate perplexity
+
+Submit sequences for (pseudo)perplexity calculation using a protein language model
+
+### Example
+```dart
+import 'package:biocentral_api/api.dart';
+
+final api = BiocentralApi().getProteinsApi();
+final PerplexityRequest perplexityRequest = ; // PerplexityRequest | 
+
+try {
+    final response = api.triggerProteinPerplexityApiV1ProteinServicePerplexityPost(perplexityRequest);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling ProteinsApi->triggerProteinPerplexityApiV1ProteinServicePerplexityPost: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **perplexityRequest** | [**PerplexityRequest**](PerplexityRequest.md)|  | 
 
 ### Return type
 

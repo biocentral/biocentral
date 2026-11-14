@@ -13,6 +13,7 @@ import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
+import 'package:biocentral_api/src/model/perplexity_result.dart';
 import 'package:biocentral_api/src/model/projection_result.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -24,6 +25,7 @@ part 'task_dto.g.dart';
 /// Properties:
 /// * [status] 
 /// * [error] 
+/// * [perplexityResult] 
 /// * [predictions] 
 /// * [biotrainerUpdate] 
 /// * [biotrainerResult] 
@@ -44,6 +46,9 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
 
   @BuiltValueField(wireName: r'error')
   String? get error;
+
+  @BuiltValueField(wireName: r'perplexity_result')
+  PerplexityResult? get perplexityResult;
 
   @BuiltValueField(wireName: r'predictions')
   BuiltMap<String, BuiltList<Prediction>>? get predictions;
@@ -114,6 +119,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
       yield serializers.serialize(
         object.error,
         specifiedType: const FullType.nullable(String),
+      );
+    }
+    if (object.perplexityResult != null) {
+      yield r'perplexity_result';
+      yield serializers.serialize(
+        object.perplexityResult,
+        specifiedType: const FullType.nullable(PerplexityResult),
       );
     }
     if (object.predictions != null) {
@@ -237,6 +249,14 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           ) as String?;
           if (valueDes == null) continue;
           result.error = valueDes;
+          break;
+        case r'perplexity_result':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(PerplexityResult),
+          ) as PerplexityResult?;
+          if (valueDes == null) continue;
+          result.perplexityResult.replace(valueDes);
           break;
         case r'predictions':
           final valueDes = serializers.deserialize(

@@ -18,6 +18,8 @@ export 'src/model/biotrainer_model_result.dart' show BiotrainerModelResult; // T
 export 'src/model/biotrainer_inference_result.dart' show BiotrainerInferenceResult;
 export 'src/model/biotrainer_model_update.dart' show BiotrainerModelUpdate;
 export 'src/model/projection_result.dart' show ProjectionResult;
+export 'src/model/perplexity_result.dart' show PerplexityResult;
+export 'src/model/zero_shot_method.dart' show ZeroShotMethod;
 export 'src/model/prediction.dart' show Prediction;
 export 'src/model/protocol.dart' show Protocol;
 export 'src/model/sequence_data.dart' show SequenceData;

@@ -8,6 +8,7 @@ from .al_result import (
     ActiveLearningResult,
     ActiveLearningScreeningSimulationResult,
 )
+from .perplexity_result import PerplexityResult
 
 __all__ = [
     "StartTaskResponse",
@@ -20,4 +21,5 @@ __all__ = [
     "ActiveLearningScreeningSimulationResult",
     "EmbeddingProgress",
     "ProjectionResult",
+    "PerplexityResult",
 ]

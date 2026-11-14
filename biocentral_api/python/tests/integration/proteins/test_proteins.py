@@ -29,6 +29,19 @@ class TestProteins(unittest.TestCase):
             all_ids.update(set(cl_ids))
         self.assertEqual(len(sequence_data), len(all_ids))
 
+    def test_perplexity(self):
+        sequence_data = {
+            "Seq1": "MMALSLALMP",
+            "Seq2": "MMALSLALMA",
+        }
+        result = self.api.perplexity(sequence_data, plm_name="random_baseline").run()
+        self.assertIsNotNone(result)
+        self.assertIsNotNone(result.method)
+        self.assertIn("Seq1", result.seq2perplexity)
+        self.assertIn("Seq2", result.seq2perplexity)
+        self.assertIsInstance(result.seq2perplexity["Seq1"], (float, int))
+        self.assertIsInstance(result.seq2perplexity["Seq2"], (float, int))
+
 
 if __name__ == "__main__":
     unittest.main()

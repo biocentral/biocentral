@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **String** |  | [optional] 
+**perplexityResult** | [**PerplexityResult**](PerplexityResult.md) |  | [optional] 
 **predictions** | [**BuiltMap&lt;String, BuiltList&lt;Prediction&gt;&gt;**](BuiltList.md) |  | [optional] 
 **biotrainerUpdate** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
 **biotrainerResult** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 

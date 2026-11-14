@@ -354,6 +354,17 @@ extension ProteinsAPI on BiocentralAPI {
       sequenceIdentityThreshold: sequenceIdentityThreshold,
     );
   }
+
+  Future<BiocentralServerTask<PerplexityResult>> perplexity({
+    required Map<String, String> sequenceData,
+    required String plmName,
+  }) async {
+    return ProteinsClient().perplexity(
+      api: _getAPI(),
+      sequenceData: sequenceData,
+      plmName: plmName,
+    );
+  }
 }
 
 extension ActiveLearningAPI on BiocentralAPI {

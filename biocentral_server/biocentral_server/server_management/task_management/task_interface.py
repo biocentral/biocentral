@@ -21,6 +21,7 @@ from ..shared_endpoint_models import (
     ActiveLearningScreeningSimulationResult,
     EmbeddingProgress,
     ProjectionResult,
+    PerplexityResult,
 )
 
 from ...utils import get_logger
@@ -50,6 +51,9 @@ class TaskDTO(BaseModel):
     """ Fat-struct that contains all possible (intermediate) results from tasks """
     status: TaskStatus
     error: Optional[str] = None
+
+    # proteins
+    perplexity_result: Optional[PerplexityResult] = None
 
     # predict
     predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions

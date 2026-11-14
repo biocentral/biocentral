@@ -64,6 +64,8 @@ doc/NotFoundErrorResponse.md
 doc/OutputClass.md
 doc/OutputType.md
 doc/PPITestResult.md
+doc/PerplexityRequest.md
+doc/PerplexityResult.md
 doc/PpiApi.md
 doc/Prediction.md
 doc/Prediction1.md
@@ -98,6 +100,7 @@ doc/TaxonomyResponse.md
 doc/TestResult.md
 doc/TrainingResult.md
 doc/ValidationError.md
+doc/ZeroShotMethod.md
 lib/src/api.dart
 lib/src/api/active_learning_api.dart
 lib/src/api/biocentral_service_api.dart
@@ -176,6 +179,8 @@ lib/src/model/mutation.dart
 lib/src/model/not_found_error_response.dart
 lib/src/model/output_class.dart
 lib/src/model/output_type.dart
+lib/src/model/perplexity_request.dart
+lib/src/model/perplexity_result.dart
 lib/src/model/ppi_test_result.dart
 lib/src/model/prediction.dart
 lib/src/model/prediction1.dart
@@ -207,4 +212,5 @@ lib/src/model/taxonomy_response.dart
 lib/src/model/test_result.dart
 lib/src/model/training_result.dart
 lib/src/model/validation_error.dart
+lib/src/model/zero_shot_method.dart
 lib/src/serializers.dart

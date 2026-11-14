@@ -29,3 +29,11 @@ class ClusteringRequest(BaseModel):
         le=1.0,
         description="Sequence identity threshold for clustering (between 0.0 and 1.0)",
     )
+
+
+class PerplexityRequest(BaseModel):
+    sequence_data: Dict[str, str] = Field(
+        ...,
+        description="Dictionary mapping sequence IDs to their amino acid sequence strings",
+    )
+    plm_name: str = Field(..., description="Name of the PLM to use for perplexity calculation")

@@ -70,6 +70,8 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(OutputClass.serializer)
       ..add(OutputType.serializer)
       ..add(PPITestResult.serializer)
+      ..add(PerplexityRequest.serializer)
+      ..add(PerplexityResult.serializer)
       ..add(Prediction.serializer)
       ..add(Prediction1.serializer)
       ..add(PredictionRequest.serializer)
@@ -100,6 +102,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(TestResult.serializer)
       ..add(TrainingResult.serializer)
       ..add(ValidationError.serializer)
+      ..add(ZeroShotMethod.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ActiveLearningResult)]),
@@ -340,6 +343,10 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
             const FullType.nullable(JsonObject)
@@ -387,6 +394,10 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(int)]),
           () => MapBuilder<String, int>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(num)]),
