@@ -5,7 +5,7 @@ def test_train_and_inference_local_and_api(bc_local, bc_api):
     config = {
         "embedder_name": str(CommonEmbedder.ONE_HOT_ENCODING.value),
         "model_choice": "FNN",
-        "protocol": str(Protocol.SEQUENCE_TO_CLASS.value),
+        "protocol": str(Protocol.sequence_to_class.value),
         "num_epochs": 2,
     }
 
