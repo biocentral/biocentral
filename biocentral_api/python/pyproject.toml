@@ -37,6 +37,9 @@ dev = [
 [tool.uv]
 exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
 
+[tool.uv.sources]
+biotrainer-core = { path = "../../biotrainer/biotrainer-core", editable = true }
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

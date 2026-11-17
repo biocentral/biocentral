@@ -21,9 +21,6 @@ from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
-from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult
-from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult
-from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.perplexity_result import PerplexityResult
 from biocentral_api._generated.models.prediction import Prediction
@@ -33,6 +30,9 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import BiotrainerModelResult
+from biotrainer_core.data_classes import BiotrainerModelUpdate
+from biotrainer_core.data_classes import BiotrainerInferenceResult
 
 class TaskDTO(BaseModel):
     """

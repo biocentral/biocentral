@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**metrics** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Bootstrapped evaluation metrics | 
+**metrics** | [**List[biotrainer_core.data_classes.BootstrappedMetric]**](biotrainer_core.data_classes.BootstrappedMetric.md) | Bootstrapped evaluation metrics | 
 **clusters** | **Dict[str, List[str]]** | Calculated cluster dictionary (rep_id -&gt; members) | 
 
 ## Example

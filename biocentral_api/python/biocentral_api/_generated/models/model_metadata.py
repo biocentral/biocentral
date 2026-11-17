@@ -21,10 +21,10 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel
 from biocentral_api._generated.models.model_output import ModelOutput
-from biocentral_api._generated.models.protocol import Protocol
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import Protocol
 
 class ModelMetadata(BaseModel):
     """
