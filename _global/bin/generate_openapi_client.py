@@ -232,6 +232,42 @@ def parse_import_mapping(type_name: str, mapping_value: str) -> tuple[str, str, 
         return type_name, type_name, f"import {type_name}"
 
 
+def get_default_import_mappings() -> dict[str, str]:
+    """Get the mapping of domain types to their canonical biotrainer_core locations."""
+    mappings = {
+        # biotrainer_core.data_classes
+        "SequenceData": "biotrainer_core.data_classes.SequenceData",
+        "Protocol": "biotrainer_core.data_classes.Protocol",
+        "ZeroShotMethod": "biotrainer_core.data_classes.ZeroShotMethod",
+        "BiotrainerModelResult": "biotrainer_core.data_classes.BiotrainerModelResult",
+        "BiotrainerModelUpdate": "biotrainer_core.data_classes.BiotrainerModelUpdate",
+        "TrainingResult": "biotrainer_core.data_classes.TrainingResult",
+        "TestResult": "biotrainer_core.data_classes.TestResult",
+        "DerivedValues": "biotrainer_core.data_classes.DerivedValues",
+        "BiotrainerPrediction": "biotrainer_core.data_classes.BiotrainerPrediction",
+        "BiotrainerInferenceResult": "biotrainer_core.data_classes.BiotrainerInferenceResult",
+        "EmbeddingStats": "biotrainer_core.data_classes.EmbeddingStats",
+        "EpochMetrics": "biotrainer_core.data_classes.EpochMetrics",
+        "BootstrappedMetric": "biotrainer_core.data_classes.BootstrappedMetric",
+        "MetricEstimate": "biotrainer_core.data_classes.MetricEstimate",
+        "Mutation": "biotrainer_core.data_classes.Mutation",
+        "Variant": "biotrainer_core.data_classes.Variant",
+        "VariantScore": "biotrainer_core.data_classes.VariantScore",
+        "RankingResult": "biotrainer_core.data_classes.RankingResult",
+        "AggregatedRankingResult": "biotrainer_core.data_classes.AggregatedRankingResult",
+        "SingleMutationScore": "biotrainer_core.data_classes.SingleMutationScore",
+        "ContactDatasetResult": "biotrainer_core.data_classes.ContactDatasetResult",
+        "ContactSingleProteinResult": "biotrainer_core.data_classes.ContactSingleProteinResult",
+    }
+    try:
+        import biotrainer_core.data_classes as dc
+        for name in getattr(dc, "__all__", []):
+            mappings[name] = f"biotrainer_core.data_classes.{name}"
+    except Exception:
+        pass
+    return mappings
+
+
 def post_process_imports(output_dir: Path, import_mappings: dict[str, str]):
     """Add missing imports for mapped types and fix mappings in generated Python files.
 
@@ -283,6 +319,17 @@ def post_process_imports(output_dir: Path, import_mappings: dict[str, str]):
             type_name = m["type_name"]
             full_path = m["full_path"]
             import_statement = m["import_statement"]
+            snake_name = m["snake_name"]
+
+            # Remove any generated model import statements for this type
+            gen_import_patterns = [
+                rf"^from\s+biocentral_api\._generated\.models\.{re.escape(snake_name)}\s+import\s+{re.escape(type_name)}.*$\n?",
+                rf"^from\s+\.{re.escape(snake_name)}\s+import\s+{re.escape(type_name)}.*$\n?",
+            ]
+            for pattern in gen_import_patterns:
+                if re.search(pattern, content, flags=re.MULTILINE):
+                    content = re.sub(pattern, "", content, flags=re.MULTILINE)
+                    modified = True
 
             # Replace fully qualified path with type name
             if full_path in content:
@@ -359,6 +406,7 @@ def post_process_imports(output_dir: Path, import_mappings: dict[str, str]):
                 full_path = m["full_path"]
                 if (
                     f"models.{snake_name} import" in line
+                    or f".{snake_name} import" in line
                     or line.strip().startswith(full_path)
                 ):
                     should_skip = True
@@ -428,7 +476,7 @@ def remove_unnecessary_api_docs(target_docs_dir: Path, import_mappings: dict[str
                 print(f"Failed to remove {doc_file}: {e}")
 
 
-def generate_python(openapi_spec: Path, python_target_dir: Path):
+def generate_python(openapi_spec: Path, python_target_dir: Path, custom_import_mappings: dict[str, str] = None):
     # Define paths
     output_dir = python_target_dir
     temp_docs_dir = output_dir / "docs"
@@ -444,10 +492,10 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
 
     existing_manual_docs = list(os.listdir(temp_docs_dir))
 
-    import_mappings = {
-        "SequenceData": "biotrainer_core.data_classes.SequenceData",
-        "ZeroShotMethod": "biotrainer_core.data_classes.ZeroShotMethod",
-    }
+    import_mappings = get_default_import_mappings()
+    if custom_import_mappings:
+        import_mappings.update(custom_import_mappings)
+
     import_mappings_string = ','.join([f'{k}={v}' for k, v in import_mappings.items()])
     language_specific_primitives_string = f"--language-specific-primitives={','.join(import_mappings.keys())}"
     # Prepare the openapi-generator command

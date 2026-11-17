@@ -130,6 +130,14 @@ __all__ = [
     "TrainingResult",
     "ValidationError",
     "ZeroShotMethod",
+    "MetricEstimate",
+    "Variant",
+    "VariantScore",
+    "RankingResult",
+    "AggregatedRankingResult",
+    "SingleMutationScore",
+    "ContactDatasetResult",
+    "ContactSingleProteinResult",
 ]
 
 # import apis into sdk package
@@ -178,11 +186,6 @@ from biocentral_api._generated.models.biocentral_prediction_model import Biocent
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biocentral_service_stats import BiocentralServiceStats as BiocentralServiceStats
-from biocentral_api._generated.models.biotrainer_inference_result import BiotrainerInferenceResult as BiotrainerInferenceResult
-from biocentral_api._generated.models.biotrainer_model_result import BiotrainerModelResult as BiotrainerModelResult
-from biocentral_api._generated.models.biotrainer_model_update import BiotrainerModelUpdate as BiotrainerModelUpdate
-from biocentral_api._generated.models.biotrainer_prediction import BiotrainerPrediction as BiotrainerPrediction
-from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric as BootstrappedMetric
 from biocentral_api._generated.models.cluster_hbi_request import ClusterHBIRequest as ClusterHBIRequest
 from biocentral_api._generated.models.cluster_hbi_response import ClusterHBIResponse as ClusterHBIResponse
 from biocentral_api._generated.models.clustering_request import ClusteringRequest as ClusteringRequest
@@ -190,12 +193,9 @@ from biocentral_api._generated.models.common_embedder import CommonEmbedder as C
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest as ConfigVerificationRequest
 from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse as ConfigVerificationResponse
-from biocentral_api._generated.models.derived_values import DerivedValues as DerivedValues
 from biocentral_api._generated.models.detected_format_response import DetectedFormatResponse as DetectedFormatResponse
 from biocentral_api._generated.models.embed_request import EmbedRequest as EmbedRequest
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress as EmbeddingProgress
-from biocentral_api._generated.models.embedding_stats import EmbeddingStats as EmbeddingStats
-from biocentral_api._generated.models.epoch_metrics import EpochMetrics as EpochMetrics
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse
 from biocentral_api._generated.models.get_projection_config_response import GetProjectionConfigResponse as GetProjectionConfigResponse
@@ -211,7 +211,6 @@ from biocentral_api._generated.models.model_files_request import ModelFilesReque
 from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
 from biocentral_api._generated.models.model_output import ModelOutput as ModelOutput
-from biocentral_api._generated.models.mutation import Mutation as Mutation
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse as NotFoundErrorResponse
 from biocentral_api._generated.models.output_class import OutputClass as OutputClass
 from biocentral_api._generated.models.output_type import OutputType as OutputType
@@ -226,7 +225,6 @@ from biocentral_api._generated.models.projection_result import ProjectionResult 
 from biocentral_api._generated.models.projections_data import ProjectionsData as ProjectionsData
 from biocentral_api._generated.models.projections_metadata import ProjectionsMetadata as ProjectionsMetadata
 from biocentral_api._generated.models.protein_annotations import ProteinAnnotations as ProteinAnnotations
-from biocentral_api._generated.models.protocol import Protocol as Protocol
 from biocentral_api._generated.models.raw_prediction import RawPrediction as RawPrediction
 from biocentral_api._generated.models.research_stats import ResearchStats as ResearchStats
 from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse as ResearchStatsResponse
@@ -244,9 +242,27 @@ from biocentral_api._generated.models.task_status_response import TaskStatusResp
 from biocentral_api._generated.models.taxonomy_item import TaxonomyItem as TaxonomyItem
 from biocentral_api._generated.models.taxonomy_request import TaxonomyRequest as TaxonomyRequest
 from biocentral_api._generated.models.taxonomy_response import TaxonomyResponse as TaxonomyResponse
-from biocentral_api._generated.models.test_result import TestResult as TestResult
-from biocentral_api._generated.models.training_result import TrainingResult as TrainingResult
 from biocentral_api._generated.models.validation_error import ValidationError as ValidationError
 from biotrainer_core.data_classes import SequenceData as SequenceData  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import Protocol as Protocol  # Intentional export of biotrainer-core model to keep compatibility
 from biotrainer_core.data_classes import ZeroShotMethod as ZeroShotMethod  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import BiotrainerModelResult as BiotrainerModelResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import BiotrainerModelUpdate as BiotrainerModelUpdate  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import TrainingResult as TrainingResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import TestResult as TestResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import DerivedValues as DerivedValues  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import BiotrainerPrediction as BiotrainerPrediction  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import BiotrainerInferenceResult as BiotrainerInferenceResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import EmbeddingStats as EmbeddingStats  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import EpochMetrics as EpochMetrics  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import BootstrappedMetric as BootstrappedMetric  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import MetricEstimate as MetricEstimate  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import Mutation as Mutation  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import Variant as Variant  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import VariantScore as VariantScore  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import RankingResult as RankingResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import AggregatedRankingResult as AggregatedRankingResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import SingleMutationScore as SingleMutationScore  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import ContactDatasetResult as ContactDatasetResult  # Intentional export of biotrainer-core model to keep compatibility
+from biotrainer_core.data_classes import ContactSingleProteinResult as ContactSingleProteinResult  # Intentional export of biotrainer-core model to keep compatibility
 

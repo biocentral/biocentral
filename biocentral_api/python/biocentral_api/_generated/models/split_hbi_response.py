@@ -19,10 +19,10 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List
-from biocentral_api._generated.models.bootstrapped_metric import BootstrappedMetric
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import BootstrappedMetric
 
 class SplitHBIResponse(BaseModel):
     """

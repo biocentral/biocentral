@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **seed** | **int** | Random seed for reproducibility. | [optional] 
 **wildtype_sequence** | **str** | Wildtype sequence to engineer | 
 **use_delta_embeddings** | **bool** | Use each sequence&#39;s embedding minus the wildtype embedding as model input (only supported for residue-aware embedders) | [optional] [default to False]
-**allowed_substitutions** | [**List[Mutation]**](Mutation.md) | Wildtype-relative substitutions the generator may draw from. None allows any standard amino acid at any position. The design space always includes the wildtype residue at every position | [optional] 
+**allowed_substitutions** | [**List[biotrainer_core.data_classes.Mutation]**](biotrainer_core.data_classes.Mutation.md) | Wildtype-relative substitutions the generator may draw from. None allows any standard amino acid at any position. The design space always includes the wildtype residue at every position | [optional] 
 
 ## Example
 

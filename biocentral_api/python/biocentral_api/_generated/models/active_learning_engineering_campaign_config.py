@@ -22,10 +22,10 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from biocentral_api._generated.models.active_learning_model_type import ActiveLearningModelType
 from biocentral_api._generated.models.active_learning_optimization_mode import ActiveLearningOptimizationMode
-from biocentral_api._generated.models.mutation import Mutation
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import Mutation
 
 class ActiveLearningEngineeringCampaignConfig(BaseModel):
     """

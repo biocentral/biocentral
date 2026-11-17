@@ -123,5 +123,81 @@ class TestPerplexityClient(unittest.TestCase):
             mock_perp.assert_called_once()
 
 
+class TestTypeMappings(unittest.TestCase):
+    def test_biotrainer_core_type_identity(self):
+        import biocentral_api
+        import biocentral_api._generated as gen
+        import biocentral_api._generated.models as models
+        import biotrainer_core.data_classes as core_dc
+
+        # Ensure types exported at top-level biocentral_api match biotrainer_core exactly
+        self.assertIs(biocentral_api.SequenceData, core_dc.SequenceData)
+        self.assertIs(biocentral_api.Protocol, core_dc.Protocol)
+        self.assertIs(biocentral_api.ZeroShotMethod, core_dc.ZeroShotMethod)
+        self.assertIs(biocentral_api.BiotrainerModelResult, core_dc.BiotrainerModelResult)
+        self.assertIs(biocentral_api.BiotrainerInferenceResult, core_dc.BiotrainerInferenceResult)
+        self.assertIs(biocentral_api.BiotrainerModelUpdate, core_dc.BiotrainerModelUpdate)
+        self.assertIs(biocentral_api.BiotrainerPrediction, core_dc.BiotrainerPrediction)
+        self.assertIs(biocentral_api.TrainingResult, core_dc.TrainingResult)
+        self.assertIs(biocentral_api.TestResult, core_dc.TestResult)
+        self.assertIs(biocentral_api.DerivedValues, core_dc.DerivedValues)
+        self.assertIs(biocentral_api.EpochMetrics, core_dc.EpochMetrics)
+        self.assertIs(biocentral_api.BootstrappedMetric, core_dc.BootstrappedMetric)
+        self.assertIs(biocentral_api.MetricEstimate, core_dc.MetricEstimate)
+        self.assertIs(biocentral_api.EmbeddingStats, core_dc.EmbeddingStats)
+        self.assertIs(biocentral_api.Mutation, core_dc.Mutation)
+
+        # Ensure types in models/__init__.py and _generated/__init__.py match
+        self.assertIs(models.TrainingResult, core_dc.TrainingResult)
+        self.assertIs(models.TestResult, core_dc.TestResult)
+        self.assertIs(models.DerivedValues, core_dc.DerivedValues)
+        self.assertIs(models.EpochMetrics, core_dc.EpochMetrics)
+        self.assertIs(models.BootstrappedMetric, core_dc.BootstrappedMetric)
+        self.assertIs(models.MetricEstimate, core_dc.MetricEstimate)
+        self.assertIs(models.BiotrainerModelUpdate, core_dc.BiotrainerModelUpdate)
+        self.assertIs(models.BiotrainerPrediction, core_dc.BiotrainerPrediction)
+        self.assertIs(models.EmbeddingStats, core_dc.EmbeddingStats)
+        self.assertIs(models.Mutation, core_dc.Mutation)
+        self.assertIs(models.Protocol, core_dc.Protocol)
+        self.assertIs(models.SequenceData, core_dc.SequenceData)
+        self.assertIs(models.ZeroShotMethod, core_dc.ZeroShotMethod)
+
+    def test_task_dto_with_biotrainer_models(self):
+        from biocentral_api._generated.models import TaskDTO, TaskStatus
+        from biotrainer_core.data_classes import (
+            BiotrainerModelResult,
+            TrainingResult,
+            EpochMetrics,
+            Protocol,
+        )
+
+        training_result = TrainingResult(
+            n_training_ids=10,
+            n_validation_ids=2,
+            training_ids=["Seq1", "Seq2"],
+            validation_ids=["Seq3"],
+            elapsed_time=1.5,
+            best_epoch_metrics=EpochMetrics(epoch=5, training={"loss": 0.1}, validation={"loss": 0.2, "accuracy": 0.95}),
+        )
+        model_result = BiotrainerModelResult(
+            training_result=training_result,
+        )
+
+        task_dto = TaskDTO(
+            status=TaskStatus.FINISHED,
+            biotrainer_result=model_result,
+        )
+
+        dto_dict = task_dto.to_dict()
+        self.assertEqual(dto_dict["status"], "FINISHED")
+        self.assertIsNotNone(dto_dict["biotrainer_result"])
+
+        # Test JSON serialization / deserialization roundtrip
+        json_str = task_dto.to_json()
+        restored_dto = TaskDTO.from_json(json_str)
+        self.assertEqual(restored_dto.status, TaskStatus.FINISHED)
+        self.assertIsNotNone(restored_dto.biotrainer_result)
+
+
 if __name__ == "__main__":
     unittest.main()

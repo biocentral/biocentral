@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**metrics** | [**List[BootstrappedMetric]**](BootstrappedMetric.md) | Bootstrapped evaluation metrics | 
+**metrics** | [**List[biotrainer_core.data_classes.BootstrappedMetric]**](biotrainer_core.data_classes.BootstrappedMetric.md) | Bootstrapped evaluation metrics | 
 **num_queries** | **int** | Total number of query sequences provided | 
 **hits_found** | **int** | Number of queries with homologous hits in train | 
 **evaluated_queries** | **int** | Number of queries successfully evaluated | 
