@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/biocentral/biocentral_api/"
+Repository = "https://github.com/biocentral/biocentral/"
 
 [dependency-groups]
 dev = [
