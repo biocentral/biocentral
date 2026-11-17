@@ -5,7 +5,7 @@ bc = Biocentral(mode="api")
 config = {
     "embedder_name": CommonEmbedder.ProtT5,
     "model_choice": "FNN",
-    "protocol": Protocol.SEQUENCE_TO_CLASS,
+    "protocol": Protocol.sequence_to_class,
 }
 
 training_data = [
