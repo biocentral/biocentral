@@ -5,6 +5,10 @@ inputs:
   working-directory:
     description: "Working directory for dependency installation"
     required: true
+  extras:
+    description: "Install all extras if set to true"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -18,4 +22,4 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: uv sync --no-install-project --index-strategy unsafe-best-match
+      run: uv sync --no-install-project --index-strategy unsafe-best-match ${{ inputs.extras == 'true' && '--all-extras' || '' }}
