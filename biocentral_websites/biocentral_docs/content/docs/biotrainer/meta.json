@@ -3,6 +3,8 @@
   "root": true,
   "pages": [
     "index",
+    "---Embedding---",
+    "embedding_models",
     "---Autoeval---",
     "autoeval_overview",
     "---BioEngineer---",

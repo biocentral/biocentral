@@ -124,11 +124,12 @@ included in class weight calculation. Each mask must contain at least one resolv
 
 In *biotrainer*, it is possible to calculate embeddings automatically. Since of version 0.8.0, *bio_embeddings* has
 been deprecated as package for embeddings calculation. Instead, *biotrainer* now supports embedding calculation
-directly via [huggingface transformers](https://huggingface.co/docs/transformers/index).
+directly via [huggingface transformers](https://huggingface.co/docs/transformers/index), featuring dedicated
+[optimized embedder models](embedding_models.mdx) (ProtT5, ProstT5, ProtBert, ESM-2, ESM-C).
 The following embedders have been successfully tested with *biotrainer*:
 
 ```yaml
-embedder_name: Rostlab/prot_t5_xl_uniref50 | ElnaggarLab/ankh-large | Rostlab/prot_t5_xl_bfd | Rostlab/ProstT5 | Takagi-san/SaProt_650M_AF2
+embedder_name: Rostlab/prot_t5_xl_uniref50 | facebook/esm2_t33_650M_UR50D | Rostlab/ProstT5 | Rostlab/prot_bert | biohub/ESMC-600M | Takagi-san/SaProt_650M_AF2
 ```
 
 Transformer embedders provide the ability to use half-precision (float16) mode:
