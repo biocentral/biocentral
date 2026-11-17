@@ -151,7 +151,7 @@ jobs:
   # ════════════════════════════════════════════════════════════
 
   api-integration-tests:
-    name: "🔗 Stage 2 · API Integration Tests"
+    name: "🔗 Stage 2 · API Integration & Equivalence Tests"
     needs: [ changes, server-unit-tests ]
     if: |
       always() &&
@@ -184,15 +184,20 @@ jobs:
             sleep 2
           done
 
-      - name: Run API tests
+      - uses: ./.github/actions/setup-python-simple
+        with:
+          working-directory: biocentral_api/python
+
+      - name: Run biocentral_api integration tests
         working-directory: biocentral_api/python
         run: uv run pytest tests/integration -v -W "ignore::DeprecationWarning"
 
       - uses: ./.github/actions/setup-python-simple
         with:
           working-directory: biocentral_python
+          extras: 'true'
 
-      - name: Run Python integration & equivalence tests
+      - name: Run biocentral_python integration & equivalence tests
         working-directory: biocentral_python
         run: uv run pytest tests/integration -v -W "ignore::DeprecationWarning"
 
