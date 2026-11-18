@@ -8,6 +8,7 @@
 /server_config.txt
 /poetry.lock
 /releases/
+.env
 __pycache__/
 *ipynb
 .DS_Store
