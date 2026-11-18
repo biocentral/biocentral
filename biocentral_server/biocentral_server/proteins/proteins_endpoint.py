@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from fastapi_limiter.depends import RateLimiter
+
+from ..server_management import RateLimiter
 
 from .taxonomy import Taxonomy
 from .endpoint_models import (

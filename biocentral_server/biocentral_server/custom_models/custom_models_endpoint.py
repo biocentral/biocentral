@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi_limiter.depends import RateLimiter
 from biotrainer.training.config import Configurator
 from biotrainer_core.data_classes import SequenceData, Protocol
+
+from ..server_management import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
 from typing import Optional, Any
 

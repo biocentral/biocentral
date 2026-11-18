@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi_limiter.depends import RateLimiter
+
+from ..server_management import RateLimiter
 
 from .endpoint_models import (
     ActiveLearningScreeningIterationRequest,

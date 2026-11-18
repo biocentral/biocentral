@@ -1,7 +1,8 @@
 from typing import Annotated
 from biotrainer_core.data_classes import SequenceData
-from fastapi_limiter.depends import RateLimiter
 from fastapi import APIRouter, HTTPException, status, Request, Depends
+
+from ..server_management import RateLimiter
 
 from protspace.utils import get_reducers
 from protspace.utils.constants import (
