@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Final, List, Optional, Tuple
 
 from .storage_file_type import StorageFileType
+from ..request_validation import validate_identifier
 
 
 class PathManager:
@@ -22,9 +23,11 @@ class PathManager:
         self.user_id = user_id
 
     def _base_user_path(self) -> Path:
+        validate_identifier(self.user_id)
         return self.base_path / self.user_id
 
     def get_database_path(self, database_hash: str) -> Path:
+        validate_identifier(database_hash)
         return self._base_user_path() / database_hash
 
     def get_embeddings_files_path(self, database_hash: str) -> Path:
@@ -40,6 +43,7 @@ class PathManager:
         return self._base_user_path() / self._external_models_path
 
     def get_biotrainer_model_path(self, model_hash: str) -> Path:
+        validate_identifier(model_hash)
         return self._get_models_files_path() / model_hash
 
     @staticmethod
@@ -61,6 +65,10 @@ class PathManager:
         database_hash: Optional[str] = "",
         model_hash: Optional[str] = "",
     ) -> Path:
+        if database_hash:
+            validate_identifier(database_hash)
+        if model_hash:
+            validate_identifier(model_hash)
         return {
             StorageFileType.INPUT: self._get_fasta_file_path(database_hash),
             StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path()

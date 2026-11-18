@@ -17,12 +17,20 @@ class SeaweedFSStorageBackend(StorageBackend):
         filer_port = os.environ.get("SEAWEEDFS_FILER_PORT", 8888)
         self.filer_url: str = f"http://{filer_host}:{filer_port}/"
 
+    @staticmethod
+    def _validate_path(path: str) -> str:
+        normalized_path = path.replace("\\", "/")
+        if ".." in normalized_path.split("/"):
+            raise StorageError("Storage path must not contain parent-directory segments")
+        return normalized_path
+
     def save_file(self, path: str, data: Union[bytes, str, BinaryIO]) -> str:
         """
         Save file to SeaweedFS
         Returns: full path to the saved file
         """
         try:
+            path = self._validate_path(path)
             # Prepare data
             if isinstance(data, str):
                 data = data.encode("utf-8")
@@ -47,6 +55,7 @@ class SeaweedFSStorageBackend(StorageBackend):
         Returns: file contents as bytes
         """
         try:
+            path = self._validate_path(path)
             response = requests.get(f"{self.filer_url}{path}")
             response.raise_for_status()
             return response.content
@@ -56,6 +65,7 @@ class SeaweedFSStorageBackend(StorageBackend):
     def check_file_exists(self, file_path: str) -> bool:
         """Check if a file exists in SeaweedFS"""
         try:
+            file_path = self._validate_path(file_path)
             response = requests.head(f"{self.filer_url}{file_path}")
             return response.status_code < 400
         except Exception:
@@ -67,6 +77,7 @@ class SeaweedFSStorageBackend(StorageBackend):
         Returns: True if successful, False if file doesn't exist
         """
         try:
+            path = self._validate_path(path)
             response = requests.delete(f"{self.filer_url}{path}")
             return response.status_code in (200, 204, 404)
         except Exception:
@@ -78,6 +89,7 @@ class SeaweedFSStorageBackend(StorageBackend):
         Returns: List of file information dictionaries
         """
         try:
+            directory = self._validate_path(directory)
             # Request JSON explicitly with correct headers
             headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
