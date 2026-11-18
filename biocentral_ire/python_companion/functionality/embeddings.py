@@ -2,6 +2,7 @@ import base64
 import h5py
 import io
 import json
+from pathlib import Path
 import numpy as np
 
 
@@ -55,7 +56,20 @@ def read_h5(json_data):
 
 def sync_internal_h5(json_data):
     external_file_path = json_data.get("external_file_path")
-    internal_file_path = json_data.get("internal_file_path")
+    project_directory_value = json_data.get("project_directory")
+    if not project_directory_value:
+        raise ValueError("Project directory is required")
+    project_directory = Path(project_directory_value).resolve(strict=True)
+    if not project_directory.is_dir():
+        raise ValueError("Project directory does not exist")
+
+    embeddings_directory = project_directory / "embeddings"
+    internal_file_path = embeddings_directory / "embeddings_db.h5"
+    if embeddings_directory.is_symlink() or internal_file_path.is_symlink():
+        raise ValueError("Embedding database path must not be a symlink")
+    if not internal_file_path.resolve().is_relative_to(project_directory):
+        raise ValueError("Embedding database path must remain inside the project directory")
+    embeddings_directory.mkdir(parents=True, exist_ok=True)
 
     # Open external file and read all datasets
     with h5py.File(external_file_path, "r") as external_f:
@@ -76,7 +90,7 @@ def sync_internal_h5(json_data):
                 for attr_name, attr_value in dataset.attrs.items():
                     internal_f[key].attrs[attr_name] = attr_value
 
-    return get_h5_info({"file_path": internal_file_path})
+    return get_h5_info({"file_path": str(internal_file_path)})
 
 
 def write_h5(json_data):
