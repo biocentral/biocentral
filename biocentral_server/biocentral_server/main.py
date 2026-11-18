@@ -6,7 +6,7 @@ from redis.asyncio import Redis
 from importlib.metadata import version
 from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from apscheduler.triggers.cron import CronTrigger
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -16,6 +16,7 @@ from .server_management import (
     UserManager,
     EmbeddingDatabaseFactory,
     FileManager,
+    QueueFullError,
 )
 
 # Import module routers
@@ -148,6 +149,14 @@ def create_app() -> FastAPI:
         ],
     )
     app.add_middleware(BodySizeLimitMiddleware)
+
+    @app.exception_handler(QueueFullError)
+    async def queue_full_exception_handler(request, exc):
+        return JSONResponse(
+            status_code=503,
+            content={"detail": str(exc)},
+            headers={"Retry-After": "60"},
+        )
 
     # Include module routers
     prefix = "/api/v1"

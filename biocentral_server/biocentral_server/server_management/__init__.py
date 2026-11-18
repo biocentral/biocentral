@@ -16,7 +16,7 @@ from .shared_endpoint_models import (
     ActiveLearningScreeningSimulationResult,
     ProjectionResult,
 )
-from .request_validation import validate_embedder_name
+from .request_validation import validate_embedder_name, validate_identifier
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import (
@@ -25,6 +25,7 @@ from .task_management import (
     TaskManager,
     TaskDTO,
     PreEmbedMixin,
+    QueueFullError,
 )
 from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 from .library_adapters import (
@@ -77,4 +78,6 @@ __all__ = [
     "ProjectionResult",
     "DeviceService",
     "validate_embedder_name",
+    "validate_identifier",
+    "QueueFullError",
 ]
