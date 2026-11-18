@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 from typing import Optional
+
+from ..server_management import validate_identifier
 
 
 class AutoDetectFormatRequest(BaseModel):
@@ -14,6 +16,11 @@ class DetectedFormatResponse(BaseModel):
 class RunTestRequest(BaseModel):
     hash: str
     test: str
+
+    @field_validator("hash")
+    @classmethod
+    def validate_hash(cls, value: str) -> str:
+        return validate_identifier(value)
 
 
 class PPITestResult(BaseModel):
@@ -31,7 +38,7 @@ class RunTestResponse(BaseModel):
 
 class ImportDatasetRequest(BaseModel):
     format: str
-    dataset: str
+    dataset: str = Field(max_length=50 * 1024 * 1024)
 
 
 class ImportDatasetResponse(BaseModel):
