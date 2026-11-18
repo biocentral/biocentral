@@ -6,7 +6,7 @@ from biotrainer_core.data_classes import SequenceData
 from biotrainer_core.data_classes.metrics import BootstrappedMetric
 from pydantic import BaseModel, Field, field_validator
 
-from ..server_management import validate_embedder_name
+from ..server_management import validate_embedder_name, validate_identifier
 
 
 class ErrorResponse(BaseModel):
@@ -71,6 +71,11 @@ class StartTrainingRequest(BaseModel):
 class ModelFilesRequest(BaseModel):
     model_hash: str = Field(description="Hash identifier for the trained model")
 
+    @field_validator("model_hash")
+    @classmethod
+    def validate_model_hash(cls, value: str) -> str:
+        return validate_identifier(value)
+
 
 class ModelFilesResponse(BaseModel):
     # TODO Define explicitly
@@ -90,6 +95,11 @@ class StartInferenceRequest(BaseModel):
     sequence_data: Dict[str, str] = Field(
         description="Sequence data for inference (seq_id -> sequence)", min_length=1
     )
+
+    @field_validator("model_hash")
+    @classmethod
+    def validate_model_hash(cls, value: str) -> str:
+        return validate_identifier(value)
 
 
 class ClusteringRequest(BaseModel):
@@ -128,6 +138,11 @@ class ClusterHBIRequest(BaseModel):
         description="True for continuous regression targets, False for classification"
     )
     iterations: int = Field(default=30, description="Bootstrap iterations performed")
+
+    @field_validator("dataset_hash")
+    @classmethod
+    def validate_dataset_hash(cls, value: str) -> str:
+        return validate_identifier(value)
 
 class ClusterHBIResponse(BaseModel):
     metrics: List[BootstrappedMetric] = Field(..., description="Bootstrapped evaluation metrics")
