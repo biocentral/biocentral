@@ -30,9 +30,6 @@ import 'package:biocentral_api/src/model/active_learning_screening_simulation_co
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_request.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/active_learning_stopping_config.dart';
-import 'package:biocentral_api/src/model/add_embeddings_request.dart';
-import 'package:biocentral_api/src/model/add_embeddings_response.dart';
-import 'package:biocentral_api/src/model/auto_detect_format_request.dart';
 import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
@@ -50,7 +47,6 @@ import 'package:biocentral_api/src/model/config_options_response.dart';
 import 'package:biocentral_api/src/model/config_verification_request.dart';
 import 'package:biocentral_api/src/model/config_verification_response.dart';
 import 'package:biocentral_api/src/model/derived_values.dart';
-import 'package:biocentral_api/src/model/detected_format_response.dart';
 import 'package:biocentral_api/src/model/embed_request.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
 import 'package:biocentral_api/src/model/embedding_stats.dart';
@@ -59,8 +55,6 @@ import 'package:biocentral_api/src/model/get_missing_embeddings_request.dart';
 import 'package:biocentral_api/src/model/get_missing_embeddings_response.dart';
 import 'package:biocentral_api/src/model/get_projection_config_response.dart';
 import 'package:biocentral_api/src/model/http_validation_error.dart';
-import 'package:biocentral_api/src/model/import_dataset_request.dart';
-import 'package:biocentral_api/src/model/import_dataset_response.dart';
 import 'package:biocentral_api/src/model/location_inner.dart';
 import 'package:biocentral_api/src/model/mcd_lower_bound.dart';
 import 'package:biocentral_api/src/model/mcd_mean.dart';
@@ -74,7 +68,6 @@ import 'package:biocentral_api/src/model/mutation.dart';
 import 'package:biocentral_api/src/model/not_found_error_response.dart';
 import 'package:biocentral_api/src/model/output_class.dart';
 import 'package:biocentral_api/src/model/output_type.dart';
-import 'package:biocentral_api/src/model/ppi_test_result.dart';
 import 'package:biocentral_api/src/model/perplexity_request.dart';
 import 'package:biocentral_api/src/model/perplexity_result.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
@@ -89,8 +82,6 @@ import 'package:biocentral_api/src/model/protocol.dart';
 import 'package:biocentral_api/src/model/raw_prediction.dart';
 import 'package:biocentral_api/src/model/research_stats.dart';
 import 'package:biocentral_api/src/model/research_stats_response.dart';
-import 'package:biocentral_api/src/model/run_test_request.dart';
-import 'package:biocentral_api/src/model/run_test_response.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:biocentral_api/src/model/service_stats_response.dart';
 import 'package:biocentral_api/src/model/split_hbi_request.dart';
@@ -128,9 +119,6 @@ part 'serializers.g.dart';
   ActiveLearningScreeningSimulationRequest,
   ActiveLearningScreeningSimulationResult,
   ActiveLearningStoppingConfig,
-  AddEmbeddingsRequest,
-  AddEmbeddingsResponse,
-  AutoDetectFormatRequest,
   BiocentralPredictionModel,
   BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
@@ -148,7 +136,6 @@ part 'serializers.g.dart';
   ConfigVerificationRequest,
   ConfigVerificationResponse,
   DerivedValues,
-  DetectedFormatResponse,
   EmbedRequest,
   EmbeddingProgress,
   EmbeddingStats,
@@ -157,8 +144,6 @@ part 'serializers.g.dart';
   GetMissingEmbeddingsResponse,
   GetProjectionConfigResponse,
   HTTPValidationError,
-  ImportDatasetRequest,
-  ImportDatasetResponse,
   LocationInner,
   McdLowerBound,
   McdMean,
@@ -172,7 +157,6 @@ part 'serializers.g.dart';
   NotFoundErrorResponse,
   OutputClass,
   OutputType,
-  PPITestResult,
   PerplexityRequest,
   PerplexityResult,
   Prediction,
@@ -187,8 +171,6 @@ part 'serializers.g.dart';
   RawPrediction,
   ResearchStats,
   ResearchStatsResponse,
-  RunTestRequest,
-  RunTestResponse,
   SequenceData,
   ServiceStatsResponse,
   SplitHBIRequest,

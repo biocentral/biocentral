@@ -6,7 +6,6 @@ biocentral_api/_generated/api/biocentral_service_api.py
 biocentral_api/_generated/api/custom_models_api.py
 biocentral_api/_generated/api/default_api.py
 biocentral_api/_generated/api/embeddings_api.py
-biocentral_api/_generated/api/ppi_api.py
 biocentral_api/_generated/api/prediction_api.py
 biocentral_api/_generated/api/projections_api.py
 biocentral_api/_generated/api/proteins_api.py
@@ -31,9 +30,6 @@ biocentral_api/_generated/models/active_learning_screening_simulation_config.py
 biocentral_api/_generated/models/active_learning_screening_simulation_request.py
 biocentral_api/_generated/models/active_learning_screening_simulation_result.py
 biocentral_api/_generated/models/active_learning_stopping_config.py
-biocentral_api/_generated/models/add_embeddings_request.py
-biocentral_api/_generated/models/add_embeddings_response.py
-biocentral_api/_generated/models/auto_detect_format_request.py
 biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
@@ -51,7 +47,6 @@ biocentral_api/_generated/models/config_options_response.py
 biocentral_api/_generated/models/config_verification_request.py
 biocentral_api/_generated/models/config_verification_response.py
 biocentral_api/_generated/models/derived_values.py
-biocentral_api/_generated/models/detected_format_response.py
 biocentral_api/_generated/models/embed_request.py
 biocentral_api/_generated/models/embedding_progress.py
 biocentral_api/_generated/models/embedding_stats.py
@@ -60,8 +55,6 @@ biocentral_api/_generated/models/get_missing_embeddings_request.py
 biocentral_api/_generated/models/get_missing_embeddings_response.py
 biocentral_api/_generated/models/get_projection_config_response.py
 biocentral_api/_generated/models/http_validation_error.py
-biocentral_api/_generated/models/import_dataset_request.py
-biocentral_api/_generated/models/import_dataset_response.py
 biocentral_api/_generated/models/location_inner.py
 biocentral_api/_generated/models/mcd_lower_bound.py
 biocentral_api/_generated/models/mcd_mean.py
@@ -77,7 +70,6 @@ biocentral_api/_generated/models/output_class.py
 biocentral_api/_generated/models/output_type.py
 biocentral_api/_generated/models/perplexity_request.py
 biocentral_api/_generated/models/perplexity_result.py
-biocentral_api/_generated/models/ppi_test_result.py
 biocentral_api/_generated/models/prediction.py
 biocentral_api/_generated/models/prediction1.py
 biocentral_api/_generated/models/prediction_request.py
@@ -90,8 +82,6 @@ biocentral_api/_generated/models/protocol.py
 biocentral_api/_generated/models/raw_prediction.py
 biocentral_api/_generated/models/research_stats.py
 biocentral_api/_generated/models/research_stats_response.py
-biocentral_api/_generated/models/run_test_request.py
-biocentral_api/_generated/models/run_test_response.py
 biocentral_api/_generated/models/service_stats_response.py
 biocentral_api/_generated/models/split_hbi_request.py
 biocentral_api/_generated/models/split_hbi_response.py
@@ -127,9 +117,6 @@ docs/ActiveLearningScreeningSimulationConfig.md
 docs/ActiveLearningScreeningSimulationRequest.md
 docs/ActiveLearningScreeningSimulationResult.md
 docs/ActiveLearningStoppingConfig.md
-docs/AddEmbeddingsRequest.md
-docs/AddEmbeddingsResponse.md
-docs/AutoDetectFormatRequest.md
 docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
@@ -150,7 +137,6 @@ docs/ConfigVerificationResponse.md
 docs/CustomModelsApi.md
 docs/DefaultApi.md
 docs/DerivedValues.md
-docs/DetectedFormatResponse.md
 docs/EmbedRequest.md
 docs/EmbeddingProgress.md
 docs/EmbeddingStats.md
@@ -160,8 +146,6 @@ docs/GetMissingEmbeddingsRequest.md
 docs/GetMissingEmbeddingsResponse.md
 docs/GetProjectionConfigResponse.md
 docs/HTTPValidationError.md
-docs/ImportDatasetRequest.md
-docs/ImportDatasetResponse.md
 docs/LocationInner.md
 docs/McdLowerBound.md
 docs/McdMean.md
@@ -175,10 +159,8 @@ docs/Mutation.md
 docs/NotFoundErrorResponse.md
 docs/OutputClass.md
 docs/OutputType.md
-docs/PPITestResult.md
 docs/PerplexityRequest.md
 docs/PerplexityResult.md
-docs/PpiApi.md
 docs/Prediction.md
 docs/Prediction1.md
 docs/PredictionApi.md
@@ -194,8 +176,6 @@ docs/Protocol.md
 docs/RawPrediction.md
 docs/ResearchStats.md
 docs/ResearchStatsResponse.md
-docs/RunTestRequest.md
-docs/RunTestResponse.md
 docs/SequenceData.md
 docs/ServiceStatsResponse.md
 docs/SplitHBIRequest.md
