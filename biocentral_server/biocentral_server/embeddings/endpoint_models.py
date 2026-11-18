@@ -76,21 +76,6 @@ class GetMissingEmbeddingsResponse(BaseModel):
     )
 
 
-class AddEmbeddingsRequest(EmbedderModelBase):
-    """Request model for adding embeddings"""
-
-    h5_bytes: str = Field(description="Base64 encoded HDF5 file containing embeddings")
-    sequences: str = Field(description="JSON string containing sequence data")
-    # embedder_name in EmbedderModelBase
-    reduced: bool = Field(description="Whether these are reduced embeddings")
-
-
-class AddEmbeddingsResponse(BaseModel):
-    success: bool = Field(
-        description="Bool flag indicating whether embeddings were added successfully"
-    )
-
-
 class GetProjectionConfigResponse(BaseModel):
     """Response model for projection configuration"""
 

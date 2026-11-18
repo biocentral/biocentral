@@ -1,8 +1,4 @@
-import io
-import h5py
 import json
-import base64
-import numpy as np
 
 from typing import Annotated
 from fastapi_limiter.depends import RateLimiter
@@ -14,8 +10,6 @@ from .endpoint_models import (
     EmbedRequest,
     GetMissingEmbeddingsRequest,
     GetMissingEmbeddingsResponse,
-    AddEmbeddingsRequest,
-    AddEmbeddingsResponse,
 )
 from .embedding_task import ExportEmbeddingsTask
 
@@ -127,67 +121,3 @@ def get_missing_embeddings(request_data: GetMissingEmbeddingsRequest):
     )
 
     return GetMissingEmbeddingsResponse(missing=list(non_exist.keys()))
-
-
-@router.post(
-    "/add_embeddings",
-    response_model=AddEmbeddingsResponse,
-    responses={400: {"model": ErrorResponse}},
-    summary="Add embeddings",
-    description="Add pre-computed embeddings from HDF5 file to the embeddings database",
-    dependencies=[Depends(RateLimiter(times=1, seconds=60))],
-)
-def add_embeddings(request_data: AddEmbeddingsRequest):
-    # TODO This endpoint should use async, embeddings db should be converted to async
-    """Endpoint to add embeddings from H5 file data"""
-    # Parse sequences
-    try:
-        sequences = json.loads(request_data.sequences)
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON in sequences"
-        )
-
-    # Decode base64 data
-    try:
-        h5_bytes = base64.b64decode(request_data.h5_bytes)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to decode base64 data: {str(e)}",
-        )
-
-    # Process H5 file
-    try:
-        h5_io = io.BytesIO(h5_bytes)
-        embeddings_file = h5py.File(h5_io, "r")
-
-        # Create embedding records from H5 data
-        embd_records = [
-            SequenceData(
-                seq_id=embeddings_file[idx].attrs["original_id"],
-                seq=sequences[embeddings_file[idx].attrs["original_id"]],
-                embedding=np.array(embedding),
-            )
-            for (idx, embedding) in embeddings_file.items()
-        ]
-
-        # Save embeddings to database
-        embeddings_database: EmbeddingsDatabase = (
-            EmbeddingDatabaseFactory().get_embeddings_db()
-        )
-        embeddings_database.save_embeddings(
-            embd_records=embd_records,
-            embedder_name=request_data.embedder_name,
-            reduced=request_data.reduced,
-        )
-
-        embeddings_file.close()
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to process H5 embeddings data: {str(e)}",
-        )
-
-    return AddEmbeddingsResponse(success=True)
