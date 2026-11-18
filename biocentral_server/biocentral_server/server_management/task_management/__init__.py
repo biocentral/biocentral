@@ -1,5 +1,5 @@
 from .task_interface import TaskInterface, TaskStatus, TaskDTO, PreEmbedMixin
-from .task_manager import TaskManager
+from .task_manager import QueueFullError, TaskManager
 
 __all__ = [
     "TaskInterface",
@@ -7,4 +7,5 @@ __all__ = [
     "TaskDTO",
     "PreEmbedMixin",
     "TaskManager",
+    "QueueFullError",
 ]
