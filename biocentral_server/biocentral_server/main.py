@@ -4,7 +4,6 @@ from pathlib import Path
 from fastapi import FastAPI
 from redis.asyncio import Redis
 from importlib.metadata import version
-from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
 from fastapi.responses import HTMLResponse, JSONResponse
 from apscheduler.triggers.cron import CronTrigger
@@ -17,6 +16,8 @@ from .server_management import (
     EmbeddingDatabaseFactory,
     FileManager,
     QueueFullError,
+    init_rate_limiter,
+    rate_limiter as rate_limiter_module,
 )
 
 # Import module routers
@@ -73,15 +74,19 @@ async def lifespan(app: FastAPI):
 
     # Rate Limiting
     redis_host = os.environ.get("REDIS_JOBS_HOST", "redis-jobs")
-    redis_port = os.environ.get("REDIS_JOBS_PORT", 6379)
+    redis_port = int(os.environ.get("REDIS_JOBS_PORT", "6379"))
     redis_conn = Redis(host=redis_host, port=redis_port, db=1)
     if not debug:
-        await FastAPILimiter.init(
-            redis=redis_conn, identifier=UserManager.get_user_id_from_request
+        await init_rate_limiter(
+            redis=redis_conn,
+            identifier_func=UserManager.get_user_id_from_request,
+            enabled=True,
         )
     else:
-        await FastAPILimiter.init(
-            redis=redis_conn, identifier=UserManager.get_random_user_id
+        await init_rate_limiter(
+            redis=redis_conn,
+            identifier_func=UserManager.get_random_user_id,
+            enabled=False,
         )
 
     # Directories
@@ -122,7 +127,9 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down application...")
     scheduler.shutdown()
     logger.info("Background scheduler stopped")
-    await FastAPILimiter.close()
+    if rate_limiter_module._redis is not None:
+        await rate_limiter_module._redis.close()
+        logger.info("Redis connection closed in rate limiter")
 
 
 def create_app() -> FastAPI:

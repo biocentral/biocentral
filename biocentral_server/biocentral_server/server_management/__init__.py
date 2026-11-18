@@ -1,4 +1,5 @@
 from .user_manager import UserManager
+from .rate_limiter import RateLimiter, init_rate_limiter
 from .shared_endpoint_models import (
     ErrorResponse,
     NotFoundErrorResponse,
@@ -46,6 +47,8 @@ __all__ = [
     "StorageFileType",
     "FileContextManager",
     "UserManager",
+    "RateLimiter",
+    "init_rate_limiter",
     "TaskInterface",
     "TaskStatus",
     "TaskDTO",

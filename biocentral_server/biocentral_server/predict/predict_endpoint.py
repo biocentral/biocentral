@@ -2,7 +2,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 
 from biotrainer_core.data_classes import SequenceData
-from fastapi_limiter.depends import RateLimiter
+
+from ..server_management import RateLimiter
 
 from .multi_prediction_task import MultiPredictionTask
 from .models import get_metadata_for_all_models, filter_models

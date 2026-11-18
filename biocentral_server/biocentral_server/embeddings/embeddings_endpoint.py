@@ -1,9 +1,10 @@
 import json
 
 from typing import Annotated
-from fastapi_limiter.depends import RateLimiter
 from biotrainer_core.data_classes import SequenceData
 from fastapi import APIRouter, HTTPException, status, Request, Depends
+
+from ..server_management import RateLimiter
 
 from .endpoint_models import (
     CommonEmbedder,
