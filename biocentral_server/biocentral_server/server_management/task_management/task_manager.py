@@ -12,6 +12,10 @@ from ...utils import get_logger
 logger = get_logger(__name__)
 
 
+class QueueFullError(Exception):
+    """Raised when the pending task queue reaches its configured limit."""
+
+
 def run_task_with_updates(task: TaskInterface) -> TaskDTO:
     def update_dto_callback(dto: TaskDTO):
         current_job = get_current_job()
@@ -40,6 +44,7 @@ class TaskManager:
 
         # TODO [Feature] Add priority queues not only for subtasks
         self.default_queue = Queue("default", connection=self.redis_conn)
+        self.max_queued_tasks = int(os.environ.get("MAX_QUEUED_TASKS", "50"))
 
     def _get_job(self, task_id: str):
         queues = [self.default_queue]
@@ -71,6 +76,8 @@ class TaskManager:
     def add_task(
         self, task: TaskInterface, task_id: Optional[str] = "", user_id: str = ""
     ) -> str:
+        if len(self.default_queue) >= self.max_queued_tasks:
+            raise QueueFullError("Task queue is full; retry after queued tasks complete")
         if task_id == "" or "biocentral" not in task_id:
             task_id = self._generate_task_id(task=task.__class__)
 
