@@ -23,6 +23,7 @@ dependencies = [
     "pydantic>=2.13.4,<2.14.0",
     "fastapi>=0.132.1,<0.133.0",
     "uvicorn>=0.51.0,<0.52.0",
+    "torch>=2.12.0,<2.16.0",
     "fastapi-limiter>=0.1.6,<0.2.0",
     "apscheduler>=3.11.3,<3.12.0",
     "junban>=1.0.2,<1.1.0",
@@ -62,9 +63,15 @@ dev = [
 
 [tool.uv.sources]
 biotrainer = { path = "../biotrainer", editable = true }
-# Mirrors the biotrainer source so local work uses the submodule; the git pin above
-# only applies under --no-sources (CI, Docker).
+# Mirrors the biotrainer source so local work uses the submodule; Docker disables
+# source overrides to install the pinned Git revisions declared above.
 biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"
