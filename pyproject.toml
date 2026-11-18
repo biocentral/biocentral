@@ -5,9 +5,9 @@ description = "Monorepo for Biocentral projects"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "pre-commit>=4.0.0",
-    "pyyaml>=6.0.3",
-    "requests>=2.34.2",
+    "pre-commit>=4.7.0,<5.0.0",
+    "pyyaml>=6.0.3,<6.2.0",
+    "requests>=2.34.2,<3.0.0",
 ]
 
 [tool.uv]
