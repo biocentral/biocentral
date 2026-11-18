@@ -53,10 +53,14 @@ final class _ClientSandbox {
     return right(responseMap);
   }
 
-  static Future<Either<BiocentralException, Map>> doGetRequest(String url, String endpoint) async {
+  static Future<Either<BiocentralException, Map>> doGetRequest(
+    String url,
+    String endpoint, {
+    Map<String, String> headers = const {},
+  }) async {
     try {
       final Uri uri = Uri.parse(url + endpoint);
-      final Response response = await http.get(uri);
+      final Response response = await http.get(uri, headers: headers);
       return _handleServerResponse(response);
     } catch (e, stackTrace) {
       return left(
@@ -72,12 +76,13 @@ final class _ClientSandbox {
   static Future<Either<BiocentralException, Map>> doPostRequest(
     String url,
     String endpoint,
-    Map<String, String> body,
-  ) async {
+    Map<String, String> body, {
+    Map<String, String> headers = const {},
+  }) async {
     try {
       final Uri uri = Uri.parse(url + endpoint);
-      final Map<String, String> headers = {'Content-Type': 'application/json'};
-      final Response response = await http.post(uri, headers: headers, body: json.encode(body));
+      final Map<String, String> requestHeaders = {'Content-Type': 'application/json', ...headers};
+      final Response response = await http.post(uri, headers: requestHeaders, body: json.encode(body));
       return _handleServerResponse(response);
     } catch (e, stackTrace) {
       return left(
@@ -159,14 +164,22 @@ final class _ClientSandbox {
 mixin HTTPClient {
   Either<BiocentralException, String> getBaseURL();
 
+  Map<String, String> getAdditionalHeaders() => const {};
+
   Future<Either<BiocentralException, Map>> doGetRequest(String endpoint) async {
     final urlEither = getBaseURL();
-    return urlEither.match((l) => left(l), (url) => _ClientSandbox.doGetRequest(url, endpoint));
+    return urlEither.match(
+      (l) => left(l),
+      (url) => _ClientSandbox.doGetRequest(url, endpoint, headers: getAdditionalHeaders()),
+    );
   }
 
   Future<Either<BiocentralException, Map>> doPostRequest(String endpoint, Map<String, String> body) async {
     final urlEither = getBaseURL();
-    return urlEither.match((l) => left(l), (url) => _ClientSandbox.doPostRequest(url, endpoint, body));
+    return urlEither.match(
+      (l) => left(l),
+      (url) => _ClientSandbox.doPostRequest(url, endpoint, body, headers: getAdditionalHeaders()),
+    );
   }
 
   Future<Either<BiocentralException, String>> doSimpleFileDownload(String url) async {
