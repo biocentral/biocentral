@@ -1,4 +1,6 @@
 x-app-defaults: &app-defaults
+  security_opt:
+    - no-new-privileges:true
   networks:
     - biocentral-network
   deploy:
@@ -64,6 +66,8 @@ services:
 
   redis-jobs:
     image: redis:alpine
+    security_opt:
+      - no-new-privileges:true
     command: redis-server --save 60 1 --appendonly yes
     volumes:
       - redis_data:/data
@@ -78,6 +82,8 @@ services:
 
   embeddings-db:
     image: postgres:15
+    security_opt:
+      - no-new-privileges:true
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -94,6 +100,8 @@ services:
       - biocentral-network
 
   triton-model-init:
+    security_opt:
+      - no-new-privileges:true
     build:
       context: ./storage/model-repository
       dockerfile: Dockerfile.init
@@ -106,6 +114,8 @@ services:
       - biocentral-network
 
   triton:
+    security_opt:
+      - no-new-privileges:true
     build:
       context: ./storage/model-repository
       dockerfile: Dockerfile.triton
