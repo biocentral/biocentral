@@ -23,7 +23,6 @@ __all__ = [
     "CustomModelsApi",
     "DefaultApi",
     "EmbeddingsApi",
-    "PpiApi",
     "PredictionApi",
     "ProjectionsApi",
     "ProteinsApi",
@@ -52,9 +51,6 @@ __all__ = [
     "ActiveLearningScreeningSimulationRequest",
     "ActiveLearningScreeningSimulationResult",
     "ActiveLearningStoppingConfig",
-    "AddEmbeddingsRequest",
-    "AddEmbeddingsResponse",
-    "AutoDetectFormatRequest",
     "BiocentralPredictionModel",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
@@ -72,7 +68,6 @@ __all__ = [
     "ConfigVerificationRequest",
     "ConfigVerificationResponse",
     "DerivedValues",
-    "DetectedFormatResponse",
     "EmbedRequest",
     "EmbeddingProgress",
     "EmbeddingStats",
@@ -81,8 +76,6 @@ __all__ = [
     "GetMissingEmbeddingsResponse",
     "GetProjectionConfigResponse",
     "HTTPValidationError",
-    "ImportDatasetRequest",
-    "ImportDatasetResponse",
     "LocationInner",
     "McdLowerBound",
     "McdMean",
@@ -96,7 +89,6 @@ __all__ = [
     "NotFoundErrorResponse",
     "OutputClass",
     "OutputType",
-    "PPITestResult",
     "PerplexityRequest",
     "PerplexityResult",
     "Prediction",
@@ -111,8 +103,6 @@ __all__ = [
     "RawPrediction",
     "ResearchStats",
     "ResearchStatsResponse",
-    "RunTestRequest",
-    "RunTestResponse",
     "SequenceData",
     "ServiceStatsResponse",
     "SplitHBIRequest",
@@ -146,7 +136,6 @@ from biocentral_api._generated.api.biocentral_service_api import BiocentralServi
 from biocentral_api._generated.api.custom_models_api import CustomModelsApi as CustomModelsApi
 from biocentral_api._generated.api.default_api import DefaultApi as DefaultApi
 from biocentral_api._generated.api.embeddings_api import EmbeddingsApi as EmbeddingsApi
-from biocentral_api._generated.api.ppi_api import PpiApi as PpiApi
 from biocentral_api._generated.api.prediction_api import PredictionApi as PredictionApi
 from biocentral_api._generated.api.projections_api import ProjectionsApi as ProjectionsApi
 from biocentral_api._generated.api.proteins_api import ProteinsApi as ProteinsApi
@@ -179,9 +168,6 @@ from biocentral_api._generated.models.active_learning_screening_simulation_confi
 from biocentral_api._generated.models.active_learning_screening_simulation_request import ActiveLearningScreeningSimulationRequest as ActiveLearningScreeningSimulationRequest
 from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult as ActiveLearningScreeningSimulationResult
 from biocentral_api._generated.models.active_learning_stopping_config import ActiveLearningStoppingConfig as ActiveLearningStoppingConfig
-from biocentral_api._generated.models.add_embeddings_request import AddEmbeddingsRequest as AddEmbeddingsRequest
-from biocentral_api._generated.models.add_embeddings_response import AddEmbeddingsResponse as AddEmbeddingsResponse
-from biocentral_api._generated.models.auto_detect_format_request import AutoDetectFormatRequest as AutoDetectFormatRequest
 from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel as BiocentralPredictionModel
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
@@ -193,15 +179,12 @@ from biocentral_api._generated.models.common_embedder import CommonEmbedder as C
 from biocentral_api._generated.models.config_options_response import ConfigOptionsResponse as ConfigOptionsResponse
 from biocentral_api._generated.models.config_verification_request import ConfigVerificationRequest as ConfigVerificationRequest
 from biocentral_api._generated.models.config_verification_response import ConfigVerificationResponse as ConfigVerificationResponse
-from biocentral_api._generated.models.detected_format_response import DetectedFormatResponse as DetectedFormatResponse
 from biocentral_api._generated.models.embed_request import EmbedRequest as EmbedRequest
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress as EmbeddingProgress
 from biocentral_api._generated.models.get_missing_embeddings_request import GetMissingEmbeddingsRequest as GetMissingEmbeddingsRequest
 from biocentral_api._generated.models.get_missing_embeddings_response import GetMissingEmbeddingsResponse as GetMissingEmbeddingsResponse
 from biocentral_api._generated.models.get_projection_config_response import GetProjectionConfigResponse as GetProjectionConfigResponse
 from biocentral_api._generated.models.http_validation_error import HTTPValidationError as HTTPValidationError
-from biocentral_api._generated.models.import_dataset_request import ImportDatasetRequest as ImportDatasetRequest
-from biocentral_api._generated.models.import_dataset_response import ImportDatasetResponse as ImportDatasetResponse
 from biocentral_api._generated.models.location_inner import LocationInner as LocationInner
 from biocentral_api._generated.models.mcd_lower_bound import McdLowerBound as McdLowerBound
 from biocentral_api._generated.models.mcd_mean import McdMean as McdMean
@@ -214,7 +197,6 @@ from biocentral_api._generated.models.model_output import ModelOutput as ModelOu
 from biocentral_api._generated.models.not_found_error_response import NotFoundErrorResponse as NotFoundErrorResponse
 from biocentral_api._generated.models.output_class import OutputClass as OutputClass
 from biocentral_api._generated.models.output_type import OutputType as OutputType
-from biocentral_api._generated.models.ppi_test_result import PPITestResult as PPITestResult
 from biocentral_api._generated.models.perplexity_request import PerplexityRequest as PerplexityRequest
 from biocentral_api._generated.models.perplexity_result import PerplexityResult as PerplexityResult
 from biocentral_api._generated.models.prediction import Prediction as Prediction
@@ -228,8 +210,6 @@ from biocentral_api._generated.models.protein_annotations import ProteinAnnotati
 from biocentral_api._generated.models.raw_prediction import RawPrediction as RawPrediction
 from biocentral_api._generated.models.research_stats import ResearchStats as ResearchStats
 from biocentral_api._generated.models.research_stats_response import ResearchStatsResponse as ResearchStatsResponse
-from biocentral_api._generated.models.run_test_request import RunTestRequest as RunTestRequest
-from biocentral_api._generated.models.run_test_response import RunTestResponse as RunTestResponse
 from biocentral_api._generated.models.service_stats_response import ServiceStatsResponse as ServiceStatsResponse
 from biocentral_api._generated.models.split_hbi_request import SplitHBIRequest as SplitHBIRequest
 from biocentral_api._generated.models.split_hbi_response import SplitHBIResponse as SplitHBIResponse

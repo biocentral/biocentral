@@ -15,9 +15,6 @@ doc/ActiveLearningScreeningSimulationConfig.md
 doc/ActiveLearningScreeningSimulationRequest.md
 doc/ActiveLearningScreeningSimulationResult.md
 doc/ActiveLearningStoppingConfig.md
-doc/AddEmbeddingsRequest.md
-doc/AddEmbeddingsResponse.md
-doc/AutoDetectFormatRequest.md
 doc/BiocentralPredictionModel.md
 doc/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 doc/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
@@ -38,7 +35,6 @@ doc/ConfigVerificationResponse.md
 doc/CustomModelsApi.md
 doc/DefaultApi.md
 doc/DerivedValues.md
-doc/DetectedFormatResponse.md
 doc/EmbedRequest.md
 doc/EmbeddingProgress.md
 doc/EmbeddingStats.md
@@ -48,8 +44,6 @@ doc/GetMissingEmbeddingsRequest.md
 doc/GetMissingEmbeddingsResponse.md
 doc/GetProjectionConfigResponse.md
 doc/HTTPValidationError.md
-doc/ImportDatasetRequest.md
-doc/ImportDatasetResponse.md
 doc/LocationInner.md
 doc/McdLowerBound.md
 doc/McdMean.md
@@ -63,10 +57,8 @@ doc/Mutation.md
 doc/NotFoundErrorResponse.md
 doc/OutputClass.md
 doc/OutputType.md
-doc/PPITestResult.md
 doc/PerplexityRequest.md
 doc/PerplexityResult.md
-doc/PpiApi.md
 doc/Prediction.md
 doc/Prediction1.md
 doc/PredictionApi.md
@@ -82,8 +74,6 @@ doc/Protocol.md
 doc/RawPrediction.md
 doc/ResearchStats.md
 doc/ResearchStatsResponse.md
-doc/RunTestRequest.md
-doc/RunTestResponse.md
 doc/SequenceData.md
 doc/ServiceStatsResponse.md
 doc/SplitHBIRequest.md
@@ -107,7 +97,6 @@ lib/src/api/biocentral_service_api.dart
 lib/src/api/custom_models_api.dart
 lib/src/api/default_api.dart
 lib/src/api/embeddings_api.dart
-lib/src/api/ppi_api.dart
 lib/src/api/prediction_api.dart
 lib/src/api/projections_api.dart
 lib/src/api/proteins_api.dart
@@ -134,9 +123,6 @@ lib/src/model/active_learning_screening_simulation_config.dart
 lib/src/model/active_learning_screening_simulation_request.dart
 lib/src/model/active_learning_screening_simulation_result.dart
 lib/src/model/active_learning_stopping_config.dart
-lib/src/model/add_embeddings_request.dart
-lib/src/model/add_embeddings_response.dart
-lib/src/model/auto_detect_format_request.dart
 lib/src/model/biocentral_prediction_model.dart
 lib/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart
 lib/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart
@@ -155,7 +141,6 @@ lib/src/model/config_verification_request.dart
 lib/src/model/config_verification_response.dart
 lib/src/model/date.dart
 lib/src/model/derived_values.dart
-lib/src/model/detected_format_response.dart
 lib/src/model/embed_request.dart
 lib/src/model/embedding_progress.dart
 lib/src/model/embedding_stats.dart
@@ -164,8 +149,6 @@ lib/src/model/get_missing_embeddings_request.dart
 lib/src/model/get_missing_embeddings_response.dart
 lib/src/model/get_projection_config_response.dart
 lib/src/model/http_validation_error.dart
-lib/src/model/import_dataset_request.dart
-lib/src/model/import_dataset_response.dart
 lib/src/model/location_inner.dart
 lib/src/model/mcd_lower_bound.dart
 lib/src/model/mcd_mean.dart
@@ -181,7 +164,6 @@ lib/src/model/output_class.dart
 lib/src/model/output_type.dart
 lib/src/model/perplexity_request.dart
 lib/src/model/perplexity_result.dart
-lib/src/model/ppi_test_result.dart
 lib/src/model/prediction.dart
 lib/src/model/prediction1.dart
 lib/src/model/prediction_request.dart
@@ -194,8 +176,6 @@ lib/src/model/protocol.dart
 lib/src/model/raw_prediction.dart
 lib/src/model/research_stats.dart
 lib/src/model/research_stats_response.dart
-lib/src/model/run_test_request.dart
-lib/src/model/run_test_response.dart
 lib/src/model/sequence_data.dart
 lib/src/model/service_stats_response.dart
 lib/src/model/split_hbi_request.dart
