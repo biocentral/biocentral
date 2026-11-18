@@ -1,7 +1,7 @@
 import tempfile
 from typing import List
 from pathlib import Path
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException, status
 from hvi_toolkit.dataset_base_classes import DatasetPPIStandardized
 from hvi_toolkit.evaluators import DatasetEvaluator
 from hvi_toolkit.importer import (
@@ -217,9 +217,14 @@ async def run_test(body: RunTestRequest, request: Request):
 def import_dataset(body: ImportDatasetRequest):
     data_format = body.format
     dataset_file = body.dataset
+    if data_format not in get_supported_dataset_formats_with_docs():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported dataset format",
+        )
 
     with tempfile.TemporaryDirectory() as tmp_dir_name:
-        tmp_dataset_file_path = Path(tmp_dir_name) / data_format
+        tmp_dataset_file_path = Path(tmp_dir_name) / "dataset.txt"
         with open(tmp_dataset_file_path, "w") as tmp_dataset_file:
             tmp_dataset_file.write(dataset_file)
 
