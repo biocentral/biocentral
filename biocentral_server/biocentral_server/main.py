@@ -20,7 +20,6 @@ from .server_management import (
 )
 
 # Import module routers
-from .ppi import router as ppi_router
 from .predict import router as predict_router
 from .active_learning import router as al_router
 from .proteins import router as proteins_router
@@ -164,7 +163,6 @@ def create_app() -> FastAPI:
     app.include_router(embeddings_router, prefix=prefix)
     app.include_router(projection_router, prefix=prefix)
     app.include_router(al_router, prefix=prefix)
-    app.include_router(ppi_router, prefix=prefix)
     app.include_router(predict_router, prefix=prefix)
     app.include_router(custom_models_router, prefix=prefix)
     app.include_router(proteins_router, prefix=prefix)
