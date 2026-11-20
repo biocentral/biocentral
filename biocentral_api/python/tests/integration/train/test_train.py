@@ -14,7 +14,7 @@ class TestTrainAndInference(unittest.TestCase):
         config = {
             "embedder_name": CommonEmbedder.ONE_HOT_ENCODING,
             "model_choice": "FNN",
-            "protocol": Protocol.SEQUENCE_TO_CLASS,
+            "protocol": Protocol.sequence_to_class,
         }
 
         training_data = [

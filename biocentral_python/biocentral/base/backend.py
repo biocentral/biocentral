@@ -8,6 +8,7 @@ from biocentral_api import (
     Prediction,
     SequenceData,
     ProjectionResult,
+    PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
 
@@ -23,7 +24,7 @@ class BiocentralBackend(Protocol):
     def embed(
         self,
         embedder_name: str,
-        sequence_data: Dict[str, str],
+        sequence_data: List[SequenceData],
         reduce: bool = True,
         use_half_precision: bool = False,
     ) -> EmbeddingsResult:
@@ -62,4 +63,10 @@ class BiocentralBackend(Protocol):
             self, sequence_data: Dict[str, str], sequence_identity_threshold: float = 0.3
     ) -> Dict[str, List[str]]:
         """Cluster the provided sequences using pymmseqs."""
+        ...
+
+    def perplexity(
+            self, sequence_data: Dict[str, str], plm_name: str
+    ) -> PerplexityResult:
+        """Calculate (pseudo)perplexity for the given sequences using a PLM."""
         ...

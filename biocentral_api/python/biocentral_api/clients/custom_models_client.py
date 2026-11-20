@@ -24,7 +24,8 @@ class _TrainingDTOHandler(DTOHandler):
             status = dto.status
             if status == TaskStatus.FINISHED:
                 # TODO Error handling
-                return dto.biotrainer_result
+                # TODO Will be changed in the future to return the whole biocentral_model_result
+                return dto.biocentral_model_result.model_result
         return None
 
     def update_tqdm(self, dtos: List[TaskDTO], pbar: tqdm) -> tqdm:

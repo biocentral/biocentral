@@ -40,6 +40,7 @@ def al_screening_pipeline(
         iteration=al_iteration_config.iteration,
         coefficient=al_iteration_config.coefficient,
         n_suggestions=al_iteration_config.n_suggestions,
+        seed=al_campaign_config.seed,
         al_target_value=al_campaign_config.target_value,
         al_target_lb=al_campaign_config.target_lb,
         al_target_ub=al_campaign_config.target_ub,

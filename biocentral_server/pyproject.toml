@@ -1,6 +1,6 @@
 [project]
 name = "biocentral-server"
-version = "2.0.1"
+version = "2.1.0"
 description = "Compute server for the biocentral frontend"
 authors = [
     { name = "Sebastian Franz", email = "sebastian.franz@tum.de" },
@@ -11,26 +11,26 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     # Backend
-    "taxoniq>=1.0.1,<2.0.0",
+    "taxoniq>=1.0.4,<2.0.0",
     "blosc2>=4.2.0,<5.0.0",
     "psycopg[binary]>=3.3.4,<4.0.0",
-    "rq>=2.8.0,<3.0.0",
-    "python-dotenv>=1.2.2,<2.0.0",
+    "rq>=3.0.0,<4.0.0",
+    "python-dotenv>=1.2.4,<2.0.0",
     "onnxruntime>=1.25.1,<2.0.0",
-    "tritonclient[grpc]>=2.68.0",
+    "tritonclient[grpc]>=2.68.0,<3.0.0",
     "circuitbreaker>=2.1.3,<2.2.0",
     "httpx>=0.28.1,<0.30.0",
     "pydantic>=2.13.4,<2.14.0",
-    "fastapi>=0.132.1,<0.133.0",
-    "uvicorn>=0.51.0,<0.52.0",
-    "fastapi-limiter>=0.1.6,<0.2.0",
+    "fastapi>=0.162.4,<0.200.0",
+    "uvicorn>=0.54.0,<0.56.0",
+    "torch>=2.12.0,<2.16.0",
     "apscheduler>=3.11.3,<3.12.0",
-    "junban>=1.0.2,<1.1.0",
-    "click>=8.4.2,<9.0.0",
+    "junban>=1.0.3,<1.1.0",
     "pyrate-limiter>=3.0.0",
-    # Git Dependencies
-    "biotrainer @ git+https://github.com/sacdallago/biotrainer.git@v2.1.1",
-    #"biotrainer>=2.0.0,<2.1.0",
+    "Pillow>=13.0.0,<14.0.0",
+    # Git dependencies
+    "biotrainer @ git+https://github.com/biocentral/biotrainer.git@archive/biocentral-v2-1-0",
+    "biotrainer-core @ git+https://github.com/biocentral/biotrainer.git@archive/biocentral-v2-1-0#subdirectory=biotrainer-core",
     "protspace @ git+https://github.com/tsenoner/protspace.git@v4.8.2#subdirectory=apps/protspace",
     "hvi_toolkit @ git+https://github.com/SebieF/hvi_toolkit.git@maintenance/update-biotrainer",
     "vespag @ git+https://github.com/biocentral/VespaG.git@onnx-deployment",
@@ -44,24 +44,34 @@ onnx-gpu = [
 
 [dependency-groups]
 dev = [
-    "pytest>=9.1.1,<10.0.0",
-    "pytest-rerunfailures>=16.2,<17.0",
+    "pytest>=9.2.0,<10.0.0",
+    "pytest-rerunfailures>=16.7,<17.0",
     "pytest-cov>=7.1.0,<8.0.0",
-    "pytest-order>=1.5.0,<2.0.0",
-    "pytest-xdist>=3.5.0,<4.0.0",
-    "pip-audit>=2.7.3,<3.0.0",
-    "ruff>=0.15.12",
-    "pre-commit>=4.6.0",
-    "pytest-asyncio>=1.2.0",
-    "pytest-benchmark>=4.0.0",
-    "hypothesis>=6.152.7",
-    "mutmut>=3.5.0",
-    "psutil>=7.2.2",
-    "pyrefly>=0.45.0",
+    "pytest-order<2.0.0,>=1.5.0",
+    "pytest-xdist<4.0.0,>=3.5.0",
+    "pip-audit<3.0.0,>=2.7.3",
+    "ruff>=0.16.0,<0.17.0",
+    "pre-commit>=4.7.0,<5.0.0",
+    "pytest-asyncio>=1.4.0,<1.5.0",
+    "pytest-benchmark>=5.3.1,<6.0.0",
+    "hypothesis>=6.170.15,<7.0.0",
+    "mutmut>=3.8.1,<4.0.0",
+    "psutil>=7.2.2,<8.0.0",
+    "pyrefly>=1.0.0,<1.5.0",
 ]
+
+[tool.uv]
+override-dependencies = [
+    "perf-analyzer>=2.59.1; sys_platform == 'linux'",
+]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+exclude-newer-package = { biotrainer = false, biotrainer-core = false, numpy = false, Pillow = false }  # Except for biotrainer (and numpy as temporary workaround)
 
 [tool.uv.sources]
 biotrainer = { path = "../biotrainer", editable = true }
+# Mirrors the biotrainer source so local work uses the submodule; Docker disables
+# source overrides to install the pinned Git revisions declared above.
+biotrainer-core = { path = "../biotrainer/biotrainer-core", editable = true }
 
 [project.scripts]
 biocentral-cli = "biocentral_server.cli:cli"
@@ -94,13 +104,6 @@ markers = [
 min_rounds = 5
 disable_gc = true
 warmup = true
-
-[tool.uv]
-override-dependencies = [
-    "perf-analyzer>=2.59.1; sys_platform == 'linux'",
-]
-exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
-exclude-newer-package = { biotrainer = false, biotrainer-core = false, pillow = false, numpy = false }  # Except for biotrainer, temporary workaround for pillow and numpy
 
 [tool.coverage.run]
 source = ["biocentral_server"]

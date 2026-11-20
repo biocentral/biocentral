@@ -7,17 +7,34 @@ from starlette.responses import JSONResponse
 class BodySizeLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
-        default_max_body = 2 * 1024 * 1024 * 1024  # 2 GB
+        default_max_body = 50 * 1024 * 1024
         self.max_body = int(os.environ.get("MAX_FILE_SIZE", default_max_body))
 
     async def dispatch(self, request, call_next):
-        body = await request.body()
-        len_body = len(body)
-        if len_body > self.max_body:
-            return JSONResponse(
-                {
-                    "detail": f"Request body too large ({len_body}), maximum: {self.max_body}"
-                },
-                status_code=413,
-            )
+        content_length = request.headers.get("content-length")
+        if content_length is not None:
+            try:
+                declared_length = int(content_length)
+            except ValueError:
+                return JSONResponse({"detail": "Invalid Content-Length header"}, status_code=400)
+            if declared_length < 0:
+                return JSONResponse({"detail": "Invalid Content-Length header"}, status_code=400)
+            if declared_length > self.max_body:
+                return self._too_large_response()
+
+        body_chunks = []
+        body_size = 0
+        async for chunk in request.stream():
+            body_size += len(chunk)
+            if body_size > self.max_body:
+                return self._too_large_response()
+            body_chunks.append(chunk)
+
+        request._body = b"".join(body_chunks)
         return await call_next(request)
+
+    def _too_large_response(self):
+        return JSONResponse(
+            {"detail": "Request body too large", "max_body_bytes": self.max_body},
+            status_code=413,
+        )

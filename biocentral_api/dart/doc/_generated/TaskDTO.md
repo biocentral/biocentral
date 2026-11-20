@@ -10,9 +10,10 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **String** |  | [optional] 
+**perplexityResult** | [**PerplexityResult**](PerplexityResult.md) |  | [optional] 
 **predictions** | [**BuiltMap&lt;String, BuiltList&lt;Prediction&gt;&gt;**](BuiltList.md) |  | [optional] 
 **biotrainerUpdate** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
-**biotrainerResult** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 
+**biocentralModelResult** | [**BiocentralModelResult**](BiocentralModelResult.md) |  | [optional] 
 **biotrainerInferenceResult** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) |  | [optional] 
 **embeddingProgress** | [**EmbeddingProgress**](EmbeddingProgress.md) |  | [optional] 
 **embeddedSequences** | **BuiltMap&lt;String, String&gt;** |  | [optional] 

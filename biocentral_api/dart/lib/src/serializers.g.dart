@@ -7,10 +7,11 @@ part of 'serializers.dart';
 // **************************************************************************
 
 Serializers _$serializers = (Serializers().toBuilder()
-      ..add(ActiveLearningConvergenceConfig.serializer)
       ..add(ActiveLearningEngineeringCampaignConfig.serializer)
       ..add(ActiveLearningEngineeringIterationConfig.serializer)
       ..add(ActiveLearningEngineeringIterationRequest.serializer)
+      ..add(ActiveLearningEngineeringSimulationConfig.serializer)
+      ..add(ActiveLearningEngineeringSimulationRequest.serializer)
       ..add(ActiveLearningIterationResult.serializer)
       ..add(ActiveLearningModelType.serializer)
       ..add(ActiveLearningOptimizationMode.serializer)
@@ -21,27 +22,28 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ActiveLearningScreeningSimulationConfig.serializer)
       ..add(ActiveLearningScreeningSimulationRequest.serializer)
       ..add(ActiveLearningScreeningSimulationResult.serializer)
-      ..add(AddEmbeddingsRequest.serializer)
-      ..add(AddEmbeddingsResponse.serializer)
-      ..add(AutoDetectFormatRequest.serializer)
+      ..add(ActiveLearningStoppingConfig.serializer)
+      ..add(BiocentralModelResult.serializer)
       ..add(BiocentralPredictionModel.serializer)
       ..add(BiocentralServerCustomModelsEndpointModelsErrorResponse.serializer)
       ..add(
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
       ..add(BiocentralServiceStats.serializer)
+      ..add(BiotrainerCheckpoint.serializer)
       ..add(BiotrainerInferenceResult.serializer)
       ..add(BiotrainerModelResult.serializer)
       ..add(BiotrainerModelUpdate.serializer)
       ..add(BiotrainerPrediction.serializer)
       ..add(BootstrappedMetric.serializer)
+      ..add(ClusterHBIRequest.serializer)
+      ..add(ClusterHBIResponse.serializer)
       ..add(ClusteringRequest.serializer)
       ..add(CommonEmbedder.serializer)
       ..add(ConfigOptionsResponse.serializer)
       ..add(ConfigVerificationRequest.serializer)
       ..add(ConfigVerificationResponse.serializer)
       ..add(DerivedValues.serializer)
-      ..add(DetectedFormatResponse.serializer)
       ..add(EmbedRequest.serializer)
       ..add(EmbeddingProgress.serializer)
       ..add(EmbeddingStats.serializer)
@@ -50,21 +52,20 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(GetMissingEmbeddingsResponse.serializer)
       ..add(GetProjectionConfigResponse.serializer)
       ..add(HTTPValidationError.serializer)
-      ..add(ImportDatasetRequest.serializer)
-      ..add(ImportDatasetResponse.serializer)
       ..add(LocationInner.serializer)
       ..add(McdLowerBound.serializer)
       ..add(McdMean.serializer)
       ..add(McdStd.serializer)
       ..add(McdUpperBound.serializer)
-      ..add(ModelFilesRequest.serializer)
       ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
       ..add(ModelOutput.serializer)
+      ..add(Mutation.serializer)
       ..add(NotFoundErrorResponse.serializer)
       ..add(OutputClass.serializer)
       ..add(OutputType.serializer)
-      ..add(PPITestResult.serializer)
+      ..add(PerplexityRequest.serializer)
+      ..add(PerplexityResult.serializer)
       ..add(Prediction.serializer)
       ..add(Prediction1.serializer)
       ..add(PredictionRequest.serializer)
@@ -77,10 +78,10 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(RawPrediction.serializer)
       ..add(ResearchStats.serializer)
       ..add(ResearchStatsResponse.serializer)
-      ..add(RunTestRequest.serializer)
-      ..add(RunTestResponse.serializer)
       ..add(SequenceData.serializer)
       ..add(ServiceStatsResponse.serializer)
+      ..add(SplitHBIRequest.serializer)
+      ..add(SplitHBIResponse.serializer)
       ..add(StartInferenceRequest.serializer)
       ..add(StartTaskResponse.serializer)
       ..add(StartTrainingRequest.serializer)
@@ -93,6 +94,7 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(TestResult.serializer)
       ..add(TrainingResult.serializer)
       ..add(ValidationError.serializer)
+      ..add(ZeroShotMethod.serializer)
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ActiveLearningResult)]),
@@ -110,12 +112,23 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
           const FullType(
+              BuiltList, const [const FullType(BiotrainerCheckpoint)]),
+          () => ListBuilder<BiotrainerCheckpoint>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(BiotrainerCheckpoint)]),
+          () => ListBuilder<BiotrainerCheckpoint>())
+      ..addBuilderFactory(
+          const FullType(
               BuiltList, const [const FullType(BiotrainerPrediction)]),
           () => ListBuilder<BiotrainerPrediction>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(num)]),
           () => MapBuilder<String, num>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
           () => ListBuilder<BootstrappedMetric>())
@@ -130,6 +143,15 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(String)]),
           () => ListBuilder<String>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BootstrappedMetric)]),
+          () => ListBuilder<BootstrappedMetric>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType(BuiltList, const [const FullType(String)])
+          ]),
+          () => MapBuilder<String, BuiltList<String>>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(LocationInner)]),
           () => ListBuilder<LocationInner>())
       ..addBuilderFactory(
@@ -138,6 +160,9 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ModelOutput)]),
           () => ListBuilder<ModelOutput>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Mutation)]),
+          () => ListBuilder<Mutation>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(OutputClass)]),
           () => ListBuilder<OutputClass>())
@@ -148,6 +173,12 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SequenceData)]),
           () => ListBuilder<SequenceData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(SequenceData)]),
+          () => ListBuilder<SequenceData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SequenceData)]),
           () => ListBuilder<SequenceData>())
@@ -309,12 +340,46 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => MapBuilder<String, String>())
       ..addBuilderFactory(
           const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
               BuiltMap, const [const FullType(String), const FullType(int)]),
           () => MapBuilder<String, int>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(num)]),
           () => MapBuilder<String, num>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(String),
+            const FullType.nullable(JsonObject)
+          ]),
+          () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
@@ -338,11 +403,9 @@ Serializers _$serializers = (Serializers().toBuilder()
               BuiltMap, const [const FullType(String), const FullType(num)]),
           () => MapBuilder<String, num>())
       ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(num)]),
+          () => MapBuilder<String, num>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),

@@ -15,11 +15,11 @@ class ActiveLearningResult(BaseModel):
 
 class ActiveLearningIterationResult(BaseModel):
     iteration: int = Field(
-        description="Iteration number (zero indexed for simulations, "
+        description="Iteration number (one-indexed for simulations, "
         "otherwise matches the given number in the iteration config)"
     )
     results: List[ActiveLearningResult] = Field(
-        description="List of active learning results", min_length=1
+        description="List of active learning results"
     )
     suggestions: List[str] = Field(
         description="List of suggested entity IDs for next iteration"
@@ -53,7 +53,7 @@ class ActiveLearningScreeningSimulationResult(BaseModel):
     )
     stop_reasons: Optional[List[str]] = Field(
         default=None,
-        description="Reason(s) for stopping the simulation (convergence criteria reached)",
+        description="Reason(s) for stopping the simulation (stopping criteria reached)",
     )
     # iteration_results is kept empty and only filled by the api to decrease amount of data sent
     iteration_results: List[ActiveLearningIterationResult] = Field(

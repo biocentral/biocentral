@@ -21,6 +21,8 @@ from ..shared_endpoint_models import (
     ActiveLearningScreeningSimulationResult,
     EmbeddingProgress,
     ProjectionResult,
+    PerplexityResult,
+    BiocentralModelResult,
 )
 
 from ...utils import get_logger
@@ -51,12 +53,15 @@ class TaskDTO(BaseModel):
     status: TaskStatus
     error: Optional[str] = None
 
+    # proteins
+    perplexity_result: Optional[PerplexityResult] = None
+
     # predict
     predictions: Optional[Dict[str, List[Prediction]]] = None  # seq_id -> predictions
 
     # custom_models
     biotrainer_update: Optional[BiotrainerModelUpdate] = None
-    biotrainer_result: Optional[BiotrainerModelResult] = None
+    biocentral_model_result: Optional[BiocentralModelResult] = None
     biotrainer_inference_result: Optional[BiotrainerInferenceResult] = None
 
     # embeddings
@@ -94,6 +99,7 @@ class PreEmbedMixin:
         reduced: bool,
         update_dto_callback: Optional[Callable] = None,
         custom_tokenizer_config: Optional[Dict[str, Any]] = None,
+        seed: Optional[int] = None,
     ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
         from ...embeddings import (
             LoadEmbeddingsTask,
@@ -105,6 +111,7 @@ class PreEmbedMixin:
             reduced=reduced,
             use_half_precision=False,
             custom_tokenizer_config=custom_tokenizer_config,
+            seed=seed,
         )
         load_dto = None
         # TaskInterface is expected to be a base class of any class using this mixin
@@ -115,6 +122,8 @@ class PreEmbedMixin:
 
         if not load_dto:
             return TaskDTO.errored("Could not compute embeddings!"), []
+        if load_dto.status == TaskStatus.FAILED:
+            return load_dto, []
 
         embeddings: List[SequenceData] = load_dto.embeddings
         if embeddings is None or len(embeddings) == 0:

@@ -2,13 +2,12 @@ import 'package:biocentral_api/biocentral_api.dart';
 import 'package:biocentral_api/src/clients/active_learning_client.dart';
 import 'package:biocentral_api/src/clients/custom_models_client.dart';
 import 'package:biocentral_api/src/clients/stats_client.dart';
-import 'package:biocentral_api/src/model/projection_result.dart';
-import 'package:built_collection/built_collection.dart';
 
 import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
 import 'clients/predict_client.dart';
 import 'clients/proteins_client.dart';
+import 'model/biocentral_model_result.dart';
 
 final class BiocentralAPIHealth {
   final String url;
@@ -225,7 +224,7 @@ extension CustomModelsAPI on BiocentralAPI {
     return CustomModelsClient().verifyTrainingConfig(api: _getAPI(), config: config);
   }
 
-  Future<BiocentralServerTask<BiotrainerModelResult?>> train({
+  Future<BiocentralServerTask<BiocentralModelResult?>> train({
     required Map<String, dynamic> config,
     required List<SequenceData> trainingData,
   }) async {
@@ -237,6 +236,48 @@ extension CustomModelsAPI on BiocentralAPI {
     required Map<String, String> sequenceData,
   }) async {
     return CustomModelsClient().inference(api: _getAPI(), modelHash: modelHash, sequenceData: sequenceData);
+  }
+
+  Future<ClusterHBIResponse?> clusterHbi({
+    required String datasetHash,
+    required Map<String, dynamic> targetData,
+    Map<String, String>? sequenceData,
+    num sequenceIdentityThreshold = 0.3,
+    bool isNumeric = false,
+    int iterations = 100,
+  }) async {
+    return CustomModelsClient().clusterHbi(
+      api: _getAPI(),
+      datasetHash: datasetHash,
+      targetData: targetData,
+      sequenceData: sequenceData,
+      sequenceIdentityThreshold: sequenceIdentityThreshold,
+      isNumeric: isNumeric,
+      iterations: iterations,
+    );
+  }
+
+  Future<SplitHBIResponse?> splitHbi({
+    required Map<String, String> trainSeqs,
+    required Map<String, String> querySeqs,
+    required Map<String, dynamic> trainLabels,
+    required Map<String, dynamic> queryLabels,
+    num evalueCutoff = 0.001,
+    num minSeqId = 0.0,
+    bool isNumeric = false,
+    int iterations = 100,
+  }) async {
+    return CustomModelsClient().splitHbi(
+      api: _getAPI(),
+      trainSeqs: trainSeqs,
+      querySeqs: querySeqs,
+      trainLabels: trainLabels,
+      queryLabels: queryLabels,
+      evalueCutoff: evalueCutoff,
+      minSeqId: minSeqId,
+      isNumeric: isNumeric,
+      iterations: iterations,
+    );
   }
 }
 
@@ -314,14 +355,33 @@ extension ProteinsAPI on BiocentralAPI {
       sequenceIdentityThreshold: sequenceIdentityThreshold,
     );
   }
+
+  Future<BiocentralServerTask<PerplexityResult>> perplexity({
+    required Map<String, String> sequenceData,
+    required String plmName,
+  }) async {
+    return ProteinsClient().perplexity(
+      api: _getAPI(),
+      sequenceData: sequenceData,
+      plmName: plmName,
+    );
+  }
 }
 
 extension ActiveLearningAPI on BiocentralAPI {
-  Future<BiocentralServerTask<ActiveLearningIterationResult>> activeLearningIteration({
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alScreeningIteration({
     required ActiveLearningScreeningCampaignConfig campaignConfig,
     required ActiveLearningScreeningIterationConfig iterationConfig,
   }) async {
     return ActiveLearningClient()
-        .activeLearningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
+        .alScreeningIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
+  }
+
+  Future<BiocentralServerTask<ActiveLearningIterationResult>> alEngineeringIteration({
+    required ActiveLearningEngineeringCampaignConfig campaignConfig,
+    required ActiveLearningEngineeringIterationConfig iterationConfig,
+  }) async {
+    return ActiveLearningClient()
+        .alEngineeringIteration(api: _getAPI(), campaignConfig: campaignConfig, iterationConfig: iterationConfig);
   }
 }

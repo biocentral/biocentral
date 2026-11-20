@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:bio_flutter/bio_flutter.dart';
 import 'package:biocentral/plugins/embeddings/domain/embeddings_repository.dart';
@@ -54,7 +55,7 @@ abstract class _BiocentralPythonCompanionStrategy {
   Future<Either<BiocentralException, EmbeddingsFileInformation>> getH5Info(String? path);
 
   Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
-      String externalPath, String internalPath);
+      String externalPath, String projectDirectory);
 
   Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName);
 
@@ -108,6 +109,10 @@ abstract class _BiocentralPythonCompanionStrategy {
 }
 
 class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompanionStrategy with HTTPClient {
+  final String _companionToken = base64UrlEncode(List.generate(32, (_) => Random.secure().nextInt(256)));
+
+  @override
+  Map<String, String> getAdditionalHeaders() => {'X-Companion-Token': _companionToken};
   @override
   Either<BiocentralException, String> getBaseURL() {
     return right('http://127.0.0.1:50001/');
@@ -122,8 +127,10 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
 
   @override
   Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
-      String externalPath, String internalPath) async {
-    final Map<String, String> body = {'external_file_path': externalPath, 'internal_file_path': internalPath};
+    String externalPath,
+    String projectDirectory,
+  ) async {
+    final Map<String, String> body = {'external_file_path': externalPath, 'project_directory': projectDirectory};
     final responseEither = await doPostRequest('sync_internal_h5', body);
     return responseEither.flatMap((r) => right(EmbeddingsFileInformation.fromCompanion(r as Map<String, dynamic>)));
   }
@@ -196,7 +203,7 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
     SeriousPython.run(
       'assets/python_companion.zip',
       appFileName: 'python_companion_desktop.py',
-      stackSize: 8 * 1024 * 1024,
+      environmentVariables: {'BIOCENTRAL_COMPANION_TOKEN': _companionToken},
     );
   }
 
@@ -211,7 +218,7 @@ class _BiocentralPythonCompanionDesktopStrategy extends _BiocentralPythonCompani
 
   @override
   Future<bool> terminate() async {
-    await super.doGetRequest('terminate');
+    await super.doPostRequest('terminate', {});
     return true;
   }
 
@@ -255,7 +262,9 @@ class _BiocentralPythonCompanionWebStrategy extends _BiocentralPythonCompanionSt
 
   @override
   Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
-      String externalPath, String internalPath) async {
+    String externalPath,
+    String projectDirectory,
+  ) async {
     // TODO: implement syncInternalH5
     throw UnimplementedError();
   }
@@ -390,8 +399,10 @@ class BiocentralPythonCompanion {
   }
 
   Future<Either<BiocentralException, EmbeddingsFileInformation>> syncInternalH5(
-      String externalPath, String internalPath) async {
-    return _strategy.syncInternalH5(externalPath, internalPath);
+    String externalPath,
+    String projectDirectory,
+  ) async {
+    return _strategy.syncInternalH5(externalPath, projectDirectory);
   }
 
   Future<Either<BiocentralException, Embedding>> getEmbedding(String key, String path, String embedderName) async {

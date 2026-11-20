@@ -125,15 +125,18 @@ final class LoadEmbeddingsFromFileCommand extends BiocentralCommand<EmbeddingsFi
   Stream<BiocentralCommandLog<EmbeddingsFile>> syncInternal(BiocentralCommandLog<EmbeddingsFile> log) async* {
     // TODO Hard coded here
     final externalPath = _xFile.path;
-    final internalPath = _biocentralProjectRepository.getProjectDirectoryPath() + "embeddings/embeddings_db.h5";
-    final fileInformationEither = await _pythonCompanion.syncInternalH5(externalPath, internalPath);
+    final projectDirectory = _biocentralProjectRepository.getProjectDirectoryPath();
+    final fileInformationEither = await _pythonCompanion.syncInternalH5(externalPath, projectDirectory);
 
     yield* fileInformationEither.match((error) async* {
       yield log.errored(error: 'Embeddings files could not be synced! Error: ${error.message}');
     }, (embeddingsFileInfo) async* {
       // TODO EmbedderName
-      final embeddingsFile =
-          EmbeddingsFile(path: internalPath, embedderName: 'Any', fileInformation: embeddingsFileInfo);
+      final embeddingsFile = EmbeddingsFile(
+        path: '${projectDirectory}embeddings/embeddings_db.h5',
+        embedderName: 'Any',
+        fileInformation: embeddingsFileInfo,
+      );
       final syncedKeys = embeddingsFileInfo.metadata.keys.length;
       yield log.finish(
         result: BiocentralCommandResult(embeddingsFile, embeddingsFile.serialize()),

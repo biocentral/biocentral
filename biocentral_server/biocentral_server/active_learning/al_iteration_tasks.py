@@ -9,6 +9,7 @@ from .al_config import (
     ActiveLearningEngineeringCampaignConfig,
     ActiveLearningEngineeringIterationConfig,
 )
+from .delta_embeddings import with_delta_embeddings
 
 from ..utils import get_logger
 from ..custom_models import BiotrainerTempTask
@@ -26,10 +27,10 @@ def _biotrainer_subtask_wrapper(
     biotrainer_dto: Optional[TaskDTO] = None
     for current_dto in run_subtask(biotrainer_temp_task):
         biotrainer_dto = current_dto
-    if not biotrainer_dto or biotrainer_dto.biotrainer_result is None:
+    if not biotrainer_dto or biotrainer_dto.biocentral_model_result is None:
         update_dto_callback(TaskDTO.errored("Biotrainer failed!"))
         raise Exception("No biotrainer result received!")
-    return biotrainer_dto.biotrainer_result
+    return biotrainer_dto.biocentral_model_result.model_result
 
 
 class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
@@ -57,6 +58,7 @@ class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
                 sequence_input=iteration_data,
                 reduced=True,
                 update_dto_callback=update_dto_callback,
+                seed=self.al_campaign_config.seed,
             )
             if error_dto:
                 return error_dto
@@ -92,25 +94,36 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
         self,
         al_campaign_config: ActiveLearningEngineeringCampaignConfig,
         al_iteration_config: ActiveLearningEngineeringIterationConfig,
+        candidate_pool: Optional[List[str]] = None,
     ):
         super().__init__()
         self.al_campaign_config = al_campaign_config
         self.al_iteration_config = al_iteration_config
+        self.candidate_pool = candidate_pool
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         # Seed all random generators for reproducibility
         seed_all(self.al_campaign_config.seed)
 
-        al_iteration_result = al_engineering_pipeline(
-            al_campaign_config=self.al_campaign_config,
-            al_iteration_config=self.al_iteration_config,
-            embedding_subtask_wrapper=lambda sequence_input: self._pre_embed_with_db(
+        def embedding_subtask_wrapper(sequence_input: List[SequenceData]):
+            return self._pre_embed_with_db(
                 embedder_name=self.al_campaign_config.embedder_name,
                 sequence_input=sequence_input,
                 reduced=True,
                 update_dto_callback=update_dto_callback,
                 custom_tokenizer_config=None,
-            ),
+                seed=self.al_campaign_config.seed,
+            )
+
+        if self.al_campaign_config.use_delta_embeddings:
+            embedding_subtask_wrapper = with_delta_embeddings(
+                embedding_subtask_wrapper, self.al_campaign_config.wildtype_sequence
+            )
+
+        al_iteration_result = al_engineering_pipeline(
+            al_campaign_config=self.al_campaign_config,
+            al_iteration_config=self.al_iteration_config,
+            embedding_subtask_wrapper=embedding_subtask_wrapper,
             biotrainer_subtask_wrapper=lambda config,
             input_data: _biotrainer_subtask_wrapper(
                 run_subtask=self.run_subtask,
@@ -118,6 +131,7 @@ class ActiveLearningEngineeringIterationTask(TaskInterface, PreEmbedMixin):
                 config=config,
                 input_data=input_data,
             ),
+            candidate_pool=self.candidate_pool,
         )
 
         logger.info(f"AL Engineering - Suggestions: {al_iteration_result.suggestions}")

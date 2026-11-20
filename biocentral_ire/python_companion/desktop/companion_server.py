@@ -1,7 +1,9 @@
 import functionality
+import hmac
 import logging
+import os
 import sys
-from flask import Flask, request, jsonify
+from flask import Flask, abort, request, jsonify
 
 
 # Redirect Flask logs to stdout
@@ -18,6 +20,19 @@ logging.getLogger("werkzeug").setLevel(logging.INFO)
 app = Flask(__name__)
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
+
+
+@app.before_request
+def authorize_request():
+    if request.host not in {"127.0.0.1:50001", "localhost:50001"}:
+        abort(403)
+
+    expected_token = os.environ.get("BIOCENTRAL_COMPANION_TOKEN", "")
+    provided_token = request.headers.get("X-Companion-Token", "")
+    if not expected_token or not hmac.compare_digest(
+        provided_token.encode("utf-8"), expected_token.encode("utf-8")
+    ):
+        abort(403)
 
 
 @app.route("/test_normal", methods=["POST"])
@@ -56,7 +71,7 @@ def sync_internal_h5():
     return jsonify(result)
 
 
-@app.route("/terminate", methods=["GET"])
+@app.route("/terminate", methods=["POST"])
 def terminate():
     print("Terminating server from terminate request")
     exit(0)
@@ -69,4 +84,4 @@ def health_check():
 
 def run_server():
     print("Starting server...", flush=True)
-    app.run(port=50001, debug=True, use_reloader=False)
+    app.run(host="127.0.0.1", port=50001, debug=False, use_reloader=False)

@@ -13,25 +13,33 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 
 PACKAGES = [
-    {
-        "name": "biotrainer-core",
-        "target_version": "2.1.1",
-        "type": "pypi",
-        "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
-        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
-    },
-    {
-        "name": "biotrainer",
-        "target_version": "2.1.1",
-        "type": "pypi",
-        "path": PROJECT_ROOT / "biotrainer",
-        "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
-    },
+    #{
+    #    "name": "biotrainer-core",
+    #    "target_version": "2.1.1",
+    #    "type": "pypi",
+    #    "path": PROJECT_ROOT / "biotrainer" / "biotrainer-core",
+    #    "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    #},
+    #{
+    #    "name": "biotrainer",
+    #    "target_version": "2.1.1",
+    #    "type": "pypi",
+    #    "path": PROJECT_ROOT / "biotrainer",
+    #    "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
+    #},
     {
         "name": "biocentral_ire",
-        "target_version": "2.0.0+1",
+        "target_version": "2.1.0+1",
         "path": PROJECT_ROOT / "biocentral_ire",
         "changelog": PROJECT_ROOT / "biocentral_ire" / "Changelog.md",
+        "version_check_only": True,
+        "type": "pub.dev",
+    },
+    {
+        "name": "biocentral_status",
+        "target_version": "2.1.0+1",
+        "path": PROJECT_ROOT / "biocentral_websites/biocentral_status",
+        "changelog": PROJECT_ROOT / "biocentral_websites" / "biocentral_status" / "Changelog.md",
         "version_check_only": True,
         "type": "pub.dev",
     },
@@ -56,9 +64,10 @@ PACKAGES = [
     {
         "name": "biocentral_server",
         "type": "pypi",
-        "target_version": "2.0.1",
+        "target_version": "2.1.0",
         "path": PROJECT_ROOT / "biocentral_server",
-        "changelog": PROJECT_ROOT / "Changelog.md",
+        "changelog": PROJECT_ROOT / "biocentral_server" / "Changelog.md",
+        "version_check_only": True,
     },
     {
         "name": "biocentral",
@@ -111,7 +120,7 @@ def check_version_in_changelog(pkg: Dict, version: str) -> bool:
     if not changelog_path or not changelog_path.exists():
         print(f"Warning: Changelog not found for {pkg['name']} at {changelog_path}")
         return False
-    
+
     with open(changelog_path, "r") as f:
         content = f.read()
         return version in content
@@ -165,7 +174,7 @@ def upload_python(pkg: Dict, pypi_token: str):
     env["TWINE_USERNAME"] = "__token__"
     env["TWINE_PASSWORD"] = pypi_token
     
-    run_command("uv run twine upload dist/*", cwd, env=env)
+    run_command("uv run twine upload --verbose dist/*", cwd, env=env)
 
 def build_dart(pkg: Dict) -> bool:
     cwd = pkg["path"]
@@ -196,7 +205,7 @@ def _print_package_summary(pkg, target_version: str, package_status: List[str]):
 
 
 def main():
-    default_target_version = "2.0.0" # Specified version number
+    default_target_version = "2.1.0" # Specified version number
     
     parser = argparse.ArgumentParser(description="Biocentral Build and Release Script")
     parser.add_argument("--dry-run", action="store_true", help="Execute in dry-run mode (default)")

@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:biocentral_api/src/model/active_learning_convergence_config.dart';
+import 'package:biocentral_api/src/model/active_learning_stopping_config.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -18,7 +18,9 @@ part 'active_learning_screening_simulation_config.g.dart';
 /// * [nStart] - Number of initial sequences to use for training (chosen randomly, seed from campaign config used)
 /// * [startIds] - List of sequence IDs to start the simulated campaign
 /// * [nSuggestionsPerIteration] - Number of suggestions to propose per iteration
-/// * [convergenceConfig] - Convergence criteria for the simulation
+/// * [stoppingConfig] - Stopping criteria for the simulation
+/// * [hitPercentile] - Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.
+/// * [hitTargetDelta] - Absolute tolerance around the target value that counts as a hit (mode: VALUE)
 @BuiltValue()
 abstract class ActiveLearningScreeningSimulationConfig implements Built<ActiveLearningScreeningSimulationConfig, ActiveLearningScreeningSimulationConfigBuilder> {
   /// List of all sequence data for the simulation
@@ -37,16 +39,26 @@ abstract class ActiveLearningScreeningSimulationConfig implements Built<ActiveLe
   @BuiltValueField(wireName: r'n_suggestions_per_iteration')
   int get nSuggestionsPerIteration;
 
-  /// Convergence criteria for the simulation
-  @BuiltValueField(wireName: r'convergence_config')
-  ActiveLearningConvergenceConfig get convergenceConfig;
+  /// Stopping criteria for the simulation
+  @BuiltValueField(wireName: r'stopping_config')
+  ActiveLearningStoppingConfig get stoppingConfig;
+
+  /// Percentile of all labels that counts as a hit (modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.
+  @BuiltValueField(wireName: r'hit_percentile')
+  num? get hitPercentile;
+
+  /// Absolute tolerance around the target value that counts as a hit (mode: VALUE)
+  @BuiltValueField(wireName: r'hit_target_delta')
+  num? get hitTargetDelta;
 
   ActiveLearningScreeningSimulationConfig._();
 
   factory ActiveLearningScreeningSimulationConfig([void updates(ActiveLearningScreeningSimulationConfigBuilder b)]) = _$ActiveLearningScreeningSimulationConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningScreeningSimulationConfigBuilder b) => b;
+  static void _defaults(ActiveLearningScreeningSimulationConfigBuilder b) => b
+      ..hitPercentile = 1.0
+      ..hitTargetDelta = 0.5;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningScreeningSimulationConfig> get serializer => _$ActiveLearningScreeningSimulationConfigSerializer();
@@ -88,11 +100,25 @@ class _$ActiveLearningScreeningSimulationConfigSerializer implements PrimitiveSe
       object.nSuggestionsPerIteration,
       specifiedType: const FullType(int),
     );
-    yield r'convergence_config';
+    yield r'stopping_config';
     yield serializers.serialize(
-      object.convergenceConfig,
-      specifiedType: const FullType(ActiveLearningConvergenceConfig),
+      object.stoppingConfig,
+      specifiedType: const FullType(ActiveLearningStoppingConfig),
     );
+    if (object.hitPercentile != null) {
+      yield r'hit_percentile';
+      yield serializers.serialize(
+        object.hitPercentile,
+        specifiedType: const FullType(num),
+      );
+    }
+    if (object.hitTargetDelta != null) {
+      yield r'hit_target_delta';
+      yield serializers.serialize(
+        object.hitTargetDelta,
+        specifiedType: const FullType(num),
+      );
+    }
   }
 
   @override
@@ -146,12 +172,28 @@ class _$ActiveLearningScreeningSimulationConfigSerializer implements PrimitiveSe
           ) as int;
           result.nSuggestionsPerIteration = valueDes;
           break;
-        case r'convergence_config':
+        case r'stopping_config':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(ActiveLearningConvergenceConfig),
-          ) as ActiveLearningConvergenceConfig;
-          result.convergenceConfig.replace(valueDes);
+            specifiedType: const FullType(ActiveLearningStoppingConfig),
+          ) as ActiveLearningStoppingConfig;
+          result.stoppingConfig.replace(valueDes);
+          break;
+        case r'hit_percentile':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
+          result.hitPercentile = valueDes;
+          break;
+        case r'hit_target_delta':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(num),
+          ) as num?;
+          if (valueDes == null) continue;
+          result.hitTargetDelta = valueDes;
           break;
         default:
           unhandled.add(key);

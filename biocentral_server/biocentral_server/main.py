@@ -4,9 +4,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from redis.asyncio import Redis
 from importlib.metadata import version
-from fastapi_limiter import FastAPILimiter
 from contextlib import asynccontextmanager
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from apscheduler.triggers.cron import CronTrigger
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -16,10 +15,12 @@ from .server_management import (
     UserManager,
     EmbeddingDatabaseFactory,
     FileManager,
+    QueueFullError,
+    init_rate_limiter,
+    rate_limiter as rate_limiter_module,
 )
 
 # Import module routers
-from .ppi import router as ppi_router
 from .predict import router as predict_router
 from .active_learning import router as al_router
 from .proteins import router as proteins_router
@@ -28,8 +29,11 @@ from .embeddings import embeddings_router, projection_router
 from .biocentral_service import router as biocentral_service_router
 
 from .utils import str2bool, Constants, get_logger
+from .biocentral_service import run_deep_health_check
 
 logger = get_logger(__name__)
+
+__version__ = version("biocentral-server")
 
 
 def _setup_directories():
@@ -70,15 +74,19 @@ async def lifespan(app: FastAPI):
 
     # Rate Limiting
     redis_host = os.environ.get("REDIS_JOBS_HOST", "redis-jobs")
-    redis_port = os.environ.get("REDIS_JOBS_PORT", 6379)
+    redis_port = int(os.environ.get("REDIS_JOBS_PORT", "6379"))
     redis_conn = Redis(host=redis_host, port=redis_port, db=1)
     if not debug:
-        await FastAPILimiter.init(
-            redis=redis_conn, identifier=UserManager.get_user_id_from_request
+        await init_rate_limiter(
+            redis=redis_conn,
+            identifier_func=UserManager.get_user_id_from_request,
+            enabled=True,
         )
     else:
-        await FastAPILimiter.init(
-            redis=redis_conn, identifier=UserManager.get_random_user_id
+        await init_rate_limiter(
+            redis=redis_conn,
+            identifier_func=UserManager.get_random_user_id,
+            enabled=False,
         )
 
     # Directories
@@ -119,7 +127,9 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down application...")
     scheduler.shutdown()
     logger.info("Background scheduler stopped")
-    await FastAPILimiter.close()
+    if rate_limiter_module._redis is not None:
+        await rate_limiter_module._redis.close()
+        logger.info("Redis connection closed in rate limiter")
 
 
 def create_app() -> FastAPI:
@@ -127,7 +137,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Biocentral Server",
         description="API for biocentral services",
-        version="1.0.0",
+        version=__version__,
         lifespan=lifespan,
     )
 
@@ -146,23 +156,33 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(BodySizeLimitMiddleware)
 
+    @app.exception_handler(QueueFullError)
+    async def queue_full_exception_handler(request, exc):
+        return JSONResponse(
+            status_code=503,
+            content={"detail": str(exc)},
+            headers={"Retry-After": "60"},
+        )
+
     # Include module routers
     prefix = "/api/v1"
     app.include_router(biocentral_service_router, prefix=prefix)
     app.include_router(embeddings_router, prefix=prefix)
     app.include_router(projection_router, prefix=prefix)
     app.include_router(al_router, prefix=prefix)
-    app.include_router(ppi_router, prefix=prefix)
     app.include_router(predict_router, prefix=prefix)
     app.include_router(custom_models_router, prefix=prefix)
     app.include_router(proteins_router, prefix=prefix)
 
     # Health check
-    __version__ = version("biocentral-server")
-
     @app.get("/health")
     async def health_check():
         return {"status": "healthy", "version": __version__}
+
+    # Deep health check
+    @app.get("/health/deep")
+    async def deep_health_check():
+        return await run_deep_health_check()
 
     # Landing page
     assets_dir = Path(os.environ.get("ASSETS_DIR", "assets/"))
@@ -185,7 +205,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 
-def run_server():
+def run_server(host: str = "0.0.0.0", port: int = Constants.SERVER_DEFAULT_PORT):
     """Run the server"""
     debug = str2bool(str(os.environ.get("SERVER_DEBUG", "True")))
 
@@ -194,16 +214,15 @@ def run_server():
     if debug:
         uvicorn.run(
             "biocentral_server.main:app",
-            host="0.0.0.0",
-            port=Constants.SERVER_DEFAULT_PORT,
+            host=host,
+            port=port,
             reload=True,
+            reload_dirs=[os.path.dirname(__file__)],
             log_level="info",
         )
     else:
         # For production
-        uvicorn.run(
-            app, host="0.0.0.0", port=Constants.SERVER_DEFAULT_PORT, log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
 
 if __name__ == "__main__":

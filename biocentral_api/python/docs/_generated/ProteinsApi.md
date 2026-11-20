@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**taxonomy_api_v1_protein_service_taxonomy_post**](ProteinsApi.md#taxonomy_api_v1_protein_service_taxonomy_post) | **POST** /api/v1/protein_service/taxonomy/ | Retrieve taxonomy data
 [**trigger_protein_clustering_api_v1_protein_service_cluster_post**](ProteinsApi.md#trigger_protein_clustering_api_v1_protein_service_cluster_post) | **POST** /api/v1/protein_service/cluster/ | Calculate clustering
+[**trigger_protein_perplexity_api_v1_protein_service_perplexity_post**](ProteinsApi.md#trigger_protein_perplexity_api_v1_protein_service_perplexity_post) | **POST** /api/v1/protein_service/perplexity/ | Calculate perplexity
 
 
 # **taxonomy_api_v1_protein_service_taxonomy_post**
@@ -127,6 +128,77 @@ with biocentral_api._generated.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **clustering_request** | [**ClusteringRequest**](ClusteringRequest.md)|  | 
+
+### Return type
+
+[**StartTaskResponse**](StartTaskResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Not Found |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **trigger_protein_perplexity_api_v1_protein_service_perplexity_post**
+> StartTaskResponse trigger_protein_perplexity_api_v1_protein_service_perplexity_post(perplexity_request)
+
+Calculate perplexity
+
+Submit sequences for (pseudo)perplexity calculation using a protein language model
+
+### Example
+
+
+```python
+import biocentral_api._generated
+from biocentral_api._generated.models.perplexity_request import PerplexityRequest
+from biocentral_api._generated.models.start_task_response import StartTaskResponse
+from biocentral_api._generated.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = biocentral_api._generated.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with biocentral_api._generated.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = biocentral_api._generated.ProteinsApi(api_client)
+    perplexity_request = biocentral_api._generated.PerplexityRequest() # PerplexityRequest | 
+
+    try:
+        # Calculate perplexity
+        api_response = api_instance.trigger_protein_perplexity_api_v1_protein_service_perplexity_post(perplexity_request)
+        print("The response of ProteinsApi->trigger_protein_perplexity_api_v1_protein_service_perplexity_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ProteinsApi->trigger_protein_perplexity_api_v1_protein_service_perplexity_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **perplexity_request** | [**PerplexityRequest**](PerplexityRequest.md)|  | 
 
 ### Return type
 

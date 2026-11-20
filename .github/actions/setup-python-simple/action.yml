@@ -5,6 +5,10 @@ inputs:
   working-directory:
     description: "Working directory for dependency installation"
     required: true
+  extras:
+    description: "Install all extras if set to true"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -13,9 +17,13 @@ runs:
       with:
         python-version: '3.12'
 
-    - uses: astral-sh/setup-uv@v7
+    - uses: astral-sh/setup-uv@v10.4.0
+      with:
+        version: '0.13.9'
 
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: uv sync --no-install-project --index-strategy unsafe-best-match
+      run: uv sync --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }} --index-strategy unsafe-best-match --exclude-newer false
+      env:
+        UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu

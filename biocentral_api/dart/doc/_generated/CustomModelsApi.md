@@ -9,12 +9,54 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**clusterHbiApiV1CustomModelsServiceClusterHbiPost**](CustomModelsApi.md#clusterhbiapiv1custommodelsserviceclusterhbipost) | **POST** /api/v1/custom_models_service/cluster-hbi/ | Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
 [**configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**](CustomModelsApi.md#configoptionsapiv1custommodelsserviceconfigoptionsprotocolget) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
-[**modelFilesApiV1CustomModelsServiceModelFilesPost**](CustomModelsApi.md#modelfilesapiv1custommodelsservicemodelfilespost) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
+[**splitHbiApiV1CustomModelsServiceSplitHbiPost**](CustomModelsApi.md#splithbiapiv1custommodelsservicesplithbipost) | **POST** /api/v1/custom_models_service/split-hbi/ | Evaluate homology transfer between dataset splits via easy_search lookup
 [**startInferenceApiV1CustomModelsServiceStartInferencePost**](CustomModelsApi.md#startinferenceapiv1custommodelsservicestartinferencepost) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**startTrainingApiV1CustomModelsServiceStartTrainingPost**](CustomModelsApi.md#starttrainingapiv1custommodelsservicestarttrainingpost) | **POST** /api/v1/custom_models_service/start_training | Start model training
 [**verifyConfigApiV1CustomModelsServiceVerifyConfigPost**](CustomModelsApi.md#verifyconfigapiv1custommodelsserviceverifyconfigpost) | **POST** /api/v1/custom_models_service/verify_config/ | Verify configuration
 
+
+# **clusterHbiApiV1CustomModelsServiceClusterHbiPost**
+> ClusterHBIResponse clusterHbiApiV1CustomModelsServiceClusterHbiPost(clusterHBIRequest)
+
+Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
+
+### Example
+```dart
+import 'package:biocentral_api/api.dart';
+
+final api = BiocentralApi().getCustomModelsApi();
+final ClusterHBIRequest clusterHBIRequest = ; // ClusterHBIRequest | 
+
+try {
+    final response = api.clusterHbiApiV1CustomModelsServiceClusterHbiPost(clusterHBIRequest);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling CustomModelsApi->clusterHbiApiV1CustomModelsServiceClusterHbiPost: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **clusterHBIRequest** | [**ClusterHBIRequest**](ClusterHBIRequest.md)|  | 
+
+### Return type
+
+[**ClusterHBIResponse**](ClusterHBIResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**
 > ConfigOptionsResponse configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet(protocol)
@@ -59,25 +101,23 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **modelFilesApiV1CustomModelsServiceModelFilesPost**
-> BuiltMap<String, JsonObject> modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest)
+# **splitHbiApiV1CustomModelsServiceSplitHbiPost**
+> SplitHBIResponse splitHbiApiV1CustomModelsServiceSplitHbiPost(splitHBIRequest)
 
-Retrieve model files
-
-Get trained model files after training completion
+Evaluate homology transfer between dataset splits via easy_search lookup
 
 ### Example
 ```dart
 import 'package:biocentral_api/api.dart';
 
 final api = BiocentralApi().getCustomModelsApi();
-final ModelFilesRequest modelFilesRequest = ; // ModelFilesRequest | 
+final SplitHBIRequest splitHBIRequest = ; // SplitHBIRequest | 
 
 try {
-    final response = api.modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest);
+    final response = api.splitHbiApiV1CustomModelsServiceSplitHbiPost(splitHBIRequest);
     print(response);
 } on DioException catch (e) {
-    print('Exception when calling CustomModelsApi->modelFilesApiV1CustomModelsServiceModelFilesPost: $e\n');
+    print('Exception when calling CustomModelsApi->splitHbiApiV1CustomModelsServiceSplitHbiPost: $e\n');
 }
 ```
 
@@ -85,11 +125,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **modelFilesRequest** | [**ModelFilesRequest**](ModelFilesRequest.md)|  | 
+ **splitHBIRequest** | [**SplitHBIRequest**](SplitHBIRequest.md)|  | 
 
 ### Return type
 
-[**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md)
+[**SplitHBIResponse**](SplitHBIResponse.md)
 
 ### Authorization
 

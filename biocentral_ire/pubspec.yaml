@@ -1,14 +1,14 @@
 name: biocentral
-version: '2.0.0+1'
+version: '2.1.0+1'
 publish_to: none
 environment:
   sdk: ">=3.5.0"
-  flutter: 3.38.1
+  flutter: 3.38.10
 description: "Biomedical data, from lab to paper."
 
 dependencies:
   animated_splash_screen: ^1.3.0
-  archive: ^3.6.1
+  archive: ^4.0.7
   async: ^2.11.0
   auto_size_text: ^3.0.0
   bio_flutter: ^0.0.12
@@ -44,9 +44,9 @@ dependencies:
   ranking_system: ^0.0.1
   serious_python:
     git:
-      url: https://github.com/AeneasTews/serious-python.git
+      url: https://github.com/biocentral/serious-python.git
       path: src/serious_python
-      ref: fix/windir-cmake-path
+      ref: feature/add-web-support
   shared_preferences: '^2.2.2'
   shimmer: '^3.0.0'
   simple_icons: '^16.23.0'

@@ -11,13 +11,19 @@ class _$ActiveLearningEngineeringIterationConfig
   @override
   final int iteration;
   @override
-  final BuiltList<String> baseSequences;
+  final BuiltList<String>? baseSequences;
   @override
   final BuiltList<SequenceData> trainingData;
   @override
   final num coefficient;
   @override
   final int nSuggestions;
+  @override
+  final int? nMutations;
+  @override
+  final int? nSubstitutions;
+  @override
+  final bool? generateCandidates;
 
   factory _$ActiveLearningEngineeringIterationConfig(
           [void Function(ActiveLearningEngineeringIterationConfigBuilder)?
@@ -27,10 +33,13 @@ class _$ActiveLearningEngineeringIterationConfig
 
   _$ActiveLearningEngineeringIterationConfig._(
       {required this.iteration,
-      required this.baseSequences,
+      this.baseSequences,
       required this.trainingData,
       required this.coefficient,
-      required this.nSuggestions})
+      required this.nSuggestions,
+      this.nMutations,
+      this.nSubstitutions,
+      this.generateCandidates})
       : super._();
   @override
   ActiveLearningEngineeringIterationConfig rebuild(
@@ -50,7 +59,10 @@ class _$ActiveLearningEngineeringIterationConfig
         baseSequences == other.baseSequences &&
         trainingData == other.trainingData &&
         coefficient == other.coefficient &&
-        nSuggestions == other.nSuggestions;
+        nSuggestions == other.nSuggestions &&
+        nMutations == other.nMutations &&
+        nSubstitutions == other.nSubstitutions &&
+        generateCandidates == other.generateCandidates;
   }
 
   @override
@@ -61,6 +73,9 @@ class _$ActiveLearningEngineeringIterationConfig
     _$hash = $jc(_$hash, trainingData.hashCode);
     _$hash = $jc(_$hash, coefficient.hashCode);
     _$hash = $jc(_$hash, nSuggestions.hashCode);
+    _$hash = $jc(_$hash, nMutations.hashCode);
+    _$hash = $jc(_$hash, nSubstitutions.hashCode);
+    _$hash = $jc(_$hash, generateCandidates.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -73,7 +88,10 @@ class _$ActiveLearningEngineeringIterationConfig
           ..add('baseSequences', baseSequences)
           ..add('trainingData', trainingData)
           ..add('coefficient', coefficient)
-          ..add('nSuggestions', nSuggestions))
+          ..add('nSuggestions', nSuggestions)
+          ..add('nMutations', nMutations)
+          ..add('nSubstitutions', nSubstitutions)
+          ..add('generateCandidates', generateCandidates))
         .toString();
   }
 }
@@ -108,6 +126,20 @@ class ActiveLearningEngineeringIterationConfigBuilder
   int? get nSuggestions => _$this._nSuggestions;
   set nSuggestions(int? nSuggestions) => _$this._nSuggestions = nSuggestions;
 
+  int? _nMutations;
+  int? get nMutations => _$this._nMutations;
+  set nMutations(int? nMutations) => _$this._nMutations = nMutations;
+
+  int? _nSubstitutions;
+  int? get nSubstitutions => _$this._nSubstitutions;
+  set nSubstitutions(int? nSubstitutions) =>
+      _$this._nSubstitutions = nSubstitutions;
+
+  bool? _generateCandidates;
+  bool? get generateCandidates => _$this._generateCandidates;
+  set generateCandidates(bool? generateCandidates) =>
+      _$this._generateCandidates = generateCandidates;
+
   ActiveLearningEngineeringIterationConfigBuilder() {
     ActiveLearningEngineeringIterationConfig._defaults(this);
   }
@@ -116,10 +148,13 @@ class ActiveLearningEngineeringIterationConfigBuilder
     final $v = _$v;
     if ($v != null) {
       _iteration = $v.iteration;
-      _baseSequences = $v.baseSequences.toBuilder();
+      _baseSequences = $v.baseSequences?.toBuilder();
       _trainingData = $v.trainingData.toBuilder();
       _coefficient = $v.coefficient;
       _nSuggestions = $v.nSuggestions;
+      _nMutations = $v.nMutations;
+      _nSubstitutions = $v.nSubstitutions;
+      _generateCandidates = $v.generateCandidates;
       _$v = null;
     }
     return this;
@@ -146,18 +181,21 @@ class ActiveLearningEngineeringIterationConfigBuilder
           _$ActiveLearningEngineeringIterationConfig._(
             iteration: BuiltValueNullFieldError.checkNotNull(iteration,
                 r'ActiveLearningEngineeringIterationConfig', 'iteration'),
-            baseSequences: baseSequences.build(),
+            baseSequences: _baseSequences?.build(),
             trainingData: trainingData.build(),
             coefficient: BuiltValueNullFieldError.checkNotNull(coefficient,
                 r'ActiveLearningEngineeringIterationConfig', 'coefficient'),
             nSuggestions: BuiltValueNullFieldError.checkNotNull(nSuggestions,
                 r'ActiveLearningEngineeringIterationConfig', 'nSuggestions'),
+            nMutations: nMutations,
+            nSubstitutions: nSubstitutions,
+            generateCandidates: generateCandidates,
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'baseSequences';
-        baseSequences.build();
+        _baseSequences?.build();
         _$failedField = 'trainingData';
         trainingData.build();
       } catch (e) {

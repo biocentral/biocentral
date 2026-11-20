@@ -37,7 +37,7 @@ class CommonEmbedder(str, Enum):
 class EmbedRequest(EmbedderModelBase):
     # embedder_name in EmbedderModelBase
     reduce: bool = Field(
-        default="false", description="Whether to use dimensionality reduction"
+        default=False, description="Whether to use dimensionality reduction"
     )
     sequence_data: Dict[str, str] = Field(
         description="Sequence data to embed (seq_id -> sequence)",
@@ -45,7 +45,7 @@ class EmbedRequest(EmbedderModelBase):
         max_length=1000,
     )
     use_half_precision: bool = Field(
-        default="false", description="Whether to use half precision"
+        default=False, description="Whether to use half precision"
     )
 
 
@@ -73,21 +73,6 @@ class GetMissingEmbeddingsResponse(BaseModel):
 
     missing: List[str] = Field(
         description="List of sequence IDs that are missing embeddings"
-    )
-
-
-class AddEmbeddingsRequest(EmbedderModelBase):
-    """Request model for adding embeddings"""
-
-    h5_bytes: str = Field(description="Base64 encoded HDF5 file containing embeddings")
-    sequences: str = Field(description="JSON string containing sequence data")
-    # embedder_name in EmbedderModelBase
-    reduced: bool = Field(description="Whether these are reduced embeddings")
-
-
-class AddEmbeddingsResponse(BaseModel):
-    success: bool = Field(
-        description="Bool flag indicating whether embeddings were added successfully"
     )
 
 

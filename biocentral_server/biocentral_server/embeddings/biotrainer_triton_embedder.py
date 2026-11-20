@@ -21,10 +21,12 @@ def get_biotrainer_embedding_service(
     device: Optional[Union[str, torch.device]] = None,
     finetuning_config: Optional[Dict[str, Any]] = None,
     force_biotrainer: Optional[bool] = False,
+    seed: Optional[int] = None,
 ):
     """Biotrainer library adapter to get the appropriate EmbeddingService instance.
     Does not support finetuning yet.
     :param force_biotrainer: Force usage of Biotrainer library even if Triton is available (fallback).
+    :param seed: Seed for embedders that draw at random (random_embedder), never served by Triton.
     """
     if force_biotrainer:
         return get_embedding_service(
@@ -33,6 +35,7 @@ def get_biotrainer_embedding_service(
             use_half_precision,
             device,
             finetuning_config,
+            seed=seed,
         )
 
     if BiotrainerTritonEmbedder.is_triton_embedding_available(embedder_name):
@@ -47,6 +50,7 @@ def get_biotrainer_embedding_service(
         use_half_precision,
         device,
         finetuning_config,
+        seed=seed,
     )
 
 

@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | [**BiocentralPredictionModel**](BiocentralPredictionModel.md) | Model name | 
-**protocol** | [**Protocol**](Protocol.md) | Protocol of model predictions | 
+**protocol** | [**biotrainer_core.data_classes.Protocol**](biotrainer_core.data_classes.Protocol.md) | Protocol of model predictions | 
 **description** | **str** | Model description | 
 **authors** | **str** | Authors of the model | 
 **model_link** | **str** | Link to the model&#39;s repository | 

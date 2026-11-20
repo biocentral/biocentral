@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from biotrainer_core.data_classes import SequenceData
 from biotrainer.embedding import get_predefined_embedder_names
@@ -44,20 +44,24 @@ class CalculateEmbeddingsTask(TaskInterface):
         all_seqs = self._read_sequence_input()
 
         embeddings_db = EmbeddingDatabaseFactory().get_embeddings_db()
-        for progress in compute_embeddings(
-            embedder_name=self.embedder_name,
-            custom_tokenizer_config=self.custom_tokenizer_config,
-            all_seqs=all_seqs,
-            reduced=self.reduced,
-            use_half_precision=self.use_half_precision,
-            embeddings_db=embeddings_db,
-        ):
-            update_dto_callback(
-                TaskDTO(
-                    status=TaskStatus.RUNNING,
-                    embedding_progress=progress,
+        # Subtask exceptions are lost in their thread, so return them as the result
+        try:
+            for progress in compute_embeddings(
+                embedder_name=self.embedder_name,
+                custom_tokenizer_config=self.custom_tokenizer_config,
+                all_seqs=all_seqs,
+                reduced=self.reduced,
+                use_half_precision=self.use_half_precision,
+                embeddings_db=embeddings_db,
+            ):
+                update_dto_callback(
+                    TaskDTO(
+                        status=TaskStatus.RUNNING,
+                        embedding_progress=progress,
+                    )
                 )
-            )
+        except Exception as e:
+            return TaskDTO.errored(f"Calculating embeddings failed: {e}")
 
         return TaskDTO(status=TaskStatus.FINISHED, embedded_sequences=all_seqs)
 
@@ -65,12 +69,31 @@ class CalculateEmbeddingsTask(TaskInterface):
 class _MemoryEmbeddingsTask(CalculateEmbeddingsTask):
     """Calculate embeddings, but store them in RAM, not in the database (OHE, Random, etc.)"""
 
+    def __init__(
+        self,
+        embedder_name: str,
+        sequence_input: List[SequenceData],
+        reduced: bool,
+        use_half_precision: bool,
+        seed: Optional[int] = None,
+    ):
+        super().__init__(
+            embedder_name=embedder_name,
+            sequence_input=sequence_input,
+            reduced=reduced,
+            use_half_precision=use_half_precision,
+        )
+        self.seed = seed
+
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         assert self.embedder_name in get_predefined_embedder_names()
 
         all_seqs = self._read_sequence_input()
         memory_embeddings = compute_memory_encodings(
-            embedder_name=self.embedder_name, all_seqs=all_seqs, reduced=self.reduced
+            embedder_name=self.embedder_name,
+            all_seqs=all_seqs,
+            reduced=self.reduced,
+            seed=self.seed,
         )
         len_memory_embeddings = len(memory_embeddings)
         update_dto_callback(
@@ -95,12 +118,14 @@ class LoadEmbeddingsTask(TaskInterface):
         reduced: bool,
         use_half_precision: bool,
         custom_tokenizer_config: str = None,
+        seed: Optional[int] = None,  # Only used by embedders that draw at random
     ):
         self.embedder_name = embedder_name
         self.sequence_input = sequence_input
         self.reduced = reduced
         self.use_half_precision = use_half_precision
         self.custom_tokenizer_config = custom_tokenizer_config
+        self.seed = seed
 
     def _handle_memory_embedding(self):
         memory_task = _MemoryEmbeddingsTask(
@@ -108,6 +133,7 @@ class LoadEmbeddingsTask(TaskInterface):
             sequence_input=self.sequence_input,
             reduced=self.reduced,
             use_half_precision=False,
+            seed=self.seed,
         )
         memory_dto = None
         for dto in self.run_subtask(memory_task):
@@ -163,6 +189,8 @@ class LoadEmbeddingsTask(TaskInterface):
             if calculate_dto.embedding_progress is not None:
                 update_dto_callback(calculate_dto)
 
+        if calculate_dto and calculate_dto.status == TaskStatus.FAILED:
+            return calculate_dto
         if not calculate_dto or calculate_dto.embedded_sequences is None:
             return TaskDTO.errored("Calculating of embeddings failed before loading!")
 

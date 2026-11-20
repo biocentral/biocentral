@@ -1,9 +1,5 @@
 from .user_manager import UserManager
-from .shared_endpoint_models import (
-    ErrorResponse,
-    NotFoundErrorResponse,
-    StartTaskResponse,
-)
+from .rate_limiter import RateLimiter, init_rate_limiter
 from .device_management import DeviceService
 from .monitoring import MetricsService, ResearchStats
 from .custom_middleware import BodySizeLimitMiddleware
@@ -15,8 +11,13 @@ from .shared_endpoint_models import (
     ActiveLearningIterationResult,
     ActiveLearningScreeningSimulationResult,
     ProjectionResult,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+    BiocentralModelResult,
+    BiotrainerCheckpoint
 )
-from .request_validation import validate_embedder_name
+from .request_validation import validate_embedder_name, validate_identifier
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
 from .file_management import FileManager, StorageFileType, FileContextManager
 from .task_management import (
@@ -25,6 +26,7 @@ from .task_management import (
     TaskManager,
     TaskDTO,
     PreEmbedMixin,
+    QueueFullError,
 )
 from .server_initialization import ServerInitializationManager, ServerModuleInitializer
 from .library_adapters import (
@@ -45,6 +47,8 @@ __all__ = [
     "StorageFileType",
     "FileContextManager",
     "UserManager",
+    "RateLimiter",
+    "init_rate_limiter",
     "TaskInterface",
     "TaskStatus",
     "TaskDTO",
@@ -77,4 +81,8 @@ __all__ = [
     "ProjectionResult",
     "DeviceService",
     "validate_embedder_name",
+    "validate_identifier",
+    "QueueFullError",
+    "BiocentralModelResult",
+    "BiotrainerCheckpoint",
 ]

@@ -1,5 +1,15 @@
 # Biocentral Changelog
 
+## v2.1.0
+
+* Added live HBI evaluation with cluster-aware data splitting
+* Added ability to close a project
+* Added ability to add custom servers
+* Upgraded numpy and scipy dependencies in python_companion
+* Fixed Flutter 3.38.10 for Windows builds with Visual Studio 2026
+* Improved python companion file structure handling
+* Various dependency updates and code cleanup
+
 ## v2.0.0
 
 * Monorepo update

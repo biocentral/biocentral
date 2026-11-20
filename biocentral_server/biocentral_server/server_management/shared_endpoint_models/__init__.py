@@ -3,11 +3,13 @@ from .response_models import StartTaskResponse
 from .embedding_progress import EmbeddingProgress
 from .prediction_model import Prediction, MutationPrediction
 from .error_models import ErrorResponse, NotFoundErrorResponse
+from .biocentral_model_result import BiocentralModelResult, BiotrainerCheckpoint
 from .al_result import (
     ActiveLearningIterationResult,
     ActiveLearningResult,
     ActiveLearningScreeningSimulationResult,
 )
+from .perplexity_result import PerplexityResult
 
 __all__ = [
     "StartTaskResponse",
@@ -20,4 +22,7 @@ __all__ = [
     "ActiveLearningScreeningSimulationResult",
     "EmbeddingProgress",
     "ProjectionResult",
+    "PerplexityResult",
+    "BiocentralModelResult",
+    "BiotrainerCheckpoint"
 ]

@@ -19,9 +19,13 @@ class LocalStorageBackend(StorageBackend):
         logger.info(f"LocalStorageBackend initialized at {self.base_dir.absolute()}")
 
     def _get_full_path(self, path: str) -> Path:
-        # Remove leading slash to join correctly with base_dir
+        # Remove leading slash to join correctly with base_dir and resolve symlinks
         clean_path = path.lstrip("/")
-        return self.base_dir / clean_path
+        base_dir = self.base_dir.resolve()
+        full_path = (base_dir / clean_path).resolve()
+        if not full_path.is_relative_to(base_dir):
+            raise StorageError("Storage path escapes the configured storage directory")
+        return full_path
 
     def save_file(self, path: str, data: Union[bytes, str, BinaryIO]) -> str:
         """

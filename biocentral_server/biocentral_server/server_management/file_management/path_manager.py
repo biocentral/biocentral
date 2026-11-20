@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Final, List, Optional, Tuple
 
 from .storage_file_type import StorageFileType
+from ..request_validation import validate_identifier
 
 
 class PathManager:
@@ -22,10 +23,10 @@ class PathManager:
         self.user_id = user_id
 
     def _base_user_path(self) -> Path:
-        return self.base_path / self.user_id
+        return self.base_path / validate_identifier(self.user_id)
 
     def get_database_path(self, database_hash: str) -> Path:
-        return self._base_user_path() / database_hash
+        return self._base_user_path() / validate_identifier(database_hash)
 
     def get_embeddings_files_path(self, database_hash: str) -> Path:
         return self.get_database_path(database_hash) / self._embeddings_files_path
@@ -40,6 +41,7 @@ class PathManager:
         return self._base_user_path() / self._external_models_path
 
     def get_biotrainer_model_path(self, model_hash: str) -> Path:
+        validate_identifier(model_hash)
         return self._get_models_files_path() / model_hash
 
     @staticmethod
@@ -51,6 +53,8 @@ class PathManager:
             StorageFileType.BIOTRAINER_CONFIG: "config_file.yaml",
             StorageFileType.BIOTRAINER_LOGGING: "logger_out.log",
             StorageFileType.BIOTRAINER_RESULT: "out.yml",
+            StorageFileType.BIOTRAINER_CHECKPOINT: "hold_out_checkpoint.safetensors",  # TODO Crossvalidation
+            StorageFileType.BIOTRAINER_ONNX_EXPORT: "hold_out_checkpoint.onnx",
             StorageFileType.ONNX_MODEL: f"{embedder_name}.onnx",
             StorageFileType.TOKENIZER_CONFIG: f"{embedder_name}_tokenizer_config.json",
         }[file_type]
@@ -58,19 +62,20 @@ class PathManager:
     def _storage_file_type_to_path(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        model_hash: Optional[str] = "",
+        database_hash: str = "",
+        model_hash: str = "",
     ) -> Path:
+        if database_hash:
+            validate_identifier(database_hash)
+        if model_hash:
+            validate_identifier(model_hash)
         return {
             StorageFileType.INPUT: self._get_fasta_file_path(database_hash),
-            StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path()
-            / Path(model_hash),
-            StorageFileType.BIOTRAINER_LOGGING: self._get_models_files_path()
-            / Path(model_hash),
-            StorageFileType.BIOTRAINER_RESULT: self._get_models_files_path()
-            / Path(model_hash),
-            StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path()
-            / Path(model_hash),
+            StorageFileType.BIOTRAINER_CONFIG: self._get_models_files_path() / Path(model_hash),
+            StorageFileType.BIOTRAINER_LOGGING: self._get_models_files_path() / Path(model_hash),
+            StorageFileType.BIOTRAINER_RESULT: self._get_models_files_path() / Path(model_hash),
+            StorageFileType.BIOTRAINER_CHECKPOINT: self._get_models_files_path() / Path(model_hash),
+            StorageFileType.BIOTRAINER_ONNX_EXPORT: self._get_models_files_path() / Path(model_hash),
             # Gets searched for pt file(s)
             StorageFileType.ONNX_MODEL: self._get_external_models_path(),
             StorageFileType.TOKENIZER_CONFIG: self._get_external_models_path(),
@@ -79,9 +84,9 @@ class PathManager:
     def get_file_name_and_path(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        model_hash: Optional[str] = "",
-        embedder_name: Optional[str] = "",
+        database_hash: str = "",
+        model_hash: str = "",
+        embedder_name: str = "",
     ) -> Tuple[str, Path]:
         return (
             self._storage_file_type_to_file_name(

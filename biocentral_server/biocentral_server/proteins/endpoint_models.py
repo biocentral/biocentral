@@ -1,5 +1,8 @@
 from typing import List, Dict
 from pydantic import BaseModel, Field
+from pydantic import field_validator
+
+from ..server_management import validate_embedder_name
 
 
 class TaxonomyItem(BaseModel):
@@ -29,3 +32,19 @@ class ClusteringRequest(BaseModel):
         le=1.0,
         description="Sequence identity threshold for clustering (between 0.0 and 1.0)",
     )
+
+
+class PerplexityRequest(BaseModel):
+    sequence_data: Dict[str, str] = Field(
+        ...,
+        description="Dictionary mapping sequence IDs to their amino acid sequence strings",
+    )
+    plm_name: str = Field(..., description="Name of the PLM to use for perplexity calculation")
+
+    @field_validator("plm_name")
+    @classmethod
+    def check_embedder_name(cls, value: str) -> str:
+        error = validate_embedder_name(value)
+        if error is not None:
+            raise ValueError(error)
+        return value

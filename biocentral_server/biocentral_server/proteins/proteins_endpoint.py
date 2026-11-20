@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from fastapi_limiter.depends import RateLimiter
+
+from ..server_management import RateLimiter
 
 from .taxonomy import Taxonomy
 from .endpoint_models import (
@@ -7,8 +8,12 @@ from .endpoint_models import (
     TaxonomyRequest,
     TaxonomyItem,
     ClusteringRequest,
+    PerplexityRequest,
 )
-from .proteins_task import ClusterSequencesTask
+from .clustering_task import (
+    ClusterSequencesTask,
+)
+from .perplexity_task import PerplexityTask
 
 from ..server_management import (
     ErrorResponse,
@@ -26,7 +31,6 @@ router = APIRouter(
     tags=["proteins"],
     responses={404: {"model": NotFoundErrorResponse}},
 )
-
 
 # Endpoint to get taxonomy data (taxon name and family name from taxonomy id)
 @router.post(
@@ -83,4 +87,35 @@ async def trigger_protein_clustering(payload: ClusteringRequest, request: Reques
         raise HTTPException(
             status_code=500,
             detail=f"Failed to submit background cluster task: {str(e)}",
+        )
+
+
+@router.post(
+    "/perplexity/",
+    response_model=StartTaskResponse,
+    responses={404: {"model": ErrorResponse}},
+    summary="Calculate perplexity",
+    description="Submit sequences for (pseudo)perplexity calculation using a protein language model",
+    dependencies=[Depends(RateLimiter(times=1, seconds=60))],
+)
+async def trigger_protein_perplexity(payload: PerplexityRequest, request: Request):
+    # curl -X POST "http://localhost:9540/protein_service/perplexity/" -H "Content-Type: application/json" -d '{"sequence_data": {"seq1": "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"}, "plm_name": "prot_bert"}'
+
+    try:
+        task_instance = PerplexityTask(
+            sequence_data=payload.sequence_data,
+            plm_name=payload.plm_name,
+        )
+
+        user_id = await UserManager.get_user_id_from_request(req=request)
+
+        task_manager = TaskManager()
+        task_id = task_manager.add_task(task=task_instance, user_id=user_id)
+
+        return StartTaskResponse(task_id=task_id)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to submit background perplexity task: {str(e)}",
         )

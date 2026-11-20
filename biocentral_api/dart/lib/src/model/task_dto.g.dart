@@ -12,11 +12,13 @@ class _$TaskDTO extends TaskDTO {
   @override
   final String? error;
   @override
+  final PerplexityResult? perplexityResult;
+  @override
   final BuiltMap<String, BuiltList<Prediction>>? predictions;
   @override
   final BiotrainerModelUpdate? biotrainerUpdate;
   @override
-  final BiotrainerModelResult? biotrainerResult;
+  final BiocentralModelResult? biocentralModelResult;
   @override
   final BiotrainerInferenceResult? biotrainerInferenceResult;
   @override
@@ -42,9 +44,10 @@ class _$TaskDTO extends TaskDTO {
   _$TaskDTO._(
       {required this.status,
       this.error,
+      this.perplexityResult,
       this.predictions,
       this.biotrainerUpdate,
-      this.biotrainerResult,
+      this.biocentralModelResult,
       this.biotrainerInferenceResult,
       this.embeddingProgress,
       this.embeddedSequences,
@@ -68,9 +71,10 @@ class _$TaskDTO extends TaskDTO {
     return other is TaskDTO &&
         status == other.status &&
         error == other.error &&
+        perplexityResult == other.perplexityResult &&
         predictions == other.predictions &&
         biotrainerUpdate == other.biotrainerUpdate &&
-        biotrainerResult == other.biotrainerResult &&
+        biocentralModelResult == other.biocentralModelResult &&
         biotrainerInferenceResult == other.biotrainerInferenceResult &&
         embeddingProgress == other.embeddingProgress &&
         embeddedSequences == other.embeddedSequences &&
@@ -87,9 +91,10 @@ class _$TaskDTO extends TaskDTO {
     var _$hash = 0;
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, error.hashCode);
+    _$hash = $jc(_$hash, perplexityResult.hashCode);
     _$hash = $jc(_$hash, predictions.hashCode);
     _$hash = $jc(_$hash, biotrainerUpdate.hashCode);
-    _$hash = $jc(_$hash, biotrainerResult.hashCode);
+    _$hash = $jc(_$hash, biocentralModelResult.hashCode);
     _$hash = $jc(_$hash, biotrainerInferenceResult.hashCode);
     _$hash = $jc(_$hash, embeddingProgress.hashCode);
     _$hash = $jc(_$hash, embeddedSequences.hashCode);
@@ -108,9 +113,10 @@ class _$TaskDTO extends TaskDTO {
     return (newBuiltValueToStringHelper(r'TaskDTO')
           ..add('status', status)
           ..add('error', error)
+          ..add('perplexityResult', perplexityResult)
           ..add('predictions', predictions)
           ..add('biotrainerUpdate', biotrainerUpdate)
-          ..add('biotrainerResult', biotrainerResult)
+          ..add('biocentralModelResult', biocentralModelResult)
           ..add('biotrainerInferenceResult', biotrainerInferenceResult)
           ..add('embeddingProgress', embeddingProgress)
           ..add('embeddedSequences', embeddedSequences)
@@ -135,6 +141,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   String? get error => _$this._error;
   set error(String? error) => _$this._error = error;
 
+  PerplexityResultBuilder? _perplexityResult;
+  PerplexityResultBuilder get perplexityResult =>
+      _$this._perplexityResult ??= PerplexityResultBuilder();
+  set perplexityResult(PerplexityResultBuilder? perplexityResult) =>
+      _$this._perplexityResult = perplexityResult;
+
   MapBuilder<String, BuiltList<Prediction>>? _predictions;
   MapBuilder<String, BuiltList<Prediction>> get predictions =>
       _$this._predictions ??= MapBuilder<String, BuiltList<Prediction>>();
@@ -147,11 +159,12 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
   set biotrainerUpdate(BiotrainerModelUpdateBuilder? biotrainerUpdate) =>
       _$this._biotrainerUpdate = biotrainerUpdate;
 
-  BiotrainerModelResultBuilder? _biotrainerResult;
-  BiotrainerModelResultBuilder get biotrainerResult =>
-      _$this._biotrainerResult ??= BiotrainerModelResultBuilder();
-  set biotrainerResult(BiotrainerModelResultBuilder? biotrainerResult) =>
-      _$this._biotrainerResult = biotrainerResult;
+  BiocentralModelResultBuilder? _biocentralModelResult;
+  BiocentralModelResultBuilder get biocentralModelResult =>
+      _$this._biocentralModelResult ??= BiocentralModelResultBuilder();
+  set biocentralModelResult(
+          BiocentralModelResultBuilder? biocentralModelResult) =>
+      _$this._biocentralModelResult = biocentralModelResult;
 
   BiotrainerInferenceResultBuilder? _biotrainerInferenceResult;
   BiotrainerInferenceResultBuilder get biotrainerInferenceResult =>
@@ -219,9 +232,10 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
     if ($v != null) {
       _status = $v.status;
       _error = $v.error;
+      _perplexityResult = $v.perplexityResult?.toBuilder();
       _predictions = $v.predictions?.toBuilder();
       _biotrainerUpdate = $v.biotrainerUpdate?.toBuilder();
-      _biotrainerResult = $v.biotrainerResult?.toBuilder();
+      _biocentralModelResult = $v.biocentralModelResult?.toBuilder();
       _biotrainerInferenceResult = $v.biotrainerInferenceResult?.toBuilder();
       _embeddingProgress = $v.embeddingProgress?.toBuilder();
       _embeddedSequences = $v.embeddedSequences?.toBuilder();
@@ -257,9 +271,10 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
             status: BuiltValueNullFieldError.checkNotNull(
                 status, r'TaskDTO', 'status'),
             error: error,
+            perplexityResult: _perplexityResult?.build(),
             predictions: _predictions?.build(),
             biotrainerUpdate: _biotrainerUpdate?.build(),
-            biotrainerResult: _biotrainerResult?.build(),
+            biocentralModelResult: _biocentralModelResult?.build(),
             biotrainerInferenceResult: _biotrainerInferenceResult?.build(),
             embeddingProgress: _embeddingProgress?.build(),
             embeddedSequences: _embeddedSequences?.build(),
@@ -273,12 +288,14 @@ class TaskDTOBuilder implements Builder<TaskDTO, TaskDTOBuilder> {
     } catch (_) {
       late String _$failedField;
       try {
+        _$failedField = 'perplexityResult';
+        _perplexityResult?.build();
         _$failedField = 'predictions';
         _predictions?.build();
         _$failedField = 'biotrainerUpdate';
         _biotrainerUpdate?.build();
-        _$failedField = 'biotrainerResult';
-        _biotrainerResult?.build();
+        _$failedField = 'biocentralModelResult';
+        _biocentralModelResult?.build();
         _$failedField = 'biotrainerInferenceResult';
         _biotrainerInferenceResult?.build();
         _$failedField = 'embeddingProgress';

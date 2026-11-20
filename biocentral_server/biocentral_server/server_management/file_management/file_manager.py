@@ -17,6 +17,8 @@ from .storage_backend import (
 
 from .local_storage_backend import LocalStorageBackend
 
+from ..shared_endpoint_models import BiotrainerCheckpoint
+
 from ...utils import get_logger
 
 logger = get_logger(__name__)
@@ -56,9 +58,9 @@ class FileManager:
     def check_file_exists(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        embedder_name: Optional[str] = "",
-        model_hash: Optional[str] = "",
+        database_hash: str = "",
+        embedder_name: str = "",
+        model_hash: str = "",
     ) -> bool:
         file_name, file_path = self.path_manager.get_file_name_and_path(
             database_hash=database_hash,
@@ -75,10 +77,10 @@ class FileManager:
     def save_file(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        file_content: Optional[Union[bytes, str]] = None,
-        embedder_name: Optional[str] = "",
-        model_hash: Optional[str] = "",
+        database_hash: str = "",
+        file_content: Optional[bytes | str] = None,
+        embedder_name: str = "",
+        model_hash: str = "",
     ) -> Path:
         file_name, file_path = self.path_manager.get_file_name_and_path(
             database_hash=database_hash,
@@ -93,10 +95,10 @@ class FileManager:
     def get_file_path(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        embedder_name: Optional[str] = "",
-        model_hash: Optional[str] = "",
-        check_exists: Optional[bool] = True,
+        database_hash: str = "",
+        embedder_name: str = "",
+        model_hash: str = "",
+        check_exists: bool = True,
     ) -> Path:
         if check_exists and not self.check_file_exists(
             database_hash=database_hash,
@@ -117,9 +119,9 @@ class FileManager:
     def delete_file(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        embedder_name: Optional[str] = "",
-        model_hash: Optional[str] = "",
+        database_hash: str = "",
+        embedder_name: str = "",
+        model_hash: str = "",
     ):
         file_name, file_path = self.path_manager.get_file_name_and_path(
             database_hash=database_hash,
@@ -142,59 +144,36 @@ class FileManager:
         )
         return input_file
 
-    def get_biotrainer_result_files(self, model_hash: str) -> Dict[str, Any]:
+    def get_biotrainer_result_files(self, model_hash: str) -> Dict[StorageFileType, Any]:
         result = {}
 
-        # Get result file
-        try:
-            result_file = self._get_file_content(
-                file_type=StorageFileType.BIOTRAINER_RESULT, model_hash=model_hash
-            )
-            result[StorageFileType.BIOTRAINER_RESULT.name] = result_file
-        except FileNotFoundError:
-            result[StorageFileType.BIOTRAINER_RESULT.name] = ""
+        for file_type in [StorageFileType.BIOTRAINER_RESULT, StorageFileType.BIOTRAINER_LOGGING,
+                          StorageFileType.BIOTRAINER_CHECKPOINT, StorageFileType.BIOTRAINER_ONNX_EXPORT]:
+            try:
+                file_content = self._get_file_content(
+                    file_type=file_type, model_hash=model_hash
+                )
+                # TODO: Placeholder for multiple checkpoints
+                if file_type.is_binary():
+                    file_content = [BiotrainerCheckpoint(name="hold_out",
+                                                        checkpoint=file_content)]  # Auto converts
+                result[file_type] = file_content
+            except (StorageError, FileNotFoundError) as e:
+                # Exclude Biotrainer Onnx Export because it is not stable at the moment
+                if file_type != StorageFileType.BIOTRAINER_ONNX_EXPORT:
+                    logger.error(f"Could not find biotrainer file of type {file_type}: {e}")
+                empty_file_result = [] if file_type.is_binary() else ""
+                result[file_type] = empty_file_result
 
-        # Get logging file
-        try:
-            logging_file = self._get_file_content(
-                file_type=StorageFileType.BIOTRAINER_LOGGING, model_hash=model_hash
-            )
-            result[StorageFileType.BIOTRAINER_LOGGING.name] = logging_file
-        except FileNotFoundError:
-            result[StorageFileType.BIOTRAINER_LOGGING.name] = ""
-
-        # Get checkpoint files
-        checkpoint_files = {}
-        try:
-            _, checkpoint_base_dir = self.path_manager.get_file_name_and_path(
-                file_type=StorageFileType.BIOTRAINER_CHECKPOINT, model_hash=model_hash
-            )
-
-            # List all files in checkpoint directory
-            checkpoint_files_list = self.storage_backend.list_files(
-                str(checkpoint_base_dir)
-            )
-            for file_info in checkpoint_files_list:
-                if ".pt" in file_info["name"]:
-                    file_path = checkpoint_base_dir / file_info["name"]
-                    checkpoint_bytes = self.storage_backend.get_file(str(file_path))
-                    checkpoint_decoded = base64.b64encode(checkpoint_bytes).decode(
-                        "ascii"
-                    )
-                    checkpoint_files[file_info["name"]] = checkpoint_decoded
-        except Exception:
-            pass
-
-        result[StorageFileType.BIOTRAINER_CHECKPOINT.name] = checkpoint_files
         return result
 
     def _get_file_content(
         self,
         file_type: StorageFileType,
-        database_hash: Optional[str] = "",
-        embedder_name: Optional[str] = "",
-        model_hash: Optional[str] = "",
-    ) -> Union[str, bytes]:
+        database_hash: str = "",
+        embedder_name: str = "",
+        model_hash: str = "",
+    ) -> str:
         file_name, file_path = self.path_manager.get_file_name_and_path(
             database_hash=database_hash,
             file_type=file_type,
@@ -205,10 +184,10 @@ class FileManager:
         content = self.storage_backend.get_file(str(file_path / file_name))
 
         # Convert to string if not a binary file type
-        if file_type not in [StorageFileType.BIOTRAINER_CHECKPOINT]:
-            content = content.decode("utf-8")
+        if file_type.is_binary():
+            return base64.b64encode(content).decode("ascii")
 
-        return content
+        return content.decode("utf-8")
 
 
 class FileContextManager:

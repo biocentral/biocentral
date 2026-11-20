@@ -1,5 +1,5 @@
 from junban import PipelineStep
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import SequenceData, Variant
 
 from ..engineering_pipeline_context import EngineeringPipelineContext
 
@@ -26,8 +26,13 @@ class EmbeddingStep(PipelineStep[EngineeringPipelineContext]):
     ) -> EngineeringPipelineContext:
         mutations = context.mutations
         mutations_seq_data = [
-            SequenceData(seq_id=f"mutation_{idx}", seq=mutation)
-            for idx, mutation in enumerate(mutations)
+            SequenceData(
+                seq_id=Variant.from_sequences(
+                    context.wildtype_sequence, mutation
+                ).to_string(),
+                seq=mutation,
+            )
+            for mutation in mutations
         ]
         mutation_data_hashed = {
             data_point.get_hash(): data_point for data_point in mutations_seq_data

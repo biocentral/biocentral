@@ -14,19 +14,22 @@ part 'active_learning_engineering_iteration_config.g.dart';
 ///
 /// Properties:
 /// * [iteration] - Iteration number
-/// * [baseSequences] - Sequences used to generate mutations
+/// * [baseSequences] - Sequences used to generate mutations (defaults to the wildtype sequence of the campaign)
 /// * [trainingData] - List of training data for this iteration
 /// * [coefficient] - Exploitation-Exploration coefficient value (must be between 0 and 1, 1 is maximum exploration)
 /// * [nSuggestions] - Number of suggestions to propose from this iteration
+/// * [nMutations] - Number of mutations to generate and score in this iteration
+/// * [nSubstitutions] - Substitutions each generated candidate carries against its base sequence
+/// * [generateCandidates] - Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains
 @BuiltValue()
 abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveLearningEngineeringIterationConfig, ActiveLearningEngineeringIterationConfigBuilder> {
   /// Iteration number
   @BuiltValueField(wireName: r'iteration')
   int get iteration;
 
-  /// Sequences used to generate mutations
+  /// Sequences used to generate mutations (defaults to the wildtype sequence of the campaign)
   @BuiltValueField(wireName: r'base_sequences')
-  BuiltList<String> get baseSequences;
+  BuiltList<String>? get baseSequences;
 
   /// List of training data for this iteration
   @BuiltValueField(wireName: r'training_data')
@@ -40,12 +43,27 @@ abstract class ActiveLearningEngineeringIterationConfig implements Built<ActiveL
   @BuiltValueField(wireName: r'n_suggestions')
   int get nSuggestions;
 
+  /// Number of mutations to generate and score in this iteration
+  @BuiltValueField(wireName: r'n_mutations')
+  int? get nMutations;
+
+  /// Substitutions each generated candidate carries against its base sequence
+  @BuiltValueField(wireName: r'n_substitutions')
+  int? get nSubstitutions;
+
+  /// Generate candidates even when a candidate pool is supplied, keeping only the generated sequences the pool contains
+  @BuiltValueField(wireName: r'generate_candidates')
+  bool? get generateCandidates;
+
   ActiveLearningEngineeringIterationConfig._();
 
   factory ActiveLearningEngineeringIterationConfig([void updates(ActiveLearningEngineeringIterationConfigBuilder b)]) = _$ActiveLearningEngineeringIterationConfig;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(ActiveLearningEngineeringIterationConfigBuilder b) => b;
+  static void _defaults(ActiveLearningEngineeringIterationConfigBuilder b) => b
+      ..nMutations = 1000
+      ..nSubstitutions = 1
+      ..generateCandidates = false;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ActiveLearningEngineeringIterationConfig> get serializer => _$ActiveLearningEngineeringIterationConfigSerializer();
@@ -68,11 +86,13 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
       object.iteration,
       specifiedType: const FullType(int),
     );
-    yield r'base_sequences';
-    yield serializers.serialize(
-      object.baseSequences,
-      specifiedType: const FullType(BuiltList, [FullType(String)]),
-    );
+    if (object.baseSequences != null) {
+      yield r'base_sequences';
+      yield serializers.serialize(
+        object.baseSequences,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+      );
+    }
     yield r'training_data';
     yield serializers.serialize(
       object.trainingData,
@@ -88,6 +108,27 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
       object.nSuggestions,
       specifiedType: const FullType(int),
     );
+    if (object.nMutations != null) {
+      yield r'n_mutations';
+      yield serializers.serialize(
+        object.nMutations,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.nSubstitutions != null) {
+      yield r'n_substitutions';
+      yield serializers.serialize(
+        object.nSubstitutions,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.generateCandidates != null) {
+      yield r'generate_candidates';
+      yield serializers.serialize(
+        object.generateCandidates,
+        specifiedType: const FullType(bool),
+      );
+    }
   }
 
   @override
@@ -121,8 +162,9 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
         case r'base_sequences':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(String)]),
-          ) as BuiltList<String>;
+            specifiedType: const FullType.nullable(BuiltList, [FullType(String)]),
+          ) as BuiltList<String>?;
+          if (valueDes == null) continue;
           result.baseSequences.replace(valueDes);
           break;
         case r'training_data':
@@ -145,6 +187,30 @@ class _$ActiveLearningEngineeringIterationConfigSerializer implements PrimitiveS
             specifiedType: const FullType(int),
           ) as int;
           result.nSuggestions = valueDes;
+          break;
+        case r'n_mutations':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.nMutations = valueDes;
+          break;
+        case r'n_substitutions':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(int),
+          ) as int?;
+          if (valueDes == null) continue;
+          result.nSubstitutions = valueDes;
+          break;
+        case r'generate_candidates':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(bool),
+          ) as bool?;
+          if (valueDes == null) continue;
+          result.generateCandidates = valueDes;
           break;
         default:
           unhandled.add(key);

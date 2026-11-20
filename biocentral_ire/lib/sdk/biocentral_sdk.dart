@@ -48,5 +48,6 @@ export 'util/constants.dart';
 export 'util/format_util.dart';
 export 'util/logging.dart';
 export 'util/repository_util.dart';
+export 'util/seed_util.dart';
 export 'util/size_config.dart';
 export 'util/type_util.dart';

@@ -180,6 +180,27 @@ def predict(fasta_path, model_names, server_url):
             click.echo(f"  {pred}")
 
 
+@biocentral.command()
+@click.argument("fasta_path", type=click.Path(exists=True))
+@click.option(
+    "--plm", required=True, help="PLM name (e.g. facebook/esm2_t6_8M_UR50D)"
+)
+@click.option(
+    "--mode", type=click.Choice(["api", "local"]), default="api", help="Execution mode"
+)
+@click.option("--server-url", default=None, help="Custom server URL (api mode)")
+@click.option(
+    "--device", default=None, help="Device for local computation (e.g. cuda, cpu)"
+)
+def perplexity(fasta_path, plm, mode, server_url, device):
+    """Compute (pseudo)perplexity for sequences in a FASTA file."""
+    bc = _make_biocentral_object(mode=mode, server_url=server_url, device=device)
+    result = bc.perplexity(fasta_path, plm)
+    click.echo(f"Method: {result.method}")
+    for seq_id, score in result.seq2perplexity.items():
+        click.echo(f"  {seq_id}: {score}")
+
+
 @biocentral.group()
 def server():
     """Server management commands (requires biocentral[server])."""

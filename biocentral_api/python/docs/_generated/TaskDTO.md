@@ -7,10 +7,11 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **status** | [**TaskStatus**](TaskStatus.md) |  | 
 **error** | **str** |  | [optional] 
+**perplexity_result** | [**PerplexityResult**](PerplexityResult.md) |  | [optional] 
 **predictions** | **Dict[str, List[Prediction]]** |  | [optional] 
-**biotrainer_update** | [**BiotrainerModelUpdate**](BiotrainerModelUpdate.md) |  | [optional] 
-**biotrainer_result** | [**BiotrainerModelResult**](BiotrainerModelResult.md) |  | [optional] 
-**biotrainer_inference_result** | [**BiotrainerInferenceResult**](BiotrainerInferenceResult.md) |  | [optional] 
+**biotrainer_update** | [**biotrainer_core.data_classes.BiotrainerModelUpdate**](biotrainer_core.data_classes.BiotrainerModelUpdate.md) |  | [optional] 
+**biocentral_model_result** | [**BiocentralModelResult**](BiocentralModelResult.md) |  | [optional] 
+**biotrainer_inference_result** | [**biotrainer_core.data_classes.BiotrainerInferenceResult**](biotrainer_core.data_classes.BiotrainerInferenceResult.md) |  | [optional] 
 **embedding_progress** | [**EmbeddingProgress**](EmbeddingProgress.md) |  | [optional] 
 **embedded_sequences** | **Dict[str, str]** |  | [optional] 
 **embeddings** | [**List[biotrainer_core.data_classes.SequenceData]**](biotrainer_core.data_classes.SequenceData.md) |  | [optional] 

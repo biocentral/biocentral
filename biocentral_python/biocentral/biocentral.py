@@ -8,13 +8,14 @@ from biocentral_api import (
     BiotrainerInferenceResult,
     Prediction,
     BiocentralAPI,
-    SequenceData,
     ProjectionResult,
+    PerplexityResult,
 )
 from biocentral_api.clients import EmbeddingsResult
+from biotrainer_core.data_classes import SequenceData
 
-from .base import BiocentralBackend
-
+from .base import BiocentralBackend, NotAvailableError
+from .persistence import BiocentralLocalDatabase
 
 class Biocentral:
     """Unified entry point to the biocentral ecosystem.
@@ -49,6 +50,7 @@ class Biocentral:
         :param custom_api: Custom BiocentralAPI instance (api mode only).
         :param device: Device for local computation, e.g. "cuda" or "cpu" (local mode only).
         """
+        self._database = BiocentralLocalDatabase()
         self._mode = mode
 
         if mode == "api":
@@ -67,6 +69,19 @@ class Biocentral:
     @property
     def mode(self) -> str:
         return self._mode
+
+    @property
+    def database(self) -> BiocentralLocalDatabase:
+        return self._database
+
+    @property
+    def api(self) -> BiocentralAPI:
+        """Access the underlying BiocentralAPI client for advanced/server-only operations."""
+        if self._mode != "api":
+            raise NotAvailableError(
+                "Direct API access is only available when Biocentral is initialized in 'api' mode."
+            )
+        return self._backend._api
 
     @staticmethod
     def _read_fasta(sequence_data: str) -> List[SequenceData]:
@@ -172,7 +187,7 @@ class Biocentral:
         :param use_half_precision: Use half precision to reduce memory. Defaults to False.
         :return: EmbeddingsResult containing the computed embeddings.
         """
-        seq_dat = self._parse_input_as_dict(sequence_data)
+        seq_dat = self._parse_input_as_sequence_data(sequence_data)
 
         return self._backend.embed(
             embedder_name, seq_dat, reduce=reduce, use_half_precision=use_half_precision
@@ -203,14 +218,26 @@ class Biocentral:
         :return: BiotrainerInferenceResult with predictions.
         """
         inference_dat = self._parse_input_as_dict(inference_data)
-        if isinstance(model_result, BiotrainerModelResult):
-            model_hash = model_result.derived_values.model_hash
+        if hasattr(model_result, "derived_values"):
+            derived_values = model_result.derived_values
+            if hasattr(derived_values, "model_hash"):
+                model_hash = derived_values.model_hash
+            elif isinstance(derived_values, dict):
+                model_hash = derived_values.get("model_hash")
+            else:
+                model_hash = getattr(derived_values, "model_hash", None)
+            if model_hash is None:
+                raise ValueError(
+                    "Model hash is None. Please provide a valid model hash or BiotrainerModelResult."
+                )
+        elif isinstance(model_result, dict):
+            model_hash = model_result.get("derived_values", {}).get("model_hash") or model_result.get("model_hash")
             if model_hash is None:
                 raise ValueError(
                     "Model hash is None. Please provide a valid model hash or BiotrainerModelResult."
                 )
         else:
-            model_hash = model_result
+            model_hash = str(model_result)
         return self._backend.inference(model_hash, inference_dat)
 
     def project(
@@ -259,3 +286,19 @@ class Biocentral:
             raise ValueError("At least two sequences are required for clustering!")
 
         return self._backend.cluster(cluster_dat, sequence_identity_threshold)
+
+    def perplexity(
+            self,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            plm_name: str,
+    ) -> PerplexityResult:
+        """
+        Calculate (pseudo)perplexity for given sequences using a protein language model.
+
+        :param sequence_data: Dict of {id: sequence} or path to a FASTA file or list of SequenceData.
+        :param plm_name: Name of the PLM (e.g. "facebook/esm2_t6_8M_UR50D", "prot_bert", "nferruz/ProtGPT2", etc.).
+        :return: PerplexityResult containing the method (PERPLEXITY or PSEUDOPERPLEXITY) and mapping of sequence IDs to perplexity scores.
+        """
+        perplexity_dat = self._parse_input_as_dict(sequence_data)
+
+        return self._backend.perplexity(perplexity_dat, plm_name)

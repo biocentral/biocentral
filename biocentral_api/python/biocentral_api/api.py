@@ -14,6 +14,7 @@ from ._generated.models import (
     Prediction,
     BiotrainerModelResult,
     BiotrainerInferenceResult,
+    PerplexityResult,
 )
 from ._generated import (
     ApiClient,
@@ -25,6 +26,7 @@ from ._generated import (
     ActiveLearningScreeningIterationConfig,
     ActiveLearningIterationResult,
     ActiveLearningScreeningSimulationConfig,
+    ActiveLearningEngineeringSimulationConfig,
     ActiveLearningEngineeringIterationConfig,
     ActiveLearningEngineeringCampaignConfig,
     ActiveLearningScreeningSimulationResult,
@@ -34,6 +36,7 @@ from ._generated import (
     ProjectionResult,
     BiocentralServiceStats,
     BiocentralServiceApi,
+    ZeroShotMethod,
 )
 from .clients import (
     BiocentralServerTask,
@@ -96,6 +99,8 @@ class BiocentralAPI:
                 _BiocentralAPIHealth(url=self.DEFAULT_LOCAL_URL, healthy=False)
             )
 
+        self._health_checked = False
+
     def _create_api_client(self) -> ApiClient:
         """Create an ApiClient bound to the currently selected base URL, including auth headers if provided."""
         cfg = self._make_configuration(self._get_base_url())
@@ -135,6 +140,13 @@ class BiocentralAPI:
         return any(h in url for h in ["localhost", "127.0.0.1"])
 
     def _get_base_url(self) -> str:
+        # Health-check once before choosing, so a caller that never called
+        # wait_until_healthy() does not silently fall through to the first
+        # candidate -- which is the hosted server, not the local one.
+        # Skipped for a single candidate, where the outcome cannot change.
+        if not self._health_checked and len(self._url_health_status) > 1:
+            self._update_health_status()
+
         # Prefer first healthy URL if any, otherwise first candidate
         base_url = self._url_health_status[0].url
         for url_health in self._url_health_status:
@@ -165,6 +177,7 @@ class BiocentralAPI:
             )
             updated.append(updated_health_status)
         self._url_health_status = updated
+        self._health_checked = True
         return self._url_health_status
 
     @staticmethod
@@ -307,7 +320,7 @@ class BiocentralAPI:
     def embed(
             self,
             embedder_name: Union[str, CommonEmbedder],
-            sequence_data: Union[str, Dict[str, str]],
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
             reduce: Optional[bool] = True,
             use_half_precision: Optional[bool] = False,
     ) -> BiocentralServerTask[EmbeddingsResult]:
@@ -317,8 +330,9 @@ class BiocentralAPI:
         :param embedder_name: The name of the embedder to be used for generating embeddings.
             Can be any valid huggingface string identifier or a CommonEmbedder enum value.
             Examples: "one_hot_encoding", "Rostlab/prot_t5_xl_uniref50", "random_embedder"
-        :param sequence_data: A dictionary containing the sequence data or a path to a fasta file
-            for which embeddings should be calculated. Must have at least one and maximum 1,000 sequences.
+        :param sequence_data: A dictionary containing the sequence data, a list of SequenceData objects
+            or a path to a fasta file for which embeddings should be calculated.
+            Must have at least one and maximum 1,000 sequences.
         :param reduce: Specifies whether the embeddings should be reduced to per-sequence or not. Defaults to True.
         :param use_half_precision: Indicates whether half-precision should be used for embeddings to
             minimize memory usage. Defaults to False.
@@ -587,7 +601,52 @@ class BiocentralAPI:
 
         active_learning_client = ActiveLearningClient()
         with self._create_api_client() as api_client:
-            biocentral_server_task = active_learning_client.al_simulation(
+            biocentral_server_task = active_learning_client.al_screening_simulation(
                 api_client, campaign_config, simulation_config
+            )
+            return biocentral_server_task
+
+    def al_engineering_simulation(
+        self,
+        campaign_config: ActiveLearningEngineeringCampaignConfig,
+        simulation_config: ActiveLearningEngineeringSimulationConfig,
+    ) -> BiocentralServerTask[ActiveLearningScreeningSimulationResult]:
+        """Simulate an engineering campaign over a labelled landscape.
+
+        Each iteration scores a sample of unlabelled landscape variants through the
+        engineering pipeline, so features such as delta embeddings apply.
+        """
+        if len(simulation_config.simulation_data) < 2:
+            raise ValueError(
+                "Not enough data provided for an active learning simulation."
+            )
+        BiocentralAPI._check_sequence_lengths(
+            [
+                simulation_data_point.seq
+                for simulation_data_point in simulation_config.simulation_data
+            ]
+        )
+
+        active_learning_client = ActiveLearningClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = active_learning_client.al_engineering_simulation(
+                api_client, campaign_config, simulation_config
+            )
+            return biocentral_server_task
+
+    def perplexity(
+            self,
+            sequence_data: Union[str, Dict[str, str], List[SequenceData]],
+            plm_name: str,
+    ) -> BiocentralServerTask[PerplexityResult]:
+        """Compute (pseudo)perplexity for a given sequence using a given PLM."""
+        sequence_data = self._handle_sequence_input(sequence_data, embedder_name=None)
+        sequence_data_dict = {
+            seq_data.seq_id: seq_data.seq for seq_data in sequence_data
+        }
+        proteins_client = ProteinsClient()
+        with self._create_api_client() as api_client:
+            biocentral_server_task = proteins_client.perplexity(
+                api_client, sequence_data_dict, plm_name
             )
             return biocentral_server_task

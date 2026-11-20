@@ -46,7 +46,7 @@ biocentral embed sequences.fasta --embedder Rostlab/prot_t5_xl_uniref50 --mode l
 
 ## Functionality Commands
 
-These commands cover core bioinformatics workflows: *visualization, embedding, training, clustering, inference, and prediction*.
+These commands cover core bioinformatics workflows: *visualization, embedding, training, clustering, inference, prediction, and perplexity calculation*.
 
 ### `visualize` - Automatically plot your datasets
 
@@ -168,6 +168,30 @@ biocentral predict sequences.fasta --model model_a --model model_b
 |--------|-------------|
 | `--model` | *(required, repeatable)* Pre-trained model name(s) |
 | `--server-url` | Custom server URL |
+
+---
+
+### `perplexity` — Compute Sequence Perplexity
+
+Compute zero-shot (pseudo-)perplexity for sequences in a FASTA file using a protein language model.
+
+```shell
+biocentral perplexity sequences.fasta --plm facebook/esm2_t6_8M_UR50D
+```
+
+Run locally:
+```shell
+biocentral perplexity sequences.fasta --plm facebook/esm2_t6_8M_UR50D --mode local --device cuda
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--plm` | *(required)* Protein language model name |
+| `--mode` | `api` (default) or `local` |
+| `--server-url` | Custom server URL (api mode only) |
+| `--device` | Device for local computation, e.g. `cuda` or `cpu` |
 
 ---
 

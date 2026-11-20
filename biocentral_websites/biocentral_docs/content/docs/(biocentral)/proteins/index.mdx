@@ -1,6 +1,86 @@
 ---
 title: proteins
-description: Documentation for the proteins module.
+description: Sequence utilities, clustering, taxonomy retrieval, and perplexity evaluation.
 ---
 
-Module placeholder for `proteins`.
+The *biocentral* `proteins` module provides utilities for analyzing and scoring protein sequences, including **zero-shot perplexity estimation**, **sequence clustering**, and **taxonomy retrieval**.
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+## Perplexity (Zero-Shot Scoring)
+
+Compute the (pseudo-)perplexity or likelihood of protein sequences using masked language models (e.g., ESM2) or baseline models. Lower perplexity typically indicates higher sequence likelihood under the learned distribution.
+
+<Tabs items={['API', 'CLI']}>
+    <Tab value="API">
+        Using the [biocentral Python API](https://pypi.org/project/biocentral/):
+
+        ```python
+        from biocentral import Biocentral
+
+        biocentral = Biocentral()
+
+        sequence_data = {
+            "Seq1": "MMALSLALMM",
+            "Seq2": "PRTEINMMALM",
+        }
+        result = biocentral.perplexity(
+            sequence_data=sequence_data,
+            plm_name="facebook/esm2_t6_8M_UR50D",
+        )
+        print("Method:", result.method)
+        print("Perplexities:", result.seq2perplexity)
+        ```
+    </Tab>
+
+    <Tab value="CLI">
+
+        ```shell
+        biocentral perplexity sequences.fasta --plm facebook/esm2_t6_8M_UR50D
+        ```
+    </Tab>
+</Tabs>
+
+## Sequence Clustering
+
+Cluster protein sequences based on sequence identity using MMseqs2.
+
+<Tabs items={['API']}>
+    <Tab value="API">
+
+        ```python
+        from biocentral import Biocentral
+
+        biocentral = Biocentral()
+
+        sequence_data = {
+            "Seq1": "MMALSLALMM",
+            "Seq2": "MMALSLALMA",
+            "Seq3": "ACDEFGHIKLMNPQRSTVWY",
+        }
+        clusters = biocentral.cluster(
+            sequence_data=sequence_data,
+            sequence_identity_threshold=0.8,
+        )
+        print("Clusters:", clusters)
+        ```
+    </Tab>
+</Tabs>
+
+## Taxonomy Retrieval
+
+Retrieve taxonomic classifications and metadata for NCBI Taxonomy IDs.
+
+<Tabs items={['API']}>
+    <Tab value="API">
+
+        ```python
+        from biocentral import Biocentral
+
+        biocentral = Biocentral()
+
+        taxonomy_info = biocentral.taxonomy(taxonomy_ids=[9606, 11292])
+        print(taxonomy_info)
+        ```
+    </Tab>
+</Tabs>

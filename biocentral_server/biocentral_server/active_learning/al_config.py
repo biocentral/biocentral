@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List, Optional
-from biotrainer_core.data_classes import SequenceData
+from biotrainer_core.data_classes import Mutation, SequenceData
 from pydantic import BaseModel, Field, model_validator, field_validator
 
+from .delta_embeddings import DELTA_INCOMPATIBLE_EMBEDDERS
 from ..server_management.shared_endpoint_models.embedder_base_model import (
     EmbedderModelBase,
 )
@@ -139,9 +140,21 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
         description="Optimization mode selection"
     )
     seed: Optional[int] = Field(
-        default=43, description="Random seed for reproducibility."
+        default=42, description="Random seed for reproducibility."
     )
     wildtype_sequence: str = Field(description="Wildtype sequence to engineer")
+    use_delta_embeddings: bool = Field(
+        default=False,
+        description="Use each sequence's embedding minus the wildtype embedding as model "
+        "input (only supported for residue-aware embedders)",
+    )
+    allowed_substitutions: Optional[List[Mutation]] = Field(
+        default=None,
+        description="Wildtype-relative substitutions the generator may draw from. None "
+        "allows any standard amino acid at any position. "
+        "The design space always includes the wildtype residue at every position",
+        min_length=1,
+    )
 
     @model_validator(mode="after")
     def validate_config(self):
@@ -152,6 +165,29 @@ class ActiveLearningEngineeringCampaignConfig(EmbedderModelBase):
             raise ValueError(
                 "Only MAXIMIZE and MINIMIZE are supported for engineering campaigns!"
             )
+        if (
+            self.use_delta_embeddings
+            and self.embedder_name in DELTA_INCOMPATIBLE_EMBEDDERS
+        ):
+            raise ValueError(
+                "Delta embeddings need an embedder that encodes the residues, "
+                f"which {self.embedder_name} does not!"
+            )
+        # A position convention mismatch would otherwise surface as a generator that
+        # silently proposes nothing a landscape can score
+        for mutation in self.allowed_substitutions or []:
+            index = mutation.get_pos()
+            if index >= len(self.wildtype_sequence):
+                raise ValueError(
+                    f"Substitution {mutation.to_string()} lies outside the wildtype sequence "
+                    f"of length {len(self.wildtype_sequence)}!"
+                )
+            if self.wildtype_sequence[index] != mutation.wt:
+                raise ValueError(
+                    f"Substitution {mutation.to_string()} disagrees with the wildtype sequence, "
+                    f"which has '{self.wildtype_sequence[index]}' at position "
+                    f"{mutation.position}!"
+                )
 
         return self
 
@@ -160,8 +196,11 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     """Configuration for a single iteration of active learning"""
 
     iteration: int = Field(description="Iteration number")
-    base_sequences: List[str] = Field(
-        description="Sequences used to generate mutations", min_length=1
+    base_sequences: Optional[List[str]] = Field(
+        default=None,
+        description="Sequences used to generate mutations "
+        "(defaults to the wildtype sequence of the campaign)",
+        min_length=1,
     )
     training_data: List[SequenceData] = Field(
         description="List of training data for this iteration", min_length=1
@@ -174,6 +213,22 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
     n_suggestions: int = Field(
         description="Number of suggestions to propose from this iteration", ge=1
     )
+    n_mutations: int = Field(
+        default=1000,
+        description="Number of mutations to generate and score in this iteration",
+        ge=1,
+    )
+    n_substitutions: int = Field(
+        default=1,
+        description="Substitutions each generated candidate carries against its base "
+        "sequence",
+        ge=1,
+    )
+    generate_candidates: bool = Field(
+        default=False,
+        description="Generate candidates even when a candidate pool is supplied, keeping "
+        "only the generated sequences the pool contains",
+    )
 
     @field_validator("training_data")
     @classmethod
@@ -185,14 +240,15 @@ class ActiveLearningEngineeringIterationConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_config(self):
-        if len(self.base_sequences) != len(set(self.base_sequences)):
+        base_sequences = self.base_sequences or []
+        if len(base_sequences) != len(set(base_sequences)):
             raise ValueError("base_sequences contains duplicate entries!")
 
         return self
 
 
-class ActiveLearningConvergenceConfig(BaseModel):
-    """Configuration for convergence criteria for active learning campaigns"""
+class ActiveLearningStoppingConfig(BaseModel):
+    """Configuration for stopping criteria for active learning campaigns"""
 
     max_labels_budget: Optional[int] = Field(
         default=None,
@@ -213,16 +269,24 @@ class ActiveLearningConvergenceConfig(BaseModel):
         "('Stop if 3 rounds yield nothing')",
         ge=1,
     )
+    n_max_iterations: int = Field(
+        default=100,
+        description="Hard upper limit on the number of iterations, "
+        "applied even if no other criterion is reached",
+        ge=1,
+    )
 
     @model_validator(mode="after")
-    def validate_convergence_config(self):
+    def validate_stopping_config(self):
+        # n_max_iterations is a backstop with a default, not a criterion the caller
+        # chooses, so it does not satisfy this requirement on its own.
         if (
             self.max_labels_budget is None
             and self.n_hits is None
             and self.max_consecutive_failures is None
         ):
             raise ValueError(
-                "At least one of n_max_iterations, "
+                "At least one of "
                 "max_labels_budget, "
                 "n_hits, "
                 "max_consecutive_failures must be specified!"
@@ -230,8 +294,8 @@ class ActiveLearningConvergenceConfig(BaseModel):
         return self
 
 
-class ActiveLearningScreeningSimulationConfig(BaseModel):
-    """Configuration for a simulation of active learning on a complete dataset"""
+class _ActiveLearningSimulationConfig(BaseModel):
+    """Fields and checks shared by screening and engineering simulations"""
 
     simulation_data: List[SequenceData] = Field(
         description="List of all sequence data for the simulation", min_length=3
@@ -250,8 +314,17 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
     n_suggestions_per_iteration: int = Field(
         description="Number of suggestions to propose per iteration", ge=1
     )
-    convergence_config: ActiveLearningConvergenceConfig = Field(
-        description="Convergence criteria for the simulation"
+    stopping_config: ActiveLearningStoppingConfig = Field(
+        description="Stopping criteria for the simulation"
+    )
+
+    # Configuration of what counts as a hit (target success)
+    hit_percentile: float = Field(
+        default=1.0,
+        description="Percentile of all labels that counts as a hit "
+        "(modes: MAXIMIZE, MINIMIZE). 1.0 means the top/bottom 1% of the labels.",
+        gt=0.0,
+        lt=50.0,
     )
 
     @field_validator("simulation_data")
@@ -286,4 +359,59 @@ class ActiveLearningScreeningSimulationConfig(BaseModel):
             )
             if not start_ids_unique.issubset(simulation_ids):
                 raise ValueError("start_ids not a subset of simulation_data ids!")
+        return self
+
+
+class ActiveLearningScreeningSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulation of active learning on a complete dataset"""
+
+    hit_target_delta: float = Field(
+        default=0.5,
+        description="Absolute tolerance around the target value that counts as a hit "
+        "(mode: VALUE)",
+        gt=0.0,
+    )
+
+
+class ActiveLearningEngineeringSimulationConfig(_ActiveLearningSimulationConfig):
+    """Configuration for a simulated engineering campaign over a labelled landscape.
+
+    Each round scores candidates drawn from simulation_data, so every suggestion has a
+    label to reveal. Engineering campaigns only maximize or minimize, so there is no
+    hit_target_delta.
+    """
+
+    n_candidates_per_iteration: int = Field(
+        default=1000,
+        description="Number of unlabelled landscape variants to score per iteration",
+        ge=1,
+    )
+    generate_candidates: bool = Field(
+        default=False,
+        description="Build each round's candidates by mutating the variants measured so "
+        "far, keeping only those the landscape contains, instead of drawing them from the "
+        "landscape uniformly",
+    )
+    n_substitutions: int = Field(
+        default=1,
+        description="Substitutions each generated candidate carries against its base "
+        "sequence (generate_candidates only)",
+        ge=1,
+    )
+
+    @field_validator("simulation_data")
+    @classmethod
+    def validate_unique_sequences(cls, v: List[SequenceData]):
+        # Suggestions are matched back to the landscape by sequence
+        sequences = [data_point.seq for data_point in v]
+        if len(sequences) != len(set(sequences)):
+            raise ValueError("simulation_data contains duplicate sequences!")
+        return v
+
+    @model_validator(mode="after")
+    def validate_candidates(self):
+        if self.n_candidates_per_iteration < self.n_suggestions_per_iteration:
+            raise ValueError(
+                "n_candidates_per_iteration must be at least n_suggestions_per_iteration"
+            )
         return self

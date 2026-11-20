@@ -3,16 +3,17 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:biocentral_api/src/model/biocentral_model_result.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
-import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
 import 'package:biocentral_api/src/model/active_learning_iteration_result.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/sequence_data.dart';
+import 'package:biocentral_api/src/model/perplexity_result.dart';
 import 'package:biocentral_api/src/model/projection_result.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -24,9 +25,10 @@ part 'task_dto.g.dart';
 /// Properties:
 /// * [status] 
 /// * [error] 
+/// * [perplexityResult] 
 /// * [predictions] 
 /// * [biotrainerUpdate] 
-/// * [biotrainerResult] 
+/// * [biocentralModelResult] 
 /// * [biotrainerInferenceResult] 
 /// * [embeddingProgress] 
 /// * [embeddedSequences] 
@@ -45,14 +47,17 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'error')
   String? get error;
 
+  @BuiltValueField(wireName: r'perplexity_result')
+  PerplexityResult? get perplexityResult;
+
   @BuiltValueField(wireName: r'predictions')
   BuiltMap<String, BuiltList<Prediction>>? get predictions;
 
   @BuiltValueField(wireName: r'biotrainer_update')
   BiotrainerModelUpdate? get biotrainerUpdate;
 
-  @BuiltValueField(wireName: r'biotrainer_result')
-  BiotrainerModelResult? get biotrainerResult;
+  @BuiltValueField(wireName: r'biocentral_model_result')
+  BiocentralModelResult? get biocentralModelResult;
 
   @BuiltValueField(wireName: r'biotrainer_inference_result')
   BiotrainerInferenceResult? get biotrainerInferenceResult;
@@ -116,6 +121,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         specifiedType: const FullType.nullable(String),
       );
     }
+    if (object.perplexityResult != null) {
+      yield r'perplexity_result';
+      yield serializers.serialize(
+        object.perplexityResult,
+        specifiedType: const FullType.nullable(PerplexityResult),
+      );
+    }
     if (object.predictions != null) {
       yield r'predictions';
       yield serializers.serialize(
@@ -130,11 +142,11 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         specifiedType: const FullType.nullable(BiotrainerModelUpdate),
       );
     }
-    if (object.biotrainerResult != null) {
-      yield r'biotrainer_result';
+    if (object.biocentralModelResult != null) {
+      yield r'biocentral_model_result';
       yield serializers.serialize(
-        object.biotrainerResult,
-        specifiedType: const FullType.nullable(BiotrainerModelResult),
+        object.biocentralModelResult,
+        specifiedType: const FullType.nullable(BiocentralModelResult),
       );
     }
     if (object.biotrainerInferenceResult != null) {
@@ -238,6 +250,14 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           if (valueDes == null) continue;
           result.error = valueDes;
           break;
+        case r'perplexity_result':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(PerplexityResult),
+          ) as PerplexityResult?;
+          if (valueDes == null) continue;
+          result.perplexityResult.replace(valueDes);
+          break;
         case r'predictions':
           final valueDes = serializers.deserialize(
             value,
@@ -254,13 +274,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           if (valueDes == null) continue;
           result.biotrainerUpdate.replace(valueDes);
           break;
-        case r'biotrainer_result':
+        case r'biocentral_model_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BiotrainerModelResult),
-          ) as BiotrainerModelResult?;
+            specifiedType: const FullType.nullable(BiocentralModelResult),
+          ) as BiocentralModelResult?;
           if (valueDes == null) continue;
-          result.biotrainerResult.replace(valueDes);
+          result.biocentralModelResult.replace(valueDes);
           break;
         case r'biotrainer_inference_result':
           final valueDes = serializers.deserialize(

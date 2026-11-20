@@ -7,6 +7,7 @@ Make sure you have the [openapi-generator-cli](https://openapi-generator.tech/do
 """
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -116,6 +117,7 @@ def read_generated_files_list(files_list_path: Path):
 def prune_outdated_generated_code(lang_root: Path, generated_files: set):
     """Delete files under biocentral_api/_generated that are no longer generated.
 
+    Args:
     - lang_root: path to the python folder (e.g., repo/python)
     - generated_files: set of relative paths (as in .openapi-generator/FILES) rooted at lang_root
     """
@@ -148,62 +150,31 @@ def prune_outdated_generated_code(lang_root: Path, generated_files: set):
             pass
 
 
-def prune_outdated_generated_code_dart(lang_root: Path, generated_files: set):
-    """Delete generated Dart files under lib/ that are no longer generated.
+def prune_outdated_generated_code_dart(
+    lang_root: Path, previous_files: set, current_files: set
+):
+    """Delete Dart files the previous generation emitted that this one no longer does.
 
+    Args:
     - lang_root: path to the dart folder (e.g., repo/dart)
-    - generated_files: set of relative paths (as in .openapi-generator/FILES) rooted at lang_root
-
-    Safety: Only prune within directories that contain generated files (as reported in FILES),
-    so manual Dart sources in other lib/ subfolders (e.g., lib/src/clients) are not touched.
+    - previous_files: .openapi-generator/FILES as it was *before* this generation
+    - current_files: .openapi-generator/FILES as written by this generation
     """
-    excluded_dirs = ["clients", "tasks"]
-    excluded_files = ["high_level_api.dart"]
-    target_rel_prefix = "lib/"
-    lib_dir = lang_root / "lib"
+    stale = {p for p in previous_files - current_files if p.startswith("lib/")}
 
-    if not lib_dir.exists():
-        return
-
-    # Build the allow-list for files under lib/
-    allow = {p for p in generated_files if p.startswith(target_rel_prefix)}
-
-    # Build set of directories that contain generated files; limit pruning to these
-    prune_dirs = set()
-    for p in allow:
-        d = (lang_root / p).parent
-        # Ensure the directory is within lib/
-        try:
-            d.relative_to(lib_dir)
-            prune_dirs.add(d)
-        except ValueError:
-            # Outside lib/, ignore
-            continue
-
-    # Also include lib root if there are generated files directly under lib/
-    has_lib_root_files = any(Path(p).parent.as_posix() == "lib" for p in allow)
-    if has_lib_root_files:
-        prune_dirs.add(lib_dir)
-
-    # Normalize allow to absolute Path objects for faster membership checks
-    allow_abs = {(lang_root / p).as_posix() for p in allow}
-
-    # Walk each prune_dir subtree and delete files not present in allow list
-    for dir_root in sorted(prune_dirs):
-        for root, _, files in os.walk(dir_root, topdown=False):
-            if root.split("/")[-1] in excluded_dirs:
+    for rel in sorted(stale):
+        candidates = [rel]
+        if rel.endswith(".dart") and not rel.endswith(".g.dart"):
+            candidates.append(rel[: -len(".dart")] + ".g.dart")
+        for candidate in candidates:
+            full_path = lang_root / candidate
+            if not full_path.is_file():
                 continue
-            for fname in files:
-                if fname in excluded_files:
-                    continue
-                full_path = Path(root) / fname
-                if full_path.as_posix() not in allow_abs:
-                    rel_from_lang = full_path.relative_to(lang_root).as_posix()
-                    print(f"Removing outdated generated Dart file: {rel_from_lang}")
-                    try:
-                        full_path.unlink()
-                    except Exception as e:
-                        print(f"Failed to remove {full_path}: {e}")
+            print(f"Removing outdated generated Dart file: {candidate}")
+            try:
+                full_path.unlink()
+            except Exception as e:
+                print(f"Failed to remove {full_path}: {e}")
 
 
 def git_add_generated_files(lang_root: Path, language: str):
@@ -238,84 +209,274 @@ def git_add_generated_files(lang_root: Path, language: str):
     return success
 
 
-def post_process_imports(output_dir: Path):
-    """Add missing imports for mapped types to generated Python files."""
+def to_snake_case(name: str) -> str:
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    generated_models_dir = output_dir / "biocentral_api" / "_generated" / "models"
 
-    if not generated_models_dir.exists():
-        print(f"Models directory not found: {generated_models_dir}")
+def parse_import_mapping(type_name: str, mapping_value: str) -> tuple[str, str, str]:
+    """Parse import mapping value into (type_name, full_module_path, import_statement)."""
+    if " import " in mapping_value:
+        parts = mapping_value.split(" import ")
+        module = parts[0].replace("from ", "").strip()
+        name = parts[1].strip()
+        import_stmt = f"from {module} import {name}"
+        full_module_path = f"{module}.{name}"
+        return name, full_module_path, import_stmt
+    elif "." in mapping_value:
+        module, name = mapping_value.rsplit(".", 1)
+        import_stmt = f"from {module} import {name}"
+        full_module_path = mapping_value
+        return name, full_module_path, import_stmt
+    else:
+        return type_name, type_name, f"import {type_name}"
+
+
+def get_default_import_mappings() -> dict[str, str]:
+    """Get the mapping of domain types to their canonical biotrainer_core locations."""
+    mappings = {
+        # biotrainer_core.data_classes
+        "SequenceData": "biotrainer_core.data_classes.SequenceData",
+        "Protocol": "biotrainer_core.data_classes.Protocol",
+        "ZeroShotMethod": "biotrainer_core.data_classes.ZeroShotMethod",
+        "BiotrainerModelResult": "biotrainer_core.data_classes.BiotrainerModelResult",
+        "BiotrainerModelUpdate": "biotrainer_core.data_classes.BiotrainerModelUpdate",
+        "TrainingResult": "biotrainer_core.data_classes.TrainingResult",
+        "TestResult": "biotrainer_core.data_classes.TestResult",
+        "DerivedValues": "biotrainer_core.data_classes.DerivedValues",
+        "BiotrainerPrediction": "biotrainer_core.data_classes.BiotrainerPrediction",
+        "BiotrainerInferenceResult": "biotrainer_core.data_classes.BiotrainerInferenceResult",
+        "EmbeddingStats": "biotrainer_core.data_classes.EmbeddingStats",
+        "EpochMetrics": "biotrainer_core.data_classes.EpochMetrics",
+        "BootstrappedMetric": "biotrainer_core.data_classes.BootstrappedMetric",
+        "MetricEstimate": "biotrainer_core.data_classes.MetricEstimate",
+        "Mutation": "biotrainer_core.data_classes.Mutation",
+        "Variant": "biotrainer_core.data_classes.Variant",
+        "VariantScore": "biotrainer_core.data_classes.VariantScore",
+        "RankingResult": "biotrainer_core.data_classes.RankingResult",
+        "AggregatedRankingResult": "biotrainer_core.data_classes.AggregatedRankingResult",
+        "SingleMutationScore": "biotrainer_core.data_classes.SingleMutationScore",
+        "ContactDatasetResult": "biotrainer_core.data_classes.ContactDatasetResult",
+        "ContactSingleProteinResult": "biotrainer_core.data_classes.ContactSingleProteinResult",
+    }
+    try:
+        import biotrainer_core.data_classes as dc
+        for name in getattr(dc, "__all__", []):
+            mappings[name] = f"biotrainer_core.data_classes.{name}"
+    except Exception:
+        pass
+    return mappings
+
+
+def post_process_imports(output_dir: Path, import_mappings: dict[str, str]):
+    """Add missing imports for mapped types and fix mappings in generated Python files.
+
+    Args:
+        output_dir: The output directory containing generated files
+        import_mappings: Dictionary mapping type names to their module paths or import statements
+                        e.g., {"SequenceData": "biotrainer_core.data_classes.SequenceData"}
+    """
+    generated_root = output_dir / "biocentral_api" / "_generated"
+    generated_models_dir = generated_root / "models"
+
+    if not generated_root.exists():
+        print(f"Generated directory not found: {generated_root}")
         return
 
-    import_statement = "from biotrainer_core.data_classes import SequenceData"
+    normalized_mappings = []
+    for type_name, mapping_value in import_mappings.items():
+        name, full_path, import_stmt = parse_import_mapping(type_name, mapping_value)
+        snake_name = to_snake_case(name)
+        normalized_mappings.append(
+            {
+                "type_name": name,
+                "full_path": full_path,
+                "import_statement": import_stmt,
+                "snake_name": snake_name,
+            }
+        )
 
-    # Process all Python files in the models directory
-    for py_file in generated_models_dir.glob("*.py"):
+    # 1. Remove duplicate generated model files for mapped types
+    if generated_models_dir.exists():
+        for m in normalized_mappings:
+            model_file = generated_models_dir / f"{m['snake_name']}.py"
+            if model_file.exists():
+                print(f"Removing duplicate generated model file: {model_file.name}")
+                try:
+                    model_file.unlink()
+                except Exception as e:
+                    print(f"Failed to remove {model_file}: {e}")
+
+    # 2. Process all Python files in _generated (models, api, etc.) except __init__.py
+    for py_file in generated_root.rglob("*.py"):
         if py_file.name == "__init__.py":
             continue
 
         content = py_file.read_text()
+        modified = False
 
-        # Check if the file references SequenceData
-        if "biotrainer_core.data_classes.SequenceData" in content:
-            # Check if import already exists
-            if import_statement not in content:
-                # Find the last import statement
-                lines = content.split("\n")
-                last_import_idx = 0
+        for m in normalized_mappings:
+            type_name = m["type_name"]
+            full_path = m["full_path"]
+            import_statement = m["import_statement"]
+            snake_name = m["snake_name"]
 
-                for i, line in enumerate(lines):
-                    if line.startswith("from ") or line.startswith("import "):
-                        last_import_idx = i
-
-                # Insert the import after the last import
-                lines.insert(last_import_idx + 1, import_statement)
-                content = "\n".join(lines)
-
-                # Replace the fully qualified name with just SequenceData
-                content = content.replace(
-                    "biotrainer_core.data_classes.SequenceData", "SequenceData"
-                )
-
-                py_file.write_text(content)
-                print(f"Added SequenceData import to {py_file.name}")
-
-    # Also update __init__.py to not export SequenceData model
-    init_files = [
-        generated_models_dir / "__init__.py",
-        generated_models_dir.parent / "__init__.py",
-    ]
-    for init_file in init_files:
-        if init_file.exists():
-            content = init_file.read_text()
-
-            # Remove any line that imports/exports the generated SequenceData
-            lines = content.split("\n")
-            filtered_lines = [
-                line
-                for line in lines
-                if not (
-                    "sequence_data import SequenceData" in line
-                    or "'SequenceData': SequenceData" in line
-                )
+            # Remove any generated model import statements for this type
+            gen_import_patterns = [
+                rf"^from\s+biocentral_api\._generated\.models\.{re.escape(snake_name)}\s+import\s+{re.escape(type_name)}.*$\n?",
+                rf"^from\s+\.{re.escape(snake_name)}\s+import\s+{re.escape(type_name)}.*$\n?",
             ]
+            for pattern in gen_import_patterns:
+                if re.search(pattern, content, flags=re.MULTILINE):
+                    content = re.sub(pattern, "", content, flags=re.MULTILINE)
+                    modified = True
 
-            # Add import from biotrainer_core if SequenceData is referenced
-            if "SequenceData" in content and import_statement not in content:
-                # Find where to insert (after other imports)
+            # Replace fully qualified path with type name
+            if full_path in content:
+                content = content.replace(full_path, type_name)
+                modified = True
+
+            # If the file references the type name, ensure the import is present
+            if re.search(rf"\b{re.escape(type_name)}\b", content):
+                if import_statement not in content:
+                    lines = content.split("\n")
+                    last_import_idx = 0
+                    for i, line in enumerate(lines):
+                        if line.startswith("from ") or line.startswith("import "):
+                            last_import_idx = i
+
+                    lines.insert(last_import_idx + 1, import_statement)
+                    content = "\n".join(lines)
+                    modified = True
+
+        if modified:
+            py_file.write_text(content)
+            print(f"Updated imports in {py_file.relative_to(output_dir)}")
+
+    # 3. Update models/__init__.py
+    models_init = generated_models_dir / "__init__.py"
+    if models_init.exists():
+        content = models_init.read_text()
+        lines = content.split("\n")
+        filtered_lines = []
+
+        for line in lines:
+            should_skip = False
+            for m in normalized_mappings:
+                type_name = m["type_name"]
+                snake_name = m["snake_name"]
+                full_path = m["full_path"]
+                if (
+                    f"models.{snake_name} import {type_name}" in line
+                    or line.strip().startswith(full_path)
+                    or f"from .{snake_name} import" in line
+                ):
+                    should_skip = True
+                    break
+
+            if not should_skip:
+                filtered_lines.append(line)
+
+        # Add proper imports from external module
+        comment = "  # Intentional export of biotrainer-core model to keep compatibility"
+        for m in normalized_mappings:
+            import_stmt = m["import_statement"]
+            if not any(import_stmt in line for line in filtered_lines):
                 insert_idx = 0
                 for i, line in enumerate(filtered_lines):
                     if line.startswith("from ") or line.startswith("import "):
                         insert_idx = i + 1
+                filtered_lines.insert(insert_idx, import_stmt + comment)
 
-                comment = "  # Intentional export of biotrainer-core model to keep compatibility"
-                filtered_lines.insert(insert_idx, import_statement + comment)
+        models_init.write_text("\n".join(filtered_lines))
+        print("Updated models/__init__.py")
 
-            init_file.write_text("\n".join(filtered_lines))
-            print("Updated __init__.py")
+    # 4. Update _generated/__init__.py
+    gen_init = generated_root / "__init__.py"
+    if gen_init.exists():
+        content = gen_init.read_text()
+        lines = content.split("\n")
+        filtered_lines = []
+
+        for line in lines:
+            should_skip = False
+            for m in normalized_mappings:
+                type_name = m["type_name"]
+                snake_name = m["snake_name"]
+                full_path = m["full_path"]
+                if (
+                    f"models.{snake_name} import" in line
+                    or f".{snake_name} import" in line
+                    or line.strip().startswith(full_path)
+                ):
+                    should_skip = True
+                    break
+
+            if not should_skip:
+                filtered_lines.append(line)
+
+        # Ensure all mapped types are in __all__
+        all_start_idx = -1
+        all_end_idx = -1
+        for i, line in enumerate(filtered_lines):
+            if line.startswith("__all__ = ["):
+                all_start_idx = i
+            elif all_start_idx != -1 and line.strip() == "]":
+                all_end_idx = i
+                break
+
+        if all_start_idx != -1 and all_end_idx != -1:
+            existing_all = {
+                line.strip().strip('",\'')
+                for line in filtered_lines[all_start_idx + 1 : all_end_idx]
+                if line.strip()
+            }
+            for m in normalized_mappings:
+                type_name = m["type_name"]
+                if type_name not in existing_all:
+                    filtered_lines.insert(all_end_idx, f'    "{type_name}",')
+                    all_end_idx += 1
+
+        # Add imports from external module
+        comment = "  # Intentional export of biotrainer-core model to keep compatibility"
+        for m in normalized_mappings:
+            type_name = m["type_name"]
+            import_stmt = m["import_statement"]
+            if not any(f"import {type_name}" in line for line in filtered_lines):
+                insert_idx = 0
+                for i, line in enumerate(filtered_lines):
+                    if line.startswith("from ") or line.startswith("import "):
+                        insert_idx = i + 1
+                filtered_lines.insert(insert_idx, f"{import_stmt} as {type_name}{comment}")
+
+        gen_init.write_text("\n".join(filtered_lines))
+        print("Updated _generated/__init__.py")
 
 
-def generate_python(openapi_spec: Path, python_target_dir: Path):
+def remove_unnecessary_api_docs(target_docs_dir: Path, import_mappings: dict[str, str]):
+    """Remove documentation files for types that are mapped to external modules.
+    
+    Args:
+        target_docs_dir: The directory containing generated documentation (_generated)
+        import_mappings: Dictionary mapping type names to their module paths
+                        e.g., {"SequenceData": "biotrainer_core.data_classes.SequenceData"}
+    """
+    if not target_docs_dir.exists():
+        print(f"Target docs directory not found: {target_docs_dir}")
+        return
+
+    for type_name in import_mappings.keys():
+        doc_file = target_docs_dir / f"{type_name}.md"
+
+        if doc_file.exists():
+            print(f"Removing unnecessary generated doc file: {doc_file.name}")
+            try:
+                doc_file.unlink()
+            except Exception as e:
+                print(f"Failed to remove {doc_file}: {e}")
+
+
+def generate_python(openapi_spec: Path, python_target_dir: Path, custom_import_mappings: dict[str, str] = None):
     # Define paths
     output_dir = python_target_dir
     temp_docs_dir = output_dir / "docs"
@@ -331,6 +492,12 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
 
     existing_manual_docs = list(os.listdir(temp_docs_dir))
 
+    import_mappings = get_default_import_mappings()
+    if custom_import_mappings:
+        import_mappings.update(custom_import_mappings)
+
+    import_mappings_string = ','.join([f'{k}={v}' for k, v in import_mappings.items()])
+    language_specific_primitives_string = f"--language-specific-primitives={','.join(import_mappings.keys())}"
     # Prepare the openapi-generator command
     generator_command = [
         "openapi-generator-cli",
@@ -341,10 +508,10 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
         "biocentral_api._generated",
         "--global-property=apiTests=false,modelTests=false,apiDocs=true,modelDocs=true",
         "--type-mappings",
-        "SequenceData=biotrainer_core.data_classes.SequenceData",
+        import_mappings_string,
         "--import-mappings",
-        "SequenceData=biotrainer_core.data_classes.SequenceData",
-        "--language-specific-primitives=SequenceData",
+        import_mappings_string,
+        language_specific_primitives_string,
         "-i",
         str(openapi_spec),
         "-o",
@@ -362,7 +529,7 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
 
     # Post-process to add missing imports
     print("Post-processing imports...")
-    post_process_imports(output_dir)
+    post_process_imports(output_dir, import_mappings)
 
     # Check if docs were generated and need to be moved
     if temp_docs_dir.exists() and any(temp_docs_dir.iterdir()):
@@ -379,6 +546,10 @@ def generate_python(openapi_spec: Path, python_target_dir: Path):
             sys.exit(1)
     else:
         print("No generated documentation found to move")
+
+    # Remove unnecessary documentation for mapped types
+    print("Removing unnecessary API documentation...")
+    remove_unnecessary_api_docs(target_docs_dir, import_mappings)
 
     # After generation and doc move, prune outdated files and docs based on the current FILES list
     files_list_path = output_dir / ".openapi-generator" / "FILES"
@@ -409,6 +580,11 @@ def generate_dart(openapi_spec: Path, dart_target_dir: Path):
         target_docs_dir.mkdir(parents=True, exist_ok=True)
 
     existing_manual_docs = list(os.listdir(temp_docs_dir))
+
+    # Snapshot the generator's own file list before it is overwritten; the prune step
+    # below uses it to tell generated files apart from hand-written ones.
+    files_list_path = output_dir / ".openapi-generator" / "FILES"
+    previous_files = read_generated_files_list(files_list_path)
 
     # Prepare the openapi-generator command
     generator_command = [
@@ -465,11 +641,11 @@ def generate_dart(openapi_spec: Path, dart_target_dir: Path):
     else:
         print("No generated documentation found to move")
 
-    # After generation and (optional) doc move, prune outdated Dart generated files based on the current FILES list
-    files_list_path = output_dir / ".openapi-generator" / "FILES"
-    generated_files = read_generated_files_list(files_list_path)
-    if generated_files:
-        prune_outdated_generated_code_dart(output_dir, generated_files)
+    # Prune files the previous run generated that this one did not. previous_files was
+    # captured before the generator overwrote FILES.
+    current_files = read_generated_files_list(files_list_path)
+    if current_files:
+        prune_outdated_generated_code_dart(output_dir, previous_files, current_files)
     else:
         print("Warning: No generated files list found for Dart; skipping prune step.")
 
@@ -500,8 +676,8 @@ def main():
     dart_target_dir = base_dir / "dart"
 
     openapi_spec = get_openapi_spec(openapi_target_dir, skip_generation=False)
-    #generate_python(openapi_spec=openapi_spec, python_target_dir=python_target_dir)
-    generate_dart(openapi_spec=openapi_spec, dart_target_dir=dart_target_dir)
+    generate_python(openapi_spec=openapi_spec, python_target_dir=python_target_dir)
+    #generate_dart(openapi_spec=openapi_spec, dart_target_dir=dart_target_dir)
 
 
 if __name__ == "__main__":
