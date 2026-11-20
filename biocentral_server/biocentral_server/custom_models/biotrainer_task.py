@@ -176,4 +176,4 @@ class BiotrainerTempTask(TaskInterface):
                        biocentral_model_result=BiocentralModelResult(model_result=biotrainer_result,
                                                                      logging_file="",
                                                                      checkpoints=[],
-                                                                     onnx_checkpoint=""))
+                                                                     onnx_checkpoint=None))
