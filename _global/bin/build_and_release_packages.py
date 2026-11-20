@@ -27,19 +27,19 @@ PACKAGES = [
     #    "path": PROJECT_ROOT / "biotrainer",
     #    "changelog": PROJECT_ROOT / "biotrainer" / "Changelog.md",
     #},
-    #{
-    #    "name": "biocentral_ire",
-    #    "target_version": "2.0.0+1",
-    #    "path": PROJECT_ROOT / "biocentral_ire",
-    #    "changelog": PROJECT_ROOT / "biocentral_ire" / "Changelog.md",
-    #    "version_check_only": True,
-    #    "type": "pub.dev",
-    #},
+    {
+        "name": "biocentral_ire",
+        "target_version": "2.1.0+1",
+        "path": PROJECT_ROOT / "biocentral_ire",
+        "changelog": PROJECT_ROOT / "biocentral_ire" / "Changelog.md",
+        "version_check_only": True,
+        "type": "pub.dev",
+    },
     {
         "name": "biocentral_status",
-        "target_version": "2.0.0+1",
+        "target_version": "2.1.0+1",
         "path": PROJECT_ROOT / "biocentral_websites/biocentral_status",
-        "changelog": PROJECT_ROOT / "Changelog.md",
+        "changelog": PROJECT_ROOT / "biocentral_websites" / "biocentral_status" / "Changelog.md",
         "version_check_only": True,
         "type": "pub.dev",
     },
@@ -64,7 +64,7 @@ PACKAGES = [
     {
         "name": "biocentral_server",
         "type": "pypi",
-        "target_version": "2.0.1",
+        "target_version": "2.1.0",
         "path": PROJECT_ROOT / "biocentral_server",
         "changelog": PROJECT_ROOT / "biocentral_server" / "Changelog.md",
         "version_check_only": True,
@@ -205,7 +205,7 @@ def _print_package_summary(pkg, target_version: str, package_status: List[str]):
 
 
 def main():
-    default_target_version = "2.0.0" # Specified version number
+    default_target_version = "2.1.0" # Specified version number
     
     parser = argparse.ArgumentParser(description="Biocentral Build and Release Script")
     parser.add_argument("--dry-run", action="store_true", help="Execute in dry-run mode (default)")

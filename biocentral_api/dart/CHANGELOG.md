@@ -1,3 +1,13 @@
+## 2.1.0
+
+- Added engineering simulation API with mutation descriptors and delta embeddings
+- Added live HBI evaluation pipeline with API client models and serializers
+- Added perplexity endpoint support
+- Added clustering task APIs
+- Regenerated Python and Dart clients for engineering simulations and mutations
+- Improved error handling for unprocessable entity responses
+- Various dependency updates and code cleanup
+
 ## 2.0.0
 
 - Implements clustering task APIs for both Dart and Python.

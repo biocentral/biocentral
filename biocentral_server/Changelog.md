@@ -1,5 +1,21 @@
 # biocentral_server Changelog
 
+## v2.1.0
+
+- Added engineering simulation endpoint with delta embeddings for engineering campaigns
+- Added live HBI evaluation and cluster-aware partitioning across FE and BE
+- Added perplexity endpoint to proteins API
+- Added deep health check to also check service availability
+- Added configurable job admission rate limit and exploration coefficient for simulations
+- Added campaign seed throughout active learning for reproducibility
+- Replaced fastapi-limiter with custom implementation to allow upgrade to newer fastapi versions
+- Improved file management with better hash and path handling
+- Improved BodySizeLimitMiddleware to first check content-length header and reduced max file size to 50 MB
+- Added security_opt no-new-privileges:true to relevant production containers
+- Deprecated ppi endpoint and removed deprecated add embeddings endpoint
+- Fixed embedding save/load issues including half-precision embeddings and deadlock prevention
+- Various dependency updates and CI improvements
+
 ## v2.0.1
 
 - Hotfix: Using fixed biotrainer version 2.1.1
