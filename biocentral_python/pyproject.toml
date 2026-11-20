@@ -32,6 +32,7 @@ dev = [
 
 [tool.uv]
 exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+exclude-newer-package = { biotrainer = false, biotrainer-core = false }
 
 [project.scripts]
 biocentral = "biocentral.cli:biocentral"
