@@ -22,6 +22,7 @@ from ..shared_endpoint_models import (
     EmbeddingProgress,
     ProjectionResult,
     PerplexityResult,
+    BiocentralModelResult,
 )
 
 from ...utils import get_logger
@@ -60,7 +61,7 @@ class TaskDTO(BaseModel):
 
     # custom_models
     biotrainer_update: Optional[BiotrainerModelUpdate] = None
-    biotrainer_result: Optional[BiotrainerModelResult] = None
+    biocentral_model_result: Optional[BiocentralModelResult] = None
     biotrainer_inference_result: Optional[BiotrainerInferenceResult] = None
 
     # embeddings
