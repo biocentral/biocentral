@@ -18,8 +18,6 @@ from .endpoint_models import (
     ConfigVerificationResponse,
     ConfigOptionsResponse,
     StartTrainingRequest,
-    ModelFilesRequest,
-    ModelFilesResponse,
     StartInferenceRequest,
     ErrorResponse,
     ClusterHBIRequest,
@@ -197,6 +195,7 @@ async def start_training(
     )
 
     biotrainer_process = BiotrainerTask(
+        user_id=user_id,
         model_path=model_path,
         config_dict=verified_config,
         training_data=request_data.training_data,
@@ -206,32 +205,6 @@ async def start_training(
     )
 
     return StartTaskResponse(task_id=task_id)
-
-
-@router.post(
-    "/model_files",
-    response_model=ModelFilesResponse,
-    responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
-    summary="Retrieve model files",
-    description="Get trained model files after training completion",
-    dependencies=[Depends(RateLimiter(times=1, seconds=60))],
-)
-async def model_files(request_data: ModelFilesRequest, request: Request):
-    """Retrieve model files after training is finished"""
-    user_id = await UserManager.get_user_id_from_request(request)
-    file_manager = FileManager(user_id=user_id)
-
-    model_file_dict = file_manager.get_biotrainer_result_files(
-        model_hash=request_data.model_hash
-    )
-
-    if not model_file_dict or len(model_file_dict) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Model files not found. Training may not be complete or model hash is invalid.",
-        )
-
-    return ModelFilesResponse(**model_file_dict)
 
 
 @router.post(
