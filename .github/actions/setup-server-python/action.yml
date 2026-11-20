@@ -38,6 +38,6 @@ runs:
     - name: Install dependencies (CPU-only PyTorch)
       shell: bash
       working-directory: biocentral_server
-      run: |  
-        uv export --format requirements-txt > requirements.txt
-        uv pip install --torch-backend cpu -r requirements.txt
+      run: uv sync --no-sources --index-strategy unsafe-best-match --exclude-newer false
+      env:
+        UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
