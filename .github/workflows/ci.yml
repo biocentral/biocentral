@@ -336,7 +336,7 @@ jobs:
           dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
           flutter build windows --release --verbose
         env:
-          SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/app
+          SERIOUS_PYTHON_APP: $(pwd)/build/app
       - name: Upload Windows build artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
@@ -350,7 +350,7 @@ jobs:
           dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
           flutter build linux --release
         env:
-          SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/app
+          SERIOUS_PYTHON_APP: $(pwd)/build/app
       - name: Upload Linux build artifacts
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
@@ -364,7 +364,7 @@ jobs:
           dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
           flutter build macos --release
         env:
-          SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/app
+          SERIOUS_PYTHON_APP: $(pwd)/build/app
       - name: Upload macOS build artifacts
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
@@ -379,7 +379,7 @@ jobs:
           rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
           flutter build web
         env:
-          SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/app
+          SERIOUS_PYTHON_APP: $(pwd)/build/app
       - name: Upload Web build artifacts
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
