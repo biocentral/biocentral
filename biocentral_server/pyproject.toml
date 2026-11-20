@@ -28,7 +28,6 @@ dependencies = [
     "junban>=1.0.3,<1.1.0",
     "pyrate-limiter>=3.0.0",
     "Pillow>=13.0.0,<14.0.0",
-    "numpy>=2.5.4,<3.0.0",
     # Git dependencies
     "biotrainer @ git+https://github.com/biocentral/biotrainer.git@archive/biocentral-v2-1-0",
     "biotrainer-core @ git+https://github.com/biocentral/biotrainer.git@archive/biocentral-v2-1-0#subdirectory=biotrainer-core",
