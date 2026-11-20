@@ -18,6 +18,7 @@ from ..server_management import (
     TaskManager,
     NotFoundErrorResponse,
     MetricsService,
+    validate_identifier
 )
 
 router = APIRouter(
@@ -107,6 +108,11 @@ def welcome_message():
     response_model_exclude_none=True,
 )
 async def task_status(task_id: str, request: Request):
+    try:
+        task_id = validate_identifier(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID")
+
     task_manager = await check_task_ownership(request=request, task_id=task_id)
 
     dtos = task_manager.get_new_task_updates(task_id=task_id)
@@ -120,6 +126,11 @@ async def task_status(task_id: str, request: Request):
     response_model_exclude_none=True,
 )
 async def task_status_resumed(task_id: str, request: Request):
+    try:
+        task_id = validate_identifier(task_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID")
+
     task_manager = await check_task_ownership(request=request, task_id=task_id)
 
     dtos = task_manager.get_all_task_updates_from_start(task_id=task_id)
