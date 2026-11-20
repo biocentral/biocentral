@@ -24,6 +24,6 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: |  
-        uv export --no-sources --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }} --format requirements-txt > requirements.txt
-        uv pip install --torch-backend cpu -r requirements.txt
+      run: uv sync --no-sources --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }} --index-strategy unsafe-best-match --exclude-newer false
+      env:
+        UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
