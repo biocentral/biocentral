@@ -4,6 +4,7 @@ from .shared_endpoint_models import (
     ErrorResponse,
     NotFoundErrorResponse,
     StartTaskResponse,
+    BiocentralModelResult,
 )
 from .device_management import DeviceService
 from .monitoring import MetricsService, ResearchStats
@@ -83,4 +84,5 @@ __all__ = [
     "validate_embedder_name",
     "validate_identifier",
     "QueueFullError",
+    "BiocentralModelResult",
 ]
