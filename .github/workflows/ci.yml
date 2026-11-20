@@ -333,7 +333,7 @@ jobs:
       - name: Build Windows Application
         if: matrix.os == 'windows-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Windows -r -r -r python_companion/requirements.txt
           flutter build windows --release --verbose
       - name: Upload Windows build artifacts
         if: matrix.os == 'windows-latest'
@@ -345,7 +345,7 @@ jobs:
       - name: Build Linux Application
         if: matrix.os == 'ubuntu-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
           flutter build linux --release
         env:
           SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages
@@ -359,7 +359,7 @@ jobs:
       - name: Build macOS Application
         if: matrix.os == 'macos-latest'
         run: |
-          dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
+          dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
           flutter build macos --release
       - name: Upload macOS build artifacts
         if: matrix.os == 'macos-latest'
