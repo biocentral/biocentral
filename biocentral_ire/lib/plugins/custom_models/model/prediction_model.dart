@@ -99,18 +99,33 @@ class PredictionModel extends Equatable {
     return updatedModel.copyWith(modelResult: biotrainerUpdate.currentModelResult);
   }
 
-  PredictionModel finishFromResult(BiotrainerModelResult? biotrainerResult) {
-    if (biotrainerResult == null) {
+  PredictionModel finishFromResult(BiocentralModelResult? biocentralModelResult) {
+    if (biocentralModelResult == null) {
       return this;
     }
 
+    var updatedTrainingLogs = trainingLogs;
+    final resultTrainingLogs = biocentralModelResult.loggingFile;
+    if (resultTrainingLogs.isNotEmpty) {
+      updatedTrainingLogs = resultTrainingLogs.split('\n');
+    }
+
+    var updatedCheckpoints = checkpoints;
+    final resultCheckpoints = biocentralModelResult.checkpoints;
+    if (resultCheckpoints.isNotEmpty) {
+      // TODO: Adapt to multiple checkpoints and use BiotrainerCheckpoint class from API
+      final firstCheckpoint = resultCheckpoints.first;
+      updatedCheckpoints = {firstCheckpoint.name: firstCheckpoint.checkpoint};
+    }
+
     return PredictionModel(
-        config: biotrainerResult.configMap() ?? _config,
-        modelResult: biotrainerResult,
-        databaseType: databaseType,
-        trainingLogs: trainingLogs,
-        checkpoints: checkpoints,
-        trainingStatus: trainingStatus);
+      config: biocentralModelResult.modelResult.configMap() ?? _config,
+      modelResult: biocentralModelResult.modelResult,
+      databaseType: databaseType,
+      trainingLogs: updatedTrainingLogs,
+      checkpoints: updatedCheckpoints,
+      trainingStatus: trainingStatus,
+    );
   }
 
   // Getters for commonly used values
@@ -127,7 +142,9 @@ class PredictionModel extends Equatable {
   TestResult? get defaultTestResult => modelResult?.testResults?['test'];
 
   Protocol? get protocol => enumFromString<Protocol>(
-      _config?['protocol'].toString().replaceAll('_', '').toLowerCase(), Protocol.values.toList());
+        _config?['protocol'].toString().replaceAll('_', '').toLowerCase(),
+        Protocol.values.toList(),
+      );
 
   String getReadableModelID() {
     String modelID = '';
