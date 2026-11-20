@@ -30,7 +30,7 @@ runs:
 
     - uses: astral-sh/setup-uv@v10.4.0
       with:
-        version: ${{ inputs.uv-version || '' }}
+        version: ${{ inputs.uv-version || '0.13.9' }}
         enable-cache: ${{ inputs.uv-enable-cache }}
         cache-dependency-glob: ${{ inputs.uv-enable-cache == 'true' && 'uv.lock' || '' }}
         cache-local-path: ${{ inputs.uv-enable-cache == 'true' && '/tmp/.uv-cache' || '' }}
