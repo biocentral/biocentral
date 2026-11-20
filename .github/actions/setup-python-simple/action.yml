@@ -22,6 +22,4 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: uv sync --index-strategy unsafe-best-match --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }}
-      env:
-        UV_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+      run:  uv sync --no-sources --torch-backend cpu --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }}
