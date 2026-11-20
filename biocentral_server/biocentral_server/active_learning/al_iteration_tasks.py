@@ -27,10 +27,10 @@ def _biotrainer_subtask_wrapper(
     biotrainer_dto: Optional[TaskDTO] = None
     for current_dto in run_subtask(biotrainer_temp_task):
         biotrainer_dto = current_dto
-    if not biotrainer_dto or biotrainer_dto.biotrainer_result is None:
+    if not biotrainer_dto or biotrainer_dto.biocentral_model_result is None:
         update_dto_callback(TaskDTO.errored("Biotrainer failed!"))
         raise Exception("No biotrainer result received!")
-    return biotrainer_dto.biotrainer_result
+    return biotrainer_dto.biocentral_model_result.model_result
 
 
 class ActiveLearningScreeningIterationTask(TaskInterface, PreEmbedMixin):
