@@ -38,4 +38,4 @@ runs:
     - name: Install dependencies (CPU-only PyTorch)
       shell: bash
       working-directory: biocentral_server
-      run: uv sync --locked
+      run: uv lock --no-sources && uv sync --no-sources --locked
