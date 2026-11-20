@@ -6,7 +6,6 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**cluster_hbi_api_v1_custom_models_service_cluster_hbi_post**](CustomModelsApi.md#cluster_hbi_api_v1_custom_models_service_cluster_hbi_post) | **POST** /api/v1/custom_models_service/cluster-hbi/ | Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
 [**config_options_api_v1_custom_models_service_config_options_protocol_get**](CustomModelsApi.md#config_options_api_v1_custom_models_service_config_options_protocol_get) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
-[**model_files_api_v1_custom_models_service_model_files_post**](CustomModelsApi.md#model_files_api_v1_custom_models_service_model_files_post) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
 [**split_hbi_api_v1_custom_models_service_split_hbi_post**](CustomModelsApi.md#split_hbi_api_v1_custom_models_service_split_hbi_post) | **POST** /api/v1/custom_models_service/split-hbi/ | Evaluate homology transfer between dataset splits via easy_search lookup
 [**start_inference_api_v1_custom_models_service_start_inference_post**](CustomModelsApi.md#start_inference_api_v1_custom_models_service_start_inference_post) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**start_training_api_v1_custom_models_service_start_training_post**](CustomModelsApi.md#start_training_api_v1_custom_models_service_start_training_post) | **POST** /api/v1/custom_models_service/start_training | Start model training
@@ -140,77 +139,6 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Successful Response |  -  |
-**404** | Not Found |  -  |
-**400** | Bad Request |  -  |
-**422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **model_files_api_v1_custom_models_service_model_files_post**
-> Dict[str, object] model_files_api_v1_custom_models_service_model_files_post(model_files_request)
-
-Retrieve model files
-
-Get trained model files after training completion
-
-### Example
-
-
-```python
-import biocentral_api._generated
-from biocentral_api._generated.models.model_files_request import ModelFilesRequest
-from biocentral_api._generated.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = biocentral_api._generated.Configuration(
-    host = "http://localhost"
-)
-
-
-# Enter a context with an instance of the API client
-with biocentral_api._generated.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = biocentral_api._generated.CustomModelsApi(api_client)
-    model_files_request = biocentral_api._generated.ModelFilesRequest() # ModelFilesRequest | 
-
-    try:
-        # Retrieve model files
-        api_response = api_instance.model_files_api_v1_custom_models_service_model_files_post(model_files_request)
-        print("The response of CustomModelsApi->model_files_api_v1_custom_models_service_model_files_post:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CustomModelsApi->model_files_api_v1_custom_models_service_model_files_post: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **model_files_request** | [**ModelFilesRequest**](ModelFilesRequest.md)|  | 
-
-### Return type
-
-**Dict[str, object]**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
  - **Accept**: application/json
 
 ### HTTP response details

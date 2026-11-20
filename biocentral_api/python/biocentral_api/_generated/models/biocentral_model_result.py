@@ -17,18 +17,22 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBytes, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
+from biotrainer_core.data_classes import BiotrainerModelResult
 
-class ModelFilesRequest(BaseModel):
+class BiocentralModelResult(BaseModel):
     """
-    ModelFilesRequest
+    BiocentralModelResult
     """ # noqa: E501
-    model_hash: StrictStr = Field(description="Hash identifier for the trained model")
-    __properties: ClassVar[List[str]] = ["model_hash"]
+    model_result: BiotrainerModelResult = Field(description="Biotrainer Model Result containing config, training and test results and metadata")
+    logging_file: StrictStr = Field(description="Logging output during model training")
+    checkpoints: List[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = Field(description="List of bytes containing the checkpoint(s) of the model")
+    onnx_checkpoint: Optional[List[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]]] = Field(default=None, description="Bytes containing the ONNX-converted checkpoint(s) of the model (if available)")
+    __properties: ClassVar[List[str]] = ["model_result", "logging_file", "checkpoints", "onnx_checkpoint"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -48,7 +52,7 @@ class ModelFilesRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ModelFilesRequest from a JSON string"""
+        """Create an instance of BiocentralModelResult from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +73,19 @@ class ModelFilesRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of model_result
+        if self.model_result:
+            _dict['model_result'] = self.model_result.to_dict()
+        # set to None if onnx_checkpoint (nullable) is None
+        # and model_fields_set contains the field
+        if self.onnx_checkpoint is None and "onnx_checkpoint" in self.model_fields_set:
+            _dict['onnx_checkpoint'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ModelFilesRequest from a dict"""
+        """Create an instance of BiocentralModelResult from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +93,10 @@ class ModelFilesRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "model_hash": obj.get("model_hash")
+            "model_result": BiotrainerModelResult.from_dict(obj["model_result"]) if obj.get("model_result") is not None else None,
+            "logging_file": obj.get("logging_file"),
+            "checkpoints": obj.get("checkpoints"),
+            "onnx_checkpoint": obj.get("onnx_checkpoint")
         })
         return _obj
 
