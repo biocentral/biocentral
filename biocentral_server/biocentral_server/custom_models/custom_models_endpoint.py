@@ -11,7 +11,6 @@ import time
 from collections import OrderedDict
 from dataclasses import dataclass
 from ..utils import get_logger
-logger = get_logger(__name__)
 
 from .endpoint_models import (
     ConfigVerificationRequest,
@@ -44,6 +43,8 @@ from ..server_management import (
     StartTaskResponse,
 )
 from ..utils import verify_biotrainer_config
+
+logger = get_logger(__name__)
 
 # Create APIRouter
 router = APIRouter(
@@ -124,7 +125,7 @@ def config_options(protocol: str):
     """Get configuration options by protocol from biotrainer"""
     try:
         protocol_obj = Protocol.from_string(protocol)
-    except ValueError:
+    except KeyError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid protocol: {protocol}",
