@@ -7,6 +7,7 @@ import 'api.dart' as gen;
 import 'clients/embedding_client.dart';
 import 'clients/predict_client.dart';
 import 'clients/proteins_client.dart';
+import 'model/biocentral_model_result.dart';
 
 final class BiocentralAPIHealth {
   final String url;
@@ -223,7 +224,7 @@ extension CustomModelsAPI on BiocentralAPI {
     return CustomModelsClient().verifyTrainingConfig(api: _getAPI(), config: config);
   }
 
-  Future<BiocentralServerTask<BiotrainerModelResult?>> train({
+  Future<BiocentralServerTask<BiocentralModelResult?>> train({
     required Map<String, dynamic> config,
     required List<SequenceData> trainingData,
   }) async {

@@ -11,7 +11,6 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**clusterHbiApiV1CustomModelsServiceClusterHbiPost**](CustomModelsApi.md#clusterhbiapiv1custommodelsserviceclusterhbipost) | **POST** /api/v1/custom_models_service/cluster-hbi/ | Direct synchronous HBI calculation on CPU with bootstrapping and dataset cache
 [**configOptionsApiV1CustomModelsServiceConfigOptionsProtocolGet**](CustomModelsApi.md#configoptionsapiv1custommodelsserviceconfigoptionsprotocolget) | **GET** /api/v1/custom_models_service/config_options/{protocol} | Get configuration options for a protocol
-[**modelFilesApiV1CustomModelsServiceModelFilesPost**](CustomModelsApi.md#modelfilesapiv1custommodelsservicemodelfilespost) | **POST** /api/v1/custom_models_service/model_files | Retrieve model files
 [**splitHbiApiV1CustomModelsServiceSplitHbiPost**](CustomModelsApi.md#splithbiapiv1custommodelsservicesplithbipost) | **POST** /api/v1/custom_models_service/split-hbi/ | Evaluate homology transfer between dataset splits via easy_search lookup
 [**startInferenceApiV1CustomModelsServiceStartInferencePost**](CustomModelsApi.md#startinferenceapiv1custommodelsservicestartinferencepost) | **POST** /api/v1/custom_models_service/start_inference | Start model inference
 [**startTrainingApiV1CustomModelsServiceStartTrainingPost**](CustomModelsApi.md#starttrainingapiv1custommodelsservicestarttrainingpost) | **POST** /api/v1/custom_models_service/start_training | Start model training
@@ -98,49 +97,6 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **modelFilesApiV1CustomModelsServiceModelFilesPost**
-> BuiltMap<String, JsonObject> modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest)
-
-Retrieve model files
-
-Get trained model files after training completion
-
-### Example
-```dart
-import 'package:biocentral_api/api.dart';
-
-final api = BiocentralApi().getCustomModelsApi();
-final ModelFilesRequest modelFilesRequest = ; // ModelFilesRequest | 
-
-try {
-    final response = api.modelFilesApiV1CustomModelsServiceModelFilesPost(modelFilesRequest);
-    print(response);
-} on DioException catch (e) {
-    print('Exception when calling CustomModelsApi->modelFilesApiV1CustomModelsServiceModelFilesPost: $e\n');
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **modelFilesRequest** | [**ModelFilesRequest**](ModelFilesRequest.md)|  | 
-
-### Return type
-
-[**BuiltMap&lt;String, JsonObject&gt;**](JsonObject.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -35,6 +35,7 @@ biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
 biocentral_api/_generated/models/biocentral_service_stats.py
+biocentral_api/_generated/models/biotrainer_checkpoint.py
 biocentral_api/_generated/models/biotrainer_inference_result.py
 biocentral_api/_generated/models/biotrainer_model_result.py
 biocentral_api/_generated/models/biotrainer_model_update.py
@@ -123,6 +124,7 @@ docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 docs/BiocentralServiceApi.md
 docs/BiocentralServiceStats.md
+docs/BiotrainerCheckpoint.md
 docs/BiotrainerInferenceResult.md
 docs/BiotrainerModelResult.md
 docs/BiotrainerModelUpdate.md

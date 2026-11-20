@@ -56,6 +56,7 @@ __all__ = [
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
     "BiocentralServiceStats",
+    "BiotrainerCheckpoint",
     "BiotrainerInferenceResult",
     "BiotrainerModelResult",
     "BiotrainerModelUpdate",
@@ -173,6 +174,7 @@ from biocentral_api._generated.models.biocentral_prediction_model import Biocent
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
 from biocentral_api._generated.models.biocentral_service_stats import BiocentralServiceStats as BiocentralServiceStats
+from biocentral_api._generated.models.biotrainer_checkpoint import BiotrainerCheckpoint as BiotrainerCheckpoint
 from biocentral_api._generated.models.cluster_hbi_request import ClusterHBIRequest as ClusterHBIRequest
 from biocentral_api._generated.models.cluster_hbi_response import ClusterHBIResponse as ClusterHBIResponse
 from biocentral_api._generated.models.clustering_request import ClusteringRequest as ClusteringRequest

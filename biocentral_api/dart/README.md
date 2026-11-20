@@ -8,23 +8,22 @@ The openapi specification can be found [here](https://biocentral.rostlab.org/doc
 
 ## Post-generation setup
 
-1. Fix `lib/src/model/biotrainer_sequence_record.dart` with BuiltMap
-2. Add the following to `common_embedder.dart`:
+1. Add the following to `common_embedder.dart`:
 
 ```dart
   String get wireName =>
       (_$commonEmbedderSerializer as _$CommonEmbedderSerializer).serialize(Serializers(), this) as String;
 ```
 
-3. Add the following to `protocol.dart`:
+2. Add the following to `protocol.dart`:
 
 ```dart
   String get wireName =>
       (_$protocolSerializer as _$ProtocolSerializer).serialize(Serializers(), this) as String;
 ```
 
-4. Run `dart run build_runner build --delete-conflicting-outputs`
-5. Rollback `extensions` directory if it was deleted
+3. Run `dart run build_runner build --delete-conflicting-outputs`
+4. Rollback `extensions` directory if it was deleted
 
 ## Citation
 

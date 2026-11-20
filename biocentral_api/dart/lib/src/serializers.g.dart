@@ -23,12 +23,14 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(ActiveLearningScreeningSimulationRequest.serializer)
       ..add(ActiveLearningScreeningSimulationResult.serializer)
       ..add(ActiveLearningStoppingConfig.serializer)
+      ..add(BiocentralModelResult.serializer)
       ..add(BiocentralPredictionModel.serializer)
       ..add(BiocentralServerCustomModelsEndpointModelsErrorResponse.serializer)
       ..add(
           BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
               .serializer)
       ..add(BiocentralServiceStats.serializer)
+      ..add(BiotrainerCheckpoint.serializer)
       ..add(BiotrainerInferenceResult.serializer)
       ..add(BiotrainerModelResult.serializer)
       ..add(BiotrainerModelUpdate.serializer)
@@ -55,7 +57,6 @@ Serializers _$serializers = (Serializers().toBuilder()
       ..add(McdMean.serializer)
       ..add(McdStd.serializer)
       ..add(McdUpperBound.serializer)
-      ..add(ModelFilesRequest.serializer)
       ..add(ModelMetadata.serializer)
       ..add(ModelMetadataResponse.serializer)
       ..add(ModelOutput.serializer)
@@ -109,6 +110,14 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(String)]),
           () => MapBuilder<String, String>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(BiotrainerCheckpoint)]),
+          () => ListBuilder<BiotrainerCheckpoint>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(BiotrainerCheckpoint)]),
+          () => ListBuilder<BiotrainerCheckpoint>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(BiotrainerPrediction)]),
@@ -397,12 +406,6 @@ Serializers _$serializers = (Serializers().toBuilder()
           const FullType(
               BuiltMap, const [const FullType(String), const FullType(num)]),
           () => MapBuilder<String, num>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(String),
-            const FullType.nullable(JsonObject)
-          ]),
-          () => MapBuilder<String, JsonObject?>())
       ..addBuilderFactory(
           const FullType(BuiltMap, const [
             const FullType(String),
