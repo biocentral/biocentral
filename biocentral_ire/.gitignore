@@ -58,7 +58,5 @@ app.*.map.json
 # Local storage of releases
 /releases/
 
-# Python assets
-/assets/python_companion.zip
+# Python assets (adding a placeholder .zip, must be overridden in the release build)
 /assets/python_companion/
-/assets/python_companion.zip.hash
