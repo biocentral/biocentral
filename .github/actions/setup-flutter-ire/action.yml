@@ -24,6 +24,6 @@ runs:
     - name: Build companion app
       shell: bash
       working-directory: biocentral_ire
-      run: dart run serious_python:main package --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
+      run: dart run serious_python:main package --python-version 3.12 --asset assets/python_companion.zip python_companion/ -p Linux -r -r -r python_companion/requirements.txt
       env:
-        SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/biocentral_ire/build/site-packages
+        SERIOUS_PYTHON_APP: ${{ github.workspace }}/biocentral_ire/build/app
