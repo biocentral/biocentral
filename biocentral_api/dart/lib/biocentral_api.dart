@@ -29,6 +29,8 @@ export 'src/model/taxonomy_item.dart' show TaxonomyItem;
 export 'src/model/biocentral_service_stats.dart' show BiocentralServiceStats;
 export 'src/model/research_stats.dart' show ResearchStats;
 export 'src/model/common_embedder.dart' show CommonEmbedder;
+export 'src/model/biocentral_model_result.dart' show BiocentralModelResult;
+export 'src/model/biotrainer_checkpoint.dart' show BiotrainerCheckpoint;
 export 'src/model/active_learning_screening_campaign_config.dart' show ActiveLearningScreeningCampaignConfig;
 export 'src/model/active_learning_screening_iteration_config.dart' show ActiveLearningScreeningIterationConfig;
 export 'src/model/active_learning_engineering_campaign_config.dart' show ActiveLearningEngineeringCampaignConfig;

@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBytes, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from biocentral_api._generated.models.biotrainer_checkpoint import BiotrainerCheckpoint
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,8 +31,8 @@ class BiocentralModelResult(BaseModel):
     """ # noqa: E501
     model_result: BiotrainerModelResult = Field(description="Biotrainer Model Result containing config, training and test results and metadata")
     logging_file: StrictStr = Field(description="Logging output during model training")
-    checkpoints: List[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = Field(description="List of bytes containing the checkpoint(s) of the model")
-    onnx_checkpoint: Optional[List[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]]] = Field(default=None, description="Bytes containing the ONNX-converted checkpoint(s) of the model (if available)")
+    checkpoints: List[BiotrainerCheckpoint] = Field(description="List of bytes containing the checkpoint(s) of the model (name -> checkpoint)")
+    onnx_checkpoint: Optional[List[BiotrainerCheckpoint]] = Field(default=None, description="Bytes containing the ONNX-converted checkpoint(s) of the model (if available, name -> checkpoint)")
     __properties: ClassVar[List[str]] = ["model_result", "logging_file", "checkpoints", "onnx_checkpoint"]
 
     model_config = ConfigDict(
@@ -76,6 +77,20 @@ class BiocentralModelResult(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of model_result
         if self.model_result:
             _dict['model_result'] = self.model_result.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in checkpoints (list)
+        _items = []
+        if self.checkpoints:
+            for _item_checkpoints in self.checkpoints:
+                if _item_checkpoints:
+                    _items.append(_item_checkpoints.to_dict())
+            _dict['checkpoints'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in onnx_checkpoint (list)
+        _items = []
+        if self.onnx_checkpoint:
+            for _item_onnx_checkpoint in self.onnx_checkpoint:
+                if _item_onnx_checkpoint:
+                    _items.append(_item_onnx_checkpoint.to_dict())
+            _dict['onnx_checkpoint'] = _items
         # set to None if onnx_checkpoint (nullable) is None
         # and model_fields_set contains the field
         if self.onnx_checkpoint is None and "onnx_checkpoint" in self.model_fields_set:
@@ -95,8 +110,8 @@ class BiocentralModelResult(BaseModel):
         _obj = cls.model_validate({
             "model_result": BiotrainerModelResult.from_dict(obj["model_result"]) if obj.get("model_result") is not None else None,
             "logging_file": obj.get("logging_file"),
-            "checkpoints": obj.get("checkpoints"),
-            "onnx_checkpoint": obj.get("onnx_checkpoint")
+            "checkpoints": [BiotrainerCheckpoint.from_dict(_item) for _item in obj["checkpoints"]] if obj.get("checkpoints") is not None else None,
+            "onnx_checkpoint": [BiotrainerCheckpoint.from_dict(_item) for _item in obj["onnx_checkpoint"]] if obj.get("onnx_checkpoint") is not None else None
         })
         return _obj
 

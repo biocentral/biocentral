@@ -17,6 +17,8 @@ from .storage_backend import (
 
 from .local_storage_backend import LocalStorageBackend
 
+from ..shared_endpoint_models import BiotrainerCheckpoint
+
 from ...utils import get_logger
 
 logger = get_logger(__name__)
@@ -153,7 +155,8 @@ class FileManager:
                 )
                 # TODO: Placeholder for multiple checkpoints
                 if file_type.is_binary():
-                    file_content = [file_content]
+                    file_content = [BiotrainerCheckpoint(name="hold_out",
+                                                        checkpoint=file_content)]  # Auto converts
                 result[file_type] = file_content
             except (StorageError, FileNotFoundError) as e:
                 # Exclude Biotrainer Onnx Export because it is not stable at the moment

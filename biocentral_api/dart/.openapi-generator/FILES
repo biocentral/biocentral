@@ -15,11 +15,13 @@ doc/ActiveLearningScreeningSimulationConfig.md
 doc/ActiveLearningScreeningSimulationRequest.md
 doc/ActiveLearningScreeningSimulationResult.md
 doc/ActiveLearningStoppingConfig.md
+doc/BiocentralModelResult.md
 doc/BiocentralPredictionModel.md
 doc/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 doc/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
 doc/BiocentralServiceApi.md
 doc/BiocentralServiceStats.md
+doc/BiotrainerCheckpoint.md
 doc/BiotrainerInferenceResult.md
 doc/BiotrainerModelResult.md
 doc/BiotrainerModelUpdate.md
@@ -49,7 +51,6 @@ doc/McdLowerBound.md
 doc/McdMean.md
 doc/McdStd.md
 doc/McdUpperBound.md
-doc/ModelFilesRequest.md
 doc/ModelMetadata.md
 doc/ModelMetadataResponse.md
 doc/ModelOutput.md
@@ -123,10 +124,12 @@ lib/src/model/active_learning_screening_simulation_config.dart
 lib/src/model/active_learning_screening_simulation_request.dart
 lib/src/model/active_learning_screening_simulation_result.dart
 lib/src/model/active_learning_stopping_config.dart
+lib/src/model/biocentral_model_result.dart
 lib/src/model/biocentral_prediction_model.dart
 lib/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart
 lib/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart
 lib/src/model/biocentral_service_stats.dart
+lib/src/model/biotrainer_checkpoint.dart
 lib/src/model/biotrainer_inference_result.dart
 lib/src/model/biotrainer_model_result.dart
 lib/src/model/biotrainer_model_update.dart
@@ -154,7 +157,6 @@ lib/src/model/mcd_lower_bound.dart
 lib/src/model/mcd_mean.dart
 lib/src/model/mcd_std.dart
 lib/src/model/mcd_upper_bound.dart
-lib/src/model/model_files_request.dart
 lib/src/model/model_metadata.dart
 lib/src/model/model_metadata_response.dart
 lib/src/model/model_output.dart

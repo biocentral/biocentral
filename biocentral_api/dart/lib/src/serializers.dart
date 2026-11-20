@@ -30,10 +30,12 @@ import 'package:biocentral_api/src/model/active_learning_screening_simulation_co
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_request.dart';
 import 'package:biocentral_api/src/model/active_learning_screening_simulation_result.dart';
 import 'package:biocentral_api/src/model/active_learning_stopping_config.dart';
+import 'package:biocentral_api/src/model/biocentral_model_result.dart';
 import 'package:biocentral_api/src/model/biocentral_prediction_model.dart';
 import 'package:biocentral_api/src/model/biocentral_server_custom_models_endpoint_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.dart';
 import 'package:biocentral_api/src/model/biocentral_service_stats.dart';
+import 'package:biocentral_api/src/model/biotrainer_checkpoint.dart';
 import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
@@ -60,7 +62,6 @@ import 'package:biocentral_api/src/model/mcd_lower_bound.dart';
 import 'package:biocentral_api/src/model/mcd_mean.dart';
 import 'package:biocentral_api/src/model/mcd_std.dart';
 import 'package:biocentral_api/src/model/mcd_upper_bound.dart';
-import 'package:biocentral_api/src/model/model_files_request.dart';
 import 'package:biocentral_api/src/model/model_metadata.dart';
 import 'package:biocentral_api/src/model/model_metadata_response.dart';
 import 'package:biocentral_api/src/model/model_output.dart';
@@ -119,10 +120,12 @@ part 'serializers.g.dart';
   ActiveLearningScreeningSimulationRequest,
   ActiveLearningScreeningSimulationResult,
   ActiveLearningStoppingConfig,
+  BiocentralModelResult,
   BiocentralPredictionModel,
   BiocentralServerCustomModelsEndpointModelsErrorResponse,
   BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse,
   BiocentralServiceStats,
+  BiotrainerCheckpoint,
   BiotrainerInferenceResult,
   BiotrainerModelResult,
   BiotrainerModelUpdate,
@@ -149,7 +152,6 @@ part 'serializers.g.dart';
   McdMean,
   McdStd,
   McdUpperBound,
-  ModelFilesRequest,
   ModelMetadata,
   ModelMetadataResponse,
   ModelOutput,
@@ -303,6 +305,10 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<int>(),
       )
       ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(BiotrainerCheckpoint)]),
+        () => ListBuilder<BiotrainerCheckpoint>(),
+      )
+      ..addBuilderFactory(
         const FullType(BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
         () => MapBuilder<String, JsonObject?>(),
       )
@@ -317,10 +323,6 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(String)]),
         () => ListBuilder<String>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(JsonObject)]),
-        () => MapBuilder<String, JsonObject>(),
       )
       ..add(const OneOfSerializer())
       ..add(const AnyOfSerializer())

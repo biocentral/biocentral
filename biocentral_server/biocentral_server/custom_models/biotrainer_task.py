@@ -45,11 +45,11 @@ def get_config_presets():
 
 class BiotrainerTask(TaskInterface, PreEmbedMixin):
     def __init__(
-        self,
-        user_id: str,
-        model_path: Path,
-        config_dict: dict,
-        training_data: List[SequenceData],
+            self,
+            user_id: str,
+            model_path: Path,
+            config_dict: dict,
+            training_data: List[SequenceData],
     ):
         super().__init__()
         self.user_id = user_id
@@ -98,11 +98,12 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
             storage_writer.set_file_path(file_path=new_path)
             logger.info(f"Saved trained model {model_hash} to {new_path}!")
 
+        # Retrieve model files
         file_manager = FileManager(user_id=self.user_id)
         biotrainer_result_files = file_manager.get_biotrainer_result_files(model_hash=model_hash)
         logging_file = biotrainer_result_files.get(StorageFileType.BIOTRAINER_LOGGING, "")
         checkpoints = biotrainer_result_files.get(StorageFileType.BIOTRAINER_CHECKPOINT, [])
-        onnx_checkpoint = biotrainer_result_files.get(StorageFileType.BIOTRAINER_ONNX_EXPORT, "")
+        onnx_checkpoint = biotrainer_result_files.get(StorageFileType.BIOTRAINER_ONNX_EXPORT, None)
         bc_model_result = BiocentralModelResult(model_result=biotrainer_result,
                                                 logging_file=logging_file,
                                                 checkpoints=checkpoints,
@@ -111,13 +112,13 @@ class BiotrainerTask(TaskInterface, PreEmbedMixin):
         return TaskDTO(status=TaskStatus.FINISHED, biocentral_model_result=bc_model_result)
 
     def _pre_embed_with_db(
-        self,
-        embedder_name: str,
-        sequence_input: List[SequenceData],
-        reduced: bool,
-        update_dto_callback: Optional[Callable] = None,
-        custom_tokenizer_config: Optional[Dict[str, Any]] = None,
-        seed: Optional[int] = None,
+            self,
+            embedder_name: str,
+            sequence_input: List[SequenceData],
+            reduced: bool,
+            update_dto_callback: Optional[Callable] = None,
+            custom_tokenizer_config: Optional[Dict[str, Any]] = None,
+            seed: Optional[int] = None,
     ) -> Tuple[Optional[TaskDTO], List[SequenceData]]:
         if custom_tokenizer_config is None:
             custom_tokenizer_config = self.config_dict.get(
@@ -149,9 +150,9 @@ class BiotrainerTempTask(TaskInterface):
     """Task for training a model as a subtask in a temporary directory without saving the model"""
 
     def __init__(
-        self,
-        config_dict: dict,
-        training_data_with_embeddings: List[SequenceData],
+            self,
+            config_dict: dict,
+            training_data_with_embeddings: List[SequenceData],
     ):
         super().__init__()
         self.config_dict = _config_with_presets(config_dict)
@@ -173,6 +174,6 @@ class BiotrainerTempTask(TaskInterface):
 
         return TaskDTO(status=TaskStatus.FINISHED,
                        biocentral_model_result=BiocentralModelResult(model_result=biotrainer_result,
-                                                                                                 logging_file="",
-                                                                                                 checkpoints=[],
-                                                                                                 onnx_checkpoint=""))
+                                                                     logging_file="",
+                                                                     checkpoints=[],
+                                                                     onnx_checkpoint=""))

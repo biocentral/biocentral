@@ -1,11 +1,5 @@
 from .user_manager import UserManager
 from .rate_limiter import RateLimiter, init_rate_limiter
-from .shared_endpoint_models import (
-    ErrorResponse,
-    NotFoundErrorResponse,
-    StartTaskResponse,
-    BiocentralModelResult,
-)
 from .device_management import DeviceService
 from .monitoring import MetricsService, ResearchStats
 from .custom_middleware import BodySizeLimitMiddleware
@@ -17,6 +11,11 @@ from .shared_endpoint_models import (
     ActiveLearningIterationResult,
     ActiveLearningScreeningSimulationResult,
     ProjectionResult,
+    ErrorResponse,
+    NotFoundErrorResponse,
+    StartTaskResponse,
+    BiocentralModelResult,
+    BiotrainerCheckpoint
 )
 from .request_validation import validate_embedder_name, validate_identifier
 from .embedding_database import EmbeddingDatabaseFactory, EmbeddingsDatabase
@@ -85,4 +84,5 @@ __all__ = [
     "validate_identifier",
     "QueueFullError",
     "BiocentralModelResult",
+    "BiotrainerCheckpoint",
 ]

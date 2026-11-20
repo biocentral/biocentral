@@ -1,4 +1,5 @@
 import 'package:biocentral_api/src/api.dart' as gen;
+import 'package:biocentral_api/src/model/biocentral_model_result.dart';
 import 'package:biocentral_api/src/model/cluster_hbi_request.dart';
 import 'package:biocentral_api/src/model/cluster_hbi_response.dart';
 import 'package:biocentral_api/src/model/config_options_response.dart';
@@ -20,12 +21,12 @@ import 'tasks/biocentral_server_task.dart';
 import 'tasks/dto_handler.dart';
 import 'tasks/submit_task.dart';
 
-class _TrainingDtoHandler extends DtoHandler<BiotrainerModelResult> {
+class _TrainingDtoHandler extends DtoHandler<BiocentralModelResult> {
   @override
-  BiotrainerModelResult? handle(List<TaskDTO> dtos) {
+  BiocentralModelResult? handle(List<TaskDTO> dtos) {
     for (final dto in dtos) {
       if (dto.status == TaskStatus.FINISHED) {
-        return dto.biotrainerResult;
+        return dto.biocentralModelResult;
       }
     }
     return null;
@@ -70,7 +71,7 @@ class CustomModelsClient {
   }
 
   /// Verify config then start training.
-  Future<BiocentralServerTask<BiotrainerModelResult?>> train({
+  Future<BiocentralServerTask<BiocentralModelResult?>> train({
     required gen.BiocentralApi api,
     required Map<String, dynamic> config,
     required List<SequenceData> trainingData,
@@ -91,7 +92,7 @@ class CustomModelsClient {
 
     final taskId = await submitTask(
         () => cmApi.startTrainingApiV1CustomModelsServiceStartTrainingPost(startTrainingRequest: startReq));
-    return BiocentralServerTask<BiotrainerModelResult>(taskId: taskId, api: api, dtoHandler: handler);
+    return BiocentralServerTask<BiocentralModelResult>(taskId: taskId, api: api, dtoHandler: handler);
   }
 
   /// Start inference for a trained model.

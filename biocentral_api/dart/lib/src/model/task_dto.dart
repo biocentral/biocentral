@@ -3,10 +3,10 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:biocentral_api/src/model/biocentral_model_result.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:biocentral_api/src/model/prediction.dart';
 import 'package:biocentral_api/src/model/biotrainer_inference_result.dart';
-import 'package:biocentral_api/src/model/biotrainer_model_result.dart';
 import 'package:biocentral_api/src/model/embedding_progress.dart';
 import 'package:biocentral_api/src/model/biotrainer_model_update.dart';
 import 'package:biocentral_api/src/model/task_status.dart';
@@ -28,7 +28,7 @@ part 'task_dto.g.dart';
 /// * [perplexityResult] 
 /// * [predictions] 
 /// * [biotrainerUpdate] 
-/// * [biotrainerResult] 
+/// * [biocentralModelResult] 
 /// * [biotrainerInferenceResult] 
 /// * [embeddingProgress] 
 /// * [embeddedSequences] 
@@ -56,8 +56,8 @@ abstract class TaskDTO implements Built<TaskDTO, TaskDTOBuilder> {
   @BuiltValueField(wireName: r'biotrainer_update')
   BiotrainerModelUpdate? get biotrainerUpdate;
 
-  @BuiltValueField(wireName: r'biotrainer_result')
-  BiotrainerModelResult? get biotrainerResult;
+  @BuiltValueField(wireName: r'biocentral_model_result')
+  BiocentralModelResult? get biocentralModelResult;
 
   @BuiltValueField(wireName: r'biotrainer_inference_result')
   BiotrainerInferenceResult? get biotrainerInferenceResult;
@@ -142,11 +142,11 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
         specifiedType: const FullType.nullable(BiotrainerModelUpdate),
       );
     }
-    if (object.biotrainerResult != null) {
-      yield r'biotrainer_result';
+    if (object.biocentralModelResult != null) {
+      yield r'biocentral_model_result';
       yield serializers.serialize(
-        object.biotrainerResult,
-        specifiedType: const FullType.nullable(BiotrainerModelResult),
+        object.biocentralModelResult,
+        specifiedType: const FullType.nullable(BiocentralModelResult),
       );
     }
     if (object.biotrainerInferenceResult != null) {
@@ -274,13 +274,13 @@ class _$TaskDTOSerializer implements PrimitiveSerializer<TaskDTO> {
           if (valueDes == null) continue;
           result.biotrainerUpdate.replace(valueDes);
           break;
-        case r'biotrainer_result':
+        case r'biocentral_model_result':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType.nullable(BiotrainerModelResult),
-          ) as BiotrainerModelResult?;
+            specifiedType: const FullType.nullable(BiocentralModelResult),
+          ) as BiocentralModelResult?;
           if (valueDes == null) continue;
-          result.biotrainerResult.replace(valueDes);
+          result.biocentralModelResult.replace(valueDes);
           break;
         case r'biotrainer_inference_result':
           final valueDes = serializers.deserialize(
