@@ -24,4 +24,6 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run:  uv sync --no-sources --torch-backend cpu --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }}
+      run: |  
+        uv export --no-sources --no-install-project ${{ inputs.extras == 'true' && '--all-extras' || '' }} --format requirements-txt > requirements.txt
+        uv pip install --torch-backend cpu -r requirements.txt
