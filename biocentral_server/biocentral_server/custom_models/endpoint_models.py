@@ -68,24 +68,6 @@ class StartTrainingRequest(BaseModel):
         return v
 
 
-class ModelFilesRequest(BaseModel):
-    model_hash: str = Field(description="Hash identifier for the trained model")
-
-    @field_validator("model_hash")
-    @classmethod
-    def validate_model_hash(cls, value: str) -> str:
-        return validate_identifier(value)
-
-
-class ModelFilesResponse(BaseModel):
-    # TODO Define explicitly
-    """Response model for model files"""
-
-    # The actual structure depends on what file_manager.get_biotrainer_result_files returns
-    # This is a flexible model that can handle various file dictionaries
-    model_config = {"extra": "allow"}  # Allow additional fields
-
-
 class StartInferenceRequest(BaseModel):
     """Request model for starting inference"""
 
@@ -114,6 +96,7 @@ class ClusteringRequest(BaseModel):
         description="Sequence identity threshold for clustering (between 0.0 and 1.0)",
     )
 
+
 class ClusterHBIRequest(BaseModel):
     dataset_hash: str = Field(
         ...,
@@ -126,7 +109,7 @@ class ClusterHBIRequest(BaseModel):
         description="Sequence identity threshold for clustering"
     )
     sequence_data: Optional[Dict[str, str]] = Field(
-        default= None,
+        default=None,
         description="Map of sequence_id -> sequence. Required on first call"
     )
     target_data: Dict[str, Any] = Field(
@@ -144,9 +127,11 @@ class ClusterHBIRequest(BaseModel):
     def validate_dataset_hash(cls, value: str) -> str:
         return validate_identifier(value)
 
+
 class ClusterHBIResponse(BaseModel):
     metrics: List[BootstrappedMetric] = Field(..., description="Bootstrapped evaluation metrics")
     clusters: Dict[str, List[str]] = Field(..., description="Calculated cluster dictionary (rep_id -> members)")
+
 
 class SplitHBIRequest(BaseModel):
     train_seqs: Dict[str, str] = Field(..., description="Target database sequences (train split)")
@@ -155,8 +140,10 @@ class SplitHBIRequest(BaseModel):
     query_labels: Dict[str, Any] = Field(..., description="Ground truth annotations for query sequences")
     evalue_cutoff: float = Field(default=10.0, description="Maximum MMSeqs2 E-value threshold")
     min_seq_id: float = Field(default=0.0, description="Minimum sequence identity threshold")
-    is_numeric: bool = Field(default=False, description="True for continuous regression targets, False for classification")
+    is_numeric: bool = Field(default=False,
+                             description="True for continuous regression targets, False for classification")
     iterations: int = Field(default=30, description="Bootstrap iterations performed")
+
 
 class SplitHBIResponse(BaseModel):
     metrics: List[BootstrappedMetric] = Field(..., description="Bootstrapped evaluation metrics")
