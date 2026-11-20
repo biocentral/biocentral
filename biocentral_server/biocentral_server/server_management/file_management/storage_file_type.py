@@ -11,7 +11,13 @@ class StorageFileType(Enum):
     BIOTRAINER_CHECKPOINT = 5
     ONNX_MODEL = 6
     TOKENIZER_CONFIG = 7
+    BIOTRAINER_ONNX_EXPORT = 8
 
     @staticmethod
     def from_string(file_type: str) -> StorageFileType:
         return {f.name: f for f in StorageFileType}[file_type.upper()]
+
+    def is_binary(self) -> bool:
+        return self in [StorageFileType.BIOTRAINER_CHECKPOINT,
+                        StorageFileType.ONNX_MODEL,
+                        StorageFileType.BIOTRAINER_ONNX_EXPORT]
