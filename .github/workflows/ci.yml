@@ -361,10 +361,15 @@ jobs:
       - name: Build macOS Application
         if: matrix.os == 'macos-latest'
         run: |
-          dart run serious_python:main package --python-version 3.12 -asset assets/python_companion.zip python_companion/ -p Darwin -r -r -r python_companion/requirements.txt
+          ls -la "$GITHUB_WORKSPACE/biocentral_ire/python_companion"
+          dart run serious_python:main package \
+            --python-version 3.12 \
+            --asset "$GITHUB_WORKSPACE/biocentral_ire/assets/python_companion.zip" \
+            "$GITHUB_WORKSPACE/biocentral_ire/python_companion" \
+            -p Darwin \
+            -r -r -r \
+            "$GITHUB_WORKSPACE/biocentral_ire/python_companion/requirements.txt"
           flutter build macos --release
-        env:
-          SERIOUS_PYTHON_APP: $(pwd)/build/app
       - name: Upload macOS build artifacts
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
