@@ -51,6 +51,7 @@ __all__ = [
     "ActiveLearningScreeningSimulationRequest",
     "ActiveLearningScreeningSimulationResult",
     "ActiveLearningStoppingConfig",
+    "BiocentralModelResult",
     "BiocentralPredictionModel",
     "BiocentralServerCustomModelsEndpointModelsErrorResponse",
     "BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse",
@@ -81,7 +82,6 @@ __all__ = [
     "McdMean",
     "McdStd",
     "McdUpperBound",
-    "ModelFilesRequest",
     "ModelMetadata",
     "ModelMetadataResponse",
     "ModelOutput",
@@ -168,6 +168,7 @@ from biocentral_api._generated.models.active_learning_screening_simulation_confi
 from biocentral_api._generated.models.active_learning_screening_simulation_request import ActiveLearningScreeningSimulationRequest as ActiveLearningScreeningSimulationRequest
 from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult as ActiveLearningScreeningSimulationResult
 from biocentral_api._generated.models.active_learning_stopping_config import ActiveLearningStoppingConfig as ActiveLearningStoppingConfig
+from biocentral_api._generated.models.biocentral_model_result import BiocentralModelResult as BiocentralModelResult
 from biocentral_api._generated.models.biocentral_prediction_model import BiocentralPredictionModel as BiocentralPredictionModel
 from biocentral_api._generated.models.biocentral_server_custom_models_endpoint_models_error_response import BiocentralServerCustomModelsEndpointModelsErrorResponse as BiocentralServerCustomModelsEndpointModelsErrorResponse
 from biocentral_api._generated.models.biocentral_server_server_management_shared_endpoint_models_error_models_error_response import BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse as BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse
@@ -190,7 +191,6 @@ from biocentral_api._generated.models.mcd_lower_bound import McdLowerBound as Mc
 from biocentral_api._generated.models.mcd_mean import McdMean as McdMean
 from biocentral_api._generated.models.mcd_std import McdStd as McdStd
 from biocentral_api._generated.models.mcd_upper_bound import McdUpperBound as McdUpperBound
-from biocentral_api._generated.models.model_files_request import ModelFilesRequest as ModelFilesRequest
 from biocentral_api._generated.models.model_metadata import ModelMetadata as ModelMetadata
 from biocentral_api._generated.models.model_metadata_response import ModelMetadataResponse as ModelMetadataResponse
 from biocentral_api._generated.models.model_output import ModelOutput as ModelOutput

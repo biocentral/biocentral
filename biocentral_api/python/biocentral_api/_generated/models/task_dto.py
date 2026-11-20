@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from biocentral_api._generated.models.active_learning_iteration_result import ActiveLearningIterationResult
 from biocentral_api._generated.models.active_learning_screening_simulation_result import ActiveLearningScreeningSimulationResult
+from biocentral_api._generated.models.biocentral_model_result import BiocentralModelResult
 from biocentral_api._generated.models.embedding_progress import EmbeddingProgress
 from biocentral_api._generated.models.perplexity_result import PerplexityResult
 from biocentral_api._generated.models.prediction import Prediction
@@ -30,7 +31,6 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 from biotrainer_core.data_classes import SequenceData
-from biotrainer_core.data_classes import BiotrainerModelResult
 from biotrainer_core.data_classes import BiotrainerModelUpdate
 from biotrainer_core.data_classes import BiotrainerInferenceResult
 
@@ -43,7 +43,7 @@ class TaskDTO(BaseModel):
     perplexity_result: Optional[PerplexityResult] = None
     predictions: Optional[Dict[str, List[Prediction]]] = None
     biotrainer_update: Optional[BiotrainerModelUpdate] = None
-    biotrainer_result: Optional[BiotrainerModelResult] = None
+    biocentral_model_result: Optional[BiocentralModelResult] = None
     biotrainer_inference_result: Optional[BiotrainerInferenceResult] = None
     embedding_progress: Optional[EmbeddingProgress] = None
     embedded_sequences: Optional[Dict[str, StrictStr]] = None
@@ -53,7 +53,7 @@ class TaskDTO(BaseModel):
     projection_result: Optional[ProjectionResult] = None
     al_iteration_result: Optional[ActiveLearningIterationResult] = None
     al_simulation_result: Optional[ActiveLearningScreeningSimulationResult] = None
-    __properties: ClassVar[List[str]] = ["status", "error", "perplexity_result", "predictions", "biotrainer_update", "biotrainer_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
+    __properties: ClassVar[List[str]] = ["status", "error", "perplexity_result", "predictions", "biotrainer_update", "biocentral_model_result", "biotrainer_inference_result", "embedding_progress", "embedded_sequences", "embeddings", "embeddings_file", "clustered_data", "projection_result", "al_iteration_result", "al_simulation_result"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -109,9 +109,9 @@ class TaskDTO(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of biotrainer_update
         if self.biotrainer_update:
             _dict['biotrainer_update'] = self.biotrainer_update.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of biotrainer_result
-        if self.biotrainer_result:
-            _dict['biotrainer_result'] = self.biotrainer_result.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of biocentral_model_result
+        if self.biocentral_model_result:
+            _dict['biocentral_model_result'] = self.biocentral_model_result.to_dict()
         # override the default output from pydantic by calling `to_dict()` of biotrainer_inference_result
         if self.biotrainer_inference_result:
             _dict['biotrainer_inference_result'] = self.biotrainer_inference_result.to_dict()
@@ -154,10 +154,10 @@ class TaskDTO(BaseModel):
         if self.biotrainer_update is None and "biotrainer_update" in self.model_fields_set:
             _dict['biotrainer_update'] = None
 
-        # set to None if biotrainer_result (nullable) is None
+        # set to None if biocentral_model_result (nullable) is None
         # and model_fields_set contains the field
-        if self.biotrainer_result is None and "biotrainer_result" in self.model_fields_set:
-            _dict['biotrainer_result'] = None
+        if self.biocentral_model_result is None and "biocentral_model_result" in self.model_fields_set:
+            _dict['biocentral_model_result'] = None
 
         # set to None if biotrainer_inference_result (nullable) is None
         # and model_fields_set contains the field
@@ -226,7 +226,7 @@ class TaskDTO(BaseModel):
             if obj.get("predictions") is not None
             else None,
             "biotrainer_update": BiotrainerModelUpdate.from_dict(obj["biotrainer_update"]) if obj.get("biotrainer_update") is not None else None,
-            "biotrainer_result": BiotrainerModelResult.from_dict(obj["biotrainer_result"]) if obj.get("biotrainer_result") is not None else None,
+            "biocentral_model_result": BiocentralModelResult.from_dict(obj["biocentral_model_result"]) if obj.get("biocentral_model_result") is not None else None,
             "biotrainer_inference_result": BiotrainerInferenceResult.from_dict(obj["biotrainer_inference_result"]) if obj.get("biotrainer_inference_result") is not None else None,
             "embedding_progress": EmbeddingProgress.from_dict(obj["embedding_progress"]) if obj.get("embedding_progress") is not None else None,
             "embedded_sequences": obj.get("embedded_sequences"),

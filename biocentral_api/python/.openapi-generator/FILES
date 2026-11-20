@@ -30,6 +30,7 @@ biocentral_api/_generated/models/active_learning_screening_simulation_config.py
 biocentral_api/_generated/models/active_learning_screening_simulation_request.py
 biocentral_api/_generated/models/active_learning_screening_simulation_result.py
 biocentral_api/_generated/models/active_learning_stopping_config.py
+biocentral_api/_generated/models/biocentral_model_result.py
 biocentral_api/_generated/models/biocentral_prediction_model.py
 biocentral_api/_generated/models/biocentral_server_custom_models_endpoint_models_error_response.py
 biocentral_api/_generated/models/biocentral_server_server_management_shared_endpoint_models_error_models_error_response.py
@@ -60,7 +61,6 @@ biocentral_api/_generated/models/mcd_lower_bound.py
 biocentral_api/_generated/models/mcd_mean.py
 biocentral_api/_generated/models/mcd_std.py
 biocentral_api/_generated/models/mcd_upper_bound.py
-biocentral_api/_generated/models/model_files_request.py
 biocentral_api/_generated/models/model_metadata.py
 biocentral_api/_generated/models/model_metadata_response.py
 biocentral_api/_generated/models/model_output.py
@@ -117,6 +117,7 @@ docs/ActiveLearningScreeningSimulationConfig.md
 docs/ActiveLearningScreeningSimulationRequest.md
 docs/ActiveLearningScreeningSimulationResult.md
 docs/ActiveLearningStoppingConfig.md
+docs/BiocentralModelResult.md
 docs/BiocentralPredictionModel.md
 docs/BiocentralServerCustomModelsEndpointModelsErrorResponse.md
 docs/BiocentralServerServerManagementSharedEndpointModelsErrorModelsErrorResponse.md
@@ -151,7 +152,6 @@ docs/McdLowerBound.md
 docs/McdMean.md
 docs/McdStd.md
 docs/McdUpperBound.md
-docs/ModelFilesRequest.md
 docs/ModelMetadata.md
 docs/ModelMetadataResponse.md
 docs/ModelOutput.md
