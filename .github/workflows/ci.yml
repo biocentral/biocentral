@@ -366,21 +366,21 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
 
-      - name: Build Web Application
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cp -r python_companion/ assets/
-          rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
-          flutter build web
-        env:
-          SERIOUS_PYTHON_APP: $(pwd)/build/app
-
-      - name: Upload Web build artifacts
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: biocentral_ire/build/web
+      #- name: Build Web Application
+      #  if: matrix.os == 'ubuntu-latest'
+      #  run: |
+      #    cp -r python_companion/ assets/
+      #    rm -rf assets/python_companion/{.idea,__pypackages__,venv,.venv}
+      #    flutter build web
+      #  env:
+      #    SERIOUS_PYTHON_APP: $(pwd)/build/app
+#
+      #- name: Upload Web build artifacts
+      #  if: matrix.os == 'ubuntu-latest'
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: web-build
+      #    path: biocentral_ire/build/web
 
   build-appimage:
     name: "📦 Stage 3 · Build AppImage"
