@@ -28,7 +28,7 @@ runs:
       run: |
         git config --global url."https://github.com/".insteadOf git@github.com:
 
-    - uses: astral-sh/setup-uv@v7
+    - uses: astral-sh/setup-uv@v10.4.0
       with:
         version: ${{ inputs.uv-version || '' }}
         enable-cache: ${{ inputs.uv-enable-cache }}
