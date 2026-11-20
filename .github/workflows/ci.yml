@@ -348,6 +348,7 @@ jobs:
         run: dart run flutter_launcher_icons
 
       - name: Build Application
+        shell: bash
         run: |
           dart run serious_python:main package \
             --python-version 3.12 \
