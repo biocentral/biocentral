@@ -61,6 +61,13 @@ dev = [
     "pyrefly>=1.0.0,<1.5.0",
 ]
 
+[tool.uv]
+override-dependencies = [
+    "perf-analyzer>=2.59.1; sys_platform == 'linux'",
+]
+exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
+exclude-newer-package = { biotrainer = false, biotrainer-core = false, numpy = false, Pillow = false }  # Except for biotrainer (and numpy as temporary workaround)
+
 [tool.uv.sources]
 biotrainer = { path = "../biotrainer", editable = true }
 # Mirrors the biotrainer source so local work uses the submodule; Docker disables
@@ -98,13 +105,6 @@ markers = [
 min_rounds = 5
 disable_gc = true
 warmup = true
-
-[tool.uv]
-override-dependencies = [
-    "perf-analyzer>=2.59.1; sys_platform == 'linux'",
-]
-exclude-newer = "7 days"  # Minimum release age of pypi packages: 7 days
-exclude-newer-package = { biotrainer = false, biotrainer-core = false }  # Except for biotrainer
 
 [tool.coverage.run]
 source = ["biocentral_server"]
