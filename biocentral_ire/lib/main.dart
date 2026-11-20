@@ -23,7 +23,7 @@ import 'package:tutorial_system/tutorial_system.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: false);
+  final BiocentralAPI biocentralAPI = await BiocentralAPI.createWithHealthCheck(localOnly: true);
   final BiocentralAPIRepository apiRepository = await BiocentralAPIRepository.create(biocentralAPI);
   final BiocentralAPIHealthService healthService = BiocentralAPIHealthService(apiRepository);
   healthService.startMonitoring();

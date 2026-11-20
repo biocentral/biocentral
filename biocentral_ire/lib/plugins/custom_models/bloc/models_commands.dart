@@ -433,7 +433,7 @@ final class TrainModelCommand extends BiocentralCommand<PredictionModel> {
   }
 
   Stream<BiocentralCommandLog<PredictionModel>> doTraining(
-    BiocentralServerTask<BiotrainerModelResult?> task,
+    BiocentralServerTask<BiocentralModelResult?> task,
     BiocentralCommandLog<PredictionModel> log,
     PredictionModel initialModel,
   ) async* {
