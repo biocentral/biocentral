@@ -61,7 +61,7 @@ docker compose down
 # Pull repository changes
 git pull
 # Pull docker image changes
-docker compose pull
+docker compose -f docker-compose.yml pull
 # Start the server again
-docker compose up -d
+docker compose -f docker-compose.yml up -d
 ```
