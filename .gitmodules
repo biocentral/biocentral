@@ -1,4 +1,4 @@
 [submodule "biotrainer"]
 	path = biotrainer
-	url = https://github.com/sacdallago/biotrainer.git
-	branch = develop
+	url = https://github.com/biocentral/biotrainer.git
+	branch = archive/biocentral-v2-1-0
