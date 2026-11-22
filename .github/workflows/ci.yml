@@ -27,11 +27,11 @@ jobs:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-latest
     outputs:
-      server: ${{ steps.filter.outputs.server }}
-      api: ${{ steps.filter.outputs.api }}
-      vis: ${{ steps.filter.outputs.vis }}
-      python: ${{ steps.filter.outputs.python }}
-      ire: ${{ steps.filter.outputs.ire }}
+      server: ${{ steps.set.outputs.server }}
+      api: ${{ steps.set.outputs.api }}
+      vis: ${{ steps.set.outputs.vis }}
+      python: ${{ steps.set.outputs.python }}
+      ire: ${{ steps.set.outputs.ire }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -54,24 +54,22 @@ jobs:
               - 'biocentral_ire/**'
               - 'biocentral_api/dart/**'
               - '.github/**'
-      - name: "Force all outputs on main branch"
-        if: github.ref == 'refs/heads/main'
+      - name: "Set change detection outputs"
         id: set
         run: |
-          echo "server=true" >> "$GITHUB_OUTPUT"
-          echo "api=true" >> "$GITHUB_OUTPUT"
-          echo "vis=true" >> "$GITHUB_OUTPUT"
-          echo "python=true" >> "$GITHUB_OUTPUT"
-          echo "ire=true" >> "$GITHUB_OUTPUT"
-      - name: "Pass through filter outputs"
-        if: github.ref != 'refs/heads/main'
-        id: set
-        run: |
-          echo "server=${{ steps.filter.outputs.server }}" >> "$GITHUB_OUTPUT"
-          echo "api=${{ steps.filter.outputs.api }}" >> "$GITHUB_OUTPUT"
-          echo "vis=${{ steps.filter.outputs.vis }}" >> "$GITHUB_OUTPUT"
-          echo "python=${{ steps.filter.outputs.python }}" >> "$GITHUB_OUTPUT"
-          echo "ire=${{ steps.filter.outputs.ire }}" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "server=true" >> "$GITHUB_OUTPUT"
+            echo "api=true" >> "$GITHUB_OUTPUT"
+            echo "vis=true" >> "$GITHUB_OUTPUT"
+            echo "python=true" >> "$GITHUB_OUTPUT"
+            echo "ire=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "server=${{ steps.filter.outputs.server }}" >> "$GITHUB_OUTPUT"
+            echo "api=${{ steps.filter.outputs.api }}" >> "$GITHUB_OUTPUT"
+            echo "vis=${{ steps.filter.outputs.vis }}" >> "$GITHUB_OUTPUT"
+            echo "python=${{ steps.filter.outputs.python }}" >> "$GITHUB_OUTPUT"
+            echo "ire=${{ steps.filter.outputs.ire }}" >> "$GITHUB_OUTPUT"
+          fi
 
   # ════════════════════════════════════════════════════════════
   #  Stage 1 – Unit Tests
