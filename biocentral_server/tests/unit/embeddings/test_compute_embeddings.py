@@ -27,7 +27,7 @@ class RecordingDatabase:
 
 def test_half_precision_embeddings_are_all_saved_under_the_half_name(monkeypatch):
     monkeypatch.setattr(
-        embed, "get_biotrainer_embedding_service", lambda **_: FakeEmbeddingService()
+        embed, "get_embedding_service", lambda **_: FakeEmbeddingService()
     )
     monkeypatch.setattr(
         embed.DeviceService, "embedding_device", staticmethod(lambda **_: "cpu")
