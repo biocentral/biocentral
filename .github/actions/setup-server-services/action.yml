@@ -5,7 +5,7 @@ inputs:
   compose-command:
     description: "Docker Compose up command"
     required: false
-    default: "docker compose -f docker-compose.ci.yml --env-file .env.ci up -d --wait embeddings-db redis-jobs triton-model-init"
+    default: "docker compose -f docker-compose.ci.yml --env-file .env.ci up -d --wait embeddings-db redis-jobs biocentral-server-init"
 
 runs:
   using: "composite"

@@ -17,10 +17,10 @@ services:
     ports:
       - "${REDIS_JOBS_PORT}:6379"
 
-  biocentral-server-setup:  # Necessary to download local onnx files
+  biocentral-server-init:  # Necessary to download local onnx files
     extends:
       file: docker-compose.yml
-      service: biocentral-server-setup
+      service: biocentral-server-init
 
 volumes:
   postgres_data:
