@@ -4,8 +4,10 @@ import unittest
 
 from biocentral_api import CommonEmbedder
 
+from utils import create_random_sequence
 
 class TestEmbeddings(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         from tests.integration.conftest import _make_api, _wait_or_skip
@@ -21,6 +23,7 @@ class TestEmbeddings(unittest.TestCase):
             "Seq3": "PRT",
             "Seq4": "SEQWENCE",
             "Seq5": "MMPRTEINSEQWENCE",
+            "Seq6": create_random_sequence(),
         }
 
         res1 = self.api.embed(
@@ -55,6 +58,7 @@ class TestEmbeddings(unittest.TestCase):
             "Seq3": "PRT",
             "Seq4": "SEQWENCE",
             "Seq5": "MMPRTEINSEQWENCE",
+            "Seq6": create_random_sequence(),
         }
 
         res1 = self.api.embed(
@@ -77,6 +81,7 @@ class TestEmbeddings(unittest.TestCase):
             "Seq3": "PRT",
             "Seq4": "SEQWENCE",
             "Seq5": "MMPRTEINSEQWENCE",
+            "Seq6": create_random_sequence(),
         }
         projection_config = {"n_components": "2"}
 
