@@ -23,4 +23,4 @@ class DeviceService:
     def prediction_device() -> torch.device:
         return torch.device(
             "cpu"
-        )  # Runs onnxruntime on GPU / Triton, only for tensor handling
+        )  # Runs onnxruntime on GPU, only for tensor handling

@@ -1,14 +1,11 @@
-from biotrainer.embedding import EmbeddingService
+from biotrainer.embedding import EmbeddingService, get_embedding_service
 from typing import Dict, List, Optional, Generator
 from biotrainer_core.data_classes import SequenceData
-
-from .biotrainer_triton_embedder import get_biotrainer_embedding_service
 
 from ..utils import get_logger
 from ..server_management import (
     EmbeddingProgress,
     EmbeddingsDatabase,
-    TritonError,
     DeviceService,
 )
 
@@ -28,12 +25,11 @@ def compute_memory_encodings(
 ) -> List[SequenceData]:
     """Compute encodings (e.g. one_hot_encoding) that are not stored in the database."""
 
-    embedding_service: EmbeddingService = get_biotrainer_embedding_service(
+    embedding_service: EmbeddingService = get_embedding_service(
         embedder_name=embedder_name,
         use_half_precision=False,
         custom_tokenizer_config=None,
         device=DeviceService.embedding_device(embedder_name=embedder_name),
-        force_biotrainer=True,
         seed=seed,
     )
     emb_records = list(
@@ -51,7 +47,6 @@ def _compute_embeddings_implementation(
     use_half_precision: bool,
     custom_tokenizer_config: Optional[str] = None,
     embeddings_db: EmbeddingsDatabase = None,
-    force_biotrainer: Optional[bool] = False,
 ) -> Generator[EmbeddingProgress, None, None]:
     progress = 0
     total_seqs = len(all_seqs)
@@ -76,12 +71,11 @@ def _compute_embeddings_implementation(
     yield EmbeddingProgress(current=progress, total=total_seqs)
 
     if n_non_existing > 0:
-        embedding_service: EmbeddingService = get_biotrainer_embedding_service(
+        embedding_service: EmbeddingService = get_embedding_service(
             embedder_name=embedder_name,
             custom_tokenizer_config=custom_tokenizer_config,
             use_half_precision=use_half_precision,
             device=DeviceService.embedding_device(embedder_name=embedder_name),
-            force_biotrainer=force_biotrainer,
         )
         non_existing_records = [
             SequenceData(seq_id=seq_id, seq=seq)
@@ -141,28 +135,11 @@ def compute_embeddings(
     :param embeddings_db: Embeddings database
     :return: Yields embedding progress
     """
-    # Currently triton is not available for half precision
-    force_biotrainer = True if use_half_precision else False
-    try:
-        yield from _compute_embeddings_implementation(
-            embedder_name,
-            all_seqs,
-            reduced,
-            use_half_precision,
-            custom_tokenizer_config,
-            embeddings_db,
-            force_biotrainer=force_biotrainer,
-        )
-    except TritonError as e:
-        logger.error(
-            f"[Fallback] TritonError computing embeddings: {e} - trying pure biotrainer fallback.."
-        )
-        yield from _compute_embeddings_implementation(
-            embedder_name,
-            all_seqs,
-            reduced,
-            use_half_precision,
-            custom_tokenizer_config,
-            embeddings_db,
-            force_biotrainer=True,
-        )
+    yield from _compute_embeddings_implementation(
+        embedder_name,
+        all_seqs,
+        reduced,
+        use_half_precision,
+        custom_tokenizer_config,
+        embeddings_db,
+    )

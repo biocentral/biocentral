@@ -32,15 +32,6 @@ from .server_initialization import ServerInitializationManager, ServerModuleInit
 from .library_adapters import (
     TrainingDTOObserver,
 )
-from .triton_client import (
-    TritonClientConfig,
-    TritonInferenceRepository,
-    create_triton_repository,
-    TritonRepositoryManager,
-    get_shared_repository,
-    cleanup_repositories,
-    TritonError,
-)
 
 __all__ = [
     "FileManager",
@@ -59,13 +50,6 @@ __all__ = [
     "TrainingDTOObserver",
     "ServerInitializationManager",
     "ServerModuleInitializer",
-    "TritonClientConfig",
-    "TritonInferenceRepository",
-    "create_triton_repository",
-    "TritonRepositoryManager",
-    "TritonError",
-    "get_shared_repository",
-    "cleanup_repositories",
     "ErrorResponse",
     "NotFoundErrorResponse",
     "StartTaskResponse",

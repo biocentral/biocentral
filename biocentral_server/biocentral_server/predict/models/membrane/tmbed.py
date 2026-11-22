@@ -11,77 +11,24 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import DeviceService
 
 
-class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+class TMbed(BaseModel):
     """TMbed model for transmembrane topology prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Uses an ensemble of models and requires masking.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "tmbed"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["ensemble_input", "mask"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return [f"output_{i}" for i in range(5)]  # 5 CV folds
-
-    # Custom transformers for Triton
-    def triton_input_transformer(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: rename 'input' to 'ensemble_input'."""
-        if "input" in batch:
-            batch["ensemble_input"] = batch.pop("input")
-        return batch
-
-    def triton_output_transformer(self, outputs: List[np.ndarray]) -> np.ndarray:
-        """Apply softmax to each CV fold and average.
-
-        TMbed uses 5-fold CV ensemble. Each fold returns raw logits (batch, 7, seq_len).
-        Process:
-        1. Apply softmax(dim=1) over 7 topology classes for each fold
-        2. Average the 5 softmax probability distributions
-        3. Return (batch, 7, seq_len) format expected by decoder
-        """
-        # Apply softmax over topology classes (dim=1) for each CV fold
-        softmax_outputs = []
-        for logits in outputs:  # Each is (batch, 7, seq_len)
-            # Softmax over dim=1 (the 7 topology classes)
-            # Subtract max for numerical stability
-            exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
-            softmax = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
-            softmax_outputs.append(softmax)
-
-        # Average across the 5 CV folds
-        avg_probabilities = np.mean(
-            softmax_outputs, axis=0
-        )  # Shape: (batch, 7, seq_len)
-
-        # Return in (batch, 7, seq_len) format expected by TMbed decoder
-        return avg_probabilities
-
-    def __init__(self, batch_size, backend: str = "onnx"):
+    def __init__(self, batch_size):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=True,
             requires_mask=True,
-            requires_transpose=False,  # TMbed doesn't need transpose for Triton
+            requires_transpose=False,
         )
         self.decoder = Decoder()
         self.pred2label = {0: "B", 1: "b", 2: "H", 3: "h", 4: "S", 5: "i", 6: "o"}
@@ -151,8 +98,7 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         device = DeviceService.prediction_device()
         inputs = self._prepare_inputs(embeddings=embeddings)
         input_name = self._infer_input_name()
@@ -161,34 +107,20 @@ class TMbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         for batch in inputs:
             B, L, _ = batch[input_name].shape
 
-            if self.backend == "onnx":
-                # ONNX: Run ensemble manually
-                # Container for summing up predictions of individual models in the ensemble
-                pred = torch.zeros((B, len(self.models), L), device=device)
-                for model in self.models:
-                    y = model.run(None, batch)
-                    y = torch.from_numpy(np.float32(np.stack(y[0])))
-                    pred = pred + torch.softmax(y, dim=1).to(device)
+            # Run ensemble manually
+            # Container for summing up predictions of individual models in the ensemble
+            pred = torch.zeros((B, len(self.models), L), device=device)
+            for y in self._run_backend_inference_ensemble(batch=batch):
+                y = torch.from_numpy(np.float32(np.stack(y[0])))
+                pred = pred + torch.softmax(y, dim=1).to(device)
 
-                probabilities = pred / len(self.models)
-                mem_Yhat = self._finalize_raw_prediction(
-                    self.decoder(
-                        probabilities, torch.from_numpy(batch["mask"]).to(device)
-                    ),
-                    dtype=np.byte,
-                )
-
-            elif self.backend == "triton":
-                # Triton: Ensemble handled on server
-                raw_output = self._run_inference(batch)
-                # raw_output is (batch, 7, seq_len) after transformer - same as ONNX
-                probabilities = torch.from_numpy(raw_output)
-                mem_Yhat = self._finalize_raw_prediction(
-                    self.decoder(probabilities, torch.from_numpy(batch["mask"])),
-                    dtype=np.byte,
-                )
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            probabilities = pred / len(self.models)
+            mem_Yhat = self._finalize_raw_prediction(
+                self.decoder(
+                    probabilities, torch.from_numpy(batch["mask"]).to(device)
+                ),
+                dtype=np.byte,
+            )
 
             results.extend(mem_Yhat)
 

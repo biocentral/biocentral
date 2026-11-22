@@ -5,8 +5,8 @@ from biotrainer_core.data_classes import SequenceData
 
 from ..server_management import RateLimiter
 
+from .model_factory import PredictionModelFactory
 from .multi_prediction_task import MultiPredictionTask
-from .models import get_metadata_for_all_models, filter_models
 from .endpoint_models import PredictionRequest, ModelMetadataResponse
 
 from ..server_management import (
@@ -35,7 +35,8 @@ router = APIRouter(
     dependencies=[Depends(RateLimiter(times=10, seconds=60))],
 )
 def model_metadata():
-    return ModelMetadataResponse(metadata=get_metadata_for_all_models())
+    prediction_model_factory = PredictionModelFactory()
+    return ModelMetadataResponse(metadata=prediction_model_factory.get_metadata_for_all_models())
 
 
 @router.post(
@@ -58,7 +59,8 @@ async def predict(
     Endpoint for protein sequence prediction using a single or multiple models
     """
     model_names = request_data.model_names
-    available_model_names = {model.name for model in get_metadata_for_all_models()}
+    prediction_model_factory = PredictionModelFactory()
+    available_model_names = {model.name for model in prediction_model_factory.get_metadata_for_all_models()}
 
     # Check if all requested models exist
     missing_models = [
@@ -77,7 +79,7 @@ async def predict(
     ]
 
     # Get filtered models and create prediction task
-    models = filter_models(model_names=model_names)
+    models = prediction_model_factory.filter_models(model_names=model_names)
     prediction_task = MultiPredictionTask(
         models=models,
         sequence_input=sequence_input,

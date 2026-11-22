@@ -10,38 +10,17 @@ from ..base_model import (
     ModelMetadata,
     ModelOutput,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
-class UdonPred(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+class UdonPred(BaseModel):
     """UdonPred model for predicting protein disorder.
-
-    Supports both ONNX (local) and Triton (remote) backends.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "udonpred"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["embedding"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["score"]
-
-    def __init__(self, batch_size: int, backend: str = "onnx"):
+    def __init__(self, batch_size: int):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -95,12 +74,11 @@ class UdonPred(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
 
         return processed_results
 
-    def predict(self, sequences: Dict[str, str], embeddings):
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         # Fixed constant from UdonPred
         # https://github.com/DavidWagemann/UdonPred/blob/80c5f0abd0debead4659a7b1d45d2cec65f5fb18/predict.py#L218
         smooth = 1.5
 
-        self._ensure_backend_initialized()
         inputs = self._prepare_inputs(
             embeddings=embeddings
         )  # TODO Batch size seems to be always one
@@ -108,29 +86,12 @@ class UdonPred(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         results = []  # list of floats with disorder scores for each residue
 
         for batch in inputs:
-            # Run inference using selected backend
-            raw_output = self._run_inference(batch)
-
-            # Process output based on backend
-            if self.backend == "onnx":
-                # ONNX returns list of outputs, take first one
-                diso_Yhat = self._finalize_raw_prediction(
-                    torch.from_numpy(np.float32(np.stack(raw_output[0])))
-                )
-            elif self.backend == "triton":
-                # Triton returns numpy array directly (already processed by mixin)
-                # Shape should be (batch, seq_len, 1) - squeeze to (batch, seq_len)
-                if len(raw_output.shape) == 3 and raw_output.shape[-1] == 1:
-                    raw_output = np.squeeze(raw_output, axis=-1)
-                # Convert to tensor and process per sequence to preserve per-residue structure
-                tensor = torch.from_numpy(raw_output)
-                diso_Yhat = []
-                for i in range(tensor.shape[0]):  # iterates over batch (sequences)
-                    seq_tensor = tensor[i]
-                    seq_result = self._finalize_raw_prediction(seq_tensor.unsqueeze(0))
-                    diso_Yhat.extend(seq_result)
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Run ONNX inference
+            raw_output = self._run_backend_inference_single(batch=batch)
+            # ONNX returns list of outputs, take first one
+            diso_Yhat = self._finalize_raw_prediction(
+                torch.from_numpy(np.float32(np.stack(raw_output[0])))
+            )
 
             results.extend(diso_Yhat)
 

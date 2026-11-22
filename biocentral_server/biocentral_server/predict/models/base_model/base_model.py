@@ -3,16 +3,14 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from biotrainer_core.data_classes import Protocol
-from typing import List, Dict, Union, Any, Literal, Iterable
+from typing import List, Dict, Union, Any, Iterable, Optional
 
+from .backend_onnx import LocalOnnxBackend
 from .model_metadata import ModelMetadata
 
 from ...model_utils import get_batched_data
 
 from ....server_management import Prediction
-
-# Backend type
-BackendType = Literal["onnx", "triton"]
 
 
 class BaseModel(ABC):
@@ -20,13 +18,12 @@ class BaseModel(ABC):
 
     This class provides shared functionality for all prediction models,
     including preprocessing, postprocessing, and batching logic.
-    Specific inference backends (ONNX, Triton) are provided via mixins.
+    Uses ONNX Runtime for local inference.
     """
 
     def __init__(
         self,
         batch_size: int,
-        backend: BackendType = "onnx",
         uses_ensemble: bool = False,
         requires_mask: bool = False,
         requires_transpose: bool = False,
@@ -36,69 +33,50 @@ class BaseModel(ABC):
 
         Args:
             batch_size: Batch size for predictions
-            backend: Inference backend to use ("onnx" or "triton")
             uses_ensemble: Whether the model uses multiple models (ensemble)
             requires_mask: Whether inputs need masking
             requires_transpose: Whether inputs need transposition
         """
         self.batch_size = batch_size
-        self.backend = backend
         self.uses_ensemble = uses_ensemble
         self.requires_mask = requires_mask
         self.requires_transpose = requires_transpose
         self.non_padded_embedding_lengths = {}  # Undo padding after predictions
 
-        # Lazy initialization flag - backend initialized on first use
+        # Only one backend available at the moment (ONNX local)
+        self._backend = LocalOnnxBackend(uses_ensemble=uses_ensemble,
+                                        metadata=self.get_metadata())
         self._backend_initialized = False
 
-    def _ensure_backend_initialized(self):
+    def __ensure_backend_initialized(self):
         """Lazy initialization - load backend only when first needed.
 
         This method should be called at the start of predict() to ensure
         the backend is initialized before inference.
         """
         if not self._backend_initialized:
-            self._init_backend()
+            # Needs to be made generic of other backends come available again
+            self._backend._init_onnx_backend()
             self._backend_initialized = True
 
-    def _init_backend(self):
-        """Initialize the selected inference backend."""
-        if self.backend == "onnx":
-            if not hasattr(self, "_init_onnx_backend"):
-                raise RuntimeError(
-                    f"{self.__class__.__name__} must inherit from OnnxInferenceMixin "
-                    "to use ONNX backend"
-                )
-            self._init_onnx_backend()
+    @property
+    def model(self):
+        """Delegate to backend's single ONNX model instance."""
+        return self._backend.model
 
-        elif self.backend == "triton":
-            if not hasattr(self, "_init_triton_backend"):
-                raise RuntimeError(
-                    f"{self.__class__.__name__} must inherit from TritonInferenceMixin "
-                    "to use Triton backend"
-                )
-            self._init_triton_backend()
+    @property
+    def models(self):
+        """Delegate to backend's ensemble ONNX model instances."""
+        return self._backend.models
 
-        else:
-            raise ValueError(
-                f"Unknown backend: {self.backend}. Must be 'onnx' or 'triton'"
-            )
+    # ** Inference backend calls. Two different functions for single / ensemble for better typing **
+    def _run_backend_inference_single(self, batch: Dict[str, Any],
+                                      output_names: Optional[List[str]] = None) -> Any:
+        return self._backend.run_onnx_inference_single(batch=batch, output_names=output_names)
 
-    def _run_inference(self, batch: Dict[str, Any]) -> Any:
-        """Run inference on a batch using the selected backend.
-
-        Args:
-            batch: Dictionary containing input tensors
-
-        Returns:
-            Raw model output
-        """
-        if self.backend == "onnx":
-            return self._run_onnx_inference(batch)
-        elif self.backend == "triton":
-            return self._run_triton_inference(batch)
-        else:
-            raise ValueError(f"Unknown backend: {self.backend}")
+    def _run_backend_inference_ensemble(self, batch: Dict[str, Any],
+                                        output_names: Optional[List[str]] = None) -> list[Any]:
+        return self._backend.run_onnx_inference_ensemble(batch=batch, output_names=output_names)
 
     @staticmethod
     @abstractmethod
@@ -132,11 +110,8 @@ class BaseModel(ABC):
             mask=self.requires_mask,
         )
 
-    def _infer_input_name(self):
-        if self.backend == "onnx":
-            model = getattr(self, "model", None) or self.models[0]
-            return model.get_inputs()[0].name
-        return self.TRITON_INPUT_NAMES()[0]
+    def _infer_input_name(self) -> str:
+        return self._backend.infer_input_name()
 
     def _transpose_batch(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -166,7 +141,7 @@ class BaseModel(ABC):
                     raise ValueError(f"Unsupported type: {type(v)}")
                 transposed = v.permute(0, 2, 1)
                 # Convert back to numpy for ONNX compatibility
-                result[k] = transposed.numpy() if self.backend == "onnx" else transposed
+                result[k] = transposed.numpy()
             else:
                 result[k] = v
         return result
@@ -189,7 +164,7 @@ class BaseModel(ABC):
         return str(value)
 
     @staticmethod
-    def _finalize_raw_prediction(tensor: torch.tensor, dtype=None) -> List:
+    def _finalize_raw_prediction(tensor: torch.Tensor, dtype=None) -> List:
         """
         Do conversions on the raw onnx model predictions to finalize the model output.
 
@@ -214,12 +189,28 @@ class BaseModel(ABC):
 
         return list(result)
 
-    @abstractmethod
     def predict(
         self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]
     ) -> Dict[str, List[Prediction]]:
         """
         Run model prediction.
+
+        Args:
+            sequences: Dictionary mapping sequence hashes to amino acid sequences
+            embeddings: Dictionary mapping sequence hashes to embeddings
+
+        Returns:
+            Model predictions
+        """
+        self.__ensure_backend_initialized()
+        return self._predict_implementation(sequences, embeddings)
+
+    @abstractmethod
+    def _predict_implementation(
+        self, sequences: Dict[str, str], embeddings: Dict[str, torch.Tensor]
+    ) -> Dict[str, List[Prediction]]:
+        """
+        Run model-specific prediction implementation. Must be overridden by subclasses.
 
         Args:
             sequences: Dictionary mapping sequence hashes to amino acid sequences
@@ -234,7 +225,7 @@ class BaseModel(ABC):
         self,
         model_output: Dict[str, Any],
         embedding_ids: List[str],
-        label_maps: Dict[str, Dict[int, str]] = None,
+        label_maps: Optional[Dict[str, Dict[int, str]]] = None,
         delimiter: str = "",
     ) -> Dict[str, List[Prediction]]:
         """

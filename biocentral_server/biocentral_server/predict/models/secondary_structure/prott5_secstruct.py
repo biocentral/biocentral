@@ -10,41 +10,19 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
-class ProtT5SecondaryStructure(
-    BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin
-):
+class ProtT5SecondaryStructure(BaseModel):
     """ProtT5SecondaryStructure model for secondary structure prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Predicts 3-state and 8-state secondary structure.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "prott5_sec"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["input"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["d3_Yhat"]  # Only use 3-state for Triton
-
-    def __init__(self, batch_size, backend: str = "onnx"):
+    def __init__(self, batch_size):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -147,43 +125,24 @@ class ProtT5SecondaryStructure(
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         model_output = {"d3_Yhat": [], "d8_Yhat": []}
 
         for batch in inputs:
-            if self.backend == "onnx":
-                # ONNX returns both 3-state and 8-state predictions
-                d3_Yhat, d8_Yhat = self.model.run(None, batch)
-                d3_Yhat = torch.from_numpy(np.float32(np.stack(d3_Yhat)))
-                d8_Yhat = torch.from_numpy(np.float32(np.stack(d8_Yhat)))
-                d3_Yhat = self._finalize_raw_prediction(
-                    torch.max(d3_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-                )
-                d8_Yhat = self._finalize_raw_prediction(
-                    torch.max(d8_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-                )
-                model_output["d3_Yhat"].extend(d3_Yhat)
-                model_output["d8_Yhat"].extend(d8_Yhat)
-
-            elif self.backend == "triton":
-                # Triton only returns 3-state predictions
-                raw_output = self._run_inference(batch)
-                # raw_output is (batch, seq_len, 3)
-                d3_Yhat = torch.from_numpy(raw_output)
-                d3_Yhat = self._finalize_raw_prediction(
-                    torch.max(d3_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-                )
-                model_output["d3_Yhat"].extend(d3_Yhat)
-                # Note: 8-state predictions not available with Triton backend
-                # Populate with empty arrays to maintain structure
-                B = raw_output.shape[0]
-                for i in range(B):
-                    model_output["d8_Yhat"].append(np.array([]))
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Run ONNX inference; returns both 3-state and 8-state predictions
+            raw_output = self._run_backend_inference_single(batch=batch)
+            d3_Yhat = torch.from_numpy(np.float32(np.stack(raw_output[0])))
+            d8_Yhat = torch.from_numpy(np.float32(np.stack(raw_output[1])))
+            d3_Yhat = self._finalize_raw_prediction(
+                torch.max(d3_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+            )
+            d8_Yhat = self._finalize_raw_prediction(
+                torch.max(d8_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+            )
+            model_output["d3_Yhat"].extend(d3_Yhat)
+            model_output["d8_Yhat"].extend(d8_Yhat)
 
         return self._post_process(
             model_output=model_output,

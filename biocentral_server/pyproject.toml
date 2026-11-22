@@ -99,7 +99,6 @@ markers = [
     "performance: marks tests as performance benchmarks",
     "integration: marks tests as integration tests",
     "property: marks property-based/oracle tests",
-    "triton: marks tests that require Triton server",
 ]
 min_rounds = 5
 disable_gc = true
@@ -112,9 +111,6 @@ omit = [
     "*/__pycache__/*",
     # Task files (async execution logic)
     "*_task.py",
-    # Triton/external integration
-    "*/triton_mixin.py",
-    "*/biotrainer_triton_embedder.py",
     # Model implementations (except __init__.py)
     "*/predict/models/binding/*",
     "*/predict/models/conservation/*",

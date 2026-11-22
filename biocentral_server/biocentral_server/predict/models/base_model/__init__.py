@@ -1,7 +1,6 @@
 from .base_model import BaseModel
 from .model_metadata import ModelMetadata, ModelOutput, OutputType, OutputClass
-from .onnx_mixin import LocalOnnxInferenceMixin
-from .triton_mixin import TritonInferenceMixin
+from .backend_onnx import LocalOnnxBackend
 
 __all__ = [
     "BaseModel",
@@ -9,6 +8,5 @@ __all__ = [
     "ModelOutput",
     "OutputType",
     "OutputClass",
-    "LocalOnnxInferenceMixin",
-    "TritonInferenceMixin",
+    "LocalOnnxBackend",
 ]

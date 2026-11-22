@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 from biotrainer_core.data_classes import Protocol
 
 from ..base_model import (
@@ -10,42 +10,21 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction
 
 
-class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+class ProtT5Conservation(BaseModel):
     """ProtT5Conservation model for residue conservation prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Simple per-residue prediction model.
     """
 
-    # Triton configuration
-
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "prott5_cons"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["input"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["output"]
-
-    def __init__(self, batch_size, backend: str = "onnx"):
+    def __init__(self, batch_size):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -122,32 +101,19 @@ class ProtT5Conservation(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixi
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(
+    def _predict_implementation(
         self, sequences: Dict[str, str], embeddings
     ) -> Dict[str, List[Prediction]]:
-        self._ensure_backend_initialized()
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
         for batch in inputs:
-            if self.backend == "onnx":
-                # ONNX returns list of outputs
-                cons_Yhat = self.model.run(None, batch)
-                cons_Yhat = torch.from_numpy(np.float32(np.stack(cons_Yhat[0])))
-                cons_Yhat = self._finalize_raw_prediction(
-                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-                )
-
-            elif self.backend == "triton":
-                # Triton returns numpy array directly
-                raw_output = self._run_inference(batch)
-                # raw_output is (batch, seq_len, num_classes)
-                cons_Yhat = torch.from_numpy(raw_output)
-                cons_Yhat = self._finalize_raw_prediction(
-                    torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
-                )
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Run ONNX inference
+            raw_output = self._run_backend_inference_single(batch=batch)
+            cons_Yhat = torch.from_numpy(np.float32(np.stack(raw_output[0])))
+            cons_Yhat = self._finalize_raw_prediction(
+                torch.max(cons_Yhat, dim=-1, keepdim=True)[1], dtype=np.byte
+            )
 
             results.extend(cons_Yhat)
 

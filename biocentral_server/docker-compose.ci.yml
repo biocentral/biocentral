@@ -17,10 +17,10 @@ services:
     ports:
       - "${REDIS_JOBS_PORT}:6379"
 
-  triton-model-init:  # Necessary to download local onnx files
+  biocentral-server-setup:  # Necessary to download local onnx files
     extends:
       file: docker-compose.yml
-      service: triton-model-init
+      service: biocentral-server-setup
 
 volumes:
   postgres_data:
@@ -47,7 +47,7 @@ volumes:
       type: none
       o: bind
       device: ${HUGGINGFACE_MODELS_DIR}
-  triton_models:
+  local_models:
     driver: local
     driver_opts:
       type: none
