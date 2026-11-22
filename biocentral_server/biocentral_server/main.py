@@ -42,22 +42,28 @@ def _setup_directories():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
+
 def _log_cached_hf_models():
     from huggingface_hub import scan_cache_dir
+    from huggingface_hub.errors import CacheNotFound
     from huggingface_hub.constants import HF_HUB_CACHE
     from pathlib import Path
 
-    hf_cache_dir = Path(HF_HUB_CACHE).expanduser().resolve()
+    try:
+        hf_cache_dir = Path(HF_HUB_CACHE).expanduser().resolve()
 
-    cache_info = scan_cache_dir()
+        cache_info = scan_cache_dir()
 
-    cached_models = []
-    for repo in cache_info.repos:
-        if repo.repo_type == "model":
-            cached_models.append(repo.repo_id)
+        cached_models = []
+        for repo in cache_info.repos:
+            if repo.repo_type == "model":
+                cached_models.append(repo.repo_id)
 
-    logger.info(f"HF cache directory: {hf_cache_dir}")
-    logger.info(f"Locally cached HF models: {cached_models}")
+        logger.info(f"HF cache directory: {hf_cache_dir}")
+        logger.info(f"Locally cached HF models: {cached_models}")
+    except CacheNotFound as e:
+        logger.error(f"Failed to log cached HF models: {e}")
+
 
 def cleanup_database_task():
     """Scheduled task to cleanup old embeddings"""
