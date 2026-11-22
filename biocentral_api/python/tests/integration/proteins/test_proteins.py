@@ -1,5 +1,7 @@
 import unittest
 
+from utils import create_random_sequence
+
 
 class TestProteins(unittest.TestCase):
     @classmethod
@@ -33,6 +35,7 @@ class TestProteins(unittest.TestCase):
         sequence_data = {
             "Seq1": "MMALSLALMP",
             "Seq2": "MMALSLALMA",
+            "Seq3": create_random_sequence(length=10)
         }
         result = self.api.perplexity(sequence_data, plm_name="facebook/esm2_t6_8M_UR50D").run()
         self.assertIsNotNone(result)

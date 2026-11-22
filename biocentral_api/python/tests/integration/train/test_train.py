@@ -1,5 +1,6 @@
 import unittest
 
+from utils import create_random_sequence
 from biocentral_api import CommonEmbedder, SequenceData, Protocol
 
 
@@ -39,6 +40,9 @@ class TestTrainAndInference(unittest.TestCase):
             SequenceData(
                 seq_id="Seq7", seq="PRSEQ", label="Soluble", set="test", mask=None
             ),
+            SequenceData(
+                seq_id="Seq8", seq=create_random_sequence(), label="Soluble", set="test", mask=None
+            ),
         ]
 
         training_result = self.api.train(
@@ -50,6 +54,7 @@ class TestTrainAndInference(unittest.TestCase):
         inference_data = {
             "Seq8": "PRTPRT",
             "Seq9": "SEQPRT",
+            "Seq10": create_random_sequence(length=8),
         }
 
         inference_result = self.api.inference(

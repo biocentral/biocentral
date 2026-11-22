@@ -7,6 +7,8 @@ import pytest
 
 from biocentral_api import BiocentralPredictionModel
 
+from utils import create_random_sequence
+
 
 class TestPredict(unittest.TestCase):
     @classmethod
@@ -29,6 +31,7 @@ class TestPredict(unittest.TestCase):
             "Seq2": "PRTPEINMMALM",
             "Seq3": "PRTPSSSLAMAM",
             "Seq4": "SEQPWENCEAWMMWW",
+            "Seq5": create_random_sequence(),
         }
 
         result = self.api.predict(
