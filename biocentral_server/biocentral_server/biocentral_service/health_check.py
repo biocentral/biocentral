@@ -8,7 +8,6 @@ import psycopg
 from redis.asyncio import Redis
 
 from ..server_management.file_management import FileManager
-from ..server_management.triton_client import TritonClientConfig
 from ..utils import get_logger
 
 logger = get_logger(__name__)
@@ -125,47 +124,6 @@ def check_postgres() -> HealthCheckResult:
         )
 
 
-def check_triton() -> HealthCheckResult:
-    """Check if Triton Inference Server is healthy."""
-    use_triton = os.getenv("USE_TRITON", "true").lower() in ("true", "1", "yes")
-
-    if not use_triton:
-        return HealthCheckResult(
-            name="triton",
-            healthy=True,
-            message="Disabled (skipped)",
-            details={"enabled": False},
-        )
-
-    try:
-        config = TritonClientConfig()
-        healthy = config.is_healthy()
-        grpc_url = config.get_grpc_url_without_protocol()
-        http_url = config.triton_http_url
-
-        if healthy:
-            return HealthCheckResult(
-                name="triton",
-                healthy=True,
-                message="Ready",
-                details={"grpc_url": grpc_url, "http_url": http_url},
-            )
-        else:
-            return HealthCheckResult(
-                name="triton",
-                healthy=False,
-                message="Not ready",
-                details={"grpc_url": grpc_url, "http_url": http_url},
-            )
-    except Exception as e:
-        return HealthCheckResult(
-            name="triton",
-            healthy=False,
-            message=f"Check failed: {e}",
-            details={},
-        )
-
-
 def check_file_storage() -> HealthCheckResult:
     """Check if file storage backend is operational."""
     try:
@@ -229,14 +187,12 @@ async def run_deep_health_check() -> dict:
 
     # Synchronous checks run in the threadpool implicitly via FastAPI
     postgres_result = check_postgres()
-    triton_result = check_triton()
     file_storage_result = check_file_storage()
     gpu_result = check_gpu()
 
     all_results = [
         redis_result,
         postgres_result,
-        triton_result,
         file_storage_result,
         gpu_result,
     ]

@@ -9,43 +9,16 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
-class ExoTox(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
-    """ExoTox model for predicting if a protein is a bacterial exotoxin.
+class ExoTox(BaseModel):
+    """ExoTox model for predicting if a protein is a bacterial exotoxin."""
 
-    Supports both ONNX (local) and Triton (remote) backends.
-    """
-
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "exotox"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["X"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["label"]
-
-    # Custom transformer for Triton
-    def triton_input_transformer(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: transpose input."""
-        return self._transpose_batch(batch)
-
-    def __init__(self, batch_size: int, backend: str = "onnx"):
+    def __init__(self, batch_size: int):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -87,24 +60,15 @@ class ExoTox(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
 
         for batch in inputs:
-            if self.backend == "onnx":
-                # ONNX: Local inference
-                batch_transposed = self._transpose_batch(batch)
-                exotox_pred = self.model.run(["label"], batch_transposed)[0]
-            elif self.backend == "triton":
-                # Triton: Remote inference
-                exotox_pred_np = self._run_inference(batch)
-                exotox_pred = [torch.from_numpy(exotox_pred_np).item()]
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
-
+            # Transpose batch and run ONNX inference with specific output name
+            batch_transposed = self._transpose_batch(batch)
+            exotox_pred = self._run_backend_inference_single(batch=batch_transposed, output_names=["label"])[0]
             results.extend(exotox_pred)
 
         model_output = {"exotoxin": results}

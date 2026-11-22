@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 from biotrainer_core.data_classes import Protocol
 from vespag import (
     ScoreNormalizer,
@@ -15,41 +15,21 @@ from ..base_model import (
     ModelMetadata,
     ModelOutput,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction, MutationPrediction
 
 
-class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+class VespaG(BaseModel):
     """VespaG model for variant effect prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Predicts effects of single amino acid variants on protein function.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "vespag"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["input"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["output"]
-
-    def __init__(self, batch_size: int, backend: str = "onnx"):
+    def __init__(self, batch_size: int):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=False,
             requires_transpose=False,
@@ -96,8 +76,7 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             for embedding in embeddings.values()
         ]
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         self.mutations_per_protein = generate_sav_landscape(
@@ -107,17 +86,11 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         )
         vespag_scores = {}
         for seq_idx, sequence_embedding in enumerate(inputs):
-            seq_id = embedding_ids[seq_idx]
+            seq_id= embedding_ids[seq_idx]
 
-            # Backend-agnostic inference
-            if self.backend == "onnx":
-                raw_output = self.model.run(None, sequence_embedding)
-                y = torch.from_numpy(np.float32(np.stack(raw_output[0]))).squeeze(0)
-            elif self.backend == "triton":
-                raw_output = self._run_inference(sequence_embedding)
-                y = torch.from_numpy(raw_output.astype(np.float32)).squeeze(0)
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Run ONNX inference
+            raw_output = self._run_backend_inference_single(batch=sequence_embedding)
+            y = torch.from_numpy(np.float32(np.stack(raw_output[0]))).squeeze(0)
 
             y = mask_non_mutations(y, sequences[seq_id])
             vespag_scores[seq_id] = y.detach().numpy()
@@ -134,7 +107,7 @@ class VespaG(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         self,
         model_output: Dict[str, Any],
         embedding_ids: List[str],
-        label_maps: Dict[str, Dict[int, str]] = None,
+        label_maps: Optional[Dict[str, Dict[int, str]]] = None,
         delimiter: str = "",
     ) -> Dict[str, List[Prediction]]:
         scores_per_protein = {}

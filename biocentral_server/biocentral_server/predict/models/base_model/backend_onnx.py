@@ -1,30 +1,31 @@
-"""ONNX inference mixin for local model execution."""
-
 import onnxruntime as ort
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from onnxruntime import InferenceSession
+
+from .model_metadata import ModelMetadata
 
 from ...model_utils import MODEL_REPOSITORY_PATH
 
 
-class LocalOnnxInferenceMixin:
-    """Mixin providing ONNX-based inference capabilities.
+class LocalOnnxBackend:
+    """Backend providing ONNX-based inference capabilities.
 
-    This mixin provides methods for loading and running ONNX models locally.
+    This class provides methods for loading and running ONNX models locally.
     It should be used with BaseModel through multiple inheritance.
 
     Expected attributes from BaseModel:
         - uses_ensemble: bool
     """
 
+    def __init__(self,
+                 uses_ensemble: bool,
+                 metadata: ModelMetadata):
+        self.uses_ensemble = uses_ensemble
+        self.metadata = metadata
+
     def _init_onnx_backend(self):
         """Initialize ONNX backend by loading model(s)."""
-        if not hasattr(self, "uses_ensemble"):
-            raise AttributeError(
-                "OnnxInferenceMixin requires 'uses_ensemble' attribute"
-            )
-
-        model_name_for_dir = self.get_metadata().name.to_onnx_dir_name()
+        model_name_for_dir = self.metadata.name.to_onnx_dir_name()
 
         if self.uses_ensemble:
             self.models = self._load_multiple_onnx_models(
@@ -103,17 +104,39 @@ class LocalOnnxInferenceMixin:
         models = [model[1] for model in sorted(models, key=lambda x: x[0])]
         return models
 
-    def _run_onnx_inference(self, batch: Dict[str, Any]) -> Any:
+    def infer_input_name(self) -> str:
+        model = getattr(self, "model", None) or self.models[0]
+        return model.get_inputs()[0].name
+
+    def run_onnx_inference_single(self, batch: Dict[str, Any],
+                                  output_names: Optional[List[str]] = None) -> Any:
         """Run ONNX inference on a batch.
+
+        For non-ensemble models, returns the single model's output list.
 
         Args:
             batch: Dictionary containing input tensors
+            output_names: Optional list of output names to return
 
         Returns:
             Raw model output
         """
-        if self.uses_ensemble:
-            # Return all model outputs for ensemble handling by specific model
-            return [model.run(None, batch) for model in self.models]
-        else:
-            return self.model.run(None, batch)
+        assert not self.uses_ensemble
+        return self.model.run(output_names, batch)
+
+    def run_onnx_inference_ensemble(self, batch: Dict[str, Any],
+                                    output_names: Optional[List[str]] = None) -> list[Any]:
+        """Run an ensemble of ONNX model inference on a batch.
+
+        For ensemble models, returns a list of outputs (one per model).
+
+        Args:
+            batch: Dictionary containing input tensors
+            output_names: Optional list of output names to return
+
+        Returns:
+            Raw model output list
+        """
+        assert self.uses_ensemble
+        # Return all model outputs for ensemble handling by specific model
+        return [model.run(output_names, batch) for model in self.models]

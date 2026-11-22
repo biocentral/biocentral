@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Initialize Triton model repository by downloading ONNX models.
+"""Initialize model repository by downloading ONNX models.
 
-This script is run as an init container before Triton starts.
-It downloads ONNX models from configured URLs and places them
+This script downloads ONNX models from configured URLs and places them
 in the correct directory structure based on explicit folder:url pairs.
 """
 
@@ -98,9 +97,6 @@ def download_file(url: str, output_path: Path) -> bool:
         True if successful, False otherwise
     """
     try:
-        import httpx
-        from tqdm import tqdm
-
         logger.info(f"Downloading {url} to {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -419,7 +415,7 @@ def main() -> int:
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    logger.info("Starting Triton model repository initialization...")
+    logger.info("Starting model repository initialization...")
     logger.info(f"Model repository path: {MODEL_REPOSITORY_PATH}")
 
     # Parse environment variables

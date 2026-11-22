@@ -1,4 +1,4 @@
-from typing import Callable, Any, Optional, Dict
+from typing import Callable, Any, Dict
 
 from .models import BaseModel, BiocentralPredictionModel
 from .single_prediction_task import SinglePredictionTask
@@ -16,23 +16,20 @@ class MultiPredictionTask(TaskInterface):
         models: Dict[BiocentralPredictionModel, Any],
         sequence_input,
         batch_size,
-        use_triton: Optional[bool] = None,
     ):
         self.models = models
         self.sequence_input = sequence_input
         self.batch_size = batch_size
-        self.use_triton = use_triton
 
     def run_task(self, update_dto_callback: Callable) -> TaskDTO:
         predictions = {}
 
         for model_name, model_class in self.models.items():
-            # Create model via factory (supports both Triton and ONNX backends)
+            # Create model via factory
             logger.info(f"Creating model {model_name} via factory")
-            model: BaseModel = PredictionModelFactory.create_model(
+            model: BaseModel = PredictionModelFactory().create_model(
                 model_name=model_name,
                 batch_size=self.batch_size,
-                use_triton=self.use_triton,
             )
 
             single_pred_task = SinglePredictionTask(

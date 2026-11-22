@@ -10,44 +10,16 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
-class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
-    """LightAttention model for membrane prediction.
+class LightAttentionMembrane(BaseModel):
+    """LightAttention model for membrane prediction."""
 
-    Supports both ONNX (local) and Triton (remote) backends.
-    """
-
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "light_attention_membrane"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["input", "mask"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["output"]
-
-    # Custom transformer for Triton
-    def triton_input_transformer(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: transpose input."""
-        # LightAttentionMembrane requires transposed input (B, L, E) -> (B, E, L)
-        return self._transpose_batch(batch)
-
-    def __init__(self, batch_size: int, backend: str = "onnx"):
+    def __init__(self, batch_size: int):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=True,
             requires_transpose=True,
@@ -89,24 +61,16 @@ class LightAttentionMembrane(BaseModel, LocalOnnxInferenceMixin, TritonInference
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
 
         for batch in inputs:
-            if self.backend == "onnx":
-                # ONNX: Local inference
-                batch_transposed = self._transpose_batch(batch)
-                la_mem_Yhat = self.model.run(None, batch_transposed)
-                la_mem_Yhat = torch.from_numpy(np.float32(np.stack(la_mem_Yhat[0])))
-            elif self.backend == "triton":
-                # Triton: Remote inference
-                la_mem_Yhat_np = self._run_inference(batch)
-                la_mem_Yhat = torch.from_numpy(la_mem_Yhat_np)
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Transpose batch and run ONNX inference
+            batch_transposed = self._transpose_batch(batch)
+            raw_output = self._run_backend_inference_single(batch=batch_transposed)
+            la_mem_Yhat = torch.from_numpy(np.float32(np.stack(raw_output[0])))
 
             la_mem_Yhat = self._finalize_raw_prediction(
                 torch.max(la_mem_Yhat, dim=1)[1], dtype=np.byte

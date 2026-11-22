@@ -28,29 +28,9 @@ MODEL_REGISTRY: Dict[BiocentralPredictionModel, Any] = {
     }.items()
 }
 
-
-def filter_models(
-    model_names: List[BiocentralPredictionModel],
-) -> Dict[BiocentralPredictionModel, Any]:
-    assert all(
-        [model_name in MODEL_REGISTRY for model_name in model_names]
-    ), "Invalid model name, this should have been caught in the endpoint"
-
-    return {
-        model_name: MODEL_REGISTRY[model_name]
-        for model_name in model_names
-        if model_name in MODEL_REGISTRY
-    }
-
-
-def get_metadata_for_all_models() -> List[ModelMetadata]:
-    return [model.get_metadata() for model in MODEL_REGISTRY.values()]
-
-
 __all__ = [
-    "filter_models",
-    "get_metadata_for_all_models",
     "BaseModel",
     "BiocentralPredictionModel",
     "ModelMetadata",
+    "MODEL_REGISTRY",
 ]

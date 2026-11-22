@@ -1,149 +1,67 @@
-"""Factory for creating prediction models with optional Triton backend.
+"""Factory for creating prediction models with ONNX backend.
 
 The factory uses the MODEL_REGISTRY which maps model metadata names.
 """
+from typing import Any
 
-from typing import Optional
-
-from .models.base_model import BaseModel
-from .models import MODEL_REGISTRY, BiocentralPredictionModel
+from .models import BaseModel, MODEL_REGISTRY, BiocentralPredictionModel, ModelMetadata
 
 from ..utils import get_logger
-from ..server_management import TritonClientConfig, get_shared_repository
 
 logger = get_logger(__name__)
 
 
-def _is_triton_prediction_available(model_name: BiocentralPredictionModel) -> bool:
-    """Check if Triton prediction is available for model."""
-    try:
-        config = TritonClientConfig.from_env()
-        if not config.is_enabled():
-            return False
-
-        if not config.is_healthy():
-            logger.warning(
-                "Triton server is not healthy. Skipping Triton Prediction Model check."
-            )
-            return False
-
-        # Get model class from registry
-        model_class = MODEL_REGISTRY.get(model_name)
-        if not model_class:
-            return False
-
-        # Check if model has TRITON_MODEL_NAME attribute
-        if not hasattr(model_class, "TRITON_MODEL_NAME"):
-            return False
-
-        triton_model_name = model_class.TRITON_MODEL_NAME()
-
-        # Check if model is available in Triton
-        repository = get_shared_repository(config)
-        return repository.is_model_available(triton_model_name)
-    except Exception as e:
-        logger.warning(f"Failed to check Triton availability for {model_name}: {e}")
-        return False
-
-
 class PredictionModelFactory:
-    """Factory for creating prediction models with backend selection.
+    """Factory for creating prediction models with ONNX backend.
 
     Uses MODEL_REGISTRY to dynamically discover and instantiate models
-    based on their metadata names, supporting both ONNX and Triton backends.
+    based on their metadata names.
     """
 
-    @staticmethod
+    def __init__(self):
+        self._model_registry = MODEL_REGISTRY
+
     def create_model(
+        self,
         model_name: BiocentralPredictionModel,
         batch_size: int = 16,
-        use_triton: Optional[bool] = None,
     ) -> BaseModel:
-        """Create a prediction model with automatic backend selection.
+        """Create a prediction model with ONNX backend.
 
         Args:
             model_name: Model metadata name (e.g., "BindEmbed", "TMbed", "ProtT5SecondaryStructure")
             batch_size: Batch size for predictions
-            use_triton: Whether to use Triton backend. If None, uses USE_TRITON env var
 
         Returns:
-            Prediction model instance (either Triton-backed or local ONNX)
+            Prediction model instance with local ONNX backend
 
         Raises:
             ValueError: If model_name is unknown
         """
-        # Determine backend
-        if use_triton is None:
-            config = TritonClientConfig.from_env()
-            use_triton = config.is_enabled()
+        logger.info(f"Creating prediction model {model_name}..")
 
-        # Determine backend string
-        backend = (
-            "triton"
-            if (use_triton and _is_triton_prediction_available(model_name))
-            else "onnx"
-        )
-
-        logger.info(f"Creating {backend} model for {model_name}")
-
-        # Create model with backend parameter
-        return PredictionModelFactory._create_model_with_backend(
-            model_name, batch_size, backend
-        )
-
-    @staticmethod
-    def _create_model_with_backend(
-        model_name: BiocentralPredictionModel, batch_size: int, backend: str
-    ) -> BaseModel:
-        """Create a prediction model with specified backend.
-
-        Args:
-            model_name: Model metadata name (e.g., "BindEmbed", "TMbed")
-            batch_size: Batch size for predictions
-            backend: Backend to use ("onnx" or "triton")
-
-        Returns:
-            Prediction model instance
-
-        Raises:
-            ValueError: If model_name is unknown
-        """
         # Look up model class in registry
-        model_class = MODEL_REGISTRY.get(model_name)
+        model_class = self._model_registry.get(model_name)
         if not model_class:
             raise ValueError(
-                f"Unknown model: {model_name}. Available models: {list(MODEL_REGISTRY.keys())}"
+                f"Unknown model: {model_name}. Available models: {list(self._model_registry.keys())}"
             )
 
-        return model_class(batch_size=batch_size, backend=backend)
+        return model_class(batch_size=batch_size)
 
-    @staticmethod
-    def is_triton_available(model_name: BiocentralPredictionModel) -> bool:
-        """Check if Triton backend is available for a model.
+    def get_metadata_for_all_models(self) -> list[ModelMetadata]:
+        return [model.get_metadata() for model in self._model_registry.values()]
 
-        Args:
-            model_name: Model identifier
-
-        Returns:
-            True if Triton model is available and enabled
-        """
-        return _is_triton_prediction_available(model_name)
-
-    @staticmethod
-    def get_available_models() -> dict:
-        """Get list of available models and their backend support.
-
-        Returns:
-            Dictionary mapping model names to backend availability
-        """
-        config = TritonClientConfig.from_env()
-        triton_enabled = config.is_enabled()
+    def filter_models(
+            self,
+            model_names: list[BiocentralPredictionModel],
+    ) -> dict[BiocentralPredictionModel, Any]:
+        assert all(
+            [model_name in self._model_registry for model_name in model_names]
+        ), "Invalid model name, this should have been caught in the endpoint"
 
         return {
-            model_name: {
-                "local_onnx": True,
-                "triton": triton_enabled
-                and _is_triton_prediction_available(model_name),
-            }
-            for model_name in MODEL_REGISTRY.keys()
+            model_name: self._model_registry[model_name]
+            for model_name in model_names
+            if model_name in self._model_registry
         }

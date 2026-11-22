@@ -10,47 +10,19 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 
-class LightAttentionSubcellularLocalization(
-    BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin
-):
+class LightAttentionSubcellularLocalization(BaseModel):
     """LightAttention model for subcellular localization prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Sequence-level prediction that requires masking and transposed input.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "light_attention_subcell"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["input", "mask"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return ["output"]
-
-    # Custom transformer for Triton
-    def triton_input_transformer(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: transpose input."""
-        # LightAttentionSubcell requires transposed input (B, L, E) -> (B, E, L)
-        return self._transpose_batch(batch)
-
-    def __init__(self, batch_size, backend: str = "onnx"):
+    def __init__(self, batch_size):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=False,
             requires_mask=True,
             requires_transpose=True,
@@ -143,31 +115,18 @@ class LightAttentionSubcellularLocalization(
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         embedding_ids = list(embeddings.keys())
         results = []
         for batch in inputs:
-            if self.backend == "onnx":
-                # ONNX: Manually transpose batch
-                batch_transposed = self._transpose_batch(batch)
-                subcell_Yhat = self.model.run(None, batch_transposed)
-                subcell_Yhat = torch.from_numpy(np.float32(np.stack(subcell_Yhat[0])))
-                subcell_Yhat = self._finalize_raw_prediction(
-                    torch.max(subcell_Yhat, dim=1)[1], dtype=np.byte
-                )
-
-            elif self.backend == "triton":
-                # Triton: Transpose handled by mixin
-                raw_output = self._run_inference(batch)
-                # raw_output is (batch, num_classes=10)
-                subcell_Yhat = torch.from_numpy(raw_output)
-                subcell_Yhat = self._finalize_raw_prediction(
-                    torch.max(subcell_Yhat, dim=1)[1], dtype=np.byte
-                )
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+            # Transpose batch and run ONNX inference
+            batch_transposed = self._transpose_batch(batch)
+            raw_output = self._run_backend_inference_single(batch=batch_transposed)
+            subcell_Yhat = torch.from_numpy(np.float32(np.stack(raw_output[0])))
+            subcell_Yhat = self._finalize_raw_prediction(
+                torch.max(subcell_Yhat, dim=1)[1], dtype=np.byte
+            )
 
             results.extend(subcell_Yhat)
 

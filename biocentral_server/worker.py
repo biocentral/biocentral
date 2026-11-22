@@ -8,12 +8,6 @@ def run_worker(name: str = None, queues: list = None):
     redis_jobs_port = int(os.environ.get("REDIS_JOBS_PORT", 6379))
     redis_conn = Redis(host=redis_jobs_host, port=redis_jobs_port, db=0)
 
-    # Register Triton cleanup on worker shutdown
-    import atexit
-    from biocentral_server.server_management import cleanup_repositories
-
-    atexit.register(cleanup_repositories)
-
     # Provide the worker with the list of queues (str) to listen to.
     # The docker-compose uses 'high', 'default', 'low'
     if queues is None:

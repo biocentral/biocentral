@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from torch import nn
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 from biotrainer_core.data_classes import Protocol
 
 from ..base_model import (
@@ -11,59 +11,21 @@ from ..base_model import (
     ModelOutput,
     OutputClass,
     OutputType,
-    LocalOnnxInferenceMixin,
-    TritonInferenceMixin,
 )
 from ..biocentral_prediction_model import BiocentralPredictionModel
 
 from ....server_management import Prediction
 
 
-class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
+class BindEmbed(BaseModel):
     """BindEmbed model for binding site prediction.
 
-    Supports both ONNX (local) and Triton (remote) backends.
     Uses an ensemble of 5 models with sigmoid activation and averaging.
     """
 
-    # Triton configuration
-    @staticmethod
-    def TRITON_MODEL_NAME() -> str:
-        """Name of model in Triton repository."""
-        return "bind_embed"
-
-    @staticmethod
-    def TRITON_INPUT_NAMES() -> List[str]:
-        """Names of input tensors."""
-        return ["ensemble_input"]
-
-    @staticmethod
-    def TRITON_OUTPUT_NAMES() -> List[str]:
-        """Names of output tensors."""
-        return [f"output_{i}" for i in range(5)]
-
-    # Custom transformers for Triton
-    def triton_input_transformer(self, batch: Dict) -> Dict:
-        """Transform batch for Triton: transpose and rename 'input' to 'ensemble_input'."""
-        # BindEmbed requires transposed input (B, L, E) -> (B, E, L)
-        batch = self._transpose_batch(batch)
-
-        return batch
-
-    def triton_output_transformer(self, outputs: List[np.ndarray]) -> np.ndarray:
-        """Apply sigmoid and average the 5 ensemble outputs."""
-        # Apply sigmoid to each model output and average
-        sigmoid_outputs = []
-        for logits in outputs:  # Each is (batch, seq_len, 3)
-            sigmoid = 1.0 / (1.0 + np.exp(-logits.astype(np.float32)))
-            sigmoid_outputs.append(sigmoid)
-        # Average ensemble predictions
-        return np.mean(sigmoid_outputs, axis=0)  # Shape: (batch, seq_len, 3)
-
-    def __init__(self, batch_size: int, backend: str = "onnx"):
+    def __init__(self, batch_size: int):
         super().__init__(
             batch_size=batch_size,
-            backend=backend,
             uses_ensemble=True,
             requires_mask=False,
             requires_transpose=True,
@@ -151,8 +113,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
             embedder="Rostlab/prot_t5_xl_uniref50",
         )
 
-    def predict(self, sequences: Dict[str, str], embeddings):
-        self._ensure_backend_initialized()
+    def _predict_implementation(self, sequences: Dict[str, str], embeddings):
         inputs = self._prepare_inputs(embeddings=embeddings)
         input_name = self._infer_input_name()
         embedding_ids = list(embeddings.keys())
@@ -161,37 +122,25 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         for batch in inputs:
             B, L, _ = batch[input_name].shape
 
-            if self.backend == "onnx":
-                # ONNX: Run ensemble manually
-                batch_transposed = self._transpose_batch(batch)
-                ensemble_container = torch.zeros(
-                    (B, L, len(self.binding_classes.keys())),
-                    device="cpu",
-                    dtype=torch.float16,
+            # Run ensemble manually
+            batch_transposed = self._transpose_batch(batch)
+            ensemble_container = torch.zeros(
+                (B, L, len(self.binding_classes.keys())),
+                device="cpu",
+                dtype=torch.float16,
+            )
+            for model_output_numpy in self._run_backend_inference_ensemble(batch=batch_transposed):
+                model_output_torch = torch.from_numpy(
+                    np.float32(np.stack(model_output_numpy[0]))
                 )
-                for model in self.models:  # for each model in the ensemble
-                    model_output_numpy = model.run(None, batch_transposed)
-                    model_output_torch = torch.from_numpy(
-                        np.float32(np.stack(model_output_numpy[0]))
-                    )
-                    pred = self.sigmoid(model_output_torch)
-                    pred = torch.from_numpy(np.float32(np.stack(pred)))
-                    ensemble_container = ensemble_container + pred
-                # normalize
-                bind_Yhat = ensemble_container / len(self.models)
-                bind_Yhat = self._finalize_raw_prediction(
-                    bind_Yhat > 0.5, dtype=np.byte
-                )
-
-            elif self.backend == "triton":
-                # Triton: Ensemble handled by transformers, returns (batch, seq_len, 3)
-                bind_Yhat_np = self._run_inference(batch)
-                # Apply threshold and convert to binary
-                bind_Yhat = self._finalize_raw_prediction(
-                    torch.from_numpy(bind_Yhat_np > 0.5), dtype=np.byte
-                )
-            else:
-                raise ValueError(f"Unknown backend: {self.backend}")
+                pred = self.sigmoid(model_output_torch)
+                pred = torch.from_numpy(np.float32(np.stack(pred)))
+                ensemble_container = ensemble_container + pred
+            # normalize
+            bind_Yhat = ensemble_container / len(self.models)
+            bind_Yhat = self._finalize_raw_prediction(
+                bind_Yhat > 0.5, dtype=np.byte
+            )
 
             results.extend(bind_Yhat)
 
@@ -204,7 +153,7 @@ class BindEmbed(BaseModel, LocalOnnxInferenceMixin, TritonInferenceMixin):
         self,
         model_output: Dict[str, Any],
         embedding_ids: List[str],
-        label_maps: Dict[str, Dict[int, str]] = None,
+        label_maps: Optional[Dict[str, Dict[int, str]]] = None,
         delimiter: str = "",
     ) -> Dict[str, List[Prediction]]:
         formatted_predictions = {}
