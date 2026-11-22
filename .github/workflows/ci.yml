@@ -54,6 +54,24 @@ jobs:
               - 'biocentral_ire/**'
               - 'biocentral_api/dart/**'
               - '.github/**'
+      - name: "Force all outputs on main branch"
+        if: github.ref == 'refs/heads/main'
+        id: set
+        run: |
+          echo "server=true" >> "$GITHUB_OUTPUT"
+          echo "api=true" >> "$GITHUB_OUTPUT"
+          echo "vis=true" >> "$GITHUB_OUTPUT"
+          echo "python=true" >> "$GITHUB_OUTPUT"
+          echo "ire=true" >> "$GITHUB_OUTPUT"
+      - name: "Pass through filter outputs"
+        if: github.ref != 'refs/heads/main'
+        id: set
+        run: |
+          echo "server=${{ steps.filter.outputs.server }}" >> "$GITHUB_OUTPUT"
+          echo "api=${{ steps.filter.outputs.api }}" >> "$GITHUB_OUTPUT"
+          echo "vis=${{ steps.filter.outputs.vis }}" >> "$GITHUB_OUTPUT"
+          echo "python=${{ steps.filter.outputs.python }}" >> "$GITHUB_OUTPUT"
+          echo "ire=${{ steps.filter.outputs.ire }}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════
   #  Stage 1 – Unit Tests
