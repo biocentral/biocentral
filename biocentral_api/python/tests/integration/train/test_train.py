@@ -1,6 +1,6 @@
 import unittest
 
-from utils import create_random_sequence
+from ...utils import create_random_sequence
 from biocentral_api import CommonEmbedder, SequenceData, Protocol
 
 

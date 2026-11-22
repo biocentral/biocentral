@@ -7,7 +7,7 @@ import pytest
 
 from biocentral_api import BiocentralPredictionModel
 
-from utils import create_random_sequence
+from ...utils import create_random_sequence
 
 
 class TestPredict(unittest.TestCase):

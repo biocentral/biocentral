@@ -1,6 +1,6 @@
 import unittest
 
-from utils import create_random_sequence
+from ...utils import create_random_sequence
 
 
 class TestProteins(unittest.TestCase):
