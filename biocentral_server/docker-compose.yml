@@ -37,7 +37,7 @@ services:
       biocentral-worker: { condition: service_started }
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
-      biocentral-server-setup: { condition: service_completed_successfully }
+      biocentral-server-init: { condition: service_completed_successfully }
     restart: always
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9540/health" ]
@@ -59,7 +59,7 @@ services:
     depends_on:
       redis-jobs: { condition: service_healthy }
       embeddings-db: { condition: service_healthy }
-      biocentral-server-setup: { condition: service_completed_successfully }
+      biocentral-server-init: { condition: service_completed_successfully }
 
   redis-jobs:
     image: redis:alpine
@@ -96,7 +96,7 @@ services:
     networks:
       - biocentral-network
 
-  biocentral-server-setup:
+  biocentral-server-init:
     security_opt:
       - no-new-privileges:true
     build:
