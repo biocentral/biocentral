@@ -26,7 +26,7 @@ class DatabaseRejectingSaves:
 
 def test_failed_save_fails_the_task_with_the_database_error(monkeypatch):
     monkeypatch.setattr(
-        embed, "get_biotrainer_embedding_service", lambda **_: FakeEmbeddingService()
+        embed, "get_embedding_service", lambda **_: FakeEmbeddingService()
     )
     monkeypatch.setattr(
         embed.DeviceService, "embedding_device", staticmethod(lambda **_: "cpu")
