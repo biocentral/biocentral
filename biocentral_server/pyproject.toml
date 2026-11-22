@@ -11,6 +11,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     # Backend
+    "huggingface-hub>=2.4.0,<3.0.0",
     "taxoniq>=1.0.4,<2.0.0",
     "blosc2>=4.2.0,<5.0.0",
     "psycopg[binary]>=3.3.4,<4.0.0",

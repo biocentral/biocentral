@@ -42,6 +42,22 @@ def _setup_directories():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
+def _log_cached_hf_models():
+    from huggingface_hub import scan_cache_dir
+    from huggingface_hub.constants import HF_HUB_CACHE
+    from pathlib import Path
+
+    hf_cache_dir = Path(HF_HUB_CACHE).expanduser().resolve()
+
+    cache_info = scan_cache_dir()
+
+    cached_models = []
+    for repo in cache_info.repos:
+        if repo.repo_type == "model":
+            cached_models.append(repo.repo_id)
+
+    logger.info(f"HF cache directory: {hf_cache_dir}")
+    logger.info(f"Locally cached HF models: {cached_models}")
 
 def cleanup_database_task():
     """Scheduled task to cleanup old embeddings"""
@@ -91,6 +107,9 @@ async def lifespan(app: FastAPI):
 
     # Directories
     _setup_directories()
+
+    # Log cached hf models
+    _log_cached_hf_models()
 
     # Initialize modules
     # initialization_manager = ServerInitializationManager()
